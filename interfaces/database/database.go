@@ -2,15 +2,16 @@ package database
 
 import ("errors")
 
-// Interfaces
+// Interfaces declaration
+//-----------------------
 
 type I_DBEngine interface {
 	I_DBStorage
 }
 
 type I_DBStorage interface {
-	GetCollection(Name string) (I_Collection, error)
-	GetCollectionFor(Object I_DBObject) (I_Collection, error)
+	GetCollection(Name string) (I_DBCollection, error)
+	GetCollectionFor(Object I_DBObject) (I_DBCollection, error)
 
 }
 
@@ -20,12 +21,7 @@ type I_DBObject interface {
 	Delete() error
 }
 
-type I_MappableObject interface {
-	ImportAttrubutes(map[string]interface{}) error
-	ExportAttributes(map[string]interface{}) error
-}
-
-type I_Collection interface {
+type I_DBCollection interface {
 	Save( HashMap map[string]interface{} ) error
 	SaveObject( Object I_MappableObject ) error
 
@@ -36,14 +32,17 @@ type I_Collection interface {
 	ListAttrubutes() []string
 }
 
+type I_MappableObject interface {
+	ImportAttrubutes(map[string]interface{}) error
+	ExportAttributes(map[string]interface{}) error
+}
 
-// Variables
+
+// Delegate routines
+//------------------
 
 var dbEngines = map[string]I_DBEngine{}
 var currentDbEngine string
-
-
-// Routines
 
 func GetDBEngine() I_DBEngine {
 	return dbEngines[currentDbEngine]

@@ -2,6 +2,7 @@ package module_manager
 
 import (
 	"errors"
+	"strconv"
 )
 
 type I_Module interface {
@@ -89,7 +90,7 @@ func InitModules() error {
 			}
 
 			if moduleError != nil {
-				return moduleError
+				return errors.New("Module '" + moduleName + "' init phase " + strconv.Itoa(i) + " error: " + moduleError.Error())
 			}
 		}
 	}

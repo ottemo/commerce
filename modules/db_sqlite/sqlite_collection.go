@@ -2,9 +2,16 @@ package db_sqlite
 
 import ("github.com/ottemo/platform/interfaces/database")
 
+
+// Structures declaration
+//-----------------------
+
 type SQLiteCollection struct {
 
 }
+
+// I_DBCollection interface implementation
+//----------------------------------
 
 func (it *SQLiteCollection) Save( HashMap map[string]interface{} ) error { return nil }
 

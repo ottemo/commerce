@@ -2,11 +2,11 @@ package config
 
 import ("errors")
 
-// variables and declarations
-//----------------------------------
+// Interfaces declaration
+//-----------------------
 
 type I_Config interface {
-	  RegisterItem(Name string, TypeName string, Validator func(interface{}) bool, Default interface{} ) error
+	  RegisterItem(Name string, Validator func(interface{}) (interface{}, bool), Default interface{} ) error
 	UnregisterItem(Name string) error
 
 	GetValue(Name string) interface{}
@@ -17,6 +17,10 @@ type I_Config interface {
 	Load() error
 	Save() error
 }
+
+
+// Delegate routines
+//------------------
 
 var registeredConfig I_Config
 
@@ -31,6 +35,6 @@ func RegisterConfig(Config I_Config) error {
 	return nil
 }
 
-func ConfigEmptyValueValidator(interface{}) bool { return true }
+func ConfigEmptyValueValidator(val interface{}) (interface{}, bool) { return val, true }
 
 

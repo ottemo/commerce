@@ -14,6 +14,9 @@ func init() {
 	module_manager.RegisterModule( new(SQLiteEngine) )
 }
 
+// Structures declaration
+//-----------------------
+
 const(
 	configURI = "sqlite.uri"
 )
@@ -22,16 +25,27 @@ type SQLiteEngine struct {
 	connection *sqlite3.Conn
 }
 
+
+
 // I_Module interface implementation
 //----------------------------------
+
 func (it *SQLiteEngine) GetModuleName() string { return "Sqlite3" }
 func (it *SQLiteEngine) GetModuleDepends() []string { return make([]string, 0) }
 
 func (it *SQLiteEngine) ModuleMakeSysInit() error { return nil }
 
 func (it *SQLiteEngine) ModuleMakeConfig() error {
-	cfg := config.GetConfig()
-	return cfg.RegisterItem(configURI, "string", config.ConfigEmptyValueValidator, "ottemo.db" )
+	if cfg := config.GetConfig(); cfg != nil {
+
+		validator := func(val interface{}) (interface{}, bool) { newVal,ok := val.(string); return newVal,ok }
+		if err := cfg.RegisterItem(configURI, validator, "ottemo.db"); err != nil { return err }
+
+	} else {
+		return errors.New("Can't get config instance")
+	}
+
+	return nil
 }
 
 func (it *SQLiteEngine) ModuleMakeInit() error {
@@ -57,13 +71,14 @@ func (it *SQLiteEngine) ModuleMakePostInstall() error { return nil }
 
 
 
+
 // I_DBStorage interface implementation
 //----------------------------------
 
-func (it *SQLiteEngine) GetCollection(Name string) (database.I_Collection, error) {
+func (it *SQLiteEngine) GetCollection(Name string) (database.I_DBCollection, error) {
 	return new(SQLiteCollection), nil
 }
 
-func (it *SQLiteEngine) GetCollectionFor(Object database.I_DBObject) (database.I_Collection, error) {
+func (it *SQLiteEngine) GetCollectionFor(Object database.I_DBObject) (database.I_DBCollection, error) {
 	return new(SQLiteCollection), nil
 }

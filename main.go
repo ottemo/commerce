@@ -1,13 +1,17 @@
 package main
 
 import (
+	// strict packages (hard dependency)
 	"github.com/ottemo/platform/interfaces/config"
+	"github.com/ottemo/platform/interfaces/web_server"
 
 	"github.com/ottemo/platform/tools/callback_chain"
 	"github.com/ottemo/platform/tools/module_manager"
-	"github.com/ottemo/platform/tools/web_server"
 
+
+	// optional packages (soft dependency)
 	_ "github.com/ottemo/platform/modules/db_sqlite"
+	_ "github.com/ottemo/platform/modules/web_server"
 	_ "github.com/ottemo/platform/modules/config"
 )
 
@@ -28,7 +32,14 @@ func main() {
 		panic("Can't init modules: " + err.Error() )
 	}
 
-	web_server.Run()
+	if webServer := web_server.GetWebServer(); webServer != nil {
+		if err := webServer.Run(); err != nil {
+			panic("Web Server Run() issues: " + err.Error())
+		}
+	} else {
+		panic("No web server found")
+	}
+
 	config.GetConfig().Save()
 
 	callback_chain.ExecuteCallbackChain("shutdown")
