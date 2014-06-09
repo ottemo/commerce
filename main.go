@@ -1,46 +1,61 @@
 package main
 
 import (
-	// strict packages (hard dependency)
-	"github.com/ottemo/platform/interfaces/config"
-	"github.com/ottemo/platform/interfaces/web_server"
+	"fmt"
 
-	"github.com/ottemo/platform/tools/callback_chain"
-	"github.com/ottemo/platform/tools/module_manager"
+	app "github.com/ottemo/foundation/app"
 
+	"github.com/ottemo/foundation/models"
 
-	// optional packages (soft dependency)
-	_ "github.com/ottemo/platform/modules/db_sqlite"
-	_ "github.com/ottemo/platform/modules/web_server"
-	_ "github.com/ottemo/platform/modules/config"
+	_ "github.com/ottemo/foundation/config/default_config"
+	_ "github.com/ottemo/foundation/config/default_ini_config"
+	//_ "github.com/ottemo/foundation/database/sqlite"
+	_ "github.com/ottemo/foundation/database/mongodb"
+
+	_ "github.com/ottemo/foundation/rest_service/negroni"
+	_ "github.com/ottemo/foundation/rest_service"
+
+	_ "github.com/ottemo/foundation/models/product/default_product"
+	_ "github.com/ottemo/foundation/models/custom_attributes"
 )
 
-func init() {
-	callback_chain.RegisterCallbackChain("startup",
-		callback_chain.DefaultVoidFuncWithNoParamsValidator,
-		callback_chain.DefaultChainVoidFuncWithNoParamsExecutor)
+func main() {
+	if err := app.Start(); err != nil {
+		fmt.Println(err.Error())
+	}
 
-	callback_chain.RegisterCallbackChain("shutdown",
-		callback_chain.DefaultVoidFuncWithNoParamsValidator,
-		callback_chain.DefaultChainVoidFuncWithNoParamsExecutor)
+	app.Serve()
+
+	// CreateNewProductAttribute("x")
+	// CreateNewProductAttribute("y")
 }
 
-func main() {
-	callback_chain.ExecuteCallbackChain("startup")
 
-	if err := module_manager.InitModules(); err != nil {
-		panic("Can't init modules: " + err.Error() )
+
+
+func CreateNewProductAttribute(attrName string) {
+	model, err := models.GetModel("Product")
+	if err != nil {
+		fmt.Println("Product model not found: " + err.Error())
 	}
 
-	if webServer := web_server.GetWebServer(); webServer != nil {
-		if err := webServer.Run(); err != nil {
-			panic("Web Server Run() issues: " + err.Error())
+	attribute := models.T_AttributeInfo {
+		Model:      "product",
+		Collection: "product",
+		Attribute:  attrName,
+		Type:       "text",
+		Label:      "Test Attribute",
+		Group:      "General",
+		Editors:    "text",
+		Options:    "",
+		Default:    "",
+	}
+
+	if prod, ok := model.(models.I_CustomAttributes); ok {
+		if err := prod.AddNewAttribute(attribute); err != nil {
+			fmt.Println("Product new attribute error: " + err.Error())
 		}
 	} else {
-		panic("No web server found")
+		fmt.Println("product model is not I_CustomAttributes")
 	}
-
-	config.GetConfig().Save()
-
-	callback_chain.ExecuteCallbackChain("shutdown")
 }
