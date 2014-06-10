@@ -5,7 +5,7 @@ import (
 	"github.com/ottemo/foundation/models"
 )
 
-func (it *DefaultVisitorAddress) GetId() bool {
+func (it *DefaultVisitorAddress) GetId() string {
 	return it.id
 }
 

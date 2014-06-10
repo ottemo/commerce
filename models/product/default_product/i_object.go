@@ -5,7 +5,7 @@ import (
 	"github.com/ottemo/foundation/models"
 )
 
-func (it *DefaultProductModel) GetId() bool {
+func (it *DefaultProductModel) GetId() string {
 	return it.id
 }
 

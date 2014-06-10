@@ -8,7 +8,7 @@ import (
 	"errors"
 )
 
-func (it *DefaultVisitor) GetId() bool {
+func (it *DefaultVisitor) GetId() string {
 	return it.id
 }
 
@@ -38,7 +38,7 @@ func (it *DefaultVisitor) Get(attribute string) interface{} {
 }
 
 func (it *DefaultVisitor) Set(attribute string, value interface{}) error {
-	attribute := strings.ToLower(attribute)
+	attribute = strings.ToLower(attribute)
 
 	switch  attribute {
 	case "_id", "id":

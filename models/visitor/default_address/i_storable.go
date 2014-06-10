@@ -1,6 +1,8 @@
 package default_address
 
-import ( "github.com/ottemo/foundation/database" )
+import (
+	"github.com/ottemo/foundation/database"
+)
 
 func (it *DefaultVisitorAddress) Load(Id string) error {
 	if dbEngine := database.GetDBEngine(); dbEngine != nil {
@@ -25,6 +27,10 @@ func (it *DefaultVisitorAddress) Save() error {
 
 	if dbEngine := database.GetDBEngine(); dbEngine != nil {
 		if collection, err := dbEngine.GetCollection( VISITOR_ADDRESS_COLLECTION_NAME ); err == nil {
+
+			//if it.ZipCode== "" {
+			//	return errors.New("Zip code for address - required")
+			//}
 
 			if newId, err := collection.Save( it.ToHashMap() ); err == nil {
 				it.Set("_id", newId)

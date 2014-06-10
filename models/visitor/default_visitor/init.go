@@ -39,13 +39,13 @@ func (it *DefaultVisitor) SetupModel() error {
 
 
 func (it *DefaultVisitor) SetupAPI() error {
-	err := rest_service.GetRestService().RegisterJsonAPI("visitor", "createVisitor", it.CreateVisitorAPI )
+	err := rest_service.GetRestService().RegisterJsonAPI("visitor", "create", it.CreateVisitorAPI )
 	if err != nil { return err }
 
-	err = rest_service.GetRestService().RegisterJsonAPI("visitor", "updateVisitor", it.UpdateVisitorAPI )
+	err = rest_service.GetRestService().RegisterJsonAPI("visitor", "update", it.UpdateVisitorAPI )
 	if err != nil { return err }
 
-	err = rest_service.GetRestService().RegisterJsonAPI("visitor", "loadVisitor", it.LoadVisitorAPI )
+	err = rest_service.GetRestService().RegisterJsonAPI("visitor", "load", it.LoadVisitorAPI )
 	if err != nil { return err }
 
 	return nil
