@@ -25,6 +25,9 @@ type I_Visitor interface {
 	GetShippingAddress() I_VisitorAddress
 	GetBillingAddress() I_VisitorAddress
 
+	SetShippingAddress(address I_VisitorAddres) error
+	SetBillingAddress(address I_VisitorAddresss) error
+
 	models.I_Model
 	models.I_Object
 	models.I_Storable

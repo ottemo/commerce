@@ -18,8 +18,11 @@ func (it *DefaultVisitor) ToHashMap() map[string]interface{} {
 	result["_id"] = it.id
 	result["email"] = it.Email
 	result["first_name"] = it.Fname
-	result["billing_address_id"] = it.BillingAddressId
-	result["shipping_address_id"] = it.ShippingAddressId
+
+	//result["billing_address_id"] = it.BillingAddressId
+	result["billing_address"] = it.GetBillingAddress().ToHashMap()
+	//result["shipping_address_id"] = it.ShippingAddressId
+	result["shipping_address"] = it.GetShippingAddress().ToHashMap()
 
 	return result
 }

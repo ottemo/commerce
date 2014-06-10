@@ -5,6 +5,10 @@ import (
 	"github.com/ottemo/foundation/models"
 )
 
+func (it *DefaultProductModel) GetId() bool {
+	return it.id
+}
+
 func (it *DefaultProductModel) Has(attribute string) bool {
 	return it.Get(attribute) == nil
 }

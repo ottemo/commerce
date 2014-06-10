@@ -5,6 +5,10 @@ import (
 	"github.com/ottemo/foundation/models"
 )
 
+func (it *CustomAttributes) GetId() bool {
+	return it.id
+}
+
 func (it *CustomAttributes) Has(attribute string) bool {
 	_, present := it.attributes[attribute]
 	return present

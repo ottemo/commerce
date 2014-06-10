@@ -33,3 +33,14 @@ func (it *DefaultVisitor) GetShippingAddress() visitor.I_VisitorAddress {
 func (it *DefaultVisitor) GetBillingAddress() visitor.I_VisitorAddress {
 	return getVisitorAddressById(it.BillingAddressId)
 }
+
+
+func (it *DefaultVisitor) SetShippingAddress(address visitor.I_VisitorAddress) error {
+	it.ShippingAddressId = address.GetId()
+	return nil
+}
+
+func (it *DefaultVisitor) SetBillingAddress(address visitor.I_VisitorAddress) error {
+	it.BillingAddressId = address.GetId()
+	return nil
+}

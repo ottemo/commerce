@@ -5,6 +5,10 @@ import (
 	"github.com/ottemo/foundation/models"
 )
 
+func (it *DefaultVisitorAddress) GetId() bool {
+	return it.id
+}
+
 func (it *DefaultVisitorAddress) Has(attribute string) bool {
 	return it.Get(attribute) == nil
 }

@@ -12,6 +12,8 @@ type I_Storable interface {
 }
 
 type I_Object interface {
+	GetId() string
+
 	Has(Attribute string) bool
 	Get(Attribute string) interface{}
 	Set(Attribute string, Value interface{}) error
