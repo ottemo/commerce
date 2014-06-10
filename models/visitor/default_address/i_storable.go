@@ -1,17 +1,19 @@
-package default_product
+package default_address
 
 import ( "github.com/ottemo/foundation/database" )
 
-func (it *DefaultProductModel) Load(loadId string) error {
+func (it *DefaultVisitorAddress) Load(Id string) error {
 	if dbEngine := database.GetDBEngine(); dbEngine != nil {
-		if collection, err := dbEngine.GetCollection("Product"); err == nil {
-			if values, err := collection.LoadById( loadId ); err == nil {
+		if collection, err := dbEngine.GetCollection( VISITOR_ADDRESS_COLLECTION_NAME ); err == nil {
+
+			if values, err := collection.LoadById( Id ); err == nil {
 				if err := it.FromHashMap(values); err != nil {
 					return err
 				}
 			} else {
 				return err
 			}
+
 		} else {
 			return err
 		}
@@ -19,16 +21,18 @@ func (it *DefaultProductModel) Load(loadId string) error {
 	return nil
 }
 
-func (it *DefaultProductModel) Save() error {
+func (it *DefaultVisitorAddress) Save() error {
 
 	if dbEngine := database.GetDBEngine(); dbEngine != nil {
-		if collection, err := dbEngine.GetCollection("Product"); err == nil {
+		if collection, err := dbEngine.GetCollection( VISITOR_ADDRESS_COLLECTION_NAME ); err == nil {
+
 			if newId, err := collection.Save( it.ToHashMap() ); err == nil {
 				it.Set("_id", newId)
 				return err
 			} else {
 				return err
 			}
+
 		} else {
 			return err
 		}

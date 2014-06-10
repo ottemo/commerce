@@ -8,7 +8,7 @@ type I_Model interface {
 
 type I_Storable interface {
 	Save() error
-	Load() error
+	Load(id string) error
 }
 
 type I_Object interface {
