@@ -4,6 +4,8 @@ import (
 	"errors"
 	"github.com/ottemo/foundation/models"
 	"github.com/ottemo/foundation/database"
+
+	"github.com/ottemo/foundation/rest_service"
 )
 
 func init(){
@@ -11,6 +13,8 @@ func init(){
 
 	models.RegisterModel("Visitor", instance )
 	database.RegisterOnDatabaseStart( instance.SetupModel )
+
+	rest_service.RegisterOnRestServiceStart( instance.SetupAPI )
 }
 
 
@@ -29,6 +33,20 @@ func (it *DefaultVisitor) SetupModel() error {
 	} else {
 		return errors.New("Can't get database engine")
 	}
+
+	return nil
+}
+
+
+func (it *DefaultVisitor) SetupAPI() error {
+	err := rest_service.GetRestService().RegisterJsonAPI("visitor", "createVisitor", it.CreateVisitorAPI )
+	if err != nil { return err }
+
+	err = rest_service.GetRestService().RegisterJsonAPI("visitor", "updateVisitor", it.UpdateVisitorAPI )
+	if err != nil { return err }
+
+	err = rest_service.GetRestService().RegisterJsonAPI("visitor", "loadVisitor", it.LoadVisitorAPI )
+	if err != nil { return err }
 
 	return nil
 }

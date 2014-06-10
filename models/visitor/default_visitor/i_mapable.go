@@ -18,8 +18,8 @@ func (it *DefaultVisitor) ToHashMap() map[string]interface{} {
 	result["_id"] = it.id
 	result["email"] = it.Email
 	result["first_name"] = it.Fname
-	result["billing_address"] = it.BillingAddressId
-	result["shipping_address"] = it.ShippingAddressId
+	result["billing_address_id"] = it.BillingAddressId
+	result["shipping_address_id"] = it.ShippingAddressId
 
 	return result
 }
