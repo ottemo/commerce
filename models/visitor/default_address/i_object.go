@@ -5,14 +5,6 @@ import (
 	"github.com/ottemo/foundation/models"
 )
 
-func (it *DefaultVisitorAddress) GetId() string {
-	return it.id
-}
-
-func (it *DefaultVisitorAddress) Has(attribute string) bool {
-	return it.Get(attribute) == nil
-}
-
 func (it *DefaultVisitorAddress) Get(attribute string) interface{} {
 	switch strings.ToLower(attribute) {
 	case "_id", "id":
@@ -50,6 +42,64 @@ func (it *DefaultVisitorAddress) Set(attribute string, value interface{}) error 
 	return nil
 }
 
-func (it *DefaultVisitorAddress) ListAttributes() []models.T_AttributeInfo {
-	return make([]models.T_AttributeInfo, 0)
+func (it *DefaultVisitorAddress) GetAttributesInfo() []models.T_AttributeInfo {
+	info := []models.T_AttributeInfo {
+		models.T_AttributeInfo {
+			Model: "VisitorAddress",
+			Collection: "visitor_address",
+			Attribute: "_id",
+			Type: "text",
+			Label: "ID",
+			Group: "General",
+			Editors: "not_editable",
+			Options: "",
+			Default: "",
+		},
+		models.T_AttributeInfo {
+			Model: "VisitorAddress",
+			Collection: "visitor_address",
+			Attribute: "street",
+			Type: "text",
+			Label: "Street",
+			Group: "General",
+			Editors: "line_text",
+			Options: "",
+			Default: "",
+		},
+		models.T_AttributeInfo {
+			Model: "VisitorAddress",
+			Collection: "visitor_address",
+			Attribute: "city",
+			Type: "text",
+			Label: "City",
+			Group: "General",
+			Editors: "line_text",
+			Options: "",
+			Default: "",
+		},
+		models.T_AttributeInfo {
+			Model: "VisitorAddress",
+			Collection: "visitor_address",
+			Attribute: "phone",
+			Type: "text",
+			Label: "Phone",
+			Group: "General",
+			Editors: "line_text",
+			Options: "",
+			Default: "",
+		},
+		models.T_AttributeInfo {
+			Model: "VisitorAddress",
+			Collection: "visitor_address",
+			Attribute: "zip_code",
+			Type: "text",
+			Label: "Zip",
+			Group: "General",
+			Editors: "line_text",
+			Options: "",
+			Default: "",
+		},
+	}
+
+	return info
 }

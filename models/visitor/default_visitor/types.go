@@ -1,5 +1,9 @@
 package default_visitor
 
+import(
+	"github.com/ottemo/foundation/models/visitor"
+)
+
 const (
 	VISITOR_COLLECTION_NAME = "visitor"
 )
@@ -8,10 +12,10 @@ const (
 type DefaultVisitor struct {
 	id string
 
-	Email   string
-	Fname   string
-	Lname   string
+	Email     string
+	FirstName string
+	LastName  string
 
-	BillingAddressId  string
-	ShippingAddressId string
+	BillingAddress  visitor.I_VisitorAddress
+	ShippingAddress visitor.I_VisitorAddress
 }

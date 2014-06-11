@@ -16,13 +16,24 @@ func (it *DefaultVisitor) ToHashMap() map[string]interface{} {
 	result := make( map[string]interface{} )
 
 	result["_id"] = it.id
+
 	result["email"] = it.Email
-	result["first_name"] = it.Fname
+	result["first_name"] = it.FirstName
+	result["last_name"] = it.LastName
+
+	result["billing_address"] = nil
+	result["shipping_address"] = nil
 
 	//result["billing_address_id"] = it.BillingAddressId
-	result["billing_address"] = it.GetBillingAddress().ToHashMap()
 	//result["shipping_address_id"] = it.ShippingAddressId
-	result["shipping_address"] = it.GetShippingAddress().ToHashMap()
+
+	if it.BillingAddress != nil {
+		result["billing_address"] = it.BillingAddress.ToHashMap()
+	}
+
+	if it.ShippingAddress != nil {
+		result["shipping_address"] = it.ShippingAddress.ToHashMap()
+	}
 
 	return result
 }

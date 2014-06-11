@@ -8,30 +8,22 @@ import (
 	"errors"
 )
 
-func (it *DefaultVisitor) GetId() string {
-	return it.id
-}
-
-func (it *DefaultVisitor) Has(attribute string) bool {
-	return it.Get(attribute) == nil
-}
-
 func (it *DefaultVisitor) Get(attribute string) interface{} {
 	switch strings.ToLower(attribute) {
 	case "_id", "id":
 		return it.id
 	case "fname", "first_name":
-		return it.Fname
+		return it.FirstName
 	case "lname", "last_name":
-		return it.Lname
+		return it.LastName
 	case "billing_address_id":
-		return it.BillingAddressId
+		return it.BillingAddress.GetId()
 	case "shipping_address_id":
-		return it.ShippingAddressId
+		return it.ShippingAddress.GetId()
 	case "billing_address":
-		return it.GetBillingAddress()
+		return it.BillingAddress
 	case "shipping_address":
-		return it.GetShippingAddress()
+		return it.ShippingAddress
 	}
 
 	return nil
@@ -46,24 +38,38 @@ func (it *DefaultVisitor) Set(attribute string, value interface{}) error {
 	case "email", "e_mail", "e-mail":
 		it.Email = value.(string)
 	case "fname", "first_name":
-		it.Fname = value.(string)
+		it.FirstName = value.(string)
 	case "lname", "last_name":
-		it.Lname = value.(string)
+		it.LastName = value.(string)
 
-	//case "billing_address_id":
-	//	it.BillingAddressId = value.(string)
-	//case "shipping_address_id":
-	//	it.ShippingAddressId = value.(string)
+	// only address id coming - trying to get it from DB
+	case "billing_address_id", "shipping_address_id":
+		address := it.getVisitorAddressById( value.(string) )
+		if address != nil && address.GetId() != "" {
 
-	case "billing_address", "shipping_address":
-		switch value := value.(type) {
-		case visitor.I_VisitorAddress:
-			if attribute == "billing_address" {
-				it.SetBillingAddress(value)
+			if attribute == "billing_address_id" {
+				it.BillingAddress = address
 			} else {
-				it.SetShippingAddress(value)
+				it.ShippingAddress = address
 			}
 
+		} else {
+			return errors.New("wrong address id")
+		}
+
+	// address with details coming
+	case "billing_address", "shipping_address":
+		switch value := value.(type) {
+
+		// we have already have structure
+		case visitor.I_VisitorAddress:
+			if attribute == "billing_address" {
+				it.BillingAddress = value
+			} else {
+				it.ShippingAddress = value
+			}
+
+		// we have sub-map, supposedly I_VisitorAddress capable
 		case map[string]interface{}:
 			model, err := models.GetModel("VisitorAddress")
 			if err != nil { return err }
@@ -73,9 +79,9 @@ func (it *DefaultVisitor) Set(attribute string, value interface{}) error {
 				if err != nil { return err }
 
 				if attribute == "billing_address" {
-					it.SetBillingAddress(address)
+					it.BillingAddress = address
 				} else {
-					it.SetShippingAddress(address)
+					it.ShippingAddress = address
 				}
 			} else {
 				errors.New("unsupported visitor addres model " + model.GetImplementationName())
@@ -88,6 +94,65 @@ func (it *DefaultVisitor) Set(attribute string, value interface{}) error {
 	return nil
 }
 
-func (it *DefaultVisitor) ListAttributes() []models.T_AttributeInfo {
-	return make([]models.T_AttributeInfo, 0)
+func (it *DefaultVisitor) GetAttributesInfo() []models.T_AttributeInfo {
+
+	info := []models.T_AttributeInfo {
+		models.T_AttributeInfo {
+			Model: "Visitor",
+			Collection: "Visitor",
+			Attribute: "_id",
+			Type: "text",
+			Label: "ID",
+			Group: "General",
+			Editors: "not_editable",
+			Options: "",
+			Default: "",
+		},
+		models.T_AttributeInfo {
+			Model: "Visitor",
+			Collection: "Visitor",
+			Attribute: "email",
+			Type: "text",
+			Label: "E-mail",
+			Group: "General",
+			Editors: "line_text",
+			Options: "",
+			Default: "",
+		},
+		models.T_AttributeInfo {
+			Model: "Visitor",
+			Collection: "Visitor",
+			Attribute: "first_name",
+			Type: "text",
+			Label: "First Name",
+			Group: "General",
+			Editors: "line_text",
+			Options: "",
+			Default: "",
+		},
+		models.T_AttributeInfo {
+			Model: "Visitor",
+			Collection: "Visitor",
+			Attribute: "billing_address",
+			Type: "text",
+			Label: "Billing Address",
+			Group: "General",
+			Editors: "model_selector",
+			Options: "model:VisitorAddress",
+			Default: "",
+		},
+		models.T_AttributeInfo {
+			Model: "Visitor",
+			Collection: "Visitor",
+			Attribute: "shipping_address",
+			Type: "text",
+			Label: "Shipping Address",
+			Group: "General",
+			Editors: "model_selector",
+			Options: "model:VisitorAddress",
+			Default: "",
+		},
+	}
+
+	return info
 }
