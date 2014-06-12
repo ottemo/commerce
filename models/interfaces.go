@@ -1,12 +1,12 @@
 package models
 
-type I_Model interface {
+type IModel interface {
 	GetModelName() string
 	GetImplementationName() string
-	New() (I_Model, error)
+	New() (IModel, error)
 }
 
-type I_Storable interface {
+type IStorable interface {
 	GetId() string
 	SetId(string) error
 
@@ -15,19 +15,19 @@ type I_Storable interface {
 	Delete(Id string) error
 }
 
-type I_Object interface {
+type IObject interface {
 	Get(Attribute string) interface{}
 	Set(Attribute string, Value interface{}) error
 
 	GetAttributesInfo() []T_AttributeInfo
 }
 
-type I_Mapable interface {
+type IMapable interface {
 	FromHashMap(HashMap map[string]interface{}) error
 	ToHashMap() map[string]interface{}
 }
 
-type I_CustomAttributes interface {
+type ICustomAttributes interface {
 	AddNewAttribute( newAttribute T_AttributeInfo ) error
 	RemoveAttribute( attributeName string ) error
 }

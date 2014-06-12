@@ -2,34 +2,34 @@ package visitor
 
 import("github.com/ottemo/foundation/models")
 
-type I_VisitorAddress interface {
+type IVisitorAddress interface {
 	GetStreet() string
 	GetCity() string
 	GetState() string
 	GetPhone() string
 	GetZipCode() string
 
-	models.I_Model
-	models.I_Object
-	models.I_Storable
-	models.I_Mapable
+	models.IModel
+	models.IObject
+	models.IStorable
+	models.IMapable
 }
 
-type I_Visitor interface {
+type IVisitor interface {
 	GetEmail() string
 
 	GetFullName() string
 	GetFirstName() string
 	GetLastName() string
 
-	GetShippingAddress() I_VisitorAddress
-	GetBillingAddress() I_VisitorAddress
+	GetShippingAddress() IVisitorAddress
+	GetBillingAddress() IVisitorAddress
 
-	SetShippingAddress(address I_VisitorAddress) error
-	SetBillingAddress(address I_VisitorAddress) error
+	SetShippingAddress(address IVisitorAddress) error
+	SetBillingAddress(address IVisitorAddress) error
 
-	models.I_Model
-	models.I_Object
-	models.I_Storable
-	models.I_Mapable
+	models.IModel
+	models.IObject
+	models.IStorable
+	models.IMapable
 }
