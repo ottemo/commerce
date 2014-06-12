@@ -24,6 +24,7 @@ func (it *DefaultCategory) SetupModel() error {
 		collection, err := dbEngine.GetCollection( CATEGORY_COLLECTION_NAME )
 		if err != nil { return err }
 
+		collection.AddColumn("parent_id", "id", true)
 		collection.AddColumn("name", "text", true)
 
 

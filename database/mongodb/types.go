@@ -9,7 +9,12 @@ type MongoDBCollection struct {
 	collection *mgo.Collection
 	      Name string
 
-	  Selector map[string]interface{}
+	Selector map[string]interface{}
+	Sort []string
+
+	Limit int
+	Offset int
+
 }
 
 type MongoDB struct {

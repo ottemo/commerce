@@ -2,7 +2,7 @@ package sqlite
 
 import (
 	"strings"
-	database "github.com/ottemo/foundation/database"
+	"github.com/ottemo/foundation/database"
 )
 
 func (it *SQLite) GetName() string { return  "Sqlite3" }
@@ -42,7 +42,6 @@ func (it *SQLite) GetCollection(CollectionName string) (database.I_DBCollection,
 			}
 		}
 
-		//TODO: find out why: Columns: map[string]string{} - needed
 		collection := &SQLiteCollection{TableName: CollectionName, Connection: it.Connection, Columns: map[string]string{} }
 		collections[CollectionName] = collection
 

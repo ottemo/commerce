@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/ottemo/foundation/models"
+	"github.com/ottemo/foundation/models/category"
 	"github.com/ottemo/foundation/models/product"
 )
 
@@ -34,6 +35,12 @@ func (it *DefaultCategory) Set(attribute string, value interface{}) error {
 
 	case "name":
 		it.Name = value.(string)
+
+	case "parent":
+		value, ok := value.(category.I_Category)
+		if !ok { errors.New("unsupported 'parent' value") }
+
+		it.Parent = value
 
 	case "products":
 		switch value := value.(type) {
@@ -71,7 +78,7 @@ func (it *DefaultCategory) GetAttributesInfo() []models.T_AttributeInfo {
 			Model: "Category",
 			Collection: "Category",
 			Attribute: "_id",
-			Type: "text",
+			Type: "id",
 			Label: "ID",
 			Group: "General",
 			Editors: "not_editable",
@@ -92,8 +99,19 @@ func (it *DefaultCategory) GetAttributesInfo() []models.T_AttributeInfo {
 		models.T_AttributeInfo {
 			Model: "Category",
 			Collection: "Category",
+			Attribute: "parent",
+			Type: "id",
+			Label: "Parent",
+			Group: "General",
+			Editors: "model_selector",
+			Options: "model: category",
+			Default: "",
+		},
+		models.T_AttributeInfo {
+			Model: "Category",
+			Collection: "Category",
 			Attribute: "products",
-			Type: "text",
+			Type: "id",
 			Label: "Products",
 			Group: "General",
 			Editors: "array_model_selector",

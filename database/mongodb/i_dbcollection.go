@@ -33,21 +33,26 @@ func sqlError(SQL string, err error) error {
 //	return "?", errors.New("Unknown type '" + ColumnType + "'")
 //}
 
-func getMongoOperator(Operator string) (string, error) {
+func getMongoOperator(Operator string, Value string) (string, string, error) {
 	Operator = strings.ToLower(Operator)
 
 	switch Operator {
 	case "=":
-		return "", nil
+		return "", Value, nil
 	case ">":
-		return "gt;", nil
+		return "$gt", Value, nil
+	case ">=":
+		return "$gte", Value, nil
 	case "<":
-		return "lt;", nil
+		return "$lt", Value, nil
+	case "<=":
+		return "$lte", Value, nil
 	case "like":
-		return "like", nil
+		Value = strings.Replace("%", ".*", Value, -1)
+		return "$regex", Value, nil
 	}
 
-	return "?", errors.New("Unknown operator '" + Operator + "'")
+	return "?", "?", errors.New("Unknown operator '" + Operator + "'")
 }
 
 
@@ -62,7 +67,16 @@ func (it *MongoDBCollection) LoadById(id string) (map[string]interface{}, error)
 func (it *MongoDBCollection) Load() ([]map[string]interface{}, error) {
 	result := make([] map[string]interface{}, 0)
 
-	err := it.collection.Find( it.Selector ).All(&result)
+	query := it.collection.Find( it.Selector )
+
+	if len(it.Sort) > 0 {
+		query.Sort(it.Sort...)
+	}
+
+	if it.Offset > 0 { query = query.Skip(it.Offset) }
+	if it.Limit  > 0 { query = query.Limit(it.Limit) }
+
+	err := query.All(&result)
 
 	return result, err
 }
@@ -107,14 +121,14 @@ func (it *MongoDBCollection) DeleteById(id string) error {
 
 func (it *MongoDBCollection) AddFilter(ColumnName string, Operator string, Value string) error {
 
-	Operator, err := getMongoOperator(Operator)
+	newOperator, newValue, err := getMongoOperator(Operator, Value)
 	if err != nil { return err }
 
-	var filterValue interface{} = Value
-	if Operator != "" {
-		filterValue = map[string]interface{}{Operator: Value}
+	var filterValue interface{} = newValue
+	if newOperator != "" {
+		filterValue = map[string]interface{}{newOperator: newValue}
 	} else {
-		filterValue = Value
+		filterValue = newValue
 	}
 
 	it.Selector[ColumnName] = filterValue
@@ -127,6 +141,28 @@ func (it *MongoDBCollection) ClearFilters() error {
 	return nil
 }
 
+
+func (it *MongoDBCollection) AddSort(ColumnName string, Desc bool) error {
+	if Desc {
+		it.Sort = append(it.Sort, "-" + ColumnName)
+	} else {
+		it.Sort = append(it.Sort, ColumnName)
+	}
+	return nil
+}
+
+func (it *MongoDBCollection) ClearSort() error {
+	it.Sort = make( []string, 0 )
+	return nil
+}
+
+
+func (it *MongoDBCollection) SetLimit(Offset int, Limit int) error {
+	it.Limit = Limit
+	it.Offset = Offset
+
+	return nil
+}
 
 // Collection columns stuff
 //--------------------------

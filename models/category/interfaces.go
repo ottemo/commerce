@@ -7,8 +7,13 @@ import(
 
 type I_Category interface {
 
-	    GetName() string
+	GetName() string
+
+	GetParent() []I_Category
 	GetProducts() []product.I_Product
+
+	AddProduct(ProductId string) error
+	RemoveProduct(ProductId string) error
 
 	models.I_Model
 	models.I_Object

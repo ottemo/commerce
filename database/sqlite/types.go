@@ -11,6 +11,9 @@ type SQLiteCollection struct {
 	Columns map[string]string
 
 	Filters []string
+	Order []string
+
+	Limit string
 }
 
 type SQLite struct {

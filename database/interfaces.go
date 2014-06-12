@@ -8,9 +8,7 @@ type I_DBEngine interface {
 	HasCollection(Name string) bool
 }
 
-
 type I_DBCollection interface {
-
 	Load() ([]map[string]interface{}, error)
 	LoadById(id string) (map[string]interface{}, error)
 
@@ -19,8 +17,13 @@ type I_DBCollection interface {
 	Delete() (int, error)
 	DeleteById(id string) error
 
-	AddFilter(ColumnName string, Operator string, Value string) error
+	AddFilter(ColumnName string, Operator string, Value string) error //TODO: modify (Value string) to (Value interface{})
 	ClearFilters() error
+
+	AddSort(ColumnName string, Desc bool) error
+	ClearSort() error
+
+	SetLimit(offset int, limit int) error
 
 	ListColumns() map[string]string
 	HasColumn(ColumnName string) bool

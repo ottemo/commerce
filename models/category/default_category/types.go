@@ -2,6 +2,7 @@ package default_category
 
 import(
 	"github.com/ottemo/foundation/models/product"
+	"github.com/ottemo/foundation/models/category"
 )
 
 const (
@@ -14,5 +15,6 @@ type DefaultCategory struct {
 	id string
 
 	Name string
+	Parent category.I_Category
 	Products []product.I_Product
 }

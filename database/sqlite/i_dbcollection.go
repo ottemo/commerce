@@ -17,7 +17,7 @@ func sqlError(SQL string, err error) error {
 func GetDBType(ColumnType string) (string, error) {
 	ColumnType = strings.ToLower(ColumnType)
 	switch {
-	case ColumnType == "int" || ColumnType == "integer":
+	case ColumnType == "id" || ColumnType == "int" || ColumnType == "integer":
 		return "INTEGER", nil
 	case ColumnType == "real" || ColumnType == "float":
 		return "REAL", nil
@@ -59,7 +59,12 @@ func (it *SQLiteCollection) Load() ([]map[string]interface{}, error) {
 		sqlLoadFilter = " WHERE " + sqlLoadFilter
 	}
 
-	SQL := "SELECT * FROM " + it.TableName + sqlLoadFilter
+	sqlOrder := strings.Join(it.Order, ", ")
+	if sqlOrder != "" {
+		sqlOrder = " ORDER BY " + sqlOrder
+	}
+
+	SQL := "SELECT * FROM " + it.TableName + sqlLoadFilter + sqlOrder + it.Limit
 	if s, err := it.Connection.Query(SQL); err == nil {
 		for ; err == nil; err = s.Next() {
 
@@ -147,7 +152,7 @@ func (it *SQLiteCollection) AddFilter(ColumnName string, Operator string, Value 
 			return errors.New("unknown operator '" + Operator + "' supposed  '', '=', '>', '<', '<>', 'LIKE' " + ColumnName + "'")
 		}
 	} else {
-		return errors.New("can't find collumn '" + ColumnName + "'")
+		return errors.New("can't find column '" + ColumnName + "'")
 	}
 
 	return nil
@@ -155,6 +160,36 @@ func (it *SQLiteCollection) AddFilter(ColumnName string, Operator string, Value 
 
 func (it *SQLiteCollection) ClearFilters() error {
 	it.Filters = make([]string, 0)
+	return nil
+}
+
+func (it *SQLiteCollection) AddSort(ColumnName string, Desc bool) error {
+	if it.HasColumn(ColumnName) {
+		if Desc {
+			it.Order = append(it.Order, ColumnName + " DESC")
+		} else {
+			it.Order = append(it.Order, ColumnName)
+		}
+	} else {
+		return errors.New("can't find column '" + ColumnName + "'")
+	}
+
+	return nil
+}
+
+func (it *SQLiteCollection) ClearSort() error {
+	it.Order = make([]string, 0)
+	return nil
+}
+
+
+
+func (it *SQLiteCollection) SetLimit(Offset int, Limit int) error {
+	if Limit == 0 {
+		it.Limit = ""
+	} else {
+		it.Limit = " LIMIT " + strconv.Itoa(Limit) + " OFFSET " + strconv.Itoa(Offset)
+	}
 	return nil
 }
 

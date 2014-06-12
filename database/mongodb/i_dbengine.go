@@ -3,7 +3,7 @@ package mongodb
 import (
 	"strings"
 	"labix.org/v2/mgo"
-	database "github.com/ottemo/foundation/database"
+	"github.com/ottemo/foundation/database"
 )
 
 func (it *MongoDB) GetName() string { return  "MongoDB" }
