@@ -22,7 +22,7 @@ func RegisterModel(ModelName string, Model I_Model) error {
 	return nil
 }
 
-func UnRegisterBlock(ModelName string) error {
+func UnRegisterModel(ModelName string) error {
 	if _, present := declaredModels[ModelName]; present {
 		delete(declaredModels, ModelName)
 	} else {
