@@ -14,7 +14,7 @@ func jsonError(err error) map[string]interface{} {
 
 // http://127.0.0.1:9000/AddProductAttribute
 // http://127.0.0.1:9000/AddProductAttribute?name=x&type=int&group=Others
-func AddProductAttributeRestAPI(req *http.Request) map[string]interface{} {
+func AddProductAttributeRestAPI(req *http.Request, params map[string]string) map[string]interface{} {
 	queryParams := req.URL.Query()
 
 	model, err := models.GetModel("Product")
@@ -67,7 +67,7 @@ func AddProductAttributeRestAPI(req *http.Request) map[string]interface{} {
 
 
 // http://127.0.0.1:9000/LoadProduct?id=5
-func LoadProductRestAPI(req *http.Request) map[string]interface{} {
+func LoadProductRestAPI(req *http.Request, params map[string]string) map[string]interface{} {
 	queryParams := req.URL.Query()
 
 	productId := queryParams.Get("id")
@@ -90,7 +90,7 @@ func LoadProductRestAPI(req *http.Request) map[string]interface{} {
 
 
 // http://127.0.0.1:9000/CreateProduct/xx-25/some
-func CreateProductRestAPI(req *http.Request) map[string]interface{} {
+func CreateProductRestAPI(req *http.Request, params map[string]string) map[string]interface{} {
 	queryParams := req.URL.Query()
 
 	if queryParams.Get("sku") == "" || queryParams.Get("name") == "" {

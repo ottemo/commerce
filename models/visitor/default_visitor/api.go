@@ -14,7 +14,7 @@ func jsonError(err error) map[string]interface{} {
 
 
 // sample: http://127.0.0.1:9000/visitor/load?id=5
-func (it *DefaultVisitor) LoadVisitorAPI(req *http.Request) map[string]interface{} {
+func (it *DefaultVisitor) LoadVisitorAPI(req *http.Request, params map[string]string) map[string]interface{} {
 	queryParams := req.URL.Query()
 
 	productId := queryParams.Get("id")
@@ -37,7 +37,7 @@ func (it *DefaultVisitor) LoadVisitorAPI(req *http.Request) map[string]interface
 
 
 // usage: http://127.0.0.1:9000/visitor/update?id=10&email=bad_guy@gmail.com&first_name=Bad&last_name=Guy
-func (it *DefaultVisitor) UpdateVisitorAPI(req *http.Request) map[string]interface{} {
+func (it *DefaultVisitor) UpdateVisitorAPI(req *http.Request, params map[string]string) map[string]interface{} {
 	queryParams := req.URL.Query()
 
 	if queryParams.Get("id") == "" {
@@ -66,7 +66,7 @@ func (it *DefaultVisitor) UpdateVisitorAPI(req *http.Request) map[string]interfa
 }
 
 // usage: http://127.0.0.1:9000/visitor/create?email=bad_guy@gmail.com&first_name=Bad&last_name=Guy
-func (it *DefaultVisitor) CreateVisitorAPI(req *http.Request) map[string]interface{} {
+func (it *DefaultVisitor) CreateVisitorAPI(req *http.Request, params map[string]string) map[string]interface{} {
 	queryParams := req.URL.Query()
 
 	if queryParams.Get("email") == "" {

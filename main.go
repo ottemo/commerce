@@ -11,8 +11,8 @@ import (
 	//_ "github.com/ottemo/foundation/database/sqlite"
 	_ "github.com/ottemo/foundation/database/mongodb"
 
-	_ "github.com/ottemo/foundation/rest_service/negroni"
 	_ "github.com/ottemo/foundation/rest_service"
+	_ "github.com/ottemo/foundation/rest_service/default_rest_service"
 
 	_ "github.com/ottemo/foundation/models/custom_attributes"
 	_ "github.com/ottemo/foundation/models/product/default_product"
