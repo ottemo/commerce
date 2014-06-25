@@ -13,6 +13,7 @@ type I_Product interface {
 	models.I_Object
 	models.I_Storable
 	models.I_Mapable
+	models.I_Listable
 
 	models.I_CustomAttributes
 }

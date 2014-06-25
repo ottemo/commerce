@@ -27,6 +27,12 @@ type I_Mapable interface {
 	ToHashMap() map[string]interface{}
 }
 
+type I_Listable interface {
+	List() ([]interface{}, error)
+	ListFilterAdd(Attribute string, Operator string, Value interface{}) error
+	ListFilterReset() error
+}
+
 type I_CustomAttributes interface {
 	AddNewAttribute( newAttribute T_AttributeInfo ) error
 	RemoveAttribute( attributeName string ) error

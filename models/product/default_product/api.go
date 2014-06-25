@@ -67,7 +67,7 @@ func AddProductAttributeRestAPI(req *http.Request, params map[string]string) map
 
 
 // http://127.0.0.1:9000/LoadProduct?id=5
-func LoadProductRestAPI(req *http.Request, params map[string]string) map[string]interface{} {
+func GetProductRestAPI(req *http.Request, params map[string]string) map[string]interface{} {
 	queryParams := req.URL.Query()
 
 	productId := queryParams.Get("id")
@@ -82,6 +82,29 @@ func LoadProductRestAPI(req *http.Request, params map[string]string) map[string]
 			if err != nil { return jsonError(err) }
 
 			return model.ToHashMap()
+		}
+	}
+
+	return jsonError( errors.New("Something went wrong...") )
+}
+
+// http://127.0.0.1:9000/LoadProduct?id=5
+func ListProductsRestAPI(req *http.Request, params map[string]string) map[string]interface{} {
+
+	result := make( []map[string]interface{}, 0 )
+	if model, err := models.GetModel("Product"); err == nil {
+		if model, ok := model.(product.I_Product); ok {
+
+			productsList, err := model.List()
+			if err != nil { return jsonError(err) }
+
+			for _, listValue := range productsList {
+				if productItem, ok := listValue.(product.I_Product); ok {
+					result = append(result, productItem.ToHashMap())
+				}
+			}
+
+			return map[string]interface{} { "result": result }
 		}
 	}
 

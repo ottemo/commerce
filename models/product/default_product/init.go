@@ -34,13 +34,22 @@ func SetupModel() error {
 
 
 func SetupAPI() error {
-	err := rest_service.GetRestService().RegisterJsonAPI("product", "POST", "addAttribute", AddProductAttributeRestAPI )
+
+	var err error = nil
+
+	err = rest_service.GetRestService().RegisterJsonAPI("product", "POST", "add", AddProductAttributeRestAPI )
 	if err != nil { return err }
 
-	err = rest_service.GetRestService().RegisterJsonAPI("product", "POST", "createProduct", CreateProductRestAPI )
+	err = rest_service.GetRestService().RegisterJsonAPI("product", "GET", "create", CreateProductRestAPI )
 	if err != nil { return err }
 
-	err = rest_service.GetRestService().RegisterJsonAPI("product", "GET", "loadProduct", LoadProductRestAPI )
+	err = rest_service.GetRestService().RegisterJsonAPI("product", "POST", "create", CreateProductRestAPI )
+	if err != nil { return err }
+
+	err = rest_service.GetRestService().RegisterJsonAPI("product", "GET", "get", GetProductRestAPI )
+	if err != nil { return err }
+
+	err = rest_service.GetRestService().RegisterJsonAPI("product", "GET", "list", ListProductsRestAPI )
 	if err != nil { return err }
 
 	return nil
