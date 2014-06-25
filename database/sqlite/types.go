@@ -11,10 +11,13 @@ type SQLiteCollection struct {
 	Columns map[string]string
 
 	Filters []string
+	Order []string
+
+	Limit string
 }
 
 type SQLite struct {
 	Connection *sqlite3.Conn
 }
 
-var collections = map[string]database.I_DBCollection{}
+var collections = map[string]database.IDBCollection{}

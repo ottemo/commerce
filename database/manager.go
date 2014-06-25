@@ -4,7 +4,7 @@ import (
 	"errors"
 )
 
-var currentDBEngine I_DBEngine = nil
+var currentDBEngine IDBEngine = nil
 
 var callbacksOnDatabaseStart = []func() error {}
 
@@ -20,7 +20,7 @@ func OnDatabaseStart() error {
 	return nil
 }
 
-func RegisterDBEngine(newEngine I_DBEngine) error {
+func RegisterDBEngine(newEngine IDBEngine) error {
 	if currentDBEngine == nil {
 		currentDBEngine = newEngine
 	} else {
@@ -29,6 +29,6 @@ func RegisterDBEngine(newEngine I_DBEngine) error {
 	return nil
 }
 
-func GetDBEngine() I_DBEngine {
+func GetDBEngine() IDBEngine {
 	return currentDBEngine
 }

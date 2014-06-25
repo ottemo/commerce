@@ -7,13 +7,13 @@ import (
 // Package variables
 //------------------
 
-var declaredModels = map[string]I_Model {}
+var declaredModels = map[string]IModel {}
 
 
 // Managing routines
 //------------------
 
-func RegisterModel(ModelName string, Model I_Model) error {
+func RegisterModel(ModelName string, Model IModel) error {
 	if _, present := declaredModels[ModelName]; present {
 		return errors.New("model with name '" + ModelName + "' already registered")
 	} else {
@@ -22,7 +22,7 @@ func RegisterModel(ModelName string, Model I_Model) error {
 	return nil
 }
 
-func UnRegisterBlock(ModelName string) error {
+func UnRegisterModel(ModelName string) error {
 	if _, present := declaredModels[ModelName]; present {
 		delete(declaredModels, ModelName)
 	} else {
@@ -31,7 +31,7 @@ func UnRegisterBlock(ModelName string) error {
 	return nil
 }
 
-func GetModel(ModelName string) (I_Model, error) {
+func GetModel(ModelName string) (IModel, error) {
 	if model, present := declaredModels[ModelName]; present {
 		return model.New()
 	} else {
