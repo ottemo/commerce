@@ -37,3 +37,9 @@ type I_CustomAttributes interface {
 	AddNewAttribute( newAttribute T_AttributeInfo ) error
 	RemoveAttribute( attributeName string ) error
 }
+
+type I_Media interface {
+	AddMedia( media string, content []byte ) error
+	RemoveMedia( media string ) error
+	GetMedia( mediaType string )
+}

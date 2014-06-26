@@ -2,7 +2,6 @@ package default_product
 
 import (
 	"github.com/ottemo/foundation/models/custom_attributes"
-	"github.com/ottemo/foundation/database"
 )
 
 type DefaultProductModel struct {

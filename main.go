@@ -11,6 +11,8 @@ import (
 	//_ "github.com/ottemo/foundation/database/sqlite"
 	_ "github.com/ottemo/foundation/database/mongodb"
 
+	_ "github.com/ottemo/foundation/media/fsmedia"
+
 	_ "github.com/ottemo/foundation/rest_service"
 	_ "github.com/ottemo/foundation/rest_service/default_rest_service"
 
