@@ -37,20 +37,33 @@ func SetupAPI() error {
 
 	var err error = nil
 
-	err = rest_service.GetRestService().RegisterJsonAPI("product", "POST", "add", AddProductAttributeRestAPI )
-	if err != nil { return err }
-
-	err = rest_service.GetRestService().RegisterJsonAPI("product", "GET", "create", CreateProductRestAPI )
-	if err != nil { return err }
-
-	err = rest_service.GetRestService().RegisterJsonAPI("product", "POST", "create", CreateProductRestAPI )
-	if err != nil { return err }
-
-	err = rest_service.GetRestService().RegisterJsonAPI("product", "GET", "get", GetProductRestAPI )
-	if err != nil { return err }
-
 	err = rest_service.GetRestService().RegisterJsonAPI("product", "GET", "list", ListProductsRestAPI )
 	if err != nil { return err }
+	err = rest_service.GetRestService().RegisterJsonAPI("product", "GET", "get/:id", GetProductRestAPI )
+	if err != nil { return err }
+	err = rest_service.GetRestService().RegisterJsonAPI("product", "POST", "create", CreateProductRestAPI )
+	if err != nil { return err }
+	err = rest_service.GetRestService().RegisterJsonAPI("product", "PUT", "update/:id", UpdateProductRestAPI )
+	if err != nil { return err }
+	err = rest_service.GetRestService().RegisterJsonAPI("product", "DELETE", "delete/:id", nil )
+	if err != nil { return err }
+
+
+	err = rest_service.GetRestService().RegisterJsonAPI("product", "GET", "attribute/list", nil )
+	if err != nil { return err }
+	err = rest_service.GetRestService().RegisterJsonAPI("product", "POST", "attribute/add", AddProductAttributeRestAPI )
+	if err != nil { return err }
+
+
+	err = rest_service.GetRestService().RegisterJsonAPI("product", "GET", "media/list", nil )
+	if err != nil { return err }
+	err = rest_service.GetRestService().RegisterJsonAPI("product", "GET", "media/get/:id", nil )
+	if err != nil { return err }
+	err = rest_service.GetRestService().RegisterJsonAPI("product", "POST", "media/add", nil )
+	if err != nil { return err }
+	err = rest_service.GetRestService().RegisterJsonAPI("product", "DELETE", "media/delete/:id", nil )
+	if err != nil { return err }
+
 
 	return nil
 }

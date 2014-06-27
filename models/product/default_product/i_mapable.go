@@ -1,12 +1,10 @@
 package default_product
 
-import ("strconv")
-
 func (it *DefaultProductModel) FromHashMap(input map[string]interface{}) error {
 
 	if value, ok := input["_id"]; ok {
-		if value, ok := value.(int64); ok {
-			it.id = strconv.FormatInt(value, 10)
+		if value, ok := value.(string); ok {
+			it.id = value
 		}
 	}
 	if value, ok := input["sku"]; ok {

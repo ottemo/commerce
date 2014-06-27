@@ -13,6 +13,8 @@ var listCollection database.I_DBCollection = nil
 
 func getListCollection() (database.I_DBCollection, error) {
 	if listCollection != nil {
+		return listCollection, nil
+	} else {
 		var err error = nil
 
 		dbEngine := database.GetDBEngine()
@@ -21,8 +23,6 @@ func getListCollection() (database.I_DBCollection, error) {
 		listCollection, err = dbEngine.GetCollection("Product")
 
 		return listCollection, err
-	} else {
-		return listCollection, nil
 	}
 }
 

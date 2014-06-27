@@ -12,8 +12,6 @@ func jsonError(err error) map[string]interface{} {
 	return map[string]interface{} { "error": err.Error() }
 }
 
-// http://127.0.0.1:9000/AddProductAttribute
-// http://127.0.0.1:9000/AddProductAttribute?name=x&type=int&group=Others
 func AddProductAttributeRestAPI(req *http.Request, params map[string]string) map[string]interface{} {
 	queryParams := req.URL.Query()
 
@@ -65,13 +63,12 @@ func AddProductAttributeRestAPI(req *http.Request, params map[string]string) map
 	return map[string]interface{} {"ok": true, "attribute": attribute}
 }
 
-
-// http://127.0.0.1:9000/LoadProduct?id=5
+// WEB REST API function used to obtain all product attributes
+//   - product id must be specified in request URI "http://[site:port]/product/get/:id"
 func GetProductRestAPI(req *http.Request, params map[string]string) map[string]interface{} {
-	queryParams := req.URL.Query()
 
-	productId := queryParams.Get("id")
-	if productId == "" {
+	productId, isSpecifiedId := params["id"]
+	if !isSpecifiedId {
 		return jsonError( errors.New("product 'id' was not specified") )
 	}
 
@@ -88,7 +85,8 @@ func GetProductRestAPI(req *http.Request, params map[string]string) map[string]i
 	return jsonError( errors.New("Something went wrong...") )
 }
 
-// http://127.0.0.1:9000/LoadProduct?id=5
+// WEB REST API function used to obtain product list we have in database
+//   - only [_id, sku, name] attributes returns by default
 func ListProductsRestAPI(req *http.Request, params map[string]string) map[string]interface{} {
 
 	result := make( []map[string]interface{}, 0 )
@@ -100,7 +98,14 @@ func ListProductsRestAPI(req *http.Request, params map[string]string) map[string
 
 			for _, listValue := range productsList {
 				if productItem, ok := listValue.(product.I_Product); ok {
-					result = append(result, productItem.ToHashMap())
+
+					resultItem := map[string]interface{} {
+						"_id": productItem.GetId(),
+						"sku": productItem.GetSku(),
+						"name": productItem.GetName(),
+					}
+
+					result = append(result, resultItem)
 				}
 			}
 
@@ -111,10 +116,12 @@ func ListProductsRestAPI(req *http.Request, params map[string]string) map[string
 	return jsonError( errors.New("Something went wrong...") )
 }
 
-
-// http://127.0.0.1:9000/CreateProduct/xx-25/some
+// WEB REST API used to create new one product
+//   - product attributes must be included in POST form
+//   - sku and name attributes required
 func CreateProductRestAPI(req *http.Request, params map[string]string) map[string]interface{} {
-	queryParams := req.URL.Query()
+	req.ParseForm()
+	queryParams := req.PostForm
 
 	if queryParams.Get("sku") == "" || queryParams.Get("name") == "" {
 		return jsonError( errors.New("product 'name' and/or 'sku' was not specified") )
@@ -136,4 +143,40 @@ func CreateProductRestAPI(req *http.Request, params map[string]string) map[strin
 	}
 
 	return jsonError( errors.New("Something went wrong...") )
+}
+
+
+// WEB REST API used to update existing product
+//   - product id must be specified in request URI
+//   - product attributes must be included in POST form
+func UpdateProductRestAPI(req *http.Request, params map[string]string) map[string]interface{} {
+
+	//check request params
+	productId, isSpecifiedId := params["id"]
+	if !isSpecifiedId { return jsonError(errors.New("product 'id' was not specified")) }
+
+	req.ParseForm()
+	queryParams := req.PostForm
+	if _, present := queryParams["_id"]; present { return jsonError(errors.New("_id attribute can't be updated")) }
+	if len(queryParams) == 0 { return jsonError(errors.New("update attributes were not set")) }
+
+	// update operations
+	model, err := models.GetModel("Product")
+	if err != nil { return jsonError(err) }
+
+	productModel, ok := model.(product.I_Product)
+	if !ok { return jsonError(errors.New("product type is not I_Product campatible")) }
+
+	err = productModel.Load( productId )
+	if err != nil { return jsonError(err) }
+
+	for attrName, attrVal := range queryParams {
+		err = productModel.Set(attrName, attrVal[0])
+		if err != nil { return jsonError(err) }
+	}
+
+	err = productModel.Save()
+	if err != nil { return jsonError(err) }
+
+	return productModel.ToHashMap()
 }
