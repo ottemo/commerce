@@ -145,6 +145,24 @@ func CreateProductRestAPI(req *http.Request, params map[string]string) map[strin
 	return jsonError( errors.New("Something went wrong...") )
 }
 
+// WEB REST API used to delete product
+//   - product attributes must be included in POST form
+func DeleteProductRestAPI(req *http.Request, params map[string]string) map[string]interface{} {
+	//check request params
+	productId, isSpecifiedId := params["id"]
+	if !isSpecifiedId { return jsonError(errors.New("product 'id' was not specified")) }
+
+	model, err := models.GetModel("Product")
+	if err != nil { return jsonError(err) }
+
+	productModel, ok := model.(product.I_Product)
+	if !ok { return jsonError(errors.New("product type is not I_Product campatible")) }
+
+	err = productModel.Delete( productId )
+	if err != nil { return jsonError(err) }
+
+	return map[string]interface{} { "result": "ok" }
+}
 
 // WEB REST API used to update existing product
 //   - product id must be specified in request URI
@@ -179,4 +197,43 @@ func UpdateProductRestAPI(req *http.Request, params map[string]string) map[strin
 	if err != nil { return jsonError(err) }
 
 	return productModel.ToHashMap()
+}
+
+
+// WEB REST API used to add media for a product
+//   - product id, media type and media name must be specified in request URI
+//   - media contents must be included as file in POST form
+func MediaAddRestAPI(req *http.Request, params map[string]string) map[string]interface{} {
+	//check request params
+	productId, isIdSpecified := params["id"]
+	if !isIdSpecified { return jsonError(errors.New("product id was not specified")) }
+
+	mediaType, isTypeSpecified := params["type"]
+	if !isTypeSpecified { return jsonError(errors.New("media type was not specified")) }
+
+	mediaName, isNameSpecified := params["name"]
+	if !isNameSpecified { return jsonError(errors.New("media name was not specified")) }
+
+	// income file processing
+	file, _, err := req.FormFile("file")
+	if err != nil { return jsonError(err) }
+
+	fileSize, _ := file.Seek(0, 2)
+	fileContents := make([]byte, fileSize)
+
+	file.Seek(0, 0)
+	file.Read(fileContents)
+
+	// add media operation
+	model, err := models.GetModel("Product")
+	if err != nil { return jsonError(err) }
+
+	productModel, ok := model.(product.I_Product)
+	if !ok { return jsonError(errors.New("product type is not I_Product campatible")) }
+
+	productModel.SetId(productId)
+	err = productModel.AddMedia(mediaType, mediaName, fileContents)
+	if err != nil { return jsonError(err) }
+
+	return map[string]interface{} { "result": "ok" }
 }

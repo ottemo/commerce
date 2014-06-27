@@ -34,12 +34,13 @@ type I_Listable interface {
 }
 
 type I_CustomAttributes interface {
-	AddNewAttribute( newAttribute T_AttributeInfo ) error
-	RemoveAttribute( attributeName string ) error
+	AddNewAttribute(newAttribute T_AttributeInfo) error
+	RemoveAttribute(attributeName string) error
 }
 
 type I_Media interface {
-	AddMedia( media string, content []byte ) error
-	RemoveMedia( media string ) error
-	GetMedia( mediaType string )
+	AddMedia(mediaType string, mediaName string, content []byte) error
+	RemoveMedia(mediaType string, mediaName string) error
+	ListMedia(mediaType string ) ([]string, error)
+	GetMedia(mediaType string, mediaName string) ([]byte, error)
 }

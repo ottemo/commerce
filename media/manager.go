@@ -29,6 +29,10 @@ func RegisterMediaStorage(newEngine IMediaStorage) error {
 	return nil
 }
 
-func GetMediaStorage() IMediaStorage {
-	return currentMediaStorage
+func GetMediaStorage() (IMediaStorage, error) {
+	if currentMediaStorage != nil {
+		return currentMediaStorage, nil
+	} else {
+		return nil, errors.New("no registered media storage")
+	}
 }

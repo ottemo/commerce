@@ -45,11 +45,13 @@ func SetupAPI() error {
 	if err != nil { return err }
 	err = rest_service.GetRestService().RegisterJsonAPI("product", "PUT", "update/:id", UpdateProductRestAPI )
 	if err != nil { return err }
-	err = rest_service.GetRestService().RegisterJsonAPI("product", "DELETE", "delete/:id", nil )
+	err = rest_service.GetRestService().RegisterJsonAPI("product", "DELETE", "delete/:id", DeleteProductRestAPI )
 	if err != nil { return err }
 
 
 	err = rest_service.GetRestService().RegisterJsonAPI("product", "GET", "attribute/list", nil )
+	if err != nil { return err }
+	err = rest_service.GetRestService().RegisterJsonAPI("product", "PUT", "attribute/update", nil )
 	if err != nil { return err }
 	err = rest_service.GetRestService().RegisterJsonAPI("product", "POST", "attribute/add", AddProductAttributeRestAPI )
 	if err != nil { return err }
@@ -57,11 +59,11 @@ func SetupAPI() error {
 
 	err = rest_service.GetRestService().RegisterJsonAPI("product", "GET", "media/list", nil )
 	if err != nil { return err }
-	err = rest_service.GetRestService().RegisterJsonAPI("product", "GET", "media/get/:id", nil )
+	err = rest_service.GetRestService().RegisterJsonAPI("product", "GET", "media/get/:id/:type/:name", nil )
 	if err != nil { return err }
-	err = rest_service.GetRestService().RegisterJsonAPI("product", "POST", "media/add", nil )
+	err = rest_service.GetRestService().RegisterJsonAPI("product", "POST", "media/add/:id/:type/:name", MediaAddRestAPI )
 	if err != nil { return err }
-	err = rest_service.GetRestService().RegisterJsonAPI("product", "DELETE", "media/delete/:id", nil )
+	err = rest_service.GetRestService().RegisterJsonAPI("product", "DELETE", "media/delete/:id/:type/:name", nil )
 	if err != nil { return err }
 
 

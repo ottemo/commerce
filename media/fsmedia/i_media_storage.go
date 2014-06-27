@@ -7,16 +7,19 @@ import (
 	"github.com/ottemo/foundation/database"
 )
 
+// retrieve media storage name
 func (it *FilesystemMediaStorage) GetName() string {
 	return "FilesystemMediaStorage"
 }
 
+// retrieve contents of media entity for model object
 func (it *FilesystemMediaStorage) Load(model string, objId string, mediaType string, mediaName string) ([]byte, error) {
 	fullFileName := it.storageFolder + "/" + mediaType + "/" + model + "/" + mediaName
 
 	return ioutil.ReadFile(fullFileName)
 }
 
+// add media entity for model object
 func (it *FilesystemMediaStorage) Save(model string, objId string, mediaType string, mediaName string, mediaData []byte) error {
 
 	filePath := it.storageFolder + "/" + mediaType + "/" + model
@@ -43,25 +46,48 @@ func (it *FilesystemMediaStorage) Save(model string, objId string, mediaType str
 	return nil
 }
 
+// remove media entity for model object
+func (it *FilesystemMediaStorage) Remove(model string, objId string, mediaType string, mediaName string) error {
+	fullFileName := it.storageFolder + "/" + mediaType + "/" + model + "/" + mediaName
+
+	// removing file
+	err := os.Remove(fullFileName)
+	if err != nil { return err }
+
+	// removing DB records
+	dbEngine := database.GetDBEngine()
+	if dbEngine == nil { return errors.New("Can't get database engine") }
+
+	collection, err := dbEngine.GetCollection( MEDIA_DB_COLLECTION )
+	if err != nil { return err }
+
+	err = collection.AddFilter("model", "=", model)
+	err = collection.AddFilter("object", "=", objId)
+	err = collection.AddFilter("type", "=", mediaType)
+
+	_, err = collection.Delete()
+	return err
+}
+
+// get list of given type media entities for model object
 func (it *FilesystemMediaStorage) ListMedia(model string, objId string, mediaType string) ([]string, error) {
 	result := make([]string, 0)
 
 	dbEngine := database.GetDBEngine()
-	if dbEngine == nil { return nil, errors.New("Can't get database engine") }
+	if dbEngine == nil { return result, errors.New("Can't get database engine") }
 
 	collection, err := dbEngine.GetCollection( MEDIA_DB_COLLECTION )
-	if err != nil { return nil, err }
+	if err != nil { return result, err }
 
 	collection.AddFilter("model", "=", model)
 	collection.AddFilter("object", "=", objId)
 	collection.AddFilter("type", "=", mediaType)
 
-	collection.Load()
+	records, err := collection.Load()
 
-	return result, nil
+	for _, record := range records {
+		result = append(result, record["name"].(string))
+	}
+
+	return result, err
 }
-
-
-
-
-
