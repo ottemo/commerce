@@ -12,6 +12,19 @@ func jsonError(err error) map[string]interface{} {
 	return map[string]interface{} { "error": err.Error() }
 }
 
+// WEB REST API function used to obtain product attributes information
+func ListProductAttributesRestAPI(req *http.Request, params map[string]string) map[string]interface{} {
+	model, err := models.GetModel("Product")
+	if err != nil { return jsonError(err) }
+
+	prod, isObject := model.(models.I_Object)
+	if !isObject { return jsonError( errors.New("product model is not I_Object compatible") ) }
+
+	attrInfo := prod.GetAttributesInfo()
+	return map[string]interface{} { "result": attrInfo }
+}
+
+// WEB REST API function used to add new one custom attribute
 func AddProductAttributeRestAPI(req *http.Request, params map[string]string) map[string]interface{} {
 	queryParams := req.URL.Query()
 
@@ -61,6 +74,25 @@ func AddProductAttributeRestAPI(req *http.Request, params map[string]string) map
 
 
 	return map[string]interface{} {"ok": true, "attribute": attribute}
+}
+
+// WEB REST API function used to remove custom attribute of product
+func RemoveProductAttributeRestAPI(req *http.Request, params map[string]string) map[string]interface{} {
+	// check request params
+	attributeName, isSpecified := params["attribute"]
+	if !isSpecified { return jsonError(errors.New("attribute name was not specified")) }
+
+	// remove attribute actions
+	model, err := models.GetModel("Product")
+	if err != nil { return jsonError(err) }
+
+	customable, ok := model.(models.I_CustomAttributes)
+	if !ok { return jsonError(errors.New("product model is not I_CustomAttributes compatible")) }
+
+	err = customable.RemoveAttribute(attributeName)
+	if err != nil { return jsonError(err) }
+
+	return map[string]interface{} {"ok": true}
 }
 
 // WEB REST API function used to obtain all product attributes
@@ -199,19 +231,42 @@ func UpdateProductRestAPI(req *http.Request, params map[string]string) map[strin
 	return productModel.ToHashMap()
 }
 
+// WEB REST API used to add media for a product
+//   - product id, media type must be specified in request URI
+func MediaListRestAPI(req *http.Request, params map[string]string) map[string]interface{} {
+	//check request params
+	productId, isIdSpecified := params["productId"]
+	if !isIdSpecified { return jsonError(errors.New("product id was not specified")) }
+
+	mediaType, isTypeSpecified := params["mediaType"]
+	if !isTypeSpecified { return jsonError(errors.New("media type was not specified")) }
+
+	// list media operation
+	model, err := models.GetModel("Product")
+	if err != nil { return jsonError(err) }
+
+	productModel, ok := model.(product.I_Product)
+	if !ok { return jsonError(errors.New("product type is not I_Product campatible")) }
+
+	productModel.SetId(productId)
+	mediaList, err := productModel.ListMedia(mediaType)
+	if err != nil { return jsonError(err) }
+
+	return map[string]interface{} { "result": mediaList }
+}
 
 // WEB REST API used to add media for a product
 //   - product id, media type and media name must be specified in request URI
 //   - media contents must be included as file in POST form
 func MediaAddRestAPI(req *http.Request, params map[string]string) map[string]interface{} {
 	//check request params
-	productId, isIdSpecified := params["id"]
+	productId, isIdSpecified := params["productId"]
 	if !isIdSpecified { return jsonError(errors.New("product id was not specified")) }
 
-	mediaType, isTypeSpecified := params["type"]
+	mediaType, isTypeSpecified := params["mediaType"]
 	if !isTypeSpecified { return jsonError(errors.New("media type was not specified")) }
 
-	mediaName, isNameSpecified := params["name"]
+	mediaName, isNameSpecified := params["mediaName"]
 	if !isNameSpecified { return jsonError(errors.New("media name was not specified")) }
 
 	// income file processing
@@ -233,6 +288,33 @@ func MediaAddRestAPI(req *http.Request, params map[string]string) map[string]int
 
 	productModel.SetId(productId)
 	err = productModel.AddMedia(mediaType, mediaName, fileContents)
+	if err != nil { return jsonError(err) }
+
+	return map[string]interface{} { "result": "ok" }
+}
+
+// WEB REST API used to add media for a product
+//   - product id, media type and media name must be specified in request URI
+func MediaRemoveRestAPI(req *http.Request, params map[string]string) map[string]interface{} {
+	//check request params
+	productId, isIdSpecified := params["productId"]
+	if !isIdSpecified { return jsonError(errors.New("product id was not specified")) }
+
+	mediaType, isTypeSpecified := params["mediaType"]
+	if !isTypeSpecified { return jsonError(errors.New("media type was not specified")) }
+
+	mediaName, isNameSpecified := params["mediaName"]
+	if !isNameSpecified { return jsonError(errors.New("media name was not specified")) }
+
+	// list media operation
+	model, err := models.GetModel("Product")
+	if err != nil { return jsonError(err) }
+
+	productModel, ok := model.(product.I_Product)
+	if !ok { return jsonError(errors.New("product type is not I_Product campatible")) }
+
+	productModel.SetId(productId)
+	err = productModel.RemoveMedia(mediaType, mediaName)
 	if err != nil { return jsonError(err) }
 
 	return map[string]interface{} { "result": "ok" }
