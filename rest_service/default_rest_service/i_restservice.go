@@ -25,6 +25,7 @@ func (it *DefaultRestService) RegisterJsonAPI(service string, method string, uri
 		result, _ := json.Marshal( handler(req, mappedParams) )
 
 		resp.Header().Add("Content-Type", "application/json")
+		resp.Header().Add("Access-Control-Allow-Origin", "*")
 		resp.Write( result )
 	}
 
