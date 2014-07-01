@@ -13,6 +13,12 @@ func (it *DefaultProductModel) Get(attribute string) interface{} {
 		return it.Sku
 	case "name":
 		return it.Name
+	case "description":
+		return it.Description
+	case "default_image", "defaultimage":
+		return it.DefaultImage
+	case "price":
+		return it.Price
 	default:
 		return it.CustomAttributes.Get(attribute)
 	}
@@ -28,6 +34,12 @@ func (it *DefaultProductModel) Set(attribute string, value interface{}) error {
 		it.Sku = value.(string)
 	case "name":
 		it.Name = value.(string)
+	case "description":
+		it.Description = value.(string)
+	case "default_image", "defaultimage":
+		it.DefaultImage = value.(string)
+	case "price":
+		it.Price = value.(float64)
 	default:
 		if err := it.CustomAttributes.Set(attribute, value); err != nil {
 			return err
@@ -65,11 +77,44 @@ func (it *DefaultProductModel) GetAttributesInfo() []models.T_AttributeInfo {
 		models.T_AttributeInfo {
 			Model: "Product",
 			Collection: "product",
-			Attribute: "Name",
+			Attribute: "name",
 			Type: "text",
 			Label: "Name",
 			Group: "General",
 			Editors: "line_text",
+			Options: "",
+			Default: "",
+		},
+		models.T_AttributeInfo {
+			Model: "Product",
+			Collection: "product",
+			Attribute: "description",
+			Type: "text",
+			Label: "Description",
+			Group: "General",
+			Editors: "multiline_text",
+			Options: "",
+			Default: "",
+		},
+		models.T_AttributeInfo {
+			Model: "Product",
+			Collection: "product",
+			Attribute: "default_image",
+			Type: "text",
+			Label: "DefaultImage",
+			Group: "Pictures",
+			Editors: "image_selector",
+			Options: "",
+			Default: "",
+		},
+		models.T_AttributeInfo {
+			Model: "Product",
+			Collection: "product",
+			Attribute: "price",
+			Type: "text",
+			Label: "Price",
+			Group: "Prices",
+			Editors: "price",
 			Options: "",
 			Default: "",
 		},

@@ -4,8 +4,12 @@ import("github.com/ottemo/foundation/models")
 
 type I_Product interface {
 
-	  GetSku() string
-	 GetName() string
+	GetSku() string
+	GetName() string
+
+	GetDescription() string
+
+	GetDefaultImage() string
 
 	GetPrice() float64
 

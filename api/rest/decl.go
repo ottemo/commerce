@@ -1,4 +1,4 @@
-package default_rest_service
+package rest
 
 import (
 	"github.com/julienschmidt/httprouter"

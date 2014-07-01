@@ -5,20 +5,20 @@ import (
 	"github.com/ottemo/foundation/models"
 	"github.com/ottemo/foundation/database"
 
-	"github.com/ottemo/foundation/rest_service"
+	"github.com/ottemo/foundation/api"
 )
 
 func init(){
 	instance := new(DefaultCategory)
 
 	models.RegisterModel("Visitor", instance )
-	database.RegisterOnDatabaseStart( instance.SetupModel )
+	database.RegisterOnDatabaseStart( instance.setupModel )
 
-	rest_service.RegisterOnRestServiceStart( instance.SetupAPI )
+	api.RegisterOnRestServiceStart( instance.setupAPI )
 }
 
 
-func (it *DefaultCategory) SetupModel() error {
+func (it *DefaultCategory) setupModel() error {
 
 	if dbEngine := database.GetDBEngine(); dbEngine != nil {
 		collection, err := dbEngine.GetCollection( CATEGORY_COLLECTION_NAME )
@@ -42,7 +42,7 @@ func (it *DefaultCategory) SetupModel() error {
 }
 
 
-func (it *DefaultCategory) SetupAPI() error {
+func (it *DefaultCategory) setupAPI() error {
 
 	return nil
 }

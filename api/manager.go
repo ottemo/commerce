@@ -1,4 +1,4 @@
-package rest_service
+package api
 
 import (
 	"errors"

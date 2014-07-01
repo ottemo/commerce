@@ -13,8 +13,7 @@ import (
 
 	_ "github.com/ottemo/foundation/media/fsmedia"
 
-	_ "github.com/ottemo/foundation/rest_service"
-	_ "github.com/ottemo/foundation/rest_service/default_rest_service"
+	_ "github.com/ottemo/foundation/api/rest"
 
 	_ "github.com/ottemo/foundation/models/custom_attributes"
 	_ "github.com/ottemo/foundation/models/product/default_product"

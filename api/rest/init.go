@@ -1,10 +1,10 @@
-package default_rest_service
+package rest
 
 import (
 	"net/http"
 
 	"github.com/ottemo/foundation/config"
-	"github.com/ottemo/foundation/rest_service"
+	"github.com/ottemo/foundation/api"
 
 	"github.com/julienschmidt/httprouter"
 )
@@ -12,11 +12,11 @@ import (
 func init() {
 	instance := new(DefaultRestService)
 
-	rest_service.RegisterRestService(instance)
-	config.RegisterOnConfigIniStart( instance.Startup )
+	api.RegisterRestService(instance)
+	config.RegisterOnConfigIniStart( instance.startup )
 }
 
-func (it *DefaultRestService) Startup() error {
+func (it *DefaultRestService) startup() error {
 
 	it.ListenOn = ":3000"
 	if iniConfig := config.GetIniConfig(); iniConfig != nil {
@@ -42,7 +42,7 @@ func (it *DefaultRestService) Startup() error {
 
 	it.Handlers = make( map[string]httprouter.Handle )
 
-	rest_service.OnRestServiceStart()
+	api.OnRestServiceStart()
 
 	return nil
 }

@@ -10,11 +10,11 @@ func init(){
 	instance := new(DefaultVisitorAddress)
 
 	models.RegisterModel("VisitorAddress", instance )
-	database.RegisterOnDatabaseStart( instance.SetupModel )
+	database.RegisterOnDatabaseStart( instance.setupModel )
 }
 
 
-func (it *DefaultVisitorAddress) SetupModel() error {
+func (it *DefaultVisitorAddress) setupModel() error {
 
 	if dbEngine := database.GetDBEngine(); dbEngine != nil {
 		if collection, err := dbEngine.GetCollection( VISITOR_ADDRESS_COLLECTION_NAME ); err == nil {

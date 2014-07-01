@@ -5,23 +5,28 @@ import (
 	"github.com/ottemo/foundation/models"
 	"github.com/ottemo/foundation/database"
 
-	"github.com/ottemo/foundation/rest_service"
+	"github.com/ottemo/foundation/api"
 )
 
 func init(){
-	models.RegisterModel("Product", new(DefaultProductModel) )
-	database.RegisterOnDatabaseStart( SetupModel )
+	instance := new(DefaultProductModel)
+	
+	models.RegisterModel("Product", instance )
+	database.RegisterOnDatabaseStart( instance.setupModel )
 
-	rest_service.RegisterOnRestServiceStart( SetupAPI )
+	api.RegisterOnRestServiceStart( instance.setupAPI )
 }
 
 
-func SetupModel() error {
+func (it *DefaultProductModel) setupModel() error {
 
 	if dbEngine := database.GetDBEngine(); dbEngine != nil {
 		if collection, err := dbEngine.GetCollection("Product"); err == nil {
 			collection.AddColumn("sku", "text", true)
 			collection.AddColumn("name", "text", true)
+			collection.AddColumn("description", "text", true)
+			collection.AddColumn("default_image", "text", true)
+			collection.AddColumn("price", "numeric", true)
 		}else {
 			return err
 		}
@@ -33,39 +38,38 @@ func SetupModel() error {
 }
 
 
-func SetupAPI() error {
+func (it *DefaultProductModel) setupAPI() error {
 
 	var err error = nil
 
-	err = rest_service.GetRestService().RegisterJsonAPI("product", "GET", "list", ListProductsRestAPI )
+	err = api.GetRestService().RegisterAPI("product", "GET", "list", it.ListProductsRestAPI )
 	if err != nil { return err }
-	err = rest_service.GetRestService().RegisterJsonAPI("product", "GET", "get/:id", GetProductRestAPI )
+	err = api.GetRestService().RegisterAPI("product", "GET", "get/:id", it.GetProductRestAPI )
 	if err != nil { return err }
-	err = rest_service.GetRestService().RegisterJsonAPI("product", "POST", "create", CreateProductRestAPI )
+	err = api.GetRestService().RegisterAPI("product", "POST", "create", it.CreateProductRestAPI )
 	if err != nil { return err }
-	err = rest_service.GetRestService().RegisterJsonAPI("product", "PUT", "update/:id", UpdateProductRestAPI )
+	err = api.GetRestService().RegisterAPI("product", "PUT", "update/:id", it.UpdateProductRestAPI )
 	if err != nil { return err }
-	err = rest_service.GetRestService().RegisterJsonAPI("product", "DELETE", "delete/:id", DeleteProductRestAPI )
-	if err != nil { return err }
-
-
-	err = rest_service.GetRestService().RegisterJsonAPI("product", "GET", "attribute/list", ListProductAttributesRestAPI )
-	if err != nil { return err }
-	err = rest_service.GetRestService().RegisterJsonAPI("product", "DELETE", "attribute/remove/:attribute", RemoveProductAttributeRestAPI )
-	if err != nil { return err }
-	err = rest_service.GetRestService().RegisterJsonAPI("product", "POST", "attribute/add", AddProductAttributeRestAPI )
+	err = api.GetRestService().RegisterAPI("product", "DELETE", "delete/:id", it.DeleteProductRestAPI )
 	if err != nil { return err }
 
 
-	err = rest_service.GetRestService().RegisterJsonAPI("product", "GET", "media/list/:productId/:mediaType", MediaListRestAPI )
+	err = api.GetRestService().RegisterAPI("product", "GET", "attribute/list", it.ListProductAttributesRestAPI )
 	if err != nil { return err }
-	err = rest_service.GetRestService().RegisterJsonAPI("product", "POST", "media/add/:productId/:mediaType/:mediaName", MediaAddRestAPI )
+	err = api.GetRestService().RegisterAPI("product", "DELETE", "attribute/remove/:attribute", it.RemoveProductAttributeRestAPI )
 	if err != nil { return err }
-	err = rest_service.GetRestService().RegisterJsonAPI("product", "DELETE", "media/remove/:productId/:mediaType/:mediaName", MediaRemoveRestAPI )
+	err = api.GetRestService().RegisterAPI("product", "POST", "attribute/add", it.AddProductAttributeRestAPI )
 	if err != nil { return err }
 
-	// err = rest_service.GetRestService().RegisterJsonAPI("product", "GET", "media/get/:productId/:mediaType/:mediaName", nil ) // TODO: it is not a JSON API
-	// if err != nil { return err }
+
+	err = api.GetRestService().RegisterAPI("product", "GET", "media/get/:productId/:mediaType/:mediaName", it.MediaGetRestAPI )
+	if err != nil { return err }
+	err = api.GetRestService().RegisterAPI("product", "GET", "media/list/:productId/:mediaType", it.MediaListRestAPI )
+	if err != nil { return err }
+	err = api.GetRestService().RegisterAPI("product", "POST", "media/add/:productId/:mediaType/:mediaName", it.MediaAddRestAPI )
+	if err != nil { return err }
+	err = api.GetRestService().RegisterAPI("product", "DELETE", "media/remove/:productId/:mediaType/:mediaName", it.MediaRemoveRestAPI )
+	if err != nil { return err }
 
 
 	return nil
