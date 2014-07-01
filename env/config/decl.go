@@ -1,4 +1,4 @@
-package default_config
+package config
 
 type DefaultConfigItem struct {
 	     Name string

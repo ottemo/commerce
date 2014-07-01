@@ -12,25 +12,35 @@ func (it *FilesystemMediaStorage) GetName() string {
 	return "FilesystemMediaStorage"
 }
 
+// returns path you can use to access media file (if possible for storage of course)
+func (it *FilesystemMediaStorage) GetMediaPath(model string, objId string, mediaType string) (string, error) {
+	return  mediaType + "/" + model + "/" , nil
+}
+
 // retrieve contents of media entity for model object
 func (it *FilesystemMediaStorage) Load(model string, objId string, mediaType string, mediaName string) ([]byte, error) {
-	fullFileName := it.storageFolder + "/" + mediaType + "/" + model + "/" + mediaName
+	mediaPath, err := it.GetMediaPath(model, objId, mediaType)
+	if err != nil { return nil, err }
 
-	return ioutil.ReadFile(fullFileName)
+	mediaFilePath := it.storageFolder + mediaPath + mediaName
+
+	return ioutil.ReadFile( mediaFilePath )
 }
 
 // add media entity for model object
 func (it *FilesystemMediaStorage) Save(model string, objId string, mediaType string, mediaName string, mediaData []byte) error {
+	mediaPath, err := it.GetMediaPath(model, objId, mediaType)
+	if err != nil { return err }
 
-	filePath := it.storageFolder + "/" + mediaType + "/" + model
-	fullFileName := filePath + "/" + mediaName
+	mediaFolder := it.storageFolder + mediaPath
+	mediaFilePath := mediaFolder + mediaName
 
-	if _, err := os.Stat(filePath); !os.IsExist(err) {
-		err := os.MkdirAll(filePath, os.ModePerm)
+	if _, err := os.Stat(mediaFolder); !os.IsExist(err) {
+		err := os.MkdirAll(mediaFolder, os.ModePerm)
 		if err != nil { return err }
 	}
 
-	ioerr := ioutil.WriteFile(fullFileName, mediaData, os.ModePerm)
+	ioerr := ioutil.WriteFile(mediaFilePath, mediaData, os.ModePerm)
 	if ioerr != nil { return ioerr }
 
 
@@ -48,10 +58,13 @@ func (it *FilesystemMediaStorage) Save(model string, objId string, mediaType str
 
 // remove media entity for model object
 func (it *FilesystemMediaStorage) Remove(model string, objId string, mediaType string, mediaName string) error {
-	fullFileName := it.storageFolder + "/" + mediaType + "/" + model + "/" + mediaName
+	mediaPath, err := it.GetMediaPath(model, objId, mediaType)
+	if err != nil { return err }
+
+	mediaFilePath := it.storageFolder + mediaPath + mediaName
 
 	// removing file
-	err := os.Remove(fullFileName)
+	err = os.Remove(mediaFilePath)
 	if err != nil { return err }
 
 	// removing DB records

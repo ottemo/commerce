@@ -43,4 +43,5 @@ type I_Media interface {
 	RemoveMedia(mediaType string, mediaName string) error
 	ListMedia(mediaType string ) ([]string, error)
 	GetMedia(mediaType string, mediaName string) ([]byte, error)
+	GetMediaPath(mediaType string) (string, error)
 }

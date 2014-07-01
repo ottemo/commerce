@@ -4,7 +4,7 @@ import (
 	"errors"
 	"github.com/ottemo/foundation/database"
 	"github.com/ottemo/foundation/media"
-	"github.com/ottemo/foundation/config"
+	"github.com/ottemo/foundation/env"
 )
 
 func init() {
@@ -12,7 +12,7 @@ func init() {
 	if err := media.RegisterMediaStorage( instance ); err == nil {
 		instance.setupWaitCnt = 2
 
-		config.RegisterOnConfigIniStart(instance.setupOnIniConfig)
+		env.RegisterOnConfigIniStart(instance.setupOnIniConfig)
 		database.RegisterOnDatabaseStart(instance.setupOnDatabase)
 	}
 }
@@ -27,7 +27,7 @@ func (it *FilesystemMediaStorage) setupOnIniConfig() error {
 
 	var storageFolder = MEDIA_DEFAULT_FOLDER
 
-	if iniConfig := config.GetIniConfig(); iniConfig != nil {
+	if iniConfig := env.GetIniConfig(); iniConfig != nil {
 		if iniValue := iniConfig.GetValue("media.fsmedia.folder"); iniValue != "" {
 			storageFolder = iniValue
 		}
@@ -35,6 +35,10 @@ func (it *FilesystemMediaStorage) setupOnIniConfig() error {
 
 	// TODO: add checks for folder existence and rights
 	it.storageFolder = storageFolder
+
+	if it.storageFolder != "" && it.storageFolder[len(it.storageFolder)-1] != '/' {
+		it.storageFolder += "/"
+	}
 
 	it.setupCheckDone()
 

@@ -46,3 +46,13 @@ func (it *DefaultProductModel) GetMedia( mediaType string, mediaName string ) ([
 
 	return mediaStorage.Load(it.GetModelName(), productId, mediaType, mediaName)
 }
+
+func (it *DefaultProductModel) GetMediaPath( mediaType string ) (string, error) {
+	productId := it.GetId()
+	if productId == "" { return "", errors.New("product id not set") }
+
+	mediaStorage, err := media.GetMediaStorage()
+	if err != nil { return "", err }
+
+	return mediaStorage.GetMediaPath(it.GetModelName(), productId, mediaType)
+}

@@ -2,7 +2,7 @@ package fsmedia
 
 const (
 	MEDIA_DB_COLLECTION = "media"
-	MEDIA_DEFAULT_FOLDER = "./media"
+	MEDIA_DEFAULT_FOLDER = "./media/"
 )
 
 type FilesystemMediaStorage struct {

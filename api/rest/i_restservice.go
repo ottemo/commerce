@@ -60,6 +60,9 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 		return errors.New("unsupported method '" + method + "'")
 	}
 
+	key := path + " {" + method + "}"
+	it.Handlers[key] = wrappedHandler
+
 	return nil
 }
 

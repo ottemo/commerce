@@ -1,10 +1,10 @@
-package default_config
+package config
 
 import (
 	"fmt"
 	"errors"
 
-	config "github.com/ottemo/foundation/config"
+	"github.com/ottemo/foundation/env"
 )
 
 func (it *DefaultConfig) RegisterItem(Name string, Validator func(interface{}) (interface{}, bool), Default interface{} ) error {
@@ -68,7 +68,7 @@ func (it *DefaultConfig) Save() error {
 
 func (it *DefaultConfig) Load() error {
 
-	config.OnConfigStart()
+	env.OnConfigStart()
 
 	return nil
 }

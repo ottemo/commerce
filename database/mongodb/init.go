@@ -3,14 +3,14 @@ package mongodb
 import (
 	"errors"
 	"github.com/ottemo/foundation/database"
-	"github.com/ottemo/foundation/config"
+	"github.com/ottemo/foundation/env"
 	"labix.org/v2/mgo"
 )
 
 func init() {
 	instance := new(MongoDB)
 
-	config.RegisterOnConfigIniStart( instance.Startup )
+	env.RegisterOnConfigIniStart( instance.Startup )
 	database.RegisterDBEngine( instance )
 }
 
@@ -20,7 +20,7 @@ func (it *MongoDB) Startup() error {
 	var DBUri = "mongodb://localhost:27017/ottemo"
 	var DBName = "ottemo"
 
-	if iniConfig := config.GetIniConfig(); iniConfig != nil {
+	if iniConfig := env.GetIniConfig(); iniConfig != nil {
 		if iniValue := iniConfig.GetValue("mongodb.uri"); iniValue != "" {
 			DBUri = iniValue
 		}

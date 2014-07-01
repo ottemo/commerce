@@ -1,4 +1,4 @@
-package default_ini_config
+package ini
 
 
 func (it *DefaultIniConfig) ListItems() []string {

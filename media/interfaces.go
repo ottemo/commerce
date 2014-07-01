@@ -10,4 +10,6 @@ type IMediaStorage interface {
 	Remove(model string, objId string, mediaType string, mediaName string) error
 
 	ListMedia(model string, objId string, mediaType string) ([]string, error)
+
+	GetMediaPath(model string, objId string, mediaType string) (string, error)
 }

@@ -5,11 +5,11 @@ import (
 
 	"github.com/ottemo/foundation/app"
 
-	_ "github.com/ottemo/foundation/config/default_config"
-	_ "github.com/ottemo/foundation/config/default_ini_config"
+	_ "github.com/ottemo/foundation/env/config"
+	_ "github.com/ottemo/foundation/env/ini"
 
-	//_ "github.com/ottemo/foundation/database/sqlite"
-	_ "github.com/ottemo/foundation/database/mongodb"
+	_ "github.com/ottemo/foundation/database/sqlite"
+	//_ "github.com/ottemo/foundation/database/mongodb"
 
 	_ "github.com/ottemo/foundation/media/fsmedia"
 

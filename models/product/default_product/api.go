@@ -266,6 +266,34 @@ func (it *DefaultProductModel) UpdateProductRestAPI(resp http.ResponseWriter, re
 
 // WEB REST API used to add media for a product
 //   - product id, media type must be specified in request URI
+func (it *DefaultProductModel) MediaPathRestAPI(resp http.ResponseWriter, req *http.Request, params map[string]string) (interface{}, error) {
+
+	// check request params
+	//---------------------
+	productId, isIdSpecified := params["productId"]
+	if !isIdSpecified { return nil, errors.New("product id was not specified") }
+
+	mediaType, isTypeSpecified := params["mediaType"]
+	if !isTypeSpecified { return nil, errors.New("media type was not specified") }
+
+	// list media operation
+	//---------------------
+	model, err := models.GetModel("Product")
+	if err != nil { return nil, err }
+
+	productModel, ok := model.(product.I_Product)
+	if !ok { return nil, errors.New("product type is not I_Product campatible") }
+
+	productModel.SetId(productId)
+	mediaList, err := productModel.GetMediaPath(mediaType)
+	if err != nil { return nil, err }
+
+	return mediaList, nil
+}
+
+
+// WEB REST API used to add media for a product
+//   - product id, media type must be specified in request URI
 func (it *DefaultProductModel) MediaListRestAPI(resp http.ResponseWriter, req *http.Request, params map[string]string) (interface{}, error) {
 
 	// check request params
@@ -399,3 +427,4 @@ func (it *DefaultProductModel) MediaGetRestAPI(resp http.ResponseWriter, req *ht
 
 	return productModel.GetMedia(mediaType, mediaName)
 }
+

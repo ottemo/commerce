@@ -1,4 +1,4 @@
-package config
+package env
 
 type I_IniConfig interface {
 	GetValue(Name string) string

@@ -66,6 +66,8 @@ func (it *DefaultProductModel) setupAPI() error {
 	if err != nil { return err }
 	err = api.GetRestService().RegisterAPI("product", "GET", "media/list/:productId/:mediaType", it.MediaListRestAPI )
 	if err != nil { return err }
+	err = api.GetRestService().RegisterAPI("product", "GET", "media/path/:productId/:mediaType", it.MediaPathRestAPI )
+	if err != nil { return err }
 	err = api.GetRestService().RegisterAPI("product", "POST", "media/add/:productId/:mediaType/:mediaName", it.MediaAddRestAPI )
 	if err != nil { return err }
 	err = api.GetRestService().RegisterAPI("product", "DELETE", "media/remove/:productId/:mediaType/:mediaName", it.MediaRemoveRestAPI )

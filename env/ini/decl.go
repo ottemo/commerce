@@ -1,4 +1,4 @@
-package default_ini_config
+package ini
 
 type DefaultIniConfig struct {
 	iniFileValues map[string]string
