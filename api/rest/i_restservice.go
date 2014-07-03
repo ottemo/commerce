@@ -27,11 +27,15 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 		resp.Header().Set("Content-Type", "application/json")
 
 		result, err := handler(resp, req, mappedParams)
+		if err != nil { log.Printf("REST error: %s - %s\n", req.RequestURI, err.Error()) }
 
-		if result != nil {
+		if result != nil || err != nil {
 			if _, ok := result.([]byte); !ok {
 				if resp.Header().Get("Content-Type") == "application/json" {
-					result, _ = json.Marshal(map[string]interface{} {"result": result, "error": err})
+					errorMsg := ""
+					if err != nil { errorMsg = err.Error() }
+
+					result, _ = json.Marshal(map[string]interface{} {"result": result, "error": errorMsg })
 				}
 
 				if resp.Header().Get("Content-Type") == "text/xml" {
