@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 	"mime"
+	"encoding/json"
 
 	"github.com/ottemo/foundation/models"
 	"github.com/ottemo/foundation/models/product"
@@ -235,10 +236,15 @@ func (it *DefaultProductModel) UpdateProductRestAPI(resp http.ResponseWriter, re
 	productId, isSpecifiedId := params["id"]
 	if !isSpecifiedId { return nil, errors.New("product 'id' was not specified") }
 
-	req.ParseForm()
-	queryParams := req.PostForm
-	if _, present := queryParams["_id"]; present { return nil, errors.New("_id attribute can't be updated") }
-	if len(queryParams) == 0 { return nil, errors.New("update attributes were not set") }
+	queryParams := map[string]interface{} {}
+	buf := make([]byte, req.ContentLength)
+	req.Body.Read(buf)
+	json.Unmarshal( buf, &queryParams );
+
+	// req.ParseForm()
+	// queryParams := req.PostForm
+	// if _, present := queryParams["_id"]; present { return nil, errors.New("_id attribute can't be updated") }
+	// if len(queryParams) == 0 { return nil, errors.New("update attributes were not set") }
 
 	// update operations
 	//------------------
@@ -252,7 +258,7 @@ func (it *DefaultProductModel) UpdateProductRestAPI(resp http.ResponseWriter, re
 	if err != nil { return nil, err }
 
 	for attrName, attrVal := range queryParams {
-		err = productModel.Set(attrName, attrVal[0])
+		err = productModel.Set(attrName, attrVal)
 		if err != nil { return nil, err }
 	}
 
