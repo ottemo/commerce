@@ -8,8 +8,8 @@ import (
 	_ "github.com/ottemo/foundation/env/config"
 	_ "github.com/ottemo/foundation/env/ini"
 
-	_ "github.com/ottemo/foundation/database/sqlite"
-	//_ "github.com/ottemo/foundation/database/mongodb"
+	//_ "github.com/ottemo/foundation/database/sqlite"
+	_ "github.com/ottemo/foundation/database/mongodb"
 
 	_ "github.com/ottemo/foundation/media/fsmedia"
 
@@ -23,6 +23,10 @@ import (
 )
 
 func main() {
+	if err := app.Init(); err != nil {
+		fmt.Println(err.Error())
+	}
+
 	if err := app.Start(); err != nil {
 		fmt.Println(err.Error())
 	}

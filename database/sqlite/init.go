@@ -19,7 +19,7 @@ func (it *SQLite) Startup() error {
 	var uri string = "ottemo.db"
 
 	if iniConfig := env.GetIniConfig(); iniConfig != nil {
-		if iniValue := iniConfig.GetValue("db.sqlite3.uri"); iniValue != "" {
+		if iniValue := iniConfig.GetValue("db.sqlite3.uri", uri); iniValue != "" {
 			uri = iniValue
 		}
 	}

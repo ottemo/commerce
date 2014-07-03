@@ -28,7 +28,7 @@ func (it *FilesystemMediaStorage) setupOnIniConfig() error {
 	var storageFolder = MEDIA_DEFAULT_FOLDER
 
 	if iniConfig := env.GetIniConfig(); iniConfig != nil {
-		if iniValue := iniConfig.GetValue("media.fsmedia.folder"); iniValue != "" {
+		if iniValue := iniConfig.GetValue("media.fsmedia.folder", "?"); iniValue != "" {
 			storageFolder = iniValue
 		}
 	}

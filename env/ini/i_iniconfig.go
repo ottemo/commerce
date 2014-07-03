@@ -1,5 +1,6 @@
 package ini
 
+import "fmt"
 
 func (it *DefaultIniConfig) ListItems() []string {
 	result := make([]string, len(it.iniFileValues))
@@ -10,10 +11,27 @@ func (it *DefaultIniConfig) ListItems() []string {
 }
 
 
-func (it *DefaultIniConfig) GetValue(Name string) string {
+func (it *DefaultIniConfig) GetValue(Name string, Default string) string {
+
 	if value, present := it.iniFileValues[Name]; present {
 		return value
 	} else {
-		return ""
+
+		if Default == "?" {
+
+			ok := false
+			for !ok {
+				fmt.Printf("%s: ", Name)
+				_, err := fmt.Scanf("%s", &value)
+				if err == nil { ok = true }
+			}
+
+			it.iniFileValues[Name] = value
+			it.keysToStore = append( it.keysToStore, Name)
+
+			return value
+		} else {
+			return Default
+		}
 	}
 }

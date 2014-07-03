@@ -1,7 +1,7 @@
 package env
 
 type I_IniConfig interface {
-	GetValue(Name string) string
+	GetValue(Name string, Default string) string
 	ListItems() []string
 }
 

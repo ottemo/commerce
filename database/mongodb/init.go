@@ -21,11 +21,11 @@ func (it *MongoDB) Startup() error {
 	var DBName = "ottemo"
 
 	if iniConfig := env.GetIniConfig(); iniConfig != nil {
-		if iniValue := iniConfig.GetValue("mongodb.uri"); iniValue != "" {
+		if iniValue := iniConfig.GetValue("mongodb.uri", DBUri); iniValue != "" {
 			DBUri = iniValue
 		}
 
-		if iniValue := iniConfig.GetValue("mongodb.db"); iniValue != "" {
+		if iniValue := iniConfig.GetValue("mongodb.db", DBName); iniValue != "" {
 			DBName = iniValue
 		}
 	}

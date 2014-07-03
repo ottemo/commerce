@@ -21,7 +21,7 @@ func (it *DefaultRestService) startup() error {
 
 	it.ListenOn = ":3000"
 	if iniConfig := env.GetIniConfig(); iniConfig != nil {
-		if iniValue := iniConfig.GetValue("rest.listenOn"); iniValue != "" {
+		if iniValue := iniConfig.GetValue("rest.listenOn", it.ListenOn); iniValue != "" {
 			it.ListenOn = iniValue
 		}
 	}
