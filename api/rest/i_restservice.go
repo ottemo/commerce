@@ -24,9 +24,7 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 			mappedParams[param.Key] = param.Value
 		}
 
-		resp.Header().Add("Content-Type", "application/json")
-		resp.Header().Add("Access-Control-Allow-Origin", "*")
-
+		resp.Header().Set("Content-Type", "application/json")
 
 		result, err := handler(resp, req, mappedParams)
 
@@ -66,9 +64,22 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 	return nil
 }
 
+func (it DefaultRestService) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
+
+	resp.Header().Set("Access-Control-Allow-Origin", "*")
+	resp.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE")
+	resp.Header().Set("Access-Control-Allow-Credentials", "true")
+	resp.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token")
+
+
+	if req.Method == "GET" || req.Method == "POST" || req.Method == "PUT" || req.Method == "DELETE" {
+		it.Router.ServeHTTP(resp, req)
+	}
+}
+
 func (it *DefaultRestService) Run() error {
 	log.Println("REST API Service [HTTPRouter] starting to listen on " + it.ListenOn)
-	log.Fatal( http.ListenAndServe(it.ListenOn, it.Router) )
+	log.Fatal( http.ListenAndServe(it.ListenOn, it) )
 
 	return nil
 }
