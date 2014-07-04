@@ -21,7 +21,7 @@ func (it *CustomAttributes) Set(attribute string, value interface{}) error {
 }
 
 func (it *CustomAttributes) GetAttributesInfo() []models.T_AttributeInfo {
-	info := make([]models.T_AttributeInfo, len(it.attributes))
+	info := make([]models.T_AttributeInfo, 0)
 	for _, attribute := range it.attributes {
 		info = append(info, attribute)
 	}

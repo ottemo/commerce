@@ -51,7 +51,7 @@ func (it *DefaultProductModel) Set(attribute string, value interface{}) error {
 }
 
 func (it *DefaultProductModel) GetAttributesInfo() []models.T_AttributeInfo {
-	staticInfo := []models.T_AttributeInfo {
+	result := []models.T_AttributeInfo {
 		models.T_AttributeInfo {
 			Model: "Product",
 			Collection: "product",
@@ -122,5 +122,9 @@ func (it *DefaultProductModel) GetAttributesInfo() []models.T_AttributeInfo {
 
 	dynamicInfo := it.CustomAttributes.GetAttributesInfo()
 
-	return append(dynamicInfo, staticInfo...)
+	for _, dynamicAttribute := range dynamicInfo {
+		result = append(result, dynamicAttribute)
+	}
+
+	return result
 }
