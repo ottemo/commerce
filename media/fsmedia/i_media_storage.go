@@ -14,7 +14,7 @@ func (it *FilesystemMediaStorage) GetName() string {
 
 // returns path you can use to access media file (if possible for storage of course)
 func (it *FilesystemMediaStorage) GetMediaPath(model string, objId string, mediaType string) (string, error) {
-	return  mediaType + "/" + model + "/" , nil
+	return  mediaType + "/" + model + "/" + objId + "/", nil
 }
 
 // retrieve contents of media entity for model object
@@ -75,8 +75,9 @@ func (it *FilesystemMediaStorage) Remove(model string, objId string, mediaType s
 	if err != nil { return err }
 
 	err = collection.AddFilter("model", "=", model)
-	err = collection.AddFilter("object", "=", objId)
-	err = collection.AddFilter("type", "=", mediaType)
+	err = collection.AddFilter("object","=", objId)
+	err = collection.AddFilter("type",  "=", mediaType)
+	err = collection.AddFilter("media", "=", mediaName)
 
 	_, err = collection.Delete()
 	return err
@@ -93,13 +94,13 @@ func (it *FilesystemMediaStorage) ListMedia(model string, objId string, mediaTyp
 	if err != nil { return result, err }
 
 	collection.AddFilter("model", "=", model)
-	collection.AddFilter("object", "=", objId)
-	collection.AddFilter("type", "=", mediaType)
+	collection.AddFilter("object","=", objId)
+	collection.AddFilter("type",  "=", mediaType)
 
 	records, err := collection.Load()
 
 	for _, record := range records {
-		result = append(result, record["name"].(string))
+		result = append(result, record["media"].(string))
 	}
 
 	return result, err
