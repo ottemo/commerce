@@ -6,11 +6,12 @@ import (
 
 var callbacksOnAppInit = []func() error {}
 
+var callbacksOnAppStart = []func() error {}
+
+
 func OnAppInit(callback func() error) {
 	callbacksOnAppInit = append(callbacksOnAppInit, callback)
 }
-
-var callbacksOnAppStart = []func() error {}
 
 func OnAppStart(callback func() error) {
 	callbacksOnAppStart = append(callbacksOnAppStart, callback)

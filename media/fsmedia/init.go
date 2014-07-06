@@ -2,7 +2,7 @@ package fsmedia
 
 import (
 	"errors"
-	"github.com/ottemo/foundation/database"
+	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/media"
 	"github.com/ottemo/foundation/env"
 )
@@ -13,7 +13,7 @@ func init() {
 		instance.setupWaitCnt = 2
 
 		env.RegisterOnConfigIniStart(instance.setupOnIniConfig)
-		database.RegisterOnDatabaseStart(instance.setupOnDatabase)
+		db.RegisterOnDatabaseStart(instance.setupOnDatabase)
 	}
 }
 
@@ -47,7 +47,7 @@ func (it *FilesystemMediaStorage) setupOnIniConfig() error {
 
 func (it *FilesystemMediaStorage) setupOnDatabase() error {
 
-	dbEngine := database.GetDBEngine()
+	dbEngine := db.GetDBEngine()
 	if dbEngine == nil { return errors.New("Can't get database engine") }
 
 	collection, err := dbEngine.GetCollection( MEDIA_DB_COLLECTION )

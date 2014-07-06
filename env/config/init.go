@@ -2,12 +2,12 @@ package config
 
 import (
 	"github.com/ottemo/foundation/env"
-	"github.com/ottemo/foundation/database"
+	"github.com/ottemo/foundation/db"
 )
 
 func init() {
 	instance := new(DefaultConfig)
 
-	database.RegisterOnDatabaseStart( instance.Load )
+	db.RegisterOnDatabaseStart( instance.Load )
 	env.RegisterConfig( new(DefaultConfig) )
 }

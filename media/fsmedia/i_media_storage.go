@@ -4,7 +4,7 @@ import (
 	"os"
 	"errors"
 	"io/ioutil"
-	"github.com/ottemo/foundation/database"
+	"github.com/ottemo/foundation/db"
 )
 
 // retrieve media storage name
@@ -44,7 +44,7 @@ func (it *FilesystemMediaStorage) Save(model string, objId string, mediaType str
 	if ioerr != nil { return ioerr }
 
 
-	dbEngine := database.GetDBEngine()
+	dbEngine := db.GetDBEngine()
 	if dbEngine == nil { return errors.New("Can't get database engine") }
 
 	collection, err := dbEngine.GetCollection( MEDIA_DB_COLLECTION )
@@ -68,7 +68,7 @@ func (it *FilesystemMediaStorage) Remove(model string, objId string, mediaType s
 	if err != nil { return err }
 
 	// removing DB records
-	dbEngine := database.GetDBEngine()
+	dbEngine := db.GetDBEngine()
 	if dbEngine == nil { return errors.New("Can't get database engine") }
 
 	collection, err := dbEngine.GetCollection( MEDIA_DB_COLLECTION )
@@ -87,7 +87,7 @@ func (it *FilesystemMediaStorage) Remove(model string, objId string, mediaType s
 func (it *FilesystemMediaStorage) ListMedia(model string, objId string, mediaType string) ([]string, error) {
 	result := make([]string, 0)
 
-	dbEngine := database.GetDBEngine()
+	dbEngine := db.GetDBEngine()
 	if dbEngine == nil { return result, errors.New("Can't get database engine") }
 
 	collection, err := dbEngine.GetCollection( MEDIA_DB_COLLECTION )
