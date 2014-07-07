@@ -10,6 +10,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
+// package self registration function
 func init() {
 	instance := new(DefaultRestService)
 
@@ -17,6 +18,7 @@ func init() {
 	env.RegisterOnConfigIniStart( instance.startup )
 }
 
+// service pre-initialization stuff
 func (it *DefaultRestService) startup() error {
 
 	it.ListenOn = ":3000"
@@ -27,6 +29,8 @@ func (it *DefaultRestService) startup() error {
 	}
 
 	it.Router = httprouter.New()
+
+	// our homepage - shows all registered API in text representation
 	it.Router.GET("/",
 		func( resp http.ResponseWriter, req *http.Request, params httprouter.Params) {
 			newline := []byte( "\n" )
@@ -36,7 +40,7 @@ func (it *DefaultRestService) startup() error {
 			resp.Write( []byte( "Ottemo REST API:" ) )
 			resp.Write( newline )
 
-			// sorting handlers
+			// sorting handlers before output
 			handlers := make([]string, 0, len(it.Handlers))
 			for handlerPath := range it.Handlers {
 				handlers = append(handlers, handlerPath)

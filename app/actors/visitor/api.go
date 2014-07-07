@@ -9,7 +9,7 @@ import (
 )
 
 // sample: http://127.0.0.1:9000/visitor/load?id=5
-func (it *DefaultVisitor) LoadVisitorAPI(resp http.ResponseWriter, req *http.Request, params map[string]string) (interface{}, error) {
+func (it *DefaultVisitor) LoadVisitorAPI(resp http.ResponseWriter, req *http.Request, params map[string]string, content interface{}) (interface{}, error) {
 	queryParams := req.URL.Query()
 
 	productId := queryParams.Get("id")
@@ -32,7 +32,7 @@ func (it *DefaultVisitor) LoadVisitorAPI(resp http.ResponseWriter, req *http.Req
 
 
 // usage: http://127.0.0.1:9000/visitor/update?id=10&email=bad_guy@gmail.com&first_name=Bad&last_name=Guy
-func (it *DefaultVisitor) UpdateVisitorAPI(resp http.ResponseWriter, req *http.Request, params map[string]string) (interface{}, error) {
+func (it *DefaultVisitor) UpdateVisitorAPI(resp http.ResponseWriter, req *http.Request, params map[string]string, content interface{}) (interface{}, error) {
 	queryParams := req.URL.Query()
 
 	if queryParams.Get("id") == "" {
@@ -61,7 +61,7 @@ func (it *DefaultVisitor) UpdateVisitorAPI(resp http.ResponseWriter, req *http.R
 }
 
 // usage: http://127.0.0.1:9000/visitor/create?email=bad_guy@gmail.com&first_name=Bad&last_name=Guy
-func (it *DefaultVisitor) CreateVisitorAPI(resp http.ResponseWriter, req *http.Request, params map[string]string) (interface{}, error) {
+func (it *DefaultVisitor) CreateVisitorAPI(resp http.ResponseWriter, req *http.Request, params map[string]string, content interface{}) (interface{}, error) {
 	queryParams := req.URL.Query()
 
 	if queryParams.Get("email") == "" {

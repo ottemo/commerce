@@ -4,7 +4,6 @@ import (
 	"errors"
 	"net/http"
 	"mime"
-	"encoding/json"
 
 	"github.com/ottemo/foundation/api"
 
@@ -53,7 +52,7 @@ func (it *DefaultProduct) setupAPI() error {
 
 
 // WEB REST API function used to obtain product attributes information
-func (it *DefaultProduct) ListProductAttributesRestAPI(resp http.ResponseWriter, req *http.Request, params map[string]string) (interface{}, error) {
+func (it *DefaultProduct) ListProductAttributesRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}) (interface{}, error) {
 	model, err := models.GetModel("Product")
 	if err != nil { return nil, err }
 
@@ -67,18 +66,30 @@ func (it *DefaultProduct) ListProductAttributesRestAPI(resp http.ResponseWriter,
 
 
 // WEB REST API function used to add new one custom attribute
-func (it *DefaultProduct) AddProductAttributeRestAPI(resp http.ResponseWriter, req *http.Request, params map[string]string) (interface{}, error) {
-	queryParams := req.URL.Query()
+func (it *DefaultProduct) AddProductAttributeRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}) (interface{}, error) {
 
+	reqData, ok := reqContent.(map[string]interface{})
+	if !ok { return nil, errors.New("unexpected request content") }
+
+	// check request params
+	//---------------------
+	attributeName, isSpecified := reqParams["attribute"]
+	if !isSpecified { return nil, errors.New("attribute name was not specified") }
+
+	attributeLabel, isSpecified := reqParams["label"]
+	if !isSpecified { return nil, errors.New("attribute name was not specified") }
+
+	// processing
+	//-----------
 	model, err := models.GetModel("Product")
 	if err != nil { return nil, err }
 
 	attribute := models.T_AttributeInfo {
 		Model:      "product",
 		Collection: "product",
-		Attribute:  "test",
+		Attribute:  attributeName,
 		Type:       "text",
-		Label:      "Test Attribute",
+		Label:      attributeLabel,
 		Group:      "General",
 		Editors:    "text",
 		Options:    "",
@@ -86,22 +97,18 @@ func (it *DefaultProduct) AddProductAttributeRestAPI(resp http.ResponseWriter, r
 	}
 
 
-	for param, value := range queryParams {
-		switch param {
+	for key, value := range reqData {
+		switch key {
 		case "type":
-			attribute.Type = value[0]
-		case "attribute":
-			attribute.Attribute = value[0]
-		case "label":
-			attribute.Label = value[0]
+			attribute.Type = value.(string)
 		case "group":
-			attribute.Group = value[0]
+			attribute.Group = value.(string)
 		case "editors":
-			attribute.Editors = value[0]
+			attribute.Editors = value.(string)
 		case "options":
-			attribute.Options = value[0]
+			attribute.Options = value.(string)
 		case "default":
-			attribute.Default = value[0]
+			attribute.Default = value.(string)
 		}
 	}
 
@@ -121,11 +128,11 @@ func (it *DefaultProduct) AddProductAttributeRestAPI(resp http.ResponseWriter, r
 
 
 // WEB REST API function used to remove custom attribute of product
-func (it *DefaultProduct) RemoveProductAttributeRestAPI(resp http.ResponseWriter, req *http.Request, params map[string]string) (interface{}, error) {
+func (it *DefaultProduct) RemoveProductAttributeRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}) (interface{}, error) {
 
 	// check request params
 	//--------------------
-	attributeName, isSpecified := params["attribute"]
+	attributeName, isSpecified := reqParams["attribute"]
 	if !isSpecified { return nil, errors.New("attribute name was not specified") }
 
 	// remove attribute actions
@@ -146,11 +153,11 @@ func (it *DefaultProduct) RemoveProductAttributeRestAPI(resp http.ResponseWriter
 
 // WEB REST API function used to obtain all product attributes
 //   - product id must be specified in request URI "http://[site:port]/product/get/:id"
-func (it *DefaultProduct) GetProductRestAPI(resp http.ResponseWriter, req *http.Request, params map[string]string) (interface{}, error) {
+func (it *DefaultProduct) GetProductRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}) (interface{}, error) {
 
 	// check request params
 	//---------------------
-	productId, isSpecifiedId := params["id"]
+	productId, isSpecifiedId := reqParams["id"]
 	if !isSpecifiedId {
 		return nil,  errors.New("product 'id' was not specified")
 	}
@@ -174,7 +181,7 @@ func (it *DefaultProduct) GetProductRestAPI(resp http.ResponseWriter, req *http.
 
 // WEB REST API function used to obtain product list we have in database
 //   - only [_id, sku, name] attributes returns by default
-func (it *DefaultProduct) ListProductsRestAPI(resp http.ResponseWriter, req *http.Request, params map[string]string) (interface{}, error) {
+func (it *DefaultProduct) ListProductsRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}) (interface{}, error) {
 
 	result := make( []map[string]interface{}, 0 )
 	if model, err := models.GetModel("Product"); err == nil {
@@ -208,14 +215,14 @@ func (it *DefaultProduct) ListProductsRestAPI(resp http.ResponseWriter, req *htt
 // WEB REST API used to create new one product
 //   - product attributes must be included in POST form
 //   - sku and name attributes required
-func (it *DefaultProduct) CreateProductRestAPI(resp http.ResponseWriter, req *http.Request, params map[string]string) (interface{}, error) {
+func (it *DefaultProduct) CreateProductRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}) (interface{}, error) {
 
 	// check request params
 	//---------------------
-	req.ParseForm()
-	queryParams := req.PostForm
+	reqData, ok := reqContent.(map[string]interface{})
+	if !ok { return nil, errors.New("unexpected request content") }
 
-	if queryParams.Get("sku") == "" || queryParams.Get("name") == "" {
+	if reqData["sku"] == "" || reqData["name"] == "" {
 		return nil,  errors.New("product 'name' and/or 'sku' was not specified")
 	}
 
@@ -224,8 +231,8 @@ func (it *DefaultProduct) CreateProductRestAPI(resp http.ResponseWriter, req *ht
 	if model, err := models.GetModel("Product"); err == nil {
 		if model, ok := model.(product.I_Product); ok {
 
-			for attribute, value := range queryParams {
-				err := model.Set(attribute, value[0])
+			for attribute, value := range reqData {
+				err := model.Set(attribute, value)
 				if err != nil { return nil, err }
 			}
 
@@ -243,11 +250,11 @@ func (it *DefaultProduct) CreateProductRestAPI(resp http.ResponseWriter, req *ht
 
 // WEB REST API used to delete product
 //   - product attributes must be included in POST form
-func (it *DefaultProduct) DeleteProductRestAPI(resp http.ResponseWriter, req *http.Request, params map[string]string) (interface{}, error) {
+func (it *DefaultProduct) DeleteProductRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}) (interface{}, error) {
 
 	// check request params
 	//--------------------
-	productId, isSpecifiedId := params["id"]
+	productId, isSpecifiedId := reqParams["id"]
 	if !isSpecifiedId { return nil, errors.New("product 'id' was not specified") }
 
 	model, err := models.GetModel("Product")
@@ -269,22 +276,15 @@ func (it *DefaultProduct) DeleteProductRestAPI(resp http.ResponseWriter, req *ht
 // WEB REST API used to update existing product
 //   - product id must be specified in request URI
 //   - product attributes must be included in POST form
-func (it *DefaultProduct) UpdateProductRestAPI(resp http.ResponseWriter, req *http.Request, params map[string]string) (interface{}, error) {
+func (it *DefaultProduct) UpdateProductRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}) (interface{}, error) {
 
 	// check request params
 	//---------------------
-	productId, isSpecifiedId := params["id"]
+	productId, isSpecifiedId := reqParams["id"]
 	if !isSpecifiedId { return nil, errors.New("product 'id' was not specified") }
 
-	queryParams := map[string]interface{} {}
-	buf := make([]byte, req.ContentLength)
-	req.Body.Read(buf)
-	json.Unmarshal( buf, &queryParams );
-
-	// req.ParseForm()
-	// queryParams := req.PostForm
-	// if _, present := queryParams["_id"]; present { return nil, errors.New("_id attribute can't be updated") }
-	// if len(queryParams) == 0 { return nil, errors.New("update attributes were not set") }
+	reqData, ok := reqContent.(map[string]interface{})
+	if !ok { return nil, errors.New("unexpected request content") }
 
 	// update operations
 	//------------------
@@ -297,7 +297,7 @@ func (it *DefaultProduct) UpdateProductRestAPI(resp http.ResponseWriter, req *ht
 	err = productModel.Load( productId )
 	if err != nil { return nil, err }
 
-	for attrName, attrVal := range queryParams {
+	for attrName, attrVal := range reqData {
 		err = productModel.Set(attrName, attrVal)
 		if err != nil { return nil, err }
 	}
@@ -312,14 +312,14 @@ func (it *DefaultProduct) UpdateProductRestAPI(resp http.ResponseWriter, req *ht
 
 // WEB REST API used to add media for a product
 //   - product id, media type must be specified in request URI
-func (it *DefaultProduct) MediaPathRestAPI(resp http.ResponseWriter, req *http.Request, params map[string]string) (interface{}, error) {
+func (it *DefaultProduct) MediaPathRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}) (interface{}, error) {
 
 	// check request params
 	//---------------------
-	productId, isIdSpecified := params["productId"]
+	productId, isIdSpecified := reqParams["productId"]
 	if !isIdSpecified { return nil, errors.New("product id was not specified") }
 
-	mediaType, isTypeSpecified := params["mediaType"]
+	mediaType, isTypeSpecified := reqParams["mediaType"]
 	if !isTypeSpecified { return nil, errors.New("media type was not specified") }
 
 	// list media operation
@@ -340,14 +340,14 @@ func (it *DefaultProduct) MediaPathRestAPI(resp http.ResponseWriter, req *http.R
 
 // WEB REST API used to add media for a product
 //   - product id, media type must be specified in request URI
-func (it *DefaultProduct) MediaListRestAPI(resp http.ResponseWriter, req *http.Request, params map[string]string) (interface{}, error) {
+func (it *DefaultProduct) MediaListRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}) (interface{}, error) {
 
 	// check request params
 	//---------------------
-	productId, isIdSpecified := params["productId"]
+	productId, isIdSpecified := reqParams["productId"]
 	if !isIdSpecified { return nil, errors.New("product id was not specified") }
 
-	mediaType, isTypeSpecified := params["mediaType"]
+	mediaType, isTypeSpecified := reqParams["mediaType"]
 	if !isTypeSpecified { return nil, errors.New("media type was not specified") }
 
 	// list media operation
@@ -370,16 +370,17 @@ func (it *DefaultProduct) MediaListRestAPI(resp http.ResponseWriter, req *http.R
 // WEB REST API used to add media for a product
 //   - product id, media type and media name must be specified in request URI
 //   - media contents must be included as file in POST form
-func (it *DefaultProduct) MediaAddRestAPI(resp http.ResponseWriter, req *http.Request, params map[string]string) (interface{}, error) {
+func (it *DefaultProduct) MediaAddRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}) (interface{}, error) {
+
 	// check request params
 	//---------------------
-	productId, isIdSpecified := params["productId"]
+	productId, isIdSpecified := reqParams["productId"]
 	if !isIdSpecified { return nil, errors.New("product id was not specified") }
 
-	mediaType, isTypeSpecified := params["mediaType"]
+	mediaType, isTypeSpecified := reqParams["mediaType"]
 	if !isTypeSpecified { return nil, errors.New("media type was not specified") }
 
-	mediaName, isNameSpecified := params["mediaName"]
+	mediaName, isNameSpecified := reqParams["mediaName"]
 	if !isNameSpecified { return nil, errors.New("media name was not specified") }
 
 	// income file processing
@@ -412,17 +413,17 @@ func (it *DefaultProduct) MediaAddRestAPI(resp http.ResponseWriter, req *http.Re
 
 // WEB REST API used to add media for a product
 //   - product id, media type and media name must be specified in request URI
-func (it *DefaultProduct) MediaRemoveRestAPI(resp http.ResponseWriter, req *http.Request, params map[string]string) (interface{}, error) {
+func (it *DefaultProduct) MediaRemoveRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}) (interface{}, error) {
 
 	// check request params
 	//---------------------
-	productId, isIdSpecified := params["productId"]
+	productId, isIdSpecified := reqParams["productId"]
 	if !isIdSpecified { return nil, errors.New("product id was not specified") }
 
-	mediaType, isTypeSpecified := params["mediaType"]
+	mediaType, isTypeSpecified := reqParams["mediaType"]
 	if !isTypeSpecified { return nil, errors.New("media type was not specified") }
 
-	mediaName, isNameSpecified := params["mediaName"]
+	mediaName, isNameSpecified := reqParams["mediaName"]
 	if !isNameSpecified { return nil, errors.New("media name was not specified") }
 
 	// list media operation
@@ -444,17 +445,17 @@ func (it *DefaultProduct) MediaRemoveRestAPI(resp http.ResponseWriter, req *http
 
 // WEB REST API used to get media contents for a product
 //   - product id, media type and media name must be specified in request URI
-func (it *DefaultProduct) MediaGetRestAPI(resp http.ResponseWriter, req *http.Request, params map[string]string) (interface{}, error) {
+func (it *DefaultProduct) MediaGetRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}) (interface{}, error) {
 
 	// check request params
 	//---------------------
-	productId, isIdSpecified := params["productId"]
+	productId, isIdSpecified := reqParams["productId"]
 	if !isIdSpecified { return nil, errors.New("product id was not specified") }
 
-	mediaType, isTypeSpecified := params["mediaType"]
+	mediaType, isTypeSpecified := reqParams["mediaType"]
 	if !isTypeSpecified { return nil, errors.New("media type was not specified") }
 
-	mediaName, isNameSpecified := params["mediaName"]
+	mediaName, isNameSpecified := reqParams["mediaName"]
 	if !isNameSpecified { return nil, errors.New("media name was not specified") }
 
 

@@ -2,6 +2,9 @@ package product
 
 import (
 	"strings"
+	"strconv"
+	"errors"
+
 	"github.com/ottemo/foundation/app/models"
 )
 
@@ -38,13 +41,23 @@ func (it *DefaultProduct) Set(attribute string, value interface{}) error {
 		it.Description = value.(string)
 	case "default_image", "defaultimage":
 		it.DefaultImage = value.(string)
+
 	case "price":
-		it.Price = value.(float64)
-	default:
-		if err := it.CustomAttributes.Set(attribute, value); err != nil {
-			return err
+		switch value := value.(type) {
+		case float64:
+			it.Price = value
+		case string:
+			newPrice, err := strconv.ParseFloat( value , 64)
+			if err != nil { return err }
+
+			it.Price = newPrice
+		default:
+			return errors.New("wrong price format")
 		}
 
+	default:
+		err := it.CustomAttributes.Set(attribute, value)
+		if err != nil { return err }
 	}
 
 	return nil
