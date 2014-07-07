@@ -17,6 +17,7 @@ func SetupModel() error {
 			collection.AddColumn("collection", "text", true)
 			collection.AddColumn("attribute", "text", true)
 			collection.AddColumn("type", "text", false)
+			collection.AddColumn("required", "bool", false)
 			collection.AddColumn("label", "text", true)
 			collection.AddColumn("group", "text", false)
 			collection.AddColumn("editors", "text", false)

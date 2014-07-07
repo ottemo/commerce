@@ -45,3 +45,18 @@ type I_Media interface {
 	GetMedia(mediaType string, mediaName string) ([]byte, error)
 	GetMediaPath(mediaType string) (string, error)
 }
+
+
+type T_AttributeInfo struct {
+	Model      string
+	Collection string
+	Attribute  string
+	Type       string
+	Label      string
+	IsRequired bool
+	IsStatic   bool
+	Group      string
+	Editors    string
+	Options    string
+	Default    string
+}

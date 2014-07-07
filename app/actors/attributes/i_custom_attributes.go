@@ -18,6 +18,8 @@ func (it *CustomAttributes) Init(model string) (*CustomAttributes, error) {
 
 		it.attributes = make(map[string]models.T_AttributeInfo)
 
+		// retrieving information from DB
+		//-------------------------------
 		dbEngine := db.GetDBEngine()
 		if dbEngine == nil {
 			return it, errors.New("There is no database engine")
@@ -34,17 +36,40 @@ func (it *CustomAttributes) Init(model string) (*CustomAttributes, error) {
 			return it, errors.New("Can't load custom attributes information for '" + it.model + "'")
 		}
 
+		// filling attribute info structure
+		//---------------------------------
 		for _, row := range dbValues {
-			attribute := models.T_AttributeInfo {
-				Model:      row["model"].(string),
-				Collection: row["collection"].(string),
-				Attribute:  row["attribute"].(string),
-				Type:       row["type"].(string),
-				Label:      row["label"].(string),
-				Group:      row["group"].(string),
-				Editors:    row["editors"].(string),
-				Options:    row["options"].(string),
-				Default:    row["default"].(string),
+			attribute := models.T_AttributeInfo {}
+
+			for key, value := range row {
+				switch value := value.(type) {
+				case string:
+					switch key {
+					case "model":
+						attribute.Model = value
+					case "collection":
+						attribute.Collection = value
+					case "attribute":
+						attribute.Attribute = value
+					case "type":
+						attribute.Type = value
+					case "label":
+						attribute.Label = value
+					case "group":
+						attribute.Group = value
+					case "editors":
+						attribute.Editors = value
+					case "options":
+						attribute.Options = value
+					case "default":
+						attribute.Default = value
+					}
+				case bool:
+					switch key {
+					case "required":
+						attribute.IsRequired = value
+					}
+				}
 			}
 
 			it.attributes[attribute.Attribute] = attribute
@@ -115,15 +140,16 @@ func (it *CustomAttributes) AddNewAttribute( newAttribute models.T_AttributeInfo
 	// inserting attribute information in custom_attributes collection
 	hashMap := make(map[string]interface{})
 
-	hashMap["model"] = newAttribute.Model
+	hashMap["model"]      = newAttribute.Model
 	hashMap["collection"] = newAttribute.Collection
-	hashMap["attribute"] = newAttribute.Attribute
-	hashMap["type"] = newAttribute.Type
-	hashMap["label"] = newAttribute.Label
-	hashMap["group"] = newAttribute.Group
-	hashMap["editors"] = newAttribute.Editors
-	hashMap["options"] = newAttribute.Options
-	hashMap["default"] = newAttribute.Default
+	hashMap["attribute"]  = newAttribute.Attribute
+	hashMap["type"]       = newAttribute.Type
+	hashMap["required"]   = newAttribute.IsRequired
+	hashMap["label"]      = newAttribute.Label
+	hashMap["group"]      = newAttribute.Group
+	hashMap["editors"]    = newAttribute.Editors
+	hashMap["options"]    = newAttribute.Options
+	hashMap["default"]    = newAttribute.Default
 
 	newCustomAttributeId, err := caCollection.Save(hashMap)
 

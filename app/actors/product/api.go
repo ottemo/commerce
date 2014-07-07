@@ -2,6 +2,7 @@ package product
 
 import (
 	"errors"
+	"strings"
 	"net/http"
 	"mime"
 
@@ -89,6 +90,8 @@ func (it *DefaultProduct) AddProductAttributeRestAPI(resp http.ResponseWriter, r
 		Collection: "product",
 		Attribute:  attributeName,
 		Type:       "text",
+		IsRequired: false,
+		IsStatic:   false,
 		Label:      attributeLabel,
 		Group:      "General",
 		Editors:    "text",
@@ -96,22 +99,32 @@ func (it *DefaultProduct) AddProductAttributeRestAPI(resp http.ResponseWriter, r
 		Default:    "",
 	}
 
-
 	for key, value := range reqData {
-		switch key {
-		case "type":
-			attribute.Type = value.(string)
-		case "group":
-			attribute.Group = value.(string)
-		case "editors":
-			attribute.Editors = value.(string)
-		case "options":
-			attribute.Options = value.(string)
-		case "default":
-			attribute.Default = value.(string)
+		switch value := value.(type) {
+		case string:
+			switch strings.ToLower(key) {
+			case "type":
+				attribute.Type = value
+			case "required":
+				if strings.ToLower(value) == "true" {
+					attribute.IsRequired = true
+				}
+			case "group":
+				attribute.Group = value
+			case "editors":
+				attribute.Editors = value
+			case "options":
+				attribute.Options = value
+			case "default":
+				attribute.Default = value
+			}
+		case bool:
+			switch key {
+			case "required":
+				attribute.IsRequired = value
+			}
 		}
 	}
-
 
 	if prod, ok := model.(models.I_CustomAttributes); ok {
 		if err := prod.AddNewAttribute(attribute); err != nil {
@@ -120,7 +133,6 @@ func (it *DefaultProduct) AddProductAttributeRestAPI(resp http.ResponseWriter, r
 	} else {
 		return nil, errors.New("product model is not I_CustomAttributes")
 	}
-
 
 	return attribute, nil
 }
@@ -194,9 +206,19 @@ func (it *DefaultProduct) ListProductsRestAPI(resp http.ResponseWriter, req *htt
 				if productItem, ok := listValue.(product.I_Product); ok {
 
 					resultItem := map[string]interface{} {
-						"_id": productItem.GetId(),
-						"sku": productItem.GetSku(),
-						"name": productItem.GetName(),
+						"_id":   productItem.GetId(),
+						"sku":   productItem.GetSku(),
+						"name":  productItem.GetName(),
+						"desc":  productItem.GetDescription(),
+						"image": nil,
+					}
+
+					defaultImage := productItem.GetDefaultImage()
+					if defaultImage != "" {
+						path, err := productItem.GetMediaPath("image")
+						if err != nil { return nil, err }
+
+						resultItem["image"] = path + defaultImage
 					}
 
 					result = append(result, resultItem)

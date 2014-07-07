@@ -27,6 +27,8 @@ func GetDBType(ColumnType string) (string, error) {
 		return "BLOB", nil
 	case strings.Contains(ColumnType, "numeric") || strings.Contains(ColumnType, "decimal") || ColumnType == "money":
 		return "NUMERIC", nil
+	case ColumnType == "bool" || ColumnType == "boolean":
+		return "NUMERIC", nil
 	}
 
 	return "?", errors.New("Unknown type '" + ColumnType + "'")
