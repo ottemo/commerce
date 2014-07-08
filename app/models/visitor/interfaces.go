@@ -12,7 +12,6 @@ type I_VisitorAddress interface {
 	models.I_Model
 	models.I_Object
 	models.I_Storable
-	models.I_Mapable
 }
 
 type I_Visitor interface {
@@ -31,5 +30,4 @@ type I_Visitor interface {
 	models.I_Model
 	models.I_Object
 	models.I_Storable
-	models.I_Mapable
 }

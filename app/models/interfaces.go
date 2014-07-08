@@ -19,12 +19,10 @@ type I_Object interface {
 	Get(Attribute string) interface{}
 	Set(Attribute string, Value interface{}) error
 
-	GetAttributesInfo() []T_AttributeInfo
-}
-
-type I_Mapable interface {
 	FromHashMap(HashMap map[string]interface{}) error
 	ToHashMap() map[string]interface{}
+
+	GetAttributesInfo() []T_AttributeInfo
 }
 
 type I_Listable interface {

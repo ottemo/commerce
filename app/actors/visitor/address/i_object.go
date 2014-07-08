@@ -5,6 +5,8 @@ import (
 	"github.com/ottemo/foundation/app/models"
 )
 
+
+
 func (it *DefaultVisitorAddress) Get(attribute string) interface{} {
 	switch strings.ToLower(attribute) {
 	case "_id", "id":
@@ -24,6 +26,8 @@ func (it *DefaultVisitorAddress) Get(attribute string) interface{} {
 	return nil
 }
 
+
+
 func (it *DefaultVisitorAddress) Set(attribute string, value interface{}) error {
 	switch strings.ToLower(attribute) {
 	case "_id", "id":
@@ -41,6 +45,35 @@ func (it *DefaultVisitorAddress) Set(attribute string, value interface{}) error 
 	}
 	return nil
 }
+
+
+func (it *DefaultVisitorAddress) FromHashMap(input map[string]interface{}) error {
+
+	for attribute, value := range input {
+		if err := it.Set(attribute, value); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (it *DefaultVisitorAddress) ToHashMap() map[string]interface{} {
+
+	result := make( map[string]interface{} )
+
+	result["_id"] = it.id
+
+	result["street"] = it.Street
+	result["city"] = it.City
+	result["state"] = it.State
+	result["phone"] = it.Phone
+	result["zip_code"] = it.ZipCode
+
+	return result
+}
+
+
 
 func (it *DefaultVisitorAddress) GetAttributesInfo() []models.T_AttributeInfo {
 	info := []models.T_AttributeInfo {

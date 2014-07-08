@@ -9,6 +9,8 @@ import (
 	"github.com/ottemo/foundation/app/models/product"
 )
 
+
+
 func (it *DefaultCategory) Get(attribute string) interface{} {
 	switch strings.ToLower(attribute) {
 	case "_id", "id":
@@ -25,6 +27,8 @@ func (it *DefaultCategory) Get(attribute string) interface{} {
 
 	return nil
 }
+
+
 
 func (it *DefaultCategory) Set(attribute string, value interface{}) error {
 	attribute = strings.ToLower(attribute)
@@ -70,6 +74,35 @@ func (it *DefaultCategory) Set(attribute string, value interface{}) error {
 	}
 	return nil
 }
+
+
+
+func (it *DefaultCategory) FromHashMap(input map[string]interface{}) error {
+
+	for attribute, value := range input {
+		if err := it.Set(attribute, value); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+
+
+func (it *DefaultCategory) ToHashMap() map[string]interface{} {
+
+	result := make( map[string]interface{} )
+
+	result["_id"] = it.id
+
+	result["name"] = it.Name
+	result["products"] = it.Get("products")
+
+	return result
+}
+
+
 
 func (it *DefaultCategory) GetAttributesInfo() []models.T_AttributeInfo {
 

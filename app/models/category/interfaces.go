@@ -18,5 +18,4 @@ type I_Category interface {
 	models.I_Model
 	models.I_Object
 	models.I_Storable
-	models.I_Mapable
 }
