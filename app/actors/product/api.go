@@ -205,12 +205,15 @@ func (it *DefaultProduct) ListProductsRestAPI(resp http.ResponseWriter, req *htt
 			for _, listValue := range productsList {
 				if productItem, ok := listValue.(product.I_Product); ok {
 
+					imagePath, _ := productItem.GetMediaPath("image")
+
 					resultItem := map[string]interface{} {
 						"_id":   productItem.GetId(),
 						"sku":   productItem.GetSku(),
 						"name":  productItem.GetName(),
-						"desc":  productItem.GetDescription(),
-						"image": nil,
+						"description":   productItem.GetDescription(),
+						"default_image": productItem.GetDefaultImage(),
+						"image_path":    imagePath,
 					}
 
 					defaultImage := productItem.GetDefaultImage()
