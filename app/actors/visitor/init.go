@@ -36,21 +36,3 @@ func (it *DefaultVisitor) setupModel() error {
 	return nil
 }
 
-func (it *DefaultVisitor) setupAPI() error {
-	err := api.GetRestService().RegisterAPI("visitor", "POST", "create", it.CreateVisitorAPI)
-	if err != nil {
-		return err
-	}
-
-	err = api.GetRestService().RegisterAPI("visitor", "PUT", "update", it.UpdateVisitorAPI)
-	if err != nil {
-		return err
-	}
-
-	err = api.GetRestService().RegisterAPI("visitor", "GET", "load", it.LoadVisitorAPI)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}

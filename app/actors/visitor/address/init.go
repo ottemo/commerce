@@ -4,6 +4,8 @@ import (
 	"errors"
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/db"
+
+	"github.com/ottemo/foundation/api"
 )
 
 func init() {
@@ -11,6 +13,9 @@ func init() {
 
 	models.RegisterModel("VisitorAddress", instance)
 	db.RegisterOnDatabaseStart(instance.setupModel)
+
+
+	api.RegisterOnRestServiceStart(instance.setupAPI)
 }
 
 func (it *DefaultVisitorAddress) setupModel() error {
@@ -31,3 +36,4 @@ func (it *DefaultVisitorAddress) setupModel() error {
 
 	return nil
 }
+

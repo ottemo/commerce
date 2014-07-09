@@ -188,7 +188,7 @@ func (it *DefaultVisitor) GetAttributesInfo() []models.T_AttributeInfo {
 			Label:      "Billing Address",
 			Group:      "General",
 			Editors:    "model_selector",
-			Options:    "model:VisitorAddress",
+			Options:    "model=VisitorAddress",
 			Default:    "",
 		},
 		models.T_AttributeInfo{
