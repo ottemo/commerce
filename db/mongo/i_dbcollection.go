@@ -1,8 +1,8 @@
 package mongo
 
 import (
-	"strings"
 	"errors"
+	"strings"
 
 	"labix.org/v2/mgo/bson"
 )
@@ -55,33 +55,34 @@ func getMongoOperator(Operator string, Value string) (string, string, error) {
 	return "?", "?", errors.New("Unknown operator '" + Operator + "'")
 }
 
-
 func (it *MongoDBCollection) LoadById(id string) (map[string]interface{}, error) {
-	result := make( map[string]interface{} )
+	result := make(map[string]interface{})
 
-	err := it.collection.FindId( id ).One(&result)
+	err := it.collection.FindId(id).One(&result)
 
 	return result, err
 }
 
 func (it *MongoDBCollection) Load() ([]map[string]interface{}, error) {
-	result := make([] map[string]interface{}, 0)
+	result := make([]map[string]interface{}, 0)
 
-	query := it.collection.Find( it.Selector )
+	query := it.collection.Find(it.Selector)
 
 	if len(it.Sort) > 0 {
 		query.Sort(it.Sort...)
 	}
 
-	if it.Offset > 0 { query = query.Skip(it.Offset) }
-	if it.Limit  > 0 { query = query.Limit(it.Limit) }
+	if it.Offset > 0 {
+		query = query.Skip(it.Offset)
+	}
+	if it.Limit > 0 {
+		query = query.Limit(it.Limit)
+	}
 
 	err := query.All(&result)
 
 	return result, err
 }
-
-
 
 func (it *MongoDBCollection) Save(Item map[string]interface{}) (string, error) {
 
@@ -106,7 +107,6 @@ func (it *MongoDBCollection) Save(Item map[string]interface{}) (string, error) {
 	return id, err
 }
 
-
 func (it *MongoDBCollection) Delete() (int, error) {
 	changeInfo, err := it.collection.RemoveAll(it.Selector)
 
@@ -118,11 +118,12 @@ func (it *MongoDBCollection) DeleteById(id string) error {
 	return it.collection.RemoveId(id)
 }
 
-
 func (it *MongoDBCollection) AddFilter(ColumnName string, Operator string, Value string) error {
 
 	newOperator, newValue, err := getMongoOperator(Operator, Value)
-	if err != nil { return err }
+	if err != nil {
+		return err
+	}
 
 	var filterValue interface{} = newValue
 	if newOperator != "" {
@@ -137,14 +138,13 @@ func (it *MongoDBCollection) AddFilter(ColumnName string, Operator string, Value
 }
 
 func (it *MongoDBCollection) ClearFilters() error {
-	it.Selector = make( map[string]interface{} )
+	it.Selector = make(map[string]interface{})
 	return nil
 }
 
-
 func (it *MongoDBCollection) AddSort(ColumnName string, Desc bool) error {
 	if Desc {
-		it.Sort = append(it.Sort, "-" + ColumnName)
+		it.Sort = append(it.Sort, "-"+ColumnName)
 	} else {
 		it.Sort = append(it.Sort, ColumnName)
 	}
@@ -152,10 +152,9 @@ func (it *MongoDBCollection) AddSort(ColumnName string, Desc bool) error {
 }
 
 func (it *MongoDBCollection) ClearSort() error {
-	it.Sort = make( []string, 0 )
+	it.Sort = make([]string, 0)
 	return nil
 }
-
 
 func (it *MongoDBCollection) SetLimit(Offset int, Limit int) error {
 	it.Limit = Limit
@@ -169,30 +168,30 @@ func (it *MongoDBCollection) SetLimit(Offset int, Limit int) error {
 func (it *MongoDBCollection) ListColumns() map[string]string {
 
 	result := map[string]string{}
-	
+
 	infoCollection := it.database.C(COLUMN_INFO_COLLECTION)
-	selector :=  map[string]string{"collection": it.Name}
+	selector := map[string]string{"collection": it.Name}
 	iter := infoCollection.Find(selector).Iter()
-	
+
 	row := map[string]string{}
 	for iter.Next(&row) {
 		colName, okColumn := row["column"]
 		colType, okType := row["type"]
-		
+
 		if okColumn && okType {
 			result[colName] = colType
 		}
 	}
-	
+
 	return result
 }
 
 func (it *MongoDBCollection) HasColumn(ColumnName string) bool {
 
 	infoCollection := it.database.C(COLUMN_INFO_COLLECTION)
-	selector :=  map[string]interface{} {"collection": it.Name, "column": ColumnName}
+	selector := map[string]interface{}{"collection": it.Name, "column": ColumnName}
 	count, _ := infoCollection.Find(selector).Count()
-	
+
 	return count > 0
 }
 
@@ -200,8 +199,8 @@ func (it *MongoDBCollection) AddColumn(ColumnName string, ColumnType string, ind
 
 	infoCollection := it.database.C(COLUMN_INFO_COLLECTION)
 
-	selector := map[string]interface{} {"collection": it.Name, "column": ColumnName}
-	data := map[string]interface{} {"collection": it.Name, "column": ColumnName, "type": ColumnType, "indexed": indexed}
+	selector := map[string]interface{}{"collection": it.Name, "column": ColumnName}
+	data := map[string]interface{}{"collection": it.Name, "column": ColumnName, "type": ColumnType, "indexed": indexed}
 
 	_, err := infoCollection.Upsert(selector, data)
 
@@ -214,14 +213,18 @@ func (it *MongoDBCollection) RemoveColumn(ColumnName string) error {
 	removeSelector := map[string]string{"collection": it.Name, "column": ColumnName}
 
 	err := infoCollection.Remove(removeSelector)
-	if err != nil { return err }
+	if err != nil {
+		return err
+	}
 
-	updateSelector := map[string]interface{} { ColumnName: map[string]interface{} {"$exists": true} }
-	data := map[string]interface{} { "$unset": map[string]interface{} {ColumnName: ""} }
+	updateSelector := map[string]interface{}{ColumnName: map[string]interface{}{"$exists": true}}
+	data := map[string]interface{}{"$unset": map[string]interface{}{ColumnName: ""}}
 
 	_, err = it.collection.UpdateAll(updateSelector, data)
 
-	if err != nil { return err }
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

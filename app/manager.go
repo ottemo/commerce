@@ -4,10 +4,9 @@ import (
 	"github.com/ottemo/foundation/api"
 )
 
-var callbacksOnAppInit = []func() error {}
+var callbacksOnAppInit = []func() error{}
 
-var callbacksOnAppStart = []func() error {}
-
+var callbacksOnAppStart = []func() error{}
 
 func OnAppInit(callback func() error) {
 	callbacksOnAppInit = append(callbacksOnAppInit, callback)
@@ -16,7 +15,6 @@ func OnAppInit(callback func() error) {
 func OnAppStart(callback func() error) {
 	callbacksOnAppStart = append(callbacksOnAppStart, callback)
 }
-
 
 func Start() error {
 	for _, callback := range callbacksOnAppStart {
@@ -28,7 +26,6 @@ func Start() error {
 	return nil
 }
 
-
 func Init() error {
 	for _, callback := range callbacksOnAppInit {
 		if err := callback(); err != nil {
@@ -38,7 +35,6 @@ func Init() error {
 
 	return nil
 }
-
 
 func Serve() error {
 	return api.GetRestService().Run()

@@ -1,15 +1,13 @@
 package category
 
 import (
-	"strings"
 	"errors"
+	"strings"
 
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/category"
 	"github.com/ottemo/foundation/app/models/product"
 )
-
-
 
 func (it *DefaultCategory) Get(attribute string) interface{} {
 	switch strings.ToLower(attribute) {
@@ -28,12 +26,10 @@ func (it *DefaultCategory) Get(attribute string) interface{} {
 	return nil
 }
 
-
-
 func (it *DefaultCategory) Set(attribute string, value interface{}) error {
 	attribute = strings.ToLower(attribute)
 
-	switch  attribute {
+	switch attribute {
 	case "_id", "id":
 		it.id = value.(string)
 
@@ -42,7 +38,9 @@ func (it *DefaultCategory) Set(attribute string, value interface{}) error {
 
 	case "parent":
 		value, ok := value.(category.I_Category)
-		if !ok { errors.New("unsupported 'parent' value") }
+		if !ok {
+			errors.New("unsupported 'parent' value")
+		}
 
 		it.Parent = value
 
@@ -57,11 +55,15 @@ func (it *DefaultCategory) Set(attribute string, value interface{}) error {
 		case []map[string]interface{}:
 			for _, value := range value {
 				model, err := models.GetModel("Product")
-				if err != nil { return err }
+				if err != nil {
+					return err
+				}
 
 				if categoryProduct, ok := model.(product.I_Product); ok {
 					err := categoryProduct.FromHashMap(value)
-					if err != nil { return err }
+					if err != nil {
+						return err
+					}
 
 					it.Products = append(it.Products, categoryProduct)
 				} else {
@@ -75,8 +77,6 @@ func (it *DefaultCategory) Set(attribute string, value interface{}) error {
 	return nil
 }
 
-
-
 func (it *DefaultCategory) FromHashMap(input map[string]interface{}) error {
 
 	for attribute, value := range input {
@@ -88,11 +88,9 @@ func (it *DefaultCategory) FromHashMap(input map[string]interface{}) error {
 	return nil
 }
 
-
-
 func (it *DefaultCategory) ToHashMap() map[string]interface{} {
 
-	result := make( map[string]interface{} )
+	result := make(map[string]interface{})
 
 	result["_id"] = it.id
 
@@ -102,62 +100,60 @@ func (it *DefaultCategory) ToHashMap() map[string]interface{} {
 	return result
 }
 
-
-
 func (it *DefaultCategory) GetAttributesInfo() []models.T_AttributeInfo {
 
-	info := []models.T_AttributeInfo {
-		models.T_AttributeInfo {
-			Model: "Category",
+	info := []models.T_AttributeInfo{
+		models.T_AttributeInfo{
+			Model:      "Category",
 			Collection: "Category",
-			Attribute: "_id",
-			Type: "id",
+			Attribute:  "_id",
+			Type:       "id",
 			IsRequired: false,
-			IsStatic: true,
-			Label: "ID",
-			Group: "General",
-			Editors: "not_editable",
-			Options: "",
-			Default: "",
+			IsStatic:   true,
+			Label:      "ID",
+			Group:      "General",
+			Editors:    "not_editable",
+			Options:    "",
+			Default:    "",
 		},
-		models.T_AttributeInfo {
-			Model: "Category",
+		models.T_AttributeInfo{
+			Model:      "Category",
 			Collection: "Category",
-			Attribute: "name",
-			Type: "text",
+			Attribute:  "name",
+			Type:       "text",
 			IsRequired: true,
-			IsStatic: true,
-			Label: "Name",
-			Group: "General",
-			Editors: "line_text",
-			Options: "",
-			Default: "",
+			IsStatic:   true,
+			Label:      "Name",
+			Group:      "General",
+			Editors:    "line_text",
+			Options:    "",
+			Default:    "",
 		},
-		models.T_AttributeInfo {
-			Model: "Category",
+		models.T_AttributeInfo{
+			Model:      "Category",
 			Collection: "Category",
-			Attribute: "parent",
-			Type: "id",
+			Attribute:  "parent",
+			Type:       "id",
 			IsRequired: false,
-			IsStatic: true,
-			Label: "Parent",
-			Group: "General",
-			Editors: "model_selector",
-			Options: "model: category",
-			Default: "",
+			IsStatic:   true,
+			Label:      "Parent",
+			Group:      "General",
+			Editors:    "model_selector",
+			Options:    "model: category",
+			Default:    "",
 		},
-		models.T_AttributeInfo {
-			Model: "Category",
+		models.T_AttributeInfo{
+			Model:      "Category",
 			Collection: "Category",
-			Attribute: "products",
-			Type: "id",
+			Attribute:  "products",
+			Type:       "id",
 			IsRequired: false,
-			IsStatic: true,
-			Label: "Products",
-			Group: "General",
-			Editors: "array_model_selector",
-			Options: "model: product",
-			Default: "",
+			IsStatic:   true,
+			Label:      "Products",
+			Group:      "General",
+			Editors:    "array_model_selector",
+			Options:    "model: product",
+			Default:    "",
 		},
 	}
 

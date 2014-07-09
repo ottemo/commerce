@@ -5,22 +5,21 @@ import (
 )
 
 type MongoDBCollection struct {
-	  database *mgo.Database
+	database   *mgo.Database
 	collection *mgo.Collection
-	      Name string
+	Name       string
 
 	Selector map[string]interface{}
-	Sort []string
+	Sort     []string
 
-	Limit int
+	Limit  int
 	Offset int
-
 }
 
 type MongoDB struct {
 	database *mgo.Database
 	session  *mgo.Session
 
-	DBName string
+	DBName      string
 	collections map[string]bool
 }

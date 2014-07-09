@@ -20,8 +20,10 @@ func (it *DefaultVisitor) LoadVisitorAPI(resp http.ResponseWriter, req *http.Req
 	if model, err := models.GetModel("Visitor"); err == nil {
 		if model, ok := model.(visitor.I_Visitor); ok {
 
-			err = model.Load( productId )
-			if err != nil { return nil, err }
+			err = model.Load(productId)
+			if err != nil {
+				return nil, err
+			}
 
 			return model.ToHashMap(), nil
 		}
@@ -29,7 +31,6 @@ func (it *DefaultVisitor) LoadVisitorAPI(resp http.ResponseWriter, req *http.Req
 
 	return nil, errors.New("Something went wrong...")
 }
-
 
 // usage: http://127.0.0.1:9000/visitor/update?id=10&email=bad_guy@gmail.com&first_name=Bad&last_name=Guy
 func (it *DefaultVisitor) UpdateVisitorAPI(resp http.ResponseWriter, req *http.Request, params map[string]string, content interface{}) (interface{}, error) {
@@ -42,16 +43,22 @@ func (it *DefaultVisitor) UpdateVisitorAPI(resp http.ResponseWriter, req *http.R
 	if model, err := models.GetModel("Visitor"); err == nil {
 		if model, ok := model.(visitor.I_Visitor); ok {
 
-			err := model.Load( queryParams.Get("id") )
-			if err != nil { return nil, err }
+			err := model.Load(queryParams.Get("id"))
+			if err != nil {
+				return nil, err
+			}
 
 			for attribute, value := range queryParams {
 				err := model.Set(attribute, value[0])
-				if err != nil { return nil, err }
+				if err != nil {
+					return nil, err
+				}
 			}
 
 			err = model.Save()
-			if err != nil { return nil, err }
+			if err != nil {
+				return nil, err
+			}
 
 			return model.ToHashMap(), nil
 		}
@@ -73,11 +80,15 @@ func (it *DefaultVisitor) CreateVisitorAPI(resp http.ResponseWriter, req *http.R
 
 			for attribute, value := range queryParams {
 				err := model.Set(attribute, value[0])
-				if err != nil { return nil, err }
+				if err != nil {
+					return nil, err
+				}
 			}
 
 			err := model.Save()
-			if err != nil { return nil, err }
+			if err != nil {
+				return nil, err
+			}
 
 			return model.ToHashMap(), nil
 		}

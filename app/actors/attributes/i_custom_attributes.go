@@ -2,8 +2,8 @@ package attributes
 
 import (
 	"errors"
-	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/app/models"
+	"github.com/ottemo/foundation/db"
 )
 
 func (it *CustomAttributes) Init(model string) (*CustomAttributes, error) {
@@ -27,7 +27,7 @@ func (it *CustomAttributes) Init(model string) (*CustomAttributes, error) {
 
 		caCollection, err := dbEngine.GetCollection(CUSTOM_ATTRIBUTES_COLLECTION)
 		if err != nil {
-			return it, errors.New("Can't get collection 'custom_attributes': " + err.Error() )
+			return it, errors.New("Can't get collection 'custom_attributes': " + err.Error())
 		}
 
 		caCollection.AddFilter("model", "=", it.model)
@@ -39,7 +39,7 @@ func (it *CustomAttributes) Init(model string) (*CustomAttributes, error) {
 		// filling attribute info structure
 		//---------------------------------
 		for _, row := range dbValues {
-			attribute := models.T_AttributeInfo {}
+			attribute := models.T_AttributeInfo{}
 
 			for key, value := range row {
 				switch value := value.(type) {
@@ -81,33 +81,35 @@ func (it *CustomAttributes) Init(model string) (*CustomAttributes, error) {
 	return it, nil
 }
 
-
-
-func (it *CustomAttributes) RemoveAttribute( attributeName string ) error {
+func (it *CustomAttributes) RemoveAttribute(attributeName string) error {
 
 	dbEngine := db.GetDBEngine()
-	if dbEngine == nil { return errors.New("There is no database engine") }
+	if dbEngine == nil {
+		return errors.New("There is no database engine")
+	}
 
-	attribute, present := it.attributes[attributeName];
+	attribute, present := it.attributes[attributeName]
 	if !present {
-		return errors.New("There is no attribute '" +  attributeName + "' for model '" + it.model + "'")
+		return errors.New("There is no attribute '" + attributeName + "' for model '" + it.model + "'")
 	}
 
 	caCollection, err := dbEngine.GetCollection(CUSTOM_ATTRIBUTES_COLLECTION)
-	if err != nil { return errors.New("Can't get collection 'custom_attributes': " + err.Error() ) }
+	if err != nil {
+		return errors.New("Can't get collection 'custom_attributes': " + err.Error())
+	}
 
 	attrCollection, err := dbEngine.GetCollection(attribute.Collection)
 	if err != nil {
-		return errors.New("Can't get attribute '" + attribute.Attribute + "' collection '" + attribute.Collection + "': " + err.Error() )
+		return errors.New("Can't get attribute '" + attribute.Attribute + "' collection '" + attribute.Collection + "': " + err.Error())
 	}
 
 	err = attrCollection.RemoveColumn(attributeName)
 	if err != nil {
-		return errors.New("Can't remove attribute '" + attributeName + "' from collection '" + attribute.Collection + "': " + err.Error() )
+		return errors.New("Can't remove attribute '" + attributeName + "' from collection '" + attribute.Collection + "': " + err.Error())
 	}
 
-	caCollection.AddFilter("model", "=", attribute.Collection )
-	caCollection.AddFilter("attr", "=", attributeName )
+	caCollection.AddFilter("model", "=", attribute.Collection)
+	caCollection.AddFilter("attr", "=", attributeName)
 	_, err = caCollection.Delete()
 	if err != nil {
 		return errors.New("Can't remove attribute '" + attributeName + "' information from 'custom_attributes' collection '" + attribute.Collection + "': " + err.Error())
@@ -116,45 +118,47 @@ func (it *CustomAttributes) RemoveAttribute( attributeName string ) error {
 	return nil
 }
 
-
-
-func (it *CustomAttributes) AddNewAttribute( newAttribute models.T_AttributeInfo ) error {
+func (it *CustomAttributes) AddNewAttribute(newAttribute models.T_AttributeInfo) error {
 
 	if _, present := it.attributes[newAttribute.Attribute]; present {
-		return errors.New("There is already atribute '" +  newAttribute.Attribute + "' for model '" + it.model + "'")
+		return errors.New("There is already atribute '" + newAttribute.Attribute + "' for model '" + it.model + "'")
 	}
 
 	dbEngine := db.GetDBEngine()
-	if dbEngine == nil { return errors.New("There is no database engine") }
+	if dbEngine == nil {
+		return errors.New("There is no database engine")
+	}
 
 	// getting collection where custom attribute information stores
 	caCollection, err := dbEngine.GetCollection(CUSTOM_ATTRIBUTES_COLLECTION)
-	if err != nil { return errors.New("Can't get collection 'custom_attributes': " + err.Error() ) }
+	if err != nil {
+		return errors.New("Can't get collection 'custom_attributes': " + err.Error())
+	}
 
 	// getting collection where attribute supposed to be
 	attrCollection, err := dbEngine.GetCollection(newAttribute.Collection)
 	if err != nil {
-		return errors.New("Can't get attribute '" + newAttribute.Attribute + "' collection '" + newAttribute.Collection + "': " + err.Error() )
+		return errors.New("Can't get attribute '" + newAttribute.Attribute + "' collection '" + newAttribute.Collection + "': " + err.Error())
 	}
 
 	// inserting attribute information in custom_attributes collection
 	hashMap := make(map[string]interface{})
 
-	hashMap["model"]      = newAttribute.Model
+	hashMap["model"] = newAttribute.Model
 	hashMap["collection"] = newAttribute.Collection
-	hashMap["attribute"]  = newAttribute.Attribute
-	hashMap["type"]       = newAttribute.Type
-	hashMap["required"]   = newAttribute.IsRequired
-	hashMap["label"]      = newAttribute.Label
-	hashMap["group"]      = newAttribute.Group
-	hashMap["editors"]    = newAttribute.Editors
-	hashMap["options"]    = newAttribute.Options
-	hashMap["default"]    = newAttribute.Default
+	hashMap["attribute"] = newAttribute.Attribute
+	hashMap["type"] = newAttribute.Type
+	hashMap["required"] = newAttribute.IsRequired
+	hashMap["label"] = newAttribute.Label
+	hashMap["group"] = newAttribute.Group
+	hashMap["editors"] = newAttribute.Editors
+	hashMap["options"] = newAttribute.Options
+	hashMap["default"] = newAttribute.Default
 
 	newCustomAttributeId, err := caCollection.Save(hashMap)
 
 	if err != nil {
-		return errors.New("Can't insert attribute '" + newAttribute.Attribute + "' in collection '" + newAttribute.Collection + "': " + err.Error() )
+		return errors.New("Can't insert attribute '" + newAttribute.Attribute + "' in collection '" + newAttribute.Collection + "': " + err.Error())
 	}
 
 	// inserting new attribute to supposed location
@@ -162,7 +166,7 @@ func (it *CustomAttributes) AddNewAttribute( newAttribute models.T_AttributeInfo
 	if err != nil {
 		caCollection.DeleteById(newCustomAttributeId)
 
-		return errors.New("Can't insert attribute '" + newAttribute.Attribute + "' in collection '" + newAttribute.Collection + "': " + err.Error() )
+		return errors.New("Can't insert attribute '" + newAttribute.Attribute + "' in collection '" + newAttribute.Collection + "': " + err.Error())
 	}
 
 	it.attributes[newAttribute.Attribute] = newAttribute

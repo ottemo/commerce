@@ -3,13 +3,13 @@ package fsmedia
 import (
 	"errors"
 	"github.com/ottemo/foundation/db"
-	"github.com/ottemo/foundation/media"
 	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/foundation/media"
 )
 
 func init() {
-	instance := new( FilesystemMediaStorage )
-	if err := media.RegisterMediaStorage( instance ); err == nil {
+	instance := new(FilesystemMediaStorage)
+	if err := media.RegisterMediaStorage(instance); err == nil {
 		instance.setupWaitCnt = 2
 
 		env.RegisterOnConfigIniStart(instance.setupOnIniConfig)
@@ -48,10 +48,14 @@ func (it *FilesystemMediaStorage) setupOnIniConfig() error {
 func (it *FilesystemMediaStorage) setupOnDatabase() error {
 
 	dbEngine := db.GetDBEngine()
-	if dbEngine == nil { return errors.New("Can't get database engine") }
+	if dbEngine == nil {
+		return errors.New("Can't get database engine")
+	}
 
-	collection, err := dbEngine.GetCollection( MEDIA_DB_COLLECTION )
-	if err != nil { return err }
+	collection, err := dbEngine.GetCollection(MEDIA_DB_COLLECTION)
+	if err != nil {
+		return err
+	}
 
 	// TODO: make 3 column PK constraint (model, object, media)
 	collection.AddColumn("model", "text", true)

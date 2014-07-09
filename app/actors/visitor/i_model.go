@@ -1,6 +1,6 @@
 package visitor
 
-import(
+import (
 	"github.com/ottemo/foundation/app/models"
 )
 
@@ -13,5 +13,5 @@ func (it *DefaultVisitor) GetImplementationName() string {
 }
 
 func (it *DefaultVisitor) New() (models.I_Model, error) {
-	return &DefaultVisitor{ }, nil
+	return &DefaultVisitor{}, nil
 }

@@ -7,7 +7,7 @@ import (
 type DefaultProduct struct {
 	id string
 
-	Sku string
+	Sku  string
 	Name string
 
 	Description string

@@ -6,18 +6,17 @@ import (
 	"github.com/ottemo/foundation/db"
 )
 
-func init(){
+func init() {
 	instance := new(DefaultVisitorAddress)
 
-	models.RegisterModel("VisitorAddress", instance )
-	db.RegisterOnDatabaseStart( instance.setupModel )
+	models.RegisterModel("VisitorAddress", instance)
+	db.RegisterOnDatabaseStart(instance.setupModel)
 }
-
 
 func (it *DefaultVisitorAddress) setupModel() error {
 
 	if dbEngine := db.GetDBEngine(); dbEngine != nil {
-		if collection, err := dbEngine.GetCollection( VISITOR_ADDRESS_COLLECTION_NAME ); err == nil {
+		if collection, err := dbEngine.GetCollection(VISITOR_ADDRESS_COLLECTION_NAME); err == nil {
 			collection.AddColumn("street", "text", false)
 			collection.AddColumn("city", "text", false)
 			collection.AddColumn("state", "text", false)

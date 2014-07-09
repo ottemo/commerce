@@ -15,9 +15,9 @@ func (it *DefaultVisitorAddress) SetId(NewId string) error {
 
 func (it *DefaultVisitorAddress) Load(Id string) error {
 	if dbEngine := db.GetDBEngine(); dbEngine != nil {
-		if collection, err := dbEngine.GetCollection( VISITOR_ADDRESS_COLLECTION_NAME ); err == nil {
+		if collection, err := dbEngine.GetCollection(VISITOR_ADDRESS_COLLECTION_NAME); err == nil {
 
-			if values, err := collection.LoadById( Id ); err == nil {
+			if values, err := collection.LoadById(Id); err == nil {
 				if err := it.FromHashMap(values); err != nil {
 					return err
 				}
@@ -34,9 +34,11 @@ func (it *DefaultVisitorAddress) Load(Id string) error {
 
 func (it *DefaultVisitorAddress) Delete(Id string) error {
 	if dbEngine := db.GetDBEngine(); dbEngine != nil {
-		if collection, err := dbEngine.GetCollection( VISITOR_ADDRESS_COLLECTION_NAME ); err == nil {
+		if collection, err := dbEngine.GetCollection(VISITOR_ADDRESS_COLLECTION_NAME); err == nil {
 			err := collection.DeleteById(Id)
-			if err != nil { return err }
+			if err != nil {
+				return err
+			}
 		} else {
 			return err
 		}
@@ -47,13 +49,13 @@ func (it *DefaultVisitorAddress) Delete(Id string) error {
 func (it *DefaultVisitorAddress) Save() error {
 
 	if dbEngine := db.GetDBEngine(); dbEngine != nil {
-		if collection, err := dbEngine.GetCollection( VISITOR_ADDRESS_COLLECTION_NAME ); err == nil {
+		if collection, err := dbEngine.GetCollection(VISITOR_ADDRESS_COLLECTION_NAME); err == nil {
 
 			//if it.ZipCode== "" {
 			//	return errors.New("Zip code for address - required")
 			//}
 
-			if newId, err := collection.Save( it.ToHashMap() ); err == nil {
+			if newId, err := collection.Save(it.ToHashMap()); err == nil {
 				it.Set("_id", newId)
 				return err
 			} else {

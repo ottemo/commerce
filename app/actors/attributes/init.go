@@ -5,8 +5,8 @@ import (
 	"github.com/ottemo/foundation/db"
 )
 
-func init(){
-	db.RegisterOnDatabaseStart( SetupModel )
+func init() {
+	db.RegisterOnDatabaseStart(SetupModel)
 }
 
 func SetupModel() error {

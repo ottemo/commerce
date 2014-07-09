@@ -6,7 +6,7 @@ import (
 
 var currentDBEngine I_DBEngine = nil
 
-var callbacksOnDatabaseStart = []func() error {}
+var callbacksOnDatabaseStart = []func() error{}
 
 func RegisterOnDatabaseStart(callback func() error) {
 	callbacksOnDatabaseStart = append(callbacksOnDatabaseStart, callback)

@@ -5,7 +5,7 @@ import (
 )
 
 var currentRestService I_RestService = nil
-var callbacksOnRestServiceStart = []func() error {}
+var callbacksOnRestServiceStart = []func() error{}
 
 func RegisterOnRestServiceStart(callback func() error) {
 	callbacksOnRestServiceStart = append(callbacksOnRestServiceStart, callback)

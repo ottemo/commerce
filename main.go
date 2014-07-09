@@ -16,8 +16,8 @@ import (
 	_ "github.com/ottemo/foundation/api/rest"
 
 	_ "github.com/ottemo/foundation/app/actors/attributes"
-	_ "github.com/ottemo/foundation/app/actors/product"
 	_ "github.com/ottemo/foundation/app/actors/category"
+	_ "github.com/ottemo/foundation/app/actors/product"
 	_ "github.com/ottemo/foundation/app/actors/visitor"
 	_ "github.com/ottemo/foundation/app/actors/visitor/address"
 )

@@ -1,11 +1,11 @@
 package ini
 
 import (
-	"os"
 	"io/ioutil"
+	"os"
 
-	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/app"
+	"github.com/ottemo/foundation/env"
 	goini "github.com/vaughan0/go-ini"
 )
 
@@ -17,12 +17,12 @@ func init() {
 	instance := new(DefaultIniConfig)
 
 	instance.iniFileValues = make(map[string]string)
-	instance.keysToStore = make([]string,0)
+	instance.keysToStore = make([]string, 0)
 
-	app.OnAppInit( instance.init )
-	app.OnAppStart( instance.startup )
+	app.OnAppInit(instance.init)
+	app.OnAppStart(instance.startup)
 
-	env.RegisterIniConfig( instance )
+	env.RegisterIniConfig(instance)
 }
 
 func (it *DefaultIniConfig) startup() error {
@@ -34,7 +34,9 @@ func (it *DefaultIniConfig) startup() error {
 		}
 
 		ioerr := ioutil.WriteFile(INI_CONFIG_FILE, []byte(iniData), os.ModePerm)
-		if ioerr != nil { return ioerr }
+		if ioerr != nil {
+			return ioerr
+		}
 	}
 
 	return nil
@@ -42,7 +44,7 @@ func (it *DefaultIniConfig) startup() error {
 
 func (it *DefaultIniConfig) init() error {
 
-	iniFile, _ := goini.LoadFile( INI_CONFIG_FILE )
+	iniFile, _ := goini.LoadFile(INI_CONFIG_FILE)
 	it.iniFileValues = iniFile.Section("")
 
 	err := env.OnConfigIniStart()

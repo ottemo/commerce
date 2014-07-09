@@ -1,17 +1,17 @@
 package config
 
 import (
-	"fmt"
 	"errors"
+	"fmt"
 
 	"github.com/ottemo/foundation/env"
 )
 
-func (it *DefaultConfig) RegisterItem(Name string, Validator func(interface{}) (interface{}, bool), Default interface{} ) error {
+func (it *DefaultConfig) RegisterItem(Name string, Validator func(interface{}) (interface{}, bool), Default interface{}) error {
 	if _, present := it.configValues[Name]; present {
 		return errors.New("Item [" + Name + "] already registered")
 	} else {
-		it.configValues[Name] = &DefaultConfigItem{ Name: Name, Validator: Validator, Default: Default, Value: Default }
+		it.configValues[Name] = &DefaultConfigItem{Name: Name, Validator: Validator, Default: Default, Value: Default}
 	}
 
 	return nil
@@ -19,7 +19,7 @@ func (it *DefaultConfig) RegisterItem(Name string, Validator func(interface{}) (
 
 func (it *DefaultConfig) UnregisterItem(Name string) error {
 	if _, present := it.configValues[Name]; present {
-		delete( it.configValues, Name )
+		delete(it.configValues, Name)
 	} else {
 		return errors.New("Item [" + Name + "] not exists")
 	}
@@ -40,7 +40,7 @@ func (it *DefaultConfig) SetValue(Name string, Value interface{}) error {
 		if configItem.Validator != nil {
 
 			if newVal, ok := configItem.Validator(Value); ok {
-				return errors.New("trying to set invalid value to item [" + Name + "] = " + fmt.Sprintf("%s", Value) )
+				return errors.New("trying to set invalid value to item [" + Name + "] = " + fmt.Sprintf("%s", Value))
 			} else {
 				configItem.Value = newVal
 			}
@@ -57,7 +57,7 @@ func (it *DefaultConfig) SetValue(Name string, Value interface{}) error {
 func (it *DefaultConfig) ListItems() []string {
 	result := make([]string, len(it.configValues))
 	for itemName, _ := range it.configValues {
-		result = append( result, itemName )
+		result = append(result, itemName)
 	}
 	return result
 }

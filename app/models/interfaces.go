@@ -39,11 +39,10 @@ type I_CustomAttributes interface {
 type I_Media interface {
 	AddMedia(mediaType string, mediaName string, content []byte) error
 	RemoveMedia(mediaType string, mediaName string) error
-	ListMedia(mediaType string ) ([]string, error)
+	ListMedia(mediaType string) ([]string, error)
 	GetMedia(mediaType string, mediaName string) ([]byte, error)
 	GetMediaPath(mediaType string) (string, error)
 }
-
 
 type T_AttributeInfo struct {
 	Model      string

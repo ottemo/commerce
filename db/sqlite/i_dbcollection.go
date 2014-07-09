@@ -1,10 +1,10 @@
 package sqlite
 
 import (
-	"strings"
-	"strconv"
 	"errors"
 	"regexp"
+	"strconv"
+	"strings"
 
 	sqlite3 "code.google.com/p/go-sqlite/go1/sqlite3"
 )
@@ -12,7 +12,6 @@ import (
 func sqlError(SQL string, err error) error {
 	return errors.New("SQL \"" + SQL + "\" error: " + err.Error())
 }
-
 
 func GetDBType(ColumnType string) (string, error) {
 	ColumnType = strings.ToLower(ColumnType)
@@ -34,7 +33,6 @@ func GetDBType(ColumnType string) (string, error) {
 	return "?", errors.New("Unknown type '" + ColumnType + "'")
 }
 
-
 func (it *SQLiteCollection) LoadById(id string) (map[string]interface{}, error) {
 	row := make(sqlite3.RowMap)
 
@@ -51,7 +49,7 @@ func (it *SQLiteCollection) LoadById(id string) (map[string]interface{}, error) 
 }
 
 func (it *SQLiteCollection) Load() ([]map[string]interface{}, error) {
-	result := make([] map[string]interface{}, 0, 10)
+	result := make([]map[string]interface{}, 0, 10)
 	var err error = nil
 
 	row := make(sqlite3.RowMap)
@@ -71,7 +69,7 @@ func (it *SQLiteCollection) Load() ([]map[string]interface{}, error) {
 		for ; err == nil; err = s.Next() {
 
 			if err := s.Scan(row); err == nil {
-				result = append(result, row )
+				result = append(result, row)
 			} else {
 				return result, err
 			}
@@ -90,27 +88,27 @@ func (it *SQLiteCollection) Save(Item map[string]interface{}) (string, error) {
 	// to make that we need to convert it before save from  string to int or nil
 	// and after save get auto-incremented id as convert to string
 	if Item["_id"] != nil {
-		if intValue, err := strconv.ParseInt( Item["_id"].(string), 10, 64); err == nil {
+		if intValue, err := strconv.ParseInt(Item["_id"].(string), 10, 64); err == nil {
 			Item["_id"] = intValue
-		}else{
+		} else {
 			Item["_id"] = nil
 		}
 	}
 
 	// SQL generation
 	columns := make([]string, 0, len(Item))
-	   args := make([]string, 0, len(Item))
-	 values := make([]interface{}, 0, len(Item))
-	
-	for k,v := range Item {
-		columns = append(columns, "\"" + k + "\"")
-		   args = append(args, "$_" + k )
-		 values = append(values, v)
+	args := make([]string, 0, len(Item))
+	values := make([]interface{}, 0, len(Item))
+
+	for k, v := range Item {
+		columns = append(columns, "\""+k+"\"")
+		args = append(args, "$_"+k)
+		values = append(values, v)
 	}
 
 	SQL := "INSERT OR REPLACE INTO  " + it.TableName +
-			" (" + strings.Join(columns, ",") + ") VALUES " +
-			" (" + strings.Join(args, ",") + ")"
+		" (" + strings.Join(columns, ",") + ") VALUES " +
+		" (" + strings.Join(args, ",") + ")"
 	if err := it.Connection.Exec(SQL, values...); err == nil {
 
 		// auto-incremented _id back to string
@@ -144,12 +142,11 @@ func (it *SQLiteCollection) DeleteById(id string) error {
 	return it.Connection.Exec(SQL)
 }
 
-
 func (it *SQLiteCollection) AddFilter(ColumnName string, Operator string, Value string) error {
 	if it.HasColumn(ColumnName) {
 		Operator = strings.ToUpper(Operator)
 		if Operator == "" || Operator == "=" || Operator == "<>" || Operator == ">" || Operator == "<" || Operator == "LIKE" {
-			it.Filters = append(it.Filters, ColumnName + " " + Operator + " " + Value)
+			it.Filters = append(it.Filters, ColumnName+" "+Operator+" "+Value)
 		} else {
 			return errors.New("unknown operator '" + Operator + "' supposed  '', '=', '>', '<', '<>', 'LIKE' " + ColumnName + "'")
 		}
@@ -168,7 +165,7 @@ func (it *SQLiteCollection) ClearFilters() error {
 func (it *SQLiteCollection) AddSort(ColumnName string, Desc bool) error {
 	if it.HasColumn(ColumnName) {
 		if Desc {
-			it.Order = append(it.Order, ColumnName + " DESC")
+			it.Order = append(it.Order, ColumnName+" DESC")
 		} else {
 			it.Order = append(it.Order, ColumnName)
 		}
@@ -184,8 +181,6 @@ func (it *SQLiteCollection) ClearSort() error {
 	return nil
 }
 
-
-
 func (it *SQLiteCollection) SetLimit(Offset int, Limit int) error {
 	if Limit == 0 {
 		it.Limit = ""
@@ -194,7 +189,6 @@ func (it *SQLiteCollection) SetLimit(Offset int, Limit int) error {
 	}
 	return nil
 }
-
 
 // Collection columns stuff
 //--------------------------
@@ -206,7 +200,7 @@ func (it *SQLiteCollection) RefreshColumns() {
 	for stmt, err := it.Connection.Query(SQL); err == nil; err = stmt.Next() {
 		stmt.Scan(row)
 
-		  key := row["name"].(string)
+		key := row["name"].(string)
 		value := row["type"].(string)
 		it.Columns[key] = value
 	}
@@ -244,7 +238,7 @@ func (it *SQLiteCollection) AddColumn(ColumnName string, ColumnType string, inde
 			return sqlError(SQL, err)
 		}
 
-	}else {
+	} else {
 		return err
 	}
 
@@ -272,9 +266,8 @@ func (it *SQLiteCollection) RemoveColumn(ColumnName string) error {
 			tableColumnsWoTypes := ""
 
 			re := regexp.MustCompile("CREATE TABLE .*\\((.*)\\)")
-			if regexMatch := re.FindStringSubmatch(tableCreateSQL); len(regexMatch) >=2 {
+			if regexMatch := re.FindStringSubmatch(tableCreateSQL); len(regexMatch) >= 2 {
 				tableColumnsList := strings.Split(regexMatch[1], ", ")
-
 
 				for _, tableColumn := range tableColumnsList {
 					tableColumn = strings.Trim(tableColumn, "\n\t ")
@@ -284,7 +277,7 @@ func (it *SQLiteCollection) RemoveColumn(ColumnName string) error {
 							tableColumnsWoTypes += ", "
 						}
 						tableColumnsWTypes += "\"" + tableColumn + "\""
-						tableColumnsWoTypes += "\"" + tableColumn[0 : strings.Index(tableColumn, " ")] + "\""
+						tableColumnsWoTypes += "\"" + tableColumn[0:strings.Index(tableColumn, " ")] + "\""
 					}
 
 				}
@@ -322,7 +315,7 @@ func (it *SQLiteCollection) RemoveColumn(ColumnName string) error {
 			// 	return sqlError(SQL, err)
 			// }
 
-		}else{
+		} else {
 			return err
 		}
 

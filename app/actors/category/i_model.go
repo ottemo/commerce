@@ -1,6 +1,6 @@
 package category
 
-import(
+import (
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/product"
 )
@@ -14,5 +14,5 @@ func (it *DefaultCategory) GetImplementationName() string {
 }
 
 func (it *DefaultCategory) New() (models.I_Model, error) {
-	return &DefaultCategory{ Products: make([]product.I_Product,0)  }, nil
+	return &DefaultCategory{Products: make([]product.I_Product, 0)}, nil
 }

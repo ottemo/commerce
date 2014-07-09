@@ -1,12 +1,11 @@
 package category
 
-import(
+import (
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/product"
 )
 
 type I_Category interface {
-
 	GetName() string
 
 	GetParent() []I_Category

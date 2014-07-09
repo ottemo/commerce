@@ -1,9 +1,9 @@
 package product
 
 import (
-	"strings"
-	"strconv"
 	"errors"
+	"strconv"
+	"strings"
 
 	"github.com/ottemo/foundation/app/models"
 )
@@ -47,8 +47,10 @@ func (it *DefaultProduct) Set(attribute string, value interface{}) error {
 		case float64:
 			it.Price = value
 		case string:
-			newPrice, err := strconv.ParseFloat( value , 64)
-			if err != nil { return err }
+			newPrice, err := strconv.ParseFloat(value, 64)
+			if err != nil {
+				return err
+			}
 
 			it.Price = newPrice
 		default:
@@ -57,13 +59,13 @@ func (it *DefaultProduct) Set(attribute string, value interface{}) error {
 
 	default:
 		err := it.CustomAttributes.Set(attribute, value)
-		if err != nil { return err }
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
 }
-
-
 
 func (it *DefaultProduct) FromHashMap(input map[string]interface{}) error {
 
@@ -103,9 +105,6 @@ func (it *DefaultProduct) FromHashMap(input map[string]interface{}) error {
 	return nil
 }
 
-
-
-
 func (it *DefaultProduct) ToHashMap() map[string]interface{} {
 	result := it.CustomAttributes.ToHashMap()
 
@@ -119,87 +118,85 @@ func (it *DefaultProduct) ToHashMap() map[string]interface{} {
 	return result
 }
 
-
-
 func (it *DefaultProduct) GetAttributesInfo() []models.T_AttributeInfo {
-	result := []models.T_AttributeInfo {
-		models.T_AttributeInfo {
-			Model: "Product",
+	result := []models.T_AttributeInfo{
+		models.T_AttributeInfo{
+			Model:      "Product",
 			Collection: "product",
-			Attribute: "_id",
-			Type: "text",
+			Attribute:  "_id",
+			Type:       "text",
 			IsRequired: false,
-			IsStatic: true,
-			Label: "ID",
-			Group: "General",
-			Editors: "not_editable",
-			Options: "",
-			Default: "",
+			IsStatic:   true,
+			Label:      "ID",
+			Group:      "General",
+			Editors:    "not_editable",
+			Options:    "",
+			Default:    "",
 		},
-		models.T_AttributeInfo {
-			Model: "Product",
+		models.T_AttributeInfo{
+			Model:      "Product",
 			Collection: "product",
-			Attribute: "sku",
-			Type: "text",
+			Attribute:  "sku",
+			Type:       "text",
 			IsRequired: true,
-			IsStatic: true,
-			Label: "SKU",
-			Group: "General",
-			Editors: "line_text",
-			Options: "",
-			Default: "",
+			IsStatic:   true,
+			Label:      "SKU",
+			Group:      "General",
+			Editors:    "line_text",
+			Options:    "",
+			Default:    "",
 		},
-		models.T_AttributeInfo {
-			Model: "Product",
+		models.T_AttributeInfo{
+			Model:      "Product",
 			Collection: "product",
-			Attribute: "name",
-			Type: "text",
+			Attribute:  "name",
+			Type:       "text",
 			IsRequired: true,
-			IsStatic: true,
-			Label: "Name",
-			Group: "General",
-			Editors: "line_text",
-			Options: "",
-			Default: "",
+			IsStatic:   true,
+			Label:      "Name",
+			Group:      "General",
+			Editors:    "line_text",
+			Options:    "",
+			Default:    "",
 		},
-		models.T_AttributeInfo {
-			Model: "Product",
+		models.T_AttributeInfo{
+			Model:      "Product",
 			Collection: "product",
-			Attribute: "description",
-			Type: "text",
+			Attribute:  "description",
+			Type:       "text",
 			IsRequired: false,
-			IsStatic: true,
-			Label: "Description",
-			Group: "General",
-			Editors: "multiline_text",
-			Options: "",
-			Default: "",
+			IsStatic:   true,
+			Label:      "Description",
+			Group:      "General",
+			Editors:    "multiline_text",
+			Options:    "",
+			Default:    "",
 		},
-		models.T_AttributeInfo {
-			Model: "Product",
+		models.T_AttributeInfo{
+			Model:      "Product",
 			Collection: "product",
-			Attribute: "default_image",
-			Type: "text",
+			Attribute:  "default_image",
+			Type:       "text",
 			IsRequired: false,
-			IsStatic: true,
-			Label: "DefaultImage",
-			Group: "Pictures",
-			Editors: "image_selector",
-			Options: "",
-			Default: "",
+			IsStatic:   true,
+			Label:      "DefaultImage",
+			Group:      "Pictures",
+			Editors:    "image_selector",
+			Options:    "",
+			Default:    "",
 		},
-		models.T_AttributeInfo {
-			Model: "Product",
+		models.T_AttributeInfo{
+			Model:      "Product",
 			Collection: "product",
-			Attribute: "price",
-			Type: "text",
+			Attribute:  "price",
+			Type:       "text",
 			IsRequired: false,
-			IsStatic: true,
-			Label: "Price",
-			Group: "Prices",
-			Editors: "price",
-			Options: "",
-			Default: "",
+			IsStatic:   true,
+			Label:      "Price",
+			Group:      "Prices",
+			Editors:    "price",
+			Options:    "",
+			Default:    "",
 		},
 	}
 

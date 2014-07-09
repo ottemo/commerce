@@ -8,15 +8,14 @@ import (
 	"github.com/ottemo/foundation/api"
 )
 
-func init(){
+func init() {
 	instance := new(DefaultProduct)
-	
-	models.RegisterModel("Product", instance )
-	db.RegisterOnDatabaseStart( instance.setupModel )
 
-	api.RegisterOnRestServiceStart( instance.setupAPI )
+	models.RegisterModel("Product", instance)
+	db.RegisterOnDatabaseStart(instance.setupModel)
+
+	api.RegisterOnRestServiceStart(instance.setupAPI)
 }
-
 
 func (it *DefaultProduct) setupModel() error {
 
@@ -27,7 +26,7 @@ func (it *DefaultProduct) setupModel() error {
 			collection.AddColumn("description", "text", true)
 			collection.AddColumn("default_image", "text", true)
 			collection.AddColumn("price", "numeric", true)
-		}else {
+		} else {
 			return err
 		}
 	} else {

@@ -6,8 +6,8 @@ import (
 
 var registeredConfig I_Config
 var registeredIniConfig I_IniConfig
-var callbacksOnConfigStart = []func() error {}
-var callbacksOnConfigIniStart = []func() error {}
+var callbacksOnConfigStart = []func() error{}
+var callbacksOnConfigIniStart = []func() error{}
 
 func RegisterOnConfigStart(callback func() error) {
 	callbacksOnConfigStart = append(callbacksOnConfigStart, callback)
@@ -22,7 +22,6 @@ func OnConfigStart() error {
 	return nil
 }
 
-
 func RegisterOnConfigIniStart(callback func() error) {
 	callbacksOnConfigIniStart = append(callbacksOnConfigIniStart, callback)
 }
@@ -35,9 +34,6 @@ func OnConfigIniStart() error {
 	}
 	return nil
 }
-
-
-
 
 func RegisterIniConfig(IniConfig I_IniConfig) error {
 	if registeredIniConfig == nil {
@@ -57,9 +53,7 @@ func RegisterConfig(Config I_Config) error {
 	return nil
 }
 
-func GetConfig() I_Config { return registeredConfig }
+func GetConfig() I_Config       { return registeredConfig }
 func GetIniConfig() I_IniConfig { return registeredIniConfig }
-
-
 
 func ConfigEmptyValueValidator(val interface{}) (interface{}, bool) { return val, true }

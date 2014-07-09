@@ -11,10 +11,9 @@ import (
 func init() {
 	instance := new(MongoDB)
 
-	env.RegisterOnConfigIniStart( instance.Startup )
-	db.RegisterDBEngine( instance )
+	env.RegisterOnConfigIniStart(instance.Startup)
+	db.RegisterDBEngine(instance)
 }
-
 
 func (it *MongoDB) Startup() error {
 
@@ -36,7 +35,7 @@ func (it *MongoDB) Startup() error {
 		return errors.New("Can't connect to MongoDB")
 	}
 
-	it.session  = session
+	it.session = session
 	it.database = session.DB(DBName)
 	it.DBName = DBName
 	it.collections = map[string]bool{}

@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"sort"
 
-	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/api"
+	"github.com/ottemo/foundation/env"
 
 	"github.com/julienschmidt/httprouter"
 )
@@ -15,7 +15,7 @@ func init() {
 	instance := new(DefaultRestService)
 
 	api.RegisterRestService(instance)
-	env.RegisterOnConfigIniStart( instance.startup )
+	env.RegisterOnConfigIniStart(instance.startup)
 }
 
 // service pre-initialization stuff
@@ -32,13 +32,13 @@ func (it *DefaultRestService) startup() error {
 
 	// our homepage - shows all registered API in text representation
 	it.Router.GET("/",
-		func( resp http.ResponseWriter, req *http.Request, params httprouter.Params) {
-			newline := []byte( "\n" )
+		func(resp http.ResponseWriter, req *http.Request, params httprouter.Params) {
+			newline := []byte("\n")
 
 			resp.Header().Add("Content-Type", "text")
 
-			resp.Write( []byte( "Ottemo REST API:" ) )
-			resp.Write( newline )
+			resp.Write([]byte("Ottemo REST API:"))
+			resp.Write(newline)
 
 			// sorting handlers before output
 			handlers := make([]string, 0, len(it.Handlers))
@@ -47,14 +47,13 @@ func (it *DefaultRestService) startup() error {
 			}
 			sort.Strings(handlers)
 
-
 			for _, handlerPath := range handlers {
-				resp.Write( []byte( handlerPath ) )
-				resp.Write( newline )
+				resp.Write([]byte(handlerPath))
+				resp.Write(newline)
 			}
 		})
 
-	it.Handlers = make( map[string]httprouter.Handle )
+	it.Handlers = make(map[string]httprouter.Handle)
 
 	api.OnRestServiceStart()
 

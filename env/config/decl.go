@@ -1,12 +1,12 @@
 package config
 
 type DefaultConfigItem struct {
-	     Name string
+	Name      string
 	Validator func(interface{}) (interface{}, bool)
-	  Default interface{}
-	    Value interface{}
+	Default   interface{}
+	Value     interface{}
 }
 
 type DefaultConfig struct {
-	 configValues map[string]*DefaultConfigItem
+	configValues map[string]*DefaultConfigItem
 }

@@ -1,6 +1,6 @@
 package address
 
-import(
+import (
 	"github.com/ottemo/foundation/app/models"
 )
 
@@ -13,5 +13,5 @@ func (it *DefaultVisitorAddress) GetImplementationName() string {
 }
 
 func (it *DefaultVisitorAddress) New() (models.I_Model, error) {
-	return &DefaultVisitorAddress{ }, nil
+	return &DefaultVisitorAddress{}, nil
 }

@@ -1,9 +1,10 @@
 package product
 
-import("github.com/ottemo/foundation/app/models")
+import (
+	"github.com/ottemo/foundation/app/models"
+)
 
 type I_Product interface {
-
 	GetSku() string
 	GetName() string
 

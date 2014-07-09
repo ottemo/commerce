@@ -5,13 +5,13 @@ import (
 )
 
 var currentMediaStorage IMediaStorage = nil
-var callbacksOnMediaStorageStart = []func() error {}
+var callbacksOnMediaStorageStart = []func() error{}
 
 func RegisterOnMediaStorageStart(callback func() error) {
 	callbacksOnMediaStorageStart = append(callbacksOnMediaStorageStart, callback)
 }
 
-func OnMediaStorageStart () error {
+func OnMediaStorageStart() error {
 	for _, callback := range callbacksOnMediaStorageStart {
 		if err := callback(); err != nil {
 			return err

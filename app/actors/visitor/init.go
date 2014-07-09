@@ -8,20 +8,19 @@ import (
 	"github.com/ottemo/foundation/api"
 )
 
-func init(){
+func init() {
 	instance := new(DefaultVisitor)
 
-	models.RegisterModel("Visitor", instance )
-	db.RegisterOnDatabaseStart( instance.setupModel )
+	models.RegisterModel("Visitor", instance)
+	db.RegisterOnDatabaseStart(instance.setupModel)
 
-	api.RegisterOnRestServiceStart( instance.setupAPI )
+	api.RegisterOnRestServiceStart(instance.setupAPI)
 }
-
 
 func (it *DefaultVisitor) setupModel() error {
 
 	if dbEngine := db.GetDBEngine(); dbEngine != nil {
-		if collection, err := dbEngine.GetCollection( VISITOR_COLLECTION_NAME ); err == nil {
+		if collection, err := dbEngine.GetCollection(VISITOR_COLLECTION_NAME); err == nil {
 			collection.AddColumn("email", "text", true)
 			collection.AddColumn("first_name", "text", false)
 			collection.AddColumn("last_name", "text", false)
@@ -37,16 +36,21 @@ func (it *DefaultVisitor) setupModel() error {
 	return nil
 }
 
-
 func (it *DefaultVisitor) setupAPI() error {
-	err := api.GetRestService().RegisterAPI("visitor", "POST", "create", it.CreateVisitorAPI )
-	if err != nil { return err }
+	err := api.GetRestService().RegisterAPI("visitor", "POST", "create", it.CreateVisitorAPI)
+	if err != nil {
+		return err
+	}
 
-	err = api.GetRestService().RegisterAPI("visitor", "PUT", "update", it.UpdateVisitorAPI )
-	if err != nil { return err }
+	err = api.GetRestService().RegisterAPI("visitor", "PUT", "update", it.UpdateVisitorAPI)
+	if err != nil {
+		return err
+	}
 
-	err = api.GetRestService().RegisterAPI("visitor", "GET", "load", it.LoadVisitorAPI )
-	if err != nil { return err }
+	err = api.GetRestService().RegisterAPI("visitor", "GET", "load", it.LoadVisitorAPI)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

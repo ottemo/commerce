@@ -1,14 +1,12 @@
 package visitor
 
 import (
-	"strings"
 	"github.com/ottemo/foundation/app/models"
+	"strings"
 
-	"github.com/ottemo/foundation/app/models/visitor"
 	"errors"
+	"github.com/ottemo/foundation/app/models/visitor"
 )
-
-
 
 func (it *DefaultVisitor) Get(attribute string) interface{} {
 	switch strings.ToLower(attribute) {
@@ -31,12 +29,10 @@ func (it *DefaultVisitor) Get(attribute string) interface{} {
 	return nil
 }
 
-
-
 func (it *DefaultVisitor) Set(attribute string, value interface{}) error {
 	attribute = strings.ToLower(attribute)
 
-	switch  attribute {
+	switch attribute {
 	case "_id", "id":
 		it.id = value.(string)
 	case "email", "e_mail", "e-mail":
@@ -48,7 +44,7 @@ func (it *DefaultVisitor) Set(attribute string, value interface{}) error {
 
 	// only address id coming - trying to get it from DB
 	case "billing_address_id", "shipping_address_id":
-		address := it.getVisitorAddressById( value.(string) )
+		address := it.getVisitorAddressById(value.(string))
 		if address != nil && address.GetId() != "" {
 
 			if attribute == "billing_address_id" {
@@ -76,11 +72,15 @@ func (it *DefaultVisitor) Set(attribute string, value interface{}) error {
 		// we have sub-map, supposedly I_VisitorAddress capable
 		case map[string]interface{}:
 			model, err := models.GetModel("VisitorAddress")
-			if err != nil { return err }
+			if err != nil {
+				return err
+			}
 
 			if address, ok := model.(visitor.I_VisitorAddress); ok {
 				err := address.FromHashMap(value)
-				if err != nil { return err }
+				if err != nil {
+					return err
+				}
 
 				if attribute == "billing_address" {
 					it.BillingAddress = address
@@ -98,8 +98,6 @@ func (it *DefaultVisitor) Set(attribute string, value interface{}) error {
 	return nil
 }
 
-
-
 func (it *DefaultVisitor) FromHashMap(input map[string]interface{}) error {
 
 	for attribute, value := range input {
@@ -111,11 +109,9 @@ func (it *DefaultVisitor) FromHashMap(input map[string]interface{}) error {
 	return nil
 }
 
-
-
 func (it *DefaultVisitor) ToHashMap() map[string]interface{} {
 
-	result := make( map[string]interface{} )
+	result := make(map[string]interface{})
 
 	result["_id"] = it.id
 
@@ -140,75 +136,73 @@ func (it *DefaultVisitor) ToHashMap() map[string]interface{} {
 	return result
 }
 
-
-
 func (it *DefaultVisitor) GetAttributesInfo() []models.T_AttributeInfo {
 
-	info := []models.T_AttributeInfo {
-		models.T_AttributeInfo {
-			Model: "Visitor",
+	info := []models.T_AttributeInfo{
+		models.T_AttributeInfo{
+			Model:      "Visitor",
 			Collection: "Visitor",
-			Attribute: "_id",
-			Type: "text",
+			Attribute:  "_id",
+			Type:       "text",
 			IsRequired: false,
-			IsStatic: true,
-			Label: "ID",
-			Group: "General",
-			Editors: "not_editable",
-			Options: "",
-			Default: "",
+			IsStatic:   true,
+			Label:      "ID",
+			Group:      "General",
+			Editors:    "not_editable",
+			Options:    "",
+			Default:    "",
 		},
-		models.T_AttributeInfo {
-			Model: "Visitor",
+		models.T_AttributeInfo{
+			Model:      "Visitor",
 			Collection: "Visitor",
-			Attribute: "email",
-			Type: "text",
+			Attribute:  "email",
+			Type:       "text",
 			IsRequired: true,
-			IsStatic: true,
-			Label: "E-mail",
-			Group: "General",
-			Editors: "line_text",
-			Options: "",
-			Default: "",
+			IsStatic:   true,
+			Label:      "E-mail",
+			Group:      "General",
+			Editors:    "line_text",
+			Options:    "",
+			Default:    "",
 		},
-		models.T_AttributeInfo {
-			Model: "Visitor",
+		models.T_AttributeInfo{
+			Model:      "Visitor",
 			Collection: "Visitor",
-			Attribute: "first_name",
-			Type: "text",
+			Attribute:  "first_name",
+			Type:       "text",
 			IsRequired: true,
-			IsStatic: true,
-			Label: "First Name",
-			Group: "General",
-			Editors: "line_text",
-			Options: "",
-			Default: "",
+			IsStatic:   true,
+			Label:      "First Name",
+			Group:      "General",
+			Editors:    "line_text",
+			Options:    "",
+			Default:    "",
 		},
-		models.T_AttributeInfo {
-			Model: "Visitor",
+		models.T_AttributeInfo{
+			Model:      "Visitor",
 			Collection: "Visitor",
-			Attribute: "billing_address",
-			Type: "text",
+			Attribute:  "billing_address",
+			Type:       "text",
 			IsRequired: false,
-			IsStatic: true,
-			Label: "Billing Address",
-			Group: "General",
-			Editors: "model_selector",
-			Options: "model:VisitorAddress",
-			Default: "",
+			IsStatic:   true,
+			Label:      "Billing Address",
+			Group:      "General",
+			Editors:    "model_selector",
+			Options:    "model:VisitorAddress",
+			Default:    "",
 		},
-		models.T_AttributeInfo {
-			Model: "Visitor",
+		models.T_AttributeInfo{
+			Model:      "Visitor",
 			Collection: "Visitor",
-			Attribute: "shipping_address",
-			Type: "text",
+			Attribute:  "shipping_address",
+			Type:       "text",
 			IsRequired: false,
-			IsStatic: true,
-			Label: "Shipping Address",
-			Group: "General",
-			Editors: "model_selector",
-			Options: "model:VisitorAddress",
-			Default: "",
+			IsStatic:   true,
+			Label:      "Shipping Address",
+			Group:      "General",
+			Editors:    "model_selector",
+			Options:    "model:VisitorAddress",
+			Default:    "",
 		},
 	}
 

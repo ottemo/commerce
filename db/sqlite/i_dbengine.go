@@ -1,12 +1,11 @@
 package sqlite
 
 import (
-	"strings"
 	"github.com/ottemo/foundation/db"
+	"strings"
 )
 
-func (it *SQLite) GetName() string { return  "Sqlite3" }
-
+func (it *SQLite) GetName() string { return "Sqlite3" }
 
 func (it *SQLite) HasCollection(CollectionName string) bool {
 	CollectionName = strings.ToLower(CollectionName)
@@ -42,7 +41,7 @@ func (it *SQLite) GetCollection(CollectionName string) (db.I_DBCollection, error
 			}
 		}
 
-		collection := &SQLiteCollection{TableName: CollectionName, Connection: it.Connection, Columns: map[string]string{} }
+		collection := &SQLiteCollection{TableName: CollectionName, Connection: it.Connection, Columns: map[string]string{}}
 		collections[CollectionName] = collection
 
 		return collection, nil

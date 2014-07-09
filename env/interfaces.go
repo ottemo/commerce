@@ -6,7 +6,7 @@ type I_IniConfig interface {
 }
 
 type I_Config interface {
-	RegisterItem(Name string, Validator func(interface{}) (interface{}, bool), Default interface{} ) error
+	RegisterItem(Name string, Validator func(interface{}) (interface{}, bool), Default interface{}) error
 	UnregisterItem(Name string) error
 
 	GetValue(Name string) interface{}

@@ -1,13 +1,12 @@
 package visitor
 
-import(
+import (
 	"github.com/ottemo/foundation/app/models/visitor"
 )
 
 const (
 	VISITOR_COLLECTION_NAME = "visitor"
 )
-
 
 type DefaultVisitor struct {
 	id string

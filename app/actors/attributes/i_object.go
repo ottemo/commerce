@@ -5,7 +5,6 @@ import (
 	"github.com/ottemo/foundation/app/models"
 )
 
-
 func (it *CustomAttributes) Get(attribute string) interface{} {
 	return it.values[attribute]
 }

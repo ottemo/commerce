@@ -1,6 +1,8 @@
 package visitor
 
-import("github.com/ottemo/foundation/app/models")
+import (
+	"github.com/ottemo/foundation/app/models"
+)
 
 type I_VisitorAddress interface {
 	GetStreet() string

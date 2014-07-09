@@ -9,5 +9,3 @@ type DefaultRestService struct {
 	Router   *httprouter.Router
 	Handlers map[string]httprouter.Handle
 }
-
-

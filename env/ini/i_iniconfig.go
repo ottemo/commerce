@@ -5,11 +5,10 @@ import "fmt"
 func (it *DefaultIniConfig) ListItems() []string {
 	result := make([]string, len(it.iniFileValues))
 	for itemName, _ := range it.iniFileValues {
-		result = append( result, itemName )
+		result = append(result, itemName)
 	}
 	return result
 }
-
 
 func (it *DefaultIniConfig) GetValue(Name string, Default string) string {
 
@@ -23,11 +22,13 @@ func (it *DefaultIniConfig) GetValue(Name string, Default string) string {
 			for !ok {
 				fmt.Printf("%s: ", Name)
 				_, err := fmt.Scanf("%s", &value)
-				if err == nil { ok = true }
+				if err == nil {
+					ok = true
+				}
 			}
 
 			it.iniFileValues[Name] = value
-			it.keysToStore = append( it.keysToStore, Name)
+			it.keysToStore = append(it.keysToStore, Name)
 
 			return value
 		} else {

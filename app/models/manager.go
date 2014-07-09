@@ -7,8 +7,7 @@ import (
 // Package variables
 //------------------
 
-var declaredModels = map[string]I_Model {}
-
+var declaredModels = map[string]I_Model{}
 
 // Managing routines
 //------------------

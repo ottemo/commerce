@@ -2,15 +2,15 @@ package rest
 
 import (
 	"errors"
-	"strings"
 	"log"
 	"net/http"
+	"strings"
 
 	"encoding/json"
 	"encoding/xml"
 
-	"github.com/ottemo/foundation/api"
 	"github.com/julienschmidt/httprouter"
+	"github.com/ottemo/foundation/api"
 )
 
 // returns implementation name of our REST API service
@@ -19,7 +19,7 @@ func (it *DefaultRestService) GetName() string {
 }
 
 // other modules should call this function in order to provide own REST API functionality
-func (it *DefaultRestService) RegisterAPI(service string, method string, uri string, handler api.F_APIHandler ) error {
+func (it *DefaultRestService) RegisterAPI(service string, method string, uri string, handler api.F_APIHandler) error {
 
 	// httprouter needs other type of handler that we using
 	wrappedHandler := func(resp http.ResponseWriter, req *http.Request, params httprouter.Params) {
@@ -33,21 +33,21 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 		// request content conversion (if possible)
 		var content interface{} = nil
 
-		contentType:= req.Header.Get("Content-Type")
+		contentType := req.Header.Get("Content-Type")
 		switch {
 		// JSON content
 		case strings.Contains(contentType, "json"):
-			newContent := map[string]interface{} {}
+			newContent := map[string]interface{}{}
 
 			buf := make([]byte, req.ContentLength)
 			req.Body.Read(buf)
-			json.Unmarshal( buf, &newContent )
+			json.Unmarshal(buf, &newContent)
 
 			content = newContent
 
 		// POST form content
 		case strings.Contains(contentType, "form-data"):
-			newContent := map[string]interface{} {}
+			newContent := map[string]interface{}{}
 
 			req.ParseForm()
 			for attribute, value := range req.PostForm {
@@ -57,10 +57,11 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 			content = newContent
 		}
 
-
 		// module handler callback
 		result, err := handler(resp, req, mappedParams, content)
-		if err != nil { log.Printf("REST error: %s - %s\n", req.RequestURI, err.Error()) }
+		if err != nil {
+			log.Printf("REST error: %s - %s\n", req.RequestURI, err.Error())
+		}
 
 		// result conversion before output
 		if result != nil || err != nil {
@@ -69,18 +70,20 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 				// JSON encode
 				if resp.Header().Get("Content-Type") == "application/json" {
 					errorMsg := ""
-					if err != nil { errorMsg = err.Error() }
+					if err != nil {
+						errorMsg = err.Error()
+					}
 
-					result, _ = json.Marshal(map[string]interface{} {"result": result, "error": errorMsg })
+					result, _ = json.Marshal(map[string]interface{}{"result": result, "error": errorMsg})
 				}
 
 				// XML encode
 				if resp.Header().Get("Content-Type") == "text/xml" {
-					result, _ = xml.Marshal( result )
+					result, _ = xml.Marshal(result)
 				}
 			}
 
-			resp.Write( result.([]byte) )
+			resp.Write(result.([]byte))
 		}
 	}
 
@@ -116,7 +119,6 @@ func (it DefaultRestService) ServeHTTP(resp http.ResponseWriter, req *http.Reque
 	resp.Header().Set("Access-Control-Allow-Credentials", "true")
 	resp.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token")
 
-
 	if req.Method == "GET" || req.Method == "POST" || req.Method == "PUT" || req.Method == "DELETE" {
 
 		// default output format
@@ -129,7 +131,7 @@ func (it DefaultRestService) ServeHTTP(resp http.ResponseWriter, req *http.Reque
 // REST server startup function - makes it to "ListenAndServe"
 func (it *DefaultRestService) Run() error {
 	log.Println("REST API Service [HTTPRouter] starting to listen on " + it.ListenOn)
-	log.Fatal( http.ListenAndServe(it.ListenOn, it) )
+	log.Fatal(http.ListenAndServe(it.ListenOn, it))
 
 	return nil
 }
