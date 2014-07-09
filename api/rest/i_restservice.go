@@ -49,9 +49,15 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 		case strings.Contains(contentType, "form-data"):
 			newContent := map[string]interface{}{}
 
+			// TODO: should be separated on 2 cases
+			req.ParseMultipartForm( 32 << 20 ) // 32 MB
+			for attribute, value := range req.MultipartForm.Value {
+				newContent[attribute] = value[0]
+			}
+
 			req.ParseForm()
 			for attribute, value := range req.PostForm {
-				newContent[attribute] = value
+				newContent[attribute] = value[0]
 			}
 
 			content = newContent
