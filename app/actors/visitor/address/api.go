@@ -8,8 +8,26 @@ import (
 	"github.com/ottemo/foundation/app/models/visitor"
 
 	"github.com/ottemo/foundation/api"
-	"fmt"
 )
+
+func (it *DefaultVisitorAddress) setupAPI() error {
+	err := api.GetRestService().RegisterAPI("visitor/address", "GET", "attribute/list", it.ListAddressAttributesRestAPI)
+	if err != nil {
+		return err
+	}
+
+	err = api.GetRestService().RegisterAPI("visitor/address", "POST", "create", it.CreateAddressAPI)
+	if err != nil {
+		return err
+	}
+
+	err = api.GetRestService().RegisterAPI("visitor/address", "GET", "list/:visitorId", it.ListAddressRestAPI)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
 
 // WEB REST API function used to obtain product attributes information
 func (it *DefaultVisitorAddress) ListAddressAttributesRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}) (interface{}, error) {
@@ -59,8 +77,7 @@ func (it *DefaultVisitorAddress) CreateAddressAPI(resp http.ResponseWriter, req 
 func (it *DefaultVisitorAddress) ListAddressRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}) (interface{}, error) {
 
 	result := make([]map[string]interface{}, 0)
-	if model, err := models.GetModel("Visitor"); err == nil {
-		fmt.Println(model)
+	if model, err := models.GetModel("VisitorAddress"); err == nil {
 		if model, ok := model.(visitor.I_VisitorAddress); ok {
 
 			addressesList, err := model.List()
@@ -93,21 +110,3 @@ func (it *DefaultVisitorAddress) ListAddressRestAPI(resp http.ResponseWriter, re
 	return nil, errors.New("Something went wrong...")
 }
 
-func (it *DefaultVisitorAddress) setupAPI() error {
-	err := api.GetRestService().RegisterAPI("visitor/address", "GET", "attribute/list", it.ListAddressAttributesRestAPI)
-	if err != nil {
-		return err
-	}
-
-	err = api.GetRestService().RegisterAPI("visitor/address", "POST", "create", it.CreateAddressAPI)
-	if err != nil {
-		return err
-	}
-
-	err = api.GetRestService().RegisterAPI("visitor/address", "GET", "list/:visitorId", it.ListAddressRestAPI)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}

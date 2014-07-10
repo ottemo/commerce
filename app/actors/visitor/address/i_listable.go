@@ -22,7 +22,7 @@ func getListCollection() (db.I_DBCollection, error) {
 			return nil, errors.New("Can't obtain DBEngine")
 		}
 
-		listCollection, err = dbEngine.GetCollection("VisitorAddress")
+		listCollection, err = dbEngine.GetCollection(VISITOR_ADDRESS_COLLECTION_NAME)
 
 		return listCollection, err
 	}
@@ -51,10 +51,10 @@ func (it *DefaultVisitorAddress) List() ([]interface{}, error) {
 			return result, err
 		}
 
-		visitor := model.(*DefaultVisitorAddress)
-		visitor.FromHashMap(dbItemData)
+		address := model.(*DefaultVisitorAddress)
+		address.FromHashMap(dbItemData)
 
-		result = append(result, visitor)
+		result = append(result, address)
 	}
 
 	return result, nil
