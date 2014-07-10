@@ -190,7 +190,7 @@ func (it *DefaultVisitor) GetVisitorRestAPI(resp http.ResponseWriter, req *http.
 	// get operation
 	//--------------
 	model, err := models.GetModel("Visitor")
-	if err == nil {
+	if err != nil {
 		return nil, err
 	}
 
@@ -215,7 +215,7 @@ func (it *DefaultVisitor) ListVisitorsRestAPI(resp http.ResponseWriter, req *htt
 	result := make([]map[string]interface{}, 0)
 
 	model, err := models.GetModel("Visitor")
-	if err == nil {
+	if err != nil {
 		return nil, err
 	}
 
@@ -232,7 +232,7 @@ func (it *DefaultVisitor) ListVisitorsRestAPI(resp http.ResponseWriter, req *htt
 	for _, listValue := range visitorsList {
 		if visitorItem, ok := listValue.(visitor.I_Visitor); ok {
 
-			resultItem := map[string]interface{}{
+			resultItem := map[string]interface{} {
 				"_id":           		visitorItem.GetId(),
 				"email":           		visitorItem.GetEmail(),
 				"full_name":           	visitorItem.GetFullName(),
