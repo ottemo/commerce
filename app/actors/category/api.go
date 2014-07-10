@@ -223,15 +223,119 @@ func (it *DefaultCategory) ListCategoryAttributesRestAPI(resp http.ResponseWrite
 }
 
 
+
+// WEB REST API function used to list product in category
+//   - category id must be specified in request URI
+func (it *DefaultCategory) ListCategoryProductsRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}) (interface{}, error) {
+
+	// check request params
+	//---------------------
+	categoryId, isSpecifiedId := reqParams["id"]
+	if !isSpecifiedId {
+		return nil, errors.New("category 'id' was not specified")
+	}
+
+	// product list operation
+	//-----------------------
+	model, err := models.GetModel("Category")
+	if err != nil {
+		return nil, err
+	}
+
+	categoryModel, ok := model.(category.I_Category)
+	if !ok {
+		return nil, errors.New("category type is not I_Category campatible")
+	}
+
+	err = categoryModel.Load(categoryId)
+	if err != nil {
+		return nil, err
+	}
+
+	products := categoryModel.GetProducts()
+
+	result := make( []map[string]interface{}, 0)
+	for _, product := range products {
+		result = append(result, product.ToHashMap())
+	}
+
+
+	return result, nil
+}
+
+
+
 // WEB REST API function used to add product in category
 //   - category and product ids must be specified in request URI
 func (it *DefaultCategory) AddCategoryProductRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}) (interface{}, error) {
-	return nil, errors.New("not implemented yet")
+
+	// check request params
+	//---------------------
+	categoryId, isSpecifiedId := reqParams["categoryId"]
+	if !isSpecifiedId {
+		return nil, errors.New("category 'id' was not specified")
+	}
+	productId, isSpecifiedId := reqParams["productId"]
+	if !isSpecifiedId {
+		return nil, errors.New("product 'id' was not specified")
+	}
+
+	// category product add operation
+	//-------------------------------
+	model, err := models.GetModel("Category")
+	if err != nil {
+		return nil, err
+	}
+
+	categoryModel, ok := model.(category.I_Category)
+	if !ok {
+		return nil, errors.New("category type is not I_Category campatible")
+	}
+
+	categoryModel.SetId(categoryId)
+	err = categoryModel.AddProduct(productId)
+	if err != nil {
+		return nil, err
+	}
+
+	return "ok", nil
 }
+
 
 
 // WEB REST API function used to remove product from category
 //   - category and product ids must be specified in request URI
 func (it *DefaultCategory) RemoveCategoryProductRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}) (interface{}, error) {
-	return nil, errors.New("not implemented yet")
+
+
+	// check request params
+	//---------------------
+	categoryId, isSpecifiedId := reqParams["categoryId"]
+	if !isSpecifiedId {
+		return nil, errors.New("category 'id' was not specified")
+	}
+	productId, isSpecifiedId := reqParams["productId"]
+	if !isSpecifiedId {
+		return nil, errors.New("product 'id' was not specified")
+	}
+
+	// category product add operation
+	//-------------------------------
+	model, err := models.GetModel("Category")
+	if err != nil {
+		return nil, err
+	}
+
+	categoryModel, ok := model.(category.I_Category)
+	if !ok {
+		return nil, errors.New("category type is not I_Category campatible")
+	}
+
+	categoryModel.SetId(categoryId)
+	err = categoryModel.RemoveProduct(productId)
+	if err != nil {
+		return nil, err
+	}
+
+	return "ok", nil
 }
