@@ -9,6 +9,8 @@ func (it *DefaultVisitorAddress) Get(attribute string) interface{} {
 	switch strings.ToLower(attribute) {
 	case "_id", "id":
 		return it.id
+	case "visitor_id", "visitorId":
+		return it.visitor_id
 	case "street":
 		return it.Street
 	case "city":
@@ -28,6 +30,8 @@ func (it *DefaultVisitorAddress) Set(attribute string, value interface{}) error 
 	switch strings.ToLower(attribute) {
 	case "_id", "id":
 		it.id = value.(string)
+	case "visitor_id", "visitorId":
+		it.visitor_id = value.(string)
 	case "street":
 		it.Street = value.(string)
 	case "city":
@@ -59,6 +63,8 @@ func (it *DefaultVisitorAddress) ToHashMap() map[string]interface{} {
 
 	result["_id"] = it.id
 
+	result["visitor_id"] = it.visitor_id
+
 	result["street"] = it.Street
 	result["city"] = it.City
 	result["state"] = it.State
@@ -76,6 +82,17 @@ func (it *DefaultVisitorAddress) GetAttributesInfo() []models.T_AttributeInfo {
 			Attribute:  "_id",
 			Type:       "text",
 			Label:      "ID",
+			Group:      "General",
+			Editors:    "not_editable",
+			Options:    "",
+			Default:    "",
+		},
+		models.T_AttributeInfo{
+			Model:      "VisitorAddress",
+			Collection: "visitor_address",
+			Attribute:  "visitor_id",
+			Type:       "text",
+			Label:      "Visitor ID",
 			Group:      "General",
 			Editors:    "not_editable",
 			Options:    "",
@@ -109,6 +126,17 @@ func (it *DefaultVisitorAddress) GetAttributesInfo() []models.T_AttributeInfo {
 			Attribute:  "phone",
 			Type:       "text",
 			Label:      "Phone",
+			Group:      "General",
+			Editors:    "line_text",
+			Options:    "",
+			Default:    "",
+		},
+		models.T_AttributeInfo{
+			Model:      "VisitorAddress",
+			Collection: "visitor_address",
+			Attribute:  "state",
+			Type:       "text",
+			Label:      "State",
 			Group:      "General",
 			Editors:    "line_text",
 			Options:    "",
