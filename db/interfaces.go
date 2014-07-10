@@ -17,6 +17,8 @@ type I_DBCollection interface {
 	Delete() (int, error)
 	DeleteById(id string) error
 
+	Count() (int, error)
+
 	AddFilter(ColumnName string, Operator string, Value string) error //TODO: modify (Value string) to (Value interface{})
 	ClearFilters() error
 

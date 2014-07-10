@@ -84,6 +84,10 @@ func (it *MongoDBCollection) Load() ([]map[string]interface{}, error) {
 	return result, err
 }
 
+func (it *MongoDBCollection) Count() (int, error) {
+	return it.collection.Find(it.Selector).Count()
+}
+
 func (it *MongoDBCollection) Save(Item map[string]interface{}) (string, error) {
 
 	id := bson.NewObjectId().Hex()

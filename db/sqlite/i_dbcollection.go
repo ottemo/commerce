@@ -81,6 +81,27 @@ func (it *SQLiteCollection) Load() ([]map[string]interface{}, error) {
 	return result, err
 }
 
+func (it *SQLiteCollection) Count() (int, error) {
+	sqlLoadFilter := strings.Join(it.Filters, " AND ")
+	if sqlLoadFilter != "" {
+		sqlLoadFilter = " WHERE " + sqlLoadFilter
+	}
+
+	row := make(sqlite3.RowMap)
+
+	SQL := "SELECT COUNT(*) AS cnt FROM " + it.TableName + sqlLoadFilter
+	if s, err := it.Connection.Query(SQL); err == nil {
+		if err := s.Scan(row); err == nil {
+			cnt := row["cnt"].(int)   //TODO: check this assertion works
+			return cnt, err
+		} else {
+			return 0, err
+		}
+	} else {
+		return 0, err
+	}
+}
+
 func (it *SQLiteCollection) Save(Item map[string]interface{}) (string, error) {
 
 	// _id in SQLite supposed to be auto-incremented int but for MongoDB it forced to be string
