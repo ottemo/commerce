@@ -181,7 +181,7 @@ func (it *DefaultVisitor) GetAttributesInfo() []models.T_AttributeInfo {
 		models.T_AttributeInfo{
 			Model:      "Visitor",
 			Collection: "Visitor",
-			Attribute:  "billing_address",
+			Attribute:  "billing_address_id",
 			Type:       "text",
 			IsRequired: false,
 			IsStatic:   true,
@@ -194,7 +194,7 @@ func (it *DefaultVisitor) GetAttributesInfo() []models.T_AttributeInfo {
 		models.T_AttributeInfo{
 			Model:      "Visitor",
 			Collection: "Visitor",
-			Attribute:  "shipping_address",
+			Attribute:  "shipping_address_id",
 			Type:       "text",
 			IsRequired: false,
 			IsStatic:   true,

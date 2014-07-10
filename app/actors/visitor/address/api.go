@@ -25,6 +25,11 @@ func (it *DefaultVisitorAddress) setupAPI() error {
 	if err != nil {
 		return err
 	}
+	err = api.GetRestService().RegisterAPI("visitor/address", "GET", "load/:id", it.LoadAddressRestAPI)
+	if err != nil {
+		return err
+	}
+
 
 	return nil
 }
@@ -110,3 +115,23 @@ func (it *DefaultVisitorAddress) ListAddressRestAPI(resp http.ResponseWriter, re
 	return nil, errors.New("Something went wrong...")
 }
 
+func (it *DefaultVisitorAddress) LoadAddressRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}) (interface{}, error) {
+	visitorId, isSpecifiedId := reqParams["id"]
+	if !isSpecifiedId {
+		return nil, errors.New("visitor 'id' was not specified")
+	}
+
+	if model, err := models.GetModel("VisitorAddress"); err == nil {
+		if model, ok := model.(visitor.I_VisitorAddress); ok {
+
+			err = model.Load(visitorId)
+			if err != nil {
+				return nil, err
+			}
+
+			return model.ToHashMap(), nil
+		}
+	}
+
+	return nil, errors.New("Something went wrong...")
+}
