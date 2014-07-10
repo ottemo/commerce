@@ -109,7 +109,7 @@ func (it *DefaultVisitorAddress) UpdateVisitorAddressRestAPI(resp http.ResponseW
 
 	// update operation
 	//-----------------
-	model, err := models.GetModel("Visitor")
+	model, err := models.GetModel("VisitorAddress")
 	if err != nil {
 		return nil, err
 	}

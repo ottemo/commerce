@@ -235,7 +235,8 @@ func (it *DefaultVisitor) ListVisitorsRestAPI(resp http.ResponseWriter, req *htt
 			resultItem := map[string]interface{} {
 				"_id":           		visitorItem.GetId(),
 				"email":           		visitorItem.GetEmail(),
-				"full_name":           	visitorItem.GetFullName(),
+				"first_name":           visitorItem.GetFirstName(),
+				"last_name":           	visitorItem.GetLastName(),
 			}
 			result = append(result, resultItem)
 		}
