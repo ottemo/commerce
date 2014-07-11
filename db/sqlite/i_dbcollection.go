@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	sqlite3 "code.google.com/p/go-sqlite/go1/sqlite3"
+	sqlite3 "github.com/mxk/go-sqlite/sqlite3"
 )
 
 func sqlError(SQL string, err error) error {
@@ -92,7 +92,7 @@ func (it *SQLiteCollection) Count() (int, error) {
 	SQL := "SELECT COUNT(*) AS cnt FROM " + it.TableName + sqlLoadFilter
 	if s, err := it.Connection.Query(SQL); err == nil {
 		if err := s.Scan(row); err == nil {
-			cnt := row["cnt"].(int)   //TODO: check this assertion works
+			cnt := row["cnt"].(int) //TODO: check this assertion works
 			return cnt, err
 		} else {
 			return 0, err
