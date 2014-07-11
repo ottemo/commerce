@@ -16,7 +16,7 @@ func (it *DefaultCategory) Get(attribute string) interface{} {
 	case "name":
 		return it.Name
 	case "products":
-		result := make([]map[string]interface{}, len(it.Products))
+		result := make([]map[string]interface{}, 0)
 		for _, categoryProduct := range it.Products {
 			result = append(result, categoryProduct.ToHashMap())
 		}
@@ -47,6 +47,7 @@ func (it *DefaultCategory) Set(attribute string, value interface{}) error {
 	case "products":
 		switch value := value.(type) {
 
+		// we have some array - supposing array with id
 		case []interface{}:
 			for _, listItem := range value {
 				productId, ok := listItem.(string)
@@ -58,13 +59,15 @@ func (it *DefaultCategory) Set(attribute string, value interface{}) error {
 
 					productModel, ok := model.(product.I_Product)
 					if !ok {
-						errors.New("unsupported product model " + model.GetImplementationName())
+						return errors.New("unsupported product model " + model.GetImplementationName())
 					}
 
 					err = productModel.Load(productId)
 					if err != nil {
-						it.Products = append(it.Products, productModel)
+						return err
 					}
+
+					it.Products = append(it.Products, productModel)
 				}
 			}
 
