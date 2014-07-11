@@ -1,8 +1,9 @@
 package sqlite
 
 import (
-	"github.com/ottemo/foundation/db"
 	"strings"
+
+	"github.com/ottemo/foundation/db"
 )
 
 func (it *SQLite) GetName() string { return "Sqlite3" }

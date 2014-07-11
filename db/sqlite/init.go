@@ -1,7 +1,7 @@
 package sqlite
 
 import (
-	"code.google.com/p/go-sqlite/go1/sqlite3"
+	"github.com/mxk/go-sqlite/sqlite3"
 	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/env"
 )
