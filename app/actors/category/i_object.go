@@ -47,6 +47,24 @@ func (it *DefaultCategory) Set(attribute string, value interface{}) error {
 	case "products":
 		switch value := value.(type) {
 
+		case []string:
+			for _, productId := range value {
+				model, err := models.GetModel("Product")
+				if err != nil {
+					return err
+				}
+
+				productModel, ok := model.(product.I_Product)
+				if !ok {
+					errors.New("unsupported product model " + model.GetImplementationName())
+				}
+
+				err = productModel.Load(productId)
+				if err != nil {
+					it.Products = append(it.Products, productModel)
+				}
+			}
+
 		// we have prepared []I_Product
 		case []product.I_Product:
 			it.Products = value
