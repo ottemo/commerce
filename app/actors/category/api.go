@@ -30,6 +30,10 @@ func (it *DefaultCategory) setupAPI() error {
 	if err != nil {
 		return err
 	}
+	err = api.GetRestService().RegisterAPI("category", "GET", "get/:id", it.GetCategoryRestAPI)
+	if err != nil {
+		return err
+	}
 
 
 	err = api.GetRestService().RegisterAPI("category", "GET", "products/:id", it.ListCategoryProductsRestAPI)
@@ -41,6 +45,11 @@ func (it *DefaultCategory) setupAPI() error {
 		return err
 	}
 	err = api.GetRestService().RegisterAPI("category", "GET", "product/remove/:categoryId/:productId", it.RemoveCategoryProductRestAPI)
+	if err != nil {
+		return err
+	}
+
+	err = api.GetRestService().RegisterAPI("category", "GET", "attribute/list", it.ListCategoryAttributesRestAPI)
 	if err != nil {
 		return err
 	}
@@ -338,4 +347,32 @@ func (it *DefaultCategory) RemoveCategoryProductRestAPI(resp http.ResponseWriter
 	}
 
 	return "ok", nil
+}
+
+// WEB REST API function used to obtain all product attributes
+//   - product id must be specified in request URI "http://[site:port]/product/get/:id"
+func (it *DefaultCategory) GetCategoryRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}) (interface{}, error) {
+
+	// check request params
+	//---------------------
+	categoryId, isSpecifiedId := reqParams["id"]
+	if !isSpecifiedId {
+		return nil, errors.New("category 'id' was not specified")
+	}
+
+	// load product operation
+	//-----------------------
+	if model, err := models.GetModel("Category"); err == nil {
+		if model, ok := model.(category.I_Category); ok {
+
+			err = model.Load(categoryId)
+			if err != nil {
+				return nil, err
+			}
+
+			return model.ToHashMap(), nil
+		}
+	}
+
+	return nil, errors.New("Something went wrong...")
 }
