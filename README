@@ -1,0 +1,44 @@
+Ottemo 
+=========
+
+built for gophers
+
+
+[![GoDoc](https://godoc.org/github.com/ottemo/foundation?status.png)](https://godoc.org/github.com/ottemo/foundation)
+
+## Install and Setup coming....
+
+## Contribute to Ottemo development
+We use git-flow internally, but if you do not like git-flow you may use [this document](CONTRIBUTE.md) as an alternative.  
+
+Below is a mini quickstart if you are new to git-flow and can't wait to jump into the code. 
+
+### Initialize git-flow
+
+    # fork or clone ottemo like below
+    $ git clone https://github.com/ottemo/ottemo-go.git 
+
+    # init git-flow, (git-flow must be installed for your OS locally)
+    $ git checkout master
+    $ git checkout develop
+    $ git flow init -d
+
+### Start a feature branch
+    $ git flow feature start <FEATURE-NAME>
+
+### Issue a pull request on github
+    $ git push -u origin <FEATURE-BRANCH>
+    # if you have git aliased to hub otherwise use the github web interface
+    $ git pull-request -b develop
+
+### Delete the local branch
+    $ git branch -d <FEATURE-BRANCH>
+
+
+## License
+
+[MIT License](http://mit-license.org/) copyright 2014, Ottemo
+
+## Terms and Conditions
+
+All Submissions you make to Ottemo, Inc. (“Ottemo”) through GitHub are subject to the following terms and conditions: (1)   You grant Ottemo a perpetual, worldwide, non-exclusive, no charge, royalty free, irrevocable license under your applicable copyrights and patents to reproduce, prepare derivative works of, display, publically perform, sublicense and distribute any feedback, ideas, code, or other information (“Submission”) you submit through GitHub. (2)   Your Submission is an original work of authorship and you are the owner or are legally entitled to grant the license stated above.
