@@ -20,6 +20,10 @@ type DefaultVisitor struct {
 	BillingAddress  visitor.I_VisitorAddress
 	ShippingAddress visitor.I_VisitorAddress
 
+	Password string
+	Validated bool
+
+
 	listCollection db.I_DBCollection
 	listExtraAtributes []string
 }

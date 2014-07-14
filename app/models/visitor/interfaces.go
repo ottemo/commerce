@@ -31,6 +31,14 @@ type I_Visitor interface {
 	SetShippingAddress(address I_VisitorAddress) error
 	SetBillingAddress(address I_VisitorAddress) error
 
+	SetPassword(passwd string) error
+	CheckPassword(passwd string) bool
+
+	IsValidated() bool
+
+	Invalidate() error
+	Validate() error
+
 	models.I_Model
 	models.I_Object
 	models.I_Storable

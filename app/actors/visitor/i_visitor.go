@@ -1,9 +1,52 @@
 package visitor
 
 import (
+	"crypto/md5"
+	"encoding/hex"
+
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/visitor"
+	"errors"
 )
+
+//---------------------------------
+// IMPLEMENTATION SPECIFIC METHODS
+//---------------------------------
+
+// returns I_VisitorAddress model filled with values from DB or blank structure if no id found in DB
+func (it *DefaultVisitor) getVisitorAddressById(addressId string) visitor.I_VisitorAddress {
+	address_model, err := models.GetModel("VisitorAddress")
+	if err != nil {
+		return nil
+	}
+
+	if address_model, ok := address_model.(visitor.I_VisitorAddress); ok {
+		if addressId != "" {
+			address_model.Load(addressId)
+		}
+
+		return address_model
+	}
+
+	return nil
+}
+
+// returns I_VisitorAddress model filled with values from DB or blank structure if no id found in DB
+func (it *DefaultVisitor) passwdEncode(passwd string) string {
+	salt := ":"
+	if len(passwd) > 2 {
+		salt += passwd[0:1]
+	}
+
+	hasher := md5.New()
+	hasher.Write([]byte(passwd + salt))
+
+	return hex.EncodeToString(hasher.Sum(nil))
+}
+
+//--------------------------
+// INTERFACE IMPLEMENTATION
+//--------------------------
 
 func (it *DefaultVisitor) GetEmail() string     { return it.Email }
 func (it *DefaultVisitor) GetFullName() string  { return it.FirstName + " " + it.LastName }
@@ -28,21 +71,31 @@ func (it *DefaultVisitor) SetBillingAddress(address visitor.I_VisitorAddress) er
 	return nil
 }
 
-// Internal usage function which returns I_VisitorAddress model filled with values from DB
-// or blank structure if no id found in DB
-func (it *DefaultVisitor) getVisitorAddressById(addressId string) visitor.I_VisitorAddress {
-	address_model, err := models.GetModel("VisitorAddress")
-	if err != nil {
-		return nil
-	}
+func (it *DefaultVisitor) IsValidated() bool {
+	return it.Validated
+}
 
-	if address_model, ok := address_model.(visitor.I_VisitorAddress); ok {
-		if addressId != "" {
-			address_model.Load(addressId)
-		}
+func (it *DefaultVisitor) Invalidate() error {
+	it.Validated = false
+	return nil
+}
 
-		return address_model
+func (it *DefaultVisitor) Validate() error {
+	it.Validated = false
+	return nil
+}
+
+func (it *DefaultVisitor) SetPassword(passwd string) error {
+	if len(passwd)>0 {
+		it.Password = it.passwdEncode(passwd)
+	} else {
+		return errors.New("password can't be blank")
 	}
 
 	return nil
 }
+
+func (it *DefaultVisitor) CheckPassword(passwd string) bool {
+	return it.passwdEncode(passwd) == it.Password
+}
+

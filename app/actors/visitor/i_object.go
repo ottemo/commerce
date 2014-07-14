@@ -41,6 +41,8 @@ func (it *DefaultVisitor) Set(attribute string, value interface{}) error {
 		it.FirstName = value.(string)
 	case "lname", "last_name":
 		it.LastName = value.(string)
+	case "password", "passwd":
+		it.SetPassword( value.(string) )
 
 	// only address id coming - trying to get it from DB
 	case "billing_address_id", "shipping_address_id":
@@ -143,7 +145,7 @@ func (it *DefaultVisitor) GetAttributesInfo() []models.T_AttributeInfo {
 			Model:      "Visitor",
 			Collection: "Visitor",
 			Attribute:  "_id",
-			Type:       "text",
+			Type:       "id",
 			IsRequired: false,
 			IsStatic:   true,
 			Label:      "ID",

@@ -39,6 +39,16 @@ func (it *DefaultVisitor) setupAPI() error {
 		return err
 	}
 
+
+	err = api.GetRestService().RegisterAPI("visitor", "GET", "validate/:key", it.ValidateRestAPI)
+	if err != nil {
+		return err
+	}
+	err = api.GetRestService().RegisterAPI("visitor", "POST", "register", it.RegisterRestAPI)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -240,4 +250,30 @@ func (it *DefaultVisitor) ListVisitorAttributesRestAPI(resp http.ResponseWriter,
 
 	attrInfo := vis.GetAttributesInfo()
 	return attrInfo, nil
+}
+
+
+
+// WEB REST API used to register new visitor (same as create but with email validation)
+//   - visitor attributes must be included in POST form
+//   - email attribute required
+func (it *DefaultVisitor) RegisterRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}) (interface{}, error) {
+	result, err := it.CreateVisitorRestAPI(resp, req, reqParams, reqContent)
+	if err != nil {
+		return result, err
+	}
+
+	return result, nil
+}
+
+
+func (it *DefaultVisitor) ValidateRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}) (interface{}, error) {
+	// check request params
+	//---------------------
+	key, isKeySpecified := reqParams["key"]
+	if !isKeySpecified {
+		return nil, errors.New("validation kay was not specified")
+	}
+
+	return key, nil
 }

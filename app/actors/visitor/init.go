@@ -21,11 +21,13 @@ func (it *DefaultVisitor) setupModel() error {
 
 	if dbEngine := db.GetDBEngine(); dbEngine != nil {
 		if collection, err := dbEngine.GetCollection(VISITOR_COLLECTION_NAME); err == nil {
-			collection.AddColumn("email", "text", true)
-			collection.AddColumn("first_name", "text", false)
-			collection.AddColumn("last_name", "text", false)
-			collection.AddColumn("billing_address_id", "int", false)
-			collection.AddColumn("shipping_address_id", "int", false)
+			collection.AddColumn("email", "id", true)
+			collection.AddColumn("validated", "bool", false)
+			collection.AddColumn("password", "varchar(128)", false)
+			collection.AddColumn("first_name", "varchar(50)", true)
+			collection.AddColumn("last_name", "varchar(50)", true)
+			collection.AddColumn("billing_address_id", "id", false)
+			collection.AddColumn("shipping_address_id", "id", false)
 		} else {
 			return err
 		}
