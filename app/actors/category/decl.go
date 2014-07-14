@@ -3,6 +3,8 @@ package category
 import (
 	"github.com/ottemo/foundation/app/models/category"
 	"github.com/ottemo/foundation/app/models/product"
+
+	"github.com/ottemo/foundation/db"
 )
 
 const (
@@ -16,4 +18,8 @@ type DefaultCategory struct {
 	Name     string
 	Parent   category.I_Category
 	Products []product.I_Product
+
+
+	listCollection db.I_DBCollection
+	listExtraAtributes []string
 }

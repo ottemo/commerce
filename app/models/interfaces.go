@@ -12,23 +12,28 @@ type I_Storable interface {
 
 	Save() error
 	Load(id string) error
-	Delete(Id string) error
+	Delete(id string) error
 }
 
 type I_Object interface {
-	Get(Attribute string) interface{}
-	Set(Attribute string, Value interface{}) error
+	Get(attribute string) interface{}
+	Set(attribute string, value interface{}) error
 
-	FromHashMap(HashMap map[string]interface{}) error
+	FromHashMap(hashMap map[string]interface{}) error
 	ToHashMap() map[string]interface{}
 
 	GetAttributesInfo() []T_AttributeInfo
 }
 
 type I_Listable interface {
-	List() ([]interface{}, error)
-	ListFilterAdd(Attribute string, Operator string, Value interface{}) error
+	List() ([]T_ListItem, error)
+
+	ListAddExtraAttribute(attribute string) error
+
+	ListFilterAdd(attribute string, operator string, value interface{}) error
 	ListFilterReset() error
+
+	ListLimit(offset int, limit int) error
 }
 
 type I_CustomAttributes interface {
@@ -39,9 +44,22 @@ type I_CustomAttributes interface {
 type I_Media interface {
 	AddMedia(mediaType string, mediaName string, content []byte) error
 	RemoveMedia(mediaType string, mediaName string) error
+
 	ListMedia(mediaType string) ([]string, error)
+
 	GetMedia(mediaType string, mediaName string) ([]byte, error)
 	GetMediaPath(mediaType string) (string, error)
+}
+
+
+
+type T_ListItem struct {
+	Id    string
+	Name  string
+	Image string
+	Desc  string
+
+	Extra map[string]interface{}
 }
 
 type T_AttributeInfo struct {

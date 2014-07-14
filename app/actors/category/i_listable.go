@@ -3,17 +3,19 @@ package category
 import (
 	"errors"
 	"github.com/ottemo/foundation/db"
+
+	"github.com/ottemo/foundation/app/models"
+	"github.com/ottemo/foundation/app/utils"
 )
 
 //---------------------------------
-// Implementation specific methods
+// IMPLEMENTATION SPECIFIC METHODS
 //---------------------------------
 
-var listCollection db.I_DBCollection = nil
-
-func getListCollection() (db.I_DBCollection, error) {
-	if listCollection != nil {
-		return listCollection, nil
+// initializes and returns shared among couple functions collection
+func (it *DefaultCategory) getListCollection() (db.I_DBCollection, error) {
+	if it.listCollection != nil {
+		return it.listCollection, nil
 	} else {
 		var err error = nil
 
@@ -22,21 +24,24 @@ func getListCollection() (db.I_DBCollection, error) {
 			return nil, errors.New("Can't obtain DBEngine")
 		}
 
-		listCollection, err = dbEngine.GetCollection("Category")
+		it.listCollection, err = dbEngine.GetCollection("Category")
 
-		return listCollection, err
+		return it.listCollection, err
 	}
 }
 
-//------------------------------------
-// I_Listable interface implementation
-//------------------------------------
 
-// returns category list array with usage of filtering if set
-func (it *DefaultCategory) List() ([]interface{}, error) {
-	result := make([]interface{}, 0)
+//-------------------------
+// INTERFACE IMPLEMENTATION
+//-------------------------
 
-	collection, err := getListCollection()
+
+// enumerates items of Product model type
+func (it *DefaultCategory) List() ([]models.T_ListItem, error) {
+	result := make([]models.T_ListItem, 0)
+
+	// loading data from DB
+	collection, err := it.getListCollection()
 	if err != nil {
 		return result, err
 	}
@@ -47,6 +52,8 @@ func (it *DefaultCategory) List() ([]interface{}, error) {
 	}
 
 	for _, dbItemData := range dbItems {
+
+		// assigning loaded DB data to model
 		model, err := it.New()
 		if err != nil {
 			return result, err
@@ -55,15 +62,52 @@ func (it *DefaultCategory) List() ([]interface{}, error) {
 		category := model.(*DefaultCategory)
 		category.FromHashMap(dbItemData)
 
-		result = append(result, category)
+		// retrieving minimal data needed for list
+		resultItem := new(models.T_ListItem)
+
+		resultItem.Id    = category.GetId()
+		resultItem.Name  = category.GetName()
+		resultItem.Image = ""
+		resultItem.Desc  = ""
+
+		// if extra attributes were required
+		if len(it.listExtraAtributes) > 0 {
+			resultItem.Extra = make(map[string]interface{})
+
+			for _, attributeName := range it.listExtraAtributes {
+				resultItem.Extra[attributeName] = category.Get(attributeName)
+			}
+		}
+
+		result = append(result, *resultItem)
 	}
 
 	return result, nil
 }
 
+
+
+// allows to obtain additional attributes from  List() function
+func (it *DefaultCategory) ListAddExtraAttribute(attribute string) error {
+
+	if utils.IsAmongStr(attribute, "parent", "products") {
+		if utils.IsInListStr(attribute, it.listExtraAtributes) {
+			it.listExtraAtributes = append(it.listExtraAtributes, attribute)
+		} else {
+			return errors.New("attribute already in list")
+		}
+	} else {
+		return errors.New("not allowed attribute")
+	}
+
+	return nil
+}
+
+
+
 // adds selection filter to List() function
 func (it *DefaultCategory) ListFilterAdd(Attribute string, Operator string, Value interface{}) error {
-	collection, err := getListCollection()
+	collection, err := it.getListCollection()
 	if err != nil {
 		return err
 	}
@@ -72,13 +116,27 @@ func (it *DefaultCategory) ListFilterAdd(Attribute string, Operator string, Valu
 	return nil
 }
 
-// resets all previously set filters
+
+
+// clears presets made by ListFilterAdd() and ListAddExtraAttribute() functions
 func (it *DefaultCategory) ListFilterReset() error {
-	collection, err := getListCollection()
+	collection, err := it.getListCollection()
 	if err != nil {
 		return err
 	}
 
 	collection.ClearFilters()
 	return nil
+}
+
+
+
+// specifies selection paging
+func (it *DefaultCategory) ListLimit(offset int, limit int) error {
+	collection, err := it.getListCollection()
+	if err != nil {
+		return err
+	}
+
+	return collection.SetLimit(offset, limit)
 }

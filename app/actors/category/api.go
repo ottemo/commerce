@@ -4,6 +4,9 @@ import(
 	"errors"
 	"net/http"
 
+	"strings"
+	"strconv"
+
 	"github.com/ottemo/foundation/api"
 
 	"github.com/ottemo/foundation/app/models"
@@ -15,6 +18,10 @@ func (it *DefaultCategory) setupAPI() error {
 	var err error = nil
 
 	err = api.GetRestService().RegisterAPI("category", "GET", "list", it.ListCategoriesRestAPI)
+	if err != nil {
+		return err
+	}
+	err = api.GetRestService().RegisterAPI("category", "POST", "list", it.ListCategoriesRestAPI)
 	if err != nil {
 		return err
 	}
@@ -63,30 +70,77 @@ func (it *DefaultCategory) setupAPI() error {
 //   - parent categories and categorys will not be present in list
 func (it *DefaultCategory) ListCategoriesRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}) (interface{}, error) {
 
-	result := make([]map[string]interface{}, 0)
+	// check request params
+	//---------------------
+	reqData, ok := reqContent.(map[string]interface{})
+	if !ok {
+		if req.Method == "POST" {
+			return nil, errors.New("unexpected request content")
+		} else {
+			reqData = make(map[string]interface{})
+		}
+	}
 
+	// operation start
+	//----------------
 	model, err := models.GetModel("Category")
 	if err != nil {
-		return result, errors.New("'Category' model not defined")
+		return nil, errors.New("'Category' model not defined")
 	}
 
 	categoryModel, compatible := model.(category.I_Category)
 	if !compatible  {
-		return result, errors.New("Category model is not I_Category compatible")
+		return nil, errors.New("Category model is not I_Category compatible")
 	}
 
-	categoriesList, err := categoryModel.List()
-	if err != nil {
-		return nil, err
-	}
+	// limit parameter handler
+	if limit, isLimit := reqData["limit"]; isLimit {
+		if limit, ok := limit.(string); ok {
+			splitResult := strings.Split(limit, ",")
+			if len(splitResult) > 2 {
 
-	for _, listValue := range categoriesList {
-		if categorytItem, ok := listValue.(category.I_Category); ok {
-			result = append(result, categorytItem.ToHashMap() )
+				offset, err := strconv.Atoi( strings.TrimSpace(splitResult[0]) )
+				if err != nil {
+					return nil, err
+				}
+
+				limit, err := strconv.Atoi( strings.TrimSpace(splitResult[1]) )
+				if err != nil {
+					return nil, err
+				}
+
+				categoryModel.ListLimit(offset, limit)
+			} else if len(splitResult) > 0 {
+				limit, err := strconv.Atoi( strings.TrimSpace(splitResult[0]) )
+				if err != nil {
+					return nil, err
+				}
+
+				categoryModel.ListLimit(0, limit)
+			}
+
+			categoryModel.ListLimit(0, 0)
 		}
 	}
 
-	return result, nil
+	// extra parameter handler
+	if extra, isExtra := reqData["extra"]; isExtra {
+		extra, ok := extra.(string)
+		if !ok {
+			return nil, errors.New("extra parameter should be string")
+		}
+
+		splitResult := strings.Split(extra, ",")
+		for _, extraAttribute := range splitResult {
+			err := categoryModel.ListAddExtraAttribute(strings.TrimSpace(extraAttribute))
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+
+
+	return categoryModel.List()
 }
 
 

@@ -10,6 +10,7 @@ import (
 
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/product"
+	"strconv"
 )
 
 func (it *DefaultProduct) setupAPI() error {
@@ -21,6 +22,10 @@ func (it *DefaultProduct) setupAPI() error {
 		return err
 	}
 	err = api.GetRestService().RegisterAPI("product", "GET", "get/:id", it.GetProductRestAPI)
+	if err != nil {
+		return err
+	}
+	err = api.GetRestService().RegisterAPI("product", "POST", "list", it.ListProductsRestAPI)
 	if err != nil {
 		return err
 	}
@@ -229,50 +234,95 @@ func (it *DefaultProduct) GetProductRestAPI(resp http.ResponseWriter, req *http.
 
 // WEB REST API function used to obtain product list we have in database
 //   - only [_id, sku, name] attributes returns by default
+func (it *DefaultProduct) EnumProductsRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}) (interface{}, error) {
+
+	model, err := models.GetModel("Product")
+	if err == nil {
+		return nil, err
+	}
+
+	productModel, ok := model.(product.I_Product)
+	if !ok {
+		return nil, errors.New("Product model is not I_Product compatible")
+	}
+
+	return productModel.List()
+}
+
+// WEB REST API function used to obtain product list we have in database
+//   - only [_id, sku, name] attributes returns by default
 func (it *DefaultProduct) ListProductsRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}) (interface{}, error) {
 
-	result := make([]map[string]interface{}, 0)
-	if model, err := models.GetModel("Product"); err == nil {
-		if model, ok := model.(product.I_Product); ok {
-
-			productsList, err := model.List()
-			if err != nil {
-				return nil, err
-			}
-
-			for _, listValue := range productsList {
-				if productItem, ok := listValue.(product.I_Product); ok {
-
-					imagePath, _ := productItem.GetMediaPath("image")
-
-					resultItem := map[string]interface{}{
-						"_id":           productItem.GetId(),
-						"sku":           productItem.GetSku(),
-						"name":          productItem.GetName(),
-						"description":   productItem.GetDescription(),
-						"default_image": productItem.GetDefaultImage(),
-						"image_path":    imagePath,
-					}
-
-					defaultImage := productItem.GetDefaultImage()
-					if defaultImage != "" {
-						path, err := productItem.GetMediaPath("image")
-						if err != nil {
-							return nil, err
-						}
-
-						resultItem["image"] = path + defaultImage
-					}
-
-					result = append(result, resultItem)
-				}
-			}
-
-			return result, nil
+	// check request params
+	//---------------------
+	reqData, ok := reqContent.(map[string]interface{})
+	if !ok {
+		if req.Method == "POST" {
+			return nil, errors.New("unexpected request content")
+		} else {
+			reqData = make(map[string]interface{})
 		}
 	}
 
-	return nil, errors.New("Something went wrong...")
+	// operation start
+	//----------------
+	model, err := models.GetModel("Product")
+	if err == nil {
+		return nil, err
+	}
+
+	productModel, ok := model.(product.I_Product)
+	if !ok {
+		return nil, errors.New("Product model is not I_Product compatible")
+	}
+
+	// limit parameter handler
+	if limit, isLimit := reqData["limit"]; isLimit {
+		if limit, ok := limit.(string); ok {
+			splitResult := strings.Split(limit, ",")
+			if len(splitResult) > 2 {
+
+				offset, err := strconv.Atoi( strings.TrimSpace(splitResult[0]) )
+				if err != nil {
+					return nil, err
+				}
+
+				limit, err := strconv.Atoi( strings.TrimSpace(splitResult[1]) )
+				if err != nil {
+					return nil, err
+				}
+
+				productModel.ListLimit(offset, limit)
+			} else if len(splitResult) > 0 {
+				limit, err := strconv.Atoi( strings.TrimSpace(splitResult[0]) )
+				if err != nil {
+					return nil, err
+				}
+
+				productModel.ListLimit(0, limit)
+			}
+
+			productModel.ListLimit(0, 0)
+		}
+	}
+
+	// extra parameter handler
+	if extra, isExtra := reqData["extra"]; isExtra {
+		extra, ok := extra.(string)
+		if !ok {
+			return nil, errors.New("extra parameter should be string")
+		}
+
+		splitResult := strings.Split(extra, ",")
+		for _, extraAttribute := range splitResult {
+			err := productModel.ListAddExtraAttribute(strings.TrimSpace(extraAttribute))
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+
+	return productModel.List()
 }
 
 // WEB REST API used to create new one product
