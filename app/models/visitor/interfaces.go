@@ -5,6 +5,7 @@ import (
 )
 
 type I_VisitorAddress interface {
+	GetVisitorId() string
 	GetStreet() string
 	GetCity() string
 	GetState() string
@@ -14,6 +15,7 @@ type I_VisitorAddress interface {
 	models.I_Model
 	models.I_Object
 	models.I_Storable
+	models.I_Listable
 }
 
 type I_Visitor interface {
@@ -32,4 +34,5 @@ type I_Visitor interface {
 	models.I_Model
 	models.I_Object
 	models.I_Storable
+	models.I_Listable
 }

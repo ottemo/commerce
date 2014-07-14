@@ -6,6 +6,7 @@ const (
 
 type DefaultVisitorAddress struct {
 	id string
+	visitor_id string
 
 	Street  string
 	City    string
