@@ -1,5 +1,9 @@
 package address
 
+import (
+	"github.com/ottemo/foundation/db"
+)
+
 const (
 	VISITOR_ADDRESS_COLLECTION_NAME = "visitor_address"
 )
@@ -13,4 +17,8 @@ type DefaultVisitorAddress struct {
 	State   string
 	Phone   string
 	ZipCode string
+
+
+	listCollection db.I_DBCollection
+	listExtraAtributes []string
 }

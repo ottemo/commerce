@@ -196,8 +196,6 @@ func (it *DefaultVisitorAddress) ListVisitorAddressAttributesRestAPI(resp http.R
 //   - visitor id must be specified in request URI
 func (it *DefaultVisitorAddress) ListVisitorAddressRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}) (interface{}, error) {
 
-	result := make([]map[string]interface{}, 0)
-
 	// check request params
 	//---------------------
 	visitorId, isSpecifiedId := reqParams["visitorId"]
@@ -218,18 +216,8 @@ func (it *DefaultVisitorAddress) ListVisitorAddressRestAPI(resp http.ResponseWri
 	}
 
 	addressModel.ListFilterAdd("visitor_id", "=", visitorId)
-	addressesList, err := addressModel.List()
-	if err != nil {
-		return nil, err
-	}
 
-	for _, listValue := range addressesList {
-		if addressItem, ok := listValue.(visitor.I_VisitorAddress); ok {
-			result = append(result, addressItem.ToHashMap())
-		}
-	}
-
-	return result, nil
+	return  addressModel.List()
 }
 
 

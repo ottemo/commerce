@@ -2,6 +2,8 @@ package visitor
 
 import (
 	"github.com/ottemo/foundation/app/models/visitor"
+
+	"github.com/ottemo/foundation/db"
 )
 
 const (
@@ -17,4 +19,7 @@ type DefaultVisitor struct {
 
 	BillingAddress  visitor.I_VisitorAddress
 	ShippingAddress visitor.I_VisitorAddress
+
+	listCollection db.I_DBCollection
+	listExtraAtributes []string
 }

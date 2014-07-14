@@ -211,9 +211,6 @@ func (it *DefaultVisitor) GetVisitorRestAPI(resp http.ResponseWriter, req *http.
 
 // WEB REST API function used to get visitors list
 func (it *DefaultVisitor) ListVisitorsRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}) (interface{}, error) {
-
-	result := make([]map[string]interface{}, 0)
-
 	model, err := models.GetModel("Visitor")
 	if err != nil {
 		return nil, err
@@ -224,25 +221,7 @@ func (it *DefaultVisitor) ListVisitorsRestAPI(resp http.ResponseWriter, req *htt
 		return nil, errors.New("visitor model is not I_Visitor campatible")
 	}
 
-	visitorsList, err := visitorModel.List()
-	if err != nil {
-		return nil, err
-	}
-
-	for _, listValue := range visitorsList {
-		if visitorItem, ok := listValue.(visitor.I_Visitor); ok {
-
-			resultItem := map[string]interface{} {
-				"_id":           		visitorItem.GetId(),
-				"email":           		visitorItem.GetEmail(),
-				"first_name":           visitorItem.GetFirstName(),
-				"last_name":           	visitorItem.GetLastName(),
-			}
-			result = append(result, resultItem)
-		}
-	}
-
-	return result, nil
+	return visitorModel.List()
 }
 
 
