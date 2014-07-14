@@ -267,7 +267,7 @@ func (it *DefaultProduct) ListProductsRestAPI(resp http.ResponseWriter, req *htt
 	// operation start
 	//----------------
 	model, err := models.GetModel("Product")
-	if err == nil {
+	if err != nil {
 		return nil, err
 	}
 
@@ -321,6 +321,7 @@ func (it *DefaultProduct) ListProductsRestAPI(resp http.ResponseWriter, req *htt
 			}
 		}
 	}
+
 
 	return productModel.List()
 }

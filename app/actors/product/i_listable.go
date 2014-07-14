@@ -71,8 +71,12 @@ func (it *DefaultProduct) List() ([]models.T_ListItem, error) {
 
 		resultItem.Id    = product.GetId()
 		resultItem.Name  = "[" + product.GetSku() + "] "  + product.GetName()
-		resultItem.Image = mediaPath + product.GetDefaultImage()
+		resultItem.Image = ""
 		resultItem.Desc  = product.GetDescription()
+
+		if product.GetDefaultImage() != "" {
+			resultItem.Image = mediaPath + product.GetDefaultImage()
+		}
 
 		// if extra attributes were required
 		if len(it.listExtraAtributes) > 0 {
