@@ -24,6 +24,8 @@ func (it *DefaultVisitor) Get(attribute string) interface{} {
 		return it.BillingAddress
 	case "shipping_address":
 		return it.ShippingAddress
+	case "validate":
+		return it.ValidateKey
 	}
 
 	return nil
@@ -43,6 +45,8 @@ func (it *DefaultVisitor) Set(attribute string, value interface{}) error {
 		it.LastName = value.(string)
 	case "password", "passwd":
 		it.SetPassword( value.(string) )
+	case "validate":
+		it.ValidateKey = value.(string)
 
 	// only address id coming - trying to get it from DB
 	case "billing_address_id", "shipping_address_id":

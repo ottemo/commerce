@@ -64,11 +64,14 @@ func (it *DefaultVisitor) Save() error {
 	if dbEngine := db.GetDBEngine(); dbEngine != nil {
 		if collection, err := dbEngine.GetCollection(VISITOR_COLLECTION_NAME); err == nil {
 
-			// prepearing initial hashmap
 			storableValues := it.ToHashMap()
 
 			delete(storableValues, "billing_address")
 			delete(storableValues, "shipping_address")
+
+			storableValues["password"] = it.Password
+			storableValues["validate"] = it.ValidateKey
+
 
 			// shipping address save
 			if it.ShippingAddress != nil {

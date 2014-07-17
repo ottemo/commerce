@@ -4,8 +4,16 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 
+	"encoding/base64"
+	"time"
+
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/visitor"
+
+	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/foundation/app/utils/sendmail"
+	"github.com/ottemo/foundation/app/utils"
+
 	"errors"
 )
 
@@ -71,17 +79,99 @@ func (it *DefaultVisitor) SetBillingAddress(address visitor.I_VisitorAddress) er
 	return nil
 }
 
+
+// returns true if visitor e-mail was validated
 func (it *DefaultVisitor) IsValidated() bool {
-	return it.Validated
+	return it.ValidateKey == ""
 }
 
+
+// marks visitor e-mail as not validated
+//	- sends to visitor e-mail new validation key
 func (it *DefaultVisitor) Invalidate() error {
-	it.Validated = false
+
+	if it.GetEmail() == "" {
+		return errors.New("email is not specified")
+	}
+
+	data, err := time.Now().MarshalBinary()
+	if err != nil {
+		return err
+	}
+
+	it.ValidateKey = base64.StdEncoding.EncodeToString( data )
+	err = it.Save()
+	if err != nil {
+		return err
+	}
+
+	// TODO: probably not a best solution to have it there
+	linkHref := utils.GetSiteBackUrl() + "/visitor/validate/" + it.ValidateKey
+	link := "<a href=\"" + linkHref + "\"/>" + linkHref + "</a>"
+
+	sendmail.SendMail(it.GetEmail(), "e-mail validation", "please follow the link to validate your e-mail" + link)
+
 	return nil
 }
 
-func (it *DefaultVisitor) Validate() error {
-	it.Validated = false
+
+// validates visitors e-mails for given key
+//   - if key was expired, user will receive new one validation code
+func (it *DefaultVisitor) Validate(key string) error {
+
+	// looking for visitors with given validation key in DB and collecting ids
+	visitorIds := make([]string, 0)
+	if dbEngine := db.GetDBEngine(); dbEngine != nil {
+		if collection, err := dbEngine.GetCollection(VISITOR_COLLECTION_NAME); err == nil {
+			collection.AddFilter("validate", "=", key)
+
+			records, err := collection.Load()
+			if err != nil {
+				return err
+			}
+
+			for _, record := range records {
+				if visitorId, present := record["_id"]; present {
+					if visitorId, ok := visitorId.(string); ok {
+						visitorIds = append(visitorIds, visitorId)
+					}
+				}
+
+			}
+		}
+	}
+
+	// checking validation key expiration
+	data, err := base64.StdEncoding.DecodeString( key )
+	if err != nil {
+		return err
+	}
+
+	stamp := time.Now()
+	timeNow := stamp.Unix()
+	stamp.UnmarshalBinary(data)
+	timeWas := stamp.Unix()
+
+	validationExpired := (timeNow - timeWas) > EMAIL_VALIDATE_EXPIRE
+
+	// processing visitors for given validation key
+	for _, visitorId := range visitorIds {
+		model, _ := it.New()
+		visitorModel := model.(*DefaultVisitor)
+
+		err := visitorModel.Load(visitorId)
+		if err != nil {
+			return err
+		}
+
+		if validationExpired {
+			visitorModel.ValidateKey = ""
+			visitorModel.Save()
+		} else {
+			visitorModel.Invalidate()
+		}
+	}
+
 	return nil
 }
 
@@ -94,6 +184,8 @@ func (it *DefaultVisitor) SetPassword(passwd string) error {
 
 	return nil
 }
+
+
 
 func (it *DefaultVisitor) CheckPassword(passwd string) bool {
 	return it.passwdEncode(passwd) == it.Password

@@ -68,7 +68,7 @@ func (it *DefaultCategory) setupAPI() error {
 
 // WEB REST API function used to obtain category list we have in database
 //   - parent categories and categorys will not be present in list
-func (it *DefaultCategory) ListCategoriesRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}) (interface{}, error) {
+func (it *DefaultCategory) ListCategoriesRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}, session api.I_Session) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -147,7 +147,7 @@ func (it *DefaultCategory) ListCategoriesRestAPI(resp http.ResponseWriter, req *
 // WEB REST API used to create new category
 //   - category attributes must be included in POST form
 //   - name attribute required
-func (it *DefaultCategory) CreateCategoryRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}) (interface{}, error) {
+func (it *DefaultCategory) CreateCategoryRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}, session api.I_Session) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -187,7 +187,7 @@ func (it *DefaultCategory) CreateCategoryRestAPI(resp http.ResponseWriter, req *
 
 
 // WEB REST API used to delete category
-func (it *DefaultCategory) DeleteCategoryRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}) (interface{}, error) {
+func (it *DefaultCategory) DeleteCategoryRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}, session api.I_Session) (interface{}, error) {
 
 	// check request params
 	//--------------------
@@ -221,7 +221,7 @@ func (it *DefaultCategory) DeleteCategoryRestAPI(resp http.ResponseWriter, req *
 // WEB REST API used to update existing category
 //   - category id must be specified in request URI
 //   - category attributes must be included in POST form
-func (it *DefaultCategory) UpdateCategoryRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}) (interface{}, error) {
+func (it *DefaultCategory) UpdateCategoryRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}, session api.I_Session) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -270,7 +270,7 @@ func (it *DefaultCategory) UpdateCategoryRestAPI(resp http.ResponseWriter, req *
 
 
 // WEB REST API function used to obtain category attributes information
-func (it *DefaultCategory) ListCategoryAttributesRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}) (interface{}, error) {
+func (it *DefaultCategory) ListCategoryAttributesRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}, session api.I_Session) (interface{}, error) {
 	model, err := models.GetModel("Category")
 	if err != nil {
 		return nil, err
@@ -289,7 +289,7 @@ func (it *DefaultCategory) ListCategoryAttributesRestAPI(resp http.ResponseWrite
 
 // WEB REST API function used to list product in category
 //   - category id must be specified in request URI
-func (it *DefaultCategory) ListCategoryProductsRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}) (interface{}, error) {
+func (it *DefaultCategory) ListCategoryProductsRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}, session api.I_Session) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -330,7 +330,7 @@ func (it *DefaultCategory) ListCategoryProductsRestAPI(resp http.ResponseWriter,
 
 // WEB REST API function used to add product in category
 //   - category and product ids must be specified in request URI
-func (it *DefaultCategory) AddCategoryProductRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}) (interface{}, error) {
+func (it *DefaultCategory) AddCategoryProductRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}, session api.I_Session) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -368,7 +368,7 @@ func (it *DefaultCategory) AddCategoryProductRestAPI(resp http.ResponseWriter, r
 
 // WEB REST API function used to remove product from category
 //   - category and product ids must be specified in request URI
-func (it *DefaultCategory) RemoveCategoryProductRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}) (interface{}, error) {
+func (it *DefaultCategory) RemoveCategoryProductRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}, session api.I_Session) (interface{}, error) {
 
 
 	// check request params
@@ -405,7 +405,7 @@ func (it *DefaultCategory) RemoveCategoryProductRestAPI(resp http.ResponseWriter
 
 // WEB REST API function used to obtain all product attributes
 //   - product id must be specified in request URI "http://[site:port]/product/get/:id"
-func (it *DefaultCategory) GetCategoryRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}) (interface{}, error) {
+func (it *DefaultCategory) GetCategoryRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}, session api.I_Session) (interface{}, error) {
 
 	// check request params
 	//---------------------

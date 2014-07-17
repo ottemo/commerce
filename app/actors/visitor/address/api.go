@@ -48,7 +48,7 @@ func (it *DefaultVisitorAddress) setupAPI() error {
 // WEB REST API used to create new visitor address
 //   - visitor address attributes must be included in POST form
 //   - visitor id required
-func (it *DefaultVisitorAddress) CreateVisitorAddressRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}) (interface{}, error) {
+func (it *DefaultVisitorAddress) CreateVisitorAddressRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}, session api.I_Session) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -93,7 +93,7 @@ func (it *DefaultVisitorAddress) CreateVisitorAddressRestAPI(resp http.ResponseW
 // WEB REST API used to update existing visitor address
 //   - visitor address id must be specified in request URI
 //   - visitor address attributes must be included in POST form
-func (it *DefaultVisitorAddress) UpdateVisitorAddressRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}) (interface{}, error) {
+func (it *DefaultVisitorAddress) UpdateVisitorAddressRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}, session api.I_Session) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -143,7 +143,7 @@ func (it *DefaultVisitorAddress) UpdateVisitorAddressRestAPI(resp http.ResponseW
 
 // WEB REST API used to delete visitor address
 //   - visitor address attributes must be included in POST form
-func (it *DefaultVisitorAddress) DeleteVisitorAddressRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}) (interface{}, error) {
+func (it *DefaultVisitorAddress) DeleteVisitorAddressRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}, session api.I_Session) (interface{}, error) {
 
 	// check request params
 	//--------------------
@@ -175,7 +175,7 @@ func (it *DefaultVisitorAddress) DeleteVisitorAddressRestAPI(resp http.ResponseW
 
 
 // WEB REST API function used to obtain visitor address attributes information
-func (it *DefaultVisitorAddress) ListVisitorAddressAttributesRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}) (interface{}, error) {
+func (it *DefaultVisitorAddress) ListVisitorAddressAttributesRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}, session api.I_Session) (interface{}, error) {
 	model, err := models.GetModel("VisitorAddress")
 	if err != nil {
 		return nil, err
@@ -194,7 +194,7 @@ func (it *DefaultVisitorAddress) ListVisitorAddressAttributesRestAPI(resp http.R
 
 // WEB REST API function used to obtain visitor addresses list
 //   - visitor id must be specified in request URI
-func (it *DefaultVisitorAddress) ListVisitorAddressRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}) (interface{}, error) {
+func (it *DefaultVisitorAddress) ListVisitorAddressRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}, session api.I_Session) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -224,7 +224,7 @@ func (it *DefaultVisitorAddress) ListVisitorAddressRestAPI(resp http.ResponseWri
 
 // WEB REST API used to get visitor address object
 //   - visitor address id must be specified in request URI
-func (it *DefaultVisitorAddress) GetVisitorAddressRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}) (interface{}, error) {
+func (it *DefaultVisitorAddress) GetVisitorAddressRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}, session api.I_Session) (interface{}, error) {
 	visitorId, isSpecifiedId := reqParams["id"]
 	if !isSpecifiedId {
 		return nil, errors.New("visitor 'id' was not specified")

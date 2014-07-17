@@ -19,3 +19,8 @@ func IsInListStr(searchItem string, searchList []string) bool {
 	}
 	return false
 }
+
+// TODO: should be somwhere in other place
+func GetSiteBackUrl() string {
+	return "http://ottemo:3000/"
+}

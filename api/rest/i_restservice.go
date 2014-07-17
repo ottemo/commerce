@@ -11,12 +11,16 @@ import (
 
 	"github.com/julienschmidt/httprouter"
 	"github.com/ottemo/foundation/api"
+
+	"github.com/ottemo/foundation/api/rest/session"
 )
+
 
 // returns implementation name of our REST API service
 func (it *DefaultRestService) GetName() string {
 	return "httprouter"
 }
+
 
 // other modules should call this function in order to provide own REST API functionality
 func (it *DefaultRestService) RegisterAPI(service string, method string, uri string, handler api.F_APIHandler) error {
@@ -35,6 +39,7 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 
 		contentType := req.Header.Get("Content-Type")
 		switch {
+
 		// JSON content
 		case strings.Contains(contentType, "json"):
 			newContent := map[string]interface{}{}
@@ -63,11 +68,21 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 			content = newContent
 		}
 
+		// starting session for request
+		session, err := session.StartSession(req, resp)
+		if err != nil {
+			log.Println("Session init fail: " + err.Error())
+		}
+
+
+
 		// module handler callback
-		result, err := handler(resp, req, mappedParams, content)
+		result, err := handler(resp, req, mappedParams, content, session)
 		if err != nil {
 			log.Printf("REST error: %s - %s\n", req.RequestURI, err.Error())
 		}
+
+
 
 		// result conversion before output
 		if result != nil || err != nil {
@@ -115,24 +130,26 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 	return nil
 }
 
+
 // entry point for HTTP request - takes control before request handled
 // (go lang "http.server" package "Handler" interface implementation)
-func (it DefaultRestService) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
+func (it DefaultRestService) ServeHTTP(responseWriter http.ResponseWriter, request *http.Request) {
 
 	// CORS fix-up
-	resp.Header().Set("Access-Control-Allow-Origin", "*")
-	resp.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE")
-	resp.Header().Set("Access-Control-Allow-Credentials", "true")
-	resp.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token")
+	responseWriter.Header().Set("Access-Control-Allow-Origin", "*")
+	responseWriter.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE")
+	responseWriter.Header().Set("Access-Control-Allow-Credentials", "true")
+	responseWriter.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token")
 
-	if req.Method == "GET" || req.Method == "POST" || req.Method == "PUT" || req.Method == "DELETE" {
+	if request.Method == "GET" || request.Method == "POST" || request.Method == "PUT" || request.Method == "DELETE" {
 
 		// default output format
-		resp.Header().Set("Content-Type", "application/json")
+		responseWriter.Header().Set("Content-Type", "application/json")
 
-		it.Router.ServeHTTP(resp, req)
+		it.Router.ServeHTTP(responseWriter, request)
 	}
 }
+
 
 // REST server startup function - makes it to "ListenAndServe"
 func (it *DefaultRestService) Run() error {

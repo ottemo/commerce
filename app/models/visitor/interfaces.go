@@ -35,9 +35,8 @@ type I_Visitor interface {
 	CheckPassword(passwd string) bool
 
 	IsValidated() bool
-
 	Invalidate() error
-	Validate() error
+	Validate(key string) error
 
 	models.I_Model
 	models.I_Object

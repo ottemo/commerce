@@ -80,7 +80,7 @@ func (it *DefaultProduct) setupAPI() error {
 }
 
 // WEB REST API function used to obtain product attributes information
-func (it *DefaultProduct) ListProductAttributesRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}) (interface{}, error) {
+func (it *DefaultProduct) ListProductAttributesRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}, session api.I_Session) (interface{}, error) {
 	model, err := models.GetModel("Product")
 	if err != nil {
 		return nil, err
@@ -96,7 +96,7 @@ func (it *DefaultProduct) ListProductAttributesRestAPI(resp http.ResponseWriter,
 }
 
 // WEB REST API function used to add new one custom attribute
-func (it *DefaultProduct) AddProductAttributeRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}) (interface{}, error) {
+func (it *DefaultProduct) AddProductAttributeRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}, session api.I_Session) (interface{}, error) {
 
 	reqData, ok := reqContent.(map[string]interface{})
 	if !ok {
@@ -175,7 +175,7 @@ func (it *DefaultProduct) AddProductAttributeRestAPI(resp http.ResponseWriter, r
 }
 
 // WEB REST API function used to remove custom attribute of product
-func (it *DefaultProduct) RemoveProductAttributeRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}) (interface{}, error) {
+func (it *DefaultProduct) RemoveProductAttributeRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}, session api.I_Session) (interface{}, error) {
 
 	// check request params
 	//--------------------
@@ -206,7 +206,7 @@ func (it *DefaultProduct) RemoveProductAttributeRestAPI(resp http.ResponseWriter
 
 // WEB REST API function used to obtain all product attributes
 //   - product id must be specified in request URI "http://[site:port]/product/get/:id"
-func (it *DefaultProduct) GetProductRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}) (interface{}, error) {
+func (it *DefaultProduct) GetProductRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}, session api.I_Session) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -234,7 +234,7 @@ func (it *DefaultProduct) GetProductRestAPI(resp http.ResponseWriter, req *http.
 
 // WEB REST API function used to obtain product list we have in database
 //   - only [_id, sku, name] attributes returns by default
-func (it *DefaultProduct) EnumProductsRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}) (interface{}, error) {
+func (it *DefaultProduct) EnumProductsRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}, session api.I_Session) (interface{}, error) {
 
 	model, err := models.GetModel("Product")
 	if err == nil {
@@ -251,7 +251,7 @@ func (it *DefaultProduct) EnumProductsRestAPI(resp http.ResponseWriter, req *htt
 
 // WEB REST API function used to obtain product list we have in database
 //   - only [_id, sku, name] attributes returns by default
-func (it *DefaultProduct) ListProductsRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}) (interface{}, error) {
+func (it *DefaultProduct) ListProductsRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}, session api.I_Session) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -329,7 +329,7 @@ func (it *DefaultProduct) ListProductsRestAPI(resp http.ResponseWriter, req *htt
 // WEB REST API used to create new one product
 //   - product attributes must be included in POST form
 //   - sku and name attributes required
-func (it *DefaultProduct) CreateProductRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}) (interface{}, error) {
+func (it *DefaultProduct) CreateProductRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}, session api.I_Session) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -368,7 +368,7 @@ func (it *DefaultProduct) CreateProductRestAPI(resp http.ResponseWriter, req *ht
 
 // WEB REST API used to delete product
 //   - product attributes must be included in POST form
-func (it *DefaultProduct) DeleteProductRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}) (interface{}, error) {
+func (it *DefaultProduct) DeleteProductRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}, session api.I_Session) (interface{}, error) {
 
 	// check request params
 	//--------------------
@@ -400,7 +400,7 @@ func (it *DefaultProduct) DeleteProductRestAPI(resp http.ResponseWriter, req *ht
 // WEB REST API used to update existing product
 //   - product id must be specified in request URI
 //   - product attributes must be included in POST form
-func (it *DefaultProduct) UpdateProductRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}) (interface{}, error) {
+func (it *DefaultProduct) UpdateProductRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}, session api.I_Session) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -448,7 +448,7 @@ func (it *DefaultProduct) UpdateProductRestAPI(resp http.ResponseWriter, req *ht
 
 // WEB REST API used to add media for a product
 //   - product id, media type must be specified in request URI
-func (it *DefaultProduct) MediaPathRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}) (interface{}, error) {
+func (it *DefaultProduct) MediaPathRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}, session api.I_Session) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -485,7 +485,7 @@ func (it *DefaultProduct) MediaPathRestAPI(resp http.ResponseWriter, req *http.R
 
 // WEB REST API used to add media for a product
 //   - product id, media type must be specified in request URI
-func (it *DefaultProduct) MediaListRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}) (interface{}, error) {
+func (it *DefaultProduct) MediaListRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}, session api.I_Session) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -523,7 +523,7 @@ func (it *DefaultProduct) MediaListRestAPI(resp http.ResponseWriter, req *http.R
 // WEB REST API used to add media for a product
 //   - product id, media type and media name must be specified in request URI
 //   - media contents must be included as file in POST form
-func (it *DefaultProduct) MediaAddRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}) (interface{}, error) {
+func (it *DefaultProduct) MediaAddRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}, session api.I_Session) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -578,7 +578,7 @@ func (it *DefaultProduct) MediaAddRestAPI(resp http.ResponseWriter, req *http.Re
 
 // WEB REST API used to add media for a product
 //   - product id, media type and media name must be specified in request URI
-func (it *DefaultProduct) MediaRemoveRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}) (interface{}, error) {
+func (it *DefaultProduct) MediaRemoveRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}, session api.I_Session) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -620,7 +620,7 @@ func (it *DefaultProduct) MediaRemoveRestAPI(resp http.ResponseWriter, req *http
 
 // WEB REST API used to get media contents for a product
 //   - product id, media type and media name must be specified in request URI
-func (it *DefaultProduct) MediaGetRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}) (interface{}, error) {
+func (it *DefaultProduct) MediaGetRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}, session api.I_Session) (interface{}, error) {
 
 	// check request params
 	//---------------------

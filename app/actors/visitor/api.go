@@ -12,6 +12,8 @@ import (
 
 // REST API registration function
 func (it *DefaultVisitor) setupAPI() error {
+
+	// Dashboard API
 	err := api.GetRestService().RegisterAPI("visitor", "POST", "create", it.CreateVisitorRestAPI)
 	if err != nil {
 		return err
@@ -24,7 +26,6 @@ func (it *DefaultVisitor) setupAPI() error {
 	if err != nil {
 		return err
 	}
-
 
 	err = api.GetRestService().RegisterAPI("visitor", "GET", "load/:id", it.GetVisitorRestAPI)
 	if err != nil {
@@ -40,14 +41,39 @@ func (it *DefaultVisitor) setupAPI() error {
 	}
 
 
-	err = api.GetRestService().RegisterAPI("visitor", "GET", "validate/:key", it.ValidateRestAPI)
-	if err != nil {
-		return err
-	}
+	// Storefront API
 	err = api.GetRestService().RegisterAPI("visitor", "POST", "register", it.RegisterRestAPI)
 	if err != nil {
 		return err
 	}
+	err = api.GetRestService().RegisterAPI("visitor", "GET", "validate/:key", it.ValidateRestAPI)
+	if err != nil {
+		return err
+	}
+	err = api.GetRestService().RegisterAPI("visitor", "GET", "info", it.InfoRestAPI)
+	if err != nil {
+		return err
+	}
+	err = api.GetRestService().RegisterAPI("visitor", "GET", "logout", it.LogoutRestAPI)
+	if err != nil {
+		return err
+	}
+	/*err = api.GetRestService().RegisterAPI("visitor", "GET", "login", it.LoginRestAPI)
+	if err != nil {
+		return err
+	}
+	err = api.GetRestService().RegisterAPI("visitor", "GET", "login-facebook", it.LoginRestAPI)
+	if err != nil {
+		return err
+	}
+	err = api.GetRestService().RegisterAPI("visitor", "GET", "login-google", it.LoginRestAPI)
+	if err != nil {
+		return err
+	}
+	err = api.GetRestService().RegisterAPI("visitor", "GET", "forget", it.ForgetPasswordRestAPI)
+	if err != nil {
+		return err
+	}*/
 
 	return nil
 }
@@ -57,7 +83,7 @@ func (it *DefaultVisitor) setupAPI() error {
 // WEB REST API used to create new visitor
 //   - visitor attributes must be included in POST form
 //   - email attribute required
-func (it *DefaultVisitor) CreateVisitorRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}) (interface{}, error) {
+func (it *DefaultVisitor) CreateVisitorRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}, session api.I_Session) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -103,7 +129,7 @@ func (it *DefaultVisitor) CreateVisitorRestAPI(resp http.ResponseWriter, req *ht
 // WEB REST API used to update existing visitor
 //   - visitor id must be specified in request URI
 //   - visitor attributes must be included in POST form
-func (it *DefaultVisitor) UpdateVisitorRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}) (interface{}, error) {
+func (it *DefaultVisitor) UpdateVisitorRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}, session api.I_Session) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -154,7 +180,7 @@ func (it *DefaultVisitor) UpdateVisitorRestAPI(resp http.ResponseWriter, req *ht
 
 // WEB REST API used to delete visitor
 //   - visitor id must be specified in request URI
-func (it *DefaultVisitor) DeleteVisitorRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}) (interface{}, error) {
+func (it *DefaultVisitor) DeleteVisitorRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}, session api.I_Session) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -188,7 +214,7 @@ func (it *DefaultVisitor) DeleteVisitorRestAPI(resp http.ResponseWriter, req *ht
 
 // WEB REST API function used to obtain visitor information
 //   - visitor id must be specified in request URI
-func (it *DefaultVisitor) GetVisitorRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}) (interface{}, error) {
+func (it *DefaultVisitor) GetVisitorRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}, session api.I_Session) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -220,7 +246,7 @@ func (it *DefaultVisitor) GetVisitorRestAPI(resp http.ResponseWriter, req *http.
 
 
 // WEB REST API function used to get visitors list
-func (it *DefaultVisitor) ListVisitorsRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}) (interface{}, error) {
+func (it *DefaultVisitor) ListVisitorsRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}, session api.I_Session) (interface{}, error) {
 	model, err := models.GetModel("Visitor")
 	if err != nil {
 		return nil, err
@@ -237,7 +263,7 @@ func (it *DefaultVisitor) ListVisitorsRestAPI(resp http.ResponseWriter, req *htt
 
 
 // WEB REST API function used to obtain visitor attributes information
-func (it *DefaultVisitor) ListVisitorAttributesRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}) (interface{}, error) {
+func (it *DefaultVisitor) ListVisitorAttributesRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}, session api.I_Session) (interface{}, error) {
 	model, err := models.GetModel("Visitor")
 	if err != nil {
 		return nil, err
@@ -257,23 +283,91 @@ func (it *DefaultVisitor) ListVisitorAttributesRestAPI(resp http.ResponseWriter,
 // WEB REST API used to register new visitor (same as create but with email validation)
 //   - visitor attributes must be included in POST form
 //   - email attribute required
-func (it *DefaultVisitor) RegisterRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}) (interface{}, error) {
-	result, err := it.CreateVisitorRestAPI(resp, req, reqParams, reqContent)
+func (it *DefaultVisitor) RegisterRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}, session api.I_Session) (interface{}, error) {
+
+	result, err := it.CreateVisitorRestAPI(resp, req, reqParams, reqContent, session)
 	if err != nil {
 		return result, err
+	}
+
+	// TODO: find better way to obtain customer id
+	if result, ok := result.(map[string]interface{}); ok {
+		if visitorId, ok := result["_id"]; ok {
+			if visitorId != "" {
+				session.Set("visitor_id", visitorId)
+			}
+		}
 	}
 
 	return result, nil
 }
 
 
-func (it *DefaultVisitor) ValidateRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}) (interface{}, error) {
+func (it *DefaultVisitor) ValidateRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}, session api.I_Session) (interface{}, error) {
 	// check request params
 	//---------------------
-	key, isKeySpecified := reqParams["key"]
+	validationKey, isKeySpecified := reqParams["key"]
 	if !isKeySpecified {
-		return nil, errors.New("validation kay was not specified")
+		return nil, errors.New("validation key was not specified")
 	}
 
-	return key, nil
+	model, err := models.GetModel("Visitor")
+	if err != nil {
+		return nil, err
+	}
+
+	visitorModel, ok := model.(visitor.I_Visitor)
+	if !ok {
+		return nil, errors.New("visitor model is not I_Object compatible")
+	}
+
+	visitorModel.Validate( validationKey )
+
+	return validationKey, nil
+}
+
+
+// WEB REST API function used to obtain visitor information
+//   - visitor id must be specified in request URI
+func (it *DefaultVisitor) InfoRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}, session api.I_Session) (interface{}, error) {
+
+	sessionValue := session.Get("visitor_id")
+	visitorId, ok := sessionValue.(string)
+	if !ok {
+		return nil, errors.New("you are not logined in")
+	}
+
+
+	// visitor info
+	//--------------
+	model, err := models.GetModel("Visitor")
+	if err != nil {
+		return nil, err
+	}
+
+	visitorModel, ok := model.(visitor.I_Visitor)
+	if !ok {
+		return nil, errors.New("visitor model is not I_Visitor campatible")
+	}
+
+	err = visitorModel.Load(visitorId)
+	if err != nil {
+		return nil, err
+	}
+
+	return visitorModel.ToHashMap(), nil
+}
+
+
+// WEB REST API function used to obtain visitor information
+//   - visitor id must be specified in request URI
+func (it *DefaultVisitor) LogoutRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}, session api.I_Session) (interface{}, error) {
+	sessionValue := session.Get("visitor_id")
+	if sessionValue != nil {
+		return nil, errors.New("you are not logined in")
+	}
+
+	session.Set("visitor_id", nil)
+
+	return "ok", nil
 }
