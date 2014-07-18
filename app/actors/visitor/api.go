@@ -71,11 +71,11 @@ func (it *DefaultVisitor) setupAPI() error {
 	if err != nil {
 		return err
 	}
-	/*err = api.GetRestService().RegisterAPI("visitor", "POST", "login-google", it.LoginGoogleRestAPI)
+	err = api.GetRestService().RegisterAPI("visitor", "POST", "login-google", it.LoginGoogleRestAPI)
 	if err != nil {
 		return err
 	}
-	err = api.GetRestService().RegisterAPI("visitor", "GET", "forgot-password", it.ForgotPasswordRestAPI)
+	/*err = api.GetRestService().RegisterAPI("visitor", "GET", "forgot-password", it.ForgotPasswordRestAPI)
 	if err != nil {
 		return err
 	}*/
@@ -355,13 +355,7 @@ func (it *DefaultVisitor) ValidateRestAPI(resp http.ResponseWriter, req *http.Re
 		return nil, err
 	}
 
-	if visitorModel.IsValidated() {
-		session.Set(visitor.SESSION_KEY_VISITOR_ID, visitorModel.GetId())
-	} else {
-		return nil, errors.New("visitor is not validated")
-	}
-
-	return validationKey, nil
+	return "ok", nil
 }
 
 
@@ -462,7 +456,7 @@ func (it *DefaultVisitor) LoginRestAPI(resp http.ResponseWriter, req *http.Reque
 
 
 // WEB REST API function used to make login/registration via Facebook
-//   - accessToken and userId params needed
+//   - access_token and user_id params needed
 //   - user needed information will be taken from Facebook
 func (it *DefaultVisitor) LoginFacebookRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}, session api.I_Session) (interface{}, error) {
 	// check request params
@@ -499,11 +493,11 @@ func (it *DefaultVisitor) LoginFacebookRestAPI(resp http.ResponseWriter, req *ht
 	}
 
 	if !utils.StrKeysInMap(jsonMap, "id", "email", "first_name", "last_name", "verified") {
-		return nil, errors.New("unexpected facebook responce")
+		return nil, errors.New("unexpected facebook response")
 	}
 
 	if value, ok := jsonMap["verified"].(bool); !(ok && value) {
-		return nil, errors.New("facebook user unverified")
+		return nil, errors.New("facebook account unverified")
 	}
 
 
@@ -525,6 +519,81 @@ func (it *DefaultVisitor) LoginFacebookRestAPI(resp http.ResponseWriter, req *ht
 		visitorModel.Set("first_name", jsonMap["first_name"])
 		visitorModel.Set("last_name", jsonMap["last_name"])
 		visitorModel.Set("facebook_id", jsonMap["id"])
+
+		err := visitorModel.Save()
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		return nil, err
+	}
+
+	session.Set(visitor.SESSION_KEY_VISITOR_ID, visitorModel.GetId())
+
+	return "ok", nil
+}
+
+
+// WEB REST API function used to make login/registration via Google
+//   - access_token param needed
+//   - user needed information will be taken from Google
+func (it *DefaultVisitor) LoginGoogleRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}, session api.I_Session) (interface{}, error) {
+	// check request params
+	//---------------------
+	queryParams, ok := reqContent.(map[string]interface{})
+	if !ok {
+		return nil, errors.New("unexpected request content")
+	}
+
+	if _, ok := queryParams["access_token"].(string); !ok || queryParams["access_token"] == "" {
+		return nil, errors.New("access_token was not specified")
+	}
+
+	// facebook login operation
+	//-------------------------
+
+	url := "https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=?access_token=" + queryParams["access_token"].(string)
+	googleResponse, err := http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+
+	responseData := make([]byte, googleResponse.ContentLength)
+	googleResponse.Body.Read(responseData)
+
+	jsonMap := make(map[string]interface{})
+	err = json.Unmarshal(responseData , &jsonMap)
+	if err != nil {
+		return nil, err
+	}
+
+	if !utils.StrKeysInMap(jsonMap, "user_id", "email", "verified_email") {
+		return nil, errors.New("unexpected google response")
+	}
+
+	if value, ok := jsonMap["verified_email"].(bool); !(ok && value) {
+		return nil, errors.New("google account unverified")
+	}
+
+
+	// trying to load visitor from our DB
+	model, err := models.GetModel("Visitor")
+	if err != nil {
+		return nil, err
+	}
+
+	visitorModel, ok := model.(visitor.I_Visitor)
+	if !ok {
+		return nil, errors.New("visitor model is not I_Visitor campatible")
+	}
+
+	err = visitorModel.LoadByGoogleId( queryParams["user_id"].(string) )
+	if err != nil && strings.Contains(err.Error(), "not found") {
+		// visitor not exists in out DB - reating new one
+		visitorModel.Set("email", jsonMap["email"])
+		visitorModel.Set("first_name", "Unknown")
+		visitorModel.Set("last_name", "")
+		visitorModel.Set("google_id", jsonMap["user_id"])
 
 		err := visitorModel.Save()
 		if err != nil {
