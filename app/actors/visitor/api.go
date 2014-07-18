@@ -350,7 +350,7 @@ func (it *DefaultVisitor) ValidateRestAPI(resp http.ResponseWriter, req *http.Re
 		return nil, errors.New("visitor model is not I_Object compatible")
 	}
 
-	err := visitorModel.Validate( validationKey )
+	err = visitorModel.Validate( validationKey )
 	if err != nil {
 		return nil, err
 	}
