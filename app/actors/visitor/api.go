@@ -290,21 +290,45 @@ func (it *DefaultVisitor) ListVisitorAttributesRestAPI(resp http.ResponseWriter,
 //   - email attribute required
 func (it *DefaultVisitor) RegisterRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}, session api.I_Session) (interface{}, error) {
 
-	result, err := it.CreateVisitorRestAPI(resp, req, reqParams, reqContent, session)
-	if err != nil {
-		return result, err
+	// check request params
+	//---------------------
+	queryParams, ok := reqContent.(map[string]interface{})
+	if !ok {
+		return nil, errors.New("unexpected request content")
 	}
 
-	// TODO: find better way to obtain customer id
-	if result, ok := result.(map[string]interface{}); ok {
-		if visitorId, ok := result["_id"]; ok {
-			if visitorId != "" {
-				session.Set("visitor_id", visitorId)
-			}
+	if queryParams["email"] == "" {
+		return nil, errors.New("'email' was not specified")
+	}
+
+
+	// register visitor operation
+	//---------------------------
+	model, err := models.GetModel("Visitor")
+	if err != nil {
+		return nil, err
+	}
+
+	visitorModel, ok := model.(visitor.I_Visitor)
+	if !ok {
+		return nil, errors.New("visitor model is not I_Visitor campatible")
+	}
+
+	for attribute, value := range queryParams {
+		err := visitorModel.Set(attribute, value)
+		if err != nil {
+			return nil, err
 		}
 	}
 
-	return result, nil
+	err = visitorModel.Save()
+	if err != nil {
+		return nil, err
+	}
+
+	visitorModel.Invalidate()
+
+	return visitorModel.ToHashMap(), nil
 }
 
 
@@ -326,7 +350,16 @@ func (it *DefaultVisitor) ValidateRestAPI(resp http.ResponseWriter, req *http.Re
 		return nil, errors.New("visitor model is not I_Object compatible")
 	}
 
-	visitorModel.Validate( validationKey )
+	err := visitorModel.Validate( validationKey )
+	if err != nil {
+		return nil, err
+	}
+
+	if visitorModel.IsValidated() {
+		session.Set(visitor.SESSION_KEY_VISITOR_ID, visitorModel.GetId())
+	} else {
+		return nil, errors.New("visitor is not validated")
+	}
 
 	return validationKey, nil
 }
@@ -371,7 +404,7 @@ func (it *DefaultVisitor) LogoutRestAPI(resp http.ResponseWriter, req *http.Requ
 		return nil, errors.New("you are not logined in")
 	}
 
-	session.Set("visitor_id", nil)
+	session.Set(visitor.SESSION_KEY_VISITOR_ID, nil)
 
 	return "ok", nil
 }
@@ -418,7 +451,11 @@ func (it *DefaultVisitor) LoginRestAPI(resp http.ResponseWriter, req *http.Reque
 		return nil, errors.New("wrong password")
 	}
 
-	session.Set("visitor_id", it.GetId())
+	if visitorModel.IsValidated() {
+		session.Set(visitor.SESSION_KEY_VISITOR_ID , visitorModel.GetId())
+	} else {
+		return nil, errors.New("visitor is not validated")
+	}
 
 	return "ok", nil
 }
@@ -497,7 +534,7 @@ func (it *DefaultVisitor) LoginFacebookRestAPI(resp http.ResponseWriter, req *ht
 		return nil, err
 	}
 
-	session.Set("visitor_id", visitorModel.GetId())
+	session.Set(visitor.SESSION_KEY_VISITOR_ID, visitorModel.GetId())
 
 	return "ok", nil
 }

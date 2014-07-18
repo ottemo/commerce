@@ -4,6 +4,10 @@ import (
 	"github.com/ottemo/foundation/app/models"
 )
 
+const (
+	SESSION_KEY_VISITOR_ID = "visitor_id"
+)
+
 type I_VisitorAddress interface {
 	GetVisitorId() string
 	GetStreet() string
