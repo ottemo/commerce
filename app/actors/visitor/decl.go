@@ -15,7 +15,10 @@ const (
 type DefaultVisitor struct {
 	id string
 
-	Email     string
+	Email      string
+	FacebookId string
+	GoogleId   string
+
 	FirstName string
 	LastName  string
 

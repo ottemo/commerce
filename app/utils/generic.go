@@ -20,6 +20,21 @@ func IsInListStr(searchItem string, searchList []string) bool {
 	return false
 }
 
+// checks presence of string keys in map
+func StrKeysInMap(mapObject interface{}, keys ...string) bool {
+	switch typedMap := mapObject.(type) {
+	case map[string]interface{}://, map[string]string:
+
+		for _, key := range keys {
+			if _, present := typedMap[key]; !present {
+				return false
+			}
+		}
+	}
+
+	return true
+}
+
 // TODO: should be somwhere in other place
 func GetSiteBackUrl() string {
 	return "http://ottemo:3000/"

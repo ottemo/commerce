@@ -20,6 +20,8 @@ type I_VisitorAddress interface {
 
 type I_Visitor interface {
 	GetEmail() string
+	GetFacebookId() string
+	GetGoogleId() string
 
 	GetFullName() string
 	GetFirstName() string
@@ -37,6 +39,10 @@ type I_Visitor interface {
 	IsValidated() bool
 	Invalidate() error
 	Validate(key string) error
+
+	LoadByEmail(email string) error
+	LoadByFacebookId(facebookId string) error
+	LoadByGoogleId(googleId string) error
 
 	models.I_Model
 	models.I_Object

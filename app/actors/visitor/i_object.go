@@ -26,7 +26,12 @@ func (it *DefaultVisitor) Get(attribute string) interface{} {
 		return it.ShippingAddress
 	case "validate":
 		return it.ValidateKey
+	case "facebook_id":
+		return it.FacebookId
+	case "google_id":
+		return it.GoogleId
 	}
+
 
 	return nil
 }
@@ -47,6 +52,10 @@ func (it *DefaultVisitor) Set(attribute string, value interface{}) error {
 		it.SetPassword( value.(string) )
 	case "validate":
 		it.ValidateKey = value.(string)
+	case "facebook_id":
+		it.FacebookId = value.(string)
+	case "google_id":
+		it.GoogleId = value.(string)
 
 	// only address id coming - trying to get it from DB
 	case "billing_address_id", "shipping_address_id":

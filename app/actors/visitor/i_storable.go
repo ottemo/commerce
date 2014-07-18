@@ -69,6 +69,9 @@ func (it *DefaultVisitor) Save() error {
 			delete(storableValues, "billing_address")
 			delete(storableValues, "shipping_address")
 
+
+			storableValues["facebook_id"] = it.FacebookId
+			storableValues["google_id"] = it.GoogleId
 			storableValues["password"] = it.Password
 			storableValues["validate"] = it.ValidateKey
 

@@ -56,7 +56,10 @@ func (it *DefaultVisitor) passwdEncode(passwd string) string {
 // INTERFACE IMPLEMENTATION
 //--------------------------
 
-func (it *DefaultVisitor) GetEmail() string     { return it.Email }
+func (it *DefaultVisitor) GetEmail() string      { return it.Email }
+func (it *DefaultVisitor) GetFacebookId() string { return it.FacebookId }
+func (it *DefaultVisitor) GetGoogleId() string   { return it.GoogleId }
+
 func (it *DefaultVisitor) GetFullName() string  { return it.FirstName + " " + it.LastName }
 func (it *DefaultVisitor) GetFirstName() string { return it.FirstName }
 func (it *DefaultVisitor) GetLastName() string  { return it.LastName }
@@ -191,3 +194,98 @@ func (it *DefaultVisitor) CheckPassword(passwd string) bool {
 	return it.passwdEncode(passwd) == it.Password
 }
 
+
+// loads visitor information from DB based on google account id
+func (it *DefaultVisitor) LoadByGoogleId(googleId string) error {
+	if dbEngine := db.GetDBEngine(); dbEngine != nil {
+		if collection, err := dbEngine.GetCollection(VISITOR_COLLECTION_NAME); err == nil {
+
+			collection.AddFilter("google_id", "=", googleId)
+			rows, err := collection.Load()
+			if err != nil {
+				return err
+			}
+
+			if len(rows) == 0 {
+				return errors.New("visitor was not found")
+			}
+
+			if len(rows) > 1 {
+				return errors.New("duplicated google account id")
+			} else {
+				err = it.FromHashMap( rows[0] )
+				if err != nil {
+					return err
+				}
+
+				return nil
+			}
+		}
+	}
+
+	return errors.New("Something went wrong")
+}
+
+
+// loads visitor information from DB based on facebook account id
+func (it *DefaultVisitor) LoadByFacebookId(facebookId string) error {
+	if dbEngine := db.GetDBEngine(); dbEngine != nil {
+		if collection, err := dbEngine.GetCollection(VISITOR_COLLECTION_NAME); err == nil {
+
+			collection.AddFilter("facebook_id", "=", facebookId)
+			rows, err := collection.Load()
+			if err != nil {
+				return err
+			}
+
+			if len(rows) == 0 {
+				return errors.New("visitor was not found")
+			}
+
+			if len(rows) > 1 {
+				return errors.New("duplicated facebook account id")
+			} else {
+				err = it.FromHashMap( rows[0] )
+				if err != nil {
+					return err
+				}
+
+				return nil
+			}
+		}
+	}
+
+	return errors.New("Something went wrong")
+}
+
+
+// loads visitor information from DB based on email which must be unique
+func (it *DefaultVisitor) LoadByEmail(email string) error {
+	if dbEngine := db.GetDBEngine(); dbEngine != nil {
+		if collection, err := dbEngine.GetCollection(VISITOR_COLLECTION_NAME); err == nil {
+
+			collection.AddFilter("email", "=", email)
+			rows, err := collection.Load()
+			if err != nil {
+				return err
+			}
+
+			if len(rows) == 0 {
+				return errors.New("visitor was not found")
+			}
+
+			if len(rows) > 1 {
+				return errors.New("duplicated email")
+			} else {
+				err = it.FromHashMap( rows[0] )
+				if err != nil {
+					return err
+				}
+
+				return nil
+			}
+		}
+	}
+
+	return errors.New("Something went wrong")
+}

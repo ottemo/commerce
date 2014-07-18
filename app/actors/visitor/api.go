@@ -4,6 +4,11 @@ import (
 	"errors"
 	"net/http"
 
+	"encoding/json"
+	"strings"
+
+	"github.com/ottemo/foundation/app/utils"
+
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/visitor"
 
@@ -58,19 +63,19 @@ func (it *DefaultVisitor) setupAPI() error {
 	if err != nil {
 		return err
 	}
-	/*err = api.GetRestService().RegisterAPI("visitor", "GET", "login", it.LoginRestAPI)
+	err = api.GetRestService().RegisterAPI("visitor", "POST", "login", it.LoginRestAPI)
 	if err != nil {
 		return err
 	}
-	err = api.GetRestService().RegisterAPI("visitor", "GET", "login-facebook", it.LoginRestAPI)
+	err = api.GetRestService().RegisterAPI("visitor", "POST", "login-facebook", it.LoginFacebookRestAPI)
 	if err != nil {
 		return err
 	}
-	err = api.GetRestService().RegisterAPI("visitor", "GET", "login-google", it.LoginRestAPI)
+	/*err = api.GetRestService().RegisterAPI("visitor", "POST", "login-google", it.LoginGoogleRestAPI)
 	if err != nil {
 		return err
 	}
-	err = api.GetRestService().RegisterAPI("visitor", "GET", "forget", it.ForgetPasswordRestAPI)
+	err = api.GetRestService().RegisterAPI("visitor", "GET", "forgot-password", it.ForgotPasswordRestAPI)
 	if err != nil {
 		return err
 	}*/
@@ -359,8 +364,7 @@ func (it *DefaultVisitor) InfoRestAPI(resp http.ResponseWriter, req *http.Reques
 }
 
 
-// WEB REST API function used to obtain visitor information
-//   - visitor id must be specified in request URI
+// WEB REST API function used to make visitor logout
 func (it *DefaultVisitor) LogoutRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}, session api.I_Session) (interface{}, error) {
 	sessionValue := session.Get("visitor_id")
 	if sessionValue != nil {
@@ -368,6 +372,132 @@ func (it *DefaultVisitor) LogoutRestAPI(resp http.ResponseWriter, req *http.Requ
 	}
 
 	session.Set("visitor_id", nil)
+
+	return "ok", nil
+}
+
+
+// WEB REST API function used to make visitor login
+//   - email and password information needed
+func (it *DefaultVisitor) LoginRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}, session api.I_Session) (interface{}, error) {
+
+	// check request params
+	//---------------------
+	queryParams, ok := reqContent.(map[string]interface{})
+	if !ok {
+		return nil, errors.New("unexpected request content")
+	}
+
+	if _, ok := queryParams["email"].(string); !ok || queryParams["email"] == "" {
+		return nil, errors.New("email was not specified")
+	}
+
+	if _, ok := queryParams["password"].(string); !ok || queryParams["password"] == "" {
+		return nil, errors.New("password was not specified")
+	}
+
+	// visitor info
+	//--------------
+	model, err := models.GetModel("Visitor")
+	if err != nil {
+		return nil, err
+	}
+
+	visitorModel, ok := model.(visitor.I_Visitor)
+	if !ok {
+		return nil, errors.New("visitor model is not I_Visitor campatible")
+	}
+
+	err = visitorModel.LoadByEmail( queryParams["email"].(string) )
+	if err != nil {
+		return nil, err
+	}
+
+	ok = visitorModel.CheckPassword( queryParams["password"].(string) )
+	if !ok {
+		return nil, errors.New("wrong password")
+	}
+
+	session.Set("visitor_id", it.GetId())
+
+	return "ok", nil
+}
+
+
+// WEB REST API function used to make login/registration via Facebook
+//   - accessToken and userId params needed
+//   - user needed information will be taken from Facebook
+func (it *DefaultVisitor) LoginFacebookRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}, session api.I_Session) (interface{}, error) {
+	// check request params
+	//---------------------
+	queryParams, ok := reqContent.(map[string]interface{})
+	if !ok {
+		return nil, errors.New("unexpected request content")
+	}
+
+	if _, ok := queryParams["access_token"].(string); !ok || queryParams["access_token"] == "" {
+		return nil, errors.New("access_token was not specified")
+	}
+
+	if _, ok := queryParams["user_id"].(string); !ok ||  queryParams["user_id"] == "" {
+		return nil, errors.New("user_id was not specified")
+	}
+
+	// facebook login operation
+	//-------------------------
+
+	url := "https://graph.facebook.com/" + queryParams["user_id"].(string) + "?access_token=" + queryParams["access_token"].(string)
+	facebookResponse, err := http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+
+	responseData := make([]byte, facebookResponse.ContentLength)
+	facebookResponse.Body.Read(responseData)
+
+	jsonMap := make(map[string]interface{})
+	err = json.Unmarshal(responseData , &jsonMap)
+	if err != nil {
+		return nil, err
+	}
+
+	if !utils.StrKeysInMap(jsonMap, "id", "email", "first_name", "last_name", "verified") {
+		return nil, errors.New("unexpected facebook responce")
+	}
+
+	if value, ok := jsonMap["verified"].(bool); !(ok && value) {
+		return nil, errors.New("facebook user unverified")
+	}
+
+
+	// trying to load visitor from our DB
+	model, err := models.GetModel("Visitor")
+	if err != nil {
+		return nil, err
+	}
+
+	visitorModel, ok := model.(visitor.I_Visitor)
+	if !ok {
+		return nil, errors.New("visitor model is not I_Visitor campatible")
+	}
+
+	err = visitorModel.LoadByFacebookId( queryParams["user_id"].(string) )
+	if err != nil && strings.Contains(err.Error(), "not found") {
+		// visitor not exists in out DB - reating new one
+		visitorModel.Set("email", jsonMap["email"])
+		visitorModel.Set("first_name", jsonMap["first_name"])
+		visitorModel.Set("last_name", jsonMap["last_name"])
+		visitorModel.Set("facebook_id", jsonMap["id"])
+
+		err := visitorModel.Save()
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		return nil, err
+	}
+
+	session.Set("visitor_id", visitorModel.GetId())
 
 	return "ok", nil
 }
