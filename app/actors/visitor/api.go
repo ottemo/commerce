@@ -496,9 +496,9 @@ func (it *DefaultVisitor) LoginFacebookRestAPI(resp http.ResponseWriter, req *ht
 		return nil, errors.New("unexpected facebook response")
 	}
 
-	if value, ok := jsonMap["verified"].(bool); !(ok && value) {
-		return nil, errors.New("facebook account unverified")
-	}
+	// if value, ok := jsonMap["verified"].(bool); !(ok && value) {
+	// 	return nil, errors.New("facebook account unverified")
+	// }
 
 
 	// trying to load visitor from our DB

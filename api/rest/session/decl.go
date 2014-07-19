@@ -11,6 +11,10 @@ import (
 	"errors"
 )
 
+const (
+	ALPHANUMERIC = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890"
+)
+
 var (
 	CookieName = "OTTEMOSESSION"
 	Sessions map[string]*Session = make(map[string]*Session)
@@ -60,16 +64,16 @@ func newSession(responseWriter http.ResponseWriter) (*Session, error) {
 
 	// updating cookies
 	cookie := &http.Cookie{Name: CookieName, Value: sessionId, Path: "/"}
-http.SetCookie(responseWriter, cookie)
+	http.SetCookie(responseWriter, cookie)
 
 
-// garbage collecting
-randomNumber, err := rand.Int(rand.Reader, big.NewInt(gcRate))
-if err == nil && randomNumber.Cmp(big.NewInt(1)) == 0 {
-Gc()
+	// garbage collecting
+	randomNumber, err := rand.Int(rand.Reader, big.NewInt(gcRate))
+	if err == nil && randomNumber.Cmp(big.NewInt(1)) == 0 {
+	Gc()
 }
 
-return Sessions[sessionId], nil
+	return Sessions[sessionId], nil
 }
 
 
@@ -79,6 +83,11 @@ func newSessionId() (string, error){
 	if _, err := rand.Read(sessionId); err != nil {
 		return "", errors.New("can't generate sessionId")
 	}
+
+	for i:=0; i < 32; i++ {
+		sessionId[i] = ALPHANUMERIC[sessionId[i] % 62]
+	}
+
 	return string(sessionId), nil
 }
 

@@ -136,10 +136,10 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 func (it DefaultRestService) ServeHTTP(responseWriter http.ResponseWriter, request *http.Request) {
 
 	// CORS fix-up
-	responseWriter.Header().Set("Access-Control-Allow-Origin", "*")
+	responseWriter.Header().Set("Access-Control-Allow-Origin", request.Header.Get("Origin"))
 	responseWriter.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE")
 	responseWriter.Header().Set("Access-Control-Allow-Credentials", "true")
-	responseWriter.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token")
+	responseWriter.Header().Set("Access-Control-Allow-Headers", "Content-Type, Cookie, Content-Length, Accept-Encoding, X-CSRF-Token")
 
 	if request.Method == "GET" || request.Method == "POST" || request.Method == "PUT" || request.Method == "DELETE" {
 
