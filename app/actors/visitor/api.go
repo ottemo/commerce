@@ -389,7 +389,11 @@ func (it *DefaultVisitor) InfoRestAPI(resp http.ResponseWriter, req *http.Reques
 		return nil, err
 	}
 
-	return visitorModel.ToHashMap(), nil
+	result := visitorModel.ToHashMap()
+	result["facebook_id"] = visitorModel.GetFacebookId()
+	result["google_id"] = visitorModel.GetGoogleId()
+
+	return result, nil
 }
 
 
