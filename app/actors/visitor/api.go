@@ -4,6 +4,8 @@ import (
 	"errors"
 	"net/http"
 
+	"io/ioutil"
+
 	"encoding/json"
 	"strings"
 
@@ -477,15 +479,32 @@ func (it *DefaultVisitor) LoginFacebookRestAPI(resp http.ResponseWriter, req *ht
 	// facebook login operation
 	//-------------------------
 
+	// using access token to get user information
 	url := "https://graph.facebook.com/" + queryParams["user_id"].(string) + "?access_token=" + queryParams["access_token"].(string)
 	facebookResponse, err := http.Get(url)
 	if err != nil {
 		return nil, err
 	}
 
-	responseData := make([]byte, facebookResponse.ContentLength)
-	facebookResponse.Body.Read(responseData)
+	if facebookResponse.StatusCode != 200 {
+		return nil, errors.New("Can't use google API: " + facebookResponse.Status)
+	}
 
+	var responseData []byte
+	if facebookResponse.ContentLength > 0 {
+		responseData = make([]byte, facebookResponse.ContentLength)
+		_, err := facebookResponse.Body.Read(responseData)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		responseData, err = ioutil.ReadAll(facebookResponse.Body)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	// response json workaround
 	jsonMap := make(map[string]interface{})
 	err = json.Unmarshal(responseData , &jsonMap)
 	if err != nil {
@@ -495,11 +514,6 @@ func (it *DefaultVisitor) LoginFacebookRestAPI(resp http.ResponseWriter, req *ht
 	if !utils.StrKeysInMap(jsonMap, "id", "email", "first_name", "last_name", "verified") {
 		return nil, errors.New("unexpected facebook response")
 	}
-
-	// if value, ok := jsonMap["verified"].(bool); !(ok && value) {
-	// 	return nil, errors.New("facebook account unverified")
-	// }
-
 
 	// trying to load visitor from our DB
 	model, err := models.GetModel("Visitor")
@@ -512,17 +526,35 @@ func (it *DefaultVisitor) LoginFacebookRestAPI(resp http.ResponseWriter, req *ht
 		return nil, errors.New("visitor model is not I_Visitor campatible")
 	}
 
+	// trying to load visitor by facebook_id
 	err = visitorModel.LoadByFacebookId( queryParams["user_id"].(string) )
 	if err != nil && strings.Contains(err.Error(), "not found") {
-		// visitor not exists in out DB - reating new one
-		visitorModel.Set("email", jsonMap["email"])
-		visitorModel.Set("first_name", jsonMap["first_name"])
-		visitorModel.Set("last_name", jsonMap["last_name"])
-		visitorModel.Set("facebook_id", jsonMap["id"])
 
-		err := visitorModel.Save()
-		if err != nil {
-			return nil, err
+		// there is no such facebook_id in DB, trying to find by e-mail
+		err = visitorModel.LoadByEmail( jsonMap["email"].(string) )
+		if err != nil && strings.Contains(err.Error(), "not found") {
+			// visitor not exists in out DB - reating new one
+			visitorModel.Set("email", jsonMap["email"])
+			visitorModel.Set("first_name", jsonMap["first_name"])
+			visitorModel.Set("last_name", jsonMap["last_name"])
+			visitorModel.Set("facebook_id", jsonMap["id"])
+
+			err := visitorModel.Save()
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			// we have visitor with that e-mail just updating token, if it verified
+			if value, ok := jsonMap["verified"].(bool); !(ok && value) {
+				return nil, errors.New("facebook account email unverified")
+			}
+
+			visitorModel.Set("facebook_id", jsonMap["id"])
+
+			err := visitorModel.Save()
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 
@@ -547,17 +579,35 @@ func (it *DefaultVisitor) LoginGoogleRestAPI(resp http.ResponseWriter, req *http
 		return nil, errors.New("access_token was not specified")
 	}
 
-	// facebook login operation
+	// google login operation
 	//-------------------------
-	url := "https://www.googleapis.com/oauth2/v1/userinfo?access_token=?access_token=" + queryParams["access_token"].(string)
+
+	// using access token to get user information
+	url := "https://www.googleapis.com/oauth2/v1/userinfo?access_token=" + queryParams["access_token"].(string)
 	googleResponse, err := http.Get(url)
 	if err != nil {
 		return nil, err
 	}
 
-	responseData := make([]byte, googleResponse.ContentLength)
-	googleResponse.Body.Read(responseData)
+	if googleResponse.StatusCode != 200 {
+		return nil, errors.New("Can't use google API: " + googleResponse.Status)
+	}
 
+	var responseData []byte
+	if googleResponse.ContentLength > 0 {
+		responseData = make([]byte, googleResponse.ContentLength)
+		_, err := googleResponse.Body.Read(responseData)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		responseData, err = ioutil.ReadAll(googleResponse.Body)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	// response json workaround
 	jsonMap := make(map[string]interface{})
 	err = json.Unmarshal(responseData , &jsonMap)
 	if err != nil {
@@ -567,11 +617,6 @@ func (it *DefaultVisitor) LoginGoogleRestAPI(resp http.ResponseWriter, req *http
 	if !utils.StrKeysInMap(jsonMap, "id", "email", "verified_email", "given_name", "family_name") {
 		return nil, errors.New("unexpected google response")
 	}
-
-	/*if value, ok := jsonMap["verified_email"].(bool); !(ok && value) {
-		return nil, errors.New("google account unverified")
-	}*/
-
 
 	// trying to load visitor from our DB
 	model, err := models.GetModel("Visitor")
@@ -584,17 +629,37 @@ func (it *DefaultVisitor) LoginGoogleRestAPI(resp http.ResponseWriter, req *http
 		return nil, errors.New("visitor model is not I_Visitor campatible")
 	}
 
-	err = visitorModel.LoadByGoogleId( queryParams["id"].(string) )
+	// trying to load visitor by google_id
+	err = visitorModel.LoadByGoogleId( jsonMap["email"].(string) )
 	if err != nil && strings.Contains(err.Error(), "not found") {
-		// visitor not exists in out DB - creating new one
-		visitorModel.Set("email", jsonMap["email"])
-		visitorModel.Set("first_name", jsonMap["given_name"])
-		visitorModel.Set("last_name", jsonMap["family_name"])
-		visitorModel.Set("google_id", jsonMap["id"])
 
-		err := visitorModel.Save()
-		if err != nil {
-			return nil, err
+		// there is no such google_id in DB, trying to find by e-mail
+		err = visitorModel.LoadByEmail( jsonMap["email"].(string) )
+		if err != nil && strings.Contains(err.Error(), "not found") {
+
+			// visitor e-mail not exists in out DB - creating new one
+			visitorModel.Set("email", jsonMap["email"])
+			visitorModel.Set("first_name", jsonMap["given_name"])
+			visitorModel.Set("last_name", jsonMap["family_name"])
+			visitorModel.Set("google_id", jsonMap["id"])
+
+			err := visitorModel.Save()
+			if err != nil {
+				return nil, err
+			}
+
+		} else {
+			// we have visitor with that e-mail just updating token, if it verified
+			if value, ok := jsonMap["verified_email"].(bool); !(ok && value) {
+				return nil, errors.New("google account email unverified")
+			}
+
+			visitorModel.Set("google_id", jsonMap["id"])
+
+			err := visitorModel.Save()
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 

@@ -3,6 +3,7 @@ package visitor
 import (
 	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/app/actors/visitor/address"
+	"errors"
 )
 
 func (it *DefaultVisitor) GetId() string {
@@ -63,6 +64,17 @@ func (it *DefaultVisitor) Save() error {
 
 	if dbEngine := db.GetDBEngine(); dbEngine != nil {
 		if collection, err := dbEngine.GetCollection(VISITOR_COLLECTION_NAME); err == nil {
+
+			if it.GetId() == "" {
+				collection.AddFilter("email", "=", it.GetEmail())
+				n, err := collection.Count()
+				if err != nil {
+					return err
+				}
+				if n>0 {
+					return errors.New("email already exists")
+				}
+			}
 
 			storableValues := it.ToHashMap()
 
