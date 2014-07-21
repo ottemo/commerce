@@ -11,6 +11,8 @@ import(
 
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/category"
+
+	"github.com/ottemo/foundation/db"
 )
 
 func (it *DefaultCategory) setupAPI() error {
@@ -47,6 +49,14 @@ func (it *DefaultCategory) setupAPI() error {
 	if err != nil {
 		return err
 	}
+	err = api.GetRestService().RegisterAPI("category", "GET", "product/count/:id", it.ListCategoryProductsCountRestAPI)
+	if err != nil {
+		return err
+	}
+	err = api.GetRestService().RegisterAPI("category", "POST", "products/:id", it.ListCategoryProductsRestAPI)
+	if err != nil {
+		return err
+	}
 	err = api.GetRestService().RegisterAPI("category", "GET", "product/add/:categoryId/:productId", it.AddCategoryProductRestAPI)
 	if err != nil {
 		return err
@@ -57,6 +67,12 @@ func (it *DefaultCategory) setupAPI() error {
 	}
 
 	err = api.GetRestService().RegisterAPI("category", "GET", "attribute/list", it.ListCategoryAttributesRestAPI)
+	if err != nil {
+		return err
+	}
+
+
+	err = api.GetRestService().RegisterAPI("category", "GET", "tree", it.GetCategoriesTreeRestAPI)
 	if err != nil {
 		return err
 	}
@@ -97,7 +113,7 @@ func (it *DefaultCategory) ListCategoriesRestAPI(resp http.ResponseWriter, req *
 	if limit, isLimit := reqData["limit"]; isLimit {
 		if limit, ok := limit.(string); ok {
 			splitResult := strings.Split(limit, ",")
-			if len(splitResult) > 2 {
+			if len(splitResult) > 1 {
 
 				offset, err := strconv.Atoi( strings.TrimSpace(splitResult[0]) )
 				if err != nil {
@@ -117,9 +133,9 @@ func (it *DefaultCategory) ListCategoriesRestAPI(resp http.ResponseWriter, req *
 				}
 
 				categoryModel.ListLimit(0, limit)
+			} else {
+				categoryModel.ListLimit(0, 0)
 			}
-
-			categoryModel.ListLimit(0, 0)
 		}
 	}
 
@@ -293,6 +309,15 @@ func (it *DefaultCategory) ListCategoryProductsRestAPI(resp http.ResponseWriter,
 
 	// check request params
 	//---------------------
+	reqData, ok := reqContent.(map[string]interface{})
+	if !ok {
+		if req.Method == "POST" {
+			return nil, errors.New("unexpected request content")
+		} else {
+			reqData = make(map[string]interface{})
+		}
+	}
+
 	categoryId, isSpecifiedId := reqParams["id"]
 	if !isSpecifiedId {
 		return nil, errors.New("category 'id' was not specified")
@@ -315,13 +340,50 @@ func (it *DefaultCategory) ListCategoryProductsRestAPI(resp http.ResponseWriter,
 		return nil, err
 	}
 
-	products := categoryModel.GetProducts()
 
-	result := make( []map[string]interface{}, 0)
-	for _, product := range products {
-		result = append(result, product.ToHashMap())
+	// synthetic product list limit
+	offset := 0
+	limit  := 0
+
+	// limit parameter handler
+	if limitParam, isLimit := reqData["limit"]; isLimit {
+		if limitParam, ok := limitParam.(string); ok {
+			splitResult := strings.Split(limitParam, ",")
+			if len(splitResult) > 1 {
+
+				offset, err = strconv.Atoi( strings.TrimSpace(splitResult[0]) )
+				if err != nil {
+					return nil, err
+				}
+
+				limit, err = strconv.Atoi( strings.TrimSpace(splitResult[1]) )
+				if err != nil {
+					return nil, err
+				}
+			} else if len(splitResult) > 0 {
+				limit, err = strconv.Atoi( strings.TrimSpace(splitResult[0]) )
+				if err != nil {
+					return nil, err
+				}
+			}
+		}
 	}
 
+
+	products := categoryModel.GetProducts()
+
+	i := 0;
+	result := make( []map[string]interface{}, 0)
+	for _, product := range products {
+		if limit == 0 {
+			break
+		}
+		if i >= offset {
+			limit -= 1
+			result = append(result, product.ToHashMap())
+		}
+		i += 1
+	}
 
 	return result, nil
 }
@@ -429,4 +491,110 @@ func (it *DefaultCategory) GetCategoryRestAPI(resp http.ResponseWriter, req *htt
 	}
 
 	return nil, errors.New("Something went wrong...")
+}
+
+
+// WEB REST API function used to list product in category
+//   - category id must be specified in request URI
+func (it *DefaultCategory) ListCategoryProductsCountRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}, session api.I_Session) (interface{}, error) {
+
+	categoryId, isSpecifiedId := reqParams["id"]
+	if !isSpecifiedId {
+		return nil, errors.New("category 'id' was not specified")
+	}
+
+	// product list operation
+	//-----------------------
+	model, err := models.GetModel("Category")
+	if err != nil {
+		return nil, err
+	}
+
+	categoryModel, ok := model.(category.I_Category)
+	if !ok {
+		return nil, errors.New("category type is not I_Category campatible")
+	}
+
+	err = categoryModel.Load(categoryId)
+	if err != nil {
+		return nil, err
+	}
+
+	return len(categoryModel.GetProducts()), nil
+}
+
+
+
+// WEB REST API function used to categories menu
+func (it *DefaultCategory) GetCategoriesTreeRestAPI(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}, session api.I_Session) (interface{}, error) {
+
+	var result = make([]map[string]interface{}, 0)
+
+	dbEngine := db.GetDBEngine()
+	if dbEngine == nil {
+		return nil, errors.New("can't get DB engine")
+	}
+
+	collection, err := dbEngine.GetCollection(CATEGORY_COLLECTION_NAME)
+	if err != nil {
+		return nil, err
+	}
+
+	err = collection.AddSort("path", false)
+	if err != nil {
+		return nil, err
+	}
+
+	rowData, err := collection.Load()
+	if err != nil {
+		return nil, err
+	}
+
+	categoryStack := make([]map[string]interface{}, 0)
+	pathStack := make([]string, 0)
+
+	for _, row := range rowData {
+
+		currentItem := make(map[string]interface{})
+		currentItem["id"]    = row["_id"]
+		currentItem["name"]  = row["name"]
+		currentItem["child"] = make( []map[string]interface{}, 0 )
+
+		currentPath, ok := row["path"].(string)
+		if !ok {
+			continue
+		}
+
+		for idx:=len(pathStack)-1; idx >= 0; idx-- {
+			parentPath := pathStack[idx]
+
+			// if we found parent
+			if strings.Contains(currentPath, parentPath) {
+				parent := categoryStack[idx]
+
+				parentChild, ok := parent["child"].([]map[string]interface{})
+				if !ok {
+					return nil, errors.New("category tree builder internal error")
+				}
+
+				parent["child"] = append(parentChild, currentItem)
+
+				break
+			} else {
+				pathStack = pathStack[0:idx-1]
+				categoryStack = categoryStack[0:idx-1]
+			}
+		}
+
+		if len(categoryStack) == 0 {
+			result = append(result, currentItem)
+		}
+
+		categoryStack = append(categoryStack, currentItem)
+		pathStack = append(pathStack, currentPath)
+
+
+	}
+
+	return result, nil
 }

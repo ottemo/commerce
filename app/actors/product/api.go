@@ -280,7 +280,7 @@ func (it *DefaultProduct) ListProductsRestAPI(resp http.ResponseWriter, req *htt
 	if limit, isLimit := reqData["limit"]; isLimit {
 		if limit, ok := limit.(string); ok {
 			splitResult := strings.Split(limit, ",")
-			if len(splitResult) > 2 {
+			if len(splitResult) > 1 {
 
 				offset, err := strconv.Atoi( strings.TrimSpace(splitResult[0]) )
 				if err != nil {
@@ -292,7 +292,7 @@ func (it *DefaultProduct) ListProductsRestAPI(resp http.ResponseWriter, req *htt
 					return nil, err
 				}
 
-				productModel.ListLimit(offset, limit)
+				err = productModel.ListLimit(offset, limit)
 			} else if len(splitResult) > 0 {
 				limit, err := strconv.Atoi( strings.TrimSpace(splitResult[0]) )
 				if err != nil {
@@ -300,9 +300,9 @@ func (it *DefaultProduct) ListProductsRestAPI(resp http.ResponseWriter, req *htt
 				}
 
 				productModel.ListLimit(0, limit)
+			} else {
+				productModel.ListLimit(0, 0)
 			}
-
-			productModel.ListLimit(0, 0)
 		}
 	}
 

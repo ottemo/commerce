@@ -45,6 +45,7 @@ func (it *DefaultCategory) setupModel() error {
 		}
 
 		collection.AddColumn("parent_id", "id", true)
+		collection.AddColumn("path", "text", true)
 		collection.AddColumn("name", "text", true)
 
 		collection, err = dbEngine.GetCollection(CATEGORY_PRODUCT_JUNCTION_COLLECTION_NAME)

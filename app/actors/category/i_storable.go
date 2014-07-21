@@ -35,6 +35,7 @@ func (it *DefaultCategory) Load(Id string) error {
 		if err != nil {
 			return err
 		}
+		it.updatePath()
 
 		// loading related products
 		junctionCollection, err := dbEngine.GetCollection(CATEGORY_PRODUCT_JUNCTION_COLLECTION_NAME)
@@ -78,7 +79,11 @@ func (it *DefaultCategory) Delete(Id string) error {
 			return err
 		}
 
-		junctionCollection.AddFilter("category_id", "=", it.GetId())
+		err = junctionCollection.AddFilter("category_id", "=", Id)
+		if err != nil {
+			return err
+		}
+
 		_, err = junctionCollection.Delete()
 		if err != nil {
 			return err

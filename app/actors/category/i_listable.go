@@ -91,7 +91,7 @@ func (it *DefaultCategory) List() ([]models.T_ListItem, error) {
 func (it *DefaultCategory) ListAddExtraAttribute(attribute string) error {
 
 	if utils.IsAmongStr(attribute, "parent", "products") {
-		if utils.IsInListStr(attribute, it.listExtraAtributes) {
+		if !utils.IsInListStr(attribute, it.listExtraAtributes) {
 			it.listExtraAtributes = append(it.listExtraAtributes, attribute)
 		} else {
 			return errors.New("attribute already in list")

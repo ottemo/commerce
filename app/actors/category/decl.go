@@ -17,6 +17,7 @@ type DefaultCategory struct {
 
 	Name     string
 	Parent   category.I_Category
+	Path	 string
 	Products []product.I_Product
 
 

@@ -1,5 +1,10 @@
 package utils
 
+import (
+	"strconv"
+	"errors"
+)
+
 // searches for presence of 1-st arg string option among provided options since 2-nd argument
 func IsAmongStr(option string, searchOptions ...string) bool {
 	for _, listOption := range searchOptions {
@@ -54,4 +59,21 @@ func IsMD5(value string) bool {
 // TODO: should be somwhere in other place
 func GetSiteBackUrl() string {
 	return "http://dev.ottemo.com:3000/"
+}
+
+// converts interface to integer
+func InterfaceToInt(value interface{}) (int, error) {
+	switch value := value.(type) {
+	case int:
+		return value, nil
+	case string:
+		return StrToInt(value)
+	default:
+		return 0, errors.New("interface can't be converted to integer")
+	}
+}
+
+// convert string to integer
+func StrToInt(value string) (int, error) {
+	return strconv.Atoi(value)
 }

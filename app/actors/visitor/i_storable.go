@@ -41,7 +41,7 @@ func (it *DefaultVisitor) Delete(Id string) error {
 		if collection, err := dbEngine.GetCollection(VISITOR_COLLECTION_NAME); err == nil {
 
 			if addressCollection, err := dbEngine.GetCollection(address.VISITOR_ADDRESS_COLLECTION_NAME); err == nil {
-				addressCollection.AddFilter("visitor_id", "=", it.GetId())
+				addressCollection.AddFilter("visitor_id", "=", Id)
 				if _, err := addressCollection.Delete(); err != nil {
 					return err
 				}
