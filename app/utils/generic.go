@@ -35,6 +35,22 @@ func StrKeysInMap(mapObject interface{}, keys ...string) bool {
 	return true
 }
 
+func IsMD5(value string) bool {
+	ok := false
+	if len(value) == 32  {
+		ok = true
+		for i:=0; i<32; i++ {
+			c := value[i]
+			if !(c=='1' || c=='2' || c=='3' || c=='4' || c=='5' || c=='6' || c=='7' || c=='8' || c=='9' || c=='0' ||
+			     c=='a' || c=='b' || c=='c' || c=='d' || c=='e' || c=='f') {
+				ok = false
+				break
+			}
+		}
+	}
+	return ok
+}
+
 // TODO: should be somwhere in other place
 func GetSiteBackUrl() string {
 	return "http://dev.ottemo.com:3000/"

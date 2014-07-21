@@ -181,8 +181,12 @@ func (it *DefaultVisitor) Validate(key string) error {
 }
 
 func (it *DefaultVisitor) SetPassword(passwd string) error {
-	if len(passwd)>0 {
-		it.Password = it.passwdEncode(passwd)
+	if len(passwd) > 0 {
+		if utils.IsMD5(passwd) {
+			it.Password = passwd
+		} else {
+			it.Password = it.passwdEncode(passwd)
+		}
 	} else {
 		return errors.New("password can't be blank")
 	}
