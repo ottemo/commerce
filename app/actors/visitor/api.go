@@ -524,8 +524,6 @@ func (it *DefaultVisitor) LoginFacebookRestAPI(resp http.ResponseWriter, req *ht
 		if err != nil {
 			return nil, err
 		}
-	} else {
-		return nil, err
 	}
 
 	session.Set(visitor.SESSION_KEY_VISITOR_ID, visitorModel.GetId())
@@ -599,8 +597,6 @@ func (it *DefaultVisitor) LoginGoogleRestAPI(resp http.ResponseWriter, req *http
 		if err != nil {
 			return nil, err
 		}
-	} else {
-		return nil, err
 	}
 
 	session.Set(visitor.SESSION_KEY_VISITOR_ID, visitorModel.GetId())
