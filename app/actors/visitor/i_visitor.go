@@ -7,8 +7,6 @@ import (
 	"encoding/base64"
 	"time"
 
-	"net/url"
-
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/visitor"
 
@@ -104,17 +102,17 @@ func (it *DefaultVisitor) Invalidate() error {
 		return err
 	}
 
-	it.ValidateKey = base64.StdEncoding.EncodeToString( data )
+	it.ValidateKey = hex.EncodeToString( []byte( base64.StdEncoding.EncodeToString( data ) ) )
 	err = it.Save()
 	if err != nil {
 		return err
 	}
 
 	// TODO: probably not a best solution to have it there
-	linkHref := url.QueryEscape( utils.GetSiteBackUrl() + "visitor/validate/" + it.ValidateKey )
-	link := "<a href=\"" + linkHref + "\"/>" + linkHref + "</a>"
+	linkHref := utils.GetSiteBackUrl() + "visitor/validate/" + it.ValidateKey
+	//link := "<a href=\"" + linkHref + "\"/>" + linkHref + "</a>"
 
-	sendmail.SendMail(it.GetEmail(), "e-mail validation", "please follow the link to validate your e-mail" + link)
+	sendmail.SendMail(it.GetEmail(), "e-mail validation", "please follow the link to validate your e-mail: " + linkHref)
 
 	return nil
 }
@@ -147,7 +145,8 @@ func (it *DefaultVisitor) Validate(key string) error {
 	}
 
 	// checking validation key expiration
-	data, err := base64.StdEncoding.DecodeString( key )
+	step1, err := hex.DecodeString(key)
+	data, err := base64.StdEncoding.DecodeString( string(step1) )
 	if err != nil {
 		return err
 	}
@@ -169,11 +168,12 @@ func (it *DefaultVisitor) Validate(key string) error {
 			return err
 		}
 
-		if validationExpired {
+		if !validationExpired {
 			visitorModel.ValidateKey = ""
 			visitorModel.Save()
 		} else {
 			visitorModel.Invalidate()
+			return errors.New("validation period expired, new validation URL was sent")
 		}
 	}
 
