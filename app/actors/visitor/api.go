@@ -549,8 +549,7 @@ func (it *DefaultVisitor) LoginGoogleRestAPI(resp http.ResponseWriter, req *http
 
 	// facebook login operation
 	//-------------------------
-
-	url := "https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=?access_token=" + queryParams["access_token"].(string)
+	url := "https://www.googleapis.com/oauth2/v1/userinfo?access_token=?access_token=" + queryParams["access_token"].(string)
 	googleResponse, err := http.Get(url)
 	if err != nil {
 		return nil, err
@@ -565,13 +564,13 @@ func (it *DefaultVisitor) LoginGoogleRestAPI(resp http.ResponseWriter, req *http
 		return nil, err
 	}
 
-	if !utils.StrKeysInMap(jsonMap, "user_id", "email", "verified_email") {
+	if !utils.StrKeysInMap(jsonMap, "id", "email", "verified_email", "given_name", "family_name") {
 		return nil, errors.New("unexpected google response")
 	}
 
-	if value, ok := jsonMap["verified_email"].(bool); !(ok && value) {
+	/*if value, ok := jsonMap["verified_email"].(bool); !(ok && value) {
 		return nil, errors.New("google account unverified")
-	}
+	}*/
 
 
 	// trying to load visitor from our DB
@@ -585,13 +584,13 @@ func (it *DefaultVisitor) LoginGoogleRestAPI(resp http.ResponseWriter, req *http
 		return nil, errors.New("visitor model is not I_Visitor campatible")
 	}
 
-	err = visitorModel.LoadByGoogleId( queryParams["user_id"].(string) )
+	err = visitorModel.LoadByGoogleId( queryParams["id"].(string) )
 	if err != nil && strings.Contains(err.Error(), "not found") {
-		// visitor not exists in out DB - reating new one
+		// visitor not exists in out DB - creating new one
 		visitorModel.Set("email", jsonMap["email"])
-		visitorModel.Set("first_name", "Unknown")
-		visitorModel.Set("last_name", "")
-		visitorModel.Set("google_id", jsonMap["user_id"])
+		visitorModel.Set("first_name", jsonMap["given_name"])
+		visitorModel.Set("last_name", jsonMap["family_name"])
+		visitorModel.Set("google_id", jsonMap["id"])
 
 		err := visitorModel.Save()
 		if err != nil {

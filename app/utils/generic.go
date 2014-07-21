@@ -37,5 +37,5 @@ func StrKeysInMap(mapObject interface{}, keys ...string) bool {
 
 // TODO: should be somwhere in other place
 func GetSiteBackUrl() string {
-	return "http://ottemo:3000/"
+	return "http://dev.ottemo.com:3000/"
 }

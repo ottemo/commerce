@@ -7,6 +7,8 @@ import (
 	"encoding/base64"
 	"time"
 
+	"net/url"
+
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/visitor"
 
@@ -109,7 +111,7 @@ func (it *DefaultVisitor) Invalidate() error {
 	}
 
 	// TODO: probably not a best solution to have it there
-	linkHref := utils.GetSiteBackUrl() + "/visitor/validate/" + it.ValidateKey
+	linkHref := url.QueryEscape( utils.GetSiteBackUrl() + "visitor/validate/" + it.ValidateKey )
 	link := "<a href=\"" + linkHref + "\"/>" + linkHref + "</a>"
 
 	sendmail.SendMail(it.GetEmail(), "e-mail validation", "please follow the link to validate your e-mail" + link)
