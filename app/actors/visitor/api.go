@@ -25,6 +25,10 @@ func (it *DefaultVisitor) setupAPI() error {
 	if err != nil {
 		return err
 	}
+	err = api.GetRestService().RegisterAPI("visitor", "PUT", "update", it.UpdateVisitorRestAPI)
+	if err != nil {
+		return err
+	}
 	err = api.GetRestService().RegisterAPI("visitor", "PUT", "update/:id", it.UpdateVisitorRestAPI)
 	if err != nil {
 		return err
@@ -142,7 +146,15 @@ func (it *DefaultVisitor) UpdateVisitorRestAPI(resp http.ResponseWriter, req *ht
 	//---------------------
 	visitorId, isSpecifiedId := reqParams["id"]
 	if !isSpecifiedId {
-		return nil, errors.New("visitor 'id' was not specified")
+
+		sessionValue := session.Get("visitor_id")
+		sessionVisitorId, ok := sessionValue.(string)
+		if !ok {
+			return nil, errors.New("you are not logined in")
+		}
+		visitorId = sessionVisitorId
+
+		// return nil, errors.New("visitor 'id' was not specified")
 	}
 
 	reqData, ok := reqContent.(map[string]interface{})

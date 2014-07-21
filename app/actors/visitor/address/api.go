@@ -31,6 +31,10 @@ func (it *DefaultVisitorAddress) setupAPI() error {
 	if err != nil {
 		return err
 	}
+	err = api.GetRestService().RegisterAPI("visitor/address", "GET", "list", it.ListVisitorAddressRestAPI)
+	if err != nil {
+		return err
+	}
 	err = api.GetRestService().RegisterAPI("visitor/address", "GET", "list/:visitorId", it.ListVisitorAddressRestAPI)
 	if err != nil {
 		return err
@@ -200,7 +204,15 @@ func (it *DefaultVisitorAddress) ListVisitorAddressRestAPI(resp http.ResponseWri
 	//---------------------
 	visitorId, isSpecifiedId := reqParams["visitorId"]
 	if !isSpecifiedId {
-		return nil, errors.New("visitor 'id' was not specified")
+
+		sessionValue := session.Get("visitor_id")
+		sessionVisitorId, ok := sessionValue.(string)
+		if !ok {
+			return nil, errors.New("you are not logined in")
+		}
+		visitorId = sessionVisitorId
+
+		// return nil, errors.New("visitor 'id' was not specified")
 	}
 
 	// list operation
