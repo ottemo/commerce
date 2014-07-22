@@ -343,7 +343,7 @@ func (it *DefaultCategory) ListCategoryProductsRestAPI(resp http.ResponseWriter,
 
 	// synthetic product list limit
 	offset := 0
-	limit  := 0
+	limit  := -1
 
 	// limit parameter handler
 	if limitParam, isLimit := reqData["limit"]; isLimit {
@@ -380,7 +380,16 @@ func (it *DefaultCategory) ListCategoryProductsRestAPI(resp http.ResponseWriter,
 		}
 		if i >= offset {
 			limit -= 1
-			result = append(result, product.ToHashMap())
+
+			// preparing product information
+			productInfo := product.ToHashMap()
+			if defaultImage, present := productInfo["default_image"]; present {
+				mediaPath, err := product.GetMediaPath("image")
+				if defaultImage, ok := defaultImage.(string); ok && defaultImage != "" && err == nil {
+					productInfo["default_image"] = mediaPath + defaultImage
+				}
+			}
+			result = append(result, productInfo)
 		}
 		i += 1
 	}
