@@ -569,6 +569,7 @@ func (it *DefaultCategory) GetCategoriesTreeRestAPI(resp http.ResponseWriter, re
 		currentItem["name"]  = row["name"]
 		currentItem["child"] = make( []map[string]interface{}, 0 )
 
+		// calculating current path
 		currentPath, ok := row["path"].(string)
 		if !ok {
 			continue
@@ -590,8 +591,8 @@ func (it *DefaultCategory) GetCategoriesTreeRestAPI(resp http.ResponseWriter, re
 
 				break
 			} else {
-				pathStack = pathStack[0:idx-1]
-				categoryStack = categoryStack[0:idx-1]
+				pathStack = pathStack[0:idx]
+				categoryStack = categoryStack[0:idx]
 			}
 		}
 

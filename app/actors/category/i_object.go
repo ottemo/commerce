@@ -18,12 +18,10 @@ func (it *DefaultCategory) updatePath() {
 	if it.Parent != nil {
 		parentPath, ok := it.Parent.Get("path").(string)
 		if ok {
-			it.Path = parentPath + it.Parent.GetId() + "/"
-		} else {
-			it.Path = "/" + it.Parent.GetId() + "/"
+			it.Path = parentPath + "/" + it.GetId()
 		}
 	} else {
-		it.Path = "/"
+		it.Path = "/"  + it.GetId()
 	}
 }
 
