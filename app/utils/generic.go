@@ -40,6 +40,7 @@ func StrKeysInMap(mapObject interface{}, keys ...string) bool {
 	return true
 }
 
+// checks if value is MD5
 func IsMD5(value string) bool {
 	ok := false
 	if len(value) == 32  {
@@ -59,6 +60,16 @@ func IsMD5(value string) bool {
 // TODO: should be somwhere in other place
 func GetSiteBackUrl() string {
 	return "http://dev.ottemo.com:3000/"
+}
+
+// converts interface to string
+func InterfaceToString(value interface{}) (string, error) {
+	switch value := value.(type) {
+	case string:
+		return value, nil
+	default:
+		return "", errors.New("interface can't be converted to string")
+	}
 }
 
 // converts interface to integer
