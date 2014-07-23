@@ -101,6 +101,8 @@ func (it *DefaultCategory) Set(attribute string, value interface{}) error {
 					} else {
 						return errors.New("category can't have sub-category or itself as parent")
 					}
+				} else {
+					it.Parent = categoryModel
 				}
 			} else {
 				it.Parent = nil
@@ -235,7 +237,7 @@ func (it *DefaultCategory) GetAttributesInfo() []models.T_AttributeInfo {
 		models.T_AttributeInfo{
 			Model:      "Category",
 			Collection: "Category",
-			Attribute:  "parent",
+			Attribute:  "parent_id",
 			Type:       "id",
 			IsRequired: false,
 			IsStatic:   true,
