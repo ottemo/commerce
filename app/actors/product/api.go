@@ -105,12 +105,12 @@ func (it *DefaultProduct) AddProductAttributeRestAPI(resp http.ResponseWriter, r
 
 	// check request params
 	//---------------------
-	attributeName, isSpecified := reqParams["attribute"]
+	attributeName, isSpecified := reqData["Attribute"]
 	if !isSpecified {
 		return nil, errors.New("attribute name was not specified")
 	}
 
-	attributeLabel, isSpecified := reqParams["label"]
+	attributeLabel, isSpecified := reqData["Label"]
 	if !isSpecified {
 		return nil, errors.New("attribute name was not specified")
 	}
@@ -125,11 +125,11 @@ func (it *DefaultProduct) AddProductAttributeRestAPI(resp http.ResponseWriter, r
 	attribute := models.T_AttributeInfo{
 		Model:      "product",
 		Collection: "product",
-		Attribute:  attributeName,
+		Attribute:  attributeName.(string),
 		Type:       "text",
 		IsRequired: false,
 		IsStatic:   false,
-		Label:      attributeLabel,
+		Label:      attributeLabel.(string),
 		Group:      "General",
 		Editors:    "text",
 		Options:    "",
