@@ -111,7 +111,7 @@ func (it *DefaultProduct) ToHashMap() map[string]interface{} {
 	result["_id"] = it.id
 	result["sku"] = it.Sku
 	result["name"] = it.Name
-	result["description"] = it.Name
+	result["description"] = it.Description
 	result["default_image"] = it.DefaultImage
 	result["price"] = it.Price
 
