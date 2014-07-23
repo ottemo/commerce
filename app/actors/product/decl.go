@@ -11,10 +11,15 @@ type DefaultProduct struct {
 	Sku  string
 	Name string
 
+	ShortDescription string
 	Description string
+
 	DefaultImage string
 
 	Price float64
+
+	Weight float64
+	Size float64
 
 	*attributes.CustomAttributes
 
