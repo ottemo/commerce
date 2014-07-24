@@ -82,9 +82,9 @@ func (it *DefaultVisitor) Save() error {
 			delete(storableValues, "shipping_address")
 
 
-			if it.Password == "" {
+			/*if it.Password == "" {
 				return errors.New("password can't be blank")
-			}
+			}*/
 
 			storableValues["facebook_id"] = it.FacebookId
 			storableValues["google_id"] = it.GoogleId
