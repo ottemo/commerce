@@ -23,9 +23,12 @@ func (it *DefaultProduct) setupModel() error {
 		if collection, err := dbEngine.GetCollection("Product"); err == nil {
 			collection.AddColumn("sku", "text", true)
 			collection.AddColumn("name", "text", true)
-			collection.AddColumn("description", "text", true)
-			collection.AddColumn("default_image", "text", true)
-			collection.AddColumn("price", "numeric", true)
+			collection.AddColumn("short_description", "text", false)
+			collection.AddColumn("description", "text", false)
+			collection.AddColumn("default_image", "text", false)
+			collection.AddColumn("price", "numeric", false)
+			collection.AddColumn("weight", "numeric", false)
+			collection.AddColumn("size", "numeric", false)
 		} else {
 			return err
 		}

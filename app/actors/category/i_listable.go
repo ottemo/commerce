@@ -1,4 +1,4 @@
-package product
+package category
 
 import (
 	"errors"
@@ -13,7 +13,7 @@ import (
 //---------------------------------
 
 // initializes and returns shared among couple functions collection
-func (it *DefaultProduct) getListCollection() (db.I_DBCollection, error) {
+func (it *DefaultCategory) getListCollection() (db.I_DBCollection, error) {
 	if it.listCollection != nil {
 		return it.listCollection, nil
 	} else {
@@ -24,19 +24,20 @@ func (it *DefaultProduct) getListCollection() (db.I_DBCollection, error) {
 			return nil, errors.New("Can't obtain DBEngine")
 		}
 
-		it.listCollection, err = dbEngine.GetCollection("Product")
+		it.listCollection, err = dbEngine.GetCollection("Category")
 
 		return it.listCollection, err
 	}
 }
 
-//--------------------------
+
+//-------------------------
 // INTERFACE IMPLEMENTATION
-//--------------------------
+//-------------------------
 
 
 // enumerates items of Product model type
-func (it *DefaultProduct) List() ([]models.T_ListItem, error) {
+func (it *DefaultCategory) List() ([]models.T_ListItem, error) {
 	result := make([]models.T_ListItem, 0)
 
 	// loading data from DB
@@ -58,32 +59,23 @@ func (it *DefaultProduct) List() ([]models.T_ListItem, error) {
 			return result, err
 		}
 
-		product := model.(*DefaultProduct)
-		product.FromHashMap(dbItemData)
+		category := model.(*DefaultCategory)
+		category.FromHashMap(dbItemData)
 
 		// retrieving minimal data needed for list
 		resultItem := new(models.T_ListItem)
 
-		mediaPath, err := product.GetMediaPath("image")
-		if err != nil {
-			return result, err
-		}
-
-		resultItem.Id    = product.GetId()
-		resultItem.Name  = "[" + product.GetSku() + "] "  + product.GetName()
+		resultItem.Id    = category.GetId()
+		resultItem.Name  = category.GetName()
 		resultItem.Image = ""
-		resultItem.Desc  = product.GetShortDescription()
-
-		if product.GetDefaultImage() != "" {
-			resultItem.Image = mediaPath + product.GetDefaultImage()
-		}
+		resultItem.Desc  = ""
 
 		// if extra attributes were required
 		if len(it.listExtraAtributes) > 0 {
 			resultItem.Extra = make(map[string]interface{})
 
 			for _, attributeName := range it.listExtraAtributes {
-				resultItem.Extra[attributeName] = product.Get(attributeName)
+				resultItem.Extra[attributeName] = category.Get(attributeName)
 			}
 		}
 
@@ -96,10 +88,10 @@ func (it *DefaultProduct) List() ([]models.T_ListItem, error) {
 
 
 // allows to obtain additional attributes from  List() function
-func (it *DefaultProduct) ListAddExtraAttribute(attribute string) error {
+func (it *DefaultCategory) ListAddExtraAttribute(attribute string) error {
 
-	if utils.IsAmongStr(attribute, "sku", "name", "description", "price", "default_image") {
-		if utils.IsInListStr(attribute, it.listExtraAtributes) {
+	if utils.IsAmongStr(attribute, "parent", "products") {
+		if !utils.IsInListStr(attribute, it.listExtraAtributes) {
 			it.listExtraAtributes = append(it.listExtraAtributes, attribute)
 		} else {
 			return errors.New("attribute already in list")
@@ -112,8 +104,9 @@ func (it *DefaultProduct) ListAddExtraAttribute(attribute string) error {
 }
 
 
+
 // adds selection filter to List() function
-func (it *DefaultProduct) ListFilterAdd(Attribute string, Operator string, Value interface{}) error {
+func (it *DefaultCategory) ListFilterAdd(Attribute string, Operator string, Value interface{}) error {
 	collection, err := it.getListCollection()
 	if err != nil {
 		return err
@@ -126,23 +119,20 @@ func (it *DefaultProduct) ListFilterAdd(Attribute string, Operator string, Value
 
 
 // clears presets made by ListFilterAdd() and ListAddExtraAttribute() functions
-func (it *DefaultProduct) ListFilterReset() error {
+func (it *DefaultCategory) ListFilterReset() error {
 	collection, err := it.getListCollection()
 	if err != nil {
 		return err
 	}
 
 	collection.ClearFilters()
-
-	it.listExtraAtributes = make([]string, 0)
-
 	return nil
 }
 
 
 
 // specifies selection paging
-func (it *DefaultProduct) ListLimit(offset int, limit int) error {
+func (it *DefaultCategory) ListLimit(offset int, limit int) error {
 	collection, err := it.getListCollection()
 	if err != nil {
 		return err

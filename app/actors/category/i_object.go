@@ -9,14 +9,55 @@ import (
 	"github.com/ottemo/foundation/app/models/product"
 )
 
+//---------------------------------
+// IMPLEMENTATION SPECIFIC METHODS
+//---------------------------------
+
+// updates path attribute of model
+func (it *DefaultCategory) updatePath() {
+	if it.GetId() == "" {
+		it.Path = ""
+	} else if it.Parent != nil {
+		parentPath, ok := it.Parent.Get("path").(string)
+		if ok {
+			it.Path = parentPath + "/" + it.GetId()
+		}
+	} else {
+		it.Path = "/"  + it.GetId()
+	}
+}
+
+
+//--------------------------
+// INTERFACE IMPLEMENTATION
+//--------------------------
+
 func (it *DefaultCategory) Get(attribute string) interface{} {
 	switch strings.ToLower(attribute) {
 	case "_id", "id":
 		return it.id
+
 	case "name":
 		return it.Name
+
+	case "path":
+		if it.Path == "" {
+			it.updatePath()
+		}
+		return it.Path
+
+	case "parent_id":
+		if it.Parent != nil {
+			return it.Parent.GetId()
+		} else {
+			return ""
+		}
+
+	case "parent":
+		return it.Parent
+
 	case "products":
-		result := make([]map[string]interface{}, len(it.Products))
+		result := make([]map[string]interface{}, 0)
 		for _, categoryProduct := range it.Products {
 			result = append(result, categoryProduct.ToHashMap())
 		}
@@ -36,16 +77,81 @@ func (it *DefaultCategory) Set(attribute string, value interface{}) error {
 	case "name":
 		it.Name = value.(string)
 
+	case "parent_id":
+		if value, ok := value.(string); ok  {
+			value = strings.TrimSpace(value)
+			if value != "" {
+				model, err := models.GetModel("Category")
+				if err != nil {
+					return err
+				}
+				categoryModel, ok := model.(category.I_Category)
+				if !ok {
+					return errors.New("unsupported category model " + model.GetImplementationName())
+				}
+
+				err = categoryModel.Load(value)
+				if err != nil {
+					return err
+				}
+
+				selfId := it.GetId()
+				if selfId != "" {
+					parentPath, ok := categoryModel.Get("path").(string)
+					if categoryModel.GetId() != selfId && ok && !strings.Contains(parentPath, selfId) {
+						it.Parent = categoryModel
+					} else {
+						return errors.New("category can't have sub-category or itself as parent")
+					}
+				} else {
+					it.Parent = categoryModel
+				}
+			} else {
+				it.Parent = nil
+			}
+		} else {
+			return errors.New("unsupported id specified")
+		}
+		it.updatePath()
+
 	case "parent":
-		value, ok := value.(category.I_Category)
-		if !ok {
+		switch value := value.(type) {
+		case category.I_Category:
+			it.Parent = value
+		case string:
+			it.Set("parent_id", value)
+		default:
 			errors.New("unsupported 'parent' value")
 		}
-
-		it.Parent = value
+		// path should be changed as well
+		it.updatePath()
 
 	case "products":
 		switch value := value.(type) {
+
+		// we have some array - supposing array with id
+		case []interface{}:
+			for _, listItem := range value {
+				productId, ok := listItem.(string)
+				if ok {
+					model, err := models.GetModel("Product")
+					if err != nil {
+						return err
+					}
+
+					productModel, ok := model.(product.I_Product)
+					if !ok {
+						return errors.New("unsupported product model " + model.GetImplementationName())
+					}
+
+					err = productModel.Load(productId)
+					if err != nil {
+						return err
+					}
+
+					it.Products = append(it.Products, productModel)
+				}
+			}
 
 		// we have prepared []I_Product
 		case []product.I_Product:
@@ -94,8 +200,10 @@ func (it *DefaultCategory) ToHashMap() map[string]interface{} {
 
 	result["_id"] = it.id
 
-	result["name"] = it.Name
+	result["parent_id"] = it.Get("parent_id")
+	result["name"] = it.Get("name")
 	result["products"] = it.Get("products")
+	result["path"] = it.Get("path")
 
 	return result
 }
@@ -132,7 +240,7 @@ func (it *DefaultCategory) GetAttributesInfo() []models.T_AttributeInfo {
 		models.T_AttributeInfo{
 			Model:      "Category",
 			Collection: "Category",
-			Attribute:  "parent",
+			Attribute:  "parent_id",
 			Type:       "id",
 			IsRequired: false,
 			IsStatic:   true,

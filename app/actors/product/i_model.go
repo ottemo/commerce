@@ -20,5 +20,7 @@ func (it *DefaultProduct) New() (models.I_Model, error) {
 		return nil, err
 	}
 
+	it.listExtraAtributes = make([]string, 0)
+
 	return &DefaultProduct{CustomAttributes: customAttributes}, nil
 }

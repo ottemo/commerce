@@ -35,6 +35,7 @@ func (it *DefaultCategory) Load(Id string) error {
 		if err != nil {
 			return err
 		}
+		it.updatePath()
 
 		// loading related products
 		junctionCollection, err := dbEngine.GetCollection(CATEGORY_PRODUCT_JUNCTION_COLLECTION_NAME)
@@ -78,7 +79,11 @@ func (it *DefaultCategory) Delete(Id string) error {
 			return err
 		}
 
-		junctionCollection.AddFilter("category_id", "=", it.GetId())
+		err = junctionCollection.AddFilter("category_id", "=", Id)
+		if err != nil {
+			return err
+		}
+
 		_, err = junctionCollection.Delete()
 		if err != nil {
 			return err
@@ -102,10 +107,23 @@ func (it *DefaultCategory) Save() error {
 
 	if dbEngine := db.GetDBEngine(); dbEngine != nil {
 
-		storableValues := map[string]interface{}{"name": it.Name}
+		storableValues := it.ToHashMap()
+
+		delete(storableValues,"products")
 
 		categoryCollection, err := dbEngine.GetCollection(CATEGORY_COLLECTION_NAME)
 		if err != nil {
+			return err
+		}
+
+		// saving category
+		if newId, err := categoryCollection.Save(storableValues); err == nil {
+			if it.GetId() != newId {
+				it.SetId(newId)
+				it.updatePath()
+				it.Save()
+			}
+		} else {
 			return err
 		}
 
@@ -115,23 +133,18 @@ func (it *DefaultCategory) Save() error {
 			return err
 		}
 
+		// deleting old assigned products
 		junctionCollection.AddFilter("category_id", "=", it.GetId())
 		_, err = junctionCollection.Delete()
 		if err != nil {
 			return err
 		}
 
+		// adding new products
 		for _, categoryProduct := range it.Products {
 			categoryProduct.Save()
 
 			junctionCollection.Save(map[string]interface{}{"category_id": it.GetId(), "product_id": categoryProduct.GetId()})
-		}
-
-		// saving collection
-		if newId, err := categoryCollection.Save(storableValues); err == nil {
-			it.Set("_id", newId)
-		} else {
-			return err
 		}
 
 	}

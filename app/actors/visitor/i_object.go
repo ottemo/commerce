@@ -24,7 +24,14 @@ func (it *DefaultVisitor) Get(attribute string) interface{} {
 		return it.BillingAddress
 	case "shipping_address":
 		return it.ShippingAddress
+	case "validate":
+		return it.ValidateKey
+	case "facebook_id":
+		return it.FacebookId
+	case "google_id":
+		return it.GoogleId
 	}
+
 
 	return nil
 }
@@ -41,6 +48,14 @@ func (it *DefaultVisitor) Set(attribute string, value interface{}) error {
 		it.FirstName = value.(string)
 	case "lname", "last_name":
 		it.LastName = value.(string)
+	case "password", "passwd":
+		it.SetPassword( value.(string) )
+	case "validate":
+		it.ValidateKey = value.(string)
+	case "facebook_id":
+		it.FacebookId = value.(string)
+	case "google_id":
+		it.GoogleId = value.(string)
 
 	// only address id coming - trying to get it from DB
 	case "billing_address_id", "shipping_address_id":
@@ -143,7 +158,7 @@ func (it *DefaultVisitor) GetAttributesInfo() []models.T_AttributeInfo {
 			Model:      "Visitor",
 			Collection: "Visitor",
 			Attribute:  "_id",
-			Type:       "text",
+			Type:       "id",
 			IsRequired: false,
 			IsStatic:   true,
 			Label:      "ID",
@@ -181,20 +196,46 @@ func (it *DefaultVisitor) GetAttributesInfo() []models.T_AttributeInfo {
 		models.T_AttributeInfo{
 			Model:      "Visitor",
 			Collection: "Visitor",
-			Attribute:  "billing_address",
+			Attribute:  "last_name",
+			Type:       "text",
+			IsRequired: true,
+			IsStatic:   true,
+			Label:      "Last Name",
+			Group:      "General",
+			Editors:    "line_text",
+			Options:    "",
+			Default:    "",
+		},
+		models.T_AttributeInfo{
+			Model:      "Visitor",
+			Collection: "Visitor",
+			Attribute:  "password",
+			Type:       "text",
+			IsRequired: false,
+			IsStatic:   true,
+			Label:      "Password",
+			Group:      "Password",
+			Editors:    "password",
+			Options:    "",
+			Default:    "",
+		},
+		models.T_AttributeInfo{
+			Model:      "Visitor",
+			Collection: "Visitor",
+			Attribute:  "billing_address_id",
 			Type:       "text",
 			IsRequired: false,
 			IsStatic:   true,
 			Label:      "Billing Address",
 			Group:      "General",
 			Editors:    "model_selector",
-			Options:    "model:VisitorAddress",
+			Options:    "model=VisitorAddress",
 			Default:    "",
 		},
 		models.T_AttributeInfo{
 			Model:      "Visitor",
 			Collection: "Visitor",
-			Attribute:  "shipping_address",
+			Attribute:  "shipping_address_id",
 			Type:       "text",
 			IsRequired: false,
 			IsStatic:   true,

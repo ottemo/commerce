@@ -8,24 +8,35 @@ import (
 	"github.com/ottemo/foundation/api"
 )
 
+
+// package self initializator
 func init() {
 	instance := new(DefaultVisitor)
 
 	models.RegisterModel("Visitor", instance)
-	db.RegisterOnDatabaseStart(instance.setupModel)
+
+	db.RegisterOnDatabaseStart(instance.setupDB)
 
 	api.RegisterOnRestServiceStart(instance.setupAPI)
 }
 
-func (it *DefaultVisitor) setupModel() error {
+
+// setups database tables for model usage
+func (it *DefaultVisitor) setupDB() error {
 
 	if dbEngine := db.GetDBEngine(); dbEngine != nil {
 		if collection, err := dbEngine.GetCollection(VISITOR_COLLECTION_NAME); err == nil {
-			collection.AddColumn("email", "text", true)
-			collection.AddColumn("first_name", "text", false)
-			collection.AddColumn("last_name", "text", false)
-			collection.AddColumn("billing_address_id", "int", false)
-			collection.AddColumn("shipping_address_id", "int", false)
+			collection.AddColumn("email", "id", true)
+			collection.AddColumn("validate", "varchar(128)", false)
+			collection.AddColumn("password", "varchar(128)", false)
+			collection.AddColumn("first_name", "varchar(50)", true)
+			collection.AddColumn("last_name", "varchar(50)", true)
+
+			collection.AddColumn("facebook_id", "varchar(100)", true)
+			collection.AddColumn("google_id", "varchar(100)", true)
+
+			collection.AddColumn("billing_address_id", "id", false)
+			collection.AddColumn("shipping_address_id", "id", false)
 		} else {
 			return err
 		}
@@ -36,21 +47,3 @@ func (it *DefaultVisitor) setupModel() error {
 	return nil
 }
 
-func (it *DefaultVisitor) setupAPI() error {
-	err := api.GetRestService().RegisterAPI("visitor", "POST", "create", it.CreateVisitorAPI)
-	if err != nil {
-		return err
-	}
-
-	err = api.GetRestService().RegisterAPI("visitor", "PUT", "update", it.UpdateVisitorAPI)
-	if err != nil {
-		return err
-	}
-
-	err = api.GetRestService().RegisterAPI("visitor", "GET", "load", it.LoadVisitorAPI)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}

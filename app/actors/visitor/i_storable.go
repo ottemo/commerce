@@ -2,6 +2,8 @@ package visitor
 
 import (
 	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/foundation/app/actors/visitor/address"
+	"errors"
 )
 
 func (it *DefaultVisitor) GetId() string {
@@ -37,6 +39,16 @@ func (it *DefaultVisitor) Load(Id string) error {
 func (it *DefaultVisitor) Delete(Id string) error {
 	if dbEngine := db.GetDBEngine(); dbEngine != nil {
 		if collection, err := dbEngine.GetCollection(VISITOR_COLLECTION_NAME); err == nil {
+
+			if addressCollection, err := dbEngine.GetCollection(address.VISITOR_ADDRESS_COLLECTION_NAME); err == nil {
+				addressCollection.AddFilter("visitor_id", "=", Id)
+				if _, err := addressCollection.Delete(); err != nil {
+					return err
+				}
+			} else {
+				return err
+			}
+
 			err := collection.DeleteById(Id)
 			if err != nil {
 				return err
@@ -53,11 +65,32 @@ func (it *DefaultVisitor) Save() error {
 	if dbEngine := db.GetDBEngine(); dbEngine != nil {
 		if collection, err := dbEngine.GetCollection(VISITOR_COLLECTION_NAME); err == nil {
 
-			// prepearing initial hashmap
+			if it.GetId() == "" {
+				collection.AddFilter("email", "=", it.GetEmail())
+				n, err := collection.Count()
+				if err != nil {
+					return err
+				}
+				if n>0 {
+					return errors.New("email already exists")
+				}
+			}
+
 			storableValues := it.ToHashMap()
 
 			delete(storableValues, "billing_address")
 			delete(storableValues, "shipping_address")
+
+
+			/*if it.Password == "" {
+				return errors.New("password can't be blank")
+			}*/
+
+			storableValues["facebook_id"] = it.FacebookId
+			storableValues["google_id"] = it.GoogleId
+			storableValues["password"] = it.Password
+			storableValues["validate"] = it.ValidateKey
+
 
 			// shipping address save
 			if it.ShippingAddress != nil {

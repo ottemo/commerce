@@ -8,13 +8,14 @@ import (
 type I_Category interface {
 	GetName() string
 
-	GetParent() []I_Category
+	GetParent() I_Category
 	GetProducts() []product.I_Product
 
-	AddProduct(ProductId string) error
-	RemoveProduct(ProductId string) error
+	AddProduct(productId string) error
+	RemoveProduct(productId string) error
 
 	models.I_Model
 	models.I_Object
 	models.I_Storable
+	models.I_Listable
 }
