@@ -380,7 +380,7 @@ func (it *DefaultVisitor) InfoRestAPI(resp http.ResponseWriter, req *http.Reques
 	sessionValue := session.Get("visitor_id")
 	visitorId, ok := sessionValue.(string)
 	if !ok {
-		return nil, errors.New("you are not logined in")
+		return "you are not logined in", nil
 	}
 
 
