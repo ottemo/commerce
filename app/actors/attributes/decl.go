@@ -1,12 +1,18 @@
 package attributes
 
-import "github.com/ottemo/foundation/app/models"
+import (
+	"sync"
+
+	"github.com/ottemo/foundation/app/models"
+)
 
 const (
 	CUSTOM_ATTRIBUTES_COLLECTION = "custom_attributes"
 )
-
-var global_custom_attributes = map[string]map[string]models.T_AttributeInfo{}
+var (
+	globalCustomAttributes = map[string]map[string]models.T_AttributeInfo{}
+	globalCustomAttributesMutex sync.RWMutex
+)
 
 type CustomAttributes struct {
 	model      string

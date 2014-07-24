@@ -10,10 +10,12 @@ func (it *CustomAttributes) Init(model string) (*CustomAttributes, error) {
 	it.model = model
 	it.values = make(map[string]interface{})
 
-	_, present := global_custom_attributes[model]
+	globalCustomAttributesMutex.Lock()
+
+	_, present := globalCustomAttributes[model]
 
 	if present {
-		it.attributes = global_custom_attributes[model]
+		it.attributes = globalCustomAttributes[model]
 	} else {
 
 		it.attributes = make(map[string]models.T_AttributeInfo)
@@ -75,8 +77,10 @@ func (it *CustomAttributes) Init(model string) (*CustomAttributes, error) {
 			it.attributes[attribute.Attribute] = attribute
 		}
 
-		global_custom_attributes[it.model] = it.attributes
+		globalCustomAttributes[it.model] = it.attributes
 	}
+
+	globalCustomAttributesMutex.Unlock()
 
 	return it, nil
 }
@@ -108,8 +112,12 @@ func (it *CustomAttributes) RemoveAttribute(attributeName string) error {
 		return errors.New("Can't remove attribute '" + attributeName + "' from collection '" + attribute.Collection + "': " + err.Error())
 	}
 
+	globalCustomAttributesMutex.Lock()
+	delete(globalCustomAttributes, it.model)
+	globalCustomAttributesMutex.Unlock()
+
 	caCollection.AddFilter("model", "=", attribute.Collection)
-	caCollection.AddFilter("attr", "=", attributeName)
+	caCollection.AddFilter("attribute", "=", attributeName)
 	_, err = caCollection.Delete()
 	if err != nil {
 		return errors.New("Can't remove attribute '" + attributeName + "' information from 'custom_attributes' collection '" + attribute.Collection + "': " + err.Error())
