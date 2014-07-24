@@ -15,7 +15,9 @@ import (
 
 // updates path attribute of model
 func (it *DefaultCategory) updatePath() {
-	if it.Parent != nil {
+	if it.GetId() == "" {
+		it.Path = ""
+	} else if it.Parent != nil {
 		parentPath, ok := it.Parent.Get("path").(string)
 		if ok {
 			it.Path = parentPath + "/" + it.GetId()
@@ -110,6 +112,7 @@ func (it *DefaultCategory) Set(attribute string, value interface{}) error {
 		} else {
 			return errors.New("unsupported id specified")
 		}
+		it.updatePath()
 
 	case "parent":
 		switch value := value.(type) {

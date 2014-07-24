@@ -118,7 +118,11 @@ func (it *DefaultCategory) Save() error {
 
 		// saving category
 		if newId, err := categoryCollection.Save(storableValues); err == nil {
-			it.Set("_id", newId)
+			if it.GetId() != newId {
+				it.SetId(newId)
+				it.updatePath()
+				it.Save()
+			}
 		} else {
 			return err
 		}
