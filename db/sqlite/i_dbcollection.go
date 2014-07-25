@@ -9,10 +9,30 @@ import (
 	sqlite3 "github.com/mxk/go-sqlite/sqlite3"
 )
 
+// formats SQL query error for output to log
 func sqlError(SQL string, err error) error {
 	return errors.New("SQL \"" + SQL + "\" error: " + err.Error())
 }
 
+
+
+// returns string that represents value for SQL query
+func convertValueForSQL(value interface{}) string {
+	result := ""
+
+	switch typedValue := value.(type) {
+	case string:
+		result = strings.Replace(typedValue, "'", "''", -1)
+		result = strings.Replace(result, "\\", "\\\\", -1)
+		result = "'" + typedValue + "'"
+	}
+
+	return result
+}
+
+
+
+// returns type used inside sqlite for given general name
 func GetDBType(ColumnType string) (string, error) {
 	ColumnType = strings.ToLower(ColumnType)
 	switch {
@@ -33,12 +53,23 @@ func GetDBType(ColumnType string) (string, error) {
 	return "?", errors.New("Unknown type '" + ColumnType + "'")
 }
 
+
+
+// loads record from DB by it's id
 func (it *SQLiteCollection) LoadById(id string) (map[string]interface{}, error) {
 	row := make(sqlite3.RowMap)
 
 	SQL := "SELECT * FROM " + it.TableName + " WHERE _id = " + id
+
+	if (DEBUG_SQL) {
+		println(SQL)
+	}
+
 	if s, err := it.Connection.Query(SQL); err == nil {
 		if err := s.Scan(row); err == nil {
+
+			row["_id"] = strconv.FormatInt(row["_id"].(int64), 10)
+
 			return map[string]interface{}(row), nil
 		} else {
 			return nil, err
@@ -48,13 +79,23 @@ func (it *SQLiteCollection) LoadById(id string) (map[string]interface{}, error) 
 	}
 }
 
+
+
+// loads records from DB for current collection and filter if it set
 func (it *SQLiteCollection) Load() ([]map[string]interface{}, error) {
 	result := make([]map[string]interface{}, 0, 10)
 	var err error = nil
 
 	row := make(sqlite3.RowMap)
 
-	sqlLoadFilter := strings.Join(it.Filters, " AND ")
+
+	sqlLoadFilter := ""
+	for _, value := range it.Filters {
+		if sqlLoadFilter != "" {
+			sqlLoadFilter += " AND "
+		}
+		sqlLoadFilter += value
+	}
 	if sqlLoadFilter != "" {
 		sqlLoadFilter = " WHERE " + sqlLoadFilter
 	}
@@ -65,10 +106,18 @@ func (it *SQLiteCollection) Load() ([]map[string]interface{}, error) {
 	}
 
 	SQL := "SELECT * FROM " + it.TableName + sqlLoadFilter + sqlOrder + it.Limit
+
+	if (DEBUG_SQL) {
+		println(SQL)
+	}
+
 	if s, err := it.Connection.Query(SQL); err == nil {
 		for ; err == nil; err = s.Next() {
 
 			if err := s.Scan(row); err == nil {
+
+				row["_id"] = strconv.FormatInt(row["_id"].(int64), 10)
+
 				result = append(result, row)
 			} else {
 				return result, err
@@ -81,8 +130,17 @@ func (it *SQLiteCollection) Load() ([]map[string]interface{}, error) {
 	return result, err
 }
 
+
+
+// returns count of rows matching current select statement
 func (it *SQLiteCollection) Count() (int, error) {
-	sqlLoadFilter := strings.Join(it.Filters, " AND ")
+	sqlLoadFilter := ""
+	for _, value := range it.Filters {
+		if sqlLoadFilter != "" {
+			sqlLoadFilter += " AND "
+		}
+		sqlLoadFilter += value
+	}
 	if sqlLoadFilter != "" {
 		sqlLoadFilter = " WHERE " + sqlLoadFilter
 	}
@@ -90,9 +148,14 @@ func (it *SQLiteCollection) Count() (int, error) {
 	row := make(sqlite3.RowMap)
 
 	SQL := "SELECT COUNT(*) AS cnt FROM " + it.TableName + sqlLoadFilter
+
+	if (DEBUG_SQL) {
+		println(SQL)
+	}
+
 	if s, err := it.Connection.Query(SQL); err == nil {
 		if err := s.Scan(row); err == nil {
-			cnt := row["cnt"].(int) //TODO: check this assertion works
+			cnt := int(row["cnt"].(int64)) //TODO: check this assertion works
 			return cnt, err
 		} else {
 			return 0, err
@@ -102,6 +165,9 @@ func (it *SQLiteCollection) Count() (int, error) {
 	}
 }
 
+
+
+// stores record in DB for current collection
 func (it *SQLiteCollection) Save(Item map[string]interface{}) (string, error) {
 
 	// _id in SQLite supposed to be auto-incremented int but for MongoDB it forced to be string
@@ -130,6 +196,11 @@ func (it *SQLiteCollection) Save(Item map[string]interface{}) (string, error) {
 	SQL := "INSERT OR REPLACE INTO  " + it.TableName +
 		" (" + strings.Join(columns, ",") + ") VALUES " +
 		" (" + strings.Join(args, ",") + ")"
+
+	if (DEBUG_SQL) {
+		println(SQL)
+	}
+
 	if err := it.Connection.Exec(SQL, values...); err == nil {
 
 		// auto-incremented _id back to string
@@ -145,29 +216,55 @@ func (it *SQLiteCollection) Save(Item map[string]interface{}) (string, error) {
 	return "", nil
 }
 
+
+
+// removes records that matches current select statement from DB
+//   - returns amount of affected rows
 func (it *SQLiteCollection) Delete() (int, error) {
-	sqlDeleteFilter := strings.Join(it.Filters, " AND ")
+	sqlDeleteFilter := ""
+	for _, value := range it.Filters {
+		if sqlDeleteFilter != "" {
+			sqlDeleteFilter += " AND "
+		}
+		sqlDeleteFilter += value
+	}
 	if sqlDeleteFilter != "" {
 		sqlDeleteFilter = " WHERE " + sqlDeleteFilter
 	}
 
 	SQL := "DELETE FROM " + it.TableName + sqlDeleteFilter
+
+	if (DEBUG_SQL) {
+		println(SQL)
+	}
+
 	err := it.Connection.Exec(SQL)
 	affected := it.Connection.RowsAffected()
 
 	return affected, err
 }
 
+
+
+// removes record from DB by is's id
 func (it *SQLiteCollection) DeleteById(id string) error {
 	SQL := "DELETE FROM " + it.TableName + " WHERE _id = " + id
+
+	if (DEBUG_SQL) {
+		println(SQL)
+	}
+
 	return it.Connection.Exec(SQL)
 }
 
+
+
+// adds selection filter to current collection object
 func (it *SQLiteCollection) AddFilter(ColumnName string, Operator string, Value string) error {
 	if it.HasColumn(ColumnName) {
 		Operator = strings.ToUpper(Operator)
 		if Operator == "" || Operator == "=" || Operator == "<>" || Operator == ">" || Operator == "<" || Operator == "LIKE" {
-			it.Filters = append(it.Filters, ColumnName+" "+Operator+" "+Value)
+			it.Filters[ColumnName] = ColumnName + " " + Operator + " " + convertValueForSQL(Value)
 		} else {
 			return errors.New("unknown operator '" + Operator + "' supposed  '', '=', '>', '<', '<>', 'LIKE' " + ColumnName + "'")
 		}
@@ -178,15 +275,21 @@ func (it *SQLiteCollection) AddFilter(ColumnName string, Operator string, Value 
 	return nil
 }
 
+
+
+// removes all filters were set before for current collection
 func (it *SQLiteCollection) ClearFilters() error {
-	it.Filters = make([]string, 0)
+	it.Filters = make(map[string]string)
 	return nil
 }
 
+
+
+// adds sorting for current collection
 func (it *SQLiteCollection) AddSort(ColumnName string, Desc bool) error {
 	if it.HasColumn(ColumnName) {
 		if Desc {
-			it.Order = append(it.Order, ColumnName+" DESC")
+			it.Order = append(it.Order, ColumnName + " DESC")
 		} else {
 			it.Order = append(it.Order, ColumnName)
 		}
@@ -197,11 +300,17 @@ func (it *SQLiteCollection) AddSort(ColumnName string, Desc bool) error {
 	return nil
 }
 
+
+
+// remover any sorting was set for current collection
 func (it *SQLiteCollection) ClearSort() error {
 	it.Order = make([]string, 0)
 	return nil
 }
 
+
+
+// results pagination
 func (it *SQLiteCollection) SetLimit(Offset int, Limit int) error {
 	if Limit == 0 {
 		it.Limit = ""
@@ -211,11 +320,15 @@ func (it *SQLiteCollection) SetLimit(Offset int, Limit int) error {
 	return nil
 }
 
-// Collection columns stuff
-//--------------------------
 
+
+// updates information about attributes(columns) for current collection(table) (loads them from DB)
 func (it *SQLiteCollection) RefreshColumns() {
 	SQL := "PRAGMA table_info(" + it.TableName + ")"
+
+	if (DEBUG_SQL) {
+		println(SQL)
+	}
 
 	row := make(sqlite3.RowMap)
 	for stmt, err := it.Connection.Query(SQL); err == nil; err = stmt.Next() {
@@ -227,11 +340,17 @@ func (it *SQLiteCollection) RefreshColumns() {
 	}
 }
 
+
+
+// returns attributes(columns) present for current collection(table)
 func (it *SQLiteCollection) ListColumns() map[string]string {
 	it.RefreshColumns()
 	return it.Columns
 }
 
+
+
+// check for attribute(column) presence in current collection
 func (it *SQLiteCollection) HasColumn(ColumnName string) bool {
 	if _, present := it.Columns[ColumnName]; present {
 		return true
@@ -242,6 +361,9 @@ func (it *SQLiteCollection) HasColumn(ColumnName string) bool {
 	}
 }
 
+
+
+// adds attribute(column) to current collection(table)
 func (it *SQLiteCollection) AddColumn(ColumnName string, ColumnType string, indexed bool) error {
 
 	// TODO: there probably need column name check to be only lowercase, exclude some chars, etc.
@@ -253,6 +375,11 @@ func (it *SQLiteCollection) AddColumn(ColumnName string, ColumnType string, inde
 	if ColumnType, err := GetDBType(ColumnType); err == nil {
 
 		SQL := "ALTER TABLE " + it.TableName + " ADD COLUMN \"" + ColumnName + "\" " + ColumnType
+
+		if (DEBUG_SQL) {
+			println(SQL)
+		}
+
 		if err := it.Connection.Exec(SQL); err == nil {
 			return nil
 		} else {
@@ -265,6 +392,9 @@ func (it *SQLiteCollection) AddColumn(ColumnName string, ColumnType string, inde
 
 }
 
+
+
+// attribute(column) to current collection(table)
 func (it *SQLiteCollection) RemoveColumn(ColumnName string) error {
 
 	if !it.HasColumn(ColumnName) {

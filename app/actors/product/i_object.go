@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/ottemo/foundation/app/utils"
 	"github.com/ottemo/foundation/app/models"
 )
 
@@ -123,19 +124,13 @@ func (it *DefaultProduct) FromHashMap(input map[string]interface{}) error {
 		}
 	}
 	if value, ok := input["price"]; ok {
-		if value, ok := value.(float64); ok {
-			it.Price = value
-		}
+		it.Price = utils.InterfaceToFloat64( value )
 	}
 	if value, ok := input["weight"]; ok {
-		if value, ok := value.(float64); ok {
-			it.Weight = value
-		}
+		it.Weight = utils.InterfaceToFloat64( value )
 	}
 	if value, ok := input["size"]; ok {
-		if value, ok := value.(float64); ok {
-			it.Size = value
-		}
+		it.Size = utils.InterfaceToFloat64( value )
 	}
 
 	it.CustomAttributes.FromHashMap(input)

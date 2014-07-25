@@ -2,7 +2,6 @@ package utils
 
 import (
 	"strconv"
-	"errors"
 )
 
 // searches for presence of 1-st arg string option among provided options since 2-nd argument
@@ -40,6 +39,7 @@ func StrKeysInMap(mapObject interface{}, keys ...string) bool {
 	return true
 }
 
+// checks if value is MD5
 func IsMD5(value string) bool {
 	ok := false
 	if len(value) == 32  {
@@ -61,15 +61,41 @@ func GetSiteBackUrl() string {
 	return "http://dev.ottemo.com:3000/"
 }
 
-// converts interface to integer
-func InterfaceToInt(value interface{}) (int, error) {
+// converts interface{} to string
+func InterfaceToString(value interface{}) string {
 	switch value := value.(type) {
-	case int:
-		return value, nil
 	case string:
-		return StrToInt(value)
+		return value
 	default:
-		return 0, errors.New("interface can't be converted to integer")
+		return ""
+	}
+}
+
+// converts interface{} to integer
+func InterfaceToInt(value interface{}) int {
+	switch typedValue := value.(type) {
+	case int:
+		return typedValue
+	case string:
+		intValue, _ := StrToInt(typedValue)
+		return intValue
+	default:
+		return 0
+	}
+}
+
+// converts interface{} to float64
+func InterfaceToFloat64(value interface{}) float64 {
+	switch typedValue := value.(type) {
+	case float64:
+		return typedValue
+	case int64:
+		return float64(typedValue)
+	case string:
+		floatValue, _ := strconv.ParseFloat(typedValue, 64)
+		return floatValue
+	default:
+		return 0.0
 	}
 }
 

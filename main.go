@@ -8,8 +8,8 @@ import (
 	_ "github.com/ottemo/foundation/env/config"
 	_ "github.com/ottemo/foundation/env/ini"
 
-	//_ "github.com/ottemo/foundation/db/sqlite"
-	_ "github.com/ottemo/foundation/db/mongo"
+	_ "github.com/ottemo/foundation/db/sqlite"
+	// _ "github.com/ottemo/foundation/db/mongo"
 
 	_ "github.com/ottemo/foundation/media/fsmedia"
 
