@@ -99,7 +99,7 @@ func (it *DefaultProduct) List() ([]models.T_ListItem, error) {
 func (it *DefaultProduct) ListAddExtraAttribute(attribute string) error {
 
 	if utils.IsAmongStr(attribute, "sku", "name", "description", "price", "default_image") {
-		if utils.IsInListStr(attribute, it.listExtraAtributes) {
+		if !utils.IsInListStr(attribute, it.listExtraAtributes) {
 			it.listExtraAtributes = append(it.listExtraAtributes, attribute)
 		} else {
 			return errors.New("attribute already in list")
