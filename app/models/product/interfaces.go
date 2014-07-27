@@ -4,6 +4,10 @@ import (
 	"github.com/ottemo/foundation/app/models"
 )
 
+const (
+	PRODUCT_MODEL_NAME = "Product"
+)
+
 type I_Product interface {
 	GetSku() string
 	GetName() string

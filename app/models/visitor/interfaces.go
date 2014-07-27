@@ -5,6 +5,7 @@ import (
 )
 
 const (
+	VISITOR_MODEL_NAME = "Visitor"
 	SESSION_KEY_VISITOR_ID = "visitor_id"
 )
 

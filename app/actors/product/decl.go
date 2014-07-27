@@ -2,7 +2,7 @@ package product
 
 import (
 	"github.com/ottemo/foundation/db"
-	"github.com/ottemo/foundation/app/actors/attributes"
+	"github.com/ottemo/foundation/app/helpers/attributes"
 )
 
 type DefaultProduct struct {

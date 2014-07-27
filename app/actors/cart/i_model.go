@@ -2,6 +2,7 @@ package cart
 
 import (
 	"github.com/ottemo/foundation/app/models"
+	"github.com/ottemo/foundation/app/models/cart"
 )
 
 func (it *DefaultCart) GetModelName() string {
@@ -13,5 +14,7 @@ func (it *DefaultCart) GetImplementationName() string {
 }
 
 func (it *DefaultCart) New() (models.I_Model, error) {
-	return &DefaultCart{}, nil
+	return &DefaultCart{
+		Items: make([]cart.I_CartItem, 0),
+		Info: make(map[string]interface{}) }, nil
 }

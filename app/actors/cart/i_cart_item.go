@@ -69,7 +69,7 @@ func (it *DefaultCartItem) SetOption(optionName string, optionValue interface{})
 }
 
 
-// returns cart item belongs to
+// returns cart that item belongs to
 func (it *DefaultCartItem) GetCart() cart.I_Cart {
 	return it.Cart
 }

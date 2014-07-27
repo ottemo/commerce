@@ -5,6 +5,11 @@ import (
 	"github.com/ottemo/foundation/app/models/product"
 )
 
+
+const (
+	CATEGORY_MODEL_NAME = "Category"
+)
+
 type I_Category interface {
 	GetName() string
 

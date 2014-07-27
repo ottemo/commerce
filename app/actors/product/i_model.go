@@ -1,7 +1,7 @@
 package product
 
 import (
-	"github.com/ottemo/foundation/app/actors/attributes"
+	"github.com/ottemo/foundation/app/helpers/attributes"
 	"github.com/ottemo/foundation/app/models"
 )
 
