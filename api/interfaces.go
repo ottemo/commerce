@@ -4,7 +4,15 @@ import (
 	"net/http"
 )
 
-type F_APIHandler func(resp http.ResponseWriter, req *http.Request, reqParams map[string]string, reqContent interface{}, session I_Session) (interface{}, error)
+type T_APIHandlerParams struct {
+	ResponseWriter http.ResponseWriter
+	Request *http.Request
+	RequestURLParams map[string]string
+	RequestContent interface{}
+	Session I_Session
+}
+
+type F_APIHandler func(params *T_APIHandlerParams) (interface{}, error)
 
 type I_Session interface {
 	GetId() string

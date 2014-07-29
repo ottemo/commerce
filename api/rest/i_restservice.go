@@ -77,7 +77,14 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 
 
 		// module handler callback
-		result, err := handler(resp, req, mappedParams, content, session)
+		apiParams := new(api.T_APIHandlerParams)
+		apiParams.Request = req
+		apiParams.RequestURLParams = mappedParams
+		apiParams.RequestContent = content
+		apiParams.ResponseWriter = resp
+		apiParams.Session = session
+
+		result, err := handler( apiParams )
 		if err != nil {
 			log.Printf("REST error: %s - %s\n", req.RequestURI, err.Error())
 		}
