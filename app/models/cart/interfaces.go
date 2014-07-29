@@ -11,6 +11,9 @@ type I_CartItem interface {
 	GetId() string
 	SetId(newId string) error
 
+	GetIdx() int
+	SetIdx(newIdx int) error
+
 	GetProductId() string
 	GetProduct() product.I_Product
 
@@ -24,12 +27,11 @@ type I_CartItem interface {
 }
 
 type I_Cart interface {
-	AddItem(qty int) error
-	AddItemEx(qty int, options map[string]interface{}) error
+	AddItem(productId string, qty int, options map[string]interface{}) (I_CartItem, error)
 
-	RemoveItem(itemId string) error
+	RemoveItem(itemIdx int) error
 
-	SetQty(itemId string, qty int) error
+	SetQty(itemIdx int, qty int) error
 
 	ListItems() []I_CartItem
 

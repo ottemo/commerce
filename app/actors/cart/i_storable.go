@@ -9,15 +9,24 @@ import (
 
 )
 
+
+
+// returns id of current cart
 func (it *DefaultCart) GetId() string {
 	return it.id
 }
 
+
+
+// sets id for cart
 func (it *DefaultCart) SetId(NewId string) error {
 	it.id = NewId
 	return nil
 }
 
+
+
+// loads cart information from DB
 func (it *DefaultCart) Load(Id string) error {
 	if dbEngine := db.GetDBEngine(); dbEngine != nil {
 
@@ -36,7 +45,8 @@ func (it *DefaultCart) Load(Id string) error {
 		// initializing DefaultCart structure
 		it.VisitorId = utils.InterfaceToString( values["visitor_id"] )
 		it.Info, _ = utils.DecodeJsonToStringKeyMap( values["info"] )
-		it.Items = make([]cart.I_CartItem, 0)
+		it.Items = make(map[int]cart.I_CartItem)
+		it.maxIdx = 0
 
 
 		// loading cart items
@@ -55,19 +65,27 @@ func (it *DefaultCart) Load(Id string) error {
 			cartItem := new(DefaultCartItem)
 
 			cartItem.id = utils.InterfaceToString( cartItemValues["_id"] )
+			cartItem.idx = utils.InterfaceToInt( cartItemValues["idx"] )
+
+			if cartItem.idx > it.maxIdx {
+				cartItem.idx = cartItem.idx
+			}
 
 			cartItem.Cart = it
 			cartItem.ProductId = utils.InterfaceToString( cartItemValues["product_id"] )
 			cartItem.Qty = utils.InterfaceToInt( cartItemValues["qty"] )
 			cartItem.Options, _ = utils.DecodeJsonToStringKeyMap( cartItemValues["options"] )
 
-			it.Items = append(it.Items, cartItem)
+			it.Items[it.maxIdx] = cartItem
 		}
 	}
 
 	return nil
 }
 
+
+
+// removes current cart from DB
 func (it *DefaultCart) Delete(Id string) error {
 	if it.GetId() == "" {
 		return errors.New("cart id is not set")
@@ -104,6 +122,9 @@ func (it *DefaultCart) Delete(Id string) error {
 	return err
 }
 
+
+
+// stores current cart in DB
 func (it *DefaultCart) Save() error {
 
 	dbEngine := db.GetDBEngine()
@@ -138,6 +159,7 @@ func (it *DefaultCart) Save() error {
 	for _, cartItem := range it.ListItems() {
 		cartItemStoringValues := make(map[string]interface{})
 
+		cartItemStoringValues["idx"] = cartItem.GetIdx()
 		cartItemStoringValues["cart_id"] = it.GetId()
 		cartItemStoringValues["product_id"] = cartItem.GetProductId()
 		cartItemStoringValues["qty"] = cartItem.GetQty()

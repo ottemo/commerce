@@ -4,6 +4,7 @@ import (
 	"strconv"
 )
 
+
 // searches for presence of 1-st arg string option among provided options since 2-nd argument
 func IsAmongStr(option string, searchOptions ...string) bool {
 	for _, listOption := range searchOptions {
@@ -56,7 +57,7 @@ func IsMD5(value string) bool {
 	return ok
 }
 
-// TODO: should be somwhere in other place
+// TODO: should be somewhere in other place
 func GetSiteBackUrl() string {
 	return "http://dev.ottemo.com:3000/"
 }

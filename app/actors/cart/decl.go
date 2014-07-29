@@ -16,12 +16,16 @@ type DefaultCart struct {
 
 	Info map[string]interface{}
 
-	Items []cart.I_CartItem
+	Items map[int]cart.I_CartItem
+
+	maxIdx int
 }
 
 
 type DefaultCartItem struct {
 	id string
+
+	idx int
 
 	ProductId string
 
@@ -29,5 +33,5 @@ type DefaultCartItem struct {
 
 	Options map[string]interface{}
 
-	Cart cart.I_Cart
+	Cart *DefaultCart
 }

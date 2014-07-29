@@ -10,6 +10,9 @@ import (
 	"github.com/ottemo/foundation/app/models/cart"
 )
 
+
+
+// module entry point before app start
 func init() {
 	instance := new(DefaultCart)
 
@@ -30,6 +33,9 @@ func init() {
 	// api.RegisterOnRestServiceStart(instance.setupAPI)
 }
 
+
+
+// DB preparations for current model implementation
 func (it *DefaultCart) setupDB() error {
 
 	if dbEngine := db.GetDBEngine(); dbEngine != nil {
@@ -46,6 +52,7 @@ func (it *DefaultCart) setupDB() error {
 			return err
 		}
 
+		collection.AddColumn("idx", "int", false)
 		collection.AddColumn("cart_id", "id", true)
 		collection.AddColumn("product_id", "id", true)
 		collection.AddColumn("qty", "int", false)

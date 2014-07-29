@@ -1,35 +1,92 @@
 package cart
 
 import (
+	"errors"
+	"strconv"
+	"sort"
+
 	"github.com/ottemo/foundation/app/models/cart"
 	"github.com/ottemo/foundation/app/models/visitor"
+	"github.com/ottemo/foundation/app/models/product"
 )
 
 
-func (it *DefaultCart) AddItem(qty int) error {
-	return nil
+
+// adds item to the current cart
+//   - returns added item or nil if error happened
+func (it *DefaultCart) AddItem(productId string, qty int, options map[string]interface{}) (cart.I_CartItem, error) {
+	if qty <= 0 {
+		return nil, errors.New("qty can't be zero or less")
+	}
+
+	reqProduct, err := product.LoadProductById(productId)
+	if err != nil {
+		return nil, err
+	}
+
+	if options == nil {
+		options = make(map[string]interface{})
+	}
+
+	it.maxIdx += 1
+
+	cartItem := &DefaultCartItem {
+				idx: it.maxIdx,
+				ProductId: reqProduct.GetId(),
+				Qty: qty,
+				Options: options,
+				Cart: it }
+
+	it.Items[it.maxIdx] = cartItem
+
+	return cartItem, nil
 }
 
-func (it *DefaultCart) AddItemEx(qty int, options map[string]interface{}) error {
-	return nil
-}
 
-func (it *DefaultCart) RemoveItem(itemId string) error {
-	return nil
+
+// removes item from cart
+//   - you need to know index you can get from ListItems()
+func (it *DefaultCart) RemoveItem(itemIdx int) error {
+	if _, present := it.Items[itemIdx]; present {
+		delete(it.Items, itemIdx)
+		return nil
+	} else {
+		return errors.New("can't find index " + strconv.Itoa(itemIdx))
+	}
 }
 
 
 
 // sets new qty for particular item in cart
-func (it *DefaultCart) SetQty(itemId string, qty int) error {
-	return nil
+//   - you need to it's index, use ListItems() for that
+func (it *DefaultCart) SetQty(itemIdx int, qty int) error {
+	cartItem, present := it.Items[itemIdx]
+	if present {
+		return cartItem.SetQty(qty)
+	} else {
+		return errors.New("there is no item with idx=" + strconv.Itoa(itemIdx) )
+	}
 }
 
 
 
-// enumerates current cart items
+// enumerates current cart items sorted by item idx
 func (it *DefaultCart) ListItems() []cart.I_CartItem {
-	return it.Items
+
+	result := make([]cart.I_CartItem, 0)
+
+	keys := make([]int, 0)
+	for key, _ := range it.Items {
+		keys = append(keys, key)
+	}
+
+	sort.Ints(keys)
+
+	for _, key := range keys {
+		result = append(result, it.Items[key])
+	}
+
+	return result
 }
 
 
@@ -67,6 +124,7 @@ func (it *DefaultCart) SetCartInfo(infoAttribute string, infoValue interface{}) 
 
 	return nil
 }
+
 
 
 // returns current cart info assigned
