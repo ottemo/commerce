@@ -9,6 +9,7 @@ import (
 )
 
 
+
 // package self initializator
 func init() {
 	instance := new(DefaultVisitor)
@@ -17,8 +18,9 @@ func init() {
 
 	db.RegisterOnDatabaseStart(instance.setupDB)
 
-	api.RegisterOnRestServiceStart(instance.setupAPI)
+	api.RegisterOnRestServiceStart(setupAPI)
 }
+
 
 
 // setups database tables for model usage

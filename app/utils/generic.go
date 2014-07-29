@@ -2,8 +2,30 @@ package utils
 
 import (
 	"strconv"
+	"reflect"
 )
 
+
+// checks presence of non blank values for keys in map
+//   - first arg must be map
+//   - fallowing arguments are map keys you want to check
+func KeysInMapAndNotBlank(mapObject interface{}, keys ...interface{}) bool {
+	mapReflected := reflect.ValueOf(mapObject)
+	if reflect.TypeOf(mapReflected).Kind() != reflect.Map {
+		return false
+	}
+
+	for _, key := range keys {
+		keyReflected := reflect.ValueOf(key)
+		if mapValue := mapReflected.MapIndex(keyReflected); mapValue.IsNil() {
+			return false
+		} else if !mapValue.IsValid() {
+			return false
+		}
+	}
+
+	return true
+}
 
 // searches for presence of 1-st arg string option among provided options since 2-nd argument
 func IsAmongStr(option string, searchOptions ...string) bool {

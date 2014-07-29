@@ -6,6 +6,7 @@ import (
 
 const (
 	VISITOR_MODEL_NAME = "Visitor"
+	VISITOR_ADDRESS_MODEL_NAME = "Visitor"
 	SESSION_KEY_VISITOR_ID = "visitor_id"
 )
 
