@@ -55,11 +55,60 @@ func GetDBType(ColumnType string) (string, error) {
 
 
 
+// makes SQL filter string based on ColumnName, Operator and Value parameters or returns nil
+//   - internal usage function for AddFilter and AddStaticFilter routines
+func (it *SQLiteCollection) makeSQLFilterString(ColumnName string, Operator string, Value interface{}) (string, error) {
+	if it.HasColumn(ColumnName) {
+		Operator = strings.ToUpper(Operator)
+		if Operator == "" || Operator == "=" || Operator == "<>" || Operator == ">" || Operator == "<" || Operator == "LIKE" {
+			return ColumnName + " " + Operator + " " + convertValueForSQL(Value), nil
+		} else {
+			return "", errors.New("unknown operator '" + Operator + "' supposed  '', '=', '>', '<', '<>', 'LIKE' " + ColumnName + "'")
+		}
+	} else {
+		return "", errors.New("can't find column '" + ColumnName + "'")
+	}
+}
+
+
+
+// collects all filters in a single string (for internal usage)
+func (it *SQLiteCollection) getSQLFilters() string {
+	sqlFilter := ""
+	for _, value := range it.StaticFilters {
+		if sqlFilter != "" {
+			sqlFilter += " AND "
+		}
+		sqlFilter += value
+	}
+
+	for _, value := range it.Filters {
+		if sqlFilter != "" {
+			sqlFilter += " AND "
+		}
+		sqlFilter += value
+	}
+
+	if sqlFilter != "" {
+		sqlFilter = " WHERE " + sqlFilter
+	}
+
+	return sqlFilter
+}
+
+
+
 // loads record from DB by it's id
 func (it *SQLiteCollection) LoadById(id string) (map[string]interface{}, error) {
 	row := make(sqlite3.RowMap)
 
-	SQL := "SELECT * FROM " + it.TableName + " WHERE _id = " + id
+
+	sqlColumns := strings.Join(it.ResultColumns, ", ")
+	if sqlColumns == "" {
+		sqlColumns = "*"
+	}
+
+	SQL := "SELECT " + sqlColumns + " FROM " + it.TableName + " WHERE _id = " + id
 
 	if (DEBUG_SQL) {
 		println(SQL)
@@ -89,23 +138,21 @@ func (it *SQLiteCollection) Load() ([]map[string]interface{}, error) {
 	row := make(sqlite3.RowMap)
 
 
-	sqlLoadFilter := ""
-	for _, value := range it.Filters {
-		if sqlLoadFilter != "" {
-			sqlLoadFilter += " AND "
-		}
-		sqlLoadFilter += value
-	}
-	if sqlLoadFilter != "" {
-		sqlLoadFilter = " WHERE " + sqlLoadFilter
-	}
+	sqlLoadFilter := it.getSQLFilters()
+
 
 	sqlOrder := strings.Join(it.Order, ", ")
 	if sqlOrder != "" {
 		sqlOrder = " ORDER BY " + sqlOrder
 	}
 
-	SQL := "SELECT * FROM " + it.TableName + sqlLoadFilter + sqlOrder + it.Limit
+
+	sqlColumns := strings.Join(it.ResultColumns, ", ")
+	if sqlColumns == "" {
+		sqlColumns = "*"
+	}
+
+	SQL := "SELECT " + sqlColumns + " FROM " + it.TableName + sqlLoadFilter + sqlOrder + it.Limit
 
 	if (DEBUG_SQL) {
 		println(SQL)
@@ -134,16 +181,7 @@ func (it *SQLiteCollection) Load() ([]map[string]interface{}, error) {
 
 // returns count of rows matching current select statement
 func (it *SQLiteCollection) Count() (int, error) {
-	sqlLoadFilter := ""
-	for _, value := range it.Filters {
-		if sqlLoadFilter != "" {
-			sqlLoadFilter += " AND "
-		}
-		sqlLoadFilter += value
-	}
-	if sqlLoadFilter != "" {
-		sqlLoadFilter = " WHERE " + sqlLoadFilter
-	}
+	sqlLoadFilter := it.getSQLFilters()
 
 	row := make(sqlite3.RowMap)
 
@@ -221,16 +259,7 @@ func (it *SQLiteCollection) Save(Item map[string]interface{}) (string, error) {
 // removes records that matches current select statement from DB
 //   - returns amount of affected rows
 func (it *SQLiteCollection) Delete() (int, error) {
-	sqlDeleteFilter := ""
-	for _, value := range it.Filters {
-		if sqlDeleteFilter != "" {
-			sqlDeleteFilter += " AND "
-		}
-		sqlDeleteFilter += value
-	}
-	if sqlDeleteFilter != "" {
-		sqlDeleteFilter = " WHERE " + sqlDeleteFilter
-	}
+	sqlDeleteFilter := it.getSQLFilters()
 
 	SQL := "DELETE FROM " + it.TableName + sqlDeleteFilter
 
@@ -259,25 +288,35 @@ func (it *SQLiteCollection) DeleteById(id string) error {
 
 
 
-// adds selection filter to current collection object
-func (it *SQLiteCollection) AddFilter(ColumnName string, Operator string, Value string) error {
-	if it.HasColumn(ColumnName) {
-		Operator = strings.ToUpper(Operator)
-		if Operator == "" || Operator == "=" || Operator == "<>" || Operator == ">" || Operator == "<" || Operator == "LIKE" {
-			it.Filters[ColumnName] = ColumnName + " " + Operator + " " + convertValueForSQL(Value)
-		} else {
-			return errors.New("unknown operator '" + Operator + "' supposed  '', '=', '>', '<', '<>', 'LIKE' " + ColumnName + "'")
-		}
-	} else {
-		return errors.New("can't find column '" + ColumnName + "'")
+// adds selection filter that will not be cleared by ClearFilters() function
+func (it *SQLiteCollection) AddStaticFilter(ColumnName string, Operator string, Value interface{}) error {
+
+	sqlFilter, err := it.makeSQLFilterString(ColumnName, Operator, Value)
+	if err != nil {
+		return err
 	}
+	it.StaticFilters[ColumnName] = sqlFilter
 
 	return nil
 }
 
 
 
-// removes all filters were set before for current collection
+// adds selection filter to current collection(table) object
+func (it *SQLiteCollection) AddFilter(ColumnName string, Operator string, Value interface{}) error {
+
+	sqlFilter, err := it.makeSQLFilterString(ColumnName, Operator, Value)
+	if err != nil {
+		return err
+	}
+	it.Filters[ColumnName] = sqlFilter
+
+	return nil
+}
+
+
+
+// removes all filters that were set for current collection
 func (it *SQLiteCollection) ClearFilters() error {
 	it.Filters = make(map[string]string)
 	return nil
@@ -302,9 +341,23 @@ func (it *SQLiteCollection) AddSort(ColumnName string, Desc bool) error {
 
 
 
-// remover any sorting was set for current collection
+// removes any sorting that was set for current collection
 func (it *SQLiteCollection) ClearSort() error {
 	it.Order = make([]string, 0)
+	return nil
+}
+
+
+
+// limits column selection for Load() and LoadById()function
+func (it *SQLiteCollection) SetResultColumns(columns ...string) error {
+	for _, columnName := range columns {
+		if !it.HasColumn(columnName) {
+			return errors.New("there is no column " + columnName + " found")
+		}
+
+		it.ResultColumns = append(it.ResultColumns, columnName)
+	}
 	return nil
 }
 
@@ -342,7 +395,7 @@ func (it *SQLiteCollection) RefreshColumns() {
 
 
 
-// returns attributes(columns) present for current collection(table)
+// returns attributes(columns) available for current collection(table)
 func (it *SQLiteCollection) ListColumns() map[string]string {
 	it.RefreshColumns()
 	return it.Columns
@@ -363,7 +416,7 @@ func (it *SQLiteCollection) HasColumn(ColumnName string) bool {
 
 
 
-// adds attribute(column) to current collection(table)
+// adds new attribute(column) to current collection(table)
 func (it *SQLiteCollection) AddColumn(ColumnName string, ColumnType string, indexed bool) error {
 
 	// TODO: there probably need column name check to be only lowercase, exclude some chars, etc.
@@ -394,7 +447,8 @@ func (it *SQLiteCollection) AddColumn(ColumnName string, ColumnType string, inde
 
 
 
-// attribute(column) to current collection(table)
+// removes attribute(column) to current collection(table)
+//   - sqlite do not have alter DROP COLUMN statements so it is hard task...
 func (it *SQLiteCollection) RemoveColumn(ColumnName string) error {
 
 	if !it.HasColumn(ColumnName) {

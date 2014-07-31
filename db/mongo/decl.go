@@ -9,8 +9,11 @@ type MongoDBCollection struct {
 	collection *mgo.Collection
 	Name       string
 
+	StaticSelector map[string]interface{}
 	Selector map[string]interface{}
 	Sort     []string
+
+	ResultAttributes []string
 
 	Limit  int
 	Offset int

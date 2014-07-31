@@ -15,6 +15,9 @@ type SQLiteCollection struct {
 	TableName  string
 	Columns    map[string]string
 
+	ResultColumns []string
+	StaticFilters map[string]string
+
 	Filters map[string]string
 	Order   []string
 

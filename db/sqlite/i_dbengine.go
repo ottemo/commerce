@@ -8,7 +8,9 @@ import (
 
 
 // returns current DB engine name
-func (it *SQLite) GetName() string { return "Sqlite3" }
+func (it *SQLite) GetName() string {
+	return "Sqlite3"
+}
 
 
 
@@ -42,20 +44,22 @@ func (it *SQLite) CreateCollection(CollectionName string) error {
 
 // returns collection(table) by name or creates new one
 func (it *SQLite) GetCollection(CollectionName string) (db.I_DBCollection, error) {
-	CollectionName = strings.ToLower(CollectionName)
 
-	if collection, present := collections[CollectionName]; present {
-		return collection, nil
-	} else {
-		if !it.HasCollection(CollectionName) {
-			if err := it.CreateCollection(CollectionName); err != nil {
-				return nil, err
-			}
+	if !it.HasCollection(CollectionName) {
+		if err := it.CreateCollection(CollectionName); err != nil {
+			return nil, err
 		}
-
-		collection := &SQLiteCollection{TableName: CollectionName, Connection: it.Connection, Columns: map[string]string{}, Filters: make(map[string]string), Order: make([]string,0)}
-		collections[CollectionName] = collection
-
-		return collection, nil
 	}
+
+	collection := &SQLiteCollection {
+						TableName: CollectionName,
+						Connection: it.Connection,
+						Columns: map[string]string{},
+						Filters: make(map[string]string),
+						Order: make([]string,0),
+						ResultColumns: make([]string,0),
+						StaticFilters: make(map[string]string),
+					}
+
+	return collection, nil
 }
