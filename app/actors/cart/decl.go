@@ -18,6 +18,8 @@ type DefaultCart struct {
 
 	Items map[int]cart.I_CartItem
 
+	Active bool
+
 	maxIdx int
 }
 

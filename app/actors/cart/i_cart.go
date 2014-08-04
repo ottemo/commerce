@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"sort"
 
+	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/app/models/cart"
 	"github.com/ottemo/foundation/app/models/visitor"
 	"github.com/ottemo/foundation/app/models/product"
@@ -128,6 +129,61 @@ func (it *DefaultCart) SetCartInfo(infoAttribute string, infoValue interface{}) 
 
 
 // returns current cart info assigned
-func (it *DefaultCart) GetCartInfo(infoAttribute string) interface{} {
+func (it *DefaultCart) GetCartInfo() map[string]interface{} {
 	return it.Info
+}
+
+
+
+// loads cart information from DB for visitor
+func (it *DefaultCart) MakeCartForVisitor(visitorId string) error {
+	dbEngine := db.GetDBEngine()
+	if dbEngine != nil {
+		return errors.New("can't get DB Engine")
+	}
+
+	cartCollection, err := dbEngine.GetCollection( CART_COLLECTION_NAME )
+	if err != nil {
+		return err
+	}
+
+	cartCollection.AddFilter("visitor_id", "=", visitorId)
+	cartCollection.AddFilter("active", "=", "true")
+	rowsData, err := cartCollection.Load()
+	if err != nil {
+		return err
+	}
+
+	if len(rowsData) < 1 {
+		newModel, err := it.New()
+		if err != nil {
+			return err
+		}
+		newCart := newModel.(*DefaultCart)
+		newCart.SetVisitorId(visitorId)
+		newCart.Save()
+	} else {
+		err := it.Load( rowsData[0]["cart_id"].(string) )
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+
+
+func (it *DefaultCart) Activate() error {
+	it.Active = true
+	return nil
+}
+
+func (it *DefaultCart) Deactivate() error {
+	it.Active = false
+	return nil
+}
+
+func (it *DefaultCart) IsActive() bool {
+	return it.Active
 }

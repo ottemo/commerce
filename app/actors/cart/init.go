@@ -5,7 +5,7 @@ import (
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/db"
 
-	// "github.com/ottemo/foundation/api"
+	"github.com/ottemo/foundation/api"
 
 	"github.com/ottemo/foundation/app/models/cart"
 )
@@ -30,7 +30,7 @@ func init() {
 	models.RegisterModel("Cart", instance)
 	db.RegisterOnDatabaseStart(instance.setupDB)
 
-	// api.RegisterOnRestServiceStart(instance.setupAPI)
+	api.RegisterOnRestServiceStart( setupAPI )
 }
 
 
@@ -45,6 +45,7 @@ func (it *DefaultCart) setupDB() error {
 		}
 
 		collection.AddColumn("visitor_id", "id", true)
+		collection.AddColumn("active", "bool", true)
 		collection.AddColumn("info", "text", false)
 
 		collection, err = dbEngine.GetCollection(CART_ITEMS_COLLECTION_NAME)

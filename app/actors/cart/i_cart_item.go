@@ -61,6 +61,12 @@ func (it *DefaultCartItem) GetProductId() string {
 
 // returns product instance which cart item represents
 func (it *DefaultCartItem) GetProduct() product.I_Product {
+	if it.ProductId != "" {
+		product, err  := product.LoadProductById(it.ProductId)
+		if err == nil {
+			return product
+		}
+	}
 	return nil
 }
 

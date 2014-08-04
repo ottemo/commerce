@@ -7,6 +7,11 @@ import (
 	"github.com/ottemo/foundation/app/models/visitor"
 )
 
+const (
+	CART_MODEL_NAME = "Cart"
+	SESSION_KEY_CURRENT_CART = "cart_id"
+)
+
 type I_CartItem interface {
 	GetId() string
 	SetId(newId string) error
@@ -40,8 +45,15 @@ type I_Cart interface {
 
 	GetVisitor() visitor.I_Visitor
 
+	Activate() error
+	Deactivate() error
+
+	IsActive() bool
+
+	MakeCartForVisitor(visitorId string) error
+
 	SetCartInfo(infoAttribute string, infoValue interface{}) error
-	GetCartInfo(infoAttribute string) interface{}
+	GetCartInfo() map[string]interface{}
 
 	models.I_Model
 	models.I_Storable
