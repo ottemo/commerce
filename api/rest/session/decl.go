@@ -1,12 +1,12 @@
 package session
 
 import (
-	"net/http"
 	"crypto/rand"
-	"time"
-	"sync"
-	"net/url"
 	"math/big"
+	"net/http"
+	"net/url"
+	"sync"
+	"time"
 
 	"errors"
 )
@@ -16,15 +16,15 @@ const (
 )
 
 var (
-	CookieName = "OTTEMOSESSION"
-	Sessions map[string]*Session = make(map[string]*Session)
+	CookieName                     = "OTTEMOSESSION"
+	Sessions   map[string]*Session = make(map[string]*Session)
 
-	gcRate int64 = 10
+	gcRate        int64 = 10
 	sessionsMutex sync.RWMutex
 )
 
 // returns session object for request or creates new one
-func StartSession(request *http.Request, responseWriter http.ResponseWriter) (*Session, error){
+func StartSession(request *http.Request, responseWriter http.ResponseWriter) (*Session, error) {
 
 	// check session-cookie
 	cookie, err := request.Cookie(CookieName)
@@ -44,7 +44,6 @@ func StartSession(request *http.Request, responseWriter http.ResponseWriter) (*S
 	return newSession(responseWriter)
 }
 
-
 // initializes new session
 func newSession(responseWriter http.ResponseWriter) (*Session, error) {
 
@@ -59,38 +58,34 @@ func newSession(responseWriter http.ResponseWriter) (*Session, error) {
 	Sessions[sessionId] = &Session{
 		id:     sessionId,
 		values: make(map[string]interface{}),
-		time:   time.Now() }
-
+		time:   time.Now()}
 
 	// updating cookies
 	cookie := &http.Cookie{Name: CookieName, Value: sessionId, Path: "/"}
 	http.SetCookie(responseWriter, cookie)
 
-
 	// garbage collecting
 	randomNumber, err := rand.Int(rand.Reader, big.NewInt(gcRate))
 	if err == nil && randomNumber.Cmp(big.NewInt(1)) == 0 {
-	Gc()
-}
+		Gc()
+	}
 
 	return Sessions[sessionId], nil
 }
 
-
 // returns new session number
-func newSessionId() (string, error){
+func newSessionId() (string, error) {
 	sessionId := make([]byte, 32)
 	if _, err := rand.Read(sessionId); err != nil {
 		return "", errors.New("can't generate sessionId")
 	}
 
-	for i:=0; i < 32; i++ {
-		sessionId[i] = ALPHANUMERIC[sessionId[i] % 62]
+	for i := 0; i < 32; i++ {
+		sessionId[i] = ALPHANUMERIC[sessionId[i]%62]
 	}
 
 	return string(sessionId), nil
 }
-
 
 // removes expired sessions
 func Gc() {

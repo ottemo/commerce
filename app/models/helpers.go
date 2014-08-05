@@ -4,7 +4,6 @@ import (
 	"errors"
 )
 
-
 // retrieves current model implementation and sets its ID to some value
 func GetModelAndSetId(modelName string, modelId string) (I_Storable, error) {
 	someModel, err := GetModel(modelName)
@@ -24,8 +23,6 @@ func GetModelAndSetId(modelName string, modelId string) (I_Storable, error) {
 
 	return storableModel, nil
 }
-
-
 
 // loads model data in current implementation
 func LoadModelById(modelName string, modelId string) (I_Storable, error) {

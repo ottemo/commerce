@@ -31,7 +31,6 @@ func (it *DefaultVisitor) getListCollection() (db.I_DBCollection, error) {
 	}
 }
 
-
 //--------------------------
 // INTERFACE IMPLEMENTATION
 //--------------------------
@@ -64,10 +63,10 @@ func (it *DefaultVisitor) List() ([]models.T_ListItem, error) {
 		// retrieving minimal data needed for list
 		resultItem := new(models.T_ListItem)
 
-		resultItem.Id    = visitor.GetId()
-		resultItem.Name  = visitor.GetFullName()
+		resultItem.Id = visitor.GetId()
+		resultItem.Name = visitor.GetFullName()
 		resultItem.Image = ""
-		resultItem.Desc  = ""
+		resultItem.Desc = ""
 
 		// if extra attributes were required
 		if len(it.listExtraAtributes) > 0 {
@@ -83,8 +82,6 @@ func (it *DefaultVisitor) List() ([]models.T_ListItem, error) {
 
 	return result, nil
 }
-
-
 
 // allows to obtain additional attributes from  List() function
 func (it *DefaultVisitor) ListAddExtraAttribute(attribute string) error {
@@ -102,8 +99,6 @@ func (it *DefaultVisitor) ListAddExtraAttribute(attribute string) error {
 	return nil
 }
 
-
-
 // adds selection filter to List() function
 func (it *DefaultVisitor) ListFilterAdd(Attribute string, Operator string, Value interface{}) error {
 	collection, err := it.getListCollection()
@@ -114,8 +109,6 @@ func (it *DefaultVisitor) ListFilterAdd(Attribute string, Operator string, Value
 	collection.AddFilter(Attribute, Operator, Value.(string))
 	return nil
 }
-
-
 
 // clears presets made by ListFilterAdd() and ListAddExtraAttribute() functions
 func (it *DefaultVisitor) ListFilterReset() error {
@@ -130,8 +123,6 @@ func (it *DefaultVisitor) ListFilterReset() error {
 
 	return nil
 }
-
-
 
 // specifies selection paging
 func (it *DefaultVisitor) ListLimit(offset int, limit int) error {

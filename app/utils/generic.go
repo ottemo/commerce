@@ -1,10 +1,9 @@
 package utils
 
 import (
-	"strconv"
 	"reflect"
+	"strconv"
 )
-
 
 // checks presence of non blank values for keys in map
 //   - first arg must be map
@@ -40,7 +39,7 @@ func IsAmongStr(option string, searchOptions ...string) bool {
 // searches for a string in []string slice
 func IsInListStr(searchItem string, searchList []string) bool {
 	for _, listItem := range searchList {
-		if  listItem == searchItem {
+		if listItem == searchItem {
 			return true
 		}
 	}
@@ -50,7 +49,7 @@ func IsInListStr(searchItem string, searchList []string) bool {
 // checks presence of string keys in map
 func StrKeysInMap(mapObject interface{}, keys ...string) bool {
 	switch typedMap := mapObject.(type) {
-	case map[string]interface{}://, map[string]string:
+	case map[string]interface{}: //, map[string]string:
 
 		for _, key := range keys {
 			if _, present := typedMap[key]; !present {
@@ -65,12 +64,12 @@ func StrKeysInMap(mapObject interface{}, keys ...string) bool {
 // checks if value is MD5
 func IsMD5(value string) bool {
 	ok := false
-	if len(value) == 32  {
+	if len(value) == 32 {
 		ok = true
-		for i:=0; i<32; i++ {
+		for i := 0; i < 32; i++ {
 			c := value[i]
-			if !(c=='1' || c=='2' || c=='3' || c=='4' || c=='5' || c=='6' || c=='7' || c=='8' || c=='9' || c=='0' ||
-			     c=='a' || c=='b' || c=='c' || c=='d' || c=='e' || c=='f') {
+			if !(c == '1' || c == '2' || c == '3' || c == '4' || c == '5' || c == '6' || c == '7' || c == '8' || c == '9' || c == '0' ||
+				c == 'a' || c == 'b' || c == 'c' || c == 'd' || c == 'e' || c == 'f') {
 				ok = false
 				break
 			}
@@ -83,7 +82,6 @@ func IsMD5(value string) bool {
 func GetSiteBackUrl() string {
 	return "http://dev.ottemo.com:3000/"
 }
-
 
 // converts interface{} to string
 func InterfaceToBool(value interface{}) bool {
@@ -102,7 +100,6 @@ func InterfaceToBool(value interface{}) bool {
 		return false
 	}
 }
-
 
 // converts interface{} to string
 func InterfaceToString(value interface{}) string {

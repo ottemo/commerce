@@ -10,8 +10,8 @@ type MongoDBCollection struct {
 	Name       string
 
 	StaticSelector map[string]interface{}
-	Selector map[string]interface{}
-	Sort     []string
+	Selector       map[string]interface{}
+	Sort           []string
 
 	ResultAttributes []string
 

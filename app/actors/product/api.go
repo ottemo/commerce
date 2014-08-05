@@ -3,11 +3,11 @@ package product
 import (
 	"errors"
 	"mime"
-	"strings"
 	"strconv"
+	"strings"
 
-	"github.com/ottemo/foundation/app/utils"
 	"github.com/ottemo/foundation/api"
+	"github.com/ottemo/foundation/app/utils"
 
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/product"
@@ -79,8 +79,6 @@ func setupAPI() error {
 	return nil
 }
 
-
-
 // WEB REST API function used to obtain product attributes information
 func restListProductAttributes(params *api.T_APIHandlerParams) (interface{}, error) {
 	productModel, err := product.GetProductModel()
@@ -92,8 +90,6 @@ func restListProductAttributes(params *api.T_APIHandlerParams) (interface{}, err
 
 	return attrInfo, nil
 }
-
-
 
 // WEB REST API function used to add new one custom attribute
 func restAddProductAttribute(params *api.T_APIHandlerParams) (interface{}, error) {
@@ -171,8 +167,6 @@ func restAddProductAttribute(params *api.T_APIHandlerParams) (interface{}, error
 	return attribute, nil
 }
 
-
-
 // WEB REST API function used to remove custom attribute of product
 func restRemoveProductAttribute(params *api.T_APIHandlerParams) (interface{}, error) {
 
@@ -198,8 +192,6 @@ func restRemoveProductAttribute(params *api.T_APIHandlerParams) (interface{}, er
 	return "ok", nil
 }
 
-
-
 // WEB REST API function used to obtain all product attributes
 //   - product id must be specified in request URI "http://[site:port]/product/get/:id"
 func restGetProduct(params *api.T_APIHandlerParams) (interface{}, error) {
@@ -221,8 +213,6 @@ func restGetProduct(params *api.T_APIHandlerParams) (interface{}, error) {
 	return productModel.ToHashMap(), nil
 }
 
-
-
 // WEB REST API function used to obtain product list we have in database
 //   - only [_id, sku, name] attributes returns by default
 func restEnumProducts(params *api.T_APIHandlerParams) (interface{}, error) {
@@ -234,8 +224,6 @@ func restEnumProducts(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	return productModel.List()
 }
-
-
 
 // WEB REST API function used to obtain product list we have in database
 //   - only [_id, sku, name] attributes returns by default
@@ -261,19 +249,19 @@ func restListProducts(params *api.T_APIHandlerParams) (interface{}, error) {
 			splitResult := strings.Split(limit, ",")
 			if len(splitResult) > 1 {
 
-				offset, err := strconv.Atoi( strings.TrimSpace(splitResult[0]) )
+				offset, err := strconv.Atoi(strings.TrimSpace(splitResult[0]))
 				if err != nil {
 					return nil, err
 				}
 
-				limit, err := strconv.Atoi( strings.TrimSpace(splitResult[1]) )
+				limit, err := strconv.Atoi(strings.TrimSpace(splitResult[1]))
 				if err != nil {
 					return nil, err
 				}
 
 				err = productModel.ListLimit(offset, limit)
 			} else if len(splitResult) > 0 {
-				limit, err := strconv.Atoi( strings.TrimSpace(splitResult[0]) )
+				limit, err := strconv.Atoi(strings.TrimSpace(splitResult[0]))
 				if err != nil {
 					return nil, err
 				}
@@ -301,11 +289,8 @@ func restListProducts(params *api.T_APIHandlerParams) (interface{}, error) {
 		}
 	}
 
-
 	return productModel.List()
 }
-
-
 
 // WEB REST API used to create new one product
 //   - product attributes must be included in POST form
@@ -329,7 +314,7 @@ func restCreateProduct(params *api.T_APIHandlerParams) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	for attribute, value := range reqData {
 		err := productModel.Set(attribute, value)
 		if err != nil {
@@ -344,8 +329,6 @@ func restCreateProduct(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	return productModel.ToHashMap(), nil
 }
-
-
 
 // WEB REST API used to delete product
 //   - product attributes must be included in POST form
@@ -364,7 +347,7 @@ func restDeleteProduct(params *api.T_APIHandlerParams) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	err = productModel.Delete(productId)
 	if err != nil {
 		return nil, err
@@ -372,8 +355,6 @@ func restDeleteProduct(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	return "ok", nil
 }
-
-
 
 // WEB REST API used to update existing product
 //   - product id must be specified in request URI
@@ -414,8 +395,6 @@ func restUpdateProduct(params *api.T_APIHandlerParams) (interface{}, error) {
 	return productModel.ToHashMap(), nil
 }
 
-
-
 // WEB REST API used to add media for a product
 //   - product id, media type must be specified in request URI
 func restMediaPath(params *api.T_APIHandlerParams) (interface{}, error) {
@@ -438,7 +417,7 @@ func restMediaPath(params *api.T_APIHandlerParams) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	mediaList, err := productModel.GetMediaPath(mediaType)
 	if err != nil {
 		return nil, err
@@ -446,8 +425,6 @@ func restMediaPath(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	return mediaList, nil
 }
-
-
 
 // WEB REST API used to add media for a product
 //   - product id, media type must be specified in request URI
@@ -471,7 +448,7 @@ func restMediaList(params *api.T_APIHandlerParams) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	mediaList, err := productModel.ListMedia(mediaType)
 	if err != nil {
 		return nil, err
@@ -479,8 +456,6 @@ func restMediaList(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	return mediaList, nil
 }
-
-
 
 // WEB REST API used to add media for a product
 //   - product id, media type and media name must be specified in request URI
@@ -523,7 +498,7 @@ func restMediaAdd(params *api.T_APIHandlerParams) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	err = productModel.AddMedia(mediaType, mediaName, fileContents)
 	if err != nil {
 		return nil, err
@@ -531,8 +506,6 @@ func restMediaAdd(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	return "ok", nil
 }
-
-
 
 // WEB REST API used to add media for a product
 //   - product id, media type and media name must be specified in request URI
@@ -561,7 +534,7 @@ func restMediaRemove(params *api.T_APIHandlerParams) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	err = productModel.RemoveMedia(mediaType, mediaName)
 	if err != nil {
 		return nil, err

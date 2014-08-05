@@ -3,10 +3,9 @@ package address
 import (
 	"errors"
 
-	"github.com/ottemo/foundation/app/models/visitor"
 	"github.com/ottemo/foundation/api"
+	"github.com/ottemo/foundation/app/models/visitor"
 )
-
 
 // REST API registration function
 func setupAPI() error {
@@ -22,7 +21,6 @@ func setupAPI() error {
 	if err != nil {
 		return err
 	}
-
 
 	err = api.GetRestService().RegisterAPI("visitor/address", "GET", "attribute/list", restListVisitorAddressAttributes)
 	if err != nil {
@@ -43,8 +41,6 @@ func setupAPI() error {
 
 	return nil
 }
-
-
 
 // WEB REST API used to create new visitor address
 //   - visitor address attributes must be included in POST form
@@ -84,8 +80,6 @@ func restCreateVisitorAddress(params *api.T_APIHandlerParams) (interface{}, erro
 	return visitorAddressModel.ToHashMap(), nil
 }
 
-
-
 // WEB REST API used to update existing visitor address
 //   - visitor address id must be specified in request URI
 //   - visitor address attributes must be included in POST form
@@ -102,7 +96,6 @@ func restUpdateVisitorAddress(params *api.T_APIHandlerParams) (interface{}, erro
 	if err != nil {
 		return nil, err
 	}
-
 
 	// update operation
 	//-----------------
@@ -125,8 +118,6 @@ func restUpdateVisitorAddress(params *api.T_APIHandlerParams) (interface{}, erro
 
 	return visitorAddressModel.ToHashMap(), nil
 }
-
-
 
 // WEB REST API used to delete visitor address
 //   - visitor address attributes must be included in POST form
@@ -154,8 +145,6 @@ func restDeleteVisitorAddress(params *api.T_APIHandlerParams) (interface{}, erro
 	return "ok", nil
 }
 
-
-
 // WEB REST API function used to obtain visitor address attributes information
 func restListVisitorAddressAttributes(params *api.T_APIHandlerParams) (interface{}, error) {
 	visitorAddressModel, err := visitor.GetVisitorAddressModel()
@@ -166,8 +155,6 @@ func restListVisitorAddressAttributes(params *api.T_APIHandlerParams) (interface
 	attrInfo := visitorAddressModel.GetAttributesInfo()
 	return attrInfo, nil
 }
-
-
 
 // WEB REST API function used to obtain visitor addresses list
 //   - visitor id must be specified in request URI
@@ -197,8 +184,6 @@ func restListVisitorAddress(params *api.T_APIHandlerParams) (interface{}, error)
 
 	return visitorAddressModel.List()
 }
-
-
 
 // WEB REST API used to get visitor address object
 //   - visitor address id must be specified in request URI

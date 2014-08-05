@@ -2,16 +2,14 @@ package cart
 
 import (
 	"errors"
-	"strconv"
 	"sort"
+	"strconv"
 
-	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/app/models/cart"
-	"github.com/ottemo/foundation/app/models/visitor"
 	"github.com/ottemo/foundation/app/models/product"
+	"github.com/ottemo/foundation/app/models/visitor"
+	"github.com/ottemo/foundation/db"
 )
-
-
 
 // adds item to the current cart
 //   - returns added item or nil if error happened
@@ -31,19 +29,17 @@ func (it *DefaultCart) AddItem(productId string, qty int, options map[string]int
 
 	it.maxIdx += 1
 
-	cartItem := &DefaultCartItem {
-				idx: it.maxIdx,
-				ProductId: reqProduct.GetId(),
-				Qty: qty,
-				Options: options,
-				Cart: it }
+	cartItem := &DefaultCartItem{
+		idx:       it.maxIdx,
+		ProductId: reqProduct.GetId(),
+		Qty:       qty,
+		Options:   options,
+		Cart:      it}
 
 	it.Items[it.maxIdx] = cartItem
 
 	return cartItem, nil
 }
-
-
 
 // removes item from cart
 //   - you need to know index you can get from ListItems()
@@ -73,8 +69,6 @@ func (it *DefaultCart) RemoveItem(itemIdx int) error {
 	}
 }
 
-
-
 // sets new qty for particular item in cart
 //   - you need to it's index, use ListItems() for that
 func (it *DefaultCart) SetQty(itemIdx int, qty int) error {
@@ -82,11 +76,9 @@ func (it *DefaultCart) SetQty(itemIdx int, qty int) error {
 	if present {
 		return cartItem.SetQty(qty)
 	} else {
-		return errors.New("there is no item with idx=" + strconv.Itoa(itemIdx) )
+		return errors.New("there is no item with idx=" + strconv.Itoa(itemIdx))
 	}
 }
-
-
 
 // enumerates current cart items sorted by item idx
 func (it *DefaultCart) ListItems() []cart.I_CartItem {
@@ -107,14 +99,10 @@ func (it *DefaultCart) ListItems() []cart.I_CartItem {
 	return result
 }
 
-
-
 // returns visitor id this cart belongs to
 func (it *DefaultCart) GetVisitorId() string {
 	return it.VisitorId
 }
-
-
 
 // sets new owner of cart
 func (it *DefaultCart) SetVisitorId(visitorId string) error {
@@ -122,15 +110,11 @@ func (it *DefaultCart) SetVisitorId(visitorId string) error {
 	return nil
 }
 
-
-
 // returns visitor model represents owner or current cart or nil if visitor was not set to cart
 func (it *DefaultCart) GetVisitor() visitor.I_Visitor {
 	visitor, _ := visitor.LoadVisitorById(it.VisitorId)
 	return visitor
 }
-
-
 
 // assigns some information to current cart
 func (it *DefaultCart) SetCartInfo(infoAttribute string, infoValue interface{}) error {
@@ -143,14 +127,10 @@ func (it *DefaultCart) SetCartInfo(infoAttribute string, infoValue interface{}) 
 	return nil
 }
 
-
-
 // returns current cart info assigned
 func (it *DefaultCart) GetCartInfo() map[string]interface{} {
 	return it.Info
 }
-
-
 
 // loads cart information from DB for visitor
 func (it *DefaultCart) MakeCartForVisitor(visitorId string) error {
@@ -159,7 +139,7 @@ func (it *DefaultCart) MakeCartForVisitor(visitorId string) error {
 		return errors.New("can't get DB Engine")
 	}
 
-	cartCollection, err := dbEngine.GetCollection( CART_COLLECTION_NAME )
+	cartCollection, err := dbEngine.GetCollection(CART_COLLECTION_NAME)
 	if err != nil {
 		return err
 	}
@@ -183,7 +163,7 @@ func (it *DefaultCart) MakeCartForVisitor(visitorId string) error {
 
 		*it = *newCart
 	} else {
-		err := it.Load( rowsData[0]["_id"].(string) )
+		err := it.Load(rowsData[0]["_id"].(string))
 		if err != nil {
 			return err
 		}
@@ -191,8 +171,6 @@ func (it *DefaultCart) MakeCartForVisitor(visitorId string) error {
 
 	return nil
 }
-
-
 
 func (it *DefaultCart) Activate() error {
 	it.Active = true

@@ -5,10 +5,9 @@ import (
 	"github.com/ottemo/foundation/db"
 )
 
-const(
+const (
 	DEBUG_SQL = false
 )
-
 
 type SQLiteCollection struct {
 	Connection *sqlite3.Conn

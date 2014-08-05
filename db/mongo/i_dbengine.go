@@ -6,14 +6,10 @@ import (
 	"strings"
 )
 
-
-
 // returns current DB engine name
 func (it *MongoDB) GetName() string {
 	return "MongoDB"
 }
-
-
 
 // checks if collection already exists
 func (it *MongoDB) HasCollection(CollectionName string) bool {
@@ -21,8 +17,6 @@ func (it *MongoDB) HasCollection(CollectionName string) bool {
 
 	return true
 }
-
-
 
 // creates cllection by it's name
 func (it *MongoDB) CreateCollection(CollectionName string) error {
@@ -38,8 +32,6 @@ func (it *MongoDB) CreateCollection(CollectionName string) error {
 	return err
 }
 
-
-
 // returns collection by name or creates new one
 func (it *MongoDB) GetCollection(CollectionName string) (db.I_DBCollection, error) {
 	CollectionName = strings.ToLower(CollectionName)
@@ -53,14 +45,14 @@ func (it *MongoDB) GetCollection(CollectionName string) (db.I_DBCollection, erro
 
 	mgoCollection := it.database.C(CollectionName)
 
-	result := &MongoDBCollection {
-					Name:             CollectionName,
-					Selector:         make(map[string]interface{}),
-					StaticSelector:   make(map[string]interface{}),
-					ResultAttributes: make([]string,0),
-					database:         it.database,
-					collection:       mgoCollection,
-				}
+	result := &MongoDBCollection{
+		Name:             CollectionName,
+		Selector:         make(map[string]interface{}),
+		StaticSelector:   make(map[string]interface{}),
+		ResultAttributes: make([]string, 0),
+		database:         it.database,
+		collection:       mgoCollection,
+	}
 
 	return result, nil
 }

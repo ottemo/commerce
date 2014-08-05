@@ -4,8 +4,6 @@ import (
 	"errors"
 )
 
-
-
 // tries to represent HTTP request content in map[string]interface{} format
 func GetRequestContentAsMap(params *T_APIHandlerParams) (map[string]interface{}, error) {
 

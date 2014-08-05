@@ -5,7 +5,6 @@ import (
 	"github.com/ottemo/foundation/app/models"
 )
 
-
 // retrieves current I_VisitorAddress model implementation
 func GetVisitorAddressModel() (I_VisitorAddress, error) {
 	model, err := models.GetModel(VISITOR_ADDRESS_MODEL_NAME)
@@ -21,8 +20,6 @@ func GetVisitorAddressModel() (I_VisitorAddress, error) {
 	return visitorAddressModel, nil
 }
 
-
-
 // retrieves current I_Visitor model implementation
 func GetVisitorModel() (I_Visitor, error) {
 	model, err := models.GetModel(VISITOR_MODEL_NAME)
@@ -37,8 +34,6 @@ func GetVisitorModel() (I_Visitor, error) {
 
 	return visitorModel, nil
 }
-
-
 
 // retrieves current I_VisitorAddress model implementation and sets its ID to some value
 func GetVisitorAddressModelAndSetId(visitorAddressId string) (I_VisitorAddress, error) {
@@ -56,8 +51,6 @@ func GetVisitorAddressModelAndSetId(visitorAddressId string) (I_VisitorAddress, 
 	return visitorAddressModel, nil
 }
 
-
-
 // retrieves current I_Visitor model implementation and sets its ID to some value
 func GetVisitorModelAndSetId(visitorId string) (I_Visitor, error) {
 
@@ -74,8 +67,6 @@ func GetVisitorModelAndSetId(visitorId string) (I_Visitor, error) {
 	return visitorModel, nil
 }
 
-
-
 // loads visitor address data into current I_VisitorAddress model implementation
 func LoadVisitorAddressById(visitorAddressId string) (I_VisitorAddress, error) {
 
@@ -91,8 +82,6 @@ func LoadVisitorAddressById(visitorAddressId string) (I_VisitorAddress, error) {
 
 	return visitorAddressModel, nil
 }
-
-
 
 // loads visitor data into current I_Visitor model implementation
 func LoadVisitorById(visitorId string) (I_Visitor, error) {

@@ -5,8 +5,6 @@ import (
 	"github.com/ottemo/foundation/app/models"
 )
 
-
-
 // retrieves current I_Cart model implementation
 func GetCartModel() (I_Cart, error) {
 	model, err := models.GetModel(CART_MODEL_NAME)
@@ -21,8 +19,6 @@ func GetCartModel() (I_Cart, error) {
 
 	return cartModel, nil
 }
-
-
 
 // retrieves current I_Cart model implementation and sets its ID to some value
 func GetCartModelAndSetId(cartId string) (I_Cart, error) {
@@ -40,8 +36,6 @@ func GetCartModelAndSetId(cartId string) (I_Cart, error) {
 	return cartModel, nil
 }
 
-
-
 // loads cart data into current I_Cart model implementation
 func LoadCartById(cartId string) (I_Cart, error) {
 
@@ -57,8 +51,6 @@ func LoadCartById(cartId string) (I_Cart, error) {
 
 	return cartModel, nil
 }
-
-
 
 // loads cart for visitor or creates new one
 func GetCartForVisitor(visitorId string) (I_Cart, error) {

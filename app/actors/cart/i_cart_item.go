@@ -7,14 +7,10 @@ import (
 	"github.com/ottemo/foundation/app/models/product"
 )
 
-
-
 // returns id of cart item
 func (it *DefaultCartItem) GetId() string {
 	return it.id
 }
-
-
 
 // sets id to cart item
 func (it *DefaultCartItem) SetId(newId string) error {
@@ -22,14 +18,10 @@ func (it *DefaultCartItem) SetId(newId string) error {
 	return nil
 }
 
-
-
 // returns index value for current cart item
 func (it *DefaultCartItem) GetIdx() int {
 	return it.idx
 }
-
-
 
 // changes index value for current cart item if it is possible
 func (it *DefaultCartItem) SetIdx(newIdx int) error {
@@ -50,19 +42,15 @@ func (it *DefaultCartItem) SetIdx(newIdx int) error {
 	return nil
 }
 
-
-
 // returns product id which cart item represents
 func (it *DefaultCartItem) GetProductId() string {
 	return it.ProductId
 }
 
-
-
 // returns product instance which cart item represents
 func (it *DefaultCartItem) GetProduct() product.I_Product {
 	if it.ProductId != "" {
-		product, err  := product.LoadProductById(it.ProductId)
+		product, err := product.LoadProductById(it.ProductId)
 		if err == nil {
 			return product
 		}
@@ -70,18 +58,14 @@ func (it *DefaultCartItem) GetProduct() product.I_Product {
 	return nil
 }
 
-
-
 // returns current cart item qty
 func (it *DefaultCartItem) GetQty() int {
 	return it.Qty
 }
 
-
-
 // sets qty for current cart item
 func (it *DefaultCartItem) SetQty(qty int) error {
-	if (qty > 0) {
+	if qty > 0 {
 		it.Qty = qty
 	} else {
 		return errors.New("qty must be greater then 0")
@@ -89,8 +73,6 @@ func (it *DefaultCartItem) SetQty(qty int) error {
 
 	return nil
 }
-
-
 
 // removes item from the cart
 func (it *DefaultCartItem) Remove() error {
@@ -102,14 +84,10 @@ func (it *DefaultCartItem) Remove() error {
 	}
 }
 
-
-
 // returns all item options or nil
 func (it *DefaultCartItem) GetOptions() map[string]interface{} {
 	return it.Options
 }
-
-
 
 // set option to cart item
 func (it *DefaultCartItem) SetOption(optionName string, optionValue interface{}) error {
@@ -121,8 +99,6 @@ func (it *DefaultCartItem) SetOption(optionName string, optionValue interface{})
 
 	return nil
 }
-
-
 
 // returns cart that item belongs to
 func (it *DefaultCartItem) GetCart() cart.I_Cart {

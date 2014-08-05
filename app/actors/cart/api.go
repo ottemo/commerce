@@ -1,13 +1,13 @@
 package cart
 
-import(
+import (
 	"errors"
 
 	"github.com/ottemo/foundation/api"
 
-	"github.com/ottemo/foundation/app/utils"
 	"github.com/ottemo/foundation/app/models/cart"
 	"github.com/ottemo/foundation/app/models/visitor"
+	"github.com/ottemo/foundation/app/utils"
 )
 
 func setupAPI() error {
@@ -31,19 +31,16 @@ func setupAPI() error {
 		return err
 	}
 
-
 	return nil
 }
 
-
-
 // returns cart for current session
 func getCurrentCart(params *api.T_APIHandlerParams) (cart.I_Cart, error) {
-	sessionCartId := params.Session.Get( cart.SESSION_KEY_CURRENT_CART )
+	sessionCartId := params.Session.Get(cart.SESSION_KEY_CURRENT_CART)
 
 	if sessionCartId != nil && sessionCartId != "" {
 
-		currentCart, err := cart.LoadCartById( utils.InterfaceToString(sessionCartId) )
+		currentCart, err := cart.LoadCartById(utils.InterfaceToString(sessionCartId))
 		if err != nil {
 			return nil, err
 		}
@@ -51,14 +48,14 @@ func getCurrentCart(params *api.T_APIHandlerParams) (cart.I_Cart, error) {
 		return currentCart, nil
 	} else {
 
-		visitorId := params.Session.Get( visitor.SESSION_KEY_VISITOR_ID )
+		visitorId := params.Session.Get(visitor.SESSION_KEY_VISITOR_ID)
 		if visitorId != nil {
-			currentCart, err := cart.GetCartForVisitor( utils.InterfaceToString(visitorId) )
+			currentCart, err := cart.GetCartForVisitor(utils.InterfaceToString(visitorId))
 			if err != nil {
 				return nil, err
 			}
 
-			params.Session.Set( cart.SESSION_KEY_CURRENT_CART, currentCart.GetId() )
+			params.Session.Set(cart.SESSION_KEY_CURRENT_CART, currentCart.GetId())
 
 			return currentCart, nil
 		} else {
@@ -70,18 +67,16 @@ func getCurrentCart(params *api.T_APIHandlerParams) (cart.I_Cart, error) {
 	return nil, errors.New("can't get cart for current session")
 }
 
-
-
 // WEB REST API function to get cart information
 //   - parent categories and categorys will not be present in list
 func restCartInfo(params *api.T_APIHandlerParams) (interface{}, error) {
 
-	currentCart, err  := getCurrentCart(params)
+	currentCart, err := getCurrentCart(params)
 	if err != nil {
 		return nil, err
 	}
 
-	items := make([]map[string]interface{},0)
+	items := make([]map[string]interface{}, 0)
 
 	cartItems := currentCart.ListItems()
 	for _, cartItem := range cartItems {
@@ -99,12 +94,12 @@ func restCartInfo(params *api.T_APIHandlerParams) (interface{}, error) {
 
 			mediaPath, _ := product.GetMediaPath("image")
 
-			productData["name"]   = product.GetName()
-			productData["sku"]    = product.GetSku()
-			productData["image"]  = mediaPath + product.GetDefaultImage()
-			productData["price"]  = product.GetPrice()
+			productData["name"] = product.GetName()
+			productData["sku"] = product.GetSku()
+			productData["image"] = mediaPath + product.GetDefaultImage()
+			productData["price"] = product.GetPrice()
 			productData["weight"] = product.GetWeight()
-			productData["size"]   = product.GetSize()
+			productData["size"] = product.GetSize()
 
 			item["product"] = productData
 		}
@@ -112,16 +107,14 @@ func restCartInfo(params *api.T_APIHandlerParams) (interface{}, error) {
 		items = append(items, item)
 	}
 
-	result := map[string]interface{} {
+	result := map[string]interface{}{
 		"visitor_id": currentCart.GetVisitorId(),
-		"cart_info": currentCart.GetCartInfo(),
-		"items": items,
+		"cart_info":  currentCart.GetCartInfo(),
+		"items":      items,
 	}
 
 	return result, nil
 }
-
-
 
 // WEB REST API for adding new item into cart
 //   - "pid" (product id) should be specified
@@ -158,7 +151,7 @@ func restCartAdd(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// operation
 	//----------
-	currentCart, err  := getCurrentCart(params)
+	currentCart, err := getCurrentCart(params)
 	if err != nil {
 		return nil, err
 	}
@@ -168,8 +161,6 @@ func restCartAdd(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	return "ok", nil
 }
-
-
 
 // WEB REST API used to update cart item qty
 //   - "itemIdx" and "qty" should be specified in request URI
@@ -181,12 +172,12 @@ func restCartUpdate(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil, errors.New("itemIdx and qty should be specified")
 	}
 
-	itemIdx, err :=  utils.StrToInt(params.RequestURLParams["itemIdx"])
+	itemIdx, err := utils.StrToInt(params.RequestURLParams["itemIdx"])
 	if err != nil {
 		return nil, err
 	}
 
-	qty, err :=  utils.StrToInt(params.RequestURLParams["qty"])
+	qty, err := utils.StrToInt(params.RequestURLParams["qty"])
 	if err != nil {
 		return nil, err
 	}
@@ -203,7 +194,7 @@ func restCartUpdate(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	cartItems := currentCart.ListItems()
 	if len(cartItems) > itemIdx {
-		cartItems[itemIdx].SetQty( qty )
+		cartItems[itemIdx].SetQty(qty)
 	} else {
 		return nil, errors.New("wrong itemIdx was specified")
 	}
@@ -211,8 +202,6 @@ func restCartUpdate(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	return "ok", nil
 }
-
-
 
 // WEB REST API used to delete cart item from cart
 //   - "itemIdx" should be specified in request URI
@@ -223,7 +212,7 @@ func restCartDelete(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil, errors.New("itemIdx should be specified")
 	}
 
-	itemIdx, err :=  utils.StrToInt(params.RequestURLParams["itemIdx"])
+	itemIdx, err := utils.StrToInt(params.RequestURLParams["itemIdx"])
 	if err != nil {
 		return nil, err
 	}

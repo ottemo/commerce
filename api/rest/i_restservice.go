@@ -15,12 +15,10 @@ import (
 	"github.com/ottemo/foundation/api/rest/session"
 )
 
-
 // returns implementation name of our REST API service
 func (it *DefaultRestService) GetName() string {
 	return "httprouter"
 }
-
 
 // other modules should call this function in order to provide own REST API functionality
 func (it *DefaultRestService) RegisterAPI(service string, method string, uri string, handler api.F_APIHandler) error {
@@ -55,7 +53,7 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 			newContent := map[string]interface{}{}
 
 			// TODO: should be separated on 2 cases
-			req.ParseMultipartForm( 32 << 20 ) // 32 MB
+			req.ParseMultipartForm(32 << 20) // 32 MB
 			for attribute, value := range req.MultipartForm.Value {
 				newContent[attribute] = value[0]
 			}
@@ -74,8 +72,6 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 			log.Println("Session init fail: " + err.Error())
 		}
 
-
-
 		// module handler callback
 		apiParams := new(api.T_APIHandlerParams)
 		apiParams.Request = req
@@ -84,12 +80,10 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 		apiParams.ResponseWriter = resp
 		apiParams.Session = session
 
-		result, err := handler( apiParams )
+		result, err := handler(apiParams)
 		if err != nil {
 			log.Printf("REST error: %s - %s\n", req.RequestURI, err.Error())
 		}
-
-
 
 		// result conversion before output
 		if result != nil || err != nil {
@@ -137,7 +131,6 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 	return nil
 }
 
-
 // entry point for HTTP request - takes control before request handled
 // (go lang "http.server" package "Handler" interface implementation)
 func (it DefaultRestService) ServeHTTP(responseWriter http.ResponseWriter, request *http.Request) {
@@ -156,7 +149,6 @@ func (it DefaultRestService) ServeHTTP(responseWriter http.ResponseWriter, reque
 		it.Router.ServeHTTP(responseWriter, request)
 	}
 }
-
 
 // REST server startup function - makes it to "ListenAndServe"
 func (it *DefaultRestService) Run() error {

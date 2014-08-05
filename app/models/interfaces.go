@@ -51,8 +51,6 @@ type I_Media interface {
 	GetMediaPath(mediaType string) (string, error)
 }
 
-
-
 type T_ListItem struct {
 	Id    string
 	Name  string

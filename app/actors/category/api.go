@@ -1,16 +1,15 @@
 package category
 
-import(
+import (
 	"errors"
 
-	"strings"
 	"strconv"
+	"strings"
 
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/db"
 
 	"github.com/ottemo/foundation/app/models/category"
-
 )
 
 func setupAPI() error {
@@ -42,7 +41,6 @@ func setupAPI() error {
 		return err
 	}
 
-
 	err = api.GetRestService().RegisterAPI("category", "GET", "products/:id", restListCategoryProducts)
 	if err != nil {
 		return err
@@ -69,21 +67,17 @@ func setupAPI() error {
 		return err
 	}
 
-
 	err = api.GetRestService().RegisterAPI("category", "GET", "tree", restGetCategoriesTree)
 	if err != nil {
 		return err
 	}
 
-
 	return nil
 }
-
 
 // WEB REST API function used to obtain category list we have in database
 //   - parent categories and categorys will not be present in list
 func restListCategories(params *api.T_APIHandlerParams) (interface{}, error) {
-
 
 	// check request params
 	//---------------------
@@ -109,19 +103,19 @@ func restListCategories(params *api.T_APIHandlerParams) (interface{}, error) {
 			splitResult := strings.Split(limit, ",")
 			if len(splitResult) > 1 {
 
-				offset, err := strconv.Atoi( strings.TrimSpace(splitResult[0]) )
+				offset, err := strconv.Atoi(strings.TrimSpace(splitResult[0]))
 				if err != nil {
 					return nil, err
 				}
 
-				limit, err := strconv.Atoi( strings.TrimSpace(splitResult[1]) )
+				limit, err := strconv.Atoi(strings.TrimSpace(splitResult[1]))
 				if err != nil {
 					return nil, err
 				}
 
 				categoryModel.ListLimit(offset, limit)
 			} else if len(splitResult) > 0 {
-				limit, err := strconv.Atoi( strings.TrimSpace(splitResult[0]) )
+				limit, err := strconv.Atoi(strings.TrimSpace(splitResult[0]))
 				if err != nil {
 					return nil, err
 				}
@@ -149,10 +143,8 @@ func restListCategories(params *api.T_APIHandlerParams) (interface{}, error) {
 		}
 	}
 
-
 	return categoryModel.List()
 }
-
 
 // WEB REST API used to create new category
 //   - category attributes must be included in POST form
@@ -192,8 +184,6 @@ func restCreateCategory(params *api.T_APIHandlerParams) (interface{}, error) {
 	return categoryModel.ToHashMap(), nil
 }
 
-
-
 // WEB REST API used to delete category
 func restDeleteCategory(params *api.T_APIHandlerParams) (interface{}, error) {
 
@@ -218,8 +208,6 @@ func restDeleteCategory(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	return "ok", nil
 }
-
-
 
 // WEB REST API used to update existing category
 //   - category id must be specified in request URI
@@ -260,8 +248,6 @@ func restUpdateCategory(params *api.T_APIHandlerParams) (interface{}, error) {
 	return categoryModel.ToHashMap(), nil
 }
 
-
-
 // WEB REST API function used to obtain category attributes information
 func restListCategoryAttributes(params *api.T_APIHandlerParams) (interface{}, error) {
 	categoryModel, err := category.GetCategoryModel()
@@ -273,8 +259,6 @@ func restListCategoryAttributes(params *api.T_APIHandlerParams) (interface{}, er
 
 	return attrInfo, nil
 }
-
-
 
 // WEB REST API function used to list product in category
 //   - category id must be specified in request URI
@@ -299,10 +283,9 @@ func restListCategoryProducts(params *api.T_APIHandlerParams) (interface{}, erro
 		return nil, err
 	}
 
-
 	// synthetic product list limit
 	offset := 0
-	limit  := -1
+	limit := -1
 
 	// limit parameter handler
 	if limitParam, isLimit := reqData["limit"]; isLimit {
@@ -310,17 +293,17 @@ func restListCategoryProducts(params *api.T_APIHandlerParams) (interface{}, erro
 			splitResult := strings.Split(limitParam, ",")
 			if len(splitResult) > 1 {
 
-				offset, err = strconv.Atoi( strings.TrimSpace(splitResult[0]) )
+				offset, err = strconv.Atoi(strings.TrimSpace(splitResult[0]))
 				if err != nil {
 					return nil, err
 				}
 
-				limit, err = strconv.Atoi( strings.TrimSpace(splitResult[1]) )
+				limit, err = strconv.Atoi(strings.TrimSpace(splitResult[1]))
 				if err != nil {
 					return nil, err
 				}
 			} else if len(splitResult) > 0 {
-				limit, err = strconv.Atoi( strings.TrimSpace(splitResult[0]) )
+				limit, err = strconv.Atoi(strings.TrimSpace(splitResult[0]))
 				if err != nil {
 					return nil, err
 				}
@@ -328,11 +311,10 @@ func restListCategoryProducts(params *api.T_APIHandlerParams) (interface{}, erro
 		}
 	}
 
-
 	products := categoryModel.GetProducts()
 
-	i := 0;
-	result := make( []map[string]interface{}, 0)
+	i := 0
+	result := make([]map[string]interface{}, 0)
 	for _, product := range products {
 		if limit == 0 {
 			break
@@ -355,8 +337,6 @@ func restListCategoryProducts(params *api.T_APIHandlerParams) (interface{}, erro
 
 	return result, nil
 }
-
-
 
 // WEB REST API function used to add product in category
 //   - category and product ids must be specified in request URI
@@ -388,12 +368,9 @@ func restAddCategoryProduct(params *api.T_APIHandlerParams) (interface{}, error)
 	return "ok", nil
 }
 
-
-
 // WEB REST API function used to remove product from category
 //   - category and product ids must be specified in request URI
 func restRemoveCategoryProduct(params *api.T_APIHandlerParams) (interface{}, error) {
-
 
 	// check request params
 	//---------------------
@@ -421,8 +398,6 @@ func restRemoveCategoryProduct(params *api.T_APIHandlerParams) (interface{}, err
 	return "ok", nil
 }
 
-
-
 // WEB REST API function used to obtain all product attributes
 //   - product id must be specified in request URI "http://[site:port]/product/get/:id"
 func restGetCategory(params *api.T_APIHandlerParams) (interface{}, error) {
@@ -444,8 +419,6 @@ func restGetCategory(params *api.T_APIHandlerParams) (interface{}, error) {
 	return categoryModel.ToHashMap(), nil
 }
 
-
-
 // WEB REST API function used to list product in category
 //   - category id must be specified in request URI
 func restCategoryProductsCount(params *api.T_APIHandlerParams) (interface{}, error) {
@@ -464,8 +437,6 @@ func restCategoryProductsCount(params *api.T_APIHandlerParams) (interface{}, err
 
 	return len(categoryModel.GetProducts()), nil
 }
-
-
 
 // WEB REST API function used to categories menu
 func restGetCategoriesTree(params *api.T_APIHandlerParams) (interface{}, error) {
@@ -498,9 +469,9 @@ func restGetCategoriesTree(params *api.T_APIHandlerParams) (interface{}, error) 
 	for _, row := range rowData {
 
 		currentItem := make(map[string]interface{})
-		currentItem["id"]    = row["_id"]
-		currentItem["name"]  = row["name"]
-		currentItem["child"] = make( []map[string]interface{}, 0 )
+		currentItem["id"] = row["_id"]
+		currentItem["name"] = row["name"]
+		currentItem["child"] = make([]map[string]interface{}, 0)
 
 		// calculating current path
 		currentPath, ok := row["path"].(string)
@@ -508,7 +479,7 @@ func restGetCategoriesTree(params *api.T_APIHandlerParams) (interface{}, error) 
 			continue
 		}
 
-		for idx:=len(pathStack)-1; idx >= 0; idx-- {
+		for idx := len(pathStack) - 1; idx >= 0; idx-- {
 			parentPath := pathStack[idx]
 
 			// if we found parent
@@ -535,7 +506,6 @@ func restGetCategoriesTree(params *api.T_APIHandlerParams) (interface{}, error) 
 
 		categoryStack = append(categoryStack, currentItem)
 		pathStack = append(pathStack, currentPath)
-
 
 	}
 

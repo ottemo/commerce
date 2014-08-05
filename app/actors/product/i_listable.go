@@ -34,7 +34,6 @@ func (it *DefaultProduct) getListCollection() (db.I_DBCollection, error) {
 // INTERFACE IMPLEMENTATION
 //--------------------------
 
-
 // enumerates items of Product model type
 func (it *DefaultProduct) List() ([]models.T_ListItem, error) {
 	result := make([]models.T_ListItem, 0)
@@ -69,10 +68,10 @@ func (it *DefaultProduct) List() ([]models.T_ListItem, error) {
 			return result, err
 		}
 
-		resultItem.Id    = product.GetId()
-		resultItem.Name  = "[" + product.GetSku() + "] "  + product.GetName()
+		resultItem.Id = product.GetId()
+		resultItem.Name = "[" + product.GetSku() + "] " + product.GetName()
 		resultItem.Image = ""
-		resultItem.Desc  = product.GetShortDescription()
+		resultItem.Desc = product.GetShortDescription()
 
 		if product.GetDefaultImage() != "" {
 			resultItem.Image = mediaPath + product.GetDefaultImage()
@@ -93,8 +92,6 @@ func (it *DefaultProduct) List() ([]models.T_ListItem, error) {
 	return result, nil
 }
 
-
-
 // allows to obtain additional attributes from  List() function
 func (it *DefaultProduct) ListAddExtraAttribute(attribute string) error {
 
@@ -111,7 +108,6 @@ func (it *DefaultProduct) ListAddExtraAttribute(attribute string) error {
 	return nil
 }
 
-
 // adds selection filter to List() function
 func (it *DefaultProduct) ListFilterAdd(Attribute string, Operator string, Value interface{}) error {
 	collection, err := it.getListCollection()
@@ -122,8 +118,6 @@ func (it *DefaultProduct) ListFilterAdd(Attribute string, Operator string, Value
 	collection.AddFilter(Attribute, Operator, Value.(string))
 	return nil
 }
-
-
 
 // clears presets made by ListFilterAdd() and ListAddExtraAttribute() functions
 func (it *DefaultProduct) ListFilterReset() error {
@@ -138,8 +132,6 @@ func (it *DefaultProduct) ListFilterReset() error {
 
 	return nil
 }
-
-
 
 // specifies selection paging
 func (it *DefaultProduct) ListLimit(offset int, limit int) error {

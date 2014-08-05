@@ -8,8 +8,6 @@ import (
 	"github.com/ottemo/foundation/api"
 )
 
-
-
 // module entry point before app start
 func init() {
 	instance := new(DefaultVisitorAddress)
@@ -19,8 +17,6 @@ func init() {
 
 	api.RegisterOnRestServiceStart(setupAPI)
 }
-
-
 
 // DB preparations for current model implementation
 func (it *DefaultVisitorAddress) setupDB() error {
@@ -42,4 +38,3 @@ func (it *DefaultVisitorAddress) setupDB() error {
 
 	return nil
 }
-

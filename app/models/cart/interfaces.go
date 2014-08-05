@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	CART_MODEL_NAME = "Cart"
+	CART_MODEL_NAME          = "Cart"
 	SESSION_KEY_CURRENT_CART = "cart_id"
 )
 

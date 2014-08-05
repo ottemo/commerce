@@ -51,7 +51,6 @@ func setupAPI() error {
 		return err
 	}
 
-
 	// Storefront API
 	err = api.GetRestService().RegisterAPI("visitor", "POST", "register", restRegister)
 	if err != nil {
@@ -89,8 +88,6 @@ func setupAPI() error {
 	return nil
 }
 
-
-
 // WEB REST API used to create new visitor
 //   - visitor attributes must be included in POST form
 //   - email attribute required
@@ -106,7 +103,6 @@ func restCreateVisitor(params *api.T_APIHandlerParams) (interface{}, error) {
 	if utils.KeysInMapAndNotBlank(reqData, "email") {
 		return nil, errors.New("'email' was not specified")
 	}
-
 
 	// create operation
 	//-----------------
@@ -130,8 +126,6 @@ func restCreateVisitor(params *api.T_APIHandlerParams) (interface{}, error) {
 	return visitorModel.ToHashMap(), nil
 }
 
-
-
 // WEB REST API used to update existing visitor
 //   - visitor id must be specified in request URI
 //   - visitor attributes must be included in POST form
@@ -142,7 +136,7 @@ func restUpdateVisitor(params *api.T_APIHandlerParams) (interface{}, error) {
 	visitorId, isSpecifiedId := params.RequestURLParams["id"]
 	if !isSpecifiedId {
 
-		sessionValue := params.Session.Get( visitor.SESSION_KEY_VISITOR_ID )
+		sessionValue := params.Session.Get(visitor.SESSION_KEY_VISITOR_ID)
 		sessionVisitorId, ok := sessionValue.(string)
 		if !ok {
 			return nil, errors.New("you are not logined in")
@@ -154,7 +148,6 @@ func restUpdateVisitor(params *api.T_APIHandlerParams) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-
 
 	// update operation
 	//-----------------
@@ -178,8 +171,6 @@ func restUpdateVisitor(params *api.T_APIHandlerParams) (interface{}, error) {
 	return visitorModel.ToHashMap(), nil
 }
 
-
-
 // WEB REST API used to delete visitor
 //   - visitor id must be specified in request URI
 func restDeleteVisitor(params *api.T_APIHandlerParams) (interface{}, error) {
@@ -190,7 +181,6 @@ func restDeleteVisitor(params *api.T_APIHandlerParams) (interface{}, error) {
 	if !isSpecifiedId {
 		return nil, errors.New("visitor id was not specified")
 	}
-
 
 	// delete operation
 	//-----------------
@@ -206,8 +196,6 @@ func restDeleteVisitor(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	return "ok", nil
 }
-
-
 
 // WEB REST API function used to obtain visitor information
 //   - visitor id must be specified in request URI
@@ -230,8 +218,6 @@ func restGetVisitor(params *api.T_APIHandlerParams) (interface{}, error) {
 	return visitorModel.ToHashMap(), nil
 }
 
-
-
 // WEB REST API function used to get visitors list
 func restListVisitors(params *api.T_APIHandlerParams) (interface{}, error) {
 	visitorModel, err := visitor.GetVisitorModel()
@@ -241,8 +227,6 @@ func restListVisitors(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	return visitorModel.List()
 }
-
-
 
 // WEB REST API function used to obtain visitor attributes information
 func restListVisitorAttributes(params *api.T_APIHandlerParams) (interface{}, error) {
@@ -254,8 +238,6 @@ func restListVisitorAttributes(params *api.T_APIHandlerParams) (interface{}, err
 	attrInfo := visitorModel.GetAttributesInfo()
 	return attrInfo, nil
 }
-
-
 
 // WEB REST API used to register new visitor (same as create but with email validation)
 //   - visitor attributes must be included in POST form
@@ -272,7 +254,6 @@ func restRegister(params *api.T_APIHandlerParams) (interface{}, error) {
 	if utils.KeysInMapAndNotBlank(reqData, "email") {
 		return nil, errors.New("email was not specified")
 	}
-
 
 	// register visitor operation
 	//---------------------------
@@ -298,7 +279,6 @@ func restRegister(params *api.T_APIHandlerParams) (interface{}, error) {
 	return visitorModel.ToHashMap(), nil
 }
 
-
 func restValidate(params *api.T_APIHandlerParams) (interface{}, error) {
 	// check request params
 	//---------------------
@@ -312,14 +292,13 @@ func restValidate(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil, err
 	}
 
-	err = visitorModel.Validate( validationKey )
+	err = visitorModel.Validate(validationKey)
 	if err != nil {
 		return nil, err
 	}
 
 	return "ok", nil
 }
-
 
 // WEB REST API function used to obtain visitor information
 //   - visitor id must be specified in request URI
@@ -330,7 +309,6 @@ func restInfo(params *api.T_APIHandlerParams) (interface{}, error) {
 	if !ok {
 		return "you are not logined in", nil
 	}
-
 
 	// visitor info
 	//--------------
@@ -346,7 +324,6 @@ func restInfo(params *api.T_APIHandlerParams) (interface{}, error) {
 	return result, nil
 }
 
-
 // WEB REST API function used to make visitor logout
 func restLogout(params *api.T_APIHandlerParams) (interface{}, error) {
 	sessionValue := params.Session.Get("visitor_id")
@@ -358,7 +335,6 @@ func restLogout(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	return "ok", nil
 }
-
 
 // WEB REST API function used to make visitor login
 //   - email and password information needed
@@ -382,25 +358,24 @@ func restLogin(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil, err
 	}
 
-	err = visitorModel.LoadByEmail( utils.InterfaceToString(reqData["email"]) )
+	err = visitorModel.LoadByEmail(utils.InterfaceToString(reqData["email"]))
 	if err != nil {
 		return nil, err
 	}
 
-	ok := visitorModel.CheckPassword( utils.InterfaceToString(reqData["password"]) )
+	ok := visitorModel.CheckPassword(utils.InterfaceToString(reqData["password"]))
 	if !ok {
 		return nil, errors.New("wrong password")
 	}
 
 	if visitorModel.IsValidated() {
-		params.Session.Set(visitor.SESSION_KEY_VISITOR_ID , visitorModel.GetId())
+		params.Session.Set(visitor.SESSION_KEY_VISITOR_ID, visitorModel.GetId())
 	} else {
 		return nil, errors.New("visitor is not validated")
 	}
 
 	return "ok", nil
 }
-
 
 // WEB REST API function used to make login/registration via Facebook
 //   - access_token and user_id params needed
@@ -451,7 +426,7 @@ func restLoginFacebook(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// response json workaround
 	jsonMap := make(map[string]interface{})
-	err = json.Unmarshal(responseData , &jsonMap)
+	err = json.Unmarshal(responseData, &jsonMap)
 	if err != nil {
 		return nil, err
 	}
@@ -472,11 +447,11 @@ func restLoginFacebook(params *api.T_APIHandlerParams) (interface{}, error) {
 	}
 
 	// trying to load visitor by facebook_id
-	err = visitorModel.LoadByFacebookId( reqData["user_id"].(string) )
+	err = visitorModel.LoadByFacebookId(reqData["user_id"].(string))
 	if err != nil && strings.Contains(err.Error(), "not found") {
 
 		// there is no such facebook_id in DB, trying to find by e-mail
-		err = visitorModel.LoadByEmail( jsonMap["email"].(string) )
+		err = visitorModel.LoadByEmail(jsonMap["email"].(string))
 		if err != nil && strings.Contains(err.Error(), "not found") {
 			// visitor not exists in out DB - reating new one
 			visitorModel.Set("email", jsonMap["email"])
@@ -507,7 +482,6 @@ func restLoginFacebook(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	return "ok", nil
 }
-
 
 // WEB REST API function used to make login/registration via Google
 //   - access_token param needed
@@ -554,7 +528,7 @@ func restLoginGoogle(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// response json workaround
 	jsonMap := make(map[string]interface{})
-	err = json.Unmarshal(responseData , &jsonMap)
+	err = json.Unmarshal(responseData, &jsonMap)
 	if err != nil {
 		return nil, err
 	}
@@ -575,11 +549,11 @@ func restLoginGoogle(params *api.T_APIHandlerParams) (interface{}, error) {
 	}
 
 	// trying to load visitor by google_id
-	err = visitorModel.LoadByGoogleId( jsonMap["email"].(string) )
+	err = visitorModel.LoadByGoogleId(jsonMap["email"].(string))
 	if err != nil && strings.Contains(err.Error(), "not found") {
 
 		// there is no such google_id in DB, trying to find by e-mail
-		err = visitorModel.LoadByEmail( jsonMap["email"].(string) )
+		err = visitorModel.LoadByEmail(jsonMap["email"].(string))
 		if err != nil && strings.Contains(err.Error(), "not found") {
 
 			// visitor e-mail not exists in out DB - creating new one

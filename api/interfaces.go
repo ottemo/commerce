@@ -5,11 +5,11 @@ import (
 )
 
 type T_APIHandlerParams struct {
-	ResponseWriter http.ResponseWriter
-	Request *http.Request
+	ResponseWriter   http.ResponseWriter
+	Request          *http.Request
 	RequestURLParams map[string]string
-	RequestContent interface{}
-	Session I_Session
+	RequestContent   interface{}
+	Session          I_Session
 }
 
 type F_APIHandler func(params *T_APIHandlerParams) (interface{}, error)

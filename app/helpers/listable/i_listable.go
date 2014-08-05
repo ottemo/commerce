@@ -63,7 +63,7 @@ func (it *ListableHelper) ListObjects() ([]interface{}, error) {
 	// transforming record data to object
 	for _, dbItemData := range dbItems {
 		if it.delegate.RecordToObjectFunc != nil {
-			result = append(result, it.delegate.RecordToObjectFunc(dbItemData, it.listExtraAtributes) )
+			result = append(result, it.delegate.RecordToObjectFunc(dbItemData, it.listExtraAtributes))
 		} else {
 			result = append(result, dbItemData)
 		}
@@ -91,7 +91,7 @@ func (it *ListableHelper) List() ([]models.T_ListItem, error) {
 	for _, dbItemData := range dbItems {
 
 		if it.delegate.RecordToListItemFunc != nil {
-			result = append(result, it.delegate.RecordToListItemFunc(dbItemData, it.listExtraAtributes) )
+			result = append(result, it.delegate.RecordToListItemFunc(dbItemData, it.listExtraAtributes))
 		} else {
 			resultItem := new(models.T_ListItem)
 
@@ -115,8 +115,6 @@ func (it *ListableHelper) List() ([]models.T_ListItem, error) {
 	return result, nil
 }
 
-
-
 // allows to obtain additional attributes from  List() function
 func (it *ListableHelper) ListAddExtraAttribute(attribute string) error {
 
@@ -133,7 +131,6 @@ func (it *ListableHelper) ListAddExtraAttribute(attribute string) error {
 	return nil
 }
 
-
 // adds selection filter to List() function
 func (it *ListableHelper) ListFilterAdd(Attribute string, Operator string, Value interface{}) error {
 	collection, err := it.getListCollection()
@@ -143,8 +140,6 @@ func (it *ListableHelper) ListFilterAdd(Attribute string, Operator string, Value
 
 	return collection.AddFilter(Attribute, Operator, Value.(string))
 }
-
-
 
 // clears presets made by ListFilterAdd() and ListAddExtraAttribute() functions
 func (it *ListableHelper) ListFilterReset() error {
@@ -159,8 +154,6 @@ func (it *ListableHelper) ListFilterReset() error {
 
 	return nil
 }
-
-
 
 // specifies selection paging
 func (it *ListableHelper) ListLimit(offset int, limit int) error {

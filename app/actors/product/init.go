@@ -8,8 +8,6 @@ import (
 	"github.com/ottemo/foundation/api"
 )
 
-
-
 // module entry point before app start
 func init() {
 	instance := new(DefaultProduct)
@@ -17,10 +15,8 @@ func init() {
 	models.RegisterModel("Product", instance)
 	db.RegisterOnDatabaseStart(instance.setupDB)
 
-	api.RegisterOnRestServiceStart( setupAPI )
+	api.RegisterOnRestServiceStart(setupAPI)
 }
-
-
 
 // DB preparations for current model implementation
 func (it *DefaultProduct) setupDB() error {

@@ -20,7 +20,6 @@ func GetProductModel() (I_Product, error) {
 	return productModel, nil
 }
 
-
 // retrieves current I_Product model implementation and sets its ID to some value
 func GetProductModelAndSetId(productId string) (I_Product, error) {
 
@@ -36,8 +35,6 @@ func GetProductModelAndSetId(productId string) (I_Product, error) {
 
 	return productModel, nil
 }
-
-
 
 // loads product data into current I_Product model implementation
 func LoadProductById(productId string) (I_Product, error) {

@@ -1,8 +1,8 @@
 package utils
 
 import (
-	"errors"
 	"encoding/json"
+	"errors"
 )
 
 // encodes inputData to JSON string if it's possible
@@ -10,7 +10,6 @@ func EncodeToJsonString(inputData interface{}) (string, error) {
 	result, err := json.Marshal(inputData)
 	return string(result), err
 }
-
 
 // decodes json string to map[string]interface{} if it's possible
 func DecodeJsonToStringKeyMap(jsonData interface{}) (map[string]interface{}, error) {

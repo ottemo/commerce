@@ -23,7 +23,6 @@ type DefaultCart struct {
 	maxIdx int
 }
 
-
 type DefaultCartItem struct {
 	id string
 

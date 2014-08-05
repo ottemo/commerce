@@ -12,12 +12,10 @@ type Session struct {
 	time time.Time
 }
 
-
 // returns currens session id
 func (it *Session) GetId() string {
 	return it.id
 }
-
 
 // returns session value by key
 func (it *Session) Get(key string) interface{} {
@@ -26,7 +24,6 @@ func (it *Session) Get(key string) interface{} {
 	}
 	return nil
 }
-
 
 // assigns value to session key
 func (it *Session) Set(key string, value interface{}) {

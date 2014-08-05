@@ -10,13 +10,11 @@ import (
 	"github.com/ottemo/foundation/app/models/cart"
 )
 
-
-
 // module entry point before app start
 func init() {
 	instance := new(DefaultCart)
 
-	ifce := interface{} (instance)
+	ifce := interface{}(instance)
 	if _, ok := ifce.(models.I_Model); !ok {
 		panic("DefaultCart - I_Model interface not implemented")
 	}
@@ -30,10 +28,8 @@ func init() {
 	models.RegisterModel("Cart", instance)
 	db.RegisterOnDatabaseStart(instance.setupDB)
 
-	api.RegisterOnRestServiceStart( setupAPI )
+	api.RegisterOnRestServiceStart(setupAPI)
 }
-
-
 
 // DB preparations for current model implementation
 func (it *DefaultCart) setupDB() error {

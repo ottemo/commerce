@@ -6,13 +6,10 @@ import (
 	"github.com/ottemo/foundation/db"
 )
 
-
 // returns current DB engine name
 func (it *SQLite) GetName() string {
 	return "Sqlite3"
 }
-
-
 
 // checks if collection(table) already exists
 func (it *SQLite) HasCollection(CollectionName string) bool {
@@ -26,8 +23,6 @@ func (it *SQLite) HasCollection(CollectionName string) bool {
 	}
 }
 
-
-
 // creates cllection(table) by it's name
 func (it *SQLite) CreateCollection(CollectionName string) error {
 	CollectionName = strings.ToLower(CollectionName)
@@ -40,8 +35,6 @@ func (it *SQLite) CreateCollection(CollectionName string) error {
 	}
 }
 
-
-
 // returns collection(table) by name or creates new one
 func (it *SQLite) GetCollection(CollectionName string) (db.I_DBCollection, error) {
 
@@ -51,15 +44,15 @@ func (it *SQLite) GetCollection(CollectionName string) (db.I_DBCollection, error
 		}
 	}
 
-	collection := &SQLiteCollection {
-						TableName: CollectionName,
-						Connection: it.Connection,
-						Columns: map[string]string{},
-						Filters: make(map[string]string),
-						Order: make([]string,0),
-						ResultColumns: make([]string,0),
-						StaticFilters: make(map[string]string),
-					}
+	collection := &SQLiteCollection{
+		TableName:     CollectionName,
+		Connection:    it.Connection,
+		Columns:       map[string]string{},
+		Filters:       make(map[string]string),
+		Order:         make([]string, 0),
+		ResultColumns: make([]string, 0),
+		StaticFilters: make(map[string]string),
+	}
 
 	return collection, nil
 }

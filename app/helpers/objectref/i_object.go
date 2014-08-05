@@ -1,14 +1,13 @@
 package objectref
 
 import (
-	"strings"
 	"errors"
+	"strings"
 
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/visitor"
 	"github.com/ottemo/foundation/app/utils"
 )
-
 
 // returns attribute value for current object or nil if no such attribute
 func (it *DBObjectRef) Get(attribute string) interface{} {
@@ -21,8 +20,6 @@ func (it *DBObjectRef) Get(attribute string) interface{} {
 	return result
 }
 
-
-
 // sets attribute value for current object
 func (it *DBObjectRef) Set(attribute string, value interface{}) error {
 	if it.currData == nil {
@@ -33,8 +30,6 @@ func (it *DBObjectRef) Set(attribute string, value interface{}) error {
 
 	return nil
 }
-
-
 
 // fills attributes values based on provided map
 func (it *DBObjectRef) FromHashMap(input map[string]interface{}) error {
@@ -52,8 +47,6 @@ func (it *DBObjectRef) FromHashMap(input map[string]interface{}) error {
 	return nil
 }
 
-
-
 // returns attribute values that current object holds
 func (it *DBObjectRef) ToHashMap() map[string]interface{} {
 
@@ -68,8 +61,6 @@ func (it *DBObjectRef) ToHashMap() map[string]interface{} {
 	return result
 }
 
-
-
 // returns stub information about current object attributes
 //   - if you using this helper you should rewrite this function in your class
 func (it *DBObjectRef) GetAttributesInfo() []models.T_AttributeInfo {
@@ -79,19 +70,19 @@ func (it *DBObjectRef) GetAttributesInfo() []models.T_AttributeInfo {
 	if it.currData != nil {
 		for attribute, _ := range it.currData {
 			result = append(result,
-						models.T_AttributeInfo{
-							Model:      "",
-							Collection: "",
-							Attribute:  attribute,
-							Type:       "",
-							IsRequired: false,
-							IsStatic:   true,
-							Label:      attribute,
-							Group:      "General",
-							Editors:    "not_editable",
-							Options:    "",
-							Default:    "",
-						})
+				models.T_AttributeInfo{
+					Model:      "",
+					Collection: "",
+					Attribute:  attribute,
+					Type:       "",
+					IsRequired: false,
+					IsStatic:   true,
+					Label:      attribute,
+					Group:      "General",
+					Editors:    "not_editable",
+					Options:    "",
+					Default:    "",
+				})
 		}
 	}
 

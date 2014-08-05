@@ -5,25 +5,21 @@ import (
 
 	"github.com/ottemo/foundation/db"
 
-	"github.com/ottemo/foundation/app/models/product"
 	"github.com/ottemo/foundation/app/models/category"
+	"github.com/ottemo/foundation/app/models/product"
 )
 
 func (it *DefaultCategory) GetName() string {
 	return it.Name
 }
 
-
 func (it *DefaultCategory) GetProducts() []product.I_Product {
 	return it.Products
 }
 
-
 func (it *DefaultCategory) GetParent() category.I_Category {
 	return it.Parent
 }
-
-
 
 func (it *DefaultCategory) AddProduct(productId string) error {
 
@@ -53,7 +49,7 @@ func (it *DefaultCategory) AddProduct(productId string) error {
 	}
 
 	if cnt == 0 {
-		_, err := collection.Save( map[string]interface{} { "category_id": categoryId, "product_id": productId } )
+		_, err := collection.Save(map[string]interface{}{"category_id": categoryId, "product_id": productId})
 		if err != nil {
 			return err
 		}
@@ -63,8 +59,6 @@ func (it *DefaultCategory) AddProduct(productId string) error {
 
 	return nil
 }
-
-
 
 func (it *DefaultCategory) RemoveProduct(productId string) error {
 

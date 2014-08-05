@@ -5,9 +5,6 @@ import (
 	"github.com/ottemo/foundation/app/models"
 )
 
-
-
-
 // retrieves current I_Category model implementation
 func GetCategoryModel() (I_Category, error) {
 	model, err := models.GetModel(CATEGORY_MODEL_NAME)
@@ -22,8 +19,6 @@ func GetCategoryModel() (I_Category, error) {
 
 	return categoryModel, nil
 }
-
-
 
 // retrieves current I_Category model implementation and sets its ID to some value
 func GetCategoryModelAndSetId(categoryId string) (I_Category, error) {
@@ -40,8 +35,6 @@ func GetCategoryModelAndSetId(categoryId string) (I_Category, error) {
 
 	return categoryModel, nil
 }
-
-
 
 // loads category data into current I_Category model implementation
 func LoadCategoryById(categoryId string) (I_Category, error) {

@@ -1,9 +1,9 @@
 package visitor
 
 import (
-	"github.com/ottemo/foundation/db"
-	"github.com/ottemo/foundation/app/actors/visitor/address"
 	"errors"
+	"github.com/ottemo/foundation/app/actors/visitor/address"
+	"github.com/ottemo/foundation/db"
 )
 
 func (it *DefaultVisitor) GetId() string {
@@ -71,7 +71,7 @@ func (it *DefaultVisitor) Save() error {
 				if err != nil {
 					return err
 				}
-				if n>0 {
+				if n > 0 {
 					return errors.New("email already exists")
 				}
 			}
@@ -81,7 +81,6 @@ func (it *DefaultVisitor) Save() error {
 			delete(storableValues, "billing_address")
 			delete(storableValues, "shipping_address")
 
-
 			/*if it.Password == "" {
 				return errors.New("password can't be blank")
 			}*/
@@ -90,7 +89,6 @@ func (it *DefaultVisitor) Save() error {
 			storableValues["google_id"] = it.GoogleId
 			storableValues["password"] = it.Password
 			storableValues["validate"] = it.ValidateKey
-
 
 			// shipping address save
 			if it.ShippingAddress != nil {
