@@ -1,11 +1,12 @@
 package visitor
 
 import (
-	"github.com/ottemo/foundation/app/models"
+	"errors"
 	"strings"
 
-	"errors"
+	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/visitor"
+	"github.com/ottemo/foundation/app/utils"
 )
 
 func (it *DefaultVisitor) Get(attribute string) interface{} {
@@ -32,7 +33,6 @@ func (it *DefaultVisitor) Get(attribute string) interface{} {
 		return it.GoogleId
 	}
 
-
 	return nil
 }
 
@@ -49,7 +49,7 @@ func (it *DefaultVisitor) Set(attribute string, value interface{}) error {
 	case "lname", "last_name":
 		it.LastName = value.(string)
 	case "password", "passwd":
-		it.SetPassword( value.(string) )
+		it.SetPassword(value.(string))
 	case "validate":
 		it.ValidateKey = value.(string)
 	case "facebook_id":
@@ -59,7 +59,7 @@ func (it *DefaultVisitor) Set(attribute string, value interface{}) error {
 
 	// only address id coming - trying to get it from DB
 	case "billing_address_id", "shipping_address_id":
-		address := it.getVisitorAddressById(value.(string))
+		address := it.getVisitorAddressById(utils.InterfaceToString(value))
 		if address != nil && address.GetId() != "" {
 
 			if attribute == "billing_address_id" {
@@ -68,8 +68,6 @@ func (it *DefaultVisitor) Set(attribute string, value interface{}) error {
 				it.ShippingAddress = address
 			}
 
-		} else {
-			return errors.New("wrong address id")
 		}
 
 	// address with details coming

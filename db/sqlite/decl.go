@@ -5,12 +5,19 @@ import (
 	"github.com/ottemo/foundation/db"
 )
 
+const (
+	DEBUG_SQL = false
+)
+
 type SQLiteCollection struct {
 	Connection *sqlite3.Conn
 	TableName  string
 	Columns    map[string]string
 
-	Filters []string
+	ResultColumns []string
+	StaticFilters map[string]string
+
+	Filters map[string]string
 	Order   []string
 
 	Limit string

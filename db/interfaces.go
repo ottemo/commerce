@@ -19,11 +19,15 @@ type I_DBCollection interface {
 
 	Count() (int, error)
 
-	AddFilter(ColumnName string, Operator string, Value string) error //TODO: modify (Value string) to (Value interface{})
+	AddStaticFilter(ColumnName string, Operator string, Value interface{}) error
+
+	AddFilter(ColumnName string, Operator string, Value interface{}) error
 	ClearFilters() error
 
 	AddSort(ColumnName string, Desc bool) error
 	ClearSort() error
+
+	SetResultColumns(columns ...string) error
 
 	SetLimit(offset int, limit int) error
 

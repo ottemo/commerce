@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/ottemo/foundation/app/models"
+	"github.com/ottemo/foundation/app/utils"
 )
 
 func (it *DefaultProduct) Get(attribute string) interface{} {
@@ -123,19 +124,13 @@ func (it *DefaultProduct) FromHashMap(input map[string]interface{}) error {
 		}
 	}
 	if value, ok := input["price"]; ok {
-		if value, ok := value.(float64); ok {
-			it.Price = value
-		}
+		it.Price = utils.InterfaceToFloat64(value)
 	}
 	if value, ok := input["weight"]; ok {
-		if value, ok := value.(float64); ok {
-			it.Weight = value
-		}
+		it.Weight = utils.InterfaceToFloat64(value)
 	}
 	if value, ok := input["size"]; ok {
-		if value, ok := value.(float64); ok {
-			it.Size = value
-		}
+		it.Size = utils.InterfaceToFloat64(value)
 	}
 
 	it.CustomAttributes.FromHashMap(input)
@@ -146,18 +141,18 @@ func (it *DefaultProduct) FromHashMap(input map[string]interface{}) error {
 func (it *DefaultProduct) ToHashMap() map[string]interface{} {
 	result := it.CustomAttributes.ToHashMap()
 
-	result["_id"]  = it.id
-	result["sku"]  = it.Sku
+	result["_id"] = it.id
+	result["sku"] = it.Sku
 	result["name"] = it.Name
 
 	result["short_description"] = it.ShortDescription
-	result["description"]       = it.Description
+	result["description"] = it.Description
 
 	result["default_image"] = it.DefaultImage
 
-	result["price"]  = it.Price
+	result["price"] = it.Price
 	result["weight"] = it.Weight
-	result["size"]   = it.Size
+	result["size"] = it.Size
 
 	return result
 }

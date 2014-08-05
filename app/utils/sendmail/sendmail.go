@@ -1,27 +1,27 @@
 package sendmail
 
 import (
-	"net/smtp"
 	"bytes"
-	"text/template"
-	"strconv"
-	"log"
 	"fmt"
+	"log"
+	"net/smtp"
+	"strconv"
+	"text/template"
 )
 
 type EmailUser struct {
-	Username    	string
-	FromUserName 	string
-	Password    	string
-	EmailServer 	string
-	Port        	int
+	Username     string
+	FromUserName string
+	Password     string
+	EmailServer  string
+	Port         int
 }
 
 type SmtpTemplateData struct {
-	From    	string
-	To      	string
-	Subject 	string
-	Body    	string
+	From    string
+	To      string
+	Subject string
+	Body    string
 }
 
 const emailGeneralTemplate = `From: {{.From}}
@@ -68,14 +68,14 @@ func SendMail(to string, subject string, body string) (string, error) {
 	}
 
 	err = smtp.SendMail(
-		emailUser.EmailServer + ":" + strconv.Itoa(emailUser.Port),
+		emailUser.EmailServer+":"+strconv.Itoa(emailUser.Port),
 		auth,
 		emailUser.Username,
 		[]string{context.To},
-		doc.Bytes() )
+		doc.Bytes())
 	if err != nil {
 		log.Println("ERROR: attempting to send a mail ", err)
 	}
 
-	return fmt.Sprintf("sent status"), err;
+	return fmt.Sprintf("sent status"), err
 }

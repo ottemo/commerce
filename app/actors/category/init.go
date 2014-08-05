@@ -10,10 +10,11 @@ import (
 	"github.com/ottemo/foundation/app/models/category"
 )
 
+// module entry point before app start
 func init() {
 	instance := new(DefaultCategory)
 
-	ifce := interface{} (instance)
+	ifce := interface{}(instance)
 	if _, ok := ifce.(models.I_Model); !ok {
 		panic("DefaultCategory - I_Model interface not implemented")
 	}
@@ -31,12 +32,14 @@ func init() {
 	}
 
 	models.RegisterModel("Category", instance)
-	db.RegisterOnDatabaseStart(instance.setupModel)
 
-	api.RegisterOnRestServiceStart(instance.setupAPI)
+	db.RegisterOnDatabaseStart(instance.setupDB)
+
+	api.RegisterOnRestServiceStart(setupAPI)
 }
 
-func (it *DefaultCategory) setupModel() error {
+// DB preparations for current model implementation
+func (it *DefaultCategory) setupDB() error {
 
 	if dbEngine := db.GetDBEngine(); dbEngine != nil {
 		collection, err := dbEngine.GetCollection(CATEGORY_COLLECTION_NAME)

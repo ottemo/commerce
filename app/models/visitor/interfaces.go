@@ -5,7 +5,9 @@ import (
 )
 
 const (
-	SESSION_KEY_VISITOR_ID = "visitor_id"
+	VISITOR_MODEL_NAME         = "Visitor"
+	VISITOR_ADDRESS_MODEL_NAME = "VisitorAddress"
+	SESSION_KEY_VISITOR_ID     = "visitor_id"
 )
 
 type I_VisitorAddress interface {

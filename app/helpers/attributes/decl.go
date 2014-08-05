@@ -9,8 +9,9 @@ import (
 const (
 	CUSTOM_ATTRIBUTES_COLLECTION = "custom_attributes"
 )
+
 var (
-	globalCustomAttributes = map[string]map[string]models.T_AttributeInfo{}
+	globalCustomAttributes      = map[string]map[string]models.T_AttributeInfo{}
 	globalCustomAttributesMutex sync.RWMutex
 )
 

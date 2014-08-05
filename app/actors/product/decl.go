@@ -1,8 +1,8 @@
 package product
 
 import (
+	"github.com/ottemo/foundation/app/helpers/attributes"
 	"github.com/ottemo/foundation/db"
-	"github.com/ottemo/foundation/app/actors/attributes"
 )
 
 type DefaultProduct struct {
@@ -12,17 +12,17 @@ type DefaultProduct struct {
 	Name string
 
 	ShortDescription string
-	Description string
+	Description      string
 
 	DefaultImage string
 
 	Price float64
 
 	Weight float64
-	Size float64
+	Size   float64
 
 	*attributes.CustomAttributes
 
-	listCollection db.I_DBCollection
+	listCollection     db.I_DBCollection
 	listExtraAtributes []string
 }

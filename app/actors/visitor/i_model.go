@@ -2,10 +2,11 @@ package visitor
 
 import (
 	"github.com/ottemo/foundation/app/models"
+	"github.com/ottemo/foundation/app/models/visitor"
 )
 
 func (it *DefaultVisitor) GetModelName() string {
-	return "Visitor"
+	return visitor.VISITOR_MODEL_NAME
 }
 
 func (it *DefaultVisitor) GetImplementationName() string {

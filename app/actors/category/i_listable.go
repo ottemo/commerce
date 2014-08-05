@@ -30,11 +30,9 @@ func (it *DefaultCategory) getListCollection() (db.I_DBCollection, error) {
 	}
 }
 
-
 //-------------------------
 // INTERFACE IMPLEMENTATION
 //-------------------------
-
 
 // enumerates items of Product model type
 func (it *DefaultCategory) List() ([]models.T_ListItem, error) {
@@ -65,10 +63,10 @@ func (it *DefaultCategory) List() ([]models.T_ListItem, error) {
 		// retrieving minimal data needed for list
 		resultItem := new(models.T_ListItem)
 
-		resultItem.Id    = category.GetId()
-		resultItem.Name  = category.GetName()
+		resultItem.Id = category.GetId()
+		resultItem.Name = category.GetName()
 		resultItem.Image = ""
-		resultItem.Desc  = ""
+		resultItem.Desc = ""
 
 		// if extra attributes were required
 		if len(it.listExtraAtributes) > 0 {
@@ -84,8 +82,6 @@ func (it *DefaultCategory) List() ([]models.T_ListItem, error) {
 
 	return result, nil
 }
-
-
 
 // allows to obtain additional attributes from  List() function
 func (it *DefaultCategory) ListAddExtraAttribute(attribute string) error {
@@ -103,8 +99,6 @@ func (it *DefaultCategory) ListAddExtraAttribute(attribute string) error {
 	return nil
 }
 
-
-
 // adds selection filter to List() function
 func (it *DefaultCategory) ListFilterAdd(Attribute string, Operator string, Value interface{}) error {
 	collection, err := it.getListCollection()
@@ -116,8 +110,6 @@ func (it *DefaultCategory) ListFilterAdd(Attribute string, Operator string, Valu
 	return nil
 }
 
-
-
 // clears presets made by ListFilterAdd() and ListAddExtraAttribute() functions
 func (it *DefaultCategory) ListFilterReset() error {
 	collection, err := it.getListCollection()
@@ -128,8 +120,6 @@ func (it *DefaultCategory) ListFilterReset() error {
 	collection.ClearFilters()
 	return nil
 }
-
-
 
 // specifies selection paging
 func (it *DefaultCategory) ListLimit(offset int, limit int) error {

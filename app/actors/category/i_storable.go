@@ -109,7 +109,7 @@ func (it *DefaultCategory) Save() error {
 
 		storableValues := it.ToHashMap()
 
-		delete(storableValues,"products")
+		delete(storableValues, "products")
 
 		categoryCollection, err := dbEngine.GetCollection(CATEGORY_COLLECTION_NAME)
 		if err != nil {

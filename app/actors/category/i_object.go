@@ -23,10 +23,9 @@ func (it *DefaultCategory) updatePath() {
 			it.Path = parentPath + "/" + it.GetId()
 		}
 	} else {
-		it.Path = "/"  + it.GetId()
+		it.Path = "/" + it.GetId()
 	}
 }
-
 
 //--------------------------
 // INTERFACE IMPLEMENTATION
@@ -78,7 +77,7 @@ func (it *DefaultCategory) Set(attribute string, value interface{}) error {
 		it.Name = value.(string)
 
 	case "parent_id":
-		if value, ok := value.(string); ok  {
+		if value, ok := value.(string); ok {
 			value = strings.TrimSpace(value)
 			if value != "" {
 				model, err := models.GetModel("Category")

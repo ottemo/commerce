@@ -9,7 +9,7 @@ const (
 )
 
 type DefaultVisitorAddress struct {
-	id string
+	id         string
 	visitor_id string
 
 	Street  string
@@ -18,7 +18,6 @@ type DefaultVisitorAddress struct {
 	Phone   string
 	ZipCode string
 
-
-	listCollection db.I_DBCollection
+	listCollection     db.I_DBCollection
 	listExtraAtributes []string
 }

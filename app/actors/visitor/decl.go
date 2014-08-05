@@ -9,7 +9,7 @@ import (
 const (
 	VISITOR_COLLECTION_NAME = "visitor"
 
-	EMAIL_VALIDATE_EXPIRE = 60*60*24
+	EMAIL_VALIDATE_EXPIRE = 60 * 60 * 24
 )
 
 type DefaultVisitor struct {
@@ -25,9 +25,9 @@ type DefaultVisitor struct {
 	BillingAddress  visitor.I_VisitorAddress
 	ShippingAddress visitor.I_VisitorAddress
 
-	Password string
+	Password    string
 	ValidateKey string
 
-	listCollection db.I_DBCollection
+	listCollection     db.I_DBCollection
 	listExtraAtributes []string
 }

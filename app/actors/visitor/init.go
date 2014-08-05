@@ -8,7 +8,6 @@ import (
 	"github.com/ottemo/foundation/api"
 )
 
-
 // package self initializator
 func init() {
 	instance := new(DefaultVisitor)
@@ -17,9 +16,8 @@ func init() {
 
 	db.RegisterOnDatabaseStart(instance.setupDB)
 
-	api.RegisterOnRestServiceStart(instance.setupAPI)
+	api.RegisterOnRestServiceStart(setupAPI)
 }
-
 
 // setups database tables for model usage
 func (it *DefaultVisitor) setupDB() error {
@@ -46,4 +44,3 @@ func (it *DefaultVisitor) setupDB() error {
 
 	return nil
 }
-

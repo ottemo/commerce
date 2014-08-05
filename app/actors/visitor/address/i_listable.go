@@ -30,7 +30,6 @@ func (it *DefaultVisitorAddress) getListCollection() (db.I_DBCollection, error) 
 	}
 }
 
-
 //--------------------------
 // INTERFACE IMPLEMENTATION
 //--------------------------
@@ -63,10 +62,10 @@ func (it *DefaultVisitorAddress) List() ([]models.T_ListItem, error) {
 		// retrieving minimal data needed for list
 		resultItem := new(models.T_ListItem)
 
-		resultItem.Id    = address.GetId()
-		resultItem.Name  = address.GetZipCode() + " " + address.GetState() + ", " + address.GetCity() + ", " + address.GetStreet()
+		resultItem.Id = address.GetId()
+		resultItem.Name = address.GetZipCode() + " " + address.GetState() + ", " + address.GetCity() + ", " + address.GetStreet()
 		resultItem.Image = ""
-		resultItem.Desc  = "Zip: " + address.GetZipCode() + ", State: " + address.GetState() + ", City: " + address.GetCity() + ", Street: " + address.GetStreet() + ", Phone: " + address.GetPhone()
+		resultItem.Desc = "Zip: " + address.GetZipCode() + ", State: " + address.GetState() + ", City: " + address.GetCity() + ", Street: " + address.GetStreet() + ", Phone: " + address.GetPhone()
 
 		// if extra attributes were required
 		if len(it.listExtraAtributes) > 0 {
@@ -82,8 +81,6 @@ func (it *DefaultVisitorAddress) List() ([]models.T_ListItem, error) {
 
 	return result, nil
 }
-
-
 
 // allows to obtain additional attributes from  List() function
 func (it *DefaultVisitorAddress) ListAddExtraAttribute(attribute string) error {
@@ -101,8 +98,6 @@ func (it *DefaultVisitorAddress) ListAddExtraAttribute(attribute string) error {
 	return nil
 }
 
-
-
 // adds selection filter to List() function
 func (it *DefaultVisitorAddress) ListFilterAdd(Attribute string, Operator string, Value interface{}) error {
 	collection, err := it.getListCollection()
@@ -114,8 +109,6 @@ func (it *DefaultVisitorAddress) ListFilterAdd(Attribute string, Operator string
 	return nil
 }
 
-
-
 // clears presets made by ListFilterAdd() and ListAddExtraAttribute() functions
 func (it *DefaultVisitorAddress) ListFilterReset() error {
 	collection, err := it.getListCollection()
@@ -126,8 +119,6 @@ func (it *DefaultVisitorAddress) ListFilterReset() error {
 	collection.ClearFilters()
 	return nil
 }
-
-
 
 // specifies selection paging
 func (it *DefaultVisitorAddress) ListLimit(offset int, limit int) error {

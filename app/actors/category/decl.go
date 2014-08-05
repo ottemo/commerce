@@ -17,10 +17,9 @@ type DefaultCategory struct {
 
 	Name     string
 	Parent   category.I_Category
-	Path	 string
+	Path     string
 	Products []product.I_Product
 
-
-	listCollection db.I_DBCollection
+	listCollection     db.I_DBCollection
 	listExtraAtributes []string
 }
