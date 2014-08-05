@@ -84,6 +84,26 @@ func GetSiteBackUrl() string {
 	return "http://dev.ottemo.com:3000/"
 }
 
+
+// converts interface{} to string
+func InterfaceToBool(value interface{}) bool {
+	switch typedValue := value.(type) {
+	case bool:
+		return typedValue
+	case string:
+		if typedValue == "1" || typedValue == "true" || typedValue == "on" {
+			return true
+		} else {
+			return false
+		}
+	case int:
+		return typedValue > 0
+	default:
+		return false
+	}
+}
+
+
 // converts interface{} to string
 func InterfaceToString(value interface{}) string {
 	switch value := value.(type) {

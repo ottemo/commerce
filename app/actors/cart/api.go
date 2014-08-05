@@ -81,10 +81,39 @@ func restCartInfo(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil, err
 	}
 
+	items := make([]map[string]interface{},0)
+	item := make(map[string]interface{})
+
+	cartItems := currentCart.ListItems()
+	for _, cartItem := range cartItems {
+		item["_id"] = cartItem.GetId()
+		item["idx"] = cartItem.GetIdx()
+		item["qty"] = cartItem.GetQty()
+		item["pid"] = cartItem.GetProductId()
+		item["options"] = cartItem.GetOptions()
+
+		if product := cartItem.GetProduct(); product != nil {
+			productData := make(map[string]interface{})
+
+			mediaPath, _ := product.GetMediaPath("image")
+
+			productData["name"]   = product.GetName()
+			productData["sku"]    = product.GetSku()
+			productData["image"]  = mediaPath + product.GetDefaultImage()
+			productData["price"]  = product.GetPrice()
+			productData["weight"] = product.GetWeight()
+			productData["size"]   = product.GetSize()
+
+			item["product"] = productData
+		}
+
+		items = append(items, item)
+	}
+
 	result := map[string]interface{} {
 		"visitor_id": currentCart.GetVisitorId(),
 		"cart_info": currentCart.GetCartInfo(),
-		"items": currentCart.ListItems(),
+		"items": items,
 	}
 
 	return result, nil

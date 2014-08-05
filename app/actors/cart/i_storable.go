@@ -44,6 +44,7 @@ func (it *DefaultCart) Load(Id string) error {
 
 		// initializing DefaultCart structure
 		it.id = utils.InterfaceToString( values["_id"] )
+		it.Active = utils.InterfaceToBool( values["active"] )
 		it.VisitorId = utils.InterfaceToString( values["visitor_id"] )
 		it.Info, _ = utils.DecodeJsonToStringKeyMap( values["info"] )
 		it.Items = make(map[int]cart.I_CartItem)
@@ -77,7 +78,7 @@ func (it *DefaultCart) Load(Id string) error {
 			cartItem.Qty = utils.InterfaceToInt( cartItemValues["qty"] )
 			cartItem.Options, _ = utils.DecodeJsonToStringKeyMap( cartItemValues["options"] )
 
-			it.Items[it.maxIdx] = cartItem
+			it.Items[cartItem.idx] = cartItem
 		}
 	}
 
