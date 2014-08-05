@@ -82,10 +82,12 @@ func restCartInfo(params *api.T_APIHandlerParams) (interface{}, error) {
 	}
 
 	items := make([]map[string]interface{},0)
-	item := make(map[string]interface{})
 
 	cartItems := currentCart.ListItems()
 	for _, cartItem := range cartItems {
+
+		item := make(map[string]interface{})
+
 		item["_id"] = cartItem.GetId()
 		item["idx"] = cartItem.GetIdx()
 		item["qty"] = cartItem.GetQty()
