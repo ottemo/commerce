@@ -48,8 +48,25 @@ func (it *DefaultCart) AddItem(productId string, qty int, options map[string]int
 // removes item from cart
 //   - you need to know index you can get from ListItems()
 func (it *DefaultCart) RemoveItem(itemIdx int) error {
-	if _, present := it.Items[itemIdx]; present {
+	if cartItem, present := it.Items[itemIdx]; present {
+
+		dbEngine := db.GetDBEngine()
+		if dbEngine == nil {
+			return errors.New("can't get DB engine")
+		}
+
+		cartItemsCollection, err := dbEngine.GetCollection(CART_ITEMS_COLLECTION_NAME)
+		if err != nil {
+			return err
+		}
+
+		err = cartItemsCollection.DeleteById(cartItem.GetId())
+		if err != nil {
+			return err
+		}
+
 		delete(it.Items, itemIdx)
+
 		return nil
 	} else {
 		return errors.New("can't find index " + strconv.Itoa(itemIdx))
