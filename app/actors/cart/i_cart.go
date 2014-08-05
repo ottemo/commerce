@@ -138,7 +138,7 @@ func (it *DefaultCart) GetCartInfo() map[string]interface{} {
 // loads cart information from DB for visitor
 func (it *DefaultCart) MakeCartForVisitor(visitorId string) error {
 	dbEngine := db.GetDBEngine()
-	if dbEngine != nil {
+	if dbEngine == nil {
 		return errors.New("can't get DB Engine")
 	}
 
@@ -148,7 +148,7 @@ func (it *DefaultCart) MakeCartForVisitor(visitorId string) error {
 	}
 
 	cartCollection.AddFilter("visitor_id", "=", visitorId)
-	cartCollection.AddFilter("active", "=", "true")
+	cartCollection.AddFilter("active", "=", true)
 	rowsData, err := cartCollection.Load()
 	if err != nil {
 		return err
@@ -161,9 +161,12 @@ func (it *DefaultCart) MakeCartForVisitor(visitorId string) error {
 		}
 		newCart := newModel.(*DefaultCart)
 		newCart.SetVisitorId(visitorId)
+		newCart.Activate()
 		newCart.Save()
+
+		*it = *newCart
 	} else {
-		err := it.Load( rowsData[0]["cart_id"].(string) )
+		err := it.Load( rowsData[0]["_id"].(string) )
 		if err != nil {
 			return err
 		}

@@ -41,7 +41,8 @@ func setupAPI() error {
 func getCurrentCart(params *api.T_APIHandlerParams) (cart.I_Cart, error) {
 	sessionCartId := params.Session.Get( cart.SESSION_KEY_CURRENT_CART )
 
-	if sessionCartId != nil {
+	if sessionCartId != nil && sessionCartId != "" {
+
 		currentCart, err := cart.LoadCartById( utils.InterfaceToString(sessionCartId) )
 		if err != nil {
 			return nil, err
@@ -56,6 +57,8 @@ func getCurrentCart(params *api.T_APIHandlerParams) (cart.I_Cart, error) {
 			if err != nil {
 				return nil, err
 			}
+
+			params.Session.Set( cart.SESSION_KEY_CURRENT_CART, currentCart.GetId() )
 
 			return currentCart, nil
 		} else {
@@ -102,14 +105,14 @@ func restCartAdd(params *api.T_APIHandlerParams) (interface{}, error) {
 	}
 
 	var pid string = ""
-	reqPid, present := reqData["pid"]
+	reqPid, present := params.RequestURLParams["productId"]
 	pid = utils.InterfaceToString(reqPid)
 	if !present || pid == "" {
 		return nil, errors.New("pid should be specified")
 	}
 
 	var qty int = 1
-	reqQty, present := reqData["qty"]
+	reqQty, present := params.RequestURLParams["qty"]
 	if present {
 		qty = utils.InterfaceToInt(reqQty)
 	}

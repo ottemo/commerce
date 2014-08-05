@@ -43,6 +43,7 @@ func (it *DefaultCart) Load(Id string) error {
 
 
 		// initializing DefaultCart structure
+		it.id = utils.InterfaceToString( values["_id"] )
 		it.VisitorId = utils.InterfaceToString( values["visitor_id"] )
 		it.Info, _ = utils.DecodeJsonToStringKeyMap( values["info"] )
 		it.Items = make(map[int]cart.I_CartItem)
@@ -68,7 +69,7 @@ func (it *DefaultCart) Load(Id string) error {
 			cartItem.idx = utils.InterfaceToInt( cartItemValues["idx"] )
 
 			if cartItem.idx > it.maxIdx {
-				cartItem.idx = cartItem.idx
+				it.maxIdx = cartItem.idx
 			}
 
 			cartItem.Cart = it
@@ -92,7 +93,7 @@ func (it *DefaultCart) Delete(Id string) error {
 	}
 
 	dbEngine := db.GetDBEngine()
-	if dbEngine != nil {
+	if dbEngine == nil {
 		return errors.New("can't get DbEngine")
 	}
 
@@ -128,7 +129,7 @@ func (it *DefaultCart) Delete(Id string) error {
 func (it *DefaultCart) Save() error {
 
 	dbEngine := db.GetDBEngine()
-	if dbEngine != nil {
+	if dbEngine == nil {
 		return errors.New("can't get DbEngine")
 	}
 
@@ -160,6 +161,7 @@ func (it *DefaultCart) Save() error {
 	for _, cartItem := range it.ListItems() {
 		cartItemStoringValues := make(map[string]interface{})
 
+		cartItemStoringValues["_id"] = cartItem.GetId()
 		cartItemStoringValues["idx"] = cartItem.GetIdx()
 		cartItemStoringValues["cart_id"] = it.GetId()
 		cartItemStoringValues["product_id"] = cartItem.GetProductId()

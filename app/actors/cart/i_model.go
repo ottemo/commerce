@@ -9,7 +9,7 @@ import (
 
 // returns model name we have implementation for
 func (it *DefaultCart) GetModelName() string {
-	return "Cart"
+	return cart.CART_MODEL_NAME
 }
 
 
