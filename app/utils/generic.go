@@ -2,23 +2,53 @@ package utils
 
 import (
 	"strconv"
-	"reflect"
 )
 
+func checkIsBlank(value interface{}) bool {
+	switch typedValue := value.(type) {
+	case string:
+		return typedValue == ""
+	case int, int32, int64:
+		return typedValue == 0
+	case []string, []interface{} :
+		return false
+	case map[string]interface{}, map[string]string, map[string]int:
+		return false
+	case float32, float64:
+		return typedValue == 0
+	}
+
+	return false
+}
 
 // checks presence of non blank values for keys in map
 //   - first arg must be map
 //   - fallowing arguments are map keys you want to check
 func KeysInMapAndNotBlank(mapObject interface{}, keys ...interface{}) bool {
-	mapReflected := reflect.ValueOf(mapObject)
-	if mapReflected.Kind() != reflect.Map {
-		return false
-	}
-
-	for _, key := range keys {
-		keyReflected := reflect.ValueOf(key)
-		if mapValue := mapReflected.MapIndex(keyReflected); mapValue.IsValid() && mapValue.IsNil() {
-			return false
+	switch typedMapObject := mapObject.(type) {
+	case map[string]interface{}:
+		for _, key := range keys {
+			if key2, ok := key.(string); ok {
+				if mapValue, present := typedMapObject[key2]; present {
+					if isBlank := checkIsBlank(mapValue); isBlank {
+						return false
+					}
+				} else {
+					return false
+				}
+			}
+		}
+	case map[int]interface{}:
+		for _, key := range keys {
+			if key, ok := key.(int); ok {
+				if mapValue, present := typedMapObject[key]; present {
+					if isBlank := checkIsBlank(mapValue); isBlank {
+						return false
+					}
+				} else {
+					return false
+				}
+			}
 		}
 	}
 
