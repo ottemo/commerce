@@ -319,7 +319,7 @@ func restCreateProduct(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil, err
 	}
 
-	if utils.KeysInMapAndNotBlank(params.RequestURLParams, "sku", "name") {
+	if !utils.KeysInMapAndNotBlank(params.RequestURLParams, "sku", "name") {
 		return nil, errors.New("product name and/or sku were not specified")
 	}
 

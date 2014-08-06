@@ -103,7 +103,7 @@ func restCreateVisitor(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil, err
 	}
 
-	if utils.KeysInMapAndNotBlank(reqData, "email") {
+	if !utils.KeysInMapAndNotBlank(reqData, "email") {
 		return nil, errors.New("'email' was not specified")
 	}
 
@@ -269,7 +269,7 @@ func restRegister(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil, err
 	}
 
-	if utils.KeysInMapAndNotBlank(reqData, "email") {
+	if !utils.KeysInMapAndNotBlank(reqData, "email") {
 		return nil, errors.New("email was not specified")
 	}
 
@@ -371,7 +371,7 @@ func restLogin(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil, err
 	}
 
-	if utils.KeysInMapAndNotBlank(reqData, "email", "password") {
+	if !utils.KeysInMapAndNotBlank(reqData, "email", "password") {
 		return nil, errors.New("email and/or password were not specified")
 	}
 
@@ -413,11 +413,11 @@ func restLoginFacebook(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil, err
 	}
 
-	if utils.KeysInMapAndNotBlank(reqData, "access_token") {
+	if !utils.KeysInMapAndNotBlank(reqData, "access_token") {
 		return nil, errors.New("access_token was not specified")
 	}
 
-	if utils.KeysInMapAndNotBlank(reqData, "user_id") {
+	if !utils.KeysInMapAndNotBlank(reqData, "user_id") {
 		return nil, errors.New("user_id was not specified")
 	}
 
@@ -520,7 +520,7 @@ func restLoginGoogle(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil, errors.New("unexpected request content")
 	}
 
-	if utils.KeysInMapAndNotBlank(reqData, "access_token") {
+	if !utils.KeysInMapAndNotBlank(reqData, "access_token") {
 		return nil, errors.New("access_token was not specified")
 	}
 
