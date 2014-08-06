@@ -11,15 +11,13 @@ import (
 //   - fallowing arguments are map keys you want to check
 func KeysInMapAndNotBlank(mapObject interface{}, keys ...interface{}) bool {
 	mapReflected := reflect.ValueOf(mapObject)
-	if reflect.TypeOf(mapReflected).Kind() != reflect.Map {
+	if mapReflected.Kind() != reflect.Map {
 		return false
 	}
 
 	for _, key := range keys {
 		keyReflected := reflect.ValueOf(key)
-		if mapValue := mapReflected.MapIndex(keyReflected); mapValue.IsNil() {
-			return false
-		} else if !mapValue.IsValid() {
+		if mapValue := mapReflected.MapIndex(keyReflected); mapValue.IsValid() && mapValue.IsNil() {
 			return false
 		}
 	}
