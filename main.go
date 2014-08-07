@@ -20,6 +20,8 @@ import (
 	_ "github.com/ottemo/foundation/app/actors/product"
 	_ "github.com/ottemo/foundation/app/actors/visitor"
 	_ "github.com/ottemo/foundation/app/actors/visitor/address"
+
+	_ "github.com/ottemo/foundation/app/actors/checkout"
 )
 
 func main() {
