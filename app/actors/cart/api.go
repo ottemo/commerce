@@ -192,12 +192,21 @@ func restCartUpdate(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil, err
 	}
 
+	found := false
 	cartItems := currentCart.ListItems()
-	if len(cartItems) > itemIdx {
-		cartItems[itemIdx].SetQty(qty)
-	} else {
+
+	for _, cartItem := range cartItems {
+		if cartItem.GetIdx() == itemIdx {
+			cartItem.SetQty( qty )
+			found = true
+			break
+		}
+	}
+
+	if !found {
 		return nil, errors.New("wrong itemIdx was specified")
 	}
+
 	currentCart.Save()
 
 	return "ok", nil
