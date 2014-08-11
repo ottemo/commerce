@@ -22,6 +22,7 @@ import (
 	_ "github.com/ottemo/foundation/app/actors/visitor/address"
 
 	_ "github.com/ottemo/foundation/app/actors/checkout"
+	_ "github.com/ottemo/foundation/app/actors/order"
 )
 
 func main() {

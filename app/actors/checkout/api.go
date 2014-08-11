@@ -6,7 +6,9 @@ import (
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/app/models/checkout"
 	"github.com/ottemo/foundation/app/models/visitor"
+	"github.com/ottemo/foundation/app/models/order"
 	"github.com/ottemo/foundation/app/utils"
+	"strconv"
 )
 
 func setupAPI() error {
@@ -38,6 +40,10 @@ func setupAPI() error {
 		return err
 	}
 	err = api.GetRestService().RegisterAPI("checkout", "POST", "set/shipping/method/:code", restCheckoutSetShippingMethod)
+	if err != nil {
+		return err
+	}
+	err = api.GetRestService().RegisterAPI("checkout", "GET", "submit", restSubmit)
 	if err != nil {
 		return err
 	}
@@ -291,6 +297,72 @@ func restCheckoutSetShippingMethod(params *api.T_APIHandlerParams) (interface{},
 			}
 		}
 	}
+
+	return nil, errors.New("shipping method not found")
+}
+
+
+
+
+// WEB REST API function to submit checkout information and make order
+func restSubmit(params *api.T_APIHandlerParams) (interface{}, error) {
+	currentCheckout, err := getCurrentCheckout(params)
+	if err != nil {
+		return nil, err
+	}
+
+	if currentCheckout.GetBillingAddress() == nil {
+		return nil, errors.New("Billing address is not set")
+	}
+
+	if currentCheckout.GetShippingAddress() == nil {
+		return nil, errors.New("Shipping address is not set")
+	}
+
+	if currentCheckout.GetPaymentMethod() == nil {
+		return nil, errors.New("Payment method is not set")
+	}
+
+	if currentCheckout.GetShippingMethod() == nil {
+		return nil, errors.New("Shipping method is not set")
+	}
+
+	currentCart := currentCheckout.GetCart()
+	if currentCart == nil {
+		return nil, errors.New("Cart is not specified")
+	}
+
+	cartItems := currentCart.ListItems()
+	if len(cartItems) == 0 {
+		return nil, errors.New("Cart have no products inside")
+	}
+
+	newOrder, err := order.GetOrderModel()
+	if err != nil {
+		return nil ,err
+	}
+
+	for _, cartItem := range cartItems {
+		orderItem, err := newOrder.AddItem(cartItem.GetProductId(), cartItem.GetQty(), cartItem.GetOptions())
+		if err != nil {
+			return nil, err
+		}
+
+		product := cartItem.GetProduct()
+		if product == nil {
+			return nil, errors.New("no product for cart item " + strconv.Itoa(cartItem.GetIdx()))
+		}
+
+		orderItem.Set("name",  product.GetName())
+		orderItem.Set("sku",   product.GetSku())
+		orderItem.Set("short_description", product.GetShortDescription())
+
+		orderItem.Set("price", product.GetPrice())
+		orderItem.Set("size",  product.GetSize())
+		orderItem.Set("weight",product.GetWeight())
+	}
+
+	newOrder.Save()
 
 	return nil, errors.New("shipping method not found")
 }
