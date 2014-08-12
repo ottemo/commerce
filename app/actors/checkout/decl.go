@@ -17,7 +17,9 @@ type DefaultCheckout struct {
 	BillingAddress  visitor.I_VisitorAddress
 
 	PaymentMethod  checkout.I_PaymentMethod
+
 	ShippingMethod checkout.I_ShippingMehod
+	ShippingRate *checkout.T_ShippingRate
 
 	Taxes     []checkout.T_TaxRate
 	Discounts []checkout.T_Discount

@@ -35,11 +35,11 @@ func setupAPI() error {
 	if err != nil {
 		return err
 	}
-	err = api.GetRestService().RegisterAPI("checkout", "POST", "set/payment/method/:code", restCheckoutSetPaymentMethod)
+	err = api.GetRestService().RegisterAPI("checkout", "POST", "set/payment/method/:method/:rate", restCheckoutSetPaymentMethod)
 	if err != nil {
 		return err
 	}
-	err = api.GetRestService().RegisterAPI("checkout", "POST", "set/shipping/method/:code", restCheckoutSetShippingMethod)
+	err = api.GetRestService().RegisterAPI("checkout", "POST", "set/shipping/method/:method", restCheckoutSetShippingMethod)
 	if err != nil {
 		return err
 	}
@@ -81,7 +81,18 @@ func restCheckoutInfo(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil, err
 	}
 
-	result := map[string]interface{} {"billing_address": nil, "shipping_address": nil}
+	result := map[string]interface{} {
+		"billing_address": nil,
+		"shipping_address": nil,
+
+		"payment_method_name": nil,
+		"payment_method_code": nil,
+
+		"shipping_method_name": nil,
+		"shipping_method_code": nil,
+
+		"shipping_rate": nil,
+	}
 
 
 
@@ -103,6 +114,10 @@ func restCheckoutInfo(params *api.T_APIHandlerParams) (interface{}, error) {
 	if shippingMethod := currentCheckout.GetShippingMethod();  shippingMethod != nil {
 		result["shipping_method_name"] = shippingMethod.GetName()
 		result["shipping_method_code"] = shippingMethod.GetCode()
+	}
+
+	if shippingRate := currentCheckout.GetShippingRate();  shippingRate != nil {
+		result["shipping_rate"] = shippingRate
 	}
 
 	return result, nil
@@ -141,12 +156,12 @@ func restCheckoutShippingMethods(params *api.T_APIHandlerParams) (interface{}, e
 		return nil, err
 	}
 
-	type ResultValue struct{Name string; Code string}
+	type ResultValue struct{Name string; Code string; Rates []checkout.T_ShippingRate}
 	result := make([]ResultValue, 0)
 
 	for _, shippingMethod := range checkout.GetRegisteredShippingMethods() {
 		if shippingMethod.IsAllowed(currentCheckout) {
-			result = append(result, ResultValue{Name: shippingMethod.GetName(), Code: shippingMethod.GetCode()})
+			result = append(result, ResultValue{Name: shippingMethod.GetName(), Code: shippingMethod.GetCode(), Rates: shippingMethod.GetRates(currentCheckout)})
 		}
 	}
 
@@ -254,8 +269,9 @@ func restCheckoutSetPaymentMethod(params *api.T_APIHandlerParams) (interface{}, 
 		return nil, err
 	}
 
+	// looking for mayment method
 	for _, paymentMethod := range checkout.GetRegisteredPaymentMethods() {
-		if paymentMethod.GetCode() ==  params.RequestURLParams["code"] {
+		if paymentMethod.GetCode() == params.RequestURLParams["method"] {
 			if paymentMethod.IsAllowed(currentCheckout) {
 
 				err := currentCheckout.SetPaymentMethod(paymentMethod)
@@ -282,23 +298,37 @@ func restCheckoutSetShippingMethod(params *api.T_APIHandlerParams) (interface{},
 		return nil, err
 	}
 
+	// looking for shipping method
 	for _, shippingMethod := range checkout.GetRegisteredShippingMethods() {
-		if shippingMethod.GetCode() ==  params.RequestURLParams["code"] {
+		if shippingMethod.GetCode() == params.RequestURLParams["method"] {
 			if shippingMethod.IsAllowed(currentCheckout) {
 
-				err := currentCheckout.SetShippingMethod(shippingMethod)
-				if err != nil {
-					return nil, err
+				// looking for shipping rate
+				for _, shippingRate := range shippingMethod.GetRates(currentCheckout) {
+					if shippingRate.Code == params.RequestURLParams["rate"] {
+
+						err := currentCheckout.SetShippingMethod(shippingMethod)
+						if err != nil {
+							return nil, err
+						}
+
+						err = currentCheckout.SetShippingRate(shippingRate)
+						if err != nil {
+							return nil, err
+						}
+
+						return "ok", nil
+					}
 				}
 
-				return "ok", nil
+
 			} else {
 				return nil, errors.New("shipping method not allowed")
 			}
 		}
 	}
 
-	return nil, errors.New("shipping method not found")
+	return nil, errors.New("shipping method and/or rate were not found")
 }
 
 

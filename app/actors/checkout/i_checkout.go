@@ -62,6 +62,21 @@ func (it *DefaultCheckout) SetShippingMethod(shippingMethod checkout.I_ShippingM
 
 
 
+// returns checkout shipping rate
+func (it *DefaultCheckout) GetShippingRate() *checkout.T_ShippingRate {
+	return it.ShippingRate
+}
+
+
+
+// sets shipping rate for checkout
+func (it *DefaultCheckout) SetShippingRate(shippingRate checkout.T_ShippingRate) error {
+	it.ShippingRate = &shippingRate
+	return nil
+}
+
+
+
 // return checkout shipping method
 func (it *DefaultCheckout) GetShippingMethod() checkout.I_ShippingMehod {
 	return it.ShippingMethod
