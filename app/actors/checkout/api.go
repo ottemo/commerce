@@ -2,6 +2,7 @@ package checkout
 
 import (
 	"errors"
+	"time"
 
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/app/models/checkout"
@@ -372,6 +373,39 @@ func restSubmit(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil ,err
 	}
 
+
+
+	// newOrder.Set("increment_id",)
+
+	currentTime := time.Now()
+	newOrder.Set("created_at", currentTime)
+	newOrder.Set("created_at", currentTime)
+
+	newOrder.Set("status", "pending")
+	if currentVisitor := currentCheckout.GetVisitor(); currentVisitor != nil {
+		newOrder.Set("visitor_id", currentVisitor.GetId())
+
+		newOrder.Set("customer_email", currentVisitor.GetEmail() )
+		newOrder.Set("customer_name", currentVisitor.GetFullName() )
+	}
+
+	newOrder.Set("cart_id", currentCart.GetId() )
+	newOrder.Set("payment_method", currentCheckout.GetPaymentMethod().GetCode() )
+	newOrder.Set("shipping_method", currentCheckout.GetShippingMethod().GetCode() + "/" + currentCheckout.GetShippingRate().Code)
+
+	var discountAmount float64 = 0.0
+	for _, discount := range currentCheckout.GetDiscounts() {
+		discountAmount += discount.Amount
+	}
+	var taxAmount float64 = 0.0
+	for _, taxRate := range currentCheckout.GetTaxes() {
+		taxAmount += taxRate.Amount
+	}
+
+	newOrder.Set("discount", discountAmount)
+	newOrder.Set("tax_amount", taxAmount)
+	newOrder.Set("shipping_amount", currentCheckout.GetShippingRate().Price)
+
 	for _, cartItem := range cartItems {
 		orderItem, err := newOrder.AddItem(cartItem.GetProductId(), cartItem.GetQty(), cartItem.GetOptions())
 		if err != nil {
@@ -392,6 +426,7 @@ func restSubmit(params *api.T_APIHandlerParams) (interface{}, error) {
 		orderItem.Set("weight",product.GetWeight())
 	}
 
+	newOrder.CalculateTotals()
 	newOrder.Save()
 
 	return nil, errors.New("shipping method not found")

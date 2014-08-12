@@ -97,8 +97,18 @@ func (it *DefaultOrder) RemoveItem(itemIdx int) error {
 
 
 
-// recalculates order totals
+// recalculates order Subtotal and GrandTotal
 func (it *DefaultOrder) CalculateTotals() error {
+
+	var subtotal float64 = 0.0
+	for _, orderItem := range it.Items {
+		subtotal += orderItem.GetPrice() * float64( orderItem.GetQty() )
+	}
+	it.Subtotal = subtotal
+
+
+	it.GrandTotal = it.Subtotal + it.ShippingAmount + it.TaxAmount - it.Discount
+
 	return nil
 }
 

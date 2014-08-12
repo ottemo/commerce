@@ -111,3 +111,29 @@ func (it *DefaultCheckout) SetVisitor(checkoutVisitor visitor.I_Visitor) error {
 func (it *DefaultCheckout) GetVisitor() visitor.I_Visitor {
 	return it.Visitor
 }
+
+
+
+// collects taxes should be applied for current checkout
+func (it *DefaultCheckout) GetTaxes() []checkout.T_TaxRate {
+	result := make([]checkout.T_TaxRate, 0)
+	for _, tax := range checkout.GetRegisteredTaxes() {
+		for _, taxRate := range tax.CalculateTax(it) {
+			result = append(result, taxRate)
+		}
+	}
+	return result
+}
+
+
+
+// collects discounts should be applied for current checkout
+func (it *DefaultCheckout) GetDiscounts() []checkout.T_Discount {
+	result := make([]checkout.T_Discount, 0)
+	for _, discount := range checkout.GetRegisteredDiscounts() {
+		for _, discountValue := range discount.CalculateDiscount(it) {
+			result = append(result, discountValue)
+		}
+	}
+	return result
+}

@@ -26,8 +26,12 @@ type I_Checkout interface {
 
 	SetShippingMethod(shippingMethod I_ShippingMehod) error
 	GetShippingMethod() I_ShippingMehod
+
 	SetShippingRate(shippingRate T_ShippingRate) error
 	GetShippingRate() *T_ShippingRate
+
+	GetTaxes() []T_TaxRate
+	GetDiscounts() []T_Discount
 
 	SetCart(checkoutCart cart.I_Cart) error
 	GetCart() cart.I_Cart
