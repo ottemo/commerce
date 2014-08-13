@@ -137,12 +137,12 @@ func restCartUpdate(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil, errors.New("itemIdx and qty should be specified")
 	}
 
-	itemIdx, err := utils.StrToInt(params.RequestURLParams["itemIdx"])
+	itemIdx, err := utils.StringToInteger(params.RequestURLParams["itemIdx"])
 	if err != nil {
 		return nil, err
 	}
 
-	qty, err := utils.StrToInt(params.RequestURLParams["qty"])
+	qty, err := utils.StringToInteger(params.RequestURLParams["qty"])
 	if err != nil {
 		return nil, err
 	}
@@ -186,7 +186,7 @@ func restCartDelete(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil, errors.New("itemIdx should be specified")
 	}
 
-	itemIdx, err := utils.StrToInt(params.RequestURLParams["itemIdx"])
+	itemIdx, err := utils.StringToInteger(params.RequestURLParams["itemIdx"])
 	if err != nil {
 		return nil, err
 	}

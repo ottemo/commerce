@@ -26,6 +26,8 @@ import (
 
 	_ "github.com/ottemo/foundation/app/actors/payment/checkmo"
 	_ "github.com/ottemo/foundation/app/actors/shipping/flat"
+
+	_ "github.com/ottemo/foundation/app/actors/tax"
 )
 
 func main() {

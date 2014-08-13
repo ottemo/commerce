@@ -48,6 +48,10 @@ func GetCurrentCart(params *api.T_APIHandlerParams) (cart.I_Cart, error) {
 			return nil, err
 		}
 
+		if currentCheckout, err := GetCurrentCheckout(params); err == nil {
+			currentCheckout.SetCart(currentCart)
+		}
+
 		return currentCart, nil
 	} else {
 
@@ -59,7 +63,10 @@ func GetCurrentCart(params *api.T_APIHandlerParams) (cart.I_Cart, error) {
 			}
 
 			params.Session.Set(cart.SESSION_KEY_CURRENT_CART, currentCart.GetId())
-			params.Session.Set(checkout.SESSION_KEY_CURRENT_CHECKOUT, nil)
+
+			if currentCheckout, err := GetCurrentCheckout(params); err == nil {
+				currentCheckout.SetCart(currentCart)
+			}
 
 			return currentCart, nil
 		} else {

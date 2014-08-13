@@ -146,7 +146,7 @@ func InterfaceToInt(value interface{}) int {
 	case int:
 		return typedValue
 	case string:
-		intValue, _ := StrToInt(typedValue)
+		intValue, _ := StringToInteger(typedValue)
 		return intValue
 	default:
 		return 0
@@ -169,6 +169,12 @@ func InterfaceToFloat64(value interface{}) float64 {
 }
 
 // convert string to integer
-func StrToInt(value string) (int, error) {
+func StringToInteger(value string) (int, error) {
 	return strconv.Atoi(value)
+}
+
+
+// convert string to float64
+func StringToFloat(value string) (float64, error) {
+	return strconv.ParseFloat(value, 64)
 }
