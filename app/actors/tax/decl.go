@@ -3,6 +3,4 @@ package tax
 import (
 )
 
-type DefaultTax struct {
-
-}
+type DefaultTax struct { }

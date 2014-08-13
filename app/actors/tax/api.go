@@ -16,7 +16,12 @@ import (
 func setupAPI() error {
 	var err error = nil
 
-	err = api.GetRestService().RegisterAPI("tax", "GET", "upload/csv", restTaxCSVUpload)
+	err = api.GetRestService().RegisterAPI("tax", "GET", "download/csv", restTaxCSVDownload)
+	if err != nil {
+		return err
+	}
+
+	err = api.GetRestService().RegisterAPI("tax", "POST", "upload/csv", restTaxCSVUpload)
 	if err != nil {
 		return err
 	}
@@ -26,7 +31,49 @@ func setupAPI() error {
 
 
 
-// upload tax rates into CSV
+// WEB REST API function to download current tax rates in CSV format
+func restTaxCSVDownload(params *api.T_APIHandlerParams) (interface{}, error) {
+
+	csvWriter := csv.NewWriter( params.ResponseWriter )
+
+	if dbEngine := db.GetDBEngine(); dbEngine != nil {
+		if collection, err := dbEngine.GetCollection("Taxes"); err == nil {
+			records, err := collection.Load()
+			if err != nil {
+				return nil, err
+			}
+
+			err = csvWriter.Write( []string { "Code", "Country", "State", "Zip", "Rate" })
+			if err != nil {
+				return nil, err
+			}
+
+			params.ResponseWriter.Header().Set("Content-type", "text/csv")
+			params.ResponseWriter.Header().Set("Content-disposition", "attachment;filename=tax_rates.csv");
+
+			for _, record := range records {
+				csvWriter.Write( []string {
+					utils.InterfaceToString(record["code"]),
+					utils.InterfaceToString(record["country"]),
+					utils.InterfaceToString(record["state"]),
+					utils.InterfaceToString(record["zip"]),
+					utils.InterfaceToString(record["rate"]) })
+
+				csvWriter.Flush()
+			}
+
+			return nil, nil
+		}
+	} else {
+		return nil, errors.New("can't get DB engine")
+	}
+
+	return nil, nil
+}
+
+
+
+// WEB REST API function to upload tax rates into CSV
 func restTaxCSVUpload(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	csvFile, _, err := params.Request.FormFile("file")

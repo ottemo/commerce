@@ -133,6 +133,8 @@ func InterfaceToBool(value interface{}) bool {
 // converts interface{} to string
 func InterfaceToString(value interface{}) string {
 	switch value := value.(type) {
+	case float64:
+		return strconv.FormatFloat(value, 'f', 6, 64)
 	case string:
 		return value
 	default:
