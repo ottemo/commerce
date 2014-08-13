@@ -38,7 +38,8 @@ type I_Cart interface {
 
 	SetQty(itemIdx int, qty int) error
 
-	ListItems() []I_CartItem
+	GetItems() []I_CartItem
+	GetSubtotal() float64
 
 	GetVisitorId() string
 	SetVisitorId(string) error
