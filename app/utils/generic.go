@@ -4,7 +4,10 @@ import (
 	"strconv"
 )
 
-func checkIsBlank(value interface{}) bool {
+
+
+// checks if value is blank (zero value)
+func CheckIsBlank(value interface{}) bool {
 	switch typedValue := value.(type) {
 	case string:
 		return typedValue == ""
@@ -21,6 +24,8 @@ func checkIsBlank(value interface{}) bool {
 	return false
 }
 
+
+
 // checks presence of non blank values for keys in map
 //   - first arg must be map
 //   - fallowing arguments are map keys you want to check
@@ -30,7 +35,7 @@ func KeysInMapAndNotBlank(mapObject interface{}, keys ...interface{}) bool {
 		for _, key := range keys {
 			if key2, ok := key.(string); ok {
 				if mapValue, present := typedMapObject[key2]; present {
-					if isBlank := checkIsBlank(mapValue); isBlank {
+					if isBlank := CheckIsBlank(mapValue); isBlank {
 						return false
 					}
 				} else {
@@ -42,7 +47,7 @@ func KeysInMapAndNotBlank(mapObject interface{}, keys ...interface{}) bool {
 		for _, key := range keys {
 			if key, ok := key.(int); ok {
 				if mapValue, present := typedMapObject[key]; present {
-					if isBlank := checkIsBlank(mapValue); isBlank {
+					if isBlank := CheckIsBlank(mapValue); isBlank {
 						return false
 					}
 				} else {
@@ -55,6 +60,8 @@ func KeysInMapAndNotBlank(mapObject interface{}, keys ...interface{}) bool {
 	return true
 }
 
+
+
 // searches for presence of 1-st arg string option among provided options since 2-nd argument
 func IsAmongStr(option string, searchOptions ...string) bool {
 	for _, listOption := range searchOptions {
@@ -65,6 +72,8 @@ func IsAmongStr(option string, searchOptions ...string) bool {
 	return false
 }
 
+
+
 // searches for a string in []string slice
 func IsInListStr(searchItem string, searchList []string) bool {
 	for _, listItem := range searchList {
@@ -74,6 +83,8 @@ func IsInListStr(searchItem string, searchList []string) bool {
 	}
 	return false
 }
+
+
 
 // checks presence of string keys in map
 func StrKeysInMap(mapObject interface{}, keys ...string) bool {
@@ -89,6 +100,8 @@ func StrKeysInMap(mapObject interface{}, keys ...string) bool {
 
 	return true
 }
+
+
 
 // checks if value is MD5
 func IsMD5(value string) bool {
@@ -107,10 +120,16 @@ func IsMD5(value string) bool {
 	return ok
 }
 
+
+
+
 // TODO: should be somewhere in other place
 func GetSiteBackUrl() string {
 	return "http://dev.ottemo.com:3000/"
 }
+
+
+
 
 // converts interface{} to string
 func InterfaceToBool(value interface{}) bool {
@@ -130,6 +149,9 @@ func InterfaceToBool(value interface{}) bool {
 	}
 }
 
+
+
+
 // converts interface{} to string
 func InterfaceToString(value interface{}) string {
 	switch value := value.(type) {
@@ -141,6 +163,9 @@ func InterfaceToString(value interface{}) string {
 		return ""
 	}
 }
+
+
+
 
 // converts interface{} to integer
 func InterfaceToInt(value interface{}) int {
@@ -154,6 +179,9 @@ func InterfaceToInt(value interface{}) int {
 		return 0
 	}
 }
+
+
+
 
 // converts interface{} to float64
 func InterfaceToFloat64(value interface{}) float64 {
@@ -170,10 +198,14 @@ func InterfaceToFloat64(value interface{}) float64 {
 	}
 }
 
+
+
+
 // convert string to integer
 func StringToInteger(value string) (int, error) {
 	return strconv.Atoi(value)
 }
+
 
 
 // convert string to float64

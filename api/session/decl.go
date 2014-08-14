@@ -13,21 +13,35 @@ import (
 
 const (
 	ALPHANUMERIC = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890"
+
+	SESSION_COOKIE_NAME = "OTTEMOSESSION"
 )
 
 var (
-	CookieName                     = "OTTEMOSESSION"
-	Sessions   map[string]*Session = make(map[string]*Session)
-
-	gcRate        int64 = 10
+	Sessions = make(map[string]*Session)
 	sessionsMutex sync.RWMutex
+
+	gcRate int64 = 10
 )
+
+
+
+// returns session object for given id or nil
+func GetSessionById(sessionId string) (*Session, error) {
+	if session, ok := Sessions[sessionId]; ok == true {
+		return session, nil
+	} else {
+		return nil, errors.New("session not found")
+	}
+}
+
+
 
 // returns session object for request or creates new one
 func StartSession(request *http.Request, responseWriter http.ResponseWriter) (*Session, error) {
 
 	// check session-cookie
-	cookie, err := request.Cookie(CookieName)
+	cookie, err := request.Cookie(SESSION_COOKIE_NAME)
 	if err != nil {
 		if err == http.ErrNoCookie {
 			return newSession(responseWriter)
@@ -43,6 +57,8 @@ func StartSession(request *http.Request, responseWriter http.ResponseWriter) (*S
 
 	return newSession(responseWriter)
 }
+
+
 
 // initializes new session
 func newSession(responseWriter http.ResponseWriter) (*Session, error) {
@@ -61,7 +77,7 @@ func newSession(responseWriter http.ResponseWriter) (*Session, error) {
 		time:   time.Now()}
 
 	// updating cookies
-	cookie := &http.Cookie{Name: CookieName, Value: sessionId, Path: "/"}
+	cookie := &http.Cookie{Name: SESSION_COOKIE_NAME, Value: sessionId, Path: "/"}
 	http.SetCookie(responseWriter, cookie)
 
 	// garbage collecting
@@ -72,6 +88,8 @@ func newSession(responseWriter http.ResponseWriter) (*Session, error) {
 
 	return Sessions[sessionId], nil
 }
+
+
 
 // returns new session number
 func newSessionId() (string, error) {
@@ -86,6 +104,8 @@ func newSessionId() (string, error) {
 
 	return string(sessionId), nil
 }
+
+
 
 // removes expired sessions
 func Gc() {

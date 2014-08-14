@@ -4,6 +4,7 @@ import (
 	"github.com/ottemo/foundation/app/models/cart"
 	"github.com/ottemo/foundation/app/models/visitor"
 	"github.com/ottemo/foundation/app/models/checkout"
+	"github.com/ottemo/foundation/api"
 )
 
 const (
@@ -12,6 +13,7 @@ const (
 type DefaultCheckout struct {
 	Cart    cart.I_Cart
 	Visitor visitor.I_Visitor
+	Session api.I_Session
 
 	ShippingAddress visitor.I_VisitorAddress
 	BillingAddress  visitor.I_VisitorAddress

@@ -3,7 +3,10 @@ package checkout
 import (
 	"github.com/ottemo/foundation/app/models/cart"
 	"github.com/ottemo/foundation/app/models/visitor"
+
 	"github.com/ottemo/foundation/app/models"
+
+	"github.com/ottemo/foundation/api"
 )
 
 const (
@@ -39,6 +42,9 @@ type I_Checkout interface {
 	SetVisitor(checkoutVisitor visitor.I_Visitor) error
 	GetVisitor() visitor.I_Visitor
 
+	SetSession(api.I_Session) error
+	GetSession() api.I_Session
+
 	models.I_Model
 }
 
@@ -48,9 +54,9 @@ type I_ShippingMehod interface {
 	GetName() string
 	GetCode() string
 
-	IsAllowed(checkout I_Checkout) bool
+	IsAllowed(checkoutInstance I_Checkout) bool
 
-	GetRates(checkout I_Checkout) []T_ShippingRate
+	GetRates(checkoutInstance I_Checkout) []T_ShippingRate
 }
 
 
@@ -59,7 +65,7 @@ type I_PaymentMethod interface {
 	GetName() string
 	GetCode() string
 
-	IsAllowed(checkout I_Checkout) bool
+	IsAllowed(checkoutInstance I_Checkout) bool
 
 	Authorize() error
 	Capture() error
@@ -73,7 +79,7 @@ type I_Tax interface {
 	GetName() string
 	GetCode() string
 
-	CalculateTax(checkout I_Checkout) []T_TaxRate
+	CalculateTax(checkoutInstance I_Checkout) []T_TaxRate
 }
 
 
@@ -82,7 +88,7 @@ type I_Discount interface {
 	GetName() string
 	GetCode() string
 
-	CalculateDiscount(checkout I_Checkout) []T_Discount
+	CalculateDiscount(checkoutInstance I_Checkout) []T_Discount
 }
 
 

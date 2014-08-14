@@ -10,6 +10,8 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
+
+
 // package self registration function
 func init() {
 	instance := new(DefaultRestService)
@@ -17,6 +19,8 @@ func init() {
 	api.RegisterRestService(instance)
 	env.RegisterOnConfigIniStart(instance.startup)
 }
+
+
 
 // service pre-initialization stuff
 func (it *DefaultRestService) startup() error {

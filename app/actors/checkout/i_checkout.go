@@ -4,6 +4,8 @@ import (
 	"github.com/ottemo/foundation/app/models/visitor"
 	"github.com/ottemo/foundation/app/models/checkout"
 	"github.com/ottemo/foundation/app/models/cart"
+
+	"github.com/ottemo/foundation/api"
 )
 
 
@@ -110,6 +112,21 @@ func (it *DefaultCheckout) SetVisitor(checkoutVisitor visitor.I_Visitor) error {
 // return checkout visitor
 func (it *DefaultCheckout) GetVisitor() visitor.I_Visitor {
 	return it.Visitor
+}
+
+
+
+// sets visitor for checkout
+func (it *DefaultCheckout) SetSession(checkoutSession api.I_Session) error {
+	it.Session = checkoutSession
+	return nil
+}
+
+
+
+// return checkout visitor
+func (it *DefaultCheckout) GetSession() api.I_Session {
+	return it.Session
 }
 
 

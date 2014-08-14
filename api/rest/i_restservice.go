@@ -12,15 +12,19 @@ import (
 	"github.com/julienschmidt/httprouter"
 	"github.com/ottemo/foundation/api"
 
-	"github.com/ottemo/foundation/api/rest/session"
+	"github.com/ottemo/foundation/api/session"
 )
+
+
 
 // returns implementation name of our REST API service
 func (it *DefaultRestService) GetName() string {
 	return "httprouter"
 }
 
-// other modules should call this function in order to provide own REST API functionality
+
+
+// modules should call this function in order to provide own REST API functionality
 func (it *DefaultRestService) RegisterAPI(service string, method string, uri string, handler api.F_APIHandler) error {
 
 	// httprouter needs other type of handler that we using
@@ -130,6 +134,8 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 
 	return nil
 }
+
+
 
 // entry point for HTTP request - takes control before request handled
 // (go lang "http.server" package "Handler" interface implementation)
