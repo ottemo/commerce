@@ -225,6 +225,9 @@ func checkoutObtainAddress(params *api.T_APIHandlerParams) (visitor.I_VisitorAdd
 			}
 		}
 
+		visitorId := utils.InterfaceToString(params.Session.Get(visitor.SESSION_KEY_VISITOR_ID))
+		visitorAddressModel.Set("visitor_id", visitorId)
+
 		err = visitorAddressModel.Save()
 		if err != nil {
 			return nil, err

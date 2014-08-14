@@ -10,6 +10,7 @@ import (
 	"github.com/ottemo/foundation/app/models/visitor"
 )
 
+// returns visitor for current session if registered or error
 func GetCurrentVisitor(params *api.T_APIHandlerParams) (visitor.I_Visitor, error) {
 	sessionVisitorId, ok := params.Session.Get(visitor.SESSION_KEY_VISITOR_ID).(string)
 	if !ok {
@@ -25,10 +26,11 @@ func GetCurrentVisitor(params *api.T_APIHandlerParams) (visitor.I_Visitor, error
 func GetCurrentCheckout(params *api.T_APIHandlerParams) (checkout.I_Checkout, error) {
 	sessionObject := params.Session.Get(checkout.SESSION_KEY_CURRENT_CHECKOUT)
 
-	if checkoutInstance, ok := sessionObject.(checkout.I_Checkout); ok {
+	var checkoutInstance checkout.I_Checkout = nil
 
-		// checkout object was found in session (no need to create new one)
-		return checkoutInstance, nil
+	// trying to get checkout object from session, otherwise creating new one
+	if sessionCheckout, ok := sessionObject.(checkout.I_Checkout); ok {
+		checkoutInstance = sessionCheckout
 
 	} else {
 
@@ -41,27 +43,30 @@ func GetCurrentCheckout(params *api.T_APIHandlerParams) (checkout.I_Checkout, er
 		// storing checkout object to session
 		params.Session.Set(checkout.SESSION_KEY_CURRENT_CHECKOUT, newCheckoutInstance)
 
-		// initializing created checkout object
-
 		//setting session
 		newCheckoutInstance.SetSession(params.Session)
 
-		// setting cart
-		currentCart, err := GetCurrentCart(params)
-		if err != nil {
-			return newCheckoutInstance, err
-		}
-		newCheckoutInstance.SetCart(currentCart)
-
-		// setting visitor
-		currentVisitor, err := GetCurrentVisitor(params)
-		if err != nil {
-			return newCheckoutInstance, err
-		}
-		newCheckoutInstance.SetVisitor(currentVisitor)
-
-		return newCheckoutInstance, nil
+		checkoutInstance = newCheckoutInstance
 	}
+
+	// updating checkout object
+	//-------------------------
+
+	// setting cart
+	currentCart, err := GetCurrentCart(params)
+	if err != nil {
+		return checkoutInstance, err
+	}
+	checkoutInstance.SetCart(currentCart)
+
+	// setting visitor
+	currentVisitor, err := GetCurrentVisitor(params)
+	if err != nil {
+		return checkoutInstance, err
+	}
+	checkoutInstance.SetVisitor(currentVisitor)
+
+	return checkoutInstance, nil
 }
 
 // returns cart for current session or creates new one
@@ -74,10 +79,6 @@ func GetCurrentCart(params *api.T_APIHandlerParams) (cart.I_Cart, error) {
 		currentCart, err := cart.LoadCartById(InterfaceToString(sessionCartId))
 		if err != nil {
 			return nil, err
-		}
-
-		if currentCheckout, err := GetCurrentCheckout(params); err == nil {
-			currentCheckout.SetCart(currentCart)
 		}
 
 		return currentCart, nil
@@ -93,10 +94,6 @@ func GetCurrentCart(params *api.T_APIHandlerParams) (cart.I_Cart, error) {
 			}
 
 			params.Session.Set(cart.SESSION_KEY_CURRENT_CART, currentCart.GetId())
-
-			if currentCheckout, err := GetCurrentCheckout(params); err == nil {
-				currentCheckout.SetCart(currentCart)
-			}
 
 			return currentCart, nil
 		} else {
