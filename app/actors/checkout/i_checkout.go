@@ -1,44 +1,36 @@
 package checkout
 
 import (
-	"github.com/ottemo/foundation/app/models/visitor"
-	"github.com/ottemo/foundation/app/models/checkout"
 	"github.com/ottemo/foundation/app/models/cart"
+	"github.com/ottemo/foundation/app/models/checkout"
+	"github.com/ottemo/foundation/app/models/visitor"
 
 	"github.com/ottemo/foundation/api"
 )
 
-
-
 // sets shipping address for checkout
 func (it *DefaultCheckout) SetShippingAddress(address visitor.I_VisitorAddress) error {
-	it.ShippingAddress = address
+	it.ShippingAddressId = address.GetId()
 	return nil
 }
-
-
 
 // returns checkout shipping address
 func (it *DefaultCheckout) GetShippingAddress() visitor.I_VisitorAddress {
-	return it.ShippingAddress
+	shippingAddress, _ := visitor.LoadVisitorAddressById(it.ShippingAddressId)
+	return shippingAddress
 }
-
-
 
 // sets billing address for checkout
 func (it *DefaultCheckout) SetBillingAddress(address visitor.I_VisitorAddress) error {
-	it.BillingAddress = address
+	it.BillingAddressId = address.GetId()
 	return nil
 }
 
-
-
 // returns checkout billing address
 func (it *DefaultCheckout) GetBillingAddress() visitor.I_VisitorAddress {
-	return it.BillingAddress
+	billingAddress, _ := visitor.LoadVisitorAddressById(it.BillingAddressId)
+	return billingAddress
 }
-
-
 
 // sets payment method for checkout
 func (it *DefaultCheckout) SetPaymentMethod(paymentMethod checkout.I_PaymentMethod) error {
@@ -46,15 +38,10 @@ func (it *DefaultCheckout) SetPaymentMethod(paymentMethod checkout.I_PaymentMeth
 	return nil
 }
 
-
-
-
 // returns checkout payment method
 func (it *DefaultCheckout) GetPaymentMethod() checkout.I_PaymentMethod {
 	return it.PaymentMethod
 }
-
-
 
 // sets payment method for checkout
 func (it *DefaultCheckout) SetShippingMethod(shippingMethod checkout.I_ShippingMehod) error {
@@ -62,14 +49,10 @@ func (it *DefaultCheckout) SetShippingMethod(shippingMethod checkout.I_ShippingM
 	return nil
 }
 
-
-
 // returns checkout shipping rate
 func (it *DefaultCheckout) GetShippingRate() *checkout.T_ShippingRate {
 	return it.ShippingRate
 }
-
-
 
 // sets shipping rate for checkout
 func (it *DefaultCheckout) SetShippingRate(shippingRate checkout.T_ShippingRate) error {
@@ -77,44 +60,43 @@ func (it *DefaultCheckout) SetShippingRate(shippingRate checkout.T_ShippingRate)
 	return nil
 }
 
-
-
 // return checkout shipping method
 func (it *DefaultCheckout) GetShippingMethod() checkout.I_ShippingMehod {
 	return it.ShippingMethod
 }
 
-
-
 // sets cart for checkout
 func (it *DefaultCheckout) SetCart(checkoutCart cart.I_Cart) error {
-	it.Cart = checkoutCart
+	it.CartId = checkoutCart.GetId()
 	return nil
 }
-
-
 
 // return checkout cart
 func (it *DefaultCheckout) GetCart() cart.I_Cart {
-	return it.Cart
+	cartInstance, _ := cart.LoadCartById(it.CartId)
+	return cartInstance
 }
-
-
 
 // sets visitor for checkout
 func (it *DefaultCheckout) SetVisitor(checkoutVisitor visitor.I_Visitor) error {
-	it.Visitor = checkoutVisitor
+	it.VisitorId = checkoutVisitor.GetId()
+
+	if it.BillingAddressId == "" {
+		it.BillingAddressId = checkoutVisitor.GetBillingAddress().GetId()
+	}
+
+	if it.ShippingAddressId == "" {
+		it.ShippingAddressId = checkoutVisitor.GetShippingAddress().GetId()
+	}
+
 	return nil
 }
 
-
-
 // return checkout visitor
 func (it *DefaultCheckout) GetVisitor() visitor.I_Visitor {
-	return it.Visitor
+	visitorInstance, _ := visitor.LoadVisitorById(it.VisitorId)
+	return visitorInstance
 }
-
-
 
 // sets visitor for checkout
 func (it *DefaultCheckout) SetSession(checkoutSession api.I_Session) error {
@@ -122,14 +104,10 @@ func (it *DefaultCheckout) SetSession(checkoutSession api.I_Session) error {
 	return nil
 }
 
-
-
 // return checkout visitor
 func (it *DefaultCheckout) GetSession() api.I_Session {
 	return it.Session
 }
-
-
 
 // collects taxes should be applied for current checkout
 func (it *DefaultCheckout) GetTaxes() []checkout.T_TaxRate {
@@ -141,8 +119,6 @@ func (it *DefaultCheckout) GetTaxes() []checkout.T_TaxRate {
 	}
 	return result
 }
-
-
 
 // collects discounts should be applied for current checkout
 func (it *DefaultCheckout) GetDiscounts() []checkout.T_Discount {

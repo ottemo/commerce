@@ -2,9 +2,8 @@ package utils
 
 import (
 	"strconv"
+	"time"
 )
-
-
 
 // checks if value is blank (zero value)
 func CheckIsBlank(value interface{}) bool {
@@ -13,7 +12,7 @@ func CheckIsBlank(value interface{}) bool {
 		return typedValue == ""
 	case int, int32, int64:
 		return typedValue == 0
-	case []string, []interface{} :
+	case []string, []interface{}:
 		return false
 	case map[string]interface{}, map[string]string, map[string]int:
 		return false
@@ -23,8 +22,6 @@ func CheckIsBlank(value interface{}) bool {
 
 	return false
 }
-
-
 
 // checks presence of non blank values for keys in map
 //   - first arg must be map
@@ -60,8 +57,6 @@ func KeysInMapAndNotBlank(mapObject interface{}, keys ...interface{}) bool {
 	return true
 }
 
-
-
 // searches for presence of 1-st arg string option among provided options since 2-nd argument
 func IsAmongStr(option string, searchOptions ...string) bool {
 	for _, listOption := range searchOptions {
@@ -72,8 +67,6 @@ func IsAmongStr(option string, searchOptions ...string) bool {
 	return false
 }
 
-
-
 // searches for a string in []string slice
 func IsInListStr(searchItem string, searchList []string) bool {
 	for _, listItem := range searchList {
@@ -83,8 +76,6 @@ func IsInListStr(searchItem string, searchList []string) bool {
 	}
 	return false
 }
-
-
 
 // checks presence of string keys in map
 func StrKeysInMap(mapObject interface{}, keys ...string) bool {
@@ -100,8 +91,6 @@ func StrKeysInMap(mapObject interface{}, keys ...string) bool {
 
 	return true
 }
-
-
 
 // checks if value is MD5
 func IsMD5(value string) bool {
@@ -120,16 +109,10 @@ func IsMD5(value string) bool {
 	return ok
 }
 
-
-
-
 // TODO: should be somewhere in other place
 func GetSiteBackUrl() string {
 	return "http://dev.ottemo.com:3000/"
 }
-
-
-
 
 // converts interface{} to string
 func InterfaceToBool(value interface{}) bool {
@@ -149,9 +132,6 @@ func InterfaceToBool(value interface{}) bool {
 	}
 }
 
-
-
-
 // converts interface{} to string
 func InterfaceToString(value interface{}) string {
 	switch value := value.(type) {
@@ -163,9 +143,6 @@ func InterfaceToString(value interface{}) string {
 		return ""
 	}
 }
-
-
-
 
 // converts interface{} to integer
 func InterfaceToInt(value interface{}) int {
@@ -179,9 +156,6 @@ func InterfaceToInt(value interface{}) int {
 		return 0
 	}
 }
-
-
-
 
 // converts interface{} to float64
 func InterfaceToFloat64(value interface{}) float64 {
@@ -198,15 +172,35 @@ func InterfaceToFloat64(value interface{}) float64 {
 	}
 }
 
+// converts interface{} to time.Time
+func InterfaceToTime(value interface{}) time.Time {
+	switch typedValue := value.(type) {
+	case time.Time:
+		return typedValue
+	case string:
+		newValue, err := time.Parse(time.UnixDate, typedValue)
+		if err == nil {
+			return newValue
+		}
 
+		newValue, err = time.Parse(time.RFC3339, typedValue)
+		if err == nil {
+			return newValue
+		}
 
+		newValue, err = time.Parse(time.RFC822Z, typedValue)
+		if err == nil {
+			return newValue
+		}
+	}
+
+	return time.Unix(0, 0)
+}
 
 // convert string to integer
 func StringToInteger(value string) (int, error) {
 	return strconv.Atoi(value)
 }
-
-
 
 // convert string to float64
 func StringToFloat(value string) (float64, error) {

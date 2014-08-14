@@ -1,27 +1,25 @@
 package checkout
 
 import (
-	"github.com/ottemo/foundation/app/models/cart"
-	"github.com/ottemo/foundation/app/models/visitor"
-	"github.com/ottemo/foundation/app/models/checkout"
 	"github.com/ottemo/foundation/api"
+	"github.com/ottemo/foundation/app/models/checkout"
 )
 
-const (
-)
+const ()
 
 type DefaultCheckout struct {
-	Cart    cart.I_Cart
-	Visitor visitor.I_Visitor
+	CartId    string
+	VisitorId string
+
 	Session api.I_Session
 
-	ShippingAddress visitor.I_VisitorAddress
-	BillingAddress  visitor.I_VisitorAddress
+	ShippingAddressId string
+	BillingAddressId  string
 
-	PaymentMethod  checkout.I_PaymentMethod
+	PaymentMethod checkout.I_PaymentMethod
 
 	ShippingMethod checkout.I_ShippingMehod
-	ShippingRate *checkout.T_ShippingRate
+	ShippingRate   *checkout.T_ShippingRate
 
 	Taxes     []checkout.T_TaxRate
 	Discounts []checkout.T_Discount

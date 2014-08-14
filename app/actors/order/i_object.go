@@ -14,7 +14,7 @@ import (
 // DefaultOrderItem
 //------------------
 
-// returns attribute of object or nil
+// returns attribute of OrderItem or nil
 func (it *DefaultOrderItem) Get(attribute string) interface{} {
 
 	switch strings.ToLower(attribute) {
@@ -61,9 +61,7 @@ func (it *DefaultOrderItem) Get(attribute string) interface{} {
 	return nil
 }
 
-
-
-// sets attribute to object, returns error on problems
+// sets attribute to OrderItem object, returns error on problems
 func (it *DefaultOrderItem) Set(attribute string, value interface{}) error {
 	attribute = strings.ToLower(attribute)
 
@@ -72,10 +70,10 @@ func (it *DefaultOrderItem) Set(attribute string, value interface{}) error {
 		it.id = utils.InterfaceToString(value)
 
 	case "idx":
-		it.idx =  utils.InterfaceToInt(value)
+		it.idx = utils.InterfaceToInt(value)
 
 	case "order_id":
-		orderObject, err := order.LoadOrderById( utils.InterfaceToString(value) )
+		orderObject, err := order.LoadOrderById(utils.InterfaceToString(value))
 		if err != nil {
 			return err
 		}
@@ -119,9 +117,7 @@ func (it *DefaultOrderItem) Set(attribute string, value interface{}) error {
 	return nil
 }
 
-
-
-// fills object attributes with values provided in input map
+// fills OrderItem attributes with values provided in input map
 func (it *DefaultOrderItem) FromHashMap(input map[string]interface{}) error {
 
 	for attribute, value := range input {
@@ -133,9 +129,7 @@ func (it *DefaultOrderItem) FromHashMap(input map[string]interface{}) error {
 	return nil
 }
 
-
-
-// makes map of object attribute values
+// makes map from OrderItem attribute values
 func (it *DefaultOrderItem) ToHashMap() map[string]interface{} {
 
 	result := make(map[string]interface{})
@@ -158,13 +152,10 @@ func (it *DefaultOrderItem) ToHashMap() map[string]interface{} {
 	result["weight"] = it.Get("weight")
 	result["size"] = it.Get("size")
 
-
 	return result
 }
 
-
-
-// describes attributes of object
+// describes attributes of OrderItem model
 func (it *DefaultOrderItem) GetAttributesInfo() []models.T_AttributeInfo {
 
 	info := []models.T_AttributeInfo{
@@ -329,14 +320,11 @@ func (it *DefaultOrderItem) GetAttributesInfo() []models.T_AttributeInfo {
 	return info
 }
 
-
-
 //--------------
 // DefaultOrder
 //--------------
 
-
-
+// returns attribute of Order or nil
 func (it *DefaultOrder) Get(attribute string) interface{} {
 	switch strings.ToLower(attribute) {
 	case "_id", "id":
@@ -382,18 +370,19 @@ func (it *DefaultOrder) Get(attribute string) interface{} {
 		return it.CreatedAt
 
 	case "updaed_at":
-		return it.UpdaedAt
+		return it.UpdatedAt
 	}
 
 	return nil
 }
 
+// sets attribute to Order object, returns error on problems
 func (it *DefaultOrder) Set(attribute string, value interface{}) error {
 	attribute = strings.ToLower(attribute)
 
 	switch attribute {
-		case "_id", "id":
-		it.SetId( utils.InterfaceToString(value) )
+	case "_id", "id":
+		it.SetId(utils.InterfaceToString(value))
 
 	case "increment_id":
 		it.IncrementId = utils.InterfaceToString(value)
@@ -432,10 +421,10 @@ func (it *DefaultOrder) Set(attribute string, value interface{}) error {
 		it.ShippingAmount = utils.InterfaceToFloat64(value)
 
 	case "created_at":
-		// it.CreatedAt = utils.InterfaceToTime(value)
+		it.CreatedAt = utils.InterfaceToTime(value)
 
-	case "updaed_at":
-		// it.UpdaedAt = utils.InterfaceToTime(value)
+	case "updated_at":
+		it.UpdatedAt = utils.InterfaceToTime(value)
 
 	default:
 		return errors.New("unknown attribute: " + attribute)
@@ -444,6 +433,7 @@ func (it *DefaultOrder) Set(attribute string, value interface{}) error {
 	return nil
 }
 
+// fills Order attributes with values provided in input map
 func (it *DefaultOrder) FromHashMap(input map[string]interface{}) error {
 
 	for attribute, value := range input {
@@ -455,6 +445,7 @@ func (it *DefaultOrder) FromHashMap(input map[string]interface{}) error {
 	return nil
 }
 
+// makes map from Order attribute values
 func (it *DefaultOrder) ToHashMap() map[string]interface{} {
 
 	result := make(map[string]interface{})
@@ -481,10 +472,10 @@ func (it *DefaultOrder) ToHashMap() map[string]interface{} {
 	result["created_at"] = it.Get("created_at")
 	result["updaed_at"] = it.Get("updaed_at")
 
-
 	return result
 }
 
+// describes attributes of Order model
 func (it *DefaultOrder) GetAttributesInfo() []models.T_AttributeInfo {
 
 	info := []models.T_AttributeInfo{

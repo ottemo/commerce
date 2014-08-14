@@ -1,17 +1,17 @@
 package order
 
 import (
-	"time"
 	"github.com/ottemo/foundation/app/models/order"
+	"time"
 )
 
 const (
-	ORDER_COLLECTION_NAME = "orders"
+	ORDER_COLLECTION_NAME       = "orders"
 	ORDER_ITEMS_COLLECTION_NAME = "order_items"
 )
 
 type DefaultOrderItem struct {
-	id string
+	id  string
 	idx int
 
 	order *DefaultOrder
@@ -21,42 +21,40 @@ type DefaultOrderItem struct {
 	Qty int
 
 	Name string
-	Sku string
+	Sku  string
 
 	ShortDescription string
 
 	ProductOptions map[string]interface{}
 
-	Price float64
+	Price  float64
 	Weight float64
-	Size float64
+	Size   float64
 }
-
-
 
 type DefaultOrder struct {
 	id string
 
 	IncrementId string
-	Status string
+	Status      string
 
 	VisitorId string
-	CartId string
+	CartId    string
 
 	CustomerEmail string
-	CustomerName string
+	CustomerName  string
 
-	PaymentMethod string
+	PaymentMethod  string
 	ShippingMethod string
 
-	Subtotal float64
-	Discount float64
-	TaxAmount float64
+	Subtotal       float64
+	Discount       float64
+	TaxAmount      float64
 	ShippingAmount float64
-	GrandTotal float64
+	GrandTotal     float64
 
 	CreatedAt time.Time
-	UpdaedAt time.Time
+	UpdatedAt time.Time
 
 	Items map[int]order.I_OrderItem
 
