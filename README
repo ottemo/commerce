@@ -3,6 +3,7 @@ Ottemo
 
 built for gophers
 
+[![wercker status](https://app.wercker.com/status/97369a2b891e2ff6dd5b37d96301030f/m "wercker status")](https://app.wercker.com/project/bykey/97369a2b891e2ff6dd5b37d96301030f)
 
 [![GoDoc](https://godoc.org/github.com/ottemo/foundation?status.png)](https://godoc.org/github.com/ottemo/foundation)
 
