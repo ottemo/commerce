@@ -23,4 +23,7 @@ type DefaultCheckout struct {
 
 	Taxes     []checkout.T_TaxRate
 	Discounts []checkout.T_Discount
+
+	taxesCalculateFlag     bool
+	discountsCalculateFlag bool
 }

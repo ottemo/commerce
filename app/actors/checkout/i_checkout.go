@@ -81,11 +81,11 @@ func (it *DefaultCheckout) GetCart() cart.I_Cart {
 func (it *DefaultCheckout) SetVisitor(checkoutVisitor visitor.I_Visitor) error {
 	it.VisitorId = checkoutVisitor.GetId()
 
-	if it.BillingAddressId == "" {
+	if it.BillingAddressId == "" && checkoutVisitor.GetBillingAddress() != nil {
 		it.BillingAddressId = checkoutVisitor.GetBillingAddress().GetId()
 	}
 
-	if it.ShippingAddressId == "" {
+	if it.ShippingAddressId == "" && checkoutVisitor.GetShippingAddress() != nil {
 		it.ShippingAddressId = checkoutVisitor.GetShippingAddress().GetId()
 	}
 
@@ -109,24 +109,75 @@ func (it *DefaultCheckout) GetSession() api.I_Session {
 	return it.Session
 }
 
-// collects taxes should be applied for current checkout
-func (it *DefaultCheckout) GetTaxes() []checkout.T_TaxRate {
-	result := make([]checkout.T_TaxRate, 0)
-	for _, tax := range checkout.GetRegisteredTaxes() {
-		for _, taxRate := range tax.CalculateTax(it) {
-			result = append(result, taxRate)
+// collects taxes applied for current checkout
+func (it *DefaultCheckout) GetTaxes() (float64, []checkout.T_TaxRate) {
+
+	var amount float64 = 0
+
+	if !it.taxesCalculateFlag {
+		it.taxesCalculateFlag = true
+
+		it.Taxes = make([]checkout.T_TaxRate, 0)
+		for _, tax := range checkout.GetRegisteredTaxes() {
+			for _, taxRate := range tax.CalculateTax(it) {
+				it.Taxes = append(it.Taxes, taxRate)
+			}
+		}
+
+		it.taxesCalculateFlag = false
+	} else {
+		for _, taxRate := range it.Taxes {
+			amount += taxRate.Amount
 		}
 	}
-	return result
+
+	return amount, it.Taxes
 }
 
-// collects discounts should be applied for current checkout
-func (it *DefaultCheckout) GetDiscounts() []checkout.T_Discount {
-	result := make([]checkout.T_Discount, 0)
-	for _, discount := range checkout.GetRegisteredDiscounts() {
-		for _, discountValue := range discount.CalculateDiscount(it) {
-			result = append(result, discountValue)
+// collects discounts applied for current checkout
+func (it *DefaultCheckout) GetDiscounts() (float64, []checkout.T_Discount) {
+
+	var amount float64 = 0
+
+	if !it.discountsCalculateFlag {
+		it.discountsCalculateFlag = true
+
+		it.Discounts = make([]checkout.T_Discount, 0)
+		for _, discount := range checkout.GetRegisteredDiscounts() {
+			for _, discountValue := range discount.CalculateDiscount(it) {
+				it.Discounts = append(it.Discounts, discountValue)
+				amount += discountValue.Amount
+			}
+		}
+
+		it.discountsCalculateFlag = false
+	} else {
+		for _, discount := range it.Discounts {
+			amount += discount.Amount
 		}
 	}
-	return result
+
+	return amount, it.Discounts
+}
+
+// return grand total for current checkout: [cart subtotal] + [shipping rate] + [taxes] - [discounts]
+func (it *DefaultCheckout) GetGrandTotal() float64 {
+	var amount float64 = 0
+
+	currentCart := it.GetCart()
+	if currentCart != nil {
+		amount += currentCart.GetSubtotal()
+	}
+
+	if shippingRate := it.GetShippingRate(); shippingRate != nil {
+		amount += shippingRate.Price
+	}
+
+	taxAmount, _ := it.GetTaxes()
+	amount += taxAmount
+
+	discountAmount, _ := it.GetDiscounts()
+	amount -= discountAmount
+
+	return amount
 }

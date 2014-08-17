@@ -7,8 +7,8 @@ import (
 
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/app/models/checkout"
-	"github.com/ottemo/foundation/app/models/visitor"
 	"github.com/ottemo/foundation/app/models/order"
+	"github.com/ottemo/foundation/app/models/visitor"
 
 	"github.com/ottemo/foundation/app/utils"
 )
@@ -61,8 +61,8 @@ func restCheckoutInfo(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil, err
 	}
 
-	result := map[string]interface{} {
-		"billing_address": nil,
+	result := map[string]interface{}{
+		"billing_address":  nil,
 		"shipping_address": nil,
 
 		"payment_method_name": nil,
@@ -71,77 +71,54 @@ func restCheckoutInfo(params *api.T_APIHandlerParams) (interface{}, error) {
 		"shipping_method_name": nil,
 		"shipping_method_code": nil,
 
-		"shipping_rate": nil,
+		"shipping_rate":   nil,
 		"shipping_amount": nil,
 
-		"discounts": nil,
+		"discounts":       nil,
 		"discount_amount": nil,
 
-		"taxes": nil,
+		"taxes":      nil,
 		"tax_amount": nil,
 
-		"subtotal": nil,
+		"subtotal":   nil,
 		"grandtotal": nil,
 	}
 
-
-
-	if billingAddress := currentCheckout.GetBillingAddress();  billingAddress != nil {
+	if billingAddress := currentCheckout.GetBillingAddress(); billingAddress != nil {
 		result["billing_address"] = billingAddress.ToHashMap()
 	}
 
-
-	if shippingAddress := currentCheckout.GetShippingAddress();  shippingAddress != nil {
+	if shippingAddress := currentCheckout.GetShippingAddress(); shippingAddress != nil {
 		result["shipping_address"] = shippingAddress.ToHashMap()
 	}
 
-
-	if paymentMethod := currentCheckout.GetPaymentMethod();  paymentMethod != nil {
+	if paymentMethod := currentCheckout.GetPaymentMethod(); paymentMethod != nil {
 		result["payment_method_name"] = paymentMethod.GetName()
 		result["payment_method_code"] = paymentMethod.GetCode()
 	}
 
-	if shippingMethod := currentCheckout.GetShippingMethod();  shippingMethod != nil {
+	if shippingMethod := currentCheckout.GetShippingMethod(); shippingMethod != nil {
 		result["shipping_method_name"] = shippingMethod.GetName()
 		result["shipping_method_code"] = shippingMethod.GetCode()
 	}
 
-	if shippingRate := currentCheckout.GetShippingRate();  shippingRate != nil {
+	if shippingRate := currentCheckout.GetShippingRate(); shippingRate != nil {
 		result["shipping_rate"] = shippingRate
 		result["shipping_amount"] = shippingRate.Price
-	}
-
-	if discounts := currentCheckout.GetDiscounts(); discounts != nil {
-		var discountAmount float64 = 0.0
-		for _, discountValue := range discounts {
-			discountAmount += discountValue.Amount
-		}
-		result["discounts"] = discounts
-		result["discount_amount"] = discountAmount
-	}
-
-	if taxes := currentCheckout.GetTaxes(); taxes != nil {
-		var taxAmount float64 = 0.0
-		for _, taxRate := range taxes {
-			taxAmount += taxRate.Amount
-		}
-		result["taxes"] = taxes
-		result["tax_amount"] = taxAmount
 	}
 
 	if checkoutCart := currentCheckout.GetCart(); checkoutCart != nil {
 		result["subtotal"] = checkoutCart.GetSubtotal()
 	}
 
-	result["grandtotal"] = utils.InterfaceToFloat64(result["subtotal"]) +
-							utils.InterfaceToFloat64(result["tax_amount"]) +
-							utils.InterfaceToFloat64(result["shipping_amount"]) -
-							utils.InterfaceToFloat64(result["discount_amount"]);
+	result["discount_amount"], result["discounts"] = currentCheckout.GetDiscounts()
+
+	result["tax_amount"], result["taxes"] = currentCheckout.GetTaxes()
+
+	result["grandtotal"] = currentCheckout.GetGrandTotal()
 
 	return result, nil
 }
-
-
 
 // WEB REST API function to get possible payment methods for checkout
 func restCheckoutPaymentMethods(params *api.T_APIHandlerParams) (interface{}, error) {
@@ -151,7 +128,10 @@ func restCheckoutPaymentMethods(params *api.T_APIHandlerParams) (interface{}, er
 		return nil, err
 	}
 
-	type ResultValue struct{Name string; Code string}
+	type ResultValue struct {
+		Name string
+		Code string
+	}
 	result := make([]ResultValue, 0)
 
 	for _, paymentMethod := range checkout.GetRegisteredPaymentMethods() {
@@ -163,9 +143,6 @@ func restCheckoutPaymentMethods(params *api.T_APIHandlerParams) (interface{}, er
 	return result, nil
 }
 
-
-
-
 // WEB REST API function to get possible shipping methods for checkout
 func restCheckoutShippingMethods(params *api.T_APIHandlerParams) (interface{}, error) {
 
@@ -174,7 +151,11 @@ func restCheckoutShippingMethods(params *api.T_APIHandlerParams) (interface{}, e
 		return nil, err
 	}
 
-	type ResultValue struct{Name string; Code string; Rates []checkout.T_ShippingRate}
+	type ResultValue struct {
+		Name  string
+		Code  string
+		Rates []checkout.T_ShippingRate
+	}
 	result := make([]ResultValue, 0)
 
 	for _, shippingMethod := range checkout.GetRegisteredShippingMethods() {
@@ -185,8 +166,6 @@ func restCheckoutShippingMethods(params *api.T_APIHandlerParams) (interface{}, e
 
 	return result, nil
 }
-
-
 
 // internal function for  restCheckoutSetShippingAddress() and restCheckoutSetBillingAddress()
 func checkoutObtainAddress(params *api.T_APIHandlerParams) (visitor.I_VisitorAddress, error) {
@@ -199,12 +178,12 @@ func checkoutObtainAddress(params *api.T_APIHandlerParams) (visitor.I_VisitorAdd
 	if addressId, present := reqData["id"]; present {
 
 		// Address id was specified - trying to load
-		visitorAddress, err := visitor.LoadVisitorAddressById( utils.InterfaceToString(addressId) )
+		visitorAddress, err := visitor.LoadVisitorAddressById(utils.InterfaceToString(addressId))
 		if err != nil {
 			return nil, err
 		}
 
-		currentVisitorId := utils.InterfaceToString( params.Session.Get( visitor.SESSION_KEY_VISITOR_ID ) )
+		currentVisitorId := utils.InterfaceToString(params.Session.Get(visitor.SESSION_KEY_VISITOR_ID))
 		if visitorAddress.GetVisitorId() != currentVisitorId {
 			return nil, errors.New("wrong address id")
 		}
@@ -237,8 +216,6 @@ func checkoutObtainAddress(params *api.T_APIHandlerParams) (visitor.I_VisitorAdd
 	}
 }
 
-
-
 // WEB REST API function to set shipping address
 func restCheckoutSetShippingAddress(params *api.T_APIHandlerParams) (interface{}, error) {
 	currentCheckout, err := utils.GetCurrentCheckout(params)
@@ -259,8 +236,6 @@ func restCheckoutSetShippingAddress(params *api.T_APIHandlerParams) (interface{}
 	return address.ToHashMap(), nil
 }
 
-
-
 // WEB REST API function to set billing address
 func restCheckoutSetBillingAddress(params *api.T_APIHandlerParams) (interface{}, error) {
 	currentCheckout, err := utils.GetCurrentCheckout(params)
@@ -280,8 +255,6 @@ func restCheckoutSetBillingAddress(params *api.T_APIHandlerParams) (interface{},
 
 	return address.ToHashMap(), nil
 }
-
-
 
 // WEB REST API function to set payment method
 func restCheckoutSetPaymentMethod(params *api.T_APIHandlerParams) (interface{}, error) {
@@ -309,8 +282,6 @@ func restCheckoutSetPaymentMethod(params *api.T_APIHandlerParams) (interface{}, 
 
 	return nil, errors.New("payment method not found")
 }
-
-
 
 // WEB REST API function to set payment method
 func restCheckoutSetShippingMethod(params *api.T_APIHandlerParams) (interface{}, error) {
@@ -342,7 +313,6 @@ func restCheckoutSetShippingMethod(params *api.T_APIHandlerParams) (interface{},
 					}
 				}
 
-
 			} else {
 				return nil, errors.New("shipping method not allowed")
 			}
@@ -351,9 +321,6 @@ func restCheckoutSetShippingMethod(params *api.T_APIHandlerParams) (interface{},
 
 	return nil, errors.New("shipping method and/or rate were not found")
 }
-
-
-
 
 // WEB REST API function to submit checkout information and make order
 func restSubmit(params *api.T_APIHandlerParams) (interface{}, error) {
@@ -390,10 +357,8 @@ func restSubmit(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	newOrder, err := order.GetOrderModel()
 	if err != nil {
-		return nil ,err
+		return nil, err
 	}
-
-
 
 	// newOrder.Set("increment_id",)
 
@@ -405,22 +370,16 @@ func restSubmit(params *api.T_APIHandlerParams) (interface{}, error) {
 	if currentVisitor := currentCheckout.GetVisitor(); currentVisitor != nil {
 		newOrder.Set("visitor_id", currentVisitor.GetId())
 
-		newOrder.Set("customer_email", currentVisitor.GetEmail() )
-		newOrder.Set("customer_name", currentVisitor.GetFullName() )
+		newOrder.Set("customer_email", currentVisitor.GetEmail())
+		newOrder.Set("customer_name", currentVisitor.GetFullName())
 	}
 
-	newOrder.Set("cart_id", currentCart.GetId() )
-	newOrder.Set("payment_method", currentCheckout.GetPaymentMethod().GetCode() )
-	newOrder.Set("shipping_method", currentCheckout.GetShippingMethod().GetCode() + "/" + currentCheckout.GetShippingRate().Code)
+	newOrder.Set("cart_id", currentCart.GetId())
+	newOrder.Set("payment_method", currentCheckout.GetPaymentMethod().GetCode())
+	newOrder.Set("shipping_method", currentCheckout.GetShippingMethod().GetCode()+"/"+currentCheckout.GetShippingRate().Code)
 
-	var discountAmount float64 = 0.0
-	for _, discount := range currentCheckout.GetDiscounts() {
-		discountAmount += discount.Amount
-	}
-	var taxAmount float64 = 0.0
-	for _, taxRate := range currentCheckout.GetTaxes() {
-		taxAmount += taxRate.Amount
-	}
+	discountAmount, _ := currentCheckout.GetDiscounts()
+	taxAmount, _ := currentCheckout.GetTaxes()
 
 	newOrder.Set("discount", discountAmount)
 	newOrder.Set("tax_amount", taxAmount)
@@ -437,13 +396,13 @@ func restSubmit(params *api.T_APIHandlerParams) (interface{}, error) {
 			return nil, errors.New("no product for cart item " + strconv.Itoa(cartItem.GetIdx()))
 		}
 
-		orderItem.Set("name",  product.GetName())
-		orderItem.Set("sku",   product.GetSku())
+		orderItem.Set("name", product.GetName())
+		orderItem.Set("sku", product.GetSku())
 		orderItem.Set("short_description", product.GetShortDescription())
 
 		orderItem.Set("price", product.GetPrice())
-		orderItem.Set("size",  product.GetSize())
-		orderItem.Set("weight",product.GetWeight())
+		orderItem.Set("size", product.GetSize())
+		orderItem.Set("weight", product.GetWeight())
 	}
 
 	err = newOrder.CalculateTotals()

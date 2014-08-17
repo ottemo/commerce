@@ -11,7 +11,10 @@ import (
 	"github.com/ottemo/foundation/db"
 )
 
-
+// function calls when cart was changes and subtotal recalculation needed
+func (it *DefaultCart) cartChanged() {
+	it.Subtotal = 0
+}
 
 // adds item to the current cart
 //   - returns added item or nil if error happened
@@ -40,10 +43,10 @@ func (it *DefaultCart) AddItem(productId string, qty int, options map[string]int
 
 	it.Items[it.maxIdx] = cartItem
 
+	it.cartChanged()
+
 	return cartItem, nil
 }
-
-
 
 // removes item from cart
 //   - you need to know index you can get from ListItems()
@@ -67,41 +70,45 @@ func (it *DefaultCart) RemoveItem(itemIdx int) error {
 
 		delete(it.Items, itemIdx)
 
+		it.cartChanged()
+
 		return nil
 	} else {
 		return errors.New("can't find index " + strconv.Itoa(itemIdx))
 	}
 }
 
-
-
 // sets new qty for particular item in cart
 //   - you need to it's index, use ListItems() for that
 func (it *DefaultCart) SetQty(itemIdx int, qty int) error {
 	cartItem, present := it.Items[itemIdx]
 	if present {
-		return cartItem.SetQty(qty)
+		err := cartItem.SetQty(qty)
+		if err != nil {
+			return err
+		}
+
+		it.cartChanged()
+
+		return nil
 	} else {
 		return errors.New("there is no item with idx=" + strconv.Itoa(itemIdx))
 	}
 }
 
-
-
 // returns subtotal for cart items
 func (it *DefaultCart) GetSubtotal() float64 {
 
-	var subtotal float64 = 0.0
-	for _, cartItem := range it.Items {
-		if cartProduct := cartItem.GetProduct(); cartProduct != nil {
-			subtotal += cartProduct.GetPrice() * float64(cartItem.GetQty())
+	if it.Subtotal == 0 {
+		for _, cartItem := range it.Items {
+			if cartProduct := cartItem.GetProduct(); cartProduct != nil {
+				it.Subtotal += cartProduct.GetPrice() * float64(cartItem.GetQty())
+			}
 		}
 	}
 
-	return subtotal
+	return it.Subtotal
 }
-
-
 
 // enumerates current cart items sorted by item idx
 func (it *DefaultCart) GetItems() []cart.I_CartItem {
@@ -122,14 +129,10 @@ func (it *DefaultCart) GetItems() []cart.I_CartItem {
 	return result
 }
 
-
-
 // returns visitor id this cart belongs to
 func (it *DefaultCart) GetVisitorId() string {
 	return it.VisitorId
 }
-
-
 
 // sets new owner of cart
 func (it *DefaultCart) SetVisitorId(visitorId string) error {
@@ -137,15 +140,11 @@ func (it *DefaultCart) SetVisitorId(visitorId string) error {
 	return nil
 }
 
-
-
 // returns visitor model represents owner or current cart or nil if visitor was not set to cart
 func (it *DefaultCart) GetVisitor() visitor.I_Visitor {
 	visitor, _ := visitor.LoadVisitorById(it.VisitorId)
 	return visitor
 }
-
-
 
 // assigns some information to current cart
 func (it *DefaultCart) SetCartInfo(infoAttribute string, infoValue interface{}) error {
@@ -158,14 +157,10 @@ func (it *DefaultCart) SetCartInfo(infoAttribute string, infoValue interface{}) 
 	return nil
 }
 
-
-
 // returns current cart info assigned
 func (it *DefaultCart) GetCartInfo() map[string]interface{} {
 	return it.Info
 }
-
-
 
 // loads cart information from DB for visitor
 func (it *DefaultCart) MakeCartForVisitor(visitorId string) error {
@@ -207,8 +202,6 @@ func (it *DefaultCart) MakeCartForVisitor(visitorId string) error {
 	return nil
 }
 
-
-
 // makes cart active
 //   - only one cart can be active for particular visitor
 func (it *DefaultCart) Activate() error {
@@ -216,16 +209,12 @@ func (it *DefaultCart) Activate() error {
 	return nil
 }
 
-
-
 // makes cart un-active
 //   - so new cart will be created on next request
 func (it *DefaultCart) Deactivate() error {
 	it.Active = false
 	return nil
 }
-
-
 
 // returns active flag status of cart
 func (it *DefaultCart) IsActive() bool {

@@ -20,6 +20,8 @@ type DefaultCart struct {
 
 	Active bool
 
+	Subtotal float64
+
 	maxIdx int
 }
 

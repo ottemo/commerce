@@ -71,14 +71,16 @@ func (it *DefaultCartItem) SetQty(qty int) error {
 		return errors.New("qty must be greater then 0")
 	}
 
+	it.Cart.cartChanged()
+
 	return nil
 }
 
 // removes item from the cart
 func (it *DefaultCartItem) Remove() error {
-	cart := it.GetCart()
-	if cart != nil {
-		return it.GetCart().RemoveItem(it.idx)
+
+	if it.Cart != nil {
+		return it.Cart.RemoveItem(it.idx)
 	} else {
 		return errors.New("item is not bound to cart")
 	}

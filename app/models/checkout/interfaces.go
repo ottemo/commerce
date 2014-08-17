@@ -15,8 +15,6 @@ const (
 	SESSION_KEY_CURRENT_CHECKOUT = "Checkout"
 )
 
-
-
 type I_Checkout interface {
 	SetShippingAddress(address visitor.I_VisitorAddress) error
 	GetShippingAddress() visitor.I_VisitorAddress
@@ -33,8 +31,10 @@ type I_Checkout interface {
 	SetShippingRate(shippingRate T_ShippingRate) error
 	GetShippingRate() *T_ShippingRate
 
-	GetTaxes() []T_TaxRate
-	GetDiscounts() []T_Discount
+	GetTaxes() (float64, []T_TaxRate)
+	GetDiscounts() (float64, []T_Discount)
+
+	GetGrandTotal() float64
 
 	SetCart(checkoutCart cart.I_Cart) error
 	GetCart() cart.I_Cart
@@ -48,8 +48,6 @@ type I_Checkout interface {
 	models.I_Model
 }
 
-
-
 type I_ShippingMehod interface {
 	GetName() string
 	GetCode() string
@@ -58,8 +56,6 @@ type I_ShippingMehod interface {
 
 	GetRates(checkoutInstance I_Checkout) []T_ShippingRate
 }
-
-
 
 type I_PaymentMethod interface {
 	GetName() string
@@ -70,10 +66,8 @@ type I_PaymentMethod interface {
 	Authorize() error
 	Capture() error
 	Refund() error
-	Void()	error
+	Void() error
 }
-
-
 
 type I_Tax interface {
 	GetName() string
@@ -82,8 +76,6 @@ type I_Tax interface {
 	CalculateTax(checkoutInstance I_Checkout) []T_TaxRate
 }
 
-
-
 type I_Discount interface {
 	GetName() string
 	GetCode() string
@@ -91,27 +83,21 @@ type I_Discount interface {
 	CalculateDiscount(checkoutInstance I_Checkout) []T_Discount
 }
 
-
-
 type T_ShippingRate struct {
-	Name string
-	Code string
+	Name  string
+	Code  string
 	Price float64
-	Days int
+	Days  int
 }
 
-
-
 type T_TaxRate struct {
-	Name string
-	Code string
+	Name   string
+	Code   string
 	Amount float64
 }
 
-
-
 type T_Discount struct {
-	Name string
-	Code string
+	Name   string
+	Code   string
 	Amount float64
 }
