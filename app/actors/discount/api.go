@@ -4,8 +4,6 @@ import (
 	"github.com/ottemo/foundation/api"
 )
 
-
-
 // initializes API for discount
 func setupAPI() error {
 	var err error = nil
@@ -23,7 +21,6 @@ func setupAPI() error {
 	return nil
 }
 
-
 // WEB REST API function to apply discount code to current checkout
 func restDiscountApply(params *api.T_APIHandlerParams) (interface{}, error) {
 
@@ -34,12 +31,11 @@ func restDiscountApply(params *api.T_APIHandlerParams) (interface{}, error) {
 
 		params.Session.Set(SESSION_KEY_APPLIED_DISCOUNT_CODES, appliedCoupons)
 	} else {
-		params.Session.Set(SESSION_KEY_APPLIED_DISCOUNT_CODES, []string{ couponCode })
+		params.Session.Set(SESSION_KEY_APPLIED_DISCOUNT_CODES, []string{couponCode})
 	}
 
 	return "ok", nil
 }
-
 
 // WEB REST API function to neglect(un-apply) discount code to current checkout
 //   - use "*" as code to neglect all discounts

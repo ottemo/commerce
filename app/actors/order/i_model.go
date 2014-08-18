@@ -17,5 +17,5 @@ func (it *DefaultOrder) GetImplementationName() string {
 
 // makes new instance of model
 func (it *DefaultOrder) New() (models.I_Model, error) {
-	return &DefaultOrder { Items: make(map[int]order.I_OrderItem) }, nil
+	return &DefaultOrder{Items: make(map[int]order.I_OrderItem)}, nil
 }

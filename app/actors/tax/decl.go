@@ -1,6 +1,5 @@
 package tax
 
-import (
-)
+import ()
 
-type DefaultTax struct { }
+type DefaultTax struct{}

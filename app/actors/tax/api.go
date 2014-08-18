@@ -1,16 +1,14 @@
 package tax
 
 import (
-	"errors"
 	"encoding/csv"
+	"errors"
 
-	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/api"
+	"github.com/ottemo/foundation/db"
 
 	"github.com/ottemo/foundation/app/utils"
 )
-
-
 
 // initializes API for tax
 func setupAPI() error {
@@ -29,12 +27,10 @@ func setupAPI() error {
 	return nil
 }
 
-
-
 // WEB REST API function to download current tax rates in CSV format
 func restTaxCSVDownload(params *api.T_APIHandlerParams) (interface{}, error) {
 
-	csvWriter := csv.NewWriter( params.ResponseWriter )
+	csvWriter := csv.NewWriter(params.ResponseWriter)
 
 	if dbEngine := db.GetDBEngine(); dbEngine != nil {
 		if collection, err := dbEngine.GetCollection("Taxes"); err == nil {
@@ -43,21 +39,21 @@ func restTaxCSVDownload(params *api.T_APIHandlerParams) (interface{}, error) {
 				return nil, err
 			}
 
-			err = csvWriter.Write( []string { "Code", "Country", "State", "Zip", "Rate" })
+			err = csvWriter.Write([]string{"Code", "Country", "State", "Zip", "Rate"})
 			if err != nil {
 				return nil, err
 			}
 
 			params.ResponseWriter.Header().Set("Content-type", "text/csv")
-			params.ResponseWriter.Header().Set("Content-disposition", "attachment;filename=tax_rates.csv");
+			params.ResponseWriter.Header().Set("Content-disposition", "attachment;filename=tax_rates.csv")
 
 			for _, record := range records {
-				csvWriter.Write( []string {
+				csvWriter.Write([]string{
 					utils.InterfaceToString(record["code"]),
 					utils.InterfaceToString(record["country"]),
 					utils.InterfaceToString(record["state"]),
 					utils.InterfaceToString(record["zip"]),
-					utils.InterfaceToString(record["rate"]) })
+					utils.InterfaceToString(record["rate"])})
 
 				csvWriter.Flush()
 			}
@@ -71,8 +67,6 @@ func restTaxCSVDownload(params *api.T_APIHandlerParams) (interface{}, error) {
 	return nil, nil
 }
 
-
-
 // WEB REST API function to upload tax rates into CSV
 func restTaxCSVUpload(params *api.T_APIHandlerParams) (interface{}, error) {
 
@@ -83,7 +77,6 @@ func restTaxCSVUpload(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	csvReader := csv.NewReader(csvFile)
 	csvReader.Comma = ','
-
 
 	if dbEngine := db.GetDBEngine(); dbEngine != nil {
 		if collection, err := dbEngine.GetCollection("Taxes"); err == nil {

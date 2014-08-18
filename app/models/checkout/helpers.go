@@ -5,8 +5,6 @@ import (
 	"github.com/ottemo/foundation/app/models"
 )
 
-
-
 // retrieves current I_Checkout model implementation
 func GetCheckoutModel() (I_Checkout, error) {
 	model, err := models.GetModel(CHECKOUT_MODEL_NAME)
@@ -22,8 +20,6 @@ func GetCheckoutModel() (I_Checkout, error) {
 	return checkoutModel, nil
 }
 
-
-
 // retrieves shipping method for given unique code or nil if no shipping method with such code
 func GetShippingMethodByCode(code string) I_ShippingMehod {
 
@@ -35,8 +31,6 @@ func GetShippingMethodByCode(code string) I_ShippingMehod {
 
 	return nil
 }
-
-
 
 // retrieves payment method for given unique code or nil if no payment method with such code
 func GetPaymentMethodByCode(code string) I_PaymentMethod {

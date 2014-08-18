@@ -16,7 +16,6 @@ func (it *CheckMoneyOrder) IsAllowed(checkout checkout.I_Checkout) bool {
 	return true
 }
 
-
 func (it *CheckMoneyOrder) Authorize() error {
 	return nil
 }
@@ -29,6 +28,6 @@ func (it *CheckMoneyOrder) Refund() error {
 	return nil
 }
 
-func (it *CheckMoneyOrder) Void()	error {
+func (it *CheckMoneyOrder) Void() error {
 	return nil
 }

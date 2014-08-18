@@ -7,22 +7,16 @@ import (
 	"github.com/ottemo/foundation/db"
 )
 
-
-
 // returns id of current order
 func (it *DefaultOrder) GetId() string {
 	return it.id
 }
-
-
 
 // sets id for order
 func (it *DefaultOrder) SetId(NewId string) error {
 	it.id = NewId
 	return nil
 }
-
-
 
 // loads order information from DB
 func (it *DefaultOrder) Load(Id string) error {
@@ -43,7 +37,7 @@ func (it *DefaultOrder) Load(Id string) error {
 		for attribute, value := range values {
 			it.Set(attribute, value)
 		}
-		
+
 		it.Items = make(map[int]order.I_OrderItem)
 		it.maxIdx = 0
 
@@ -72,8 +66,6 @@ func (it *DefaultOrder) Load(Id string) error {
 
 	return nil
 }
-
-
 
 // removes current order from DB
 func (it *DefaultOrder) Delete(Id string) error {
@@ -111,8 +103,6 @@ func (it *DefaultOrder) Delete(Id string) error {
 
 	return err
 }
-
-
 
 // stores current order in DB
 func (it *DefaultOrder) Save() error {

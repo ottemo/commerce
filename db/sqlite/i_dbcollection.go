@@ -151,7 +151,6 @@ func (it *SQLiteCollection) Load() ([]map[string]interface{}, error) {
 		println(SQL)
 	}
 
-
 	stmt, err := it.Connection.Query(SQL)
 	defer closeStatement(stmt)
 
@@ -458,7 +457,7 @@ func (it *SQLiteCollection) RemoveColumn(ColumnName string) error {
 		for _, tableColumn := range tableColumnsList {
 			tableColumn = strings.Trim(tableColumn, "\n\t ")
 
-			if !strings.HasPrefix(tableColumn, ColumnName) && !strings.HasPrefix(tableColumn, "\"" + ColumnName + "\"") {
+			if !strings.HasPrefix(tableColumn, ColumnName) && !strings.HasPrefix(tableColumn, "\""+ColumnName+"\"") {
 				if tableColumnsWTypes != "" {
 					tableColumnsWTypes += ", "
 					tableColumnsWoTypes += ", "

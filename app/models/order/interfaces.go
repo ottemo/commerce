@@ -9,9 +9,7 @@ const (
 	ORDER_MODEL_NAME = "Order"
 )
 
-
 type I_OrderItem interface {
-
 	GetId() string
 	SetId(newId string) error
 
@@ -31,7 +29,6 @@ type I_OrderItem interface {
 }
 
 type I_Order interface {
-
 	GetItems() []I_OrderItem
 
 	AddItem(productId string, qty int, productOptions map[string]interface{}) (I_OrderItem, error)

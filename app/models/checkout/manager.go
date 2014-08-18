@@ -9,9 +9,9 @@ import (
 
 var (
 	ShippingMethods = make([]I_ShippingMehod, 0)
-	PaymentMethods = make([]I_PaymentMethod, 0)
+	PaymentMethods  = make([]I_PaymentMethod, 0)
 
-	Taxes = make([]I_Tax, 0)
+	Taxes     = make([]I_Tax, 0)
 	Discounts = make([]I_Discount, 0)
 )
 
@@ -31,8 +31,6 @@ func RegisterShippingMethod(shippingMethod I_ShippingMehod) error {
 	return nil
 }
 
-
-
 // register new payment method to system
 func RegisterPaymentMethod(paymentMethod I_PaymentMethod) error {
 	for _, registeredMethod := range PaymentMethods {
@@ -45,8 +43,6 @@ func RegisterPaymentMethod(paymentMethod I_PaymentMethod) error {
 
 	return nil
 }
-
-
 
 // register new tax calculator in system
 func RegisterTax(tax I_Tax) error {
@@ -61,8 +57,6 @@ func RegisterTax(tax I_Tax) error {
 	return nil
 }
 
-
-
 // register new discount calculator in system
 func RegisterDiscount(discount I_Discount) error {
 	for _, registeredDiscount := range Discounts {
@@ -76,28 +70,20 @@ func RegisterDiscount(discount I_Discount) error {
 	return nil
 }
 
-
-
 // returns list of registered shipping methods
 func GetRegisteredShippingMethods() []I_ShippingMehod {
 	return ShippingMethods
 }
-
-
 
 // returns list of registered payment methods
 func GetRegisteredPaymentMethods() []I_PaymentMethod {
 	return PaymentMethods
 }
 
-
-
 // returns list of registered tax calculators
 func GetRegisteredTaxes() []I_Tax {
 	return Taxes
 }
-
-
 
 // returns list of registered tax calculators
 func GetRegisteredDiscounts() []I_Discount {

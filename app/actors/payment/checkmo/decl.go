@@ -5,4 +5,4 @@ const (
 	PAYMENT_NAME = "Check/Money Order"
 )
 
-type CheckMoneyOrder struct { }
+type CheckMoneyOrder struct{}

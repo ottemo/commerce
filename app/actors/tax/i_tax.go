@@ -1,9 +1,9 @@
 package tax
 
 import (
-	"github.com/ottemo/foundation/db"
-	"github.com/ottemo/foundation/app/utils"
 	"github.com/ottemo/foundation/app/models/checkout"
+	"github.com/ottemo/foundation/app/utils"
+	"github.com/ottemo/foundation/db"
 )
 
 func (it *DefaultTax) GetName() string {
@@ -16,9 +16,9 @@ func (it *DefaultTax) GetCode() string {
 
 func processRecords(name string, records []map[string]interface{}, result []checkout.T_TaxRate) []checkout.T_TaxRate {
 	for _, record := range records {
-		taxRate := checkout.T_TaxRate {
-			Name: name,
-			Code: utils.InterfaceToString(record["code"]),
+		taxRate := checkout.T_TaxRate{
+			Name:   name,
+			Code:   utils.InterfaceToString(record["code"]),
 			Amount: utils.InterfaceToFloat64(record["rate"]),
 		}
 

@@ -8,11 +8,9 @@ import (
 
 	"github.com/ottemo/foundation/db"
 
-	"github.com/ottemo/foundation/app/models/order"
 	"github.com/ottemo/foundation/app/models/checkout"
+	"github.com/ottemo/foundation/app/models/order"
 )
-
-
 
 // returns order items for current order
 func (it *DefaultOrder) GetItems() []order.I_OrderItem {
@@ -32,8 +30,6 @@ func (it *DefaultOrder) GetItems() []order.I_OrderItem {
 	return result
 
 }
-
-
 
 // adds line item to current order, or returns error
 func (it *DefaultOrder) AddItem(productId string, qty int, productOptions map[string]interface{}) (order.I_OrderItem, error) {
@@ -65,9 +61,6 @@ func (it *DefaultOrder) AddItem(productId string, qty int, productOptions map[st
 	return orderItem, nil
 }
 
-
-
-
 // removes line item from current order, or returns error
 func (it *DefaultOrder) RemoveItem(itemIdx int) error {
 	if orderItem, present := it.Items[itemIdx]; present {
@@ -95,65 +88,49 @@ func (it *DefaultOrder) RemoveItem(itemIdx int) error {
 	}
 }
 
-
-
 // recalculates order Subtotal and GrandTotal
 func (it *DefaultOrder) CalculateTotals() error {
 
 	var subtotal float64 = 0.0
 	for _, orderItem := range it.Items {
-		subtotal += orderItem.GetPrice() * float64( orderItem.GetQty() )
+		subtotal += orderItem.GetPrice() * float64(orderItem.GetQty())
 	}
 	it.Subtotal = subtotal
-
 
 	it.GrandTotal = it.Subtotal + it.ShippingAmount + it.TaxAmount - it.Discount
 
 	return nil
 }
 
-
 // returns subtotal of order
 func (it *DefaultOrder) GetSubtotal() float64 {
 	return it.Subtotal
 }
-
-
 
 // returns grand total of order
 func (it *DefaultOrder) GetGrandTotal() float64 {
 	return it.GrandTotal
 }
 
-
-
 // returns discount amount applied to order
 func (it *DefaultOrder) GetDiscountAmount() float64 {
 	return it.Discount
 }
-
-
 
 // returns tax amount applied to order
 func (it *DefaultOrder) GetTaxAmount() float64 {
 	return it.TaxAmount
 }
 
-
-
 // returns order shipping cost
 func (it *DefaultOrder) GetShippingAmount() float64 {
 	return it.ShippingAmount
 }
 
-
-
 // returns shipping method for order
 func (it *DefaultOrder) GetShippingMethod() checkout.I_ShippingMehod {
 	return checkout.GetShippingMethodByCode(it.ShippingMethod)
 }
-
-
 
 // returns payment method used for order
 func (it *DefaultOrder) GetPaymentMethod() checkout.I_PaymentMethod {

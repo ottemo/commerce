@@ -3,8 +3,8 @@ package tax
 import (
 	"errors"
 
-	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/api"
+	"github.com/ottemo/foundation/db"
 
 	"github.com/ottemo/foundation/app/models/checkout"
 )

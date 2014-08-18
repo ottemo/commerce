@@ -10,7 +10,6 @@ import (
 func init() {
 	instance := new(DefaultOrder)
 
-
 	models.RegisterModel("Order", instance)
 
 	db.RegisterOnDatabaseStart(instance.setupDB)
@@ -47,7 +46,6 @@ func (it *DefaultOrder) setupDB() error {
 
 		collection.AddColumn("created_at", "datetime", false)
 		collection.AddColumn("updaed_at", "datetime", false)
-
 
 		collection, err = dbEngine.GetCollection(ORDER_ITEMS_COLLECTION_NAME)
 		if err != nil {

@@ -18,13 +18,11 @@ const (
 )
 
 var (
-	Sessions = make(map[string]*Session)
+	Sessions      = make(map[string]*Session)
 	sessionsMutex sync.RWMutex
 
 	gcRate int64 = 10
 )
-
-
 
 // returns session object for given id or nil
 func GetSessionById(sessionId string) (*Session, error) {
@@ -34,8 +32,6 @@ func GetSessionById(sessionId string) (*Session, error) {
 		return nil, errors.New("session not found")
 	}
 }
-
-
 
 // returns session object for request or creates new one
 func StartSession(request *http.Request, responseWriter http.ResponseWriter) (*Session, error) {
@@ -57,8 +53,6 @@ func StartSession(request *http.Request, responseWriter http.ResponseWriter) (*S
 
 	return newSession(responseWriter)
 }
-
-
 
 // initializes new session
 func newSession(responseWriter http.ResponseWriter) (*Session, error) {
@@ -89,8 +83,6 @@ func newSession(responseWriter http.ResponseWriter) (*Session, error) {
 	return Sessions[sessionId], nil
 }
 
-
-
 // returns new session number
 func newSessionId() (string, error) {
 	sessionId := make([]byte, 32)
@@ -104,8 +96,6 @@ func newSessionId() (string, error) {
 
 	return string(sessionId), nil
 }
-
-
 
 // removes expired sessions
 func Gc() {

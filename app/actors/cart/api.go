@@ -162,7 +162,7 @@ func restCartUpdate(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	for _, cartItem := range cartItems {
 		if cartItem.GetIdx() == itemIdx {
-			cartItem.SetQty( qty )
+			cartItem.SetQty(qty)
 			found = true
 			break
 		}
