@@ -2,6 +2,7 @@ package rest
 
 import (
 	"errors"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"strings"
@@ -12,7 +13,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 	"github.com/ottemo/foundation/api"
 
-	"github.com/ottemo/foundation/api/rest/session"
+	"github.com/ottemo/foundation/api/session"
 )
 
 // returns implementation name of our REST API service
@@ -20,7 +21,7 @@ func (it *DefaultRestService) GetName() string {
 	return "httprouter"
 }
 
-// other modules should call this function in order to provide own REST API functionality
+// modules should call this function in order to provide own REST API functionality
 func (it *DefaultRestService) RegisterAPI(service string, method string, uri string, handler api.F_APIHandler) error {
 
 	// httprouter needs other type of handler that we using
@@ -54,8 +55,10 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 
 			// TODO: should be separated on 2 cases
 			req.ParseMultipartForm(32 << 20) // 32 MB
-			for attribute, value := range req.MultipartForm.Value {
-				newContent[attribute] = value[0]
+			if req.MultipartForm != nil {
+				for attribute, value := range req.MultipartForm.Value {
+					newContent[attribute] = value[0]
+				}
 			}
 
 			req.ParseForm()
@@ -64,6 +67,18 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 			}
 
 			content = newContent
+
+		default:
+			var body []byte = nil
+
+			if req.ContentLength > 0 {
+				body = make([]byte, req.ContentLength)
+				req.Body.Read(body)
+			} else {
+				body, _ = ioutil.ReadAll(req.Body)
+			}
+
+			content = string(body)
 		}
 
 		// starting session for request

@@ -2,6 +2,7 @@ package mongo
 
 import (
 	"errors"
+	"sort"
 	"strings"
 
 	"labix.org/v2/mgo/bson"
@@ -52,7 +53,7 @@ func getMongoOperator(Operator string, Value interface{}) (string, interface{}, 
 	case "like":
 		Value, ok := Value.(string)
 		if ok {
-			Value = strings.Replace("%", ".*", Value, -1)
+			Value = strings.Replace(Value, "%", ".*", -1)
 			return "$regex", Value, nil
 		}
 	}
@@ -132,6 +133,8 @@ func (it *MongoDBCollection) Count() (int, error) {
 // stores record in DB for current collection
 func (it *MongoDBCollection) Save(Item map[string]interface{}) (string, error) {
 
+	// id validation/updating
+	//-----------------------
 	id := bson.NewObjectId().Hex()
 
 	if _id, present := Item["_id"]; present {
@@ -141,10 +144,25 @@ func (it *MongoDBCollection) Save(Item map[string]interface{}) (string, error) {
 			}
 		}
 	}
-
 	Item["_id"] = id
 
-	changeInfo, err := it.collection.UpsertId(id, Item)
+	// sorting by attribute name
+	//--------------------------
+	bsonDocument := make(bson.D, 0, len(Item))
+	keysList := make([]string, 0, len(Item))
+
+	for key, _ := range Item {
+		keysList = append(keysList, key)
+	}
+	sort.Strings(keysList)
+
+	for _, key := range keysList {
+		bsonDocument = append(bsonDocument, bson.DocElem{Name: key, Value: Item[key]})
+	}
+
+	// saving document to DB
+	//----------------------
+	changeInfo, err := it.collection.UpsertId(id, bsonDocument)
 
 	if changeInfo != nil && changeInfo.UpsertedId != nil {
 		//id = changeInfo.UpsertedId

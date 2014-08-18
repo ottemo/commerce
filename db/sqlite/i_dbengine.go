@@ -16,7 +16,11 @@ func (it *SQLite) HasCollection(CollectionName string) bool {
 	CollectionName = strings.ToLower(CollectionName)
 
 	SQL := "SELECT name FROM sqlite_master WHERE type='table' AND name='" + CollectionName + "'"
-	if _, err := it.Connection.Query(SQL); err == nil {
+
+	stmt, err := it.Connection.Query(SQL)
+	defer closeStatement(stmt)
+
+	if err == nil {
 		return true
 	} else {
 		return false

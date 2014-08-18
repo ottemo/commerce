@@ -2,15 +2,17 @@ package utils
 
 import (
 	"strconv"
+	"time"
 )
 
-func checkIsBlank(value interface{}) bool {
+// checks if value is blank (zero value)
+func CheckIsBlank(value interface{}) bool {
 	switch typedValue := value.(type) {
 	case string:
 		return typedValue == ""
 	case int, int32, int64:
 		return typedValue == 0
-	case []string, []interface{} :
+	case []string, []interface{}:
 		return false
 	case map[string]interface{}, map[string]string, map[string]int:
 		return false
@@ -30,7 +32,7 @@ func KeysInMapAndNotBlank(mapObject interface{}, keys ...interface{}) bool {
 		for _, key := range keys {
 			if key2, ok := key.(string); ok {
 				if mapValue, present := typedMapObject[key2]; present {
-					if isBlank := checkIsBlank(mapValue); isBlank {
+					if isBlank := CheckIsBlank(mapValue); isBlank {
 						return false
 					}
 				} else {
@@ -42,7 +44,7 @@ func KeysInMapAndNotBlank(mapObject interface{}, keys ...interface{}) bool {
 		for _, key := range keys {
 			if key, ok := key.(int); ok {
 				if mapValue, present := typedMapObject[key]; present {
-					if isBlank := checkIsBlank(mapValue); isBlank {
+					if isBlank := CheckIsBlank(mapValue); isBlank {
 						return false
 					}
 				} else {
@@ -118,8 +120,8 @@ func InterfaceToBool(value interface{}) bool {
 	case bool:
 		return typedValue
 	case string:
-		if typedValue == "1" || typedValue == "true" || typedValue == "on" {
-			return true
+		if boolValue, err := strconv.ParseBool(typedValue); err == nil {
+			return boolValue
 		} else {
 			return false
 		}
@@ -133,6 +135,8 @@ func InterfaceToBool(value interface{}) bool {
 // converts interface{} to string
 func InterfaceToString(value interface{}) string {
 	switch value := value.(type) {
+	case float64:
+		return strconv.FormatFloat(value, 'f', 6, 64)
 	case string:
 		return value
 	default:
@@ -146,7 +150,7 @@ func InterfaceToInt(value interface{}) int {
 	case int:
 		return typedValue
 	case string:
-		intValue, _ := StrToInt(typedValue)
+		intValue, _ := StringToInteger(typedValue)
 		return intValue
 	default:
 		return 0
@@ -160,6 +164,8 @@ func InterfaceToFloat64(value interface{}) float64 {
 		return typedValue
 	case int64:
 		return float64(typedValue)
+	case int:
+		return float64(typedValue)
 	case string:
 		floatValue, _ := strconv.ParseFloat(typedValue, 64)
 		return floatValue
@@ -168,7 +174,37 @@ func InterfaceToFloat64(value interface{}) float64 {
 	}
 }
 
+// converts interface{} to time.Time
+func InterfaceToTime(value interface{}) time.Time {
+	switch typedValue := value.(type) {
+	case time.Time:
+		return typedValue
+	case string:
+		newValue, err := time.Parse(time.UnixDate, typedValue)
+		if err == nil {
+			return newValue
+		}
+
+		newValue, err = time.Parse(time.RFC3339, typedValue)
+		if err == nil {
+			return newValue
+		}
+
+		newValue, err = time.Parse(time.RFC822Z, typedValue)
+		if err == nil {
+			return newValue
+		}
+	}
+
+	return time.Unix(0, 0)
+}
+
 // convert string to integer
-func StrToInt(value string) (int, error) {
+func StringToInteger(value string) (int, error) {
 	return strconv.Atoi(value)
+}
+
+// convert string to float64
+func StringToFloat(value string) (float64, error) {
+	return strconv.ParseFloat(value, 64)
 }

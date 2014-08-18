@@ -1,19 +1,41 @@
 package env
 
+const (
+	CONFIG_ITEM_GROUP_TYPE = "group"
+)
+
 type I_IniConfig interface {
 	GetValue(Name string, Default string) string
 	ListItems() []string
 }
 
 type I_Config interface {
-	RegisterItem(Name string, Validator func(interface{}) (interface{}, bool), Default interface{}) error
-	UnregisterItem(Name string) error
+	RegisterItem(Item T_ConfigItem, Validator F_ConfigValueValidator) error
+	UnregisterItem(Path string) error
 
-	GetValue(Name string) interface{}
-	SetValue(Name string, Value interface{}) error
+	ListPathes() []string
+	GetValue(Path string) interface{}
+	SetValue(Path string, Value interface{}) error
 
-	ListItems() []string
+	GetGroupItems() []T_ConfigItem
+	GetItemsInfo(Path string) []T_ConfigItem
 
 	Load() error
-	Save() error
+}
+
+type F_ConfigValueValidator func(interface{}) (interface{}, error)
+
+type T_ConfigItem struct {
+	Path  string
+	Value interface{}
+
+	Type string
+
+	Editor  string
+	Options interface{}
+
+	Label       string
+	Description string
+
+	Image string
 }

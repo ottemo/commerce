@@ -9,6 +9,13 @@ import (
 	sqlite3 "github.com/mxk/go-sqlite/sqlite3"
 )
 
+// close sqlite3 statement routine
+func closeStatement(statement *sqlite3.Stmt) {
+	if statement != nil {
+		statement.Close()
+	}
+}
+
 // formats SQL query error for output to log
 func sqlError(SQL string, err error) error {
 	return errors.New("SQL \"" + SQL + "\" error: " + err.Error())
@@ -103,8 +110,11 @@ func (it *SQLiteCollection) LoadById(id string) (map[string]interface{}, error) 
 		println(SQL)
 	}
 
-	if s, err := it.Connection.Query(SQL); err == nil {
-		if err := s.Scan(row); err == nil {
+	stmt, err := it.Connection.Query(SQL)
+	defer closeStatement(stmt)
+
+	if err == nil {
+		if err := stmt.Scan(row); err == nil {
 
 			row["_id"] = strconv.FormatInt(row["_id"].(int64), 10)
 
@@ -120,7 +130,6 @@ func (it *SQLiteCollection) LoadById(id string) (map[string]interface{}, error) 
 // loads records from DB for current collection and filter if it set
 func (it *SQLiteCollection) Load() ([]map[string]interface{}, error) {
 	result := make([]map[string]interface{}, 0, 10)
-	var err error = nil
 
 	row := make(sqlite3.RowMap)
 
@@ -142,10 +151,13 @@ func (it *SQLiteCollection) Load() ([]map[string]interface{}, error) {
 		println(SQL)
 	}
 
-	if s, err := it.Connection.Query(SQL); err == nil {
-		for ; err == nil; err = s.Next() {
+	stmt, err := it.Connection.Query(SQL)
+	defer closeStatement(stmt)
 
-			if err := s.Scan(row); err == nil {
+	if err == nil {
+		for ; err == nil; err = stmt.Next() {
+
+			if err := stmt.Scan(row); err == nil {
 
 				row["_id"] = strconv.FormatInt(row["_id"].(int64), 10)
 
@@ -173,8 +185,11 @@ func (it *SQLiteCollection) Count() (int, error) {
 		println(SQL)
 	}
 
-	if s, err := it.Connection.Query(SQL); err == nil {
-		if err := s.Scan(row); err == nil {
+	stmt, err := it.Connection.Query(SQL)
+	defer closeStatement(stmt)
+
+	if err == nil {
+		if err := stmt.Scan(row); err == nil {
 			cnt := int(row["cnt"].(int64)) //TODO: check this assertion works
 			return cnt, err
 		} else {
@@ -344,7 +359,11 @@ func (it *SQLiteCollection) RefreshColumns() {
 	}
 
 	row := make(sqlite3.RowMap)
-	for stmt, err := it.Connection.Query(SQL); err == nil; err = stmt.Next() {
+
+	stmt, err := it.Connection.Query(SQL)
+	defer closeStatement(stmt)
+
+	for ; err == nil; err = stmt.Next() {
 		stmt.Scan(row)
 
 		key := row["name"].(string)
@@ -403,80 +422,81 @@ func (it *SQLiteCollection) AddColumn(ColumnName string, ColumnType string, inde
 //   - sqlite do not have alter DROP COLUMN statements so it is hard task...
 func (it *SQLiteCollection) RemoveColumn(ColumnName string) error {
 
+	// checking column in table
 	if !it.HasColumn(ColumnName) {
 		return errors.New("column '" + ColumnName + "' not exists in '" + it.TableName + "' collection")
 	}
 
-	it.Connection.Begin()
-	defer it.Connection.Commit()
+	// getting table create SQL to take columns from
+	//----------------------------------------------
+	var tableCreateSQL string = ""
 
-	var SQL string
+	SQL := "SELECT sql FROM sqlite_master WHERE tbl_name='" + it.TableName + "' AND type='table'"
 
-	SQL = "SELECT sql FROM sqlite_master WHERE tbl_name='" + it.TableName + "' AND type='table'"
-	if stmt, err := it.Connection.Query(SQL); err == nil {
+	stmt, err := it.Connection.Query(SQL)
+	if err != nil {
+		return sqlError(SQL, err)
+	}
 
-		var tableCreateSQL string = ""
+	err = stmt.Scan(&tableCreateSQL)
+	if err != nil {
+		return err
+	}
 
-		if err := stmt.Scan(&tableCreateSQL); err == nil {
+	closeStatement(stmt)
 
-			tableColumnsWTypes := ""
-			tableColumnsWoTypes := ""
+	// parsing create SQL, making same but w/o deleting column
+	//--------------------------------------------------------
+	tableColumnsWTypes := ""
+	tableColumnsWoTypes := ""
 
-			re := regexp.MustCompile("CREATE TABLE .*\\((.*)\\)")
-			if regexMatch := re.FindStringSubmatch(tableCreateSQL); len(regexMatch) >= 2 {
-				tableColumnsList := strings.Split(regexMatch[1], ", ")
+	re := regexp.MustCompile("CREATE TABLE .*\\((.*)\\)")
+	if regexMatch := re.FindStringSubmatch(tableCreateSQL); len(regexMatch) >= 2 {
+		tableColumnsList := strings.Split(regexMatch[1], ", ")
 
-				for _, tableColumn := range tableColumnsList {
-					tableColumn = strings.Trim(tableColumn, "\n\t ")
-					if !strings.HasPrefix(tableColumn, ColumnName) {
-						if tableColumnsWTypes != "" {
-							tableColumnsWTypes += ", "
-							tableColumnsWoTypes += ", "
-						}
-						tableColumnsWTypes += "\"" + tableColumn + "\""
-						tableColumnsWoTypes += "\"" + tableColumn[0:strings.Index(tableColumn, " ")] + "\""
-					}
+		for _, tableColumn := range tableColumnsList {
+			tableColumn = strings.Trim(tableColumn, "\n\t ")
 
+			if !strings.HasPrefix(tableColumn, ColumnName) && !strings.HasPrefix(tableColumn, "\""+ColumnName+"\"") {
+				if tableColumnsWTypes != "" {
+					tableColumnsWTypes += ", "
+					tableColumnsWoTypes += ", "
 				}
-			} else {
-				return errors.New("can't find table create columns in '" + tableCreateSQL + "', found [" + strings.Join(regexMatch, ", ") + "]")
+				tableColumnsWTypes += tableColumn
+				tableColumnsWoTypes += tableColumn[0:strings.Index(tableColumn, " ")]
 			}
 
-			SQL = "CREATE TABLE " + it.TableName + "_removecolumn (" + tableColumnsWTypes + ") "
-			if err := it.Connection.Exec(SQL); err != nil {
-				return sqlError(SQL, err)
-			}
-
-			SQL = "INSERT INTO " + it.TableName + "_removecolumn (" + tableColumnsWoTypes + ") SELECT " + tableColumnsWoTypes + " FROM " + it.TableName
-			if err := it.Connection.Exec(SQL); err != nil {
-				return sqlError(SQL, err)
-			}
-
-			// SQL = "DROP TABLE " + it.TableName
-			SQL = "ALTER TABLE " + it.TableName + " RENAME TO " + it.TableName + "_fordelete"
-			if err := it.Connection.Exec(SQL); err != nil {
-				return sqlError(SQL, err)
-			}
-
-			SQL = "ALTER TABLE " + it.TableName + "_removecolumn RENAME TO " + it.TableName
-			if err := it.Connection.Exec(SQL); err != nil {
-				return sqlError(SQL, err)
-			}
-
-			it.Connection.Commit()
-
-			// TODO: Fix this issue with table lock on DROP table
-
-			// SQL = "DROP TABLE " + it.TableName + "_fordelete"
-			// if err := it.Connection.Exec(SQL); err != nil {
-			// 	return sqlError(SQL, err)
-			// }
-
-		} else {
-			return err
 		}
-
 	} else {
+		return errors.New("can't find table create columns in '" + tableCreateSQL + "', found [" + strings.Join(regexMatch, ", ") + "]")
+	}
+
+	// making new table without removing column, and filling with values from old table
+	//---------------------------------------------------------------------------------
+	SQL = "CREATE TABLE " + it.TableName + "_removecolumn (" + tableColumnsWTypes + ") "
+	if err := it.Connection.Exec(SQL); err != nil {
+		return sqlError(SQL, err)
+	}
+
+	SQL = "INSERT INTO " + it.TableName + "_removecolumn (" + tableColumnsWoTypes + ") SELECT " + tableColumnsWoTypes + " FROM " + it.TableName
+	if err := it.Connection.Exec(SQL); err != nil {
+		return sqlError(SQL, err)
+	}
+
+	// switching newly created table, deleting old table
+	//---------------------------------------------------
+	SQL = "ALTER TABLE " + it.TableName + " RENAME TO " + it.TableName + "_fordelete"
+	if err := it.Connection.Exec(SQL); err != nil {
+		return sqlError(SQL, err)
+	}
+
+	SQL = "ALTER TABLE " + it.TableName + "_removecolumn RENAME TO " + it.TableName
+	if err := it.Connection.Exec(SQL); err != nil {
+		return sqlError(SQL, err)
+	}
+
+	SQL = "DROP TABLE " + it.TableName + "_fordelete"
+	if err := it.Connection.Exec(SQL); err != nil {
 		return sqlError(SQL, err)
 	}
 

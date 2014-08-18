@@ -146,7 +146,7 @@ func (it *DefaultCart) Save() error {
 	it.SetId(newId)
 
 	// storing cart items
-	for _, cartItem := range it.ListItems() {
+	for _, cartItem := range it.GetItems() {
 		cartItemStoringValues := make(map[string]interface{})
 
 		cartItemStoringValues["_id"] = cartItem.GetId()

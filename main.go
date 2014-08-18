@@ -20,6 +20,15 @@ import (
 	_ "github.com/ottemo/foundation/app/actors/product"
 	_ "github.com/ottemo/foundation/app/actors/visitor"
 	_ "github.com/ottemo/foundation/app/actors/visitor/address"
+
+	_ "github.com/ottemo/foundation/app/actors/checkout"
+	_ "github.com/ottemo/foundation/app/actors/order"
+
+	_ "github.com/ottemo/foundation/app/actors/payment/checkmo"
+	_ "github.com/ottemo/foundation/app/actors/shipping/flat"
+
+	_ "github.com/ottemo/foundation/app/actors/discount"
+	_ "github.com/ottemo/foundation/app/actors/tax"
 )
 
 func main() {
