@@ -53,7 +53,7 @@ func getMongoOperator(Operator string, Value interface{}) (string, interface{}, 
 	case "like":
 		Value, ok := Value.(string)
 		if ok {
-			Value = strings.Replace("%", ".*", Value, -1)
+			Value = strings.Replace(Value, "%", ".*", -1)
 			return "$regex", Value, nil
 		}
 	}

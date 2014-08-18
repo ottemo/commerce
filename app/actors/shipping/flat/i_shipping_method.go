@@ -2,10 +2,13 @@ package flat
 
 import (
 	"github.com/ottemo/foundation/app/models/checkout"
+
+	"github.com/ottemo/foundation/app/utils"
+	"github.com/ottemo/foundation/env"
 )
 
 func (it *FlatRateShipping) GetName() string {
-	return SHIPPING_NAME
+	return utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_NAME))
 }
 
 func (it *FlatRateShipping) GetCode() string {
@@ -13,15 +16,16 @@ func (it *FlatRateShipping) GetCode() string {
 }
 
 func (it *FlatRateShipping) IsAllowed(checkout checkout.I_Checkout) bool {
-	return true
+	return utils.InterfaceToBool(env.ConfigGetValue(CONFIG_PATH_ENABLED))
 }
 
 func (it *FlatRateShipping) GetRates(checkoutObject checkout.I_Checkout) []checkout.T_ShippingRate {
-	rate := checkout.T_ShippingRate {
-				Code:  "default",
-				Name:  "Flat Rate",
-				Days:  1,
-				Price: 25 }
 
-	return []checkout.T_ShippingRate{rate}
+	return []checkout.T_ShippingRate{
+		checkout.T_ShippingRate{
+			Code:  "default",
+			Name:  utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_NAME)),
+			Days:  utils.InterfaceToInt(env.ConfigGetValue(CONFIG_PATH_DAYS)),
+			Price: utils.InterfaceToFloat64(env.ConfigGetValue(CONFIG_PATH_AMOUNT)),
+		}}
 }

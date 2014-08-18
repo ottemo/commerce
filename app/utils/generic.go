@@ -120,8 +120,8 @@ func InterfaceToBool(value interface{}) bool {
 	case bool:
 		return typedValue
 	case string:
-		if typedValue == "1" || typedValue == "true" || typedValue == "on" {
-			return true
+		if boolValue, err := strconv.ParseBool(typedValue); err == nil {
+			return boolValue
 		} else {
 			return false
 		}
@@ -163,6 +163,8 @@ func InterfaceToFloat64(value interface{}) float64 {
 	case float64:
 		return typedValue
 	case int64:
+		return float64(typedValue)
+	case int:
 		return float64(typedValue)
 	case string:
 		floatValue, _ := strconv.ParseFloat(typedValue, 64)

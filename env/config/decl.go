@@ -1,12 +1,10 @@
 package config
 
-type DefaultConfigItem struct {
-	Name      string
-	Validator func(interface{}) (interface{}, bool)
-	Default   interface{}
-	Value     interface{}
-}
+import (
+	"github.com/ottemo/foundation/env"
+)
 
 type DefaultConfig struct {
-	configValues map[string]*DefaultConfigItem
+	configValues     map[string]interface{}
+	configValidators map[string]env.F_ConfigValueValidator
 }
