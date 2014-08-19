@@ -10,7 +10,7 @@ type DBObjectRef struct {
 	currData map[string]interface{}
 }
 
-func (it *DBObjectRef) GetId() {
+func (it *DBObjectRef) GetId() string {
 	return it.id
 }
 
@@ -23,13 +23,13 @@ func (it *DBObjectRef) MarkAsLoaded() {
 }
 
 func (it *DBObjectRef) MarkAsModified() {
-	it.modified
+	it.modified = true
 }
 
-func (it *DBObjectRef) IsModified() {
+func (it *DBObjectRef) IsModified() bool {
 	return it.modified
 }
 
-func (it *DBObjectRef) IsLoaded() {
+func (it *DBObjectRef) IsLoaded() bool {
 	return it.loaded
 }
