@@ -1,12 +1,7 @@
 package objectref
 
 import (
-	"errors"
-	"strings"
-
 	"github.com/ottemo/foundation/app/models"
-	"github.com/ottemo/foundation/app/models/visitor"
-	"github.com/ottemo/foundation/app/utils"
 )
 
 // returns attribute value for current object or nil if no such attribute
@@ -23,7 +18,7 @@ func (it *DBObjectRef) Get(attribute string) interface{} {
 // sets attribute value for current object
 func (it *DBObjectRef) Set(attribute string, value interface{}) error {
 	if it.currData == nil {
-		it.currData = new(map[string]interface{})
+		it.currData = make(map[string]interface{})
 	}
 
 	it.currData[attribute] = value
@@ -35,7 +30,7 @@ func (it *DBObjectRef) Set(attribute string, value interface{}) error {
 func (it *DBObjectRef) FromHashMap(input map[string]interface{}) error {
 
 	if it.currData == nil {
-		it.currData = new(map[string]interface{})
+		it.currData = make(map[string]interface{})
 	}
 
 	for attribute, value := range input {
@@ -50,7 +45,7 @@ func (it *DBObjectRef) FromHashMap(input map[string]interface{}) error {
 // returns attribute values that current object holds
 func (it *DBObjectRef) ToHashMap() map[string]interface{} {
 
-	result := new(map[string]interface{})
+	result := make(map[string]interface{})
 
 	if it.currData != nil {
 		for attribute, value := range it.currData {
@@ -65,7 +60,7 @@ func (it *DBObjectRef) ToHashMap() map[string]interface{} {
 //   - if you using this helper you should rewrite this function in your class
 func (it *DBObjectRef) GetAttributesInfo() []models.T_AttributeInfo {
 
-	result := new([]models.T_AttributeInfo)
+	result := []models.T_AttributeInfo{}
 
 	if it.currData != nil {
 		for attribute, _ := range it.currData {
