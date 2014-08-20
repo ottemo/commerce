@@ -87,7 +87,6 @@ type T_ShippingRate struct {
 	Name  string
 	Code  string
 	Price float64
-	Days  int
 }
 
 type T_TaxRate struct {

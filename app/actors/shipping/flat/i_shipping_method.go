@@ -25,7 +25,6 @@ func (it *FlatRateShipping) GetRates(checkoutObject checkout.I_Checkout) []check
 		checkout.T_ShippingRate{
 			Code:  "default",
 			Name:  utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_NAME)),
-			Days:  utils.InterfaceToInt(env.ConfigGetValue(CONFIG_PATH_DAYS)),
 			Price: utils.InterfaceToFloat64(env.ConfigGetValue(CONFIG_PATH_AMOUNT)),
 		}}
 }
