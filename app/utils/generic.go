@@ -155,6 +155,12 @@ func InterfaceToBool(value interface{}) bool {
 // converts interface{} to string
 func InterfaceToString(value interface{}) string {
 	switch value := value.(type) {
+	case bool:
+		return strconv.FormatBool(value)
+	case int:
+		return strconv.Itoa(value)
+	case int64:
+		return strconv.FormatInt(value, 10)
 	case float64:
 		return strconv.FormatFloat(value, 'f', 6, 64)
 	case string:
@@ -170,8 +176,10 @@ func InterfaceToInt(value interface{}) int {
 	case int:
 		return typedValue
 	case string:
-		intValue, _ := StringToInteger(typedValue)
-		return intValue
+		intValue, _ := strconv.ParseInt(typedValue, 10, 64)
+		return int(intValue)
+	case float64:
+		return int(typedValue)
 	default:
 		return 0
 	}

@@ -29,6 +29,8 @@ import (
 
 	_ "github.com/ottemo/foundation/app/actors/discount"
 	_ "github.com/ottemo/foundation/app/actors/tax"
+
+	_ "github.com/ottemo/foundation/app/actors/product/review"
 )
 
 func main() {
