@@ -3,6 +3,8 @@ package config
 import (
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/env"
+
+	"github.com/ottemo/foundation/app/utils"
 )
 
 func setupAPI() error {
@@ -26,6 +28,14 @@ func setupAPI() error {
 		return err
 	}
 	err = api.GetRestService().RegisterAPI("config", "POST", "set/:path", restConfigSet)
+	if err != nil {
+		return err
+	}
+	err = api.GetRestService().RegisterAPI("config", "POST", "register", restConfigRegister)
+	if err != nil {
+		return err
+	}
+	err = api.GetRestService().RegisterAPI("config", "DELETE", "unregister/:path", restConfigUnRegister)
 	if err != nil {
 		return err
 	}
@@ -83,4 +93,45 @@ func restConfigSet(params *api.T_APIHandlerParams) (interface{}, error) {
 	err = config.SetValue(configPath, setValue)
 
 	return config.GetValue(configPath), err
+}
+
+// WEB REST API used to add new config Item to a config system
+func restConfigRegister(params *api.T_APIHandlerParams) (interface{}, error) {
+	inputData, err := api.GetRequestContentAsMap(params)
+	if err != nil {
+		return err
+	}
+
+	config := env.GetConfig()
+
+	configItem := env.T_ConfigItem{
+		Path:  utils.InterfaceToString(utils.GetFirstMapValue(inputData, "path", "Path")),
+		Value: utils.GetFirstMapValue(inputData, "value"),
+
+		Type: utils.InterfaceToString(utils.GetFirstMapValue(inputData, "type", "Type")),
+
+		Editor:  utils.InterfaceToString(utils.GetFirstMapValue(inputData, "editor", "Editor")),
+		Options: utils.InterfaceToString(utils.GetFirstMapValue(inputData, "options", "Options")),
+
+		Label:       utils.InterfaceToString(utils.GetFirstMapValue(inputData, "label", "Label")),
+		Description: utils.InterfaceToString(utils.GetFirstMapValue(inputData, "description", "Description")),
+
+		Image: utils.InterfaceToString(utils.GetFirstMapValue(inputData, "image", "Image")),
+	}
+
+	config.RegisterItem(configItem, nil)
+
+	return configItem, nil
+}
+
+// WEB REST API used to remove config item from system
+func restConfigUnRegister(params *api.T_APIHandlerParams) (interface{}, error) {
+	config := env.GetConfig()
+
+	err := config.UnregisterItem(params.RequestURLParams["path"])
+	if err != nil {
+		return nil, err
+	}
+
+	return "ok", nil
 }

@@ -57,6 +57,26 @@ func KeysInMapAndNotBlank(mapObject interface{}, keys ...interface{}) bool {
 	return true
 }
 
+// returns map kay value or nil if not found, will be returned first found key value
+func GetFirstMapValue(mapObject interface{}, keys ...string) interface{} {
+	switch typedMapObject := mapObject.(type) {
+	case map[string]interface{}:
+		for _, key := range keys {
+			if value, present := typedMapObject[key]; present {
+				return value
+			}
+		}
+	case map[string]string:
+		for _, key := range keys {
+			if value, present := typedMapObject[key]; present {
+				return value
+			}
+		}
+	}
+
+	return nil
+}
+
 // searches for presence of 1-st arg string option among provided options since 2-nd argument
 func IsAmongStr(option string, searchOptions ...string) bool {
 	for _, listOption := range searchOptions {
