@@ -1,16 +1,15 @@
 package paypal
 
 import (
-	"errors"
 	"bytes"
+	"errors"
 
-	"net/http"
-	"io/ioutil"
 	"encoding/json"
+	"io/ioutil"
+	"net/http"
 
 	"github.com/ottemo/foundation/app/models/checkout"
 	"github.com/ottemo/foundation/app/utils"
-
 )
 
 func (it *PayPal) GetName() string {
@@ -24,7 +23,6 @@ func (it *PayPal) GetCode() string {
 func (it *PayPal) IsAllowed(checkout checkout.I_Checkout) bool {
 	return true
 }
-
 
 func (it *PayPal) Authorize() error {
 	// apiUser := "paypal_api1.ottemo.io"
@@ -42,10 +40,9 @@ func (it *PayPal) Refund() error {
 	return nil
 }
 
-func (it *PayPal) Void()	error {
+func (it *PayPal) Void() error {
 	return nil
 }
-
 
 // returns application access token needed for all other requests
 func GetAccessToken() (string, error) {
@@ -78,7 +75,7 @@ func GetAccessToken() (string, error) {
 	}
 
 	if token, present := result["access_token"]; present {
-		return  utils.InterfaceToString(token), nil
+		return utils.InterfaceToString(token), nil
 	}
 
 	return "", errors.New("unexpected response - without access_token")
