@@ -99,7 +99,7 @@ func restConfigSet(params *api.T_APIHandlerParams) (interface{}, error) {
 func restConfigRegister(params *api.T_APIHandlerParams) (interface{}, error) {
 	inputData, err := api.GetRequestContentAsMap(params)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	config := env.GetConfig()
