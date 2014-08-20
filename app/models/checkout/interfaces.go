@@ -63,10 +63,10 @@ type I_PaymentMethod interface {
 
 	IsAllowed(checkoutInstance I_Checkout) bool
 
-	Authorize() error
-	Capture() error
-	Refund() error
-	Void() error
+	Authorize(checkoutInstance I_Checkout) error
+	Capture(checkoutInstance I_Checkout) error
+	Refund(checkoutInstance I_Checkout) error
+	Void(checkoutInstance I_Checkout) error
 }
 
 type I_Tax interface {
