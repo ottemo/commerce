@@ -20,6 +20,10 @@ func (it *PayPal) GetCode() string {
 	return PAYMENT_CODE
 }
 
+func (it *PayPal) GetType() string {
+	return checkout.PAYMENT_TYPE_CREDIT_CARD
+}
+
 func (it *PayPal) IsAllowed(checkoutInstance checkout.I_Checkout) bool {
 	return true
 }
@@ -28,27 +32,32 @@ func (it *PayPal) Authorize(checkoutInstance checkout.I_Checkout) error {
 	payment := make(map[string]interface{})
 	payment["intent"] = "authorize"
 
-	payment["payer"] = make(map[string]interface{})
-	payment["payer"]["payment_method"] = "credit_card"
+	payer := make(map[string]interface{})
+	payment["payer"] = payer
+	payer["payment_method"] = "credit_card"
 
-	payment["payer"]["funding_instruments"] = make(map[string]interface{})
-	payment["payer"]["funding_instruments"]["credit_card"] = make(map[string]interface{})
+	fundingInstruments := make(map[string]interface{})
+	payer["funding_instruments"] = fundingInstruments
 
-	payment["payer"]["funding_instruments"]["credit_card"]["number"] = "4417119669820331"
-	payment["payer"]["funding_instruments"]["credit_card"]["type"] = "visa"
-	payment["payer"]["funding_instruments"]["credit_card"]["expire_month"] = 11
-	payment["payer"]["funding_instruments"]["credit_card"]["expire_year"] = 2018
-	payment["payer"]["funding_instruments"]["credit_card"]["cvv2"] = "874"
-	payment["payer"]["funding_instruments"]["credit_card"]["first_name"] = "Betsy"
-	payment["payer"]["funding_instruments"]["credit_card"]["last_name"] = "Buyer"
+	creditCard := make(map[string]interface{})
+	fundingInstruments["credit_card"] = creditCard
 
-	payment["payer"]["funding_instruments"]["credit_card"]["billing_address"] = make(map[string]interface{})
+	creditCard["number"] = "4417119669820331"
+	creditCard["type"] = "visa"
+	creditCard["expire_month"] = 11
+	creditCard["expire_year"] = 2018
+	creditCard["cvv2"] = "874"
+	creditCard["first_name"] = "Betsy"
+	creditCard["last_name"] = "Buyer"
 
-	payment["payer"]["funding_instruments"]["credit_card"]["billing_address"]["line1"] = "111 First Street"
-	payment["payer"]["funding_instruments"]["credit_card"]["billing_address"]["city"] = "Saratoga"
-	payment["payer"]["funding_instruments"]["credit_card"]["billing_address"]["state"] = "CA"
-	payment["payer"]["funding_instruments"]["credit_card"]["billing_address"]["postal_code"] = "95070"
-	payment["payer"]["funding_instruments"]["credit_card"]["billing_address"]["country_code"] = "US"
+	billingAddress := make(map[string]interface{})
+	creditCard["billing_address"] = billingAddress
+
+	billingAddress["line1"] = "111 First Street"
+	billingAddress["city"] = "Saratoga"
+	billingAddress["state"] = "CA"
+	billingAddress["postal_code"] = "95070"
+	billingAddress["country_code"] = "US"
 
 
 	body, err := utils.EncodeToJsonString(payment)
@@ -134,7 +143,7 @@ func (it *PayPal) GetAccessToken(checkoutInstance checkout.I_Checkout) (string, 
 	}
 
 	if token, present := result["access_token"]; present {
-		return utils.InterfaceToString(token), nil
+		return  utils.InterfaceToString(token), nil
 	}
 
 	return "", errors.New("unexpected response - without access_token")

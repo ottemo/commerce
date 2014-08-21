@@ -25,6 +25,8 @@ import (
 	_ "github.com/ottemo/foundation/app/actors/order"
 
 	_ "github.com/ottemo/foundation/app/actors/payment/checkmo"
+	_ "github.com/ottemo/foundation/app/actors/payment/paypal"
+
 	_ "github.com/ottemo/foundation/app/actors/shipping/flat"
 	_ "github.com/ottemo/foundation/app/actors/shipping/usps"
 

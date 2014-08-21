@@ -2,7 +2,6 @@ package order
 
 import (
 	"github.com/ottemo/foundation/app/models"
-	"github.com/ottemo/foundation/app/models/checkout"
 )
 
 const (
@@ -36,6 +35,8 @@ type I_Order interface {
 
 	CalculateTotals() error
 
+	NewIncrementId()
+
 	GetSubtotal() float64
 	GetGrandTotal() float64
 
@@ -43,8 +44,8 @@ type I_Order interface {
 	GetTaxAmount() float64
 	GetShippingAmount() float64
 
-	GetShippingMethod() checkout.I_ShippingMehod
-	GetPaymentMethod() checkout.I_PaymentMethod
+	GetShippingMethod() string
+	GetPaymentMethod() string
 
 	models.I_Model
 	models.I_Object

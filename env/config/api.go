@@ -39,6 +39,10 @@ func setupAPI() error {
 	if err != nil {
 		return err
 	}
+	err = api.GetRestService().RegisterAPI("config", "GET", "reload", restConfigReload)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -129,6 +133,18 @@ func restConfigUnRegister(params *api.T_APIHandlerParams) (interface{}, error) {
 	config := env.GetConfig()
 
 	err := config.UnregisterItem(params.RequestURLParams["path"])
+	if err != nil {
+		return nil, err
+	}
+
+	return "ok", nil
+}
+
+// WEB REST API used to re-load config from DB
+func restConfigReload(params *api.T_APIHandlerParams) (interface{}, error) {
+	config := env.GetConfig()
+
+	err := config.Reload()
 	if err != nil {
 		return nil, err
 	}

@@ -21,6 +21,7 @@ type I_Config interface {
 	GetItemsInfo(Path string) []T_ConfigItem
 
 	Load() error
+	Reload() error
 }
 
 type F_ConfigValueValidator func(interface{}) (interface{}, error)

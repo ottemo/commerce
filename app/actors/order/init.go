@@ -2,8 +2,13 @@ package order
 
 import (
 	"errors"
+
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/db"
+
+	"github.com/ottemo/foundation/env"
+
+	"github.com/ottemo/foundation/app/utils"
 )
 
 // module entry point before app start
@@ -12,13 +17,39 @@ func init() {
 
 	models.RegisterModel("Order", instance)
 
-	db.RegisterOnDatabaseStart(instance.setupDB)
+	db.RegisterOnDatabaseStart(setupDB)
+	env.RegisterOnConfigStart(setupConfig)
 
 	// api.RegisterOnRestServiceStart(setupAPI)
 }
 
+func setupConfig() error {
+	config := env.GetConfig()
+
+	config.RegisterItem(env.T_ConfigItem{
+		Path:  CONFIG_PATH_LAST_INCREMENT_ID,
+		Value: 0,
+
+		Type: "int",
+
+		Editor:  "integer",
+		Options: "",
+
+		Label:       "Last Order Increment ID: ",
+		Description: "Do not change this value unless you know what you doing",
+
+		Image: "",
+	}, func(value interface{}) (interface{}, error) {
+		return utils.InterfaceToInt(value), nil
+	})
+
+	lastIncrementId = utils.InterfaceToInt(config.GetValue(CONFIG_PATH_LAST_INCREMENT_ID))
+
+	return nil
+}
+
 // DB preparations for current model implementation
-func (it *DefaultOrder) setupDB() error {
+func setupDB() error {
 
 	if dbEngine := db.GetDBEngine(); dbEngine != nil {
 		collection, err := dbEngine.GetCollection(ORDER_COLLECTION_NAME)
@@ -31,6 +62,9 @@ func (it *DefaultOrder) setupDB() error {
 
 		collection.AddColumn("visitor_id", "id", true)
 		collection.AddColumn("cart_id", "id", true)
+
+		collection.AddColumn("billing_address", "text", true)
+		collection.AddColumn("shipping_address", "text", true)
 
 		collection.AddColumn("customer_email", "varchar(100)", true)
 		collection.AddColumn("customer_name", "varchar(100)", false)

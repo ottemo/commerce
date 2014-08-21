@@ -342,6 +342,12 @@ func (it *DefaultOrder) Get(attribute string) interface{} {
 	case "cart_id":
 		return it.CartId
 
+	case "shipping_address":
+		return it.ShippingAddress
+
+	case "billing_address":
+		return it.BillingAddress
+
 	case "customer_email":
 		return it.CustomerEmail
 
@@ -402,6 +408,12 @@ func (it *DefaultOrder) Set(attribute string, value interface{}) error {
 	case "customer_name":
 		it.CustomerName = utils.InterfaceToString(value)
 
+	case "billing_address":
+		it.BillingAddress = utils.InterfaceToString(value)
+
+	case "shipping_address":
+		it.ShippingAddress = utils.InterfaceToString(value)
+
 	case "payment_method":
 		it.PaymentMethod = utils.InterfaceToString(value)
 
@@ -460,6 +472,9 @@ func (it *DefaultOrder) ToHashMap() map[string]interface{} {
 
 	result["customer_email"] = it.Get("customer_email")
 	result["customer_name"] = it.Get("customer_name")
+
+	result["shipping_address"] = it.Get("shipping_address")
+	result["billing_address"] = it.Get("billing_address")
 
 	result["payment_method"] = it.Get("payment_method")
 	result["shipping_method"] = it.Get("shipping_method")
@@ -554,6 +569,32 @@ func (it *DefaultOrder) GetAttributesInfo() []models.T_AttributeInfo {
 			Label:      "Customer Name",
 			Group:      "General",
 			Editors:    "line_text",
+			Options:    "",
+			Default:    "",
+		},
+		models.T_AttributeInfo{
+			Model:      "Order",
+			Collection: "Order",
+			Attribute:  "shipping_address",
+			Type:       "text",
+			IsRequired: true,
+			IsStatic:   true,
+			Label:      "Shipping Address",
+			Group:      "General",
+			Editors:    "visitor_address",
+			Options:    "",
+			Default:    "",
+		},
+		models.T_AttributeInfo{
+			Model:      "Order",
+			Collection: "Order",
+			Attribute:  "billing_address",
+			Type:       "text",
+			IsRequired: true,
+			IsStatic:   true,
+			Label:      "Customer Name",
+			Group:      "General",
+			Editors:    "visitor_address",
 			Options:    "",
 			Default:    "",
 		},

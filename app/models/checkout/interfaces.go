@@ -2,6 +2,8 @@ package checkout
 
 import (
 	"github.com/ottemo/foundation/app/models/cart"
+	"github.com/ottemo/foundation/app/models/order"
+
 	"github.com/ottemo/foundation/app/models/visitor"
 
 	"github.com/ottemo/foundation/app/models"
@@ -11,6 +13,9 @@ import (
 
 const (
 	CHECKOUT_MODEL_NAME = "Checkout"
+
+	PAYMENT_TYPE_SIMPLE = "simple"
+	PAYMENT_TYPE_CREDIT_CARD = "cc"
 
 	SESSION_KEY_CURRENT_CHECKOUT = "Checkout"
 )
@@ -24,6 +29,9 @@ type I_Checkout interface {
 
 	SetPaymentMethod(paymentMethod I_PaymentMethod) error
 	GetPaymentMethod() I_PaymentMethod
+
+	SetInfo(key string, value interface{}) error
+	GetInfo(key string) interface{}
 
 	SetShippingMethod(shippingMethod I_ShippingMehod) error
 	GetShippingMethod() I_ShippingMehod
@@ -45,6 +53,9 @@ type I_Checkout interface {
 	SetSession(api.I_Session) error
 	GetSession() api.I_Session
 
+	SetOrder(checkoutOrder order.I_Order) error
+	GetOrder() order.I_Order
+
 	models.I_Model
 }
 
@@ -60,6 +71,7 @@ type I_ShippingMehod interface {
 type I_PaymentMethod interface {
 	GetName() string
 	GetCode() string
+	GetType() string
 
 	IsAllowed(checkoutInstance I_Checkout) bool
 

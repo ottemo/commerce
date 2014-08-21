@@ -3,11 +3,22 @@ package order
 import (
 	"github.com/ottemo/foundation/app/models/order"
 	"time"
+
+	"sync"
+)
+
+var (
+	lastIncrementId      int = 0
+	lastIncrementIdMutex sync.Mutex
 )
 
 const (
 	ORDER_COLLECTION_NAME       = "orders"
 	ORDER_ITEMS_COLLECTION_NAME = "order_items"
+
+	INCREMENT_ID_FORMAT = "%0.10d"
+
+	CONFIG_PATH_LAST_INCREMENT_ID = "internal.order.increment_id"
 )
 
 type DefaultOrderItem struct {
@@ -40,6 +51,9 @@ type DefaultOrder struct {
 
 	VisitorId string
 	CartId    string
+
+	BillingAddress  string
+	ShippingAddress string
 
 	CustomerEmail string
 	CustomerName  string

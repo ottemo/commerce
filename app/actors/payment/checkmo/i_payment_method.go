@@ -12,6 +12,10 @@ func (it *CheckMoneyOrder) GetCode() string {
 	return PAYMENT_CODE
 }
 
+func (it *CheckMoneyOrder) GetType() string {
+	return checkout.PAYMENT_TYPE_SIMPLE
+}
+
 func (it *CheckMoneyOrder) IsAllowed(checkoutInstance checkout.I_Checkout) bool {
 	return true
 }
