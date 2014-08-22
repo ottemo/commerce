@@ -8,6 +8,7 @@ import (
 	"errors"
 
 	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/foundation/env"
 
 	"github.com/ottemo/foundation/app/models/order"
 )
@@ -36,7 +37,7 @@ func (it *DefaultOrder) AddItem(productId string, qty int, productOptions map[st
 
 	orderItem := new(DefaultOrderItem)
 
-	orderItem.order = it
+	orderItem.OrderId = it.GetId()
 
 	it.maxIdx += 1
 	orderItem.idx = it.maxIdx
@@ -94,6 +95,8 @@ func (it *DefaultOrder) NewIncrementId() error {
 
 	lastIncrementId += 1
 	it.IncrementId = fmt.Sprintf(INCREMENT_ID_FORMAT, lastIncrementId)
+
+	env.GetConfig().SetValue(CONFIG_PATH_LAST_INCREMENT_ID, lastIncrementId)
 
 	lastIncrementIdMutex.Unlock()
 

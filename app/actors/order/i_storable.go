@@ -133,6 +133,7 @@ func (it *DefaultOrder) Save() error {
 
 	// storing order items
 	for _, orderItem := range it.GetItems() {
+		orderItem.Set("order_id", newId)
 		orderItemStoringValues := orderItem.ToHashMap()
 
 		newId, err := orderItemsCollection.Save(orderItemStoringValues)

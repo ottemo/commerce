@@ -25,10 +25,14 @@ func (it *DefaultOrderItem) Get(attribute string) interface{} {
 		return it.idx
 
 	case "order":
-		return it.order
+		orderInstance, err := order.LoadOrderById(it.OrderId)
+		if err == nil {
+			return orderInstance
+		}
+		return nil
 
 	case "order_id":
-		return it.order.GetId()
+		return it.OrderId
 
 	case "product_id":
 		return it.ProductId
@@ -73,11 +77,7 @@ func (it *DefaultOrderItem) Set(attribute string, value interface{}) error {
 		it.idx = utils.InterfaceToInt(value)
 
 	case "order_id":
-		orderObject, err := order.LoadOrderById(utils.InterfaceToString(value))
-		if err != nil {
-			return err
-		}
-		it.order = orderObject.(*DefaultOrder)
+		it.OrderId = utils.InterfaceToString(value)
 
 	case "product_id":
 		it.ProductId = utils.InterfaceToString(value)
@@ -372,6 +372,9 @@ func (it *DefaultOrder) Get(attribute string) interface{} {
 	case "shipping_amount":
 		return it.ShippingAmount
 
+	case "grand_total":
+		return it.GrandTotal
+
 	case "created_at":
 		return it.CreatedAt
 
@@ -432,6 +435,9 @@ func (it *DefaultOrder) Set(attribute string, value interface{}) error {
 	case "shipping_amount":
 		it.ShippingAmount = utils.InterfaceToFloat64(value)
 
+	case "grand_total":
+		it.GrandTotal = utils.InterfaceToFloat64(value)
+
 	case "created_at":
 		it.CreatedAt = utils.InterfaceToTime(value)
 
@@ -483,6 +489,7 @@ func (it *DefaultOrder) ToHashMap() map[string]interface{} {
 	result["discount"] = it.Get("discount")
 	result["tax_amount"] = it.Get("tax_amount")
 	result["shipping_amount"] = it.Get("shipping_amount")
+	result["grand_total"] = it.Get("grand_total")
 
 	result["created_at"] = it.Get("created_at")
 	result["updaed_at"] = it.Get("updaed_at")

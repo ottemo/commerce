@@ -65,7 +65,7 @@ func (it *PayPal) Authorize(checkoutInstance checkout.I_Checkout) error {
 		"postal_code": billingAddress.GetZipCode(),
 		"country_code": billingAddress.GetCountry(),
 
-		"total": order.GetGrandTotal(),
+		"total": fmt.Sprintf("%.2f", order.GetGrandTotal()),
 		"currency": "USD",
 
 		"description": "order id - " + order.GetId(),
@@ -102,7 +102,7 @@ func (it *PayPal) Authorize(checkoutInstance checkout.I_Checkout) error {
     {
       "amount":{
         "total":"{{.total}}",
-        "currency":"{{.currency}}",
+        "currency":"{{.currency}}"
       },
       "description":"{{.description}}"
     }
@@ -112,7 +112,6 @@ func (it *PayPal) Authorize(checkoutInstance checkout.I_Checkout) error {
 	var body bytes.Buffer
 	parsedTemplate, _ := template.New("paypal_payment").Parse(bodyTemplate)
 	parsedTemplate.Execute(&body, templateValues)
-
 	fmt.Println(body.String())
 
 
@@ -120,7 +119,6 @@ func (it *PayPal) Authorize(checkoutInstance checkout.I_Checkout) error {
 	if err != nil {
 		return err
 	}
-
 	accessToken, err := it.GetAccessToken(checkoutInstance)
 	if err != nil {
 		return err
@@ -141,7 +139,6 @@ func (it *PayPal) Authorize(checkoutInstance checkout.I_Checkout) error {
 	if err != nil {
 		return err
 	}
-
 	fmt.Println(response)
 	fmt.Println(string(buf))
 
@@ -149,6 +146,13 @@ func (it *PayPal) Authorize(checkoutInstance checkout.I_Checkout) error {
 	err = json.Unmarshal(buf, &result)
 	if err != nil {
 		return err
+	}
+
+	if response.StatusCode != 201 {
+		if response.StatusCode == 400 {
+			return errors.New(utils.InterfaceToString(result["details"]))
+		}
+		return errors.New("payment was not processed")
 	}
 
 	//TODO: should store information to order

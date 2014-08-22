@@ -25,7 +25,7 @@ type DefaultOrderItem struct {
 	id  string
 	idx int
 
-	order *DefaultOrder
+	OrderId string
 
 	ProductId string
 
