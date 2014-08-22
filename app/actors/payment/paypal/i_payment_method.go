@@ -57,7 +57,7 @@ func (it *PayPal) Authorize(checkoutInstance checkout.I_Checkout) error {
 		"expire_year": utils.InterfaceToString(ccInfo["expire_year"]),
 		"cvv2": utils.InterfaceToString(ccInfo["cvv"]),
 		"first_name": billingAddress.GetFirstName(),
-		"last_name": billingAddress.GetLirstName(),
+		"last_name": billingAddress.GetLastName(),
 
 		"line1": billingAddress.GetAddressLine1(),
 		"city": billingAddress.GetCity(),
@@ -113,10 +113,10 @@ func (it *PayPal) Authorize(checkoutInstance checkout.I_Checkout) error {
 	parsedTemplate, _ := template.New("paypal_payment").Parse(bodyTemplate)
 	parsedTemplate.Execute(&body, templateValues)
 
-	fmt.Println(body)
+	fmt.Println(body.String())
 
 
-	request, err := http.NewRequest("POST", "https://api.sandbox.paypal.com/v1/payments/payment", bytes.NewBufferString(body))
+	request, err := http.NewRequest("POST", "https://api.sandbox.paypal.com/v1/payments/payment", &body)
 	if err != nil {
 		return err
 	}
