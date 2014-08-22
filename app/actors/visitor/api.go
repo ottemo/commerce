@@ -13,6 +13,7 @@ import (
 
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/visitor"
+	"github.com/ottemo/foundation/db"
 
 	"github.com/ottemo/foundation/api"
 )
@@ -84,6 +85,12 @@ func setupAPI() error {
 	if err != nil {
 		return err
 	}*/
+
+
+	err = api.GetRestService().RegisterAPI("visitor", "GET", "order/list", restListVisitorOrders)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -585,4 +592,24 @@ func restLoginGoogle(params *api.T_APIHandlerParams) (interface{}, error) {
 	params.Session.Set(visitor.SESSION_KEY_VISITOR_ID, visitorModel.GetId())
 
 	return "ok", nil
+}
+
+// WEB REST API function used to get visitor orders information
+func restListVisitorOrders(params *api.T_APIHandlerParams) (interface{}, error) {
+	// TODO: should be re-developed to use order model (i.e. add I_Listable implementation to order model)
+
+	sessionValue := params.Session.Get("visitor_id")
+	visitorId, ok := sessionValue.(string)
+	if !ok {
+		return "you are not logined in", nil
+	}
+
+	collection, err := db.GetCollection("orders")
+	if err != nil {
+		return nil, err
+	}
+
+	collection.AddFilter("visitor_id", "=", visitorId)
+
+	return collection.Load()
 }
