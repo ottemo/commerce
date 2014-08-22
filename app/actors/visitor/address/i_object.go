@@ -46,7 +46,7 @@ func (it *DefaultVisitorAddress) Set(attribute string, value interface{}) error 
 		it.visitor_id = utils.InterfaceToString(value)
 
 	case "fname", "first_name":
-		it.LastName = utils.InterfaceToString(value)
+		it.FirstName = utils.InterfaceToString(value)
 
 	case "lname", "last_name":
 		it.LastName = utils.InterfaceToString(value)

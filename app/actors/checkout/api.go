@@ -7,6 +7,7 @@ import (
 
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/app/models/checkout"
+	"github.com/ottemo/foundation/app/models/cart"
 	"github.com/ottemo/foundation/app/models/order"
 	"github.com/ottemo/foundation/app/models/visitor"
 
@@ -410,16 +411,10 @@ func restSubmit(params *api.T_APIHandlerParams) (interface{}, error) {
 		checkoutOrder.Set("customer_name", currentVisitor.GetFullName())
 	}
 
-	billingAddress, err := utils.EncodeToJsonString(currentCheckout.GetBillingAddress())
-	if err != nil {
-		return nil, err
-	}
+	billingAddress := currentCheckout.GetBillingAddress().ToHashMap()
 	checkoutOrder.Set("billing_address", billingAddress)
 
-	shippingAddress, err := utils.EncodeToJsonString(currentCheckout.GetShippingAddress())
-	if err != nil {
-		return nil, err
-	}
+	shippingAddress := currentCheckout.GetShippingAddress().ToHashMap()
 	checkoutOrder.Set("shipping_address", shippingAddress)
 
 	checkoutOrder.Set("cart_id", currentCart.GetId())
@@ -487,7 +482,11 @@ func restSubmit(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// cleanup checkout information
 	//-----------------------------
+	currentCart.Deactivate()
+	currentCart.Save()
+	params.Session.Set(cart.SESSION_KEY_CURRENT_CART, nil)
+
 	params.Session.Set(checkout.SESSION_KEY_CURRENT_CHECKOUT, nil)
 
-	return checkoutOrder, nil
+	return checkoutOrder.ToHashMap(), nil
 }

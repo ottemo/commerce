@@ -152,6 +152,22 @@ func InterfaceToBool(value interface{}) bool {
 	}
 }
 
+// converts interface{} to map[string]interface{}
+func InterfaceToMap(value interface{}) map[string]interface{} {
+	switch typedValue := value.(type) {
+	case map[string]interface{}:
+		return typedValue
+
+	case string:
+		value, err := DecodeJsonToStringKeyMap(value)
+		if err == nil {
+			return value
+		}
+	}
+
+	return make(map[string]interface{})
+}
+
 // converts interface{} to string
 func InterfaceToString(value interface{}) string {
 	switch value := value.(type) {

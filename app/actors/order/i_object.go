@@ -409,10 +409,10 @@ func (it *DefaultOrder) Set(attribute string, value interface{}) error {
 		it.CustomerName = utils.InterfaceToString(value)
 
 	case "billing_address":
-		it.BillingAddress = utils.InterfaceToString(value)
+		it.BillingAddress = utils.InterfaceToMap(value)
 
 	case "shipping_address":
-		it.ShippingAddress = utils.InterfaceToString(value)
+		it.ShippingAddress = utils.InterfaceToMap(value)
 
 	case "payment_method":
 		it.PaymentMethod = utils.InterfaceToString(value)

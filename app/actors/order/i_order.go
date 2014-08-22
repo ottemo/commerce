@@ -89,13 +89,27 @@ func (it *DefaultOrder) RemoveItem(itemIdx int) error {
 }
 
 // assigns new unique increment id to order
-func (it *DefaultOrder) NewIncrementId() {
+func (it *DefaultOrder) NewIncrementId() error {
 	lastIncrementIdMutex.Lock()
 
 	lastIncrementId += 1
 	it.IncrementId = fmt.Sprintf(INCREMENT_ID_FORMAT, lastIncrementId)
 
 	lastIncrementIdMutex.Unlock()
+
+	return nil
+}
+
+// returns increment id of order
+func (it *DefaultOrder) GetIncrementId() string {
+	return it.IncrementId
+}
+
+// sets increment id to order
+func (it *DefaultOrder) SetIncrementId(incrementId string) error {
+	it.IncrementId = incrementId
+
+	return nil
 }
 
 // recalculates order Subtotal and GrandTotal

@@ -35,7 +35,10 @@ type I_Order interface {
 
 	CalculateTotals() error
 
-	NewIncrementId()
+	NewIncrementId() error
+
+	GetIncrementId() string
+	SetIncrementId(incrementId string) error
 
 	GetSubtotal() float64
 	GetGrandTotal() float64

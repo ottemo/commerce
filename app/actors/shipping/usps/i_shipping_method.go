@@ -62,8 +62,6 @@ func (it *USPS) GetRates(checkoutObject checkout.I_Checkout) []checkout.T_Shippi
 
 		defaultWeight := utils.InterfaceToFloat64(env.ConfigGetValue(CONFIG_PATH_DEFAULT_WEIGHT))
 
-		println(defaultWeight)
-
 		for _, cartItem := range cartItems {
 			cartProduct := cartItem.GetProduct()
 			if cartProduct == nil {
