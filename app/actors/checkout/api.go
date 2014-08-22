@@ -468,7 +468,7 @@ func restSubmit(params *api.T_APIHandlerParams) (interface{}, error) {
 	//--------------------------
 	err = currentCheckout.GetPaymentMethod().Authorize(currentCheckout)
 	if err != nil {
-		return err, nil
+		return nil, err
 	}
 
 	// assigning new order increment id after success payment
@@ -477,7 +477,7 @@ func restSubmit(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	err = checkoutOrder.Save()
 	if err != nil {
-		return err, nil
+		return nil, err
 	}
 
 	// cleanup checkout information

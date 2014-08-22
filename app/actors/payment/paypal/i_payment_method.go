@@ -1,8 +1,11 @@
 package paypal
 
 import (
+	"fmt"
 	"bytes"
 	"errors"
+
+	"text/template"
 
 	"encoding/json"
 	"io/ioutil"
@@ -29,43 +32,91 @@ func (it *PayPal) IsAllowed(checkoutInstance checkout.I_Checkout) bool {
 }
 
 func (it *PayPal) Authorize(checkoutInstance checkout.I_Checkout) error {
-	payment := make(map[string]interface{})
-	payment["intent"] = "authorize"
 
-	payer := make(map[string]interface{})
-	payment["payer"] = payer
-	payer["payment_method"] = "credit_card"
-
-	fundingInstruments := make(map[string]interface{})
-	payer["funding_instruments"] = fundingInstruments
-
-	creditCard := make(map[string]interface{})
-	fundingInstruments["credit_card"] = creditCard
-
-	creditCard["number"] = "4417119669820331"
-	creditCard["type"] = "visa"
-	creditCard["expire_month"] = 11
-	creditCard["expire_year"] = 2018
-	creditCard["cvv2"] = "874"
-	creditCard["first_name"] = "Betsy"
-	creditCard["last_name"] = "Buyer"
-
-	billingAddress := make(map[string]interface{})
-	creditCard["billing_address"] = billingAddress
-
-	billingAddress["line1"] = "111 First Street"
-	billingAddress["city"] = "Saratoga"
-	billingAddress["state"] = "CA"
-	billingAddress["postal_code"] = "95070"
-	billingAddress["country_code"] = "US"
-
-
-	body, err := utils.EncodeToJsonString(payment)
-	if err != nil {
-		return err
+	ccInfo := utils.InterfaceToMap( checkoutInstance.GetInfo("cc") )
+	if !utils.StrKeysInMap(ccInfo, "type", "number", "expire_month", "expire_year", "cvv") {
+		return errors.New("credit card info was not specified")
 	}
 
-	request, err := http.NewRequest("POST", "https://api.sandbox.paypal.com/v1/oauth2/token", bytes.NewBufferString(body))
+	billingAddress := checkoutInstance.GetBillingAddress()
+	if  billingAddress == nil {
+		return errors.New("no billing address information")
+	}
+
+	order := checkoutInstance.GetOrder()
+	if order == nil {
+		return errors.New("no created order")
+	}
+
+	templateValues := map[string]interface{} {
+		"intent": "sale",
+		"payment_method": "credit_card",
+		"number": utils.InterfaceToString(ccInfo["number"]),
+		"type": utils.InterfaceToString(ccInfo["type"]),
+		"expire_month": utils.InterfaceToString(ccInfo["expire_month"]),
+		"expire_year": utils.InterfaceToString(ccInfo["expire_year"]),
+		"cvv2": utils.InterfaceToString(ccInfo["cvv"]),
+		"first_name": billingAddress.GetFirstName(),
+		"last_name": billingAddress.GetLirstName(),
+
+		"line1": billingAddress.GetAddressLine1(),
+		"city": billingAddress.GetCity(),
+		"state": billingAddress.GetState(),
+		"postal_code": billingAddress.GetZipCode(),
+		"country_code": billingAddress.GetCountry(),
+
+		"total": order.GetGrandTotal(),
+		"currency": "USD",
+
+		"description": "order id - " + order.GetId(),
+	}
+
+
+
+	bodyTemplate := `{
+  "intent":"{{.intent}}",
+  "payer":{
+    "payment_method":"{{.payment_method}}",
+    "funding_instruments":[
+      {
+        "credit_card":{
+          "number":"{{.number}}",
+          "type":"{{.type}}",
+          "expire_month":{{.expire_month}},
+          "expire_year":{{.expire_year}},
+          "cvv2":"{{.cvv2}}",
+          "first_name":"{{.first_name}}",
+          "last_name":"{{.last_name}}",
+          "billing_address":{
+            "line1":"{{.line1}}",
+            "city":"{{.city}}",
+            "state":"{{.state}}",
+            "postal_code":"{{.postal_code}}",
+            "country_code":"{{.country_code}}"
+          }
+        }
+      }
+    ]
+  },
+  "transactions":[
+    {
+      "amount":{
+        "total":"{{.total}}",
+        "currency":"{{.currency}}",
+      },
+      "description":"{{.description}}"
+    }
+  ]
+}`
+
+	var body bytes.Buffer
+	parsedTemplate, _ := template.New("paypal_payment").Parse(bodyTemplate)
+	parsedTemplate.Execute(&body, templateValues)
+
+	fmt.Println(body)
+
+
+	request, err := http.NewRequest("POST", "https://api.sandbox.paypal.com/v1/payments/payment", bytes.NewBufferString(body))
 	if err != nil {
 		return err
 	}
@@ -74,6 +125,8 @@ func (it *PayPal) Authorize(checkoutInstance checkout.I_Checkout) error {
 	if err != nil {
 		return err
 	}
+
+	fmt.Println(accessToken)
 
 	request.Header.Add("Content-Type", "application/json")
 	request.Header.Add("Accept", "application/json")
@@ -88,6 +141,9 @@ func (it *PayPal) Authorize(checkoutInstance checkout.I_Checkout) error {
 	if err != nil {
 		return err
 	}
+
+	fmt.Println(response)
+	fmt.Println(string(buf))
 
 	result := make(map[string]interface{})
 	err = json.Unmarshal(buf, &result)
@@ -114,7 +170,9 @@ func (it *PayPal) Void(checkoutInstance checkout.I_Checkout) error {
 
 // returns application access token needed for all other requests
 func (it *PayPal) GetAccessToken(checkoutInstance checkout.I_Checkout) (string, error) {
+
 	body := "grant_type=client_credentials"
+
 	req, err := http.NewRequest("POST", "https://api.sandbox.paypal.com/v1/oauth2/token", bytes.NewBufferString(body))
 	if err != nil {
 		return "", err
