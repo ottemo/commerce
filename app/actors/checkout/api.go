@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/ottemo/foundation/api"
-	"github.com/ottemo/foundation/app/models/checkout"
 	"github.com/ottemo/foundation/app/models/cart"
+	"github.com/ottemo/foundation/app/models/checkout"
 	"github.com/ottemo/foundation/app/models/order"
 	"github.com/ottemo/foundation/app/models/visitor"
 
@@ -403,7 +403,7 @@ func restSubmit(params *api.T_APIHandlerParams) (interface{}, error) {
 	//---------------------------
 	checkoutOrder.Set("updated_at", currentTime)
 
-	checkoutOrder.Set("status", "pending")
+	checkoutOrder.Set("status", "new")
 	if currentVisitor := currentCheckout.GetVisitor(); currentVisitor != nil {
 		checkoutOrder.Set("visitor_id", currentVisitor.GetId())
 
@@ -436,7 +436,7 @@ func restSubmit(params *api.T_APIHandlerParams) (interface{}, error) {
 
 		product := cartItem.GetProduct()
 		if product == nil {
-			return nil, errors.New("no product for cart item "+strconv.Itoa(cartItem.GetIdx()))
+			return nil, errors.New("no product for cart item " + strconv.Itoa(cartItem.GetIdx()))
 		}
 
 		orderItem.Set("name", product.GetName())
@@ -463,7 +463,6 @@ func restSubmit(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil, err
 	}
 
-
 	// trying to process payment
 	//--------------------------
 	err = currentCheckout.GetPaymentMethod().Authorize(currentCheckout)
@@ -471,9 +470,20 @@ func restSubmit(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil, err
 	}
 
+	if currentCheckout.GetPaymentMethod().GetType() == checkout.PAYMENT_TYPE_REMOTE {
+		if currentCheckout.GetInfo(checkout.CHECKOUT_INFO_KEY_REDIRECT) != nil {
+			return api.T_RestRedirect{
+				Result:   "redirect",
+				Location: utils.InterfaceToString(currentCheckout.GetInfo(checkout.CHECKOUT_INFO_KEY_REDIRECT)),
+			}, nil
+		}
+	}
+
 	// assigning new order increment id after success payment
 	//-------------------------------------------------------
 	checkoutOrder.NewIncrementId()
+
+	checkoutOrder.Set("status", "pending")
 
 	err = checkoutOrder.Save()
 	if err != nil {

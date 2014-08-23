@@ -2,17 +2,18 @@ package rest
 
 import (
 	"errors"
-	"io/ioutil"
 	"log"
-	"net/http"
 	"strings"
+
+	"io/ioutil"
+	"net/http"
 
 	"encoding/json"
 	"encoding/xml"
 
 	"github.com/julienschmidt/httprouter"
-	"github.com/ottemo/foundation/api"
 
+	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/api/session"
 )
 
@@ -102,6 +103,13 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 
 		// result conversion before output
 		if result != nil || err != nil {
+
+			redirectLocation := ""
+			if redirect, ok := result.(api.T_RestRedirect); ok {
+				redirectLocation = redirect.Location
+				result = redirect.Result
+			}
+
 			if _, ok := result.([]byte); !ok {
 
 				// JSON encode
@@ -111,7 +119,7 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 						errorMsg = err.Error()
 					}
 
-					result, _ = json.Marshal(map[string]interface{}{"result": result, "error": errorMsg})
+					result, _ = json.Marshal(map[string]interface{}{"result": result, "error": errorMsg, "redirect": redirectLocation})
 				}
 
 				// XML encode

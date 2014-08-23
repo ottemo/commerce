@@ -6,8 +6,7 @@ import (
 
 // module entry point before app start
 func init() {
-	instance := new(PayPal)
-
-	checkout.RegisterPaymentMethod(instance)
+	checkout.RegisterPaymentMethod(new(PayPalRest))
+	checkout.RegisterPaymentMethod(new(PayPalExpress))
 
 }

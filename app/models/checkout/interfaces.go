@@ -14,8 +14,11 @@ import (
 const (
 	CHECKOUT_MODEL_NAME = "Checkout"
 
-	PAYMENT_TYPE_SIMPLE = "simple"
+	PAYMENT_TYPE_SIMPLE      = "simple"
 	PAYMENT_TYPE_CREDIT_CARD = "cc"
+	PAYMENT_TYPE_REMOTE      = "remote"
+
+	CHECKOUT_INFO_KEY_REDIRECT = "redirect"
 
 	SESSION_KEY_CURRENT_CHECKOUT = "Checkout"
 )
