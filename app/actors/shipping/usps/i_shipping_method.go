@@ -4,6 +4,7 @@ import (
 	"bytes"
 
 	"html"
+	"regexp"
 	"text/template"
 
 	"net/http"
@@ -103,8 +104,7 @@ func (it *USPS) GetRates(checkoutObject checkout.I_Checkout) []checkout.T_Shippi
 
 	}
 
-	requestTemplate :=
-		`<RateV4Request USERID="{{.userid}}">
+	requestTemplate := `<RateV4Request USERID="{{.userid}}">
      <Revision/>
      <Package ID="1">
           <Service>ALL</Service>
@@ -157,21 +157,14 @@ func (it *USPS) GetRates(checkoutObject checkout.I_Checkout) []checkout.T_Shippi
 		return result
 	}
 
-	allowedMethods := utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_ALLOWED_METHODS))
-	allowedMethodsArray := strings.Split(allowedMethods, ",")
-
-	if allowedMethods == "" {
-		allowedMethodsArray = make([]string, 0)
-	}
-
-	for idx, value := range allowedMethodsArray {
-		allowedMethodsArray[idx] = strings.Trim(value, " \n\t")
-	}
+	allowedMethodsArray := utils.InterfaceToArray(env.ConfigGetValue(CONFIG_PATH_ALLOWED_METHODS))
 
 	postage, _ := xmlpath.Compile("//Postage")
 	service, _ := xmlpath.Compile("./MailService")
 	rate, _ := xmlpath.Compile("./Rate")
 	code, _ := xmlpath.Compile("./@CLASSID")
+
+	regexTags := regexp.MustCompile("<[^>]+>")
 
 	for i := postage.Iter(root); i.Next(); {
 		postageNode := i.Node()
@@ -191,11 +184,18 @@ func (it *USPS) GetRates(checkoutObject checkout.I_Checkout) []checkout.T_Shippi
 			continue
 		}
 
-		if allowedMethods == "" || utils.IsInListStr(stringCode, allowedMethodsArray) {
+		if utils.IsInArray(stringCode, allowedMethodsArray) {
+
+			rateName := html.UnescapeString(stringService)
+			if REMOVE_RATE_NAME_TAGS {
+				rateName = regexTags.ReplaceAllString(rateName, "")
+
+			}
+
 			result = append(result,
 				checkout.T_ShippingRate{
 					Code:  stringCode,
-					Name:  html.UnescapeString(stringService),
+					Name:  rateName,
 					Price: utils.InterfaceToFloat64(stringRate),
 				})
 		}

@@ -2,6 +2,7 @@ package utils
 
 import (
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -57,7 +58,7 @@ func KeysInMapAndNotBlank(mapObject interface{}, keys ...interface{}) bool {
 	return true
 }
 
-// returns map kay value or nil if not found, will be returned first found key value
+// returns map key value or nil if not found, will be returned first found key value
 func GetFirstMapValue(mapObject interface{}, keys ...string) interface{} {
 	switch typedMapObject := mapObject.(type) {
 	case map[string]interface{}:
@@ -75,6 +76,33 @@ func GetFirstMapValue(mapObject interface{}, keys ...string) interface{} {
 	}
 
 	return nil
+}
+
+// searches for item in array/slice, returns true if found
+func IsInArray(searchValue interface{}, arrayObject interface{}) bool {
+	switch typedObject := arrayObject.(type) {
+	case []string:
+		searchValue, ok := searchValue.(string)
+		if !ok {
+			return false
+		}
+
+		for _, value := range typedObject {
+			if value == searchValue {
+
+				return true
+			}
+		}
+
+	case []interface{}:
+		for _, value := range typedObject {
+			if value == searchValue {
+				return true
+			}
+		}
+	}
+
+	return false
 }
 
 // searches for presence of 1-st arg string option among provided options since 2-nd argument
@@ -150,6 +178,52 @@ func InterfaceToBool(value interface{}) bool {
 	default:
 		return false
 	}
+}
+
+// converts interface{} to map[string]interface{}
+func InterfaceToArray(value interface{}) []interface{} {
+	result := make([]interface{}, 0)
+
+	switch typedValue := value.(type) {
+	case []string:
+		result = make([]interface{}, 0, len(typedValue))
+		for idx, value := range typedValue {
+			result[idx] = value
+		}
+	case []int:
+		result = make([]interface{}, 0, len(typedValue))
+		for idx, value := range typedValue {
+			result[idx] = value
+		}
+	case []int64:
+		result = make([]interface{}, 0, len(typedValue))
+		for idx, value := range typedValue {
+			result[idx] = value
+		}
+	case []float64:
+		result = make([]interface{}, 0, len(typedValue))
+		for idx, value := range typedValue {
+			result[idx] = value
+		}
+	case []interface{}:
+		return typedValue
+
+	case string:
+		print("hh 1")
+		jsonArray, err := DecodeJsonToArray(typedValue)
+		if err == nil {
+			return jsonArray
+		}
+
+		splitValues := strings.Split(typedValue, ",")
+		result = make([]interface{}, 0, len(splitValues))
+		for idx, value := range splitValues {
+			result[idx] = strings.Trim(value, " \t\n")
+		}
+	}
+
+	result = append(result, value)
+	return result
 }
 
 // converts interface{} to map[string]interface{}

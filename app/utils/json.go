@@ -11,6 +11,23 @@ func EncodeToJsonString(inputData interface{}) (string, error) {
 	return string(result), err
 }
 
+// decodes json string to []interface{} if it's possible
+func DecodeJsonToArray(jsonData interface{}) ([]interface{}, error) {
+	result := make([]interface{}, 0)
+
+	var err error
+	switch value := jsonData.(type) {
+	case string:
+		err = json.Unmarshal([]byte(value), &result)
+	case []byte:
+		err = json.Unmarshal(value, &result)
+	default:
+		err = errors.New("unsupported json data")
+	}
+
+	return result, err
+}
+
 // decodes json string to map[string]interface{} if it's possible
 func DecodeJsonToStringKeyMap(jsonData interface{}) (map[string]interface{}, error) {
 

@@ -4,6 +4,8 @@ const (
 	SHIPPING_CODE = "usps"
 	SHIPPING_NAME = "USPS"
 
+	REMOVE_RATE_NAME_TAGS = true
+
 	HTTP_ENDPOINT  = "http://production.shippingapis.com/ShippingAPI.dll"
 	HTTPS_ENDPOINT = "https://secure.shippingapis.com/ShippingAPI.dll"
 
