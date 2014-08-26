@@ -2,6 +2,7 @@ package checkout
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
 	"time"
 
@@ -428,6 +429,12 @@ func restSubmit(params *api.T_APIHandlerParams) (interface{}, error) {
 	checkoutOrder.Set("tax_amount", taxAmount)
 	checkoutOrder.Set("shipping_amount", currentCheckout.GetShippingRate().Price)
 
+	generateDescriptionFlag := false
+	orderDescription := utils.InterfaceToString(currentCheckout.GetInfo("order_description"))
+	if orderDescription == "" {
+		generateDescriptionFlag = true
+	}
+
 	for _, cartItem := range cartItems {
 		orderItem, err := checkoutOrder.AddItem(cartItem.GetProductId(), cartItem.GetQty(), cartItem.GetOptions())
 		if err != nil {
@@ -446,7 +453,15 @@ func restSubmit(params *api.T_APIHandlerParams) (interface{}, error) {
 		orderItem.Set("price", product.GetPrice())
 		orderItem.Set("size", product.GetSize())
 		orderItem.Set("weight", product.GetWeight())
+
+		if generateDescriptionFlag {
+			if orderDescription != "" {
+				orderDescription += ", "
+			}
+			orderDescription += fmt.Sprintf("%dx %s", cartItem.GetQty(), product.GetName())
+		}
 	}
+	checkoutOrder.Set("description", orderDescription)
 
 	err = checkoutOrder.CalculateTotals()
 	if err != nil {

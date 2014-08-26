@@ -380,6 +380,9 @@ func (it *DefaultOrder) Get(attribute string) interface{} {
 
 	case "updaed_at":
 		return it.UpdatedAt
+
+	case "description":
+		return it.Description
 	}
 
 	return nil
@@ -444,6 +447,9 @@ func (it *DefaultOrder) Set(attribute string, value interface{}) error {
 	case "updated_at":
 		it.UpdatedAt = utils.InterfaceToTime(value)
 
+	case "description":
+		it.Description = utils.InterfaceToString(value)
+
 	default:
 		return errors.New("unknown attribute: " + attribute)
 	}
@@ -493,6 +499,8 @@ func (it *DefaultOrder) ToHashMap() map[string]interface{} {
 
 	result["created_at"] = it.Get("created_at")
 	result["updaed_at"] = it.Get("updaed_at")
+
+	result["description"] = it.Get("description")
 
 	return result
 }
@@ -717,6 +725,19 @@ func (it *DefaultOrder) GetAttributesInfo() []models.T_AttributeInfo {
 			IsRequired: true,
 			IsStatic:   true,
 			Label:      "Updated At",
+			Group:      "General",
+			Editors:    "not_editable",
+			Options:    "",
+			Default:    "",
+		},
+		models.T_AttributeInfo{
+			Model:      "Order",
+			Collection: "Order",
+			Attribute:  "description",
+			Type:       "text",
+			IsRequired: true,
+			IsStatic:   true,
+			Label:      "Description",
 			Group:      "General",
 			Editors:    "not_editable",
 			Options:    "",

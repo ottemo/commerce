@@ -81,6 +81,8 @@ func setupDB() error {
 		collection.AddColumn("created_at", "datetime", false)
 		collection.AddColumn("updaed_at", "datetime", false)
 
+		collection.AddColumn("description", "text", false)
+
 		collection, err = dbEngine.GetCollection(ORDER_ITEMS_COLLECTION_NAME)
 		if err != nil {
 			return err

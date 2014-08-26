@@ -184,7 +184,7 @@ func (it *USPS) GetRates(checkoutObject checkout.I_Checkout) []checkout.T_Shippi
 			continue
 		}
 
-		if utils.IsInArray(stringCode, allowedMethodsArray) {
+		if len(allowedMethodsArray) == 0 || utils.IsInArray(stringCode, allowedMethodsArray) {
 
 			rateName := html.UnescapeString(stringService)
 			if REMOVE_RATE_NAME_TAGS {

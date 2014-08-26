@@ -52,6 +52,8 @@ type DefaultOrder struct {
 	VisitorId string
 	CartId    string
 
+	Description string
+
 	BillingAddress  map[string]interface{}
 	ShippingAddress map[string]interface{}
 
