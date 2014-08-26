@@ -30,15 +30,24 @@ func (it *PayPalExpress) IsAllowed(checkoutInstance checkout.I_Checkout) bool {
 
 func (it *PayPalExpress) Authorize(checkoutInstance checkout.I_Checkout) error {
 
+	grandTotal := checkoutInstance.GetGrandTotal()
+	shippingAmount := checkoutInstance.GetShippingRate().Price
+
 	params := "USER=" + PP_EXPRESS_USER +
 		"&PWD=" + PP_EXPRESS_PWD +
 		"&SIGNATURE=" + PP_EXPRESS_SIGNATURE +
 		"&METHOD=SetExpressCheckout&VERSION=78" +
 		"&PAYMENTREQUEST_0_PAYMENTACTION=" + PP_EXPRESS_PAYMENTACTION +
-		"&PAYMENTREQUEST_0_AMT=" + fmt.Sprintf("%.2f", checkoutInstance.GetGrandTotal()) +
+		"&PAYMENTREQUEST_0_AMT=" + fmt.Sprintf("%.2f", grandTotal) +
+		"&PAYMENTREQUEST_0_SHIPPINGAMT=" + fmt.Sprintf("%.2f", shippingAmount) +
+		"&PAYMENTREQUEST_0_ITEMAMT=" + fmt.Sprintf("%.2f", grandTotal-shippingAmount) +
+		"&PAYMENTREQUEST_0_DESC=Purchase%20for%20%24" + fmt.Sprintf("%.2f", grandTotal) +
+		"&PAYMENTREQUEST_0_CUSTOM=" + checkoutInstance.GetOrder().GetId() +
 		"&PAYMENTREQUEST_0_CURRENCYCODE=USD" +
 		"&cancelUrl=http://dev.ottemo.com/paypal/cancel" +
 		"&returnUrl=http://dev.ottemo.com/paypal/success"
+
+	// println(params)
 
 	request, err := http.NewRequest("GET", PP_EXPRESS_ENDPOINT+"?"+params, nil)
 	if err != nil {
@@ -54,6 +63,8 @@ func (it *PayPalExpress) Authorize(checkoutInstance checkout.I_Checkout) error {
 	if err != nil {
 		return err
 	}
+
+	// println(string(responseData))
 
 	responseValues, err := url.ParseQuery(string(responseData))
 	if err != nil {
