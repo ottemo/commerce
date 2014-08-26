@@ -46,7 +46,7 @@ func (it *USPS) GetRates(checkoutObject checkout.I_Checkout) []checkout.T_Shippi
 		return nil
 	}
 
-	if shippingAddress := checkoutObject.GetShippingAddress(); shippingAddress != nil || shippingAddress.GetZipCode() != "" {
+	if shippingAddress := checkoutObject.GetShippingAddress(); shippingAddress != nil && shippingAddress.GetZipCode() != "" {
 		templateValues["destination"] = shippingAddress.GetZipCode()
 	} else {
 		return result
