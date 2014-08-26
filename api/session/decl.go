@@ -103,7 +103,7 @@ func Gc() {
 		if time.Now().Sub(session.time).Seconds() > 3600 {
 			sessionsMutex.Lock()
 
-			Sessions[id] = nil
+			delete(Sessions, id)
 
 			sessionsMutex.Unlock()
 		}
