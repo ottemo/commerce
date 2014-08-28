@@ -12,22 +12,26 @@ func (it *CheckMoneyOrder) GetCode() string {
 	return PAYMENT_CODE
 }
 
-func (it *CheckMoneyOrder) IsAllowed(checkout checkout.I_Checkout) bool {
+func (it *CheckMoneyOrder) GetType() string {
+	return checkout.PAYMENT_TYPE_SIMPLE
+}
+
+func (it *CheckMoneyOrder) IsAllowed(checkoutInstance checkout.I_Checkout) bool {
 	return true
 }
 
-func (it *CheckMoneyOrder) Authorize() error {
+func (it *CheckMoneyOrder) Authorize(checkoutInstance checkout.I_Checkout) error {
 	return nil
 }
 
-func (it *CheckMoneyOrder) Capture() error {
+func (it *CheckMoneyOrder) Capture(checkoutInstance checkout.I_Checkout) error {
 	return nil
 }
 
-func (it *CheckMoneyOrder) Refund() error {
+func (it *CheckMoneyOrder) Refund(checkoutInstance checkout.I_Checkout) error {
 	return nil
 }
 
-func (it *CheckMoneyOrder) Void() error {
+func (it *CheckMoneyOrder) Void(checkoutInstance checkout.I_Checkout) error {
 	return nil
 }

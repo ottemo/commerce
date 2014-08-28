@@ -29,3 +29,8 @@ type I_RestService interface {
 
 	http.Handler
 }
+
+type T_RestRedirect struct {
+	Result   interface{}
+	Location string
+}

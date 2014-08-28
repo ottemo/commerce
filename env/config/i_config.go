@@ -45,6 +45,8 @@ func (it *DefaultConfig) RegisterItem(Item env.T_ConfigItem, Validator env.F_Con
 		if err != nil {
 			return err
 		}
+
+		it.configValues[Item.Path] = Item.Value
 	}
 
 	if _, present := it.configValidators[Item.Path]; Validator != nil && !present {
@@ -74,7 +76,7 @@ func (it *DefaultConfig) UnregisterItem(Path string) error {
 			return err
 		}
 
-		delete(it.configValues, Path)
+		return it.Reload()
 	}
 
 	return nil
@@ -257,6 +259,35 @@ func (it *DefaultConfig) Load() error {
 	}
 
 	env.OnConfigStart()
+
+	return nil
+}
+
+// updates all config values from database
+func (it *DefaultConfig) Reload() error {
+	it.configValues = make(map[string]interface{})
+
+	collection, err := db.GetCollection(CONFIG_COLLECTION_NAME)
+	if err != nil {
+		return err
+	}
+
+	err = collection.SetResultColumns("path", "value")
+	if err != nil {
+		return err
+	}
+
+	records, err := collection.Load()
+	if err != nil {
+		return err
+	}
+
+	for _, record := range records {
+		path := utils.InterfaceToString(record["path"])
+		value := record["value"]
+
+		it.configValues[path] = value
+	}
 
 	return nil
 }

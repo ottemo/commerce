@@ -12,9 +12,18 @@ type DefaultVisitorAddress struct {
 	id         string
 	visitor_id string
 
-	Street  string
-	City    string
+	FirstName string
+	LastName  string
+
+	Company string
+
+	Country string
 	State   string
+	City    string
+
+	AddressLine1 string
+	AddressLine2 string
+
 	Phone   string
 	ZipCode string
 

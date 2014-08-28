@@ -1,7 +1,10 @@
 package discount
 
 import (
+	"errors"
+
 	"github.com/ottemo/foundation/api"
+	"github.com/ottemo/foundation/app/utils"
 )
 
 // initializes API for discount
@@ -27,9 +30,13 @@ func restDiscountApply(params *api.T_APIHandlerParams) (interface{}, error) {
 	couponCode := params.RequestURLParams["code"]
 
 	if appliedCoupons, ok := params.Session.Get(SESSION_KEY_APPLIED_DISCOUNT_CODES).([]string); ok {
-		appliedCoupons = append(appliedCoupons, couponCode)
 
-		params.Session.Set(SESSION_KEY_APPLIED_DISCOUNT_CODES, appliedCoupons)
+		if utils.IsAmongStr(couponCode, "100OFF", "50OFF") && !utils.IsInArray(couponCode, appliedCoupons) {
+			appliedCoupons = append(appliedCoupons, couponCode)
+			params.Session.Set(SESSION_KEY_APPLIED_DISCOUNT_CODES, appliedCoupons)
+		} else {
+			return nil, errors.New("coupon code already applied")
+		}
 	} else {
 		params.Session.Set(SESSION_KEY_APPLIED_DISCOUNT_CODES, []string{couponCode})
 	}

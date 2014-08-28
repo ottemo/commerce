@@ -2,8 +2,9 @@ package order
 
 import (
 	"errors"
-	"github.com/ottemo/foundation/app/models/order"
+	"time"
 
+	"github.com/ottemo/foundation/app/models/order"
 	"github.com/ottemo/foundation/db"
 )
 
@@ -125,6 +126,8 @@ func (it *DefaultOrder) Save() error {
 	// packing data before save
 	orderStoringValues := it.ToHashMap()
 
+	it.UpdatedAt = time.Now()
+
 	newId, err := orderCollection.Save(orderStoringValues)
 	if err != nil {
 		return err
@@ -133,6 +136,7 @@ func (it *DefaultOrder) Save() error {
 
 	// storing order items
 	for _, orderItem := range it.GetItems() {
+		orderItem.Set("order_id", newId)
 		orderItemStoringValues := orderItem.ToHashMap()
 
 		newId, err := orderItemsCollection.Save(orderItemStoringValues)

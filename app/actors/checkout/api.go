@@ -2,10 +2,12 @@ package checkout
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
 	"time"
 
 	"github.com/ottemo/foundation/api"
+	"github.com/ottemo/foundation/app/models/cart"
 	"github.com/ottemo/foundation/app/models/checkout"
 	"github.com/ottemo/foundation/app/models/order"
 	"github.com/ottemo/foundation/app/models/visitor"
@@ -46,6 +48,10 @@ func setupAPI() error {
 		return err
 	}
 	err = api.GetRestService().RegisterAPI("checkout", "GET", "submit", restSubmit)
+	if err != nil {
+		return err
+	}
+	err = api.GetRestService().RegisterAPI("checkout", "POST", "submit", restSubmit)
 	if err != nil {
 		return err
 	}
@@ -131,12 +137,13 @@ func restCheckoutPaymentMethods(params *api.T_APIHandlerParams) (interface{}, er
 	type ResultValue struct {
 		Name string
 		Code string
+		Type string
 	}
 	result := make([]ResultValue, 0)
 
 	for _, paymentMethod := range checkout.GetRegisteredPaymentMethods() {
 		if paymentMethod.IsAllowed(currentCheckout) {
-			result = append(result, ResultValue{Name: paymentMethod.GetName(), Code: paymentMethod.GetCode()})
+			result = append(result, ResultValue{Name: paymentMethod.GetName(), Code: paymentMethod.GetCode(), Type: paymentMethod.GetType()})
 		}
 	}
 
@@ -263,14 +270,21 @@ func restCheckoutSetPaymentMethod(params *api.T_APIHandlerParams) (interface{}, 
 		return nil, err
 	}
 
-	// looking for mayment method
+	// looking for payment method
 	for _, paymentMethod := range checkout.GetRegisteredPaymentMethods() {
 		if paymentMethod.GetCode() == params.RequestURLParams["method"] {
 			if paymentMethod.IsAllowed(currentCheckout) {
 
+				// updating checkout payment method
 				err := currentCheckout.SetPaymentMethod(paymentMethod)
 				if err != nil {
 					return nil, err
+				}
+
+				// checking for additional info
+				contentValues, _ := api.GetRequestContentAsMap(params)
+				for key, value := range contentValues {
+					currentCheckout.SetInfo(key, value)
 				}
 
 				return "ok", nil
@@ -324,6 +338,12 @@ func restCheckoutSetShippingMethod(params *api.T_APIHandlerParams) (interface{},
 
 // WEB REST API function to submit checkout information and make order
 func restSubmit(params *api.T_APIHandlerParams) (interface{}, error) {
+
+	// TODO: should be splited on smaller functions
+	// TODO: order for checkout perhaps should be associated with cart
+
+	// checking for needed information
+	//--------------------------------
 	currentCheckout, err := utils.GetCurrentCheckout(params)
 	if err != nil {
 		return nil, err
@@ -355,38 +375,68 @@ func restSubmit(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil, errors.New("Cart have no products inside")
 	}
 
-	newOrder, err := order.GetOrderModel()
-	if err != nil {
-		return nil, err
+	// checking for additional info
+	//-----------------------------
+	if params.Request.Method == "POST" {
+		contentValues, _ := api.GetRequestContentAsMap(params)
+		for key, value := range contentValues {
+			currentCheckout.SetInfo(key, value)
+		}
 	}
 
-	// newOrder.Set("increment_id",)
-
+	// making new order if needed
+	//---------------------------
 	currentTime := time.Now()
-	newOrder.Set("created_at", currentTime)
-	newOrder.Set("updated_at", currentTime)
 
-	newOrder.Set("status", "pending")
-	if currentVisitor := currentCheckout.GetVisitor(); currentVisitor != nil {
-		newOrder.Set("visitor_id", currentVisitor.GetId())
+	checkoutOrder := currentCheckout.GetOrder()
+	if checkoutOrder == nil {
+		newOrder, err := order.GetOrderModel()
+		if err != nil {
+			return nil, err
+		}
 
-		newOrder.Set("customer_email", currentVisitor.GetEmail())
-		newOrder.Set("customer_name", currentVisitor.GetFullName())
+		newOrder.Set("created_at", currentTime)
+
+		checkoutOrder = newOrder
 	}
 
-	newOrder.Set("cart_id", currentCart.GetId())
-	newOrder.Set("payment_method", currentCheckout.GetPaymentMethod().GetCode())
-	newOrder.Set("shipping_method", currentCheckout.GetShippingMethod().GetCode()+"/"+currentCheckout.GetShippingRate().Code)
+	// updating order information
+	//---------------------------
+	checkoutOrder.Set("updated_at", currentTime)
+
+	checkoutOrder.Set("status", "new")
+	if currentVisitor := currentCheckout.GetVisitor(); currentVisitor != nil {
+		checkoutOrder.Set("visitor_id", currentVisitor.GetId())
+
+		checkoutOrder.Set("customer_email", currentVisitor.GetEmail())
+		checkoutOrder.Set("customer_name", currentVisitor.GetFullName())
+	}
+
+	billingAddress := currentCheckout.GetBillingAddress().ToHashMap()
+	checkoutOrder.Set("billing_address", billingAddress)
+
+	shippingAddress := currentCheckout.GetShippingAddress().ToHashMap()
+	checkoutOrder.Set("shipping_address", shippingAddress)
+
+	checkoutOrder.Set("cart_id", currentCart.GetId())
+	checkoutOrder.Set("payment_method", currentCheckout.GetPaymentMethod().GetCode())
+	checkoutOrder.Set("shipping_method", currentCheckout.GetShippingMethod().GetCode()+"/"+currentCheckout.GetShippingRate().Code)
 
 	discountAmount, _ := currentCheckout.GetDiscounts()
 	taxAmount, _ := currentCheckout.GetTaxes()
 
-	newOrder.Set("discount", discountAmount)
-	newOrder.Set("tax_amount", taxAmount)
-	newOrder.Set("shipping_amount", currentCheckout.GetShippingRate().Price)
+	checkoutOrder.Set("discount", discountAmount)
+	checkoutOrder.Set("tax_amount", taxAmount)
+	checkoutOrder.Set("shipping_amount", currentCheckout.GetShippingRate().Price)
+
+	generateDescriptionFlag := false
+	orderDescription := utils.InterfaceToString(currentCheckout.GetInfo("order_description"))
+	if orderDescription == "" {
+		generateDescriptionFlag = true
+	}
 
 	for _, cartItem := range cartItems {
-		orderItem, err := newOrder.AddItem(cartItem.GetProductId(), cartItem.GetQty(), cartItem.GetOptions())
+		orderItem, err := checkoutOrder.AddItem(cartItem.GetProductId(), cartItem.GetQty(), cartItem.GetOptions())
 		if err != nil {
 			return nil, err
 		}
@@ -403,17 +453,65 @@ func restSubmit(params *api.T_APIHandlerParams) (interface{}, error) {
 		orderItem.Set("price", product.GetPrice())
 		orderItem.Set("size", product.GetSize())
 		orderItem.Set("weight", product.GetWeight())
-	}
 
-	err = newOrder.CalculateTotals()
+		if generateDescriptionFlag {
+			if orderDescription != "" {
+				orderDescription += ", "
+			}
+			orderDescription += fmt.Sprintf("%dx %s", cartItem.GetQty(), product.GetName())
+		}
+	}
+	checkoutOrder.Set("description", orderDescription)
+
+	err = checkoutOrder.CalculateTotals()
 	if err != nil {
 		return nil, err
 	}
 
-	err = newOrder.Save()
+	err = checkoutOrder.Save()
 	if err != nil {
 		return nil, err
 	}
 
-	return "ok", nil
+	currentCheckout.SetOrder(checkoutOrder)
+	if err != nil {
+		return nil, err
+	}
+
+	// trying to process payment
+	//--------------------------
+	err = currentCheckout.GetPaymentMethod().Authorize(currentCheckout)
+	if err != nil {
+		return nil, err
+	}
+
+	if currentCheckout.GetPaymentMethod().GetType() == checkout.PAYMENT_TYPE_REMOTE {
+		if currentCheckout.GetInfo(checkout.CHECKOUT_INFO_KEY_REDIRECT) != nil {
+			return api.T_RestRedirect{
+				Result:   "redirect",
+				Location: utils.InterfaceToString(currentCheckout.GetInfo(checkout.CHECKOUT_INFO_KEY_REDIRECT)),
+			}, nil
+		}
+	}
+
+	// assigning new order increment id after success payment
+	//-------------------------------------------------------
+	checkoutOrder.NewIncrementId()
+
+	checkoutOrder.Set("status", "pending")
+
+	err = checkoutOrder.Save()
+	if err != nil {
+		return nil, err
+	}
+
+	// cleanup checkout information
+	//-----------------------------
+	currentCart.Deactivate()
+	currentCart.Save()
+	params.Session.Set(cart.SESSION_KEY_CURRENT_CART, nil)
+
+	params.Session.Set(checkout.SESSION_KEY_CURRENT_CHECKOUT, nil)
+
+	return checkoutOrder.ToHashMap(), nil
 }

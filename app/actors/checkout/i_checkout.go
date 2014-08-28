@@ -2,6 +2,7 @@ package checkout
 
 import (
 	"github.com/ottemo/foundation/app/models/cart"
+	"github.com/ottemo/foundation/app/models/order"
 	"github.com/ottemo/foundation/app/models/checkout"
 	"github.com/ottemo/foundation/app/models/visitor"
 
@@ -121,6 +122,7 @@ func (it *DefaultCheckout) GetTaxes() (float64, []checkout.T_TaxRate) {
 		for _, tax := range checkout.GetRegisteredTaxes() {
 			for _, taxRate := range tax.CalculateTax(it) {
 				it.Taxes = append(it.Taxes, taxRate)
+				amount += taxRate.Amount
 			}
 		}
 
@@ -180,4 +182,36 @@ func (it *DefaultCheckout) GetGrandTotal() float64 {
 	amount -= discountAmount
 
 	return amount
+}
+
+// sets additional info for checkout - any values related to checkout process
+func (it *DefaultCheckout) SetInfo(key string, value interface{}) error {
+	it.Info[key] = value
+
+	return nil
+}
+
+// returns additional checkout info value or nil
+func (it *DefaultCheckout) GetInfo(key string) interface{} {
+	if value, present := it.Info[key]; present {
+		return value
+	}
+	return nil
+}
+
+// sets order for current checkout
+func (it *DefaultCheckout) SetOrder(checkoutOrder order.I_Order) error {
+	it.OrderId = checkoutOrder.GetId()
+	return nil
+}
+
+// returns current checkout related order or nil if not created yet
+func (it *DefaultCheckout) GetOrder() order.I_Order {
+	if it.OrderId != "" {
+		orderInstance, err := order.LoadOrderById(it.OrderId)
+		if err == nil {
+			return orderInstance
+		}
+	}
+	return nil
 }

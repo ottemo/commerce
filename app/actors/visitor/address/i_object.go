@@ -2,6 +2,7 @@ package address
 
 import (
 	"github.com/ottemo/foundation/app/models"
+	"github.com/ottemo/foundation/app/utils"
 	"strings"
 )
 
@@ -11,8 +12,18 @@ func (it *DefaultVisitorAddress) Get(attribute string) interface{} {
 		return it.id
 	case "visitor_id", "visitorId":
 		return it.visitor_id
-	case "street":
-		return it.Street
+	case "fname", "first_name":
+		return it.FirstName
+	case "lname", "last_name":
+		return it.LastName
+	case "address_line1":
+		return it.AddressLine1
+	case "address_line2":
+		return it.AddressLine2
+	case "company":
+		return it.Company
+	case "country":
+		return it.Country
 	case "city":
 		return it.City
 	case "state":
@@ -29,19 +40,40 @@ func (it *DefaultVisitorAddress) Get(attribute string) interface{} {
 func (it *DefaultVisitorAddress) Set(attribute string, value interface{}) error {
 	switch strings.ToLower(attribute) {
 	case "_id", "id":
-		it.id = value.(string)
+		it.id = utils.InterfaceToString(value)
+
 	case "visitor_id", "visitorId":
-		it.visitor_id = value.(string)
-	case "street":
-		it.Street = value.(string)
+		it.visitor_id = utils.InterfaceToString(value)
+
+	case "fname", "first_name":
+		it.FirstName = utils.InterfaceToString(value)
+
+	case "lname", "last_name":
+		it.LastName = utils.InterfaceToString(value)
+
+	case "line1", "address_line1":
+		it.AddressLine1 = utils.InterfaceToString(value)
+
+	case "line2", "address_line2":
+		it.AddressLine2 = utils.InterfaceToString(value)
+
+	case "company":
+		it.Company = utils.InterfaceToString(value)
+
+	case "country":
+		it.Country = utils.InterfaceToString(value)
+
 	case "city":
-		it.City = value.(string)
+		it.City = utils.InterfaceToString(value)
+
 	case "state":
-		it.State = value.(string)
+		it.State = utils.InterfaceToString(value)
+
 	case "phone":
-		it.Phone = value.(string)
+		it.Phone = utils.InterfaceToString(value)
+
 	case "zip", "zip_code":
-		it.ZipCode = value.(string)
+		it.ZipCode = utils.InterfaceToString(value)
 	}
 	return nil
 }
@@ -65,9 +97,18 @@ func (it *DefaultVisitorAddress) ToHashMap() map[string]interface{} {
 
 	result["visitor_id"] = it.visitor_id
 
-	result["street"] = it.Street
+	result["first_name"] = it.FirstName
+	result["last_name"] = it.LastName
+
+	result["company"] = it.Company
+
+	result["address_line1"] = it.AddressLine1
+	result["address_line2"] = it.AddressLine2
+
+	result["country"] = it.Country
 	result["city"] = it.City
 	result["state"] = it.State
+
 	result["phone"] = it.Phone
 	result["zip_code"] = it.ZipCode
 
@@ -80,7 +121,7 @@ func (it *DefaultVisitorAddress) GetAttributesInfo() []models.T_AttributeInfo {
 			Model:      "VisitorAddress",
 			Collection: "visitor_address",
 			Attribute:  "_id",
-			Type:       "text",
+			Type:       "id",
 			Label:      "ID",
 			Group:      "General",
 			Editors:    "not_editable",
@@ -91,7 +132,7 @@ func (it *DefaultVisitorAddress) GetAttributesInfo() []models.T_AttributeInfo {
 			Model:      "VisitorAddress",
 			Collection: "visitor_address",
 			Attribute:  "visitor_id",
-			Type:       "text",
+			Type:       "id",
 			Label:      "Visitor ID",
 			Group:      "General",
 			Editors:    "not_editable",
@@ -101,9 +142,64 @@ func (it *DefaultVisitorAddress) GetAttributesInfo() []models.T_AttributeInfo {
 		models.T_AttributeInfo{
 			Model:      "VisitorAddress",
 			Collection: "visitor_address",
-			Attribute:  "street",
-			Type:       "text",
-			Label:      "Street",
+			Attribute:  "address_line1",
+			Type:       "varchar(255)",
+			Label:      "Address Line 1",
+			Group:      "General",
+			Editors:    "line_text",
+			Options:    "",
+			Default:    "",
+		},
+		models.T_AttributeInfo{
+			Model:      "VisitorAddress",
+			Collection: "visitor_address",
+			Attribute:  "address_line2",
+			Type:       "varchar(255)",
+			Label:      "Address Line 2",
+			Group:      "General",
+			Editors:    "line_text",
+			Options:    "",
+			Default:    "",
+		},
+		models.T_AttributeInfo{
+			Model:      "VisitorAddress",
+			Collection: "visitor_address",
+			Attribute:  "first_name",
+			Type:       "varchar(100)",
+			Label:      "First Name",
+			Group:      "General",
+			Editors:    "line_text",
+			Options:    "",
+			Default:    "",
+		},
+		models.T_AttributeInfo{
+			Model:      "VisitorAddress",
+			Collection: "visitor_address",
+			Attribute:  "last_name",
+			Type:       "varchar(100)",
+			Label:      "Last Name",
+			Group:      "General",
+			Editors:    "line_text",
+			Options:    "",
+			Default:    "",
+		},
+		models.T_AttributeInfo{
+			Model:      "VisitorAddress",
+			Collection: "visitor_address",
+			Attribute:  "company",
+			Type:       "varchar(100)",
+			Label:      "Company",
+			Group:      "General",
+			Editors:    "line_text",
+			Options:    "",
+			Default:    "",
+		},
+		models.T_AttributeInfo{
+			Model:      "VisitorAddress",
+			Collection: "visitor_address",
+			Attribute:  "country",
+			Type:       "varchar(50)",
+			Label:      "Country",
 			Group:      "General",
 			Editors:    "line_text",
 			Options:    "",
@@ -113,7 +209,7 @@ func (it *DefaultVisitorAddress) GetAttributesInfo() []models.T_AttributeInfo {
 			Model:      "VisitorAddress",
 			Collection: "visitor_address",
 			Attribute:  "city",
-			Type:       "text",
+			Type:       "varchar(100)",
 			Label:      "City",
 			Group:      "General",
 			Editors:    "line_text",
@@ -124,7 +220,7 @@ func (it *DefaultVisitorAddress) GetAttributesInfo() []models.T_AttributeInfo {
 			Model:      "VisitorAddress",
 			Collection: "visitor_address",
 			Attribute:  "phone",
-			Type:       "text",
+			Type:       "varchar(100)",
 			Label:      "Phone",
 			Group:      "General",
 			Editors:    "line_text",
@@ -135,7 +231,7 @@ func (it *DefaultVisitorAddress) GetAttributesInfo() []models.T_AttributeInfo {
 			Model:      "VisitorAddress",
 			Collection: "visitor_address",
 			Attribute:  "state",
-			Type:       "text",
+			Type:       "varchar(2)",
 			Label:      "State",
 			Group:      "General",
 			Editors:    "line_text",
@@ -146,7 +242,7 @@ func (it *DefaultVisitorAddress) GetAttributesInfo() []models.T_AttributeInfo {
 			Model:      "VisitorAddress",
 			Collection: "visitor_address",
 			Attribute:  "zip_code",
-			Type:       "text",
+			Type:       "varchar(10)",
 			Label:      "Zip",
 			Group:      "General",
 			Editors:    "line_text",

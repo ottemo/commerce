@@ -1,14 +1,15 @@
 package order
 
 import (
+	"fmt"
 	"sort"
 	"strconv"
 
 	"errors"
 
 	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/foundation/env"
 
-	"github.com/ottemo/foundation/app/models/checkout"
 	"github.com/ottemo/foundation/app/models/order"
 )
 
@@ -36,7 +37,7 @@ func (it *DefaultOrder) AddItem(productId string, qty int, productOptions map[st
 
 	orderItem := new(DefaultOrderItem)
 
-	orderItem.order = it
+	orderItem.OrderId = it.GetId()
 
 	it.maxIdx += 1
 	orderItem.idx = it.maxIdx
@@ -88,6 +89,32 @@ func (it *DefaultOrder) RemoveItem(itemIdx int) error {
 	}
 }
 
+// assigns new unique increment id to order
+func (it *DefaultOrder) NewIncrementId() error {
+	lastIncrementIdMutex.Lock()
+
+	lastIncrementId += 1
+	it.IncrementId = fmt.Sprintf(INCREMENT_ID_FORMAT, lastIncrementId)
+
+	env.GetConfig().SetValue(CONFIG_PATH_LAST_INCREMENT_ID, lastIncrementId)
+
+	lastIncrementIdMutex.Unlock()
+
+	return nil
+}
+
+// returns increment id of order
+func (it *DefaultOrder) GetIncrementId() string {
+	return it.IncrementId
+}
+
+// sets increment id to order
+func (it *DefaultOrder) SetIncrementId(incrementId string) error {
+	it.IncrementId = incrementId
+
+	return nil
+}
+
 // recalculates order Subtotal and GrandTotal
 func (it *DefaultOrder) CalculateTotals() error {
 
@@ -128,11 +155,11 @@ func (it *DefaultOrder) GetShippingAmount() float64 {
 }
 
 // returns shipping method for order
-func (it *DefaultOrder) GetShippingMethod() checkout.I_ShippingMehod {
-	return checkout.GetShippingMethodByCode(it.ShippingMethod)
+func (it *DefaultOrder) GetShippingMethod() string {
+	return it.ShippingMethod
 }
 
 // returns payment method used for order
-func (it *DefaultOrder) GetPaymentMethod() checkout.I_PaymentMethod {
-	return checkout.GetPaymentMethodByCode(it.PaymentMethod)
+func (it *DefaultOrder) GetPaymentMethod() string {
+	return it.PaymentMethod
 }

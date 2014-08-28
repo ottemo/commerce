@@ -63,9 +63,9 @@ func (it *DefaultVisitorAddress) List() ([]models.T_ListItem, error) {
 		resultItem := new(models.T_ListItem)
 
 		resultItem.Id = address.GetId()
-		resultItem.Name = address.GetZipCode() + " " + address.GetState() + ", " + address.GetCity() + ", " + address.GetStreet()
+		resultItem.Name = address.GetZipCode() + " " + address.GetState() + ", " + address.GetCity() + ", " + address.GetAddress()
 		resultItem.Image = ""
-		resultItem.Desc = "Zip: " + address.GetZipCode() + ", State: " + address.GetState() + ", City: " + address.GetCity() + ", Street: " + address.GetStreet() + ", Phone: " + address.GetPhone()
+		resultItem.Desc = "Zip: " + address.GetZipCode() + ", State: " + address.GetState() + ", City: " + address.GetCity() + ", Address: " + address.GetAddress() + ", Phone: " + address.GetPhone()
 
 		// if extra attributes were required
 		if len(it.listExtraAtributes) > 0 {

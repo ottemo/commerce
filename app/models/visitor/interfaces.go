@@ -12,9 +12,20 @@ const (
 
 type I_VisitorAddress interface {
 	GetVisitorId() string
-	GetStreet() string
-	GetCity() string
+
+	GetFirstName() string
+	GetLastName() string
+
+	GetCompany() string
+
+	GetCountry() string
 	GetState() string
+	GetCity() string
+
+	GetAddress() string
+	GetAddressLine1() string
+	GetAddressLine2() string
+
 	GetPhone() string
 	GetZipCode() string
 

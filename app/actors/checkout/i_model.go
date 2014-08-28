@@ -17,5 +17,5 @@ func (it *DefaultCheckout) GetImplementationName() string {
 
 // makes new instance of model
 func (it *DefaultCheckout) New() (models.I_Model, error) {
-	return &DefaultCheckout{}, nil
+	return &DefaultCheckout{Info: make(map[string]interface{})}, nil
 }

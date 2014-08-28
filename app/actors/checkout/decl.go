@@ -10,6 +10,7 @@ const ()
 type DefaultCheckout struct {
 	CartId    string
 	VisitorId string
+	OrderId   string
 
 	Session api.I_Session
 
@@ -23,6 +24,8 @@ type DefaultCheckout struct {
 
 	Taxes     []checkout.T_TaxRate
 	Discounts []checkout.T_Discount
+
+	Info map[string]interface{}
 
 	taxesCalculateFlag     bool
 	discountsCalculateFlag bool

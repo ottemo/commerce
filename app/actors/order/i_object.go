@@ -25,10 +25,14 @@ func (it *DefaultOrderItem) Get(attribute string) interface{} {
 		return it.idx
 
 	case "order":
-		return it.order
+		orderInstance, err := order.LoadOrderById(it.OrderId)
+		if err == nil {
+			return orderInstance
+		}
+		return nil
 
 	case "order_id":
-		return it.order.GetId()
+		return it.OrderId
 
 	case "product_id":
 		return it.ProductId
@@ -73,11 +77,7 @@ func (it *DefaultOrderItem) Set(attribute string, value interface{}) error {
 		it.idx = utils.InterfaceToInt(value)
 
 	case "order_id":
-		orderObject, err := order.LoadOrderById(utils.InterfaceToString(value))
-		if err != nil {
-			return err
-		}
-		it.order = orderObject.(*DefaultOrder)
+		it.OrderId = utils.InterfaceToString(value)
 
 	case "product_id":
 		it.ProductId = utils.InterfaceToString(value)
@@ -342,6 +342,12 @@ func (it *DefaultOrder) Get(attribute string) interface{} {
 	case "cart_id":
 		return it.CartId
 
+	case "shipping_address":
+		return it.ShippingAddress
+
+	case "billing_address":
+		return it.BillingAddress
+
 	case "customer_email":
 		return it.CustomerEmail
 
@@ -366,11 +372,17 @@ func (it *DefaultOrder) Get(attribute string) interface{} {
 	case "shipping_amount":
 		return it.ShippingAmount
 
+	case "grand_total":
+		return it.GrandTotal
+
 	case "created_at":
 		return it.CreatedAt
 
 	case "updaed_at":
 		return it.UpdatedAt
+
+	case "description":
+		return it.Description
 	}
 
 	return nil
@@ -402,6 +414,12 @@ func (it *DefaultOrder) Set(attribute string, value interface{}) error {
 	case "customer_name":
 		it.CustomerName = utils.InterfaceToString(value)
 
+	case "billing_address":
+		it.BillingAddress = utils.InterfaceToMap(value)
+
+	case "shipping_address":
+		it.ShippingAddress = utils.InterfaceToMap(value)
+
 	case "payment_method":
 		it.PaymentMethod = utils.InterfaceToString(value)
 
@@ -420,11 +438,17 @@ func (it *DefaultOrder) Set(attribute string, value interface{}) error {
 	case "shipping_amount":
 		it.ShippingAmount = utils.InterfaceToFloat64(value)
 
+	case "grand_total":
+		it.GrandTotal = utils.InterfaceToFloat64(value)
+
 	case "created_at":
 		it.CreatedAt = utils.InterfaceToTime(value)
 
 	case "updated_at":
 		it.UpdatedAt = utils.InterfaceToTime(value)
+
+	case "description":
+		it.Description = utils.InterfaceToString(value)
 
 	default:
 		return errors.New("unknown attribute: " + attribute)
@@ -461,6 +485,9 @@ func (it *DefaultOrder) ToHashMap() map[string]interface{} {
 	result["customer_email"] = it.Get("customer_email")
 	result["customer_name"] = it.Get("customer_name")
 
+	result["shipping_address"] = it.Get("shipping_address")
+	result["billing_address"] = it.Get("billing_address")
+
 	result["payment_method"] = it.Get("payment_method")
 	result["shipping_method"] = it.Get("shipping_method")
 
@@ -468,9 +495,12 @@ func (it *DefaultOrder) ToHashMap() map[string]interface{} {
 	result["discount"] = it.Get("discount")
 	result["tax_amount"] = it.Get("tax_amount")
 	result["shipping_amount"] = it.Get("shipping_amount")
+	result["grand_total"] = it.Get("grand_total")
 
 	result["created_at"] = it.Get("created_at")
 	result["updaed_at"] = it.Get("updaed_at")
+
+	result["description"] = it.Get("description")
 
 	return result
 }
@@ -554,6 +584,32 @@ func (it *DefaultOrder) GetAttributesInfo() []models.T_AttributeInfo {
 			Label:      "Customer Name",
 			Group:      "General",
 			Editors:    "line_text",
+			Options:    "",
+			Default:    "",
+		},
+		models.T_AttributeInfo{
+			Model:      "Order",
+			Collection: "Order",
+			Attribute:  "shipping_address",
+			Type:       "text",
+			IsRequired: true,
+			IsStatic:   true,
+			Label:      "Shipping Address",
+			Group:      "General",
+			Editors:    "visitor_address",
+			Options:    "",
+			Default:    "",
+		},
+		models.T_AttributeInfo{
+			Model:      "Order",
+			Collection: "Order",
+			Attribute:  "billing_address",
+			Type:       "text",
+			IsRequired: true,
+			IsStatic:   true,
+			Label:      "Customer Name",
+			Group:      "General",
+			Editors:    "visitor_address",
 			Options:    "",
 			Default:    "",
 		},
@@ -669,6 +725,19 @@ func (it *DefaultOrder) GetAttributesInfo() []models.T_AttributeInfo {
 			IsRequired: true,
 			IsStatic:   true,
 			Label:      "Updated At",
+			Group:      "General",
+			Editors:    "not_editable",
+			Options:    "",
+			Default:    "",
+		},
+		models.T_AttributeInfo{
+			Model:      "Order",
+			Collection: "Order",
+			Attribute:  "description",
+			Type:       "text",
+			IsRequired: true,
+			IsStatic:   true,
+			Label:      "Description",
 			Group:      "General",
 			Editors:    "not_editable",
 			Options:    "",

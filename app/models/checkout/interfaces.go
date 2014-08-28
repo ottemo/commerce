@@ -2,6 +2,8 @@ package checkout
 
 import (
 	"github.com/ottemo/foundation/app/models/cart"
+	"github.com/ottemo/foundation/app/models/order"
+
 	"github.com/ottemo/foundation/app/models/visitor"
 
 	"github.com/ottemo/foundation/app/models"
@@ -11,6 +13,12 @@ import (
 
 const (
 	CHECKOUT_MODEL_NAME = "Checkout"
+
+	PAYMENT_TYPE_SIMPLE      = "simple"
+	PAYMENT_TYPE_CREDIT_CARD = "cc"
+	PAYMENT_TYPE_REMOTE      = "remote"
+
+	CHECKOUT_INFO_KEY_REDIRECT = "redirect"
 
 	SESSION_KEY_CURRENT_CHECKOUT = "Checkout"
 )
@@ -24,6 +32,9 @@ type I_Checkout interface {
 
 	SetPaymentMethod(paymentMethod I_PaymentMethod) error
 	GetPaymentMethod() I_PaymentMethod
+
+	SetInfo(key string, value interface{}) error
+	GetInfo(key string) interface{}
 
 	SetShippingMethod(shippingMethod I_ShippingMehod) error
 	GetShippingMethod() I_ShippingMehod
@@ -45,6 +56,9 @@ type I_Checkout interface {
 	SetSession(api.I_Session) error
 	GetSession() api.I_Session
 
+	SetOrder(checkoutOrder order.I_Order) error
+	GetOrder() order.I_Order
+
 	models.I_Model
 }
 
@@ -60,13 +74,14 @@ type I_ShippingMehod interface {
 type I_PaymentMethod interface {
 	GetName() string
 	GetCode() string
+	GetType() string
 
 	IsAllowed(checkoutInstance I_Checkout) bool
 
-	Authorize() error
-	Capture() error
-	Refund() error
-	Void() error
+	Authorize(checkoutInstance I_Checkout) error
+	Capture(checkoutInstance I_Checkout) error
+	Refund(checkoutInstance I_Checkout) error
+	Void(checkoutInstance I_Checkout) error
 }
 
 type I_Tax interface {
@@ -87,7 +102,6 @@ type T_ShippingRate struct {
 	Name  string
 	Code  string
 	Price float64
-	Days  int
 }
 
 type T_TaxRate struct {
