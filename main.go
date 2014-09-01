@@ -34,7 +34,9 @@ import (
 	_ "github.com/ottemo/foundation/app/actors/tax"
 
 	_ "github.com/ottemo/foundation/app/actors/product/review"
+
 	_ "github.com/ottemo/foundation/app/actors/seo"
+	_ "github.com/ottemo/foundation/app/actors/cms"
 )
 
 func main() {

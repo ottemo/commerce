@@ -140,6 +140,21 @@ func StrKeysInMap(mapObject interface{}, keys ...string) bool {
 	return true
 }
 
+// returns trimmed []string array of [separators] delimited values
+func Explode(value string, separators string) []string {
+	result := make([]string, 0)
+
+	splitResult := strings.Split(value, separators)
+	for _, arrayValue := range splitResult {
+		arrayValue = strings.TrimSpace(arrayValue)
+		if arrayValue != "" {
+			result = append(result, arrayValue)
+		}
+	}
+
+	return result
+}
+
 // checks if value is MD5
 func IsMD5(value string) bool {
 	ok := false
