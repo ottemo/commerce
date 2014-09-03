@@ -30,10 +30,10 @@ func (it *DefaultProduct) Load(loadId string) error {
 	return nil
 }
 
-func (it *DefaultProduct) Delete(Id string) error {
+func (it *DefaultProduct) Delete() error {
 	if dbEngine := db.GetDBEngine(); dbEngine != nil {
 		if collection, err := dbEngine.GetCollection("Product"); err == nil {
-			err := collection.DeleteById(Id)
+			err := collection.DeleteById(it.GetId())
 			if err != nil {
 				return err
 			}

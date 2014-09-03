@@ -32,10 +32,10 @@ func (it *DefaultVisitorAddress) Load(Id string) error {
 	return nil
 }
 
-func (it *DefaultVisitorAddress) Delete(Id string) error {
+func (it *DefaultVisitorAddress) Delete() error {
 	if dbEngine := db.GetDBEngine(); dbEngine != nil {
 		if collection, err := dbEngine.GetCollection(VISITOR_ADDRESS_COLLECTION_NAME); err == nil {
-			err := collection.DeleteById(Id)
+			err := collection.DeleteById(it.GetId())
 			if err != nil {
 				return err
 			}

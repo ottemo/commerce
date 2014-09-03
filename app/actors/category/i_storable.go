@@ -71,7 +71,7 @@ func (it *DefaultCategory) Load(Id string) error {
 	return nil
 }
 
-func (it *DefaultCategory) Delete(Id string) error {
+func (it *DefaultCategory) Delete() error {
 	if dbEngine := db.GetDBEngine(); dbEngine != nil {
 		//deleting category products join
 		junctionCollection, err := dbEngine.GetCollection(CATEGORY_PRODUCT_JUNCTION_COLLECTION_NAME)
@@ -79,7 +79,7 @@ func (it *DefaultCategory) Delete(Id string) error {
 			return err
 		}
 
-		err = junctionCollection.AddFilter("category_id", "=", Id)
+		err = junctionCollection.AddFilter("category_id", "=", it.GetId())
 		if err != nil {
 			return err
 		}
@@ -95,7 +95,7 @@ func (it *DefaultCategory) Delete(Id string) error {
 			return err
 		}
 
-		err = categoryCollection.DeleteById(Id)
+		err = categoryCollection.DeleteById(it.GetId())
 		if err != nil {
 			return err
 		}

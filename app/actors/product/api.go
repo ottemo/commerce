@@ -343,12 +343,12 @@ func restDeleteProduct(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// delete operation
 	//-----------------
-	productModel, err := product.GetProductModel()
+	productModel, err := product.GetProductModelAndSetId(productId)
 	if err != nil {
 		return nil, err
 	}
 
-	err = productModel.Delete(productId)
+	err = productModel.Delete()
 	if err != nil {
 		return nil, err
 	}

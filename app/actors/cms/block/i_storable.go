@@ -30,7 +30,7 @@ func (it *DefaultCMSBlock) Load(id string) error {
 		return err
 	}
 
-	it.SetId( utils.InterfaceToString(dbValues["_id"]) )
+	it.SetId(utils.InterfaceToString(dbValues["_id"]))
 
 	it.Content = utils.InterfaceToString(dbValues["content"])
 	it.Identifier = utils.InterfaceToString(dbValues["identifier"])
@@ -41,13 +41,13 @@ func (it *DefaultCMSBlock) Load(id string) error {
 }
 
 // removes current cms block from DB
-func (it *DefaultCMSBlock) Delete(id string) error {
+func (it *DefaultCMSBlock) Delete() error {
 	collection, err := db.GetCollection(CMS_BLOCK_COLLECTION_NAME)
 	if err != nil {
 		return err
 	}
 
-	err = collection.DeleteById(id)
+	err = collection.DeleteById(it.GetId())
 	if err != nil {
 		return err
 	}

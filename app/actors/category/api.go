@@ -196,12 +196,12 @@ func restDeleteCategory(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// delete operation
 	//-----------------
-	categoryModel, err := category.GetCategoryModel()
+	categoryModel, err := category.GetCategoryModelAndSetId(categoryId)
 	if err != nil {
 		return nil, err
 	}
 
-	err = categoryModel.Delete(categoryId)
+	err = categoryModel.Delete()
 	if err != nil {
 		return nil, err
 	}

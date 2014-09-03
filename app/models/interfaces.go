@@ -12,7 +12,7 @@ type I_Storable interface {
 
 	Save() error
 	Load(id string) error
-	Delete(id string) error
+	Delete() error
 }
 
 type I_Object interface {

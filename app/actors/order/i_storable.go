@@ -69,7 +69,7 @@ func (it *DefaultOrder) Load(Id string) error {
 }
 
 // removes current order from DB
-func (it *DefaultOrder) Delete(Id string) error {
+func (it *DefaultOrder) Delete() error {
 	if it.GetId() == "" {
 		return errors.New("order id is not set")
 	}

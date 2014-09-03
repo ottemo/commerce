@@ -86,7 +86,6 @@ func setupAPI() error {
 		return err
 	}*/
 
-
 	err = api.GetRestService().RegisterAPI("visitor", "GET", "order/list", restListVisitorOrders)
 	if err != nil {
 		return err
@@ -191,12 +190,12 @@ func restDeleteVisitor(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// delete operation
 	//-----------------
-	visitorModel, err := visitor.GetVisitorModel()
+	visitorModel, err := visitor.GetVisitorModelAndSetId(visitorId)
 	if err != nil {
 		return nil, err
 	}
 
-	err = visitorModel.Delete(visitorId)
+	err = visitorModel.Delete()
 	if err != nil {
 		return nil, err
 	}

@@ -36,12 +36,12 @@ func (it *DefaultVisitor) Load(Id string) error {
 	return nil
 }
 
-func (it *DefaultVisitor) Delete(Id string) error {
+func (it *DefaultVisitor) Delete() error {
 	if dbEngine := db.GetDBEngine(); dbEngine != nil {
 		if collection, err := dbEngine.GetCollection(VISITOR_COLLECTION_NAME); err == nil {
 
 			if addressCollection, err := dbEngine.GetCollection(address.VISITOR_ADDRESS_COLLECTION_NAME); err == nil {
-				addressCollection.AddFilter("visitor_id", "=", Id)
+				addressCollection.AddFilter("visitor_id", "=", it.GetId())
 				if _, err := addressCollection.Delete(); err != nil {
 					return err
 				}
@@ -49,7 +49,7 @@ func (it *DefaultVisitor) Delete(Id string) error {
 				return err
 			}
 
-			err := collection.DeleteById(Id)
+			err := collection.DeleteById(it.GetId())
 			if err != nil {
 				return err
 			}

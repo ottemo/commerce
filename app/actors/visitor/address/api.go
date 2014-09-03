@@ -132,12 +132,12 @@ func restDeleteVisitorAddress(params *api.T_APIHandlerParams) (interface{}, erro
 
 	// delete operation
 	//-----------------
-	visitorAddressModel, err := visitor.GetVisitorAddressModel()
+	visitorAddressModel, err := visitor.GetVisitorAddressModelAndSetId(addressId)
 	if err != nil {
 		return nil, err
 	}
 
-	err = visitorAddressModel.Delete(addressId)
+	err = visitorAddressModel.Delete()
 	if err != nil {
 		return nil, err
 	}

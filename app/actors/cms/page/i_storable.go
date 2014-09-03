@@ -30,7 +30,7 @@ func (it *DefaultCMSPage) Load(id string) error {
 		return err
 	}
 
-	it.SetId( utils.InterfaceToString(dbValues["_id"]) )
+	it.SetId(utils.InterfaceToString(dbValues["_id"]))
 
 	it.Identifier = utils.InterfaceToString(dbValues["identifier"])
 	it.URL = utils.InterfaceToString(dbValues["url"])
@@ -48,13 +48,13 @@ func (it *DefaultCMSPage) Load(id string) error {
 }
 
 // removes current cms block from DB
-func (it *DefaultCMSPage) Delete(id string) error {
+func (it *DefaultCMSPage) Delete() error {
 	collection, err := db.GetCollection(CMS_PAGE_COLLECTION_NAME)
 	if err != nil {
 		return err
 	}
 
-	err = collection.DeleteById(id)
+	err = collection.DeleteById(it.GetId())
 	if err != nil {
 		return err
 	}

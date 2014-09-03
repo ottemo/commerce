@@ -83,7 +83,7 @@ func restCMSBlockList(params *api.T_APIHandlerParams) (interface{}, error) {
 	}
 
 	// limit parameter handle
-	cmsPageModel.ListLimit( api.GetListLimit(params) )
+	cmsPageModel.ListLimit(api.GetListLimit(params))
 
 	// extra parameter handle
 	if extra, isExtra := reqData["extra"]; isExtra {
@@ -174,7 +174,7 @@ func restCMSBlockUpdate(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// operation
 	//----------
-	cmsBlockModel, err := cms.LoadCMSBlockById( blockId )
+	cmsBlockModel, err := cms.LoadCMSBlockById(blockId)
 	if err != nil {
 		return nil, err
 	}
@@ -206,7 +206,7 @@ func restCMSBlockDelete(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil, err
 	}
 
-	cmsBlockModel.Delete(blockId)
+	cmsBlockModel.Delete()
 
 	return "ok", nil
 }

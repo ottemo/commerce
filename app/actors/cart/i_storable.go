@@ -77,7 +77,7 @@ func (it *DefaultCart) Load(Id string) error {
 }
 
 // removes current cart from DB
-func (it *DefaultCart) Delete(Id string) error {
+func (it *DefaultCart) Delete() error {
 	if it.GetId() == "" {
 		return errors.New("cart id is not set")
 	}
