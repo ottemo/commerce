@@ -1,4 +1,4 @@
-FROM ottemo/golang:v2
+FROM ottemo/golang:v1
 
 # Add SSH keys
 #ADD $HOME/.ssh/id_rsa /root/.ssh/id_rsa
