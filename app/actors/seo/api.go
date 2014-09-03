@@ -44,6 +44,7 @@ func restURLRewritesList(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil, err
 	}
 
+	collection.SetResultColumns("url", "type", "rewrite")
 	records, err := collection.Load()
 
 	return records, err
