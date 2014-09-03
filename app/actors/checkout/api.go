@@ -377,11 +377,9 @@ func restSubmit(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// checking for additional info
 	//-----------------------------
+	contentValues := make(map[string]interface{})
 	if params.Request.Method == "POST" {
-		contentValues, _ := api.GetRequestContentAsMap(params)
-		for key, value := range contentValues {
-			currentCheckout.SetInfo(key, value)
-		}
+		contentValues, _ = api.GetRequestContentAsMap(params)
 	}
 
 	// making new order if needed
@@ -480,18 +478,13 @@ func restSubmit(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// trying to process payment
 	//--------------------------
-	err = currentCheckout.GetPaymentMethod().Authorize(currentCheckout)
+	result, err := currentCheckout.GetPaymentMethod().Authorize(checkoutOrder, contentValues)
 	if err != nil {
 		return nil, err
 	}
 
-	if currentCheckout.GetPaymentMethod().GetType() == checkout.PAYMENT_TYPE_REMOTE {
-		if currentCheckout.GetInfo(checkout.CHECKOUT_INFO_KEY_REDIRECT) != nil {
-			return api.T_RestRedirect{
-				Result:   "redirect",
-				Location: utils.InterfaceToString(currentCheckout.GetInfo(checkout.CHECKOUT_INFO_KEY_REDIRECT)),
-			}, nil
-		}
+	if result != nil {
+		return result, nil
 	}
 
 	// assigning new order increment id after success payment

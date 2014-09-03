@@ -1,5 +1,6 @@
 package paypal
 
+/*
 import (
 	"bytes"
 	"errors"
@@ -207,4 +208,4 @@ func (it *PayPalRest) GetAccessToken(checkoutInstance checkout.I_Checkout) (stri
 	}
 
 	return "", errors.New("unexpected response - without access_token")
-}
+}*/

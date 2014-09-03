@@ -1,21 +1,14 @@
-package checkout
+package authorize
 
 import (
 	"github.com/ottemo/foundation/api"
-	"github.com/ottemo/foundation/env"
-
-	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/checkout"
+	"github.com/ottemo/foundation/env"
 )
 
 // module entry point before app start
 func init() {
-	instance := new(DefaultCheckout)
-
-	var _ checkout.I_Checkout = instance
-
-	models.RegisterModel(checkout.CHECKOUT_MODEL_NAME, instance)
-
+	checkout.RegisterPaymentMethod(new(AuthorizeNetDPM))
 	api.RegisterOnRestServiceStart(setupAPI)
 	env.RegisterOnConfigStart(setupConfig)
 }
