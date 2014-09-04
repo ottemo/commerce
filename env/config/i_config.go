@@ -258,7 +258,10 @@ func (it *DefaultConfig) Load() error {
 		it.configValues[path] = value
 	}
 
-	env.OnConfigStart()
+	err = env.OnConfigStart()
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

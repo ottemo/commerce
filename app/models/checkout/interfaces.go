@@ -1,26 +1,12 @@
 package checkout
 
 import (
-	"github.com/ottemo/foundation/app/models/cart"
-	"github.com/ottemo/foundation/app/models/order"
-
-	"github.com/ottemo/foundation/app/models/visitor"
+	"github.com/ottemo/foundation/api"
 
 	"github.com/ottemo/foundation/app/models"
-
-	"github.com/ottemo/foundation/api"
-)
-
-const (
-	CHECKOUT_MODEL_NAME = "Checkout"
-
-	PAYMENT_TYPE_SIMPLE      = "simple"
-	PAYMENT_TYPE_CREDIT_CARD = "cc"
-	PAYMENT_TYPE_REMOTE      = "remote"
-
-	CHECKOUT_INFO_KEY_REDIRECT = "redirect"
-
-	SESSION_KEY_CURRENT_CHECKOUT = "Checkout"
+	"github.com/ottemo/foundation/app/models/cart"
+	"github.com/ottemo/foundation/app/models/order"
+	"github.com/ottemo/foundation/app/models/visitor"
 )
 
 type I_Checkout interface {
@@ -78,10 +64,10 @@ type I_PaymentMethod interface {
 
 	IsAllowed(checkoutInstance I_Checkout) bool
 
-	Authorize(checkoutInstance I_Checkout) error
-	Capture(checkoutInstance I_Checkout) error
-	Refund(checkoutInstance I_Checkout) error
-	Void(checkoutInstance I_Checkout) error
+	Authorize(orderInstance order.I_Order, paymentInfo map[string]interface{}) (interface{}, error)
+	Capture(orderInstance order.I_Order, paymentInfo map[string]interface{}) (interface{}, error)
+	Refund(orderInstance order.I_Order, paymentInfo map[string]interface{}) (interface{}, error)
+	Void(orderInstance order.I_Order, paymentInfo map[string]interface{}) (interface{}, error)
 }
 
 type I_Tax interface {

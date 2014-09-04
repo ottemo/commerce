@@ -42,6 +42,8 @@ func getMongoOperator(Operator string, Value interface{}) (string, interface{}, 
 	switch Operator {
 	case "=":
 		return "", Value, nil
+	case "!=", "<>":
+		return "$ne", Value, nil
 	case ">":
 		return "$gt", Value, nil
 	case ">=":

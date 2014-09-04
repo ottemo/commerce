@@ -34,6 +34,12 @@ import (
 	_ "github.com/ottemo/foundation/app/actors/tax"
 
 	_ "github.com/ottemo/foundation/app/actors/product/review"
+
+	_ "github.com/ottemo/foundation/app/actors/cms"
+	_ "github.com/ottemo/foundation/app/actors/seo"
+
+	_ "github.com/ottemo/foundation/app/actors/payment/authorize"
+	_ "github.com/ottemo/foundation/app/actors/shipping/fedex"
 )
 
 func main() {

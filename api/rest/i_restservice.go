@@ -7,6 +7,7 @@ import (
 
 	"io/ioutil"
 	"net/http"
+	"net/url"
 
 	"encoding/json"
 	"encoding/xml"
@@ -58,13 +59,13 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 			req.ParseMultipartForm(32 << 20) // 32 MB
 			if req.MultipartForm != nil {
 				for attribute, value := range req.MultipartForm.Value {
-					newContent[attribute] = value[0]
+					newContent[attribute], _ = url.QueryUnescape(value[0])
 				}
 			}
 
 			req.ParseForm()
 			for attribute, value := range req.PostForm {
-				newContent[attribute] = value[0]
+				newContent[attribute], _ = url.QueryUnescape(value[0])
 			}
 
 			content = newContent

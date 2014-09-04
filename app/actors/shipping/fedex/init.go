@@ -1,4 +1,4 @@
-package checkmo
+package fedex
 
 import (
 	"github.com/ottemo/foundation/app/models/checkout"
@@ -7,6 +7,6 @@ import (
 
 // module entry point before app start
 func init() {
-	checkout.RegisterPaymentMethod(new(CheckMoneyOrder))
+	checkout.RegisterShippingMethod(new(FedEx))
 	env.RegisterOnConfigStart(setupConfig)
 }

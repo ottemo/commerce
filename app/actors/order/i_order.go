@@ -11,6 +11,7 @@ import (
 	"github.com/ottemo/foundation/env"
 
 	"github.com/ottemo/foundation/app/models/order"
+	"github.com/ottemo/foundation/app/models/visitor"
 )
 
 // returns order items for current order
@@ -162,4 +163,20 @@ func (it *DefaultOrder) GetShippingMethod() string {
 // returns payment method used for order
 func (it *DefaultOrder) GetPaymentMethod() string {
 	return it.PaymentMethod
+}
+
+// returns shipping address for order
+func (it *DefaultOrder) GetShippingAddress() visitor.I_VisitorAddress {
+	addressModel, _ := visitor.GetVisitorAddressModel()
+	addressModel.FromHashMap(it.ShippingAddress)
+
+	return addressModel
+}
+
+// returns billing address for order
+func (it *DefaultOrder) GetBillingAddress() visitor.I_VisitorAddress {
+	addressModel, _ := visitor.GetVisitorAddressModel()
+	addressModel.FromHashMap(it.BillingAddress)
+
+	return addressModel
 }

@@ -2,6 +2,7 @@ package order
 
 import (
 	"github.com/ottemo/foundation/app/models"
+	"github.com/ottemo/foundation/app/models/visitor"
 )
 
 const (
@@ -46,6 +47,9 @@ type I_Order interface {
 	GetDiscountAmount() float64
 	GetTaxAmount() float64
 	GetShippingAmount() float64
+
+	GetShippingAddress() visitor.I_VisitorAddress
+	GetBillingAddress() visitor.I_VisitorAddress
 
 	GetShippingMethod() string
 	GetPaymentMethod() string
