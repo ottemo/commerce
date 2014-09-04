@@ -10,11 +10,11 @@ import (
 	"net/url"
 
 	"github.com/ottemo/foundation/api"
-	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/app/utils"
+	"github.com/ottemo/foundation/env"
 
-	"github.com/ottemo/foundation/app/models/order"
 	"github.com/ottemo/foundation/app/models/checkout"
+	"github.com/ottemo/foundation/app/models/order"
 )
 
 // returns payment method name
@@ -45,24 +45,22 @@ func (it *PayPalExpress) Authorize(orderInstance order.I_Order, paymentInfo map[
 	grandTotal := orderInstance.GetGrandTotal()
 	shippingPrice := orderInstance.GetShippingAmount()
 
-
 	// getting request param values
 	//-----------------------------
-	user := utils.InterfaceToString( env.ConfigGetValue(CONFIG_PATH_USER) )
-	password := utils.InterfaceToString( env.ConfigGetValue(CONFIG_PATH_PASS) )
-	signature := utils.InterfaceToString( env.ConfigGetValue(CONFIG_PATH_SIGNATURE) )
-	action := utils.InterfaceToString( env.ConfigGetValue(CONFIG_PATH_ACTION) )
+	user := utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_USER))
+	password := utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_PASS))
+	signature := utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_SIGNATURE))
+	action := utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_ACTION))
 
 	amount := fmt.Sprintf("%.2f", grandTotal)
 	shippingAmount := fmt.Sprintf("%.2f", shippingPrice)
-	itemAmount := fmt.Sprintf("%.2f", grandTotal - shippingPrice)
+	itemAmount := fmt.Sprintf("%.2f", grandTotal-shippingPrice)
 
 	description := "Purchase%20for%20%24" + fmt.Sprintf("%.2f", grandTotal)
 	custom := orderInstance.GetId()
 
 	cancelUrl := "http://dev.ottemo.com:3000/paypal/cancel"
 	returnUrl := "http://dev.ottemo.com:3000/paypal/success"
-
 
 	// making NVP request
 	//-------------------
@@ -83,9 +81,9 @@ func (it *PayPalExpress) Authorize(orderInstance order.I_Order, paymentInfo map[
 
 	// println(requestParams)
 
-	nvpGateway := utils.InterfaceToString( env.ConfigGetValue(CONFIG_PATH_NVP) )
+	nvpGateway := utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_NVP))
 
-	request, err := http.NewRequest("GET", nvpGateway + "?" + requestParams, nil)
+	request, err := http.NewRequest("GET", nvpGateway+"?"+requestParams, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -117,11 +115,11 @@ func (it *PayPalExpress) Authorize(orderInstance order.I_Order, paymentInfo map[
 
 	// redirecting user to PayPal server for following checkout
 	//---------------------------------------------------------
-	redirectGateway := utils.InterfaceToString( env.ConfigGetValue(CONFIG_PATH_GATEWAY) ) + "&token=" + responseValues.Get("TOKEN")
-	return api.T_RestRedirect {
-				Result:   "redirect",
-				Location: redirectGateway,
-			}, nil
+	redirectGateway := utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_GATEWAY)) + "&token=" + responseValues.Get("TOKEN")
+	return api.T_RestRedirect{
+		Result:   "redirect",
+		Location: redirectGateway,
+	}, nil
 }
 
 // makes payment method capture operation

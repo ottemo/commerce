@@ -1,8 +1,8 @@
 package page
 
 import (
-	"time"
 	"github.com/ottemo/foundation/db"
+	"time"
 )
 
 const (
@@ -19,8 +19,8 @@ type DefaultCMSPage struct {
 	Title   string
 	Content string
 
-	MetaKeywords     string
-	MetaDescription  string
+	MetaKeywords    string
+	MetaDescription string
 
 	CreatedAt time.Time
 	UpdatedAt time.Time

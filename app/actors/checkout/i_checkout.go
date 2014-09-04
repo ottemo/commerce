@@ -2,8 +2,8 @@ package checkout
 
 import (
 	"github.com/ottemo/foundation/app/models/cart"
-	"github.com/ottemo/foundation/app/models/order"
 	"github.com/ottemo/foundation/app/models/checkout"
+	"github.com/ottemo/foundation/app/models/order"
 	"github.com/ottemo/foundation/app/models/visitor"
 
 	"github.com/ottemo/foundation/api"

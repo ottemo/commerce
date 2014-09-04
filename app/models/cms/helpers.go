@@ -55,10 +55,8 @@ func LoadCMSPageById(cmsPageId string) (I_CMSPage, error) {
 	return cmsPageModel, nil
 }
 
-
 // CMS Block helpers
 //------------------
-
 
 // retrieves current I_CMSBlock model implementation
 func GetCMSBlockModel() (I_CMSBlock, error) {

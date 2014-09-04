@@ -10,7 +10,6 @@ const (
 )
 
 type I_CMSPage interface {
-
 	GetURL() string
 	SetURL(string) error
 

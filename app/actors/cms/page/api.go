@@ -87,7 +87,7 @@ func restCMSPageList(params *api.T_APIHandlerParams) (interface{}, error) {
 	}
 
 	// limit parameter handle
-	cmsPageModel.ListLimit( api.GetListLimit(params) )
+	cmsPageModel.ListLimit(api.GetListLimit(params))
 
 	// extra parameter handle
 	if extra, isExtra := reqData["extra"]; isExtra {
@@ -178,7 +178,7 @@ func restCMSPageUpdate(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// operation
 	//----------
-	cmsPageModel, err := cms.LoadCMSPageById( pageId )
+	cmsPageModel, err := cms.LoadCMSPageById(pageId)
 	if err != nil {
 		return nil, err
 	}

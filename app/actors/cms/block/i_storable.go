@@ -30,7 +30,7 @@ func (it *DefaultCMSBlock) Load(id string) error {
 		return err
 	}
 
-	it.SetId( utils.InterfaceToString(dbValues["_id"]) )
+	it.SetId(utils.InterfaceToString(dbValues["_id"]))
 
 	it.Content = utils.InterfaceToString(dbValues["content"])
 	it.Identifier = utils.InterfaceToString(dbValues["identifier"])

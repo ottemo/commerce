@@ -3,8 +3,8 @@ package checkmo
 import (
 	"errors"
 
-	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/app/utils"
+	"github.com/ottemo/foundation/env"
 )
 
 // setup configuration values
@@ -38,7 +38,7 @@ func setupConfig() error {
 		Label:       "Enabled",
 		Description: "enables/disables payment method in checkout",
 		Image:       "",
-	}, func(value interface{}) (interface{}, error) { return utils.InterfaceToBool(value), nil} )
+	}, func(value interface{}) (interface{}, error) { return utils.InterfaceToBool(value), nil })
 
 	if err != nil {
 		return err
@@ -54,11 +54,12 @@ func setupConfig() error {
 		Description: "payment method name in checkout",
 		Image:       "",
 	}, func(value interface{}) (interface{}, error) {
-			if utils.CheckIsBlank(value) {
-				return nil, errors.New("can't be blank")
-			} else {
-				return value, nil
-			} })
+		if utils.CheckIsBlank(value) {
+			return nil, errors.New("can't be blank")
+		} else {
+			return value, nil
+		}
+	})
 
 	if err != nil {
 		return err

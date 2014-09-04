@@ -2,9 +2,9 @@ package api
 
 import (
 	"errors"
-	"strings"
-	"strconv"
 	"net/url"
+	"strconv"
+	"strings"
 )
 
 // tries to represent HTTP request content in map[string]interface{} format
@@ -21,7 +21,6 @@ func GetRequestContentAsMap(params *T_APIHandlerParams) (map[string]interface{},
 
 	return result, nil
 }
-
 
 // returns (offset, limit, error) values based on request string value
 //   "1,2" will return offset: 1, limit: 2, error: nil

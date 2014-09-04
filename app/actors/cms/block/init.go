@@ -1,8 +1,8 @@
 package block
 
 import (
-	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/api"
+	"github.com/ottemo/foundation/db"
 
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/cms"
@@ -13,7 +13,7 @@ func init() {
 	blockInstance := new(DefaultCMSBlock)
 
 	//checking interface implementation
-	(func(cms.I_CMSBlock){})(blockInstance)
+	(func(cms.I_CMSBlock) {})(blockInstance)
 
 	models.RegisterModel(cms.CMS_BLOCK_MODEL_NAME, blockInstance)
 

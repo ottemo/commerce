@@ -30,7 +30,7 @@ func (it *DefaultCMSPage) Load(id string) error {
 		return err
 	}
 
-	it.SetId( utils.InterfaceToString(dbValues["_id"]) )
+	it.SetId(utils.InterfaceToString(dbValues["_id"]))
 
 	it.Identifier = utils.InterfaceToString(dbValues["identifier"])
 	it.URL = utils.InterfaceToString(dbValues["url"])

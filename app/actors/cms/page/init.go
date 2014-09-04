@@ -1,8 +1,8 @@
 package page
 
 import (
-	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/api"
+	"github.com/ottemo/foundation/db"
 
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/cms"
@@ -13,7 +13,7 @@ func init() {
 	pageInstance := new(DefaultCMSPage)
 
 	//checking interface implementation
-	(func(cms.I_CMSPage){})(pageInstance)
+	(func(cms.I_CMSPage) {})(pageInstance)
 
 	models.RegisterModel(cms.CMS_PAGE_MODEL_NAME, pageInstance)
 

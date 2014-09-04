@@ -1,8 +1,8 @@
 package block
 
 import (
-	"time"
 	"github.com/ottemo/foundation/db"
+	"time"
 )
 
 const (
@@ -13,7 +13,7 @@ type DefaultCMSBlock struct {
 	id string
 
 	Identifier string
-	Content string
+	Content    string
 
 	CreatedAt time.Time
 	UpdatedAt time.Time

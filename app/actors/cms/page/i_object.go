@@ -44,7 +44,7 @@ func (it *DefaultCMSPage) Set(attribute string, value interface{}) error {
 	case "_id", "id":
 		return it.SetId(utils.InterfaceToString(value))
 	case "url":
-		return it.SetURL( utils.InterfaceToString(value) )
+		return it.SetURL(utils.InterfaceToString(value))
 	case "identifier":
 		return it.SetIdentifier(utils.InterfaceToString(value))
 	case "title":

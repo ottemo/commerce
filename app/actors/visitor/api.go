@@ -86,7 +86,6 @@ func setupAPI() error {
 		return err
 	}*/
 
-
 	err = api.GetRestService().RegisterAPI("visitor", "GET", "order/list", restListVisitorOrders)
 	if err != nil {
 		return err
