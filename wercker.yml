@@ -35,7 +35,7 @@ deploy:
     steps:
         - wercker/add-ssh-key:
             keyname: REMOTE_HOST_KEY
-        - add-to-known-hosts:
+        - add-to-known_hosts:
             hostname: $REMOTE_HOST
         - script:
             name: Copy fig.yml
