@@ -43,8 +43,8 @@ deploy:
         - script:
             name: Fig Up -d
             code: ssh root@$REMOTE_HOST "cd /tmp/foundation; fig kill; fig up -d"
-#    after-steps:
-#        - wercker/hipchat-notify@1.0.3:
-#            token: $HIPCHAT_TOKEN
-#            room-id: 394852
-#            from-name: Wercker
+    after-steps:
+        - wercker/hipchat-notify@1.0.3:
+            token: $HIPCHAT_TOKEN
+            room-id: 394852
+            from-name: Wercker
