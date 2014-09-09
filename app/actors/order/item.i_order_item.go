@@ -36,11 +36,6 @@ func (it *DefaultOrderItem) GetWeight() float64 {
 	return it.Weight
 }
 
-// returns order item product size
-func (it *DefaultOrderItem) GetSize() float64 {
-	return it.Size
-}
-
 // returns order item product options
 func (it *DefaultOrderItem) GetProductOptions() map[string]interface{} {
 	return it.ProductOptions

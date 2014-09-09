@@ -23,7 +23,8 @@ type DefaultProduct struct {
 	Price float64
 
 	Weight float64
-	Size   float64
+
+	Options map[string]interface{}
 
 	*attributes.CustomAttributes
 }

@@ -4,6 +4,7 @@ import (
 	"github.com/ottemo/foundation/app/models/product"
 )
 
+// returns array of products in model instance form
 func (it *DefaultProductCollection) ListProducts() []product.I_Product {
 	result := make([]product.I_Product, 0)
 

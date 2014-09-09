@@ -21,7 +21,6 @@ type I_OrderItem interface {
 	GetPrice() float64
 
 	GetWeight() float64
-	GetSize() float64
 
 	GetProductOptions() map[string]interface{}
 

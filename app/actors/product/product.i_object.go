@@ -1,14 +1,13 @@
 package product
 
 import (
-	"errors"
-	"strconv"
 	"strings"
 
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/utils"
 )
 
+// returns object attribute value or nil
 func (it *DefaultProduct) Get(attribute string) interface{} {
 	switch strings.ToLower(attribute) {
 	case "_id", "id":
@@ -27,8 +26,8 @@ func (it *DefaultProduct) Get(attribute string) interface{} {
 		return it.Price
 	case "weight":
 		return it.Weight
-	case "size":
-		return it.Size
+	case "options":
+		return it.Options
 	default:
 		return it.CustomAttributes.Get(attribute)
 	}
@@ -36,51 +35,29 @@ func (it *DefaultProduct) Get(attribute string) interface{} {
 	return nil
 }
 
+// sets attribute value to object or returns error
 func (it *DefaultProduct) Set(attribute string, value interface{}) error {
 	lowerCaseAttribute := strings.ToLower(attribute)
+
 	switch lowerCaseAttribute {
 	case "_id", "id":
-		it.id = value.(string)
+		it.id = utils.InterfaceToString(value)
 	case "sku":
-		it.Sku = value.(string)
+		it.Sku = utils.InterfaceToString(value)
 	case "name":
-		it.Name = value.(string)
+		it.Name = utils.InterfaceToString(value)
 	case "short_description":
-		it.ShortDescription = value.(string)
+		it.ShortDescription = utils.InterfaceToString(value)
 	case "description":
-		it.Description = value.(string)
+		it.Description = utils.InterfaceToString(value)
 	case "default_image", "defaultimage":
-		it.DefaultImage = value.(string)
-
-	case "price", "weight", "size":
-		switch value := value.(type) {
-		case float64:
-			switch lowerCaseAttribute {
-			case "price":
-				it.Price = value
-			case "weight":
-				it.Weight = value
-			case "size":
-				it.Size = value
-			}
-		case string:
-			newValue, err := strconv.ParseFloat(value, 64)
-			if err != nil {
-				return err
-			}
-
-			switch lowerCaseAttribute {
-			case "price":
-				it.Price = newValue
-			case "weight":
-				it.Weight = newValue
-			case "size":
-				it.Size = newValue
-			}
-		default:
-			return errors.New("wrong " + lowerCaseAttribute + " format")
-		}
-
+		it.DefaultImage = utils.InterfaceToString(value)
+	case "price":
+		it.Price = utils.InterfaceToFloat64(value)
+	case "weight":
+		it.Weight = utils.InterfaceToFloat64(value)
+	case "options":
+		it.Options = utils.InterfaceToMap(value)
 	default:
 		err := it.CustomAttributes.Set(attribute, value)
 		if err != nil {
@@ -91,53 +68,17 @@ func (it *DefaultProduct) Set(attribute string, value interface{}) error {
 	return nil
 }
 
+// fills object attributes from map[string]interface{}
 func (it *DefaultProduct) FromHashMap(input map[string]interface{}) error {
-
-	if value, ok := input["_id"]; ok {
-		if value, ok := value.(string); ok {
-			it.id = value
+	for attribute, value := range input {
+		if err := it.Set(attribute, value); err != nil {
+			return err
 		}
 	}
-	if value, ok := input["sku"]; ok {
-		if value, ok := value.(string); ok {
-			it.Sku = value
-		}
-	}
-	if value, ok := input["name"]; ok {
-		if value, ok := value.(string); ok {
-			it.Name = value
-		}
-	}
-	if value, ok := input["short_description"]; ok {
-		if value, ok := value.(string); ok {
-			it.ShortDescription = value
-		}
-	}
-	if value, ok := input["description"]; ok {
-		if value, ok := value.(string); ok {
-			it.Description = value
-		}
-	}
-	if value, ok := input["default_image"]; ok {
-		if value, ok := value.(string); ok {
-			it.DefaultImage = value
-		}
-	}
-	if value, ok := input["price"]; ok {
-		it.Price = utils.InterfaceToFloat64(value)
-	}
-	if value, ok := input["weight"]; ok {
-		it.Weight = utils.InterfaceToFloat64(value)
-	}
-	if value, ok := input["size"]; ok {
-		it.Size = utils.InterfaceToFloat64(value)
-	}
-
-	it.CustomAttributes.FromHashMap(input)
-
 	return nil
 }
 
+// represents object as map[string]interface{}
 func (it *DefaultProduct) ToHashMap() map[string]interface{} {
 	result := it.CustomAttributes.ToHashMap()
 
@@ -152,11 +93,12 @@ func (it *DefaultProduct) ToHashMap() map[string]interface{} {
 
 	result["price"] = it.Price
 	result["weight"] = it.Weight
-	result["size"] = it.Size
+	result["options"] = it.Options
 
 	return result
 }
 
+// returns information about object attributes
 func (it *DefaultProduct) GetAttributesInfo() []models.T_AttributeInfo {
 	result := []models.T_AttributeInfo{
 		models.T_AttributeInfo{
@@ -266,22 +208,21 @@ func (it *DefaultProduct) GetAttributesInfo() []models.T_AttributeInfo {
 		models.T_AttributeInfo{
 			Model:      "Product",
 			Collection: "product",
-			Attribute:  "size",
-			Type:       "numeric",
+			Attribute:  "options",
+			Type:       "text",
 			IsRequired: false,
 			IsStatic:   true,
 			Label:      "Size",
-			Group:      "Measures",
-			Editors:    "numeric",
+			Group:      "Custom",
+			Editors:    "product_options",
 			Options:    "",
 			Default:    "",
 		},
 	}
 
-	dynamicInfo := it.CustomAttributes.GetAttributesInfo()
-
-	for _, dynamicAttribute := range dynamicInfo {
-		result = append(result, dynamicAttribute)
+	customAttributesInfo := it.CustomAttributes.GetAttributesInfo()
+	for _, customAttribute := range customAttributesInfo {
+		result = append(result, customAttribute)
 	}
 
 	return result

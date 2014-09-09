@@ -3,19 +3,20 @@ package order
 import (
 	"errors"
 
-	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/foundation/app/models"
+	"github.com/ottemo/foundation/app/models/order"
+
 
 	"github.com/ottemo/foundation/env"
-
 	"github.com/ottemo/foundation/app/utils"
 )
 
 // module entry point before app start
 func init() {
-	instance := new(DefaultOrder)
-
-	models.RegisterModel("Order", instance)
+	orderInstance := new(DefaultOrder)
+	var _ order.I_Order = orderInstance
+	models.RegisterModel(order.ORDER_MODEL_NAME, orderInstance)
 
 	db.RegisterOnDatabaseStart(setupDB)
 	env.RegisterOnConfigStart(setupConfig)

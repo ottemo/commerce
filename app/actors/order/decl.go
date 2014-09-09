@@ -40,7 +40,6 @@ type DefaultOrderItem struct {
 
 	Price  float64
 	Weight float64
-	Size   float64
 }
 
 type DefaultOrder struct {

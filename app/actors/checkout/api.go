@@ -449,7 +449,6 @@ func restSubmit(params *api.T_APIHandlerParams) (interface{}, error) {
 		orderItem.Set("short_description", product.GetShortDescription())
 
 		orderItem.Set("price", product.GetPrice())
-		orderItem.Set("size", product.GetSize())
 		orderItem.Set("weight", product.GetWeight())
 
 		if generateDescriptionFlag {

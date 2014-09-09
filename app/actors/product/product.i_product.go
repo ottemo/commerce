@@ -9,6 +9,6 @@ func (it *DefaultProduct) GetDescription() string      { return it.Description }
 func (it *DefaultProduct) GetDefaultImage() string { return it.DefaultImage }
 
 func (it *DefaultProduct) GetPrice() float64 { return it.Price }
-
 func (it *DefaultProduct) GetWeight() float64 { return it.Weight }
-func (it *DefaultProduct) GetSize() float64   { return it.Size }
+
+func (it *DefaultProduct) GetOptions() map[string]interface{}   { return it.Options }

@@ -19,9 +19,9 @@ type I_Product interface {
 	GetDefaultImage() string
 
 	GetPrice() float64
-
 	GetWeight() float64
-	GetSize() float64
+
+	GetOptions() map[string]interface{}
 
 	models.I_Model
 	models.I_Object

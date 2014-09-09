@@ -11,17 +11,11 @@ import (
 // module entry point before app start
 func init() {
 	productInstance := new(DefaultProduct)
-
-	//interface implementation check
-	(func(product.I_Product) {})(productInstance)
-
+	var _ product.I_Product = productInstance
 	models.RegisterModel(product.MODEL_NAME_PRODUCT, productInstance)
 
 	collectionInstance := new(DefaultProductCollection)
-
-	//interface implementation check
-	(func(product.I_ProductCollection) {})(collectionInstance)
-
+	var _ product.I_ProductCollection = collectionInstance
 	models.RegisterModel(product.MODEL_NAME_PRODUCT_COLLECTION, collectionInstance)
 
 	db.RegisterOnDatabaseStart(setupDB)
@@ -44,6 +38,7 @@ func setupDB() error {
 	collection.AddColumn("price", "numeric", false)
 	collection.AddColumn("weight", "numeric", false)
 	collection.AddColumn("size", "numeric", false)
+	collection.AddColumn("options", "text", false)
 
 	return nil
 }

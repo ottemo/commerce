@@ -12,7 +12,7 @@ func (it *DefaultOrder) GetModelName() string {
 
 // returns name of current model implementation
 func (it *DefaultOrder) GetImplementationName() string {
-	return "DefaultOrder"
+	return "Default" + order.ORDER_MODEL_NAME
 }
 
 // makes new instance of model

@@ -4,58 +4,69 @@ import (
 	"github.com/ottemo/foundation/db"
 )
 
+// returns current product id
 func (it *DefaultProduct) GetId() string {
 	return it.id
 }
 
+// sets current product id
 func (it *DefaultProduct) SetId(NewId string) error {
 	it.id = NewId
 	return nil
 }
 
+// loads product information from DB
 func (it *DefaultProduct) Load(loadId string) error {
-	if dbEngine := db.GetDBEngine(); dbEngine != nil {
-		if collection, err := dbEngine.GetCollection("Product"); err == nil {
-			if values, err := collection.LoadById(loadId); err == nil {
-				if err := it.FromHashMap(values); err != nil {
-					return err
-				}
-			} else {
-				return err
-			}
-		} else {
-			return err
-		}
+
+	collection, err := db.GetCollection(DB_COLLECTION_NAME_PRODUCT)
+	if err != nil {
+		return err
 	}
+
+	dbRecord, err := collection.LoadById(loadId)
+	if err != nil {
+		return err
+	}
+
+	err = it.FromHashMap(dbRecord)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
+// removes current product from DB
 func (it *DefaultProduct) Delete() error {
-	if dbEngine := db.GetDBEngine(); dbEngine != nil {
-		if collection, err := dbEngine.GetCollection("Product"); err == nil {
-			err := collection.DeleteById(it.GetId())
-			if err != nil {
-				return err
-			}
-		} else {
-			return err
-		}
+	collection, err := db.GetCollection(DB_COLLECTION_NAME_PRODUCT)
+	if err != nil {
+		return err
 	}
+
+	err = collection.DeleteById(it.GetId())
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
+// stores current product to DB
 func (it *DefaultProduct) Save() error {
-	if dbEngine := db.GetDBEngine(); dbEngine != nil {
-		if collection, err := dbEngine.GetCollection("Product"); err == nil {
-			if newId, err := collection.Save(it.ToHashMap()); err == nil {
-				it.Set("_id", newId)
-				return err
-			} else {
-				return err
-			}
-		} else {
-			return err
-		}
+	collection, err := db.GetCollection(DB_COLLECTION_NAME_PRODUCT)
+	if err == nil {
+		return err
 	}
+
+	newId, err := collection.Save(it.ToHashMap())
+	if err == nil {
+		return err
+	}
+
+	err = it.SetId(newId)
+	if err == nil {
+		return err
+	}
+
 	return nil
 }

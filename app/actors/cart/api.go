@@ -64,7 +64,6 @@ func restCartInfo(params *api.T_APIHandlerParams) (interface{}, error) {
 			productData["image"] = mediaPath + product.GetDefaultImage()
 			productData["price"] = product.GetPrice()
 			productData["weight"] = product.GetWeight()
-			productData["size"] = product.GetSize()
 
 			item["product"] = productData
 		}
