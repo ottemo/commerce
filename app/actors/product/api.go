@@ -158,10 +158,14 @@ func restAddProductAttribute(params *api.T_APIHandlerParams) (interface{}, error
 				attribute.Options = value
 			case "default":
 				attribute.Default = value
+			case "validators":
+				attribute.Validators = value
 			}
 		case bool:
 			switch key {
-			case "required":
+			case "isrequired", "required":
+				attribute.IsRequired = value
+			case "islayered", "layered":
 				attribute.IsRequired = value
 			}
 		}

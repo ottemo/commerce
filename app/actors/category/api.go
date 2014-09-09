@@ -263,7 +263,7 @@ func restListCategoryLayers(params *api.T_APIHandlerParams) (interface{}, error)
 	api.ApplyFilters(params, productsDBCollection)
 
 	for _, productAttribute := range productAttributesInfo {
-		if productAttribute.Layered {
+		if productAttribute.IsLayered {
 			distinctValues, _ := productsDBCollection.Distinct(productAttribute.Attribute)
 			result[productAttribute.Attribute] = distinctValues
 		}

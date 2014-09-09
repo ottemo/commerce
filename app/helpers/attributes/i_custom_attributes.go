@@ -66,10 +66,10 @@ func (it *CustomAttributes) Init(model string) (*CustomAttributes, error) {
 					}
 				case bool:
 					switch key {
-					case "required":
+					case "isrequired", "required":
 						attribute.IsRequired = value
-					case "layered":
-						attribute.Layered = value
+					case "islayered", "layered":
+						attribute.IsLayered = value
 					}
 				}
 			}
@@ -155,7 +155,7 @@ func (it *CustomAttributes) AddNewAttribute(newAttribute models.T_AttributeInfo)
 	hashMap["options"] = newAttribute.Options
 	hashMap["default"] = newAttribute.Default
 	hashMap["validators"] = newAttribute.Validators
-	hashMap["layered"] = newAttribute.Layered
+	hashMap["layered"] = newAttribute.IsLayered
 
 	newCustomAttributeId, err := customAttribuesCollection.Save(hashMap)
 

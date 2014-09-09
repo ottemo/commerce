@@ -82,5 +82,5 @@ type T_AttributeInfo struct {
 	Options    string
 	Default    string
 	Validators string
-	Layered    bool
+	IsLayered  bool
 }
