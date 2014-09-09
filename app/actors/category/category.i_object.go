@@ -57,9 +57,11 @@ func (it *DefaultCategory) Get(attribute string) interface{} {
 
 	case "products":
 		result := make([]map[string]interface{}, 0)
-		for _, categoryProduct := range it.Products {
+
+		for _, categoryProduct := range it.GetProducts() {
 			result = append(result, categoryProduct.ToHashMap())
 		}
+
 		return result
 	}
 
@@ -126,55 +128,27 @@ func (it *DefaultCategory) Set(attribute string, value interface{}) error {
 		it.updatePath()
 
 	case "products":
-		switch value := value.(type) {
+		switch typedValue := value.(type) {
 
-		// we have some array - supposing array with id
 		case []interface{}:
-			for _, listItem := range value {
+			for _, listItem := range typedValue {
 				productId, ok := listItem.(string)
 				if ok {
-					model, err := models.GetModel("Product")
+					productModel, err := product.LoadProductById(productId)
 					if err != nil {
 						return err
 					}
 
-					productModel, ok := model.(product.I_Product)
-					if !ok {
-						return errors.New("unsupported product model " + model.GetImplementationName())
-					}
-
-					err = productModel.Load(productId)
-					if err != nil {
-						return err
-					}
-
-					it.Products = append(it.Products, productModel)
+					it.ProductIds = append(it.ProductIds, productModel.GetId())
 				}
 			}
 
-		// we have prepared []I_Product
 		case []product.I_Product:
-			it.Products = value
-
-		// we have sub-maps array, supposedly []I_Product capable
-		case []map[string]interface{}:
-			for _, value := range value {
-				model, err := models.GetModel("Product")
-				if err != nil {
-					return err
-				}
-
-				if categoryProduct, ok := model.(product.I_Product); ok {
-					err := categoryProduct.FromHashMap(value)
-					if err != nil {
-						return err
-					}
-
-					it.Products = append(it.Products, categoryProduct)
-				} else {
-					errors.New("unsupported product model " + model.GetImplementationName())
-				}
+			it.ProductIds = make([]string, 0)
+			for _, productItem := range typedValue {
+				it.ProductIds = append(it.ProductIds, productItem.GetId())
 			}
+
 		default:
 			return errors.New("unsupported 'products' value")
 		}

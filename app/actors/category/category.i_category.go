@@ -13,8 +13,35 @@ func (it *DefaultCategory) GetName() string {
 	return it.Name
 }
 
+func (it *DefaultCategory) GetProductIds() []string {
+	return it.ProductIds
+}
+
+func (it *DefaultCategory) GetProductsCollection() product.I_ProductCollection {
+	productCollection, err := product.GetProductCollectionModel()
+	if err != nil {
+		return nil
+	}
+
+	dbCollection := productCollection.GetDBCollection()
+	if dbCollection != nil {
+		dbCollection.AddStaticFilter("_id", "in", it.ProductIds)
+	}
+
+	return productCollection
+}
+
 func (it *DefaultCategory) GetProducts() []product.I_Product {
-	return it.Products
+	result := make([]product.I_Product, 0)
+
+	for _, productId := range it.ProductIds {
+		productModel, err := product.LoadProductById(productId)
+		if err == nil {
+			result = append(result, productModel)
+		}
+	}
+
+	return result
 }
 
 func (it *DefaultCategory) GetParent() category.I_Category {
@@ -28,7 +55,7 @@ func (it *DefaultCategory) AddProduct(productId string) error {
 		return errors.New("Can't obtain DBEngine")
 	}
 
-	collection, err := dbEngine.GetCollection(CATEGORY_PRODUCT_JUNCTION_COLLECTION_NAME)
+	collection, err := dbEngine.GetCollection(COLLECTION_NAME_CATEGORY_PRODUCT_JUNCTION)
 	if err != nil {
 		return err
 	}
@@ -67,7 +94,7 @@ func (it *DefaultCategory) RemoveProduct(productId string) error {
 		return errors.New("Can't obtain DBEngine")
 	}
 
-	collection, err := dbEngine.GetCollection(CATEGORY_PRODUCT_JUNCTION_COLLECTION_NAME)
+	collection, err := dbEngine.GetCollection(COLLECTION_NAME_CATEGORY_PRODUCT_JUNCTION)
 	if err != nil {
 		return err
 	}

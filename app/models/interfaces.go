@@ -1,5 +1,9 @@
 package models
 
+import (
+	"github.com/ottemo/foundation/db"
+)
+
 type I_Model interface {
 	GetModelName() string
 	GetImplementationName() string
@@ -51,6 +55,11 @@ type I_Media interface {
 	GetMediaPath(mediaType string) (string, error)
 }
 
+type I_Collection interface {
+	GetDBCollection() db.I_DBCollection
+	I_Listable
+}
+
 type T_ListItem struct {
 	Id    string
 	Name  string
@@ -72,4 +81,6 @@ type T_AttributeInfo struct {
 	Editors    string
 	Options    string
 	Default    string
+	Validators string
+	Layered    bool
 }

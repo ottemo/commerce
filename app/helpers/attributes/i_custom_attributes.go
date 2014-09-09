@@ -6,6 +6,7 @@ import (
 	"github.com/ottemo/foundation/db"
 )
 
+// initializes helper before usage
 func (it *CustomAttributes) Init(model string) (*CustomAttributes, error) {
 	it.model = model
 	it.values = make(map[string]interface{})
@@ -22,18 +23,13 @@ func (it *CustomAttributes) Init(model string) (*CustomAttributes, error) {
 
 		// retrieving information from DB
 		//-------------------------------
-		dbEngine := db.GetDBEngine()
-		if dbEngine == nil {
-			return it, errors.New("There is no database engine")
-		}
-
-		caCollection, err := dbEngine.GetCollection(CUSTOM_ATTRIBUTES_COLLECTION)
+		customAttributesCollection, err := db.GetCollection(COLLECTION_NAME_CUSTOM_ATTRIBUTES)
 		if err != nil {
 			return it, errors.New("Can't get collection 'custom_attributes': " + err.Error())
 		}
 
-		caCollection.AddFilter("model", "=", it.model)
-		dbValues, err := caCollection.Load()
+		customAttributesCollection.AddFilter("model", "=", it.model)
+		dbValues, err := customAttributesCollection.Load()
 		if err != nil {
 			return it, errors.New("Can't load custom attributes information for '" + it.model + "'")
 		}
@@ -65,11 +61,15 @@ func (it *CustomAttributes) Init(model string) (*CustomAttributes, error) {
 						attribute.Options = value
 					case "default":
 						attribute.Default = value
+					case "validators":
+						attribute.Validators = value
 					}
 				case bool:
 					switch key {
 					case "required":
 						attribute.IsRequired = value
+					case "layered":
+						attribute.Layered = value
 					}
 				}
 			}
@@ -85,66 +85,58 @@ func (it *CustomAttributes) Init(model string) (*CustomAttributes, error) {
 	return it, nil
 }
 
+// removes custom attribute from collection
 func (it *CustomAttributes) RemoveAttribute(attributeName string) error {
 
-	dbEngine := db.GetDBEngine()
-	if dbEngine == nil {
-		return errors.New("There is no database engine")
-	}
-
-	attribute, present := it.attributes[attributeName]
+	customAttribute, present := it.attributes[attributeName]
 	if !present {
 		return errors.New("There is no attribute '" + attributeName + "' for model '" + it.model + "'")
 	}
 
-	caCollection, err := dbEngine.GetCollection(CUSTOM_ATTRIBUTES_COLLECTION)
+	customAttributesCollection, err := db.GetCollection(COLLECTION_NAME_CUSTOM_ATTRIBUTES)
 	if err != nil {
 		return errors.New("Can't get collection 'custom_attributes': " + err.Error())
 	}
 
-	attrCollection, err := dbEngine.GetCollection(attribute.Collection)
+	modelCollection, err := db.GetCollection(customAttribute.Collection)
 	if err != nil {
-		return errors.New("Can't get attribute '" + attribute.Attribute + "' collection '" + attribute.Collection + "': " + err.Error())
+		return errors.New("Can't get attribute '" + customAttribute.Attribute + "' collection '" + customAttribute.Collection + "': " + err.Error())
 	}
 
-	err = attrCollection.RemoveColumn(attributeName)
+	err = modelCollection.RemoveColumn(attributeName)
 	if err != nil {
-		return errors.New("Can't remove attribute '" + attributeName + "' from collection '" + attribute.Collection + "': " + err.Error())
+		return errors.New("Can't remove attribute '" + attributeName + "' from collection '" + customAttribute.Collection + "': " + err.Error())
 	}
 
 	globalCustomAttributesMutex.Lock()
 	delete(globalCustomAttributes, it.model)
 	globalCustomAttributesMutex.Unlock()
 
-	caCollection.AddFilter("model", "=", attribute.Collection)
-	caCollection.AddFilter("attribute", "=", attributeName)
-	_, err = caCollection.Delete()
+	customAttributesCollection.AddFilter("model", "=", customAttribute.Collection)
+	customAttributesCollection.AddFilter("attribute", "=", attributeName)
+	_, err = customAttributesCollection.Delete()
 	if err != nil {
-		return errors.New("Can't remove attribute '" + attributeName + "' information from 'custom_attributes' collection '" + attribute.Collection + "': " + err.Error())
+		return errors.New("Can't remove attribute '" + attributeName + "' information from 'custom_attributes' collection '" + customAttribute.Collection + "': " + err.Error())
 	}
 
 	return nil
 }
 
+// extends collection with new custom attribute
 func (it *CustomAttributes) AddNewAttribute(newAttribute models.T_AttributeInfo) error {
 
 	if _, present := it.attributes[newAttribute.Attribute]; present {
 		return errors.New("There is already atribute '" + newAttribute.Attribute + "' for model '" + it.model + "'")
 	}
 
-	dbEngine := db.GetDBEngine()
-	if dbEngine == nil {
-		return errors.New("There is no database engine")
-	}
-
 	// getting collection where custom attribute information stores
-	caCollection, err := dbEngine.GetCollection(CUSTOM_ATTRIBUTES_COLLECTION)
+	customAttribuesCollection, err := db.GetCollection(COLLECTION_NAME_CUSTOM_ATTRIBUTES)
 	if err != nil {
 		return errors.New("Can't get collection 'custom_attributes': " + err.Error())
 	}
 
 	// getting collection where attribute supposed to be
-	attrCollection, err := dbEngine.GetCollection(newAttribute.Collection)
+	attrCollection, err := db.GetCollection(newAttribute.Collection)
 	if err != nil {
 		return errors.New("Can't get attribute '" + newAttribute.Attribute + "' collection '" + newAttribute.Collection + "': " + err.Error())
 	}
@@ -162,8 +154,10 @@ func (it *CustomAttributes) AddNewAttribute(newAttribute models.T_AttributeInfo)
 	hashMap["editors"] = newAttribute.Editors
 	hashMap["options"] = newAttribute.Options
 	hashMap["default"] = newAttribute.Default
+	hashMap["validators"] = newAttribute.Validators
+	hashMap["layered"] = newAttribute.Layered
 
-	newCustomAttributeId, err := caCollection.Save(hashMap)
+	newCustomAttributeId, err := customAttribuesCollection.Save(hashMap)
 
 	if err != nil {
 		return errors.New("Can't insert attribute '" + newAttribute.Attribute + "' in collection '" + newAttribute.Collection + "': " + err.Error())
@@ -172,7 +166,7 @@ func (it *CustomAttributes) AddNewAttribute(newAttribute models.T_AttributeInfo)
 	// inserting new attribute to supposed location
 	err = attrCollection.AddColumn(newAttribute.Attribute, newAttribute.Type, false)
 	if err != nil {
-		caCollection.DeleteById(newCustomAttributeId)
+		customAttribuesCollection.DeleteById(newCustomAttributeId)
 
 		return errors.New("Can't insert attribute '" + newAttribute.Attribute + "' in collection '" + newAttribute.Collection + "': " + err.Error())
 	}

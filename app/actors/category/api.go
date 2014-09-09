@@ -2,14 +2,14 @@ package category
 
 import (
 	"errors"
-
-	"strconv"
 	"strings"
 
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/db"
 
 	"github.com/ottemo/foundation/app/models/category"
+	"github.com/ottemo/foundation/app/models/product"
+	"github.com/ottemo/foundation/app/utils"
 )
 
 func setupAPI() error {
@@ -53,6 +53,14 @@ func setupAPI() error {
 	if err != nil {
 		return err
 	}
+	err = api.GetRestService().RegisterAPI("category", "GET", "layers/:id", restListCategoryLayers)
+	if err != nil {
+		return err
+	}
+	err = api.GetRestService().RegisterAPI("category", "POST", "layers/:id", restListCategoryLayers)
+	if err != nil {
+		return err
+	}
 	err = api.GetRestService().RegisterAPI("category", "GET", "product/add/:categoryId/:productId", restAddCategoryProduct)
 	if err != nil {
 		return err
@@ -92,58 +100,29 @@ func restListCategories(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// operation start
 	//----------------
-	categoryModel, err := category.GetCategoryModel()
+	categoryCollectionModel, err := category.GetCategoryCollectionModel()
 	if err != nil {
 		return nil, err
 	}
 
 	// limit parameter handler
-	if limit, isLimit := reqData["limit"]; isLimit {
-		if limit, ok := limit.(string); ok {
-			splitResult := strings.Split(limit, ",")
-			if len(splitResult) > 1 {
+	categoryCollectionModel.ListLimit(api.GetListLimit(params))
 
-				offset, err := strconv.Atoi(strings.TrimSpace(splitResult[0]))
-				if err != nil {
-					return nil, err
-				}
-
-				limit, err := strconv.Atoi(strings.TrimSpace(splitResult[1]))
-				if err != nil {
-					return nil, err
-				}
-
-				categoryModel.ListLimit(offset, limit)
-			} else if len(splitResult) > 0 {
-				limit, err := strconv.Atoi(strings.TrimSpace(splitResult[0]))
-				if err != nil {
-					return nil, err
-				}
-
-				categoryModel.ListLimit(0, limit)
-			} else {
-				categoryModel.ListLimit(0, 0)
-			}
-		}
-	}
+	// filters handle
+	api.ApplyFilters(params, categoryCollectionModel.GetDBCollection())
 
 	// extra parameter handler
 	if extra, isExtra := reqData["extra"]; isExtra {
-		extra, ok := extra.(string)
-		if !ok {
-			return nil, errors.New("extra parameter should be string")
-		}
-
-		splitResult := strings.Split(extra, ",")
-		for _, extraAttribute := range splitResult {
-			err := categoryModel.ListAddExtraAttribute(strings.TrimSpace(extraAttribute))
+		extra := utils.Explode(utils.InterfaceToString(extra), ",")
+		for _, value := range extra {
+			err := categoryCollectionModel.ListAddExtraAttribute(value)
 			if err != nil {
 				return nil, err
 			}
 		}
 	}
 
-	return categoryModel.List()
+	return categoryCollectionModel.List()
 }
 
 // WEB REST API used to create new category
@@ -260,16 +239,49 @@ func restListCategoryAttributes(params *api.T_APIHandlerParams) (interface{}, er
 	return attrInfo, nil
 }
 
+// WEB REST API function used to obtain layered navigation options for products in category
+//   - category id must be specified in request URI
+func restListCategoryLayers(params *api.T_APIHandlerParams) (interface{}, error) {
+	categoryId := params.RequestURLParams["id"]
+
+	categoryModel, err := category.LoadCategoryById(categoryId)
+	if err != nil {
+		return nil, err
+	}
+
+	productsCollection := categoryModel.GetProductsCollection()
+	productsDBCollection := productsCollection.GetDBCollection()
+
+	productModel, err := product.GetProductModel()
+	if err != nil {
+		return nil, err
+	}
+	productAttributesInfo := productModel.GetAttributesInfo()
+
+	result := make(map[string]interface{})
+
+	api.ApplyFilters(params, productsDBCollection)
+
+	for _, productAttribute := range productAttributesInfo {
+		if productAttribute.Layered {
+			distinctValues, _ := productsDBCollection.Distinct(productAttribute.Attribute)
+			result[productAttribute.Attribute] = distinctValues
+		}
+	}
+
+	return result, nil
+}
+
 // WEB REST API function used to list product in category
 //   - category id must be specified in request URI
 func restListCategoryProducts(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
-	reqData, err := api.GetRequestContentAsMap(params)
+	/*reqData, err := api.GetRequestContentAsMap(params)
 	if err != nil {
 		return nil, err
-	}
+	}*/
 
 	categoryId, isSpecifiedId := params.RequestURLParams["id"]
 	if !isSpecifiedId {
@@ -283,56 +295,22 @@ func restListCategoryProducts(params *api.T_APIHandlerParams) (interface{}, erro
 		return nil, err
 	}
 
-	// synthetic product list limit
-	offset := 0
-	limit := -1
+	productsCollection := categoryModel.GetProductsCollection()
 
-	// limit parameter handler
-	if limitParam, isLimit := reqData["limit"]; isLimit {
-		if limitParam, ok := limitParam.(string); ok {
-			splitResult := strings.Split(limitParam, ",")
-			if len(splitResult) > 1 {
+	api.ApplyFilters(params, productsCollection.GetDBCollection())
 
-				offset, err = strconv.Atoi(strings.TrimSpace(splitResult[0]))
-				if err != nil {
-					return nil, err
-				}
-
-				limit, err = strconv.Atoi(strings.TrimSpace(splitResult[1]))
-				if err != nil {
-					return nil, err
-				}
-			} else if len(splitResult) > 0 {
-				limit, err = strconv.Atoi(strings.TrimSpace(splitResult[0]))
-				if err != nil {
-					return nil, err
-				}
-			}
-		}
-	}
-
-	products := categoryModel.GetProducts()
-
-	i := 0
+	// preparing product information
 	result := make([]map[string]interface{}, 0)
-	for _, product := range products {
-		if limit == 0 {
-			break
-		}
-		if i >= offset {
-			limit -= 1
 
-			// preparing product information
-			productInfo := product.ToHashMap()
-			if defaultImage, present := productInfo["default_image"]; present {
-				mediaPath, err := product.GetMediaPath("image")
-				if defaultImage, ok := defaultImage.(string); ok && defaultImage != "" && err == nil {
-					productInfo["default_image"] = mediaPath + defaultImage
-				}
+	for _, product := range productsCollection.ListProducts() {
+		productInfo := product.ToHashMap()
+		if defaultImage, present := productInfo["default_image"]; present {
+			mediaPath, err := product.GetMediaPath("image")
+			if defaultImage, ok := defaultImage.(string); ok && defaultImage != "" && err == nil {
+				productInfo["default_image"] = mediaPath + defaultImage
 			}
-			result = append(result, productInfo)
 		}
-		i += 1
+		result = append(result, productInfo)
 	}
 
 	return result, nil
@@ -435,7 +413,14 @@ func restCategoryProductsCount(params *api.T_APIHandlerParams) (interface{}, err
 		return nil, err
 	}
 
-	return len(categoryModel.GetProducts()), nil
+	// count when we have filters (more complex and slow)
+	if len(params.RequestGETParams) > 0 {
+		productsDBCollection := categoryModel.GetProductsCollection().GetDBCollection()
+		api.ApplyFilters(params, productsDBCollection)
+		return productsDBCollection.Count()
+	}
+
+	return len(categoryModel.GetProductIds()), nil
 }
 
 // WEB REST API function used to categories menu
@@ -448,7 +433,7 @@ func restGetCategoriesTree(params *api.T_APIHandlerParams) (interface{}, error) 
 		return nil, errors.New("can't get DB engine")
 	}
 
-	collection, err := dbEngine.GetCollection(CATEGORY_COLLECTION_NAME)
+	collection, err := dbEngine.GetCollection(COLLECTION_NAME_CATEGORY)
 	if err != nil {
 		return nil, err
 	}

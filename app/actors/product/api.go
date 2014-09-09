@@ -3,7 +3,6 @@ package product
 import (
 	"errors"
 	"mime"
-	"strconv"
 	"strings"
 
 	"github.com/ottemo/foundation/api"
@@ -17,15 +16,9 @@ func setupAPI() error {
 
 	var err error = nil
 
-	err = api.GetRestService().RegisterAPI("product", "GET", "list", restListProducts)
-	if err != nil {
-		return err
-	}
+	// 1. DefaultProduct API
+	//----------------------
 	err = api.GetRestService().RegisterAPI("product", "GET", "get/:id", restGetProduct)
-	if err != nil {
-		return err
-	}
-	err = api.GetRestService().RegisterAPI("product", "POST", "list", restListProducts)
 	if err != nil {
 		return err
 	}
@@ -76,8 +69,23 @@ func setupAPI() error {
 		return err
 	}
 
+	// 2. DefaultProductCollection API
+	//--------------------------------
+	err = api.GetRestService().RegisterAPI("product", "GET", "list", restListProducts)
+	if err != nil {
+		return err
+	}
+	err = api.GetRestService().RegisterAPI("product", "POST", "list", restListProducts)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
+
+//----------------------
+// 1. DefaultProduct API
+//----------------------
 
 // WEB REST API function used to obtain product attributes information
 func restListProductAttributes(params *api.T_APIHandlerParams) (interface{}, error) {
@@ -179,12 +187,12 @@ func restRemoveProductAttribute(params *api.T_APIHandlerParams) (interface{}, er
 
 	// remove attribute actions
 	//-------------------------
-	produtcModel, err := product.GetProductModel()
+	productModel, err := product.GetProductModel()
 	if err != nil {
 		return nil, err
 	}
 
-	err = produtcModel.RemoveAttribute(attributeName)
+	err = productModel.RemoveAttribute(attributeName)
 	if err != nil {
 		return nil, err
 	}
@@ -211,85 +219,6 @@ func restGetProduct(params *api.T_APIHandlerParams) (interface{}, error) {
 	}
 
 	return productModel.ToHashMap(), nil
-}
-
-// WEB REST API function used to obtain product list we have in database
-//   - only [_id, sku, name] attributes returns by default
-func restEnumProducts(params *api.T_APIHandlerParams) (interface{}, error) {
-
-	productModel, err := product.GetProductModel()
-	if err != nil {
-		return nil, err
-	}
-
-	return productModel.List()
-}
-
-// WEB REST API function used to obtain product list we have in database
-//   - only [_id, sku, name] attributes returns by default
-func restListProducts(params *api.T_APIHandlerParams) (interface{}, error) {
-
-	// check request params
-	//---------------------
-	reqData, err := api.GetRequestContentAsMap(params)
-	if err != nil {
-		return nil, err
-	}
-
-	// operation start
-	//----------------
-	productModel, err := product.GetProductModel()
-	if err != nil {
-		return nil, err
-	}
-
-	// limit parameter handler
-	if limit, isLimit := reqData["limit"]; isLimit {
-		if limit, ok := limit.(string); ok {
-			splitResult := strings.Split(limit, ",")
-			if len(splitResult) > 1 {
-
-				offset, err := strconv.Atoi(strings.TrimSpace(splitResult[0]))
-				if err != nil {
-					return nil, err
-				}
-
-				limit, err := strconv.Atoi(strings.TrimSpace(splitResult[1]))
-				if err != nil {
-					return nil, err
-				}
-
-				err = productModel.ListLimit(offset, limit)
-			} else if len(splitResult) > 0 {
-				limit, err := strconv.Atoi(strings.TrimSpace(splitResult[0]))
-				if err != nil {
-					return nil, err
-				}
-
-				productModel.ListLimit(0, limit)
-			} else {
-				productModel.ListLimit(0, 0)
-			}
-		}
-	}
-
-	// extra parameter handler
-	if extra, isExtra := reqData["extra"]; isExtra {
-		extra, ok := extra.(string)
-		if !ok {
-			return nil, errors.New("extra parameter should be string")
-		}
-
-		splitResult := strings.Split(extra, ",")
-		for _, extraAttribute := range splitResult {
-			err := productModel.ListAddExtraAttribute(strings.TrimSpace(extraAttribute))
-			if err != nil {
-				return nil, err
-			}
-		}
-	}
-
-	return productModel.List()
 }
 
 // WEB REST API used to create new one product
@@ -574,4 +503,46 @@ func restMediaGet(params *api.T_APIHandlerParams) (interface{}, error) {
 	}
 
 	return productModel.GetMedia(mediaType, mediaName)
+}
+
+//--------------------------------
+// 2. DefaultProductCollection API
+//--------------------------------
+
+// WEB REST API function used to obtain product list we have in database
+//   - only [_id, sku, name] attributes returns by default
+func restListProducts(params *api.T_APIHandlerParams) (interface{}, error) {
+
+	// check request params
+	//---------------------
+	reqData, err := api.GetRequestContentAsMap(params)
+	if err != nil {
+		return nil, err
+	}
+
+	// api function routine
+	//---------------------
+	productCollectionModel, err := product.GetProductCollectionModel()
+	if err != nil {
+		return nil, err
+	}
+
+	// limit parameter handle
+	productCollectionModel.ListLimit(api.GetListLimit(params))
+
+	// filters handle
+	api.ApplyFilters(params, productCollectionModel.GetDBCollection())
+
+	// extra parameter handle
+	if extra, isExtra := reqData["extra"]; isExtra {
+		extra := utils.Explode(utils.InterfaceToString(extra), ",")
+		for _, value := range extra {
+			err := productCollectionModel.ListAddExtraAttribute(value)
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+
+	return productCollectionModel.List()
 }

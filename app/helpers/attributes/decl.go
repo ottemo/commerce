@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	CUSTOM_ATTRIBUTES_COLLECTION = "custom_attributes"
+	COLLECTION_NAME_CUSTOM_ATTRIBUTES = "custom_attributes"
 )
 
 var (

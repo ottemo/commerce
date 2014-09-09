@@ -2,9 +2,11 @@ package api
 
 import (
 	"errors"
-	"strings"
-	"strconv"
 	"net/url"
+	"strconv"
+	"strings"
+
+	"github.com/ottemo/foundation/db"
 )
 
 // tries to represent HTTP request content in map[string]interface{} format
@@ -22,6 +24,68 @@ func GetRequestContentAsMap(params *T_APIHandlerParams) (map[string]interface{},
 	return result, nil
 }
 
+// modifies collection with applying filters from request URL
+func ApplyFilters(params *T_APIHandlerParams, collection db.I_DBCollection) error {
+
+	for attributeName, attributeValue := range params.RequestGETParams {
+		switch attributeName {
+		case "limit":
+			collection.SetLimit(GetListLimit(params))
+		case "sort":
+			attributesList := strings.Split(attributeValue, ",")
+
+			for _, attributeName := range attributesList {
+				descOrder := false
+				if attributeName[0] == '^' {
+					descOrder = true
+					attributeName = strings.Trim(attributeName, "^")
+				}
+				collection.AddSort(attributeName, descOrder)
+			}
+
+		default:
+			if collection.HasColumn(attributeName) {
+
+				filterOperator := "="
+				for _, prefix := range []string{">=", "<=", "!=", ">", "<", "~"} {
+					if strings.HasPrefix(attributeValue, prefix) {
+						attributeValue = strings.TrimPrefix(attributeValue, prefix)
+						filterOperator = prefix
+					}
+				}
+				if filterOperator == "~" {
+					filterOperator = "like"
+				}
+
+				switch {
+				case strings.Contains(attributeValue, ".."):
+					rangeValues := strings.Split(attributeValue, "..")
+					if rangeValues[0] != "" {
+						collection.AddFilter(attributeName, ">=", rangeValues[0])
+					}
+					if rangeValues[1] != "" {
+						collection.AddFilter(attributeName, "<=", rangeValues[1])
+					}
+
+				case strings.Contains(attributeValue, ","):
+					options := strings.Split(attributeValue, ",")
+					if filterOperator == "=" {
+						collection.AddFilter(attributeName, "in", options)
+					} else {
+						collection.SetupFilterGroup(attributeName, true, "")
+						for _, optionValue := range options {
+							collection.AddGroupFilter(attributeName, attributeName, filterOperator, optionValue)
+						}
+					}
+
+				default:
+					collection.AddFilter(attributeName, filterOperator, attributeValue)
+				}
+			}
+		}
+	}
+	return nil
+}
 
 // returns (offset, limit, error) values based on request string value
 //   "1,2" will return offset: 1, limit: 2, error: nil
@@ -31,6 +95,8 @@ func GetListLimit(params *T_APIHandlerParams) (int, int) {
 	limitValue := ""
 
 	if value, isLimit := params.RequestURLParams["limit"]; isLimit {
+		limitValue = value
+	} else if value, isLimit := params.RequestGETParams["limit"]; isLimit {
 		limitValue = value
 	} else {
 		contentMap, err := GetRequestContentAsMap(params)

@@ -6,6 +6,8 @@ type I_DBEngine interface {
 	CreateCollection(Name string) error
 	GetCollection(Name string) (I_DBCollection, error)
 	HasCollection(Name string) bool
+
+	RawQuery(query string) (map[string]interface{}, error)
 }
 
 type I_DBCollection interface {
@@ -18,13 +20,18 @@ type I_DBCollection interface {
 	DeleteById(id string) error
 
 	Count() (int, error)
+	Distinct(columnName string) ([]interface{}, error)
 
-	AddStaticFilter(ColumnName string, Operator string, Value interface{}) error
+	SetupFilterGroup(groupName string, orSequence bool, parentGroup string) error
+	RemoveFilterGroup(groupName string) error
+	AddGroupFilter(groupName string, columnName string, operator string, value interface{}) error
 
-	AddFilter(ColumnName string, Operator string, Value interface{}) error
+	AddStaticFilter(columnName string, operator string, value interface{}) error
+	AddFilter(columnName string, operator string, value interface{}) error
+
 	ClearFilters() error
 
-	AddSort(ColumnName string, Desc bool) error
+	AddSort(columnName string, Desc bool) error
 	ClearSort() error
 
 	SetResultColumns(columns ...string) error
@@ -32,8 +39,9 @@ type I_DBCollection interface {
 	SetLimit(offset int, limit int) error
 
 	ListColumns() map[string]string
-	HasColumn(ColumnName string) bool
+	GetColumnType(columnName string) string
+	HasColumn(columnName string) bool
 
-	AddColumn(ColumnName string, ColumnType string, indexed bool) error
-	RemoveColumn(ColumnName string) error
+	AddColumn(columnName string, columnType string, indexed bool) error
+	RemoveColumn(columnName string) error
 }

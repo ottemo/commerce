@@ -5,7 +5,8 @@ import (
 )
 
 const (
-	PRODUCT_MODEL_NAME = "Product"
+	MODEL_NAME_PRODUCT = "Product"
+	MODEL_NAME_PRODUCT_COLLECTION = "ProductCollection"
 )
 
 type I_Product interface {
@@ -25,8 +26,13 @@ type I_Product interface {
 	models.I_Model
 	models.I_Object
 	models.I_Storable
-	models.I_Listable
 	models.I_Media
 
 	models.I_CustomAttributes
+}
+
+type I_ProductCollection interface {
+	ListProducts() []I_Product
+
+	models.I_Collection
 }

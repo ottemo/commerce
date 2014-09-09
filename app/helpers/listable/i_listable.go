@@ -2,57 +2,19 @@ package listable
 
 import (
 	"errors"
-	"github.com/ottemo/foundation/db"
 
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/utils"
 )
-
-// initializes and returns shared among functions collection
-func (it *ListableHelper) getListCollection() (db.I_DBCollection, error) {
-	if it.listCollection != nil {
-		return it.listCollection, nil
-	} else {
-		var err error = nil
-
-		if it.delegate.GetCollection != nil {
-			it.listCollection = it.delegate.GetCollection()
-		} else {
-			dbEngine := db.GetDBEngine()
-			if dbEngine == nil {
-				return nil, errors.New("Can't obtain DBEngine")
-			}
-
-			it.listCollection, err = dbEngine.GetCollection(it.delegate.CollectionName)
-		}
-
-		return it.listCollection, err
-	}
-}
-
-//--------------------------
-// INTERFACE IMPLEMENTATION
-//--------------------------
-
-// returns count of items inside list
-func (it *ListableHelper) ListCount() (int, error) {
-	// loading data from DB
-	collection, err := it.getListCollection()
-	if err != nil {
-		return 0, err
-	}
-
-	return collection.Count()
-}
 
 // enumerates items of model type
 func (it *ListableHelper) ListObjects() ([]interface{}, error) {
 	result := make([]interface{}, 0)
 
 	// loading data from DB
-	collection, err := it.getListCollection()
-	if err != nil {
-		return result, err
+	collection := it.GetDBCollection()
+	if collection == nil {
+		return result, errors.New("can't obtain collection")
 	}
 
 	dbItems, err := collection.Load()
@@ -77,9 +39,9 @@ func (it *ListableHelper) List() ([]models.T_ListItem, error) {
 	result := make([]models.T_ListItem, 0)
 
 	// loading data from DB
-	collection, err := it.getListCollection()
-	if err != nil {
-		return result, err
+	collection := it.GetDBCollection()
+	if collection == nil {
+		return result, errors.New("can't obtain collection")
 	}
 
 	dbItems, err := collection.Load()
@@ -91,7 +53,10 @@ func (it *ListableHelper) List() ([]models.T_ListItem, error) {
 	for _, dbItemData := range dbItems {
 
 		if it.delegate.RecordToListItemFunc != nil {
-			result = append(result, it.delegate.RecordToListItemFunc(dbItemData, it.listExtraAtributes))
+			item, ok := it.delegate.RecordToListItemFunc(dbItemData, it.listExtraAtributes)
+			if ok {
+				result = append(result, item)
+			}
 		} else {
 			resultItem := new(models.T_ListItem)
 
@@ -119,10 +84,10 @@ func (it *ListableHelper) List() ([]models.T_ListItem, error) {
 func (it *ListableHelper) ListAddExtraAttribute(attribute string) error {
 
 	if it.delegate.ValidateExtraAttributeFunc == nil || it.delegate.ValidateExtraAttributeFunc(attribute) {
-		if utils.IsInListStr(attribute, it.listExtraAtributes) {
+		if !utils.IsInListStr(attribute, it.listExtraAtributes) {
 			it.listExtraAtributes = append(it.listExtraAtributes, attribute)
 		} else {
-			return errors.New("attribute already in list")
+			return errors.New("attribute '" + attribute + "' already in list")
 		}
 	} else {
 		return errors.New("not allowed list attribute " + attribute)
@@ -133,34 +98,31 @@ func (it *ListableHelper) ListAddExtraAttribute(attribute string) error {
 
 // adds selection filter to List() function
 func (it *ListableHelper) ListFilterAdd(Attribute string, Operator string, Value interface{}) error {
-	collection, err := it.getListCollection()
-	if err != nil {
-		return err
+	collection := it.GetDBCollection()
+	if collection != nil {
+		return collection.AddFilter(Attribute, Operator, Value.(string))
 	}
 
-	return collection.AddFilter(Attribute, Operator, Value.(string))
+	return errors.New("can't obtain collection")
 }
 
 // clears presets made by ListFilterAdd() and ListAddExtraAttribute() functions
 func (it *ListableHelper) ListFilterReset() error {
-	collection, err := it.getListCollection()
-	if err != nil {
-		return err
+	collection := it.GetDBCollection()
+	if collection != nil {
+		collection.ClearFilters()
+		it.listExtraAtributes = make([]string, 0)
 	}
-
-	collection.ClearFilters()
-
-	it.listExtraAtributes = make([]string, 0)
 
 	return nil
 }
 
 // specifies selection paging
 func (it *ListableHelper) ListLimit(offset int, limit int) error {
-	collection, err := it.getListCollection()
-	if err != nil {
-		return err
+	collection := it.GetDBCollection()
+	if collection != nil {
+		return collection.SetLimit(offset, limit)
 	}
 
-	return collection.SetLimit(offset, limit)
+	return errors.New("can't obtain collection")
 }

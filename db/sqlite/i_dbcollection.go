@@ -30,6 +30,16 @@ func convertValueForSQL(value interface{}) string {
 		result = strings.Replace(typedValue, "'", "''", -1)
 		result = strings.Replace(result, "\\", "\\\\", -1)
 		result = "'" + typedValue + "'"
+
+	case []string:
+		result := ""
+		for _, item := range typedValue {
+			if result != "" {
+				result += ", "
+			}
+			result += convertValueForSQL(item)
+		}
+		return result
 	}
 
 	return result
@@ -61,10 +71,10 @@ func GetDBType(ColumnType string) (string, error) {
 func (it *SQLiteCollection) makeSQLFilterString(ColumnName string, Operator string, Value interface{}) (string, error) {
 	if it.HasColumn(ColumnName) {
 		Operator = strings.ToUpper(Operator)
-		if Operator == "" || Operator == "=" || Operator == "<>" || Operator == ">" || Operator == "<" || Operator == "LIKE" {
+		if Operator == "" || Operator == "=" || Operator == "<>" || Operator == ">" || Operator == "<" || Operator == "LIKE" || Operator == "IN" {
 			return ColumnName + " " + Operator + " " + convertValueForSQL(Value), nil
 		} else {
-			return "", errors.New("unknown operator '" + Operator + "' supposed  '', '=', '>', '<', '<>', 'LIKE' " + ColumnName + "'")
+			return "", errors.New("unknown operator '" + Operator + "' supposed  '', '=', '>', '<', '<>', 'LIKE', 'IN' " + ColumnName + "'")
 		}
 	} else {
 		return "", errors.New("can't find column '" + ColumnName + "'")

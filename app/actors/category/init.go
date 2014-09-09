@@ -12,29 +12,21 @@ import (
 
 // module entry point before app start
 func init() {
-	instance := new(DefaultCategory)
+	categoryInstance := new(DefaultCategory)
 
-	ifce := interface{}(instance)
-	if _, ok := ifce.(models.I_Model); !ok {
-		panic("DefaultCategory - I_Model interface not implemented")
-	}
-	if _, ok := ifce.(models.I_Object); !ok {
-		panic("DefaultCategory - I_Object interface not implemented")
-	}
-	if _, ok := ifce.(models.I_Storable); !ok {
-		panic("DefaultCategory - I_Storable interface not implemented")
-	}
-	if _, ok := ifce.(models.I_Listable); !ok {
-		panic("DefaultCategory - I_Listable interface not implemented")
-	}
-	if _, ok := ifce.(category.I_Category); !ok {
-		panic("DefaultCategory - I_Category interface not implemented")
-	}
+	//interface implementation check
+	(func(category.I_Category) {})(categoryInstance)
 
-	models.RegisterModel("Category", instance)
+	models.RegisterModel(category.MODEL_NAME_CATEGORY, categoryInstance)
 
-	db.RegisterOnDatabaseStart(instance.setupDB)
+	categoryCollectionInstance := new(DefaultCategoryCollection)
 
+	//interface implementation check
+	(func(category.I_CategoryCollection) {})(categoryCollectionInstance)
+
+	models.RegisterModel(category.MODEL_NAME_CATEGORY_COLLECTION, categoryCollectionInstance)
+
+	db.RegisterOnDatabaseStart(categoryInstance.setupDB)
 	api.RegisterOnRestServiceStart(setupAPI)
 }
 
@@ -42,7 +34,7 @@ func init() {
 func (it *DefaultCategory) setupDB() error {
 
 	if dbEngine := db.GetDBEngine(); dbEngine != nil {
-		collection, err := dbEngine.GetCollection(CATEGORY_COLLECTION_NAME)
+		collection, err := dbEngine.GetCollection(COLLECTION_NAME_CATEGORY)
 		if err != nil {
 			return err
 		}
@@ -51,7 +43,7 @@ func (it *DefaultCategory) setupDB() error {
 		collection.AddColumn("path", "text", true)
 		collection.AddColumn("name", "text", true)
 
-		collection, err = dbEngine.GetCollection(CATEGORY_PRODUCT_JUNCTION_COLLECTION_NAME)
+		collection, err = dbEngine.GetCollection(COLLECTION_NAME_CATEGORY_PRODUCT_JUNCTION)
 		if err != nil {
 			return err
 		}

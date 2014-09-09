@@ -1,11 +1,58 @@
 package product
 
 import (
+	"github.com/ottemo/foundation/app/models"
+	"github.com/ottemo/foundation/app/models/product"
+)
+
+// internal delegate function for ListableHelper, converts db record to T_ListItem
+func listableRecordToListItemFunc(recordData map[string]interface{}, extraAttributes []string) (models.T_ListItem, bool) {
+	result := models.T_ListItem{}
+
+	productModel, err := product.GetProductModel()
+	if err != nil {
+		return result, false
+	}
+
+	err = productModel.FromHashMap(recordData)
+	if err != nil {
+		return result, false
+	}
+
+	result.Id = productModel.GetId()
+	result.Name = "[" + productModel.GetSku() + "] " + productModel.GetName()
+	result.Image = ""
+	result.Desc = productModel.GetShortDescription()
+
+	if productModel.GetDefaultImage() != "" {
+		mediaPath, err := productModel.GetMediaPath("image")
+		if err == nil {
+			result.Image = mediaPath + productModel.GetDefaultImage()
+		}
+	}
+
+	// serving extra attributes
+	//-------------------------
+	if len(extraAttributes) > 0 {
+		result.Extra = make(map[string]interface{})
+
+		for _, attributeName := range extraAttributes {
+			result.Extra[attributeName] = productModel.Get(attributeName)
+		}
+	}
+
+	return result, true
+}
+
+/*
+import (
 	"errors"
 	"github.com/ottemo/foundation/db"
 
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/utils"
+
+	"github.com/ottemo/foundation/app/models/product"
 )
 
 //---------------------------------
@@ -13,7 +60,7 @@ import (
 //---------------------------------
 
 // initializes and returns shared among couple functions collection
-func (it *DefaultProduct) getListCollection() (db.I_DBCollection, error) {
+func (it *DefaultProductCollection) getListCollection() (db.I_DBCollection, error) {
 	if it.listCollection != nil {
 		return it.listCollection, nil
 	} else {
@@ -35,7 +82,7 @@ func (it *DefaultProduct) getListCollection() (db.I_DBCollection, error) {
 //--------------------------
 
 // enumerates items of Product model type
-func (it *DefaultProduct) List() ([]models.T_ListItem, error) {
+func (it *DefaultProductCollection) List() ([]models.T_ListItem, error) {
 	result := make([]models.T_ListItem, 0)
 
 	// loading data from DB
@@ -51,30 +98,27 @@ func (it *DefaultProduct) List() ([]models.T_ListItem, error) {
 
 	for _, dbItemData := range dbItems {
 
-		// assigning loaded DB data to model
-		model, err := it.New()
+		productModel, err := product.GetProductModel()
 		if err != nil {
 			return result, err
 		}
-
-		product := model.(*DefaultProduct)
-		product.FromHashMap(dbItemData)
+		productModel.FromHashMap(dbItemData)
 
 		// retrieving minimal data needed for list
 		resultItem := new(models.T_ListItem)
 
-		mediaPath, err := product.GetMediaPath("image")
+		mediaPath, err := productModel.GetMediaPath("image")
 		if err != nil {
 			return result, err
 		}
 
-		resultItem.Id = product.GetId()
-		resultItem.Name = "[" + product.GetSku() + "] " + product.GetName()
+		resultItem.Id = productModel.GetId()
+		resultItem.Name = "[" + productModel.GetSku() + "] " + productModel.GetName()
 		resultItem.Image = ""
-		resultItem.Desc = product.GetShortDescription()
+		resultItem.Desc = productModel.GetShortDescription()
 
-		if product.GetDefaultImage() != "" {
-			resultItem.Image = mediaPath + product.GetDefaultImage()
+		if productModel.GetDefaultImage() != "" {
+			resultItem.Image = mediaPath + productModel.GetDefaultImage()
 		}
 
 		// if extra attributes were required
@@ -82,7 +126,7 @@ func (it *DefaultProduct) List() ([]models.T_ListItem, error) {
 			resultItem.Extra = make(map[string]interface{})
 
 			for _, attributeName := range it.listExtraAtributes {
-				resultItem.Extra[attributeName] = product.Get(attributeName)
+				resultItem.Extra[attributeName] = productModel.Get(attributeName)
 			}
 		}
 
@@ -93,7 +137,7 @@ func (it *DefaultProduct) List() ([]models.T_ListItem, error) {
 }
 
 // allows to obtain additional attributes from  List() function
-func (it *DefaultProduct) ListAddExtraAttribute(attribute string) error {
+func (it *DefaultProductCollection) ListAddExtraAttribute(attribute string) error {
 
 	if utils.IsAmongStr(attribute, "sku", "name", "description", "price", "default_image") {
 		if !utils.IsInListStr(attribute, it.listExtraAtributes) {
@@ -109,7 +153,7 @@ func (it *DefaultProduct) ListAddExtraAttribute(attribute string) error {
 }
 
 // adds selection filter to List() function
-func (it *DefaultProduct) ListFilterAdd(Attribute string, Operator string, Value interface{}) error {
+func (it *DefaultProductCollection) ListFilterAdd(Attribute string, Operator string, Value interface{}) error {
 	collection, err := it.getListCollection()
 	if err != nil {
 		return err
@@ -120,7 +164,7 @@ func (it *DefaultProduct) ListFilterAdd(Attribute string, Operator string, Value
 }
 
 // clears presets made by ListFilterAdd() and ListAddExtraAttribute() functions
-func (it *DefaultProduct) ListFilterReset() error {
+func (it *DefaultProductCollection) ListFilterReset() error {
 	collection, err := it.getListCollection()
 	if err != nil {
 		return err
@@ -134,7 +178,7 @@ func (it *DefaultProduct) ListFilterReset() error {
 }
 
 // specifies selection paging
-func (it *DefaultProduct) ListLimit(offset int, limit int) error {
+func (it *DefaultProductCollection) ListLimit(offset int, limit int) error {
 	collection, err := it.getListCollection()
 	if err != nil {
 		return err
@@ -142,3 +186,4 @@ func (it *DefaultProduct) ListLimit(offset int, limit int) error {
 
 	return collection.SetLimit(offset, limit)
 }
+*/

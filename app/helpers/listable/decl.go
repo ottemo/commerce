@@ -1,8 +1,8 @@
 package listable
 
 import (
-	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/foundation/app/models"
 )
 
 type ListableHelperDelegates struct {
@@ -12,7 +12,7 @@ type ListableHelperDelegates struct {
 	ValidateExtraAttributeFunc func(attribute string) bool
 
 	RecordToObjectFunc   func(recordData map[string]interface{}, extraAttributes []string) interface{}
-	RecordToListItemFunc func(recordData map[string]interface{}, extraAttributes []string) models.T_ListItem
+	RecordToListItemFunc func(recordData map[string]interface{}, extraAttributes []string) (models.T_ListItem, bool)
 }
 
 type ListableHelper struct {
@@ -22,7 +22,7 @@ type ListableHelper struct {
 	listExtraAtributes []string
 }
 
-// use this function to obtain Listable struct for your object
-func NewListable(delegates ListableHelperDelegates) *ListableHelper {
+// use this function to obtain ListableHelper struct for your object
+func NewListableHelper(delegates ListableHelperDelegates) *ListableHelper {
 	return &ListableHelper{delegate: delegates}
 }

@@ -5,9 +5,24 @@ import (
 	"github.com/ottemo/foundation/app/models"
 )
 
+// retrieves current I_CategoryCollection model implementation
+func GetCategoryCollectionModel() (I_CategoryCollection, error) {
+	model, err := models.GetModel(MODEL_NAME_CATEGORY_COLLECTION)
+	if err != nil {
+		return nil, err
+	}
+
+	categoryModel, ok := model.(I_CategoryCollection)
+	if !ok {
+		return nil, errors.New("model " + model.GetImplementationName() + " is not 'I_CategoryCollection' capable")
+	}
+
+	return categoryModel, nil
+}
+
 // retrieves current I_Category model implementation
 func GetCategoryModel() (I_Category, error) {
-	model, err := models.GetModel(CATEGORY_MODEL_NAME)
+	model, err := models.GetModel(MODEL_NAME_CATEGORY)
 	if err != nil {
 		return nil, err
 	}

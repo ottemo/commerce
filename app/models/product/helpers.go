@@ -5,9 +5,24 @@ import (
 	"github.com/ottemo/foundation/app/models"
 )
 
+// retrieves current I_ProductCollection model implementation
+func GetProductCollectionModel() (I_ProductCollection, error) {
+	model, err := models.GetModel(MODEL_NAME_PRODUCT_COLLECTION)
+	if err != nil {
+		return nil, err
+	}
+
+	productModel, ok := model.(I_ProductCollection)
+	if !ok {
+		return nil, errors.New("model " + model.GetImplementationName() + " is not 'I_ProductCollection' capable")
+	}
+
+	return productModel, nil
+}
+
 // retrieves current I_Product model implementation
 func GetProductModel() (I_Product, error) {
-	model, err := models.GetModel(PRODUCT_MODEL_NAME)
+	model, err := models.GetModel(MODEL_NAME_PRODUCT)
 	if err != nil {
 		return nil, err
 	}

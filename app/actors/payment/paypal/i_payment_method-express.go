@@ -17,6 +17,18 @@ import (
 	"github.com/ottemo/foundation/app/models/checkout"
 )
 
+/*
+ * I_PaymentMethod implementation for:
+ *
+ *   #1 PayPalExpress
+ *   #2 PayPalREST
+ *
+ */
+
+//------------------
+// #1 PayPalExpress
+//------------------
+
 // returns payment method name
 func (it *PayPalExpress) GetName() string {
 	return utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_TITLE))
