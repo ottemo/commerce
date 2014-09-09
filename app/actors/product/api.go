@@ -138,36 +138,28 @@ func restAddProductAttribute(params *api.T_APIHandlerParams) (interface{}, error
 		Editors:    "text",
 		Options:    "",
 		Default:    "",
+		Validators: "",
+		IsLayered:  false,
 	}
 
 	for key, value := range reqData {
-		switch value := value.(type) {
-		case string:
-			switch strings.ToLower(key) {
-			case "type":
-				attribute.Type = value
-			case "required":
-				if strings.ToLower(value) == "true" {
-					attribute.IsRequired = true
-				}
-			case "group":
-				attribute.Group = value
-			case "editors":
-				attribute.Editors = value
-			case "options":
-				attribute.Options = value
-			case "default":
-				attribute.Default = value
-			case "validators":
-				attribute.Validators = value
-			}
-		case bool:
-			switch key {
-			case "isrequired", "required":
-				attribute.IsRequired = value
-			case "islayered", "layered":
-				attribute.IsRequired = value
-			}
+		switch strings.ToLower(key) {
+		case "type":
+			attribute.Type = utils.InterfaceToString(value)
+		case "group":
+			attribute.Group = utils.InterfaceToString(value)
+		case "editors":
+			attribute.Editors = utils.InterfaceToString(value)
+		case "options":
+			attribute.Options = utils.InterfaceToString(value)
+		case "default":
+			attribute.Default = utils.InterfaceToString(value)
+		case "validators":
+			attribute.Validators = utils.InterfaceToString(value)
+		case "isrequired", "required":
+			attribute.IsRequired = utils.InterfaceToBool(value)
+		case "islayered", "layered":
+			attribute.IsLayered = utils.InterfaceToBool(value)
 		}
 	}
 
