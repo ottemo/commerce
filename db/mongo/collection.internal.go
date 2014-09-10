@@ -11,24 +11,6 @@ import (
 	"labix.org/v2/mgo/bson"
 )
 
-//func getDBType(ColumnType string) (string, error) {
-//	ColumnType = strings.ToLower(ColumnType)
-//	switch ColumnType {
-//	case ColumnType == "int" || ColumnType == "integer":
-//		return "INTEGER", nil
-//	case ColumnType == "real" || ColumnType == "float":
-//		return "REAL", nil
-//	case ColumnType == "string" || ColumnType == "text" || strings.Contains(ColumnType, "char"):
-//		return "TEXT", nil
-//	case ColumnType == "blob" || ColumnType == "struct" || ColumnType == "data":
-//		return "BLOB", nil
-//	case strings.Contains(ColumnType, "numeric") || strings.Contains(ColumnType, "decimal") || ColumnType == "money":
-//		return "NUMERIC", nil
-//	}
-//
-//	return "?", errors.New("Unknown type '" + ColumnType + "'")
-//}
-
 func (it *MongoDBCollection) convertValueToType(columnType string, value interface{}) interface{} {
 
 	switch typedValue := value.(type) {
@@ -81,10 +63,12 @@ func (it *MongoDBCollection) getMongoOperator(columnName string, operator string
 		stringValue = strings.Replace(stringValue, "%", ".*", -1)
 		return "$regex", stringValue, nil
 
-	case "in":
+	case "in", "nin":
+		newOperator := "$" + operator
+
 		switch typedValue := value.(type) {
 		case *MongoDBCollection:
-			Value := new(bson.Raw)
+			refValue := new(bson.Raw)
 
 			if len(typedValue.ResultAttributes) != 1 {
 				typedValue.ResultAttributes = []string{"_id"}
@@ -99,11 +83,11 @@ func (it *MongoDBCollection) getMongoOperator(columnName string, operator string
 			}
 
 			it.subcollections = append(it.subcollections, typedValue)
-			it.subresults = append(it.subresults, Value)
+			it.subresults = append(it.subresults, refValue)
 
-			return "$in", Value, nil
+			return newOperator, refValue, nil
 		default:
-			return "$in", value, nil
+			return newOperator, value, nil
 		}
 	}
 

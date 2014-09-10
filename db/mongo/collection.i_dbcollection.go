@@ -44,7 +44,6 @@ func (it *MongoDBCollection) Iterate(iteratorFunc func(record map[string]interfa
 	return nil
 }
 
-
 // returns count of rows matching current select statement
 func (it *MongoDBCollection) Count() (int, error) {
 	return it.collection.Find(it.makeSelector()).Count()
@@ -198,6 +197,8 @@ func (it *MongoDBCollection) SetLimit(Offset int, Limit int) error {
 // limits column selection for Load() and LoadById()function
 func (it *MongoDBCollection) SetResultColumns(columns ...string) error {
 	for _, columnName := range columns {
+		it.ResultAttributes = []string{}
+
 		if !it.HasColumn(columnName) {
 			return errors.New("there is no column " + columnName + " found")
 		}

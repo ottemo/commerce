@@ -13,6 +13,8 @@ var (
 )
 
 const (
+	MONGO_DEBUG = false
+
 	FILTER_GROUP_STATIC  = "static"
 	FILTER_GROUP_DEFAULT = "default"
 
