@@ -19,6 +19,8 @@ type I_DBCollection interface {
 	Delete() (int, error)
 	DeleteById(id string) error
 
+	Iterate(iteratorFunc func(record map[string]interface{}) bool) error
+
 	Count() (int, error)
 	Distinct(columnName string) ([]interface{}, error)
 

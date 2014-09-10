@@ -25,6 +25,26 @@ func (it *MongoDBCollection) Load() ([]map[string]interface{}, error) {
 	return result, err
 }
 
+// applies [iterator] function to each record, stops on return false
+func (it *MongoDBCollection) Iterate(iteratorFunc func(record map[string]interface{}) bool) error {
+	record := make(map[string]interface{})
+
+	iterator := it.prepareQuery().Iter()
+	for iterator.Next(&record) {
+		proceed := iteratorFunc(record)
+
+		if !proceed {
+			err := iterator.Close()
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+
 // returns count of rows matching current select statement
 func (it *MongoDBCollection) Count() (int, error) {
 	return it.collection.Find(it.makeSelector()).Count()

@@ -1,12 +1,16 @@
 package seo
 
 import (
+	"os"
 	"errors"
 
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/db"
 
 	"github.com/ottemo/foundation/app/utils"
+
+	"github.com/ottemo/foundation/app/models/product"
+	"github.com/ottemo/foundation/app/models/category"
 )
 
 func setupAPI() error {
@@ -30,6 +34,11 @@ func setupAPI() error {
 		return err
 	}
 	err = api.GetRestService().RegisterAPI("url_rewrite", "DELETE", "delete/:id", restURLRewritesDelete)
+	if err != nil {
+		return err
+	}
+
+	err = api.GetRestService().RegisterAPI("sitemap", "GET", "sitemap.xml", restSitemap)
 	if err != nil {
 		return err
 	}
@@ -194,4 +203,63 @@ func restURLRewritesDelete(params *api.T_APIHandlerParams) (interface{}, error) 
 	}
 
 	return "ok", nil
+}
+
+// WEB REST API function used to delete url rewrite
+func restSitemap(params *api.T_APIHandlerParams) (interface{}, error) {
+
+	sitemapFile, err := os.Create("sitemap.xml")
+	if err != nil {
+		return nil, err
+	}
+	defer sitemapFile.Close()
+
+	newline := []byte("\n")
+	writeLine := func (line []byte) {
+		params.ResponseWriter.Write(line)
+		params.ResponseWriter.Write(newline)
+
+		sitemapFile.Write(line)
+		sitemapFile.Write(newline)
+	}
+
+	writeLine([]byte("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"))
+	writeLine([]byte("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">"))
+
+
+	baseURL := "http://dev.ottemo.io:8080/"
+	pageType := ""
+
+	iteratorFunc := func(record map[string]interface{}) bool {
+		pageUrl := ""
+		if pageType == "" {
+			pageUrl = baseURL + utils.InterfaceToString(record["url"])
+		} else {
+			pageUrl = baseURL + pageType + "/" + utils.InterfaceToString(record["_id"])
+		}
+
+		writeLine([]byte("  <url><loc>" + pageUrl + "</loc></url>"))
+
+		return true
+	}
+
+	rewritesCollection, err := db.GetCollection(URL_REWRITES_COLLECTION_NAME)
+	rewritesCollection.SetResultColumns("url")
+	rewritesCollection.Iterate(iteratorFunc)
+
+	productModel, _ := product.GetProductCollectionModel()
+	productCollection := productModel.GetDBCollection()
+	pageType = "product"
+	productCollection.SetResultColumns("_id")
+	productCollection.Iterate( iteratorFunc )
+
+	categoryModel, _ := category.GetCategoryCollectionModel()
+	categoryCollection := categoryModel.GetDBCollection()
+	pageType = "category"
+	productCollection.SetResultColumns("_id")
+	categoryCollection.Iterate( iteratorFunc )
+
+	writeLine([]byte("</urlset>"))
+
+	return nil, nil
 }
