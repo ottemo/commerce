@@ -44,7 +44,7 @@ func (it *DefaultCMSPage) Set(attribute string, value interface{}) error {
 	case "_id", "id":
 		return it.SetId(utils.InterfaceToString(value))
 	case "url":
-		return it.SetURL( utils.InterfaceToString(value) )
+		return it.SetURL(utils.InterfaceToString(value))
 	case "identifier":
 		return it.SetIdentifier(utils.InterfaceToString(value))
 	case "title":
@@ -66,7 +66,7 @@ func (it *DefaultCMSPage) Set(attribute string, value interface{}) error {
 	return errors.New("unknown attribute '" + attribute + "'")
 }
 
-// represents object as map[string]interface{}
+// fills object attributes from map[string]interface{}
 func (it *DefaultCMSPage) FromHashMap(input map[string]interface{}) error {
 
 	for attribute, value := range input {
@@ -78,7 +78,7 @@ func (it *DefaultCMSPage) FromHashMap(input map[string]interface{}) error {
 	return nil
 }
 
-// fills object attributes from map[string]interface{}
+// represents object as map[string]interface{}
 func (it *DefaultCMSPage) ToHashMap() map[string]interface{} {
 
 	result := make(map[string]interface{})
@@ -101,7 +101,7 @@ func (it *DefaultCMSPage) GetAttributesInfo() []models.T_AttributeInfo {
 
 	info := []models.T_AttributeInfo{
 		models.T_AttributeInfo{
-			Model:      cms.CMS_PAGE_MODEL_NAME,
+			Model:      cms.MODEL_NAME_CMS_PAGE,
 			Collection: CMS_PAGE_COLLECTION_NAME,
 			Attribute:  "_id",
 			Type:       "id",
@@ -114,7 +114,7 @@ func (it *DefaultCMSPage) GetAttributesInfo() []models.T_AttributeInfo {
 			Default:    "",
 		},
 		models.T_AttributeInfo{
-			Model:      cms.CMS_PAGE_MODEL_NAME,
+			Model:      cms.MODEL_NAME_CMS_PAGE,
 			Collection: CMS_PAGE_COLLECTION_NAME,
 			Attribute:  "url",
 			Type:       "varchar(255)",
@@ -127,7 +127,7 @@ func (it *DefaultCMSPage) GetAttributesInfo() []models.T_AttributeInfo {
 			Default:    "",
 		},
 		models.T_AttributeInfo{
-			Model:      cms.CMS_PAGE_MODEL_NAME,
+			Model:      cms.MODEL_NAME_CMS_PAGE,
 			Collection: CMS_PAGE_COLLECTION_NAME,
 			Attribute:  "identifier",
 			Type:       "varchar(255)",
@@ -140,7 +140,7 @@ func (it *DefaultCMSPage) GetAttributesInfo() []models.T_AttributeInfo {
 			Default:    "",
 		},
 		models.T_AttributeInfo{
-			Model:      cms.CMS_PAGE_MODEL_NAME,
+			Model:      cms.MODEL_NAME_CMS_PAGE,
 			Collection: CMS_PAGE_COLLECTION_NAME,
 			Attribute:  "title",
 			Type:       "varchar(255)",
@@ -153,7 +153,7 @@ func (it *DefaultCMSPage) GetAttributesInfo() []models.T_AttributeInfo {
 			Default:    "",
 		},
 		models.T_AttributeInfo{
-			Model:      cms.CMS_PAGE_MODEL_NAME,
+			Model:      cms.MODEL_NAME_CMS_PAGE,
 			Collection: CMS_PAGE_COLLECTION_NAME,
 			Attribute:  "content",
 			Type:       "text",
@@ -166,7 +166,7 @@ func (it *DefaultCMSPage) GetAttributesInfo() []models.T_AttributeInfo {
 			Default:    "",
 		},
 		models.T_AttributeInfo{
-			Model:      cms.CMS_PAGE_MODEL_NAME,
+			Model:      cms.MODEL_NAME_CMS_PAGE,
 			Collection: CMS_PAGE_COLLECTION_NAME,
 			Attribute:  "meta_keywords",
 			Type:       "varchar(255)",
@@ -179,7 +179,7 @@ func (it *DefaultCMSPage) GetAttributesInfo() []models.T_AttributeInfo {
 			Default:    "",
 		},
 		models.T_AttributeInfo{
-			Model:      cms.CMS_PAGE_MODEL_NAME,
+			Model:      cms.MODEL_NAME_CMS_PAGE,
 			Collection: CMS_PAGE_COLLECTION_NAME,
 			Attribute:  "meta_description",
 			Type:       "text",
@@ -192,7 +192,7 @@ func (it *DefaultCMSPage) GetAttributesInfo() []models.T_AttributeInfo {
 			Default:    "",
 		},
 		models.T_AttributeInfo{
-			Model:      cms.CMS_PAGE_MODEL_NAME,
+			Model:      cms.MODEL_NAME_CMS_PAGE,
 			Collection: CMS_PAGE_COLLECTION_NAME,
 			Attribute:  "created_at",
 			Type:       "datetime",
@@ -205,7 +205,7 @@ func (it *DefaultCMSPage) GetAttributesInfo() []models.T_AttributeInfo {
 			Default:    "",
 		},
 		models.T_AttributeInfo{
-			Model:      cms.CMS_PAGE_MODEL_NAME,
+			Model:      cms.MODEL_NAME_CMS_PAGE,
 			Collection: CMS_PAGE_COLLECTION_NAME,
 			Attribute:  "updated_at",
 			Type:       "datetime",

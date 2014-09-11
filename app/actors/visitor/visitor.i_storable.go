@@ -17,7 +17,7 @@ func (it *DefaultVisitor) SetId(NewId string) error {
 
 func (it *DefaultVisitor) Load(Id string) error {
 	if dbEngine := db.GetDBEngine(); dbEngine != nil {
-		if collection, err := dbEngine.GetCollection(VISITOR_COLLECTION_NAME); err == nil {
+		if collection, err := dbEngine.GetCollection(COLLECTION_NAME_VISITOR); err == nil {
 
 			values, err := collection.LoadById(Id)
 			if err != nil {
@@ -38,9 +38,9 @@ func (it *DefaultVisitor) Load(Id string) error {
 
 func (it *DefaultVisitor) Delete() error {
 	if dbEngine := db.GetDBEngine(); dbEngine != nil {
-		if collection, err := dbEngine.GetCollection(VISITOR_COLLECTION_NAME); err == nil {
+		if collection, err := dbEngine.GetCollection(COLLECTION_NAME_VISITOR); err == nil {
 
-			if addressCollection, err := dbEngine.GetCollection(address.VISITOR_ADDRESS_COLLECTION_NAME); err == nil {
+			if addressCollection, err := dbEngine.GetCollection(address.COLLECTION_NAME_VISITOR_ADDRESS); err == nil {
 				addressCollection.AddFilter("visitor_id", "=", it.GetId())
 				if _, err := addressCollection.Delete(); err != nil {
 					return err
@@ -63,7 +63,7 @@ func (it *DefaultVisitor) Delete() error {
 func (it *DefaultVisitor) Save() error {
 
 	if dbEngine := db.GetDBEngine(); dbEngine != nil {
-		if collection, err := dbEngine.GetCollection(VISITOR_COLLECTION_NAME); err == nil {
+		if collection, err := dbEngine.GetCollection(COLLECTION_NAME_VISITOR); err == nil {
 
 			if it.GetId() == "" {
 				collection.AddFilter("email", "=", it.GetEmail())

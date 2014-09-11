@@ -4,19 +4,14 @@ import (
 	"errors"
 
 	"github.com/ottemo/foundation/api"
-
-	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/foundation/app/utils"
 
 	"github.com/ottemo/foundation/app/models/cms"
-	"github.com/ottemo/foundation/app/utils"
 )
 
 func setupAPI() error {
 
 	var err error = nil
-
-	// CMS page
-	//----------
 
 	err = api.GetRestService().RegisterAPI("cms", "GET", "page/attributes", restCMSPageAttributes)
 	if err != nil {
@@ -30,7 +25,7 @@ func setupAPI() error {
 	if err != nil {
 		return err
 	}
-	err = api.GetRestService().RegisterAPI("cms", "POST", "page/count", restCMSPageCount)
+	err = api.GetRestService().RegisterAPI("cms", "GET", "page/count", restCMSPageCount)
 	if err != nil {
 		return err
 	}
@@ -81,36 +76,44 @@ func restCMSPageList(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// operation start
 	//----------------
-	cmsPageModel, err := cms.GetCMSPageModel()
+	cmsPageCollectionModel, err := cms.GetCMSPageCollectionModel()
 	if err != nil {
 		return nil, err
 	}
 
 	// limit parameter handle
-	cmsPageModel.ListLimit(api.GetListLimit(params))
+	cmsPageCollectionModel.ListLimit(api.GetListLimit(params))
+
+	// filters handle
+	api.ApplyFilters(params, cmsPageCollectionModel.GetDBCollection())
 
 	// extra parameter handle
 	if extra, isExtra := reqData["extra"]; isExtra {
 		extra := utils.Explode(utils.InterfaceToString(extra), ",")
 		for _, value := range extra {
-			err := cmsPageModel.ListAddExtraAttribute(value)
+			err := cmsPageCollectionModel.ListAddExtraAttribute(value)
 			if err != nil {
 				return nil, err
 			}
 		}
 	}
 
-	return cmsPageModel.List()
+	return cmsPageCollectionModel.List()
 }
 
 // WEB REST API function used to obtain CMS pages count in model collection
 func restCMSPageCount(params *api.T_APIHandlerParams) (interface{}, error) {
-	collection, err := db.GetCollection(CMS_PAGE_COLLECTION_NAME)
+
+	cmsPageCollectionModel, err := cms.GetCMSBlockCollectionModel()
 	if err != nil {
 		return nil, err
 	}
+	dbCollection := cmsPageCollectionModel.GetDBCollection()
 
-	return collection.Count()
+	// filters handle
+	api.ApplyFilters(params, dbCollection)
+
+	return dbCollection.Count()
 }
 
 // WEB REST API function to get CMS page information

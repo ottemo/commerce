@@ -4,7 +4,7 @@ import (
 	"github.com/ottemo/foundation/db"
 )
 
-// package self initializator
+// package self initializer
 func init() {
 	db.RegisterOnDatabaseStart(SetupDB)
 }

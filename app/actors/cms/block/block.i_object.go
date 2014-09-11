@@ -82,7 +82,7 @@ func (it *DefaultCMSBlock) GetAttributesInfo() []models.T_AttributeInfo {
 
 	info := []models.T_AttributeInfo{
 		models.T_AttributeInfo{
-			Model:      cms.CMS_BLOCK_MODEL_NAME,
+			Model:      cms.MODEL_NAME_CMS_BLOCK,
 			Collection: CMS_BLOCK_COLLECTION_NAME,
 			Attribute:  "_id",
 			Type:       "id",
@@ -95,7 +95,7 @@ func (it *DefaultCMSBlock) GetAttributesInfo() []models.T_AttributeInfo {
 			Default:    "",
 		},
 		models.T_AttributeInfo{
-			Model:      cms.CMS_BLOCK_MODEL_NAME,
+			Model:      cms.MODEL_NAME_CMS_BLOCK,
 			Collection: CMS_BLOCK_COLLECTION_NAME,
 			Attribute:  "identifier",
 			Type:       "varchar(255)",
@@ -108,7 +108,7 @@ func (it *DefaultCMSBlock) GetAttributesInfo() []models.T_AttributeInfo {
 			Default:    "",
 		},
 		models.T_AttributeInfo{
-			Model:      cms.CMS_BLOCK_MODEL_NAME,
+			Model:      cms.MODEL_NAME_CMS_BLOCK,
 			Collection: CMS_BLOCK_COLLECTION_NAME,
 			Attribute:  "content",
 			Type:       "text",
@@ -121,7 +121,7 @@ func (it *DefaultCMSBlock) GetAttributesInfo() []models.T_AttributeInfo {
 			Default:    "",
 		},
 		models.T_AttributeInfo{
-			Model:      cms.CMS_BLOCK_MODEL_NAME,
+			Model:      cms.MODEL_NAME_CMS_BLOCK,
 			Collection: CMS_BLOCK_COLLECTION_NAME,
 			Attribute:  "created_at",
 			Type:       "datetime",
@@ -134,7 +134,7 @@ func (it *DefaultCMSBlock) GetAttributesInfo() []models.T_AttributeInfo {
 			Default:    "",
 		},
 		models.T_AttributeInfo{
-			Model:      cms.CMS_BLOCK_MODEL_NAME,
+			Model:      cms.MODEL_NAME_CMS_BLOCK,
 			Collection: CMS_BLOCK_COLLECTION_NAME,
 			Attribute:  "updated_at",
 			Type:       "datetime",

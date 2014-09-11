@@ -5,12 +5,24 @@ import (
 	"github.com/ottemo/foundation/app/models"
 )
 
-// CMS Page helpers
-//-----------------
+// retrieves current I_CMSPageCollection model implementation
+func GetCMSPageCollectionModel() (I_CMSPageCollection, error) {
+	model, err := models.GetModel(MODEL_NAME_CMS_PAGE_COLLECTION)
+	if err != nil {
+		return nil, err
+	}
+
+	cmsPageCollectionModel, ok := model.(I_CMSPageCollection)
+	if !ok {
+		return nil, errors.New("model " + model.GetImplementationName() + " is not 'I_CMSPageCollection' capable")
+	}
+
+	return cmsPageCollectionModel, nil
+}
 
 // retrieves current I_CMSPage model implementation
 func GetCMSPageModel() (I_CMSPage, error) {
-	model, err := models.GetModel(CMS_PAGE_MODEL_NAME)
+	model, err := models.GetModel(MODEL_NAME_CMS_PAGE)
 	if err != nil {
 		return nil, err
 	}
@@ -55,14 +67,24 @@ func LoadCMSPageById(cmsPageId string) (I_CMSPage, error) {
 	return cmsPageModel, nil
 }
 
+// retrieves current I_CMSBlockCollection model implementation
+func GetCMSBlockCollectionModel() (I_CMSBlockCollection, error) {
+	model, err := models.GetModel(MODEL_NAME_CMS_BLOCK_COLLECTION)
+	if err != nil {
+		return nil, err
+	}
 
-// CMS Block helpers
-//------------------
+	csmBlockCollectionModel, ok := model.(I_CMSBlockCollection)
+	if !ok {
+		return nil, errors.New("model " + model.GetImplementationName() + " is not 'I_CMSBlockCollection' capable")
+	}
 
+	return csmBlockCollectionModel, nil
+}
 
 // retrieves current I_CMSBlock model implementation
 func GetCMSBlockModel() (I_CMSBlock, error) {
-	model, err := models.GetModel(CMS_BLOCK_MODEL_NAME)
+	model, err := models.GetModel(MODEL_NAME_CMS_BLOCK)
 	if err != nil {
 		return nil, err
 	}

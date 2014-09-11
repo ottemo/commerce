@@ -122,7 +122,7 @@ func (it *DefaultVisitor) Validate(key string) error {
 	// looking for visitors with given validation key in DB and collecting ids
 	visitorIds := make([]string, 0)
 	if dbEngine := db.GetDBEngine(); dbEngine != nil {
-		if collection, err := dbEngine.GetCollection(VISITOR_COLLECTION_NAME); err == nil {
+		if collection, err := dbEngine.GetCollection(COLLECTION_NAME_VISITOR); err == nil {
 			collection.AddFilter("validate", "=", key)
 
 			records, err := collection.Load()
@@ -198,7 +198,7 @@ func (it *DefaultVisitor) CheckPassword(passwd string) bool {
 // loads visitor information from DB based on google account id
 func (it *DefaultVisitor) LoadByGoogleId(googleId string) error {
 	if dbEngine := db.GetDBEngine(); dbEngine != nil {
-		if collection, err := dbEngine.GetCollection(VISITOR_COLLECTION_NAME); err == nil {
+		if collection, err := dbEngine.GetCollection(COLLECTION_NAME_VISITOR); err == nil {
 
 			collection.AddFilter("google_id", "=", googleId)
 			rows, err := collection.Load()
@@ -229,7 +229,7 @@ func (it *DefaultVisitor) LoadByGoogleId(googleId string) error {
 // loads visitor information from DB based on facebook account id
 func (it *DefaultVisitor) LoadByFacebookId(facebookId string) error {
 	if dbEngine := db.GetDBEngine(); dbEngine != nil {
-		if collection, err := dbEngine.GetCollection(VISITOR_COLLECTION_NAME); err == nil {
+		if collection, err := dbEngine.GetCollection(COLLECTION_NAME_VISITOR); err == nil {
 
 			collection.AddFilter("facebook_id", "=", facebookId)
 			rows, err := collection.Load()
@@ -260,7 +260,7 @@ func (it *DefaultVisitor) LoadByFacebookId(facebookId string) error {
 // loads visitor information from DB based on email which must be unique
 func (it *DefaultVisitor) LoadByEmail(email string) error {
 	if dbEngine := db.GetDBEngine(); dbEngine != nil {
-		if collection, err := dbEngine.GetCollection(VISITOR_COLLECTION_NAME); err == nil {
+		if collection, err := dbEngine.GetCollection(COLLECTION_NAME_VISITOR); err == nil {
 
 			collection.AddFilter("email", "=", email)
 			rows, err := collection.Load()

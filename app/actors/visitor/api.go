@@ -47,6 +47,14 @@ func setupAPI() error {
 	if err != nil {
 		return err
 	}
+	err = api.GetRestService().RegisterAPI("visitor", "POST", "list", restListVisitors)
+	if err != nil {
+		return err
+	}
+	err = api.GetRestService().RegisterAPI("visitor", "GET", "count", restCountVisitors)
+	if err != nil {
+		return err
+	}
 	err = api.GetRestService().RegisterAPI("visitor", "GET", "attribute/list", restListVisitorAttributes)
 	if err != nil {
 		return err
@@ -224,14 +232,59 @@ func restGetVisitor(params *api.T_APIHandlerParams) (interface{}, error) {
 	return visitorModel.ToHashMap(), nil
 }
 
+// WEB REST API function used to obtain visitors count in model collection
+func restCountVisitors(params *api.T_APIHandlerParams) (interface{}, error) {
+
+	visitorCollectionModel, err := visitor.GetVisitorCollectionModel()
+	if err != nil {
+		return nil, err
+	}
+	dbCollection := visitorCollectionModel.GetDBCollection()
+
+	// filters handle
+	api.ApplyFilters(params, dbCollection)
+
+	return dbCollection.Count()
+}
+
 // WEB REST API function used to get visitors list
 func restListVisitors(params *api.T_APIHandlerParams) (interface{}, error) {
-	visitorModel, err := visitor.GetVisitorModel()
+	// check request params
+	//---------------------
+	reqData, ok := params.RequestContent.(map[string]interface{})
+	if !ok {
+		if params.Request.Method == "POST" {
+			return nil, errors.New("unexpected request content")
+		} else {
+			reqData = make(map[string]interface{})
+		}
+	}
+
+	// operation start
+	//----------------
+	visitorCollectionModel, err := visitor.GetVisitorCollectionModel()
 	if err != nil {
 		return nil, err
 	}
 
-	return visitorModel.List()
+	// limit parameter handle
+	visitorCollectionModel.ListLimit(api.GetListLimit(params))
+
+	// filters handle
+	api.ApplyFilters(params, visitorCollectionModel.GetDBCollection())
+
+	// extra parameter handle
+	if extra, isExtra := reqData["extra"]; isExtra {
+		extra := utils.Explode(utils.InterfaceToString(extra), ",")
+		for _, value := range extra {
+			err := visitorCollectionModel.ListAddExtraAttribute(value)
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+
+	return visitorCollectionModel.List()
 }
 
 // WEB REST API function used to obtain visitor attributes information

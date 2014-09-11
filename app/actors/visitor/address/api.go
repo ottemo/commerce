@@ -3,6 +3,8 @@ package address
 import (
 	"errors"
 
+	"github.com/ottemo/foundation/app/utils"
+
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/app/models/visitor"
 )
@@ -27,6 +29,14 @@ func setupAPI() error {
 		return err
 	}
 	err = api.GetRestService().RegisterAPI("visitor/address", "GET", "list", restListVisitorAddress)
+	if err != nil {
+		return err
+	}
+	err = api.GetRestService().RegisterAPI("visitor/address", "POST", "list", restListVisitorAddress)
+	if err != nil {
+		return err
+	}
+	err = api.GetRestService().RegisterAPI("visitor/address", "GET", "count", restCountVisitorAddresses)
 	if err != nil {
 		return err
 	}
@@ -156,12 +166,36 @@ func restListVisitorAddressAttributes(params *api.T_APIHandlerParams) (interface
 	return attrInfo, nil
 }
 
+// WEB REST API function used to obtain visitors addresses count in model collection
+func restCountVisitorAddresses(params *api.T_APIHandlerParams) (interface{}, error) {
+
+	visitorAddressCollectionModel, err := visitor.GetVisitorAddressCollectionModel()
+	if err != nil {
+		return nil, err
+	}
+	dbCollection := visitorAddressCollectionModel.GetDBCollection()
+
+	// filters handle
+	api.ApplyFilters(params, dbCollection)
+
+	return dbCollection.Count()
+}
+
 // WEB REST API function used to obtain visitor addresses list
 //   - visitor id must be specified in request URI
 func restListVisitorAddress(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
+	reqData, ok := params.RequestContent.(map[string]interface{})
+	if !ok {
+		if params.Request.Method == "POST" {
+			return nil, errors.New("unexpected request content")
+		} else {
+			reqData = make(map[string]interface{})
+		}
+	}
+
 	visitorId, isSpecifiedId := params.RequestURLParams["visitorId"]
 	if !isSpecifiedId {
 
@@ -175,14 +209,31 @@ func restListVisitorAddress(params *api.T_APIHandlerParams) (interface{}, error)
 
 	// list operation
 	//---------------
-	visitorAddressModel, err := visitor.GetVisitorAddressModel()
+	visitorAddressCollectionModel, err := visitor.GetVisitorAddressCollectionModel()
 	if err != nil {
 		return nil, err
 	}
+	dbCollection := visitorAddressCollectionModel.GetDBCollection()
+	dbCollection.AddStaticFilter("visitor_id", "=", visitorId)
 
-	visitorAddressModel.ListFilterAdd("visitor_id", "=", visitorId)
+	// limit parameter handle
+	visitorAddressCollectionModel.ListLimit(api.GetListLimit(params))
 
-	return visitorAddressModel.List()
+	// filters handle
+	api.ApplyFilters(params, dbCollection)
+
+	// extra parameter handle
+	if extra, isExtra := reqData["extra"]; isExtra {
+		extra := utils.Explode(utils.InterfaceToString(extra), ",")
+		for _, value := range extra {
+			err := visitorAddressCollectionModel.ListAddExtraAttribute(value)
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+
+	return visitorAddressCollectionModel.List()
 }
 
 // WEB REST API used to get visitor address object

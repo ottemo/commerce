@@ -9,6 +9,7 @@ import (
 	"github.com/ottemo/foundation/app/utils"
 )
 
+// returns object attribute value or nil
 func (it *DefaultVisitor) Get(attribute string) interface{} {
 	switch strings.ToLower(attribute) {
 	case "_id", "id":
@@ -36,6 +37,7 @@ func (it *DefaultVisitor) Get(attribute string) interface{} {
 	return nil
 }
 
+// sets attribute value to object or returns error
 func (it *DefaultVisitor) Set(attribute string, value interface{}) error {
 	attribute = strings.ToLower(attribute)
 
@@ -111,6 +113,7 @@ func (it *DefaultVisitor) Set(attribute string, value interface{}) error {
 	return nil
 }
 
+// fills object attributes from map[string]interface{}
 func (it *DefaultVisitor) FromHashMap(input map[string]interface{}) error {
 
 	for attribute, value := range input {
@@ -122,6 +125,7 @@ func (it *DefaultVisitor) FromHashMap(input map[string]interface{}) error {
 	return nil
 }
 
+// represents object as map[string]interface{}
 func (it *DefaultVisitor) ToHashMap() map[string]interface{} {
 
 	result := make(map[string]interface{})
@@ -149,6 +153,7 @@ func (it *DefaultVisitor) ToHashMap() map[string]interface{} {
 	return result
 }
 
+// returns information about object attributes
 func (it *DefaultVisitor) GetAttributesInfo() []models.T_AttributeInfo {
 
 	info := []models.T_AttributeInfo{

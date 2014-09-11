@@ -6,11 +6,11 @@ import (
 )
 
 func (it *DefaultVisitorAddress) GetModelName() string {
-	return visitor.VISITOR_ADDRESS_MODEL_NAME
+	return visitor.MODEL_NAME_VISITOR_ADDRESS
 }
 
 func (it *DefaultVisitorAddress) GetImplementationName() string {
-	return "DefaultVisitorAddress"
+	return "Default" + visitor.MODEL_NAME_VISITOR_ADDRESS
 }
 
 func (it *DefaultVisitorAddress) New() (models.I_Model, error) {

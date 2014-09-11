@@ -18,7 +18,7 @@ func (it *DefaultCategoryCollection) GetImplementationName() string {
 
 // returns new instance of model implementation object
 func (it *DefaultCategoryCollection) New() (models.I_Model, error) {
-	dbCollection, err := db.GetCollection(category.MODEL_NAME_CATEGORY)
+	dbCollection, err := db.GetCollection(COLLECTION_NAME_CATEGORY)
 	if err != nil {
 		return nil, err
 	}

@@ -5,35 +5,13 @@ import (
 )
 
 const (
-	VISITOR_MODEL_NAME         = "Visitor"
-	VISITOR_ADDRESS_MODEL_NAME = "VisitorAddress"
-	SESSION_KEY_VISITOR_ID     = "visitor_id"
+	MODEL_NAME_VISITOR                    = "Visitor"
+	MODEL_NAME_VISITOR_COLLECTION         = "VisitorCollection"
+	MODEL_NAME_VISITOR_ADDRESS            = "VisitorAddress"
+	MODEL_NAME_VISITOR_ADDRESS_COLLECTION = "VisitorAddressCollection"
+
+	SESSION_KEY_VISITOR_ID = "visitor_id"
 )
-
-type I_VisitorAddress interface {
-	GetVisitorId() string
-
-	GetFirstName() string
-	GetLastName() string
-
-	GetCompany() string
-
-	GetCountry() string
-	GetState() string
-	GetCity() string
-
-	GetAddress() string
-	GetAddressLine1() string
-	GetAddressLine2() string
-
-	GetPhone() string
-	GetZipCode() string
-
-	models.I_Model
-	models.I_Object
-	models.I_Storable
-	models.I_Listable
-}
 
 type I_Visitor interface {
 	GetEmail() string
@@ -64,5 +42,40 @@ type I_Visitor interface {
 	models.I_Model
 	models.I_Object
 	models.I_Storable
-	models.I_Listable
+}
+
+type I_VisitorCollection interface {
+	ListVisitors() []I_Visitor
+
+	models.I_Collection
+}
+
+type I_VisitorAddress interface {
+	GetVisitorId() string
+
+	GetFirstName() string
+	GetLastName() string
+
+	GetCompany() string
+
+	GetCountry() string
+	GetState() string
+	GetCity() string
+
+	GetAddress() string
+	GetAddressLine1() string
+	GetAddressLine2() string
+
+	GetPhone() string
+	GetZipCode() string
+
+	models.I_Model
+	models.I_Object
+	models.I_Storable
+}
+
+type I_VisitorAddressCollection interface {
+	ListVisitorsAddresses() []I_VisitorAddress
+
+	models.I_Collection
 }

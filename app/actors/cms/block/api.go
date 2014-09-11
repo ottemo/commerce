@@ -4,7 +4,6 @@ import (
 	"errors"
 
 	"github.com/ottemo/foundation/api"
-	"github.com/ottemo/foundation/db"
 
 	"github.com/ottemo/foundation/app/models/cms"
 	"github.com/ottemo/foundation/app/utils"
@@ -26,7 +25,7 @@ func setupAPI() error {
 	if err != nil {
 		return err
 	}
-	err = api.GetRestService().RegisterAPI("cms", "POST", "block/count", restCMSBlockCount)
+	err = api.GetRestService().RegisterAPI("cms", "GET", "block/count", restCMSBlockCount)
 	if err != nil {
 		return err
 	}
@@ -61,7 +60,7 @@ func restCMSBlockAttributes(params *api.T_APIHandlerParams) (interface{}, error)
 	return cmsBlock.GetAttributesInfo(), nil
 }
 
-// WEB REST API function used to obtain CMS pages list
+// WEB REST API function used to obtain CMS blocks list
 func restCMSBlockList(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// check request params
@@ -77,36 +76,44 @@ func restCMSBlockList(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// operation start
 	//----------------
-	cmsPageModel, err := cms.GetCMSBlockModel()
+	cmsBlockCollectionModel, err := cms.GetCMSBlockCollectionModel()
 	if err != nil {
 		return nil, err
 	}
 
 	// limit parameter handle
-	cmsPageModel.ListLimit(api.GetListLimit(params))
+	cmsBlockCollectionModel.ListLimit(api.GetListLimit(params))
+
+	// filters handle
+	api.ApplyFilters(params, cmsBlockCollectionModel.GetDBCollection())
 
 	// extra parameter handle
 	if extra, isExtra := reqData["extra"]; isExtra {
 		extra := utils.Explode(utils.InterfaceToString(extra), ",")
 		for _, value := range extra {
-			err := cmsPageModel.ListAddExtraAttribute(value)
+			err := cmsBlockCollectionModel.ListAddExtraAttribute(value)
 			if err != nil {
 				return nil, err
 			}
 		}
 	}
 
-	return cmsPageModel.List()
+	return cmsBlockCollectionModel.List()
 }
 
-// WEB REST API function used to obtain CMS pages count in model collection
+// WEB REST API function used to obtain CMS blocks count in model collection
 func restCMSBlockCount(params *api.T_APIHandlerParams) (interface{}, error) {
-	collection, err := db.GetCollection(CMS_BLOCK_COLLECTION_NAME)
+
+	cmsBlockCollectionModel, err := cms.GetCMSBlockCollectionModel()
 	if err != nil {
 		return nil, err
 	}
+	dbCollection := cmsBlockCollectionModel.GetDBCollection()
 
-	return collection.Count()
+	// filters handle
+	api.ApplyFilters(params, dbCollection)
+
+	return dbCollection.Count()
 }
 
 // WEB REST API function to get CMS block information
