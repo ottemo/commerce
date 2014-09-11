@@ -212,7 +212,7 @@ func (it *DefaultProduct) GetAttributesInfo() []models.T_AttributeInfo {
 			Type:       "text",
 			IsRequired: false,
 			IsStatic:   true,
-			Label:      "Size",
+			Label:      "Options",
 			Group:      "Custom",
 			Editors:    "product_options",
 			Options:    "",

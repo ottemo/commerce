@@ -1,11 +1,10 @@
 package product
 
 import (
+	"github.com/ottemo/foundation/db"
+
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/product"
-
-	"github.com/ottemo/foundation/app/helpers/listable"
-	"github.com/ottemo/foundation/app/utils"
 )
 
 // returns model name
@@ -20,14 +19,10 @@ func (it *DefaultProductCollection) GetImplementationName() string {
 
 // returns new instance of model implementation object
 func (it *DefaultProductCollection) New() (models.I_Model, error) {
-	helperInstance := listable.NewListableHelper(
-		listable.ListableHelperDelegates{
-			CollectionName: DB_COLLECTION_NAME_PRODUCT,
-			ValidateExtraAttributeFunc: func(attribute string) bool {
-				return utils.IsAmongStr(attribute, "sku", "name", "description", "price", "default_image")
-			},
-			RecordToListItemFunc: listableRecordToListItemFunc,
-		})
+	dbCollection, err := db.GetCollection(COLLECTION_NAME_PRODUCT)
+	if err != nil {
+		return nil, err
+	}
 
-	return &DefaultProductCollection{ListableHelper: helperInstance}, nil
+	return &DefaultProductCollection{listCollection: dbCollection, listExtraAtributes: make([]string, 0)}, nil
 }

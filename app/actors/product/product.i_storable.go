@@ -18,7 +18,7 @@ func (it *DefaultProduct) SetId(NewId string) error {
 // loads product information from DB
 func (it *DefaultProduct) Load(loadId string) error {
 
-	collection, err := db.GetCollection(DB_COLLECTION_NAME_PRODUCT)
+	collection, err := db.GetCollection(COLLECTION_NAME_PRODUCT)
 	if err != nil {
 		return err
 	}
@@ -38,7 +38,7 @@ func (it *DefaultProduct) Load(loadId string) error {
 
 // removes current product from DB
 func (it *DefaultProduct) Delete() error {
-	collection, err := db.GetCollection(DB_COLLECTION_NAME_PRODUCT)
+	collection, err := db.GetCollection(COLLECTION_NAME_PRODUCT)
 	if err != nil {
 		return err
 	}
@@ -53,7 +53,7 @@ func (it *DefaultProduct) Delete() error {
 
 // stores current product to DB
 func (it *DefaultProduct) Save() error {
-	collection, err := db.GetCollection(DB_COLLECTION_NAME_PRODUCT)
+	collection, err := db.GetCollection(COLLECTION_NAME_PRODUCT)
 	if err == nil {
 		return err
 	}

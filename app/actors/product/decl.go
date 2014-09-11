@@ -1,12 +1,12 @@
 package product
 
 import (
+	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/app/helpers/attributes"
-	"github.com/ottemo/foundation/app/helpers/listable"
 )
 
 const (
-	DB_COLLECTION_NAME_PRODUCT = "product"
+	COLLECTION_NAME_PRODUCT = "product"
 )
 
 type DefaultProduct struct {
@@ -30,5 +30,6 @@ type DefaultProduct struct {
 }
 
 type DefaultProductCollection struct {
-	*listable.ListableHelper
+	listCollection     db.I_DBCollection
+	listExtraAtributes []string
 }

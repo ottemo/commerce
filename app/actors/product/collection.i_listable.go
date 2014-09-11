@@ -1,53 +1,7 @@
 package product
 
 import (
-	"github.com/ottemo/foundation/app/models"
-	"github.com/ottemo/foundation/app/models/product"
-)
-
-// internal delegate function for ListableHelper, converts db record to T_ListItem
-func listableRecordToListItemFunc(recordData map[string]interface{}, extraAttributes []string) (models.T_ListItem, bool) {
-	result := models.T_ListItem{}
-
-	productModel, err := product.GetProductModel()
-	if err != nil {
-		return result, false
-	}
-
-	err = productModel.FromHashMap(recordData)
-	if err != nil {
-		return result, false
-	}
-
-	result.Id = productModel.GetId()
-	result.Name = "[" + productModel.GetSku() + "] " + productModel.GetName()
-	result.Image = ""
-	result.Desc = productModel.GetShortDescription()
-
-	if productModel.GetDefaultImage() != "" {
-		mediaPath, err := productModel.GetMediaPath("image")
-		if err == nil {
-			result.Image = mediaPath + productModel.GetDefaultImage()
-		}
-	}
-
-	// serving extra attributes
-	//-------------------------
-	if len(extraAttributes) > 0 {
-		result.Extra = make(map[string]interface{})
-
-		for _, attributeName := range extraAttributes {
-			result.Extra[attributeName] = productModel.Get(attributeName)
-		}
-	}
-
-	return result, true
-}
-
-/*
-import (
 	"errors"
-	"github.com/ottemo/foundation/db"
 
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/utils"
@@ -55,54 +9,25 @@ import (
 	"github.com/ottemo/foundation/app/models/product"
 )
 
-//---------------------------------
-// IMPLEMENTATION SPECIFIC METHODS
-//---------------------------------
-
-// initializes and returns shared among couple functions collection
-func (it *DefaultProductCollection) getListCollection() (db.I_DBCollection, error) {
-	if it.listCollection != nil {
-		return it.listCollection, nil
-	} else {
-		var err error = nil
-
-		dbEngine := db.GetDBEngine()
-		if dbEngine == nil {
-			return nil, errors.New("Can't obtain DBEngine")
-		}
-
-		it.listCollection, err = dbEngine.GetCollection("Product")
-
-		return it.listCollection, err
-	}
-}
-
-//--------------------------
-// INTERFACE IMPLEMENTATION
-//--------------------------
-
 // enumerates items of Product model type
 func (it *DefaultProductCollection) List() ([]models.T_ListItem, error) {
 	result := make([]models.T_ListItem, 0)
 
-	// loading data from DB
-	collection, err := it.getListCollection()
+	dbRecords, err := it.listCollection.Load()
 	if err != nil {
 		return result, err
 	}
 
-	dbItems, err := collection.Load()
-	if err != nil {
-		return result, err
-	}
-
-	for _, dbItemData := range dbItems {
+	for _, dbRecordData := range dbRecords {
 
 		productModel, err := product.GetProductModel()
 		if err != nil {
 			return result, err
 		}
-		productModel.FromHashMap(dbItemData)
+		err = productModel.FromHashMap(dbRecordData)
+		if err != nil {
+			return result, err
+		}
 
 		// retrieving minimal data needed for list
 		resultItem := new(models.T_ListItem)
@@ -139,7 +64,7 @@ func (it *DefaultProductCollection) List() ([]models.T_ListItem, error) {
 // allows to obtain additional attributes from  List() function
 func (it *DefaultProductCollection) ListAddExtraAttribute(attribute string) error {
 
-	if utils.IsAmongStr(attribute, "sku", "name", "description", "price", "default_image") {
+	if utils.IsAmongStr(attribute, "sku", "name", "short_description", "description", "default_image", "price", "weight", "options") {
 		if !utils.IsInListStr(attribute, it.listExtraAtributes) {
 			it.listExtraAtributes = append(it.listExtraAtributes, attribute)
 		} else {
@@ -154,36 +79,17 @@ func (it *DefaultProductCollection) ListAddExtraAttribute(attribute string) erro
 
 // adds selection filter to List() function
 func (it *DefaultProductCollection) ListFilterAdd(Attribute string, Operator string, Value interface{}) error {
-	collection, err := it.getListCollection()
-	if err != nil {
-		return err
-	}
-
-	collection.AddFilter(Attribute, Operator, Value.(string))
+	it.listCollection.AddFilter(Attribute, Operator, Value.(string))
 	return nil
 }
 
 // clears presets made by ListFilterAdd() and ListAddExtraAttribute() functions
 func (it *DefaultProductCollection) ListFilterReset() error {
-	collection, err := it.getListCollection()
-	if err != nil {
-		return err
-	}
-
-	collection.ClearFilters()
-
-	it.listExtraAtributes = make([]string, 0)
-
+	it.listCollection.ClearFilters()
 	return nil
 }
 
 // specifies selection paging
 func (it *DefaultProductCollection) ListLimit(offset int, limit int) error {
-	collection, err := it.getListCollection()
-	if err != nil {
-		return err
-	}
-
-	return collection.SetLimit(offset, limit)
+	return it.listCollection.SetLimit(offset, limit)
 }
-*/

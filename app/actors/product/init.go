@@ -25,7 +25,7 @@ func init() {
 // DB preparations for current model implementation
 func setupDB() error {
 
-	collection, err := db.GetCollection(DB_COLLECTION_NAME_PRODUCT)
+	collection, err := db.GetCollection(COLLECTION_NAME_PRODUCT)
 	if err != nil {
 		return err
 	}
