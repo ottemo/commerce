@@ -107,9 +107,9 @@ func (it *MongoDBCollection) getFilterGroup(groupName string) *T_DBFilterGroup {
 // adds filter(combination of [column, operator, value]) in named filter group
 func (it *MongoDBCollection) updateFilterGroup(groupName string, columnName string, operator string, value interface{}) error {
 
-	if !it.HasColumn(columnName) {
+	/*if !it.HasColumn(columnName) {
 		return errors.New("not existing column " + columnName)
-	}
+	}*/
 
 	// converting operator and value for mongoDB usage
 	//-------------------------------------------------

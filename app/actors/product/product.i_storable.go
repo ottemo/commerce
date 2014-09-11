@@ -54,7 +54,7 @@ func (it *DefaultProduct) Delete() error {
 // stores current product to DB
 func (it *DefaultProduct) Save() error {
 	collection, err := db.GetCollection(COLLECTION_NAME_PRODUCT)
-	if err == nil {
+	if err != nil {
 		return err
 	}
 
