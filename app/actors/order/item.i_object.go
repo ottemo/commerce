@@ -46,7 +46,7 @@ func (it *DefaultOrderItem) Get(attribute string) interface{} {
 		return it.ShortDescription
 
 	case "options":
-		return it.ProductOptions
+		return it.Options
 
 	case "price":
 		return it.Price
@@ -89,7 +89,7 @@ func (it *DefaultOrderItem) Set(attribute string, value interface{}) error {
 
 	case "options":
 		if mapValue, ok := value.(map[string]interface{}); ok {
-			it.ProductOptions = mapValue
+			it.Options = mapValue
 		} else {
 			return errors.New("options should me map[string]interface{} type")
 		}

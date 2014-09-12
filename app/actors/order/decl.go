@@ -36,7 +36,7 @@ type DefaultOrderItem struct {
 
 	ShortDescription string
 
-	ProductOptions map[string]interface{}
+	Options map[string]interface{}
 
 	Price  float64
 	Weight float64

@@ -3,7 +3,6 @@ package checkout
 import (
 	"errors"
 	"fmt"
-	"strconv"
 	"time"
 
 	"github.com/ottemo/foundation/api"
@@ -439,23 +438,11 @@ func restSubmit(params *api.T_APIHandlerParams) (interface{}, error) {
 			return nil, err
 		}
 
-		product := cartItem.GetProduct()
-		if product == nil {
-			return nil, errors.New("no product for cart item " + strconv.Itoa(cartItem.GetIdx()))
-		}
-
-		orderItem.Set("name", product.GetName())
-		orderItem.Set("sku", product.GetSku())
-		orderItem.Set("short_description", product.GetShortDescription())
-
-		orderItem.Set("price", product.GetPrice())
-		orderItem.Set("weight", product.GetWeight())
-
 		if generateDescriptionFlag {
 			if orderDescription != "" {
 				orderDescription += ", "
 			}
-			orderDescription += fmt.Sprintf("%dx %s", cartItem.GetQty(), product.GetName())
+			orderDescription += fmt.Sprintf("%dx %s", cartItem.GetQty(), orderItem.GetName())
 		}
 	}
 	checkoutOrder.Set("description", orderDescription)

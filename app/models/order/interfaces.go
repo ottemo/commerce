@@ -22,7 +22,7 @@ type I_OrderItem interface {
 
 	GetWeight() float64
 
-	GetProductOptions() map[string]interface{}
+	GetOptions() map[string]interface{}
 
 	models.I_Object
 }
