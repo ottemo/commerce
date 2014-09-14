@@ -201,22 +201,22 @@ func InterfaceToArray(value interface{}) []interface{} {
 
 	switch typedValue := value.(type) {
 	case []string:
-		result = make([]interface{}, 0, len(typedValue))
+		result = make([]interface{}, len(typedValue))
 		for idx, value := range typedValue {
 			result[idx] = value
 		}
 	case []int:
-		result = make([]interface{}, 0, len(typedValue))
+		result = make([]interface{}, len(typedValue))
 		for idx, value := range typedValue {
 			result[idx] = value
 		}
 	case []int64:
-		result = make([]interface{}, 0, len(typedValue))
+		result = make([]interface{}, len(typedValue))
 		for idx, value := range typedValue {
 			result[idx] = value
 		}
 	case []float64:
-		result = make([]interface{}, 0, len(typedValue))
+		result = make([]interface{}, len(typedValue))
 		for idx, value := range typedValue {
 			result[idx] = value
 		}
@@ -224,14 +224,13 @@ func InterfaceToArray(value interface{}) []interface{} {
 		return typedValue
 
 	case string:
-		print("hh 1")
 		jsonArray, err := DecodeJsonToArray(typedValue)
 		if err == nil {
 			return jsonArray
 		}
 
 		splitValues := strings.Split(typedValue, ",")
-		result = make([]interface{}, 0, len(splitValues))
+		result = make([]interface{}, len(splitValues))
 		for idx, value := range splitValues {
 			result[idx] = strings.Trim(value, " \t\n")
 		}

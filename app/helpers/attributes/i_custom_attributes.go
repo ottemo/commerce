@@ -2,8 +2,9 @@ package attributes
 
 import (
 	"errors"
-	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/foundation/app/models"
+	"github.com/ottemo/foundation/app/utils"
 )
 
 // initializes helper before usage
@@ -40,37 +41,32 @@ func (it *CustomAttributes) Init(model string) (*CustomAttributes, error) {
 			attribute := models.T_AttributeInfo{}
 
 			for key, value := range row {
-				switch value := value.(type) {
-				case string:
-					switch key {
-					case "model":
-						attribute.Model = value
-					case "collection":
-						attribute.Collection = value
-					case "attribute":
-						attribute.Attribute = value
-					case "type":
-						attribute.Type = value
-					case "label":
-						attribute.Label = value
-					case "group":
-						attribute.Group = value
-					case "editors":
-						attribute.Editors = value
-					case "options":
-						attribute.Options = value
-					case "default":
-						attribute.Default = value
-					case "validators":
-						attribute.Validators = value
-					}
-				case bool:
-					switch key {
-					case "isrequired", "required":
-						attribute.IsRequired = value
-					case "islayered", "layered":
-						attribute.IsLayered = value
-					}
+				switch key {
+				case "model":
+					attribute.Model = utils.InterfaceToString(value)
+				case "collection":
+					attribute.Collection = utils.InterfaceToString(value)
+				case "attribute":
+					attribute.Attribute = utils.InterfaceToString(value)
+				case "type":
+					attribute.Type = utils.InterfaceToString(value)
+				case "label":
+					attribute.Label = utils.InterfaceToString(value)
+				case "group":
+					attribute.Group = utils.InterfaceToString(value)
+				case "editors":
+					attribute.Editors = utils.InterfaceToString(value)
+				case "options":
+					attribute.Options = utils.InterfaceToString(value)
+				case "default":
+					attribute.Default = utils.InterfaceToString(value)
+				case "validators":
+					attribute.Validators = utils.InterfaceToString(value)
+
+				case "isrequired", "required":
+					attribute.IsRequired = utils.InterfaceToBool(value)
+				case "islayered", "layered":
+					attribute.IsLayered = utils.InterfaceToBool(value)
 				}
 			}
 
@@ -95,7 +91,7 @@ func (it *CustomAttributes) RemoveAttribute(attributeName string) error {
 
 	customAttributesCollection, err := db.GetCollection(COLLECTION_NAME_CUSTOM_ATTRIBUTES)
 	if err != nil {
-		return errors.New("Can't get collection 'custom_attributes': " + err.Error())
+		return errors.New("Can't get collection '" + COLLECTION_NAME_CUSTOM_ATTRIBUTES + "': " + err.Error())
 	}
 
 	modelCollection, err := db.GetCollection(customAttribute.Collection)
@@ -112,7 +108,7 @@ func (it *CustomAttributes) RemoveAttribute(attributeName string) error {
 	delete(globalCustomAttributes, it.model)
 	globalCustomAttributesMutex.Unlock()
 
-	customAttributesCollection.AddFilter("model", "=", customAttribute.Collection)
+	customAttributesCollection.AddFilter("model", "=", customAttribute.Model)
 	customAttributesCollection.AddFilter("attribute", "=", attributeName)
 	_, err = customAttributesCollection.Delete()
 	if err != nil {
@@ -132,11 +128,11 @@ func (it *CustomAttributes) AddNewAttribute(newAttribute models.T_AttributeInfo)
 	// getting collection where custom attribute information stores
 	customAttribuesCollection, err := db.GetCollection(COLLECTION_NAME_CUSTOM_ATTRIBUTES)
 	if err != nil {
-		return errors.New("Can't get collection 'custom_attributes': " + err.Error())
+		return errors.New("Can't get collection '" + COLLECTION_NAME_CUSTOM_ATTRIBUTES + "': " + err.Error())
 	}
 
 	// getting collection where attribute supposed to be
-	attrCollection, err := db.GetCollection(newAttribute.Collection)
+	modelCollection, err := db.GetCollection(newAttribute.Collection)
 	if err != nil {
 		return errors.New("Can't get attribute '" + newAttribute.Attribute + "' collection '" + newAttribute.Collection + "': " + err.Error())
 	}
@@ -164,7 +160,7 @@ func (it *CustomAttributes) AddNewAttribute(newAttribute models.T_AttributeInfo)
 	}
 
 	// inserting new attribute to supposed location
-	err = attrCollection.AddColumn(newAttribute.Attribute, newAttribute.Type, false)
+	err = modelCollection.AddColumn(newAttribute.Attribute, newAttribute.Type, false)
 	if err != nil {
 		customAttribuesCollection.DeleteById(newCustomAttributeId)
 

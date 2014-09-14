@@ -67,7 +67,7 @@ func (it *DefaultCart) Load(Id string) error {
 			cartItem.Cart = it
 			cartItem.ProductId = utils.InterfaceToString(cartItemValues["product_id"])
 			cartItem.Qty = utils.InterfaceToInt(cartItemValues["qty"])
-			cartItem.Options, _ = utils.DecodeJsonToStringKeyMap(cartItemValues["options"])
+			cartItem.Options = utils.InterfaceToMap(cartItemValues["options"])
 
 			it.Items[cartItem.idx] = cartItem
 		}

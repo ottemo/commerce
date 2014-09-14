@@ -64,6 +64,7 @@ func restCartInfo(params *api.T_APIHandlerParams) (interface{}, error) {
 			productData["image"] = mediaPath + product.GetDefaultImage()
 			productData["price"] = product.GetPrice()
 			productData["weight"] = product.GetWeight()
+			productData["options"] = product.GetOptions()
 
 			item["product"] = productData
 		}
@@ -105,7 +106,7 @@ func restCartAdd(params *api.T_APIHandlerParams) (interface{}, error) {
 		qty = utils.InterfaceToInt(reqQty)
 	}
 
-	var options map[string]interface{} = nil
+	var options map[string]interface{} = reqData
 	reqOptions, present := reqData["options"]
 	if present {
 		if tmpOptions, ok := reqOptions.(map[string]interface{}); ok {
@@ -124,7 +125,7 @@ func restCartAdd(params *api.T_APIHandlerParams) (interface{}, error) {
 	cartItems := currentCart.GetItems()
 	for _, item := range cartItems {
 		cartItemOptions, _ := utils.EncodeToJsonString(item.GetOptions())
-		newItemOptions, _ := utils.EncodeToJsonString(item.GetOptions())
+		newItemOptions, _ := utils.EncodeToJsonString(reqOptions)
 		if item.GetProductId() == pid && cartItemOptions == newItemOptions {
 			item.SetQty(item.GetQty() + qty)
 			addItemFlag = false
@@ -132,7 +133,10 @@ func restCartAdd(params *api.T_APIHandlerParams) (interface{}, error) {
 	}
 
 	if addItemFlag {
-		currentCart.AddItem(pid, qty, options)
+		_, err := currentCart.AddItem(pid, qty, options)
+		if err != nil {
+			return nil, err
+		}
 	}
 	currentCart.Save()
 

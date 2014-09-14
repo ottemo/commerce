@@ -7,7 +7,7 @@ import (
 
 // retrieves current I_VisitorAddressCollection model implementation
 func GetVisitorAddressCollectionModel() (I_VisitorAddressCollection, error) {
-	model, err := models.GetModel(MODEL_NAME_VISITOR_ADDRESS)
+	model, err := models.GetModel(MODEL_NAME_VISITOR_ADDRESS_COLLECTION)
 	if err != nil {
 		return nil, err
 	}
