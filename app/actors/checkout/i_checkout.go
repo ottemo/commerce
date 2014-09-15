@@ -2,8 +2,8 @@ package checkout
 
 import (
 	"github.com/ottemo/foundation/app/models/cart"
-	"github.com/ottemo/foundation/app/models/order"
 	"github.com/ottemo/foundation/app/models/checkout"
+	"github.com/ottemo/foundation/app/models/order"
 	"github.com/ottemo/foundation/app/models/visitor"
 
 	"github.com/ottemo/foundation/api"
@@ -35,35 +35,49 @@ func (it *DefaultCheckout) GetBillingAddress() visitor.I_VisitorAddress {
 
 // sets payment method for checkout
 func (it *DefaultCheckout) SetPaymentMethod(paymentMethod checkout.I_PaymentMethod) error {
-	it.PaymentMethod = paymentMethod
+	it.PaymentMethodCode = paymentMethod.GetCode()
 	return nil
 }
 
 // returns checkout payment method
 func (it *DefaultCheckout) GetPaymentMethod() checkout.I_PaymentMethod {
-	return it.PaymentMethod
+	if paymentMethods := checkout.GetRegisteredPaymentMethods(); paymentMethods != nil {
+		for _, paymentMethod := range checkout.PaymentMethods {
+			if paymentMethod.GetCode() == it.PaymentMethodCode {
+				return paymentMethod
+			}
+		}
+	}
+	return nil
 }
 
 // sets payment method for checkout
 func (it *DefaultCheckout) SetShippingMethod(shippingMethod checkout.I_ShippingMehod) error {
-	it.ShippingMethod = shippingMethod
-	return nil
-}
-
-// returns checkout shipping rate
-func (it *DefaultCheckout) GetShippingRate() *checkout.T_ShippingRate {
-	return it.ShippingRate
-}
-
-// sets shipping rate for checkout
-func (it *DefaultCheckout) SetShippingRate(shippingRate checkout.T_ShippingRate) error {
-	it.ShippingRate = &shippingRate
+	it.ShippingMethodCode = shippingMethod.GetCode()
 	return nil
 }
 
 // return checkout shipping method
 func (it *DefaultCheckout) GetShippingMethod() checkout.I_ShippingMehod {
-	return it.ShippingMethod
+	if shippingMethods := checkout.GetRegisteredShippingMethods(); shippingMethods != nil {
+		for _, shippingMethod := range shippingMethods {
+			if shippingMethod.GetCode() == it.ShippingMethodCode {
+				return shippingMethod
+			}
+		}
+	}
+	return nil
+}
+
+// sets shipping rate for checkout
+func (it *DefaultCheckout) SetShippingRate(shippingRate checkout.T_ShippingRate) error {
+	it.ShippingRate = shippingRate
+	return nil
+}
+
+// returns checkout shipping rate
+func (it *DefaultCheckout) GetShippingRate() *checkout.T_ShippingRate {
+	return &it.ShippingRate
 }
 
 // sets cart for checkout
@@ -101,13 +115,13 @@ func (it *DefaultCheckout) GetVisitor() visitor.I_Visitor {
 
 // sets visitor for checkout
 func (it *DefaultCheckout) SetSession(checkoutSession api.I_Session) error {
-	it.Session = checkoutSession
+	it.SessionId = checkoutSession.GetId()
 	return nil
 }
 
 // return checkout visitor
 func (it *DefaultCheckout) GetSession() api.I_Session {
-	return it.Session
+	return api.GetSessionById(it.SessionId)
 }
 
 // collects taxes applied for current checkout

@@ -86,28 +86,21 @@ func (it *DefaultVisitor) Set(attribute string, value interface{}) error {
 
 		// we have sub-map, supposedly I_VisitorAddress capable
 		case map[string]interface{}:
-			model, err := models.GetModel("VisitorAddress")
+			addressModel, err := visitor.GetVisitorAddressModel()
+
+			err = addressModel.FromHashMap(value)
 			if err != nil {
 				return err
 			}
 
-			if address, ok := model.(visitor.I_VisitorAddress); ok {
-				err := address.FromHashMap(value)
-				if err != nil {
-					return err
-				}
-
-				if attribute == "billing_address" {
-					it.BillingAddress = address
-				} else {
-					it.ShippingAddress = address
-				}
+			if attribute == "billing_address" {
+				it.BillingAddress = addressModel
 			} else {
-				errors.New("unsupported visitor addres model " + model.GetImplementationName())
+				it.ShippingAddress = addressModel
 			}
 
 		default:
-			return errors.New("unsupported 'billing_address' value")
+			return errors.New("unsupported billing or shipping address value")
 		}
 	}
 	return nil
@@ -158,8 +151,8 @@ func (it *DefaultVisitor) GetAttributesInfo() []models.T_AttributeInfo {
 
 	info := []models.T_AttributeInfo{
 		models.T_AttributeInfo{
-			Model:      "Visitor",
-			Collection: "Visitor",
+			Model:      visitor.MODEL_NAME_VISITOR,
+			Collection: COLLECTION_NAME_VISITOR,
 			Attribute:  "_id",
 			Type:       "id",
 			IsRequired: false,
@@ -171,8 +164,8 @@ func (it *DefaultVisitor) GetAttributesInfo() []models.T_AttributeInfo {
 			Default:    "",
 		},
 		models.T_AttributeInfo{
-			Model:      "Visitor",
-			Collection: "Visitor",
+			Model:      visitor.MODEL_NAME_VISITOR,
+			Collection: COLLECTION_NAME_VISITOR,
 			Attribute:  "email",
 			Type:       "text",
 			IsRequired: true,
@@ -184,8 +177,8 @@ func (it *DefaultVisitor) GetAttributesInfo() []models.T_AttributeInfo {
 			Default:    "",
 		},
 		models.T_AttributeInfo{
-			Model:      "Visitor",
-			Collection: "Visitor",
+			Model:      visitor.MODEL_NAME_VISITOR,
+			Collection: COLLECTION_NAME_VISITOR,
 			Attribute:  "first_name",
 			Type:       "text",
 			IsRequired: true,
@@ -197,8 +190,8 @@ func (it *DefaultVisitor) GetAttributesInfo() []models.T_AttributeInfo {
 			Default:    "",
 		},
 		models.T_AttributeInfo{
-			Model:      "Visitor",
-			Collection: "Visitor",
+			Model:      visitor.MODEL_NAME_VISITOR,
+			Collection: COLLECTION_NAME_VISITOR,
 			Attribute:  "last_name",
 			Type:       "text",
 			IsRequired: true,
@@ -210,8 +203,8 @@ func (it *DefaultVisitor) GetAttributesInfo() []models.T_AttributeInfo {
 			Default:    "",
 		},
 		models.T_AttributeInfo{
-			Model:      "Visitor",
-			Collection: "Visitor",
+			Model:      visitor.MODEL_NAME_VISITOR,
+			Collection: COLLECTION_NAME_VISITOR,
 			Attribute:  "password",
 			Type:       "text",
 			IsRequired: false,
@@ -223,8 +216,8 @@ func (it *DefaultVisitor) GetAttributesInfo() []models.T_AttributeInfo {
 			Default:    "",
 		},
 		models.T_AttributeInfo{
-			Model:      "Visitor",
-			Collection: "Visitor",
+			Model:      visitor.MODEL_NAME_VISITOR,
+			Collection: COLLECTION_NAME_VISITOR,
 			Attribute:  "billing_address_id",
 			Type:       "text",
 			IsRequired: false,
@@ -236,8 +229,8 @@ func (it *DefaultVisitor) GetAttributesInfo() []models.T_AttributeInfo {
 			Default:    "",
 		},
 		models.T_AttributeInfo{
-			Model:      "Visitor",
-			Collection: "Visitor",
+			Model:      visitor.MODEL_NAME_VISITOR,
+			Collection: COLLECTION_NAME_VISITOR,
 			Attribute:  "shipping_address_id",
 			Type:       "text",
 			IsRequired: false,

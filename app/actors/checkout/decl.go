@@ -1,7 +1,6 @@
 package checkout
 
 import (
-	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/app/models/checkout"
 )
 
@@ -12,15 +11,15 @@ type DefaultCheckout struct {
 	VisitorId string
 	OrderId   string
 
-	Session api.I_Session
+	SessionId string
 
 	ShippingAddressId string
 	BillingAddressId  string
 
-	PaymentMethod checkout.I_PaymentMethod
+	PaymentMethodCode  string
+	ShippingMethodCode string
 
-	ShippingMethod checkout.I_ShippingMehod
-	ShippingRate   *checkout.T_ShippingRate
+	ShippingRate checkout.T_ShippingRate
 
 	Taxes     []checkout.T_TaxRate
 	Discounts []checkout.T_Discount

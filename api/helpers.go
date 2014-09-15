@@ -6,8 +6,15 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/ottemo/foundation/api/session"
 	"github.com/ottemo/foundation/db"
 )
+
+// returns session instance by id or nil
+func GetSessionById(sessionId string) I_Session {
+	session, _ := session.GetSessionById(sessionId)
+	return session
+}
 
 // tries to represent HTTP request content in map[string]interface{} format
 func GetRequestContentAsMap(params *T_APIHandlerParams) (map[string]interface{}, error) {
