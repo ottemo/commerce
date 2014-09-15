@@ -21,6 +21,7 @@ type I_Product interface {
 	GetPrice() float64
 	GetWeight() float64
 
+	ApplyOptions(map[string]interface{}) error
 	GetOptions() map[string]interface{}
 
 	models.I_Model

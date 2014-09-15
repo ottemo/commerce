@@ -55,6 +55,9 @@ func restCartInfo(params *api.T_APIHandlerParams) (interface{}, error) {
 		item["options"] = cartItem.GetOptions()
 
 		if product := cartItem.GetProduct(); product != nil {
+
+			product.ApplyOptions(cartItem.GetOptions())
+
 			productData := make(map[string]interface{})
 
 			mediaPath, _ := product.GetMediaPath("image")

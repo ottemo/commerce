@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/ottemo/foundation/app/models"
+	"github.com/ottemo/foundation/app/models/product"
 	"github.com/ottemo/foundation/app/utils"
 )
 
@@ -102,8 +103,8 @@ func (it *DefaultProduct) ToHashMap() map[string]interface{} {
 func (it *DefaultProduct) GetAttributesInfo() []models.T_AttributeInfo {
 	result := []models.T_AttributeInfo{
 		models.T_AttributeInfo{
-			Model:      "Product",
-			Collection: "product",
+			Model:      product.MODEL_NAME_PRODUCT,
+			Collection: COLLECTION_NAME_PRODUCT,
 			Attribute:  "_id",
 			Type:       "text",
 			IsRequired: false,
@@ -115,8 +116,8 @@ func (it *DefaultProduct) GetAttributesInfo() []models.T_AttributeInfo {
 			Default:    "",
 		},
 		models.T_AttributeInfo{
-			Model:      "Product",
-			Collection: "product",
+			Model:      product.MODEL_NAME_PRODUCT,
+			Collection: COLLECTION_NAME_PRODUCT,
 			Attribute:  "sku",
 			Type:       "text",
 			IsRequired: true,
@@ -128,8 +129,8 @@ func (it *DefaultProduct) GetAttributesInfo() []models.T_AttributeInfo {
 			Default:    "",
 		},
 		models.T_AttributeInfo{
-			Model:      "Product",
-			Collection: "product",
+			Model:      product.MODEL_NAME_PRODUCT,
+			Collection: COLLECTION_NAME_PRODUCT,
 			Attribute:  "name",
 			Type:       "text",
 			IsRequired: true,
@@ -141,8 +142,8 @@ func (it *DefaultProduct) GetAttributesInfo() []models.T_AttributeInfo {
 			Default:    "",
 		},
 		models.T_AttributeInfo{
-			Model:      "Product",
-			Collection: "product",
+			Model:      product.MODEL_NAME_PRODUCT,
+			Collection: COLLECTION_NAME_PRODUCT,
 			Attribute:  "short_description",
 			Type:       "text",
 			IsRequired: false,
@@ -154,8 +155,8 @@ func (it *DefaultProduct) GetAttributesInfo() []models.T_AttributeInfo {
 			Default:    "",
 		},
 		models.T_AttributeInfo{
-			Model:      "Product",
-			Collection: "product",
+			Model:      product.MODEL_NAME_PRODUCT,
+			Collection: COLLECTION_NAME_PRODUCT,
 			Attribute:  "description",
 			Type:       "text",
 			IsRequired: false,
@@ -167,8 +168,8 @@ func (it *DefaultProduct) GetAttributesInfo() []models.T_AttributeInfo {
 			Default:    "",
 		},
 		models.T_AttributeInfo{
-			Model:      "Product",
-			Collection: "product",
+			Model:      product.MODEL_NAME_PRODUCT,
+			Collection: COLLECTION_NAME_PRODUCT,
 			Attribute:  "default_image",
 			Type:       "text",
 			IsRequired: false,
@@ -180,8 +181,8 @@ func (it *DefaultProduct) GetAttributesInfo() []models.T_AttributeInfo {
 			Default:    "",
 		},
 		models.T_AttributeInfo{
-			Model:      "Product",
-			Collection: "product",
+			Model:      product.MODEL_NAME_PRODUCT,
+			Collection: COLLECTION_NAME_PRODUCT,
 			Attribute:  "price",
 			Type:       "numeric",
 			IsRequired: true,
@@ -193,8 +194,8 @@ func (it *DefaultProduct) GetAttributesInfo() []models.T_AttributeInfo {
 			Default:    "",
 		},
 		models.T_AttributeInfo{
-			Model:      "Product",
-			Collection: "product",
+			Model:      product.MODEL_NAME_PRODUCT,
+			Collection: COLLECTION_NAME_PRODUCT,
 			Attribute:  "weight",
 			Type:       "numeric",
 			IsRequired: false,
@@ -206,8 +207,8 @@ func (it *DefaultProduct) GetAttributesInfo() []models.T_AttributeInfo {
 			Default:    "",
 		},
 		models.T_AttributeInfo{
-			Model:      "Product",
-			Collection: "product",
+			Model:      product.MODEL_NAME_PRODUCT,
+			Collection: COLLECTION_NAME_PRODUCT,
 			Attribute:  "options",
 			Type:       "text",
 			IsRequired: false,
