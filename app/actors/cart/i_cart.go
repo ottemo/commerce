@@ -31,12 +31,18 @@ func (it *DefaultCart) checkOptions(productOptions map[string]interface{}, cartI
 
 					// checking for valid value was set by customer
 					// cart option value can be one or multiple values, but should be string there
-					optionValuesToCheck := []string{}
+					optionValuesToCheck := make([]string, 0)
 					switch typedOptionValue := optionValue.(type) {
 					case string:
-						optionValuesToCheck = []string{typedOptionValue}
+						optionValuesToCheck = append(optionValuesToCheck, typedOptionValue)
 					case []string:
 						optionValuesToCheck = typedOptionValue
+					case []interface{}:
+						for _, value := range typedOptionValue {
+							if value, ok := value.(string); ok {
+								optionValuesToCheck = append(optionValuesToCheck, value)
+							}
+						}
 					default:
 						return errors.New("unexpected option value for " + optionName + " option")
 					}
@@ -82,8 +88,16 @@ func (it *DefaultCart) checkOptions(productOptions map[string]interface{}, cartI
 				if value, ok := productOptionValue["required"].(bool); ok && value {
 
 					//checking cart item option for required option existence
-					if _, present := cartItemOptions[productOption]; !present {
+					if itemOptionValue, present := cartItemOptions[productOption]; !present {
 						return errors.New(productOption + " was not specified")
+					} else {
+						// for multi value options additional check
+						switch typedValue := itemOptionValue.(type) {
+						case []interface{}:
+							if len(typedValue) == 0 {
+								return errors.New(productOption + " was not specified")
+							}
+						}
 					}
 
 				}

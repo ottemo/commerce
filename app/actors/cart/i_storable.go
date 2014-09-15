@@ -55,6 +55,7 @@ func (it *DefaultCart) Load(Id string) error {
 		}
 
 		for _, cartItemValues := range cartItems {
+
 			cartItem := new(DefaultCartItem)
 
 			cartItem.id = utils.InterfaceToString(cartItemValues["_id"])
@@ -69,7 +70,15 @@ func (it *DefaultCart) Load(Id string) error {
 			cartItem.Qty = utils.InterfaceToInt(cartItemValues["qty"])
 			cartItem.Options = utils.InterfaceToMap(cartItemValues["options"])
 
-			it.Items[cartItem.idx] = cartItem
+			// check for product existence and options validation
+			if itemProduct := cartItem.GetProduct(); itemProduct != nil &&
+				it.checkOptions(itemProduct.GetOptions(), cartItem.GetOptions()) == nil {
+
+				it.Items[cartItem.idx] = cartItem
+			} else {
+				cartItemsCollection.DeleteById(utils.InterfaceToString(cartItemValues["_id"]))
+			}
+
 		}
 	}
 
