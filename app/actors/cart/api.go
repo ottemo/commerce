@@ -125,7 +125,7 @@ func restCartAdd(params *api.T_APIHandlerParams) (interface{}, error) {
 	cartItems := currentCart.GetItems()
 	for _, item := range cartItems {
 		cartItemOptions, _ := utils.EncodeToJsonString(item.GetOptions())
-		newItemOptions, _ := utils.EncodeToJsonString(reqOptions)
+		newItemOptions, _ := utils.EncodeToJsonString(options)
 		if item.GetProductId() == pid && cartItemOptions == newItemOptions {
 			item.SetQty(item.GetQty() + qty)
 			addItemFlag = false
