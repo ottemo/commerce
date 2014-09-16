@@ -207,6 +207,7 @@ func (it *DefaultCart) GetSubtotal() float64 {
 	if it.Subtotal == 0 {
 		for _, cartItem := range it.Items {
 			if cartProduct := cartItem.GetProduct(); cartProduct != nil {
+				cartProduct.ApplyOptions(cartItem.GetOptions())
 				it.Subtotal += cartProduct.GetPrice() * float64(cartItem.GetQty())
 			}
 		}

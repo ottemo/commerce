@@ -6,9 +6,9 @@ import (
 )
 
 // encodes inputData to JSON string if it's possible
-func EncodeToJsonString(inputData interface{}) (string, error) {
-	result, err := json.Marshal(inputData)
-	return string(result), err
+func EncodeToJsonString(inputData interface{}) string {
+	result, _ := json.Marshal(inputData)
+	return string(result)
 }
 
 // decodes json string to []interface{} if it's possible

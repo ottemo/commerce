@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"math"
 	"strconv"
 	"strings"
 	"time"
@@ -339,4 +340,27 @@ func StringToInteger(value string) (int, error) {
 // convert string to float64
 func StringToFloat(value string) (float64, error) {
 	return strconv.ParseFloat(value, 64)
+}
+
+// rounds value to given precision (roundOn=0.5 usual cases)
+func Round(val float64, roundOn float64, places int) float64 {
+
+	pow := math.Pow(10, float64(places))
+	digit := pow * val
+	_, div := math.Modf(digit)
+
+	var round float64
+	if div >= roundOn {
+		round = math.Ceil(digit)
+	} else {
+		round = math.Floor(digit)
+	}
+
+	return round / pow
+}
+
+// function you should use to normalize price after calculations
+// (in future that function should have config options setup)
+func RoundPrice(price float64) float64 {
+	return Round(price, 0.5, 2)
 }

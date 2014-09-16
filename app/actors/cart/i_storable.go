@@ -146,7 +146,7 @@ func (it *DefaultCart) Save() error {
 	cartStoringValues["_id"] = it.GetId()
 	cartStoringValues["visitor_id"] = it.VisitorId
 	cartStoringValues["active"] = it.Active
-	cartStoringValues["info"], _ = utils.EncodeToJsonString(it.Info)
+	cartStoringValues["info"] = utils.EncodeToJsonString(it.Info)
 
 	newId, err := cartCollection.Save(cartStoringValues)
 	if err != nil {

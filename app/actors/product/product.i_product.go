@@ -1,11 +1,11 @@
 package product
 
 import (
+	"errors"
 	"fmt"
+	"github.com/ottemo/foundation/app/utils"
 	"sort"
 	"strings"
-	"errors"
-	"github.com/ottemo/foundation/app/utils"
 )
 
 func (it *DefaultProduct) GetSku() string  { return it.Sku }
@@ -16,14 +16,13 @@ func (it *DefaultProduct) GetDescription() string      { return it.Description }
 
 func (it *DefaultProduct) GetDefaultImage() string { return it.DefaultImage }
 
-func (it *DefaultProduct) GetPrice() float64 { return it.Price }
+func (it *DefaultProduct) GetPrice() float64  { return it.Price }
 func (it *DefaultProduct) GetWeight() float64 { return it.Weight }
 
-func (it *DefaultProduct) GetOptions() map[string]interface{}   { return it.Options }
+func (it *DefaultProduct) GetOptions() map[string]interface{} { return it.Options }
 
 // internal usage function to update order item fields according to options
 func (it *DefaultProduct) ApplyOptions(options map[string]interface{}) error {
-
 	// taking item specified options and product options
 	productOptions := it.GetOptions()
 
@@ -91,14 +90,20 @@ func (it *DefaultProduct) ApplyOptions(options map[string]interface{}) error {
 
 						// option user set can be single on multi-value
 						// making it uniform
-						itemOptionValueSet := []string{}
+						itemOptionValueSet := make([]string, 0)
 						switch typedOptionValue := itemOptionValue.(type) {
 						case string:
-							itemOptionValueSet = []string{typedOptionValue}
+							itemOptionValueSet = append(itemOptionValueSet, typedOptionValue)
 						case []string:
 							itemOptionValueSet = typedOptionValue
+						case []interface{}:
+							for _, value := range typedOptionValue {
+								if value, ok := value.(string); ok {
+									itemOptionValueSet = append(itemOptionValueSet, value)
+								}
+							}
 						default:
-							return errors.New("invalid value for " + itemOptionName)
+							return errors.New("unexpected option value for " + itemOptionName + " option")
 						}
 
 						// loop through option values customer set for product
@@ -136,6 +141,8 @@ func (it *DefaultProduct) ApplyOptions(options map[string]interface{}) error {
 			delete(productOptions, productOptionName)
 		}
 	}
+
+	it.Price = utils.RoundPrice(it.Price)
 
 	return nil
 }

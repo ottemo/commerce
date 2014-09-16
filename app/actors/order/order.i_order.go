@@ -155,7 +155,7 @@ func (it *DefaultOrder) CalculateTotals() error {
 
 	var subtotal float64 = 0.0
 	for _, orderItem := range it.Items {
-		subtotal += orderItem.GetPrice() * float64(orderItem.GetQty())
+		subtotal += utils.RoundPrice(orderItem.GetPrice() * float64(orderItem.GetQty()))
 	}
 	it.Subtotal = subtotal
 

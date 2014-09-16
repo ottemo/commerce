@@ -2,6 +2,8 @@ package address
 
 import (
 	"github.com/ottemo/foundation/app/models"
+	"github.com/ottemo/foundation/app/models/checkout"
+	"github.com/ottemo/foundation/app/models/visitor"
 	"github.com/ottemo/foundation/app/utils"
 	"strings"
 )
@@ -118,8 +120,8 @@ func (it *DefaultVisitorAddress) ToHashMap() map[string]interface{} {
 func (it *DefaultVisitorAddress) GetAttributesInfo() []models.T_AttributeInfo {
 	info := []models.T_AttributeInfo{
 		models.T_AttributeInfo{
-			Model:      "VisitorAddress",
-			Collection: "visitor_address",
+			Model:      visitor.MODEL_NAME_VISITOR_ADDRESS,
+			Collection: COLLECTION_NAME_VISITOR_ADDRESS,
 			Attribute:  "_id",
 			Type:       "id",
 			Label:      "ID",
@@ -129,8 +131,8 @@ func (it *DefaultVisitorAddress) GetAttributesInfo() []models.T_AttributeInfo {
 			Default:    "",
 		},
 		models.T_AttributeInfo{
-			Model:      "VisitorAddress",
-			Collection: "visitor_address",
+			Model:      visitor.MODEL_NAME_VISITOR_ADDRESS,
+			Collection: COLLECTION_NAME_VISITOR_ADDRESS,
 			Attribute:  "visitor_id",
 			Type:       "id",
 			Label:      "Visitor ID",
@@ -140,8 +142,8 @@ func (it *DefaultVisitorAddress) GetAttributesInfo() []models.T_AttributeInfo {
 			Default:    "",
 		},
 		models.T_AttributeInfo{
-			Model:      "VisitorAddress",
-			Collection: "visitor_address",
+			Model:      visitor.MODEL_NAME_VISITOR_ADDRESS,
+			Collection: COLLECTION_NAME_VISITOR_ADDRESS,
 			Attribute:  "address_line1",
 			Type:       "varchar(255)",
 			Label:      "Address Line 1",
@@ -151,8 +153,8 @@ func (it *DefaultVisitorAddress) GetAttributesInfo() []models.T_AttributeInfo {
 			Default:    "",
 		},
 		models.T_AttributeInfo{
-			Model:      "VisitorAddress",
-			Collection: "visitor_address",
+			Model:      visitor.MODEL_NAME_VISITOR_ADDRESS,
+			Collection: COLLECTION_NAME_VISITOR_ADDRESS,
 			Attribute:  "address_line2",
 			Type:       "varchar(255)",
 			Label:      "Address Line 2",
@@ -162,8 +164,8 @@ func (it *DefaultVisitorAddress) GetAttributesInfo() []models.T_AttributeInfo {
 			Default:    "",
 		},
 		models.T_AttributeInfo{
-			Model:      "VisitorAddress",
-			Collection: "visitor_address",
+			Model:      visitor.MODEL_NAME_VISITOR_ADDRESS,
+			Collection: COLLECTION_NAME_VISITOR_ADDRESS,
 			Attribute:  "first_name",
 			Type:       "varchar(100)",
 			Label:      "First Name",
@@ -173,8 +175,8 @@ func (it *DefaultVisitorAddress) GetAttributesInfo() []models.T_AttributeInfo {
 			Default:    "",
 		},
 		models.T_AttributeInfo{
-			Model:      "VisitorAddress",
-			Collection: "visitor_address",
+			Model:      visitor.MODEL_NAME_VISITOR_ADDRESS,
+			Collection: COLLECTION_NAME_VISITOR_ADDRESS,
 			Attribute:  "last_name",
 			Type:       "varchar(100)",
 			Label:      "Last Name",
@@ -184,8 +186,8 @@ func (it *DefaultVisitorAddress) GetAttributesInfo() []models.T_AttributeInfo {
 			Default:    "",
 		},
 		models.T_AttributeInfo{
-			Model:      "VisitorAddress",
-			Collection: "visitor_address",
+			Model:      visitor.MODEL_NAME_VISITOR_ADDRESS,
+			Collection: COLLECTION_NAME_VISITOR_ADDRESS,
 			Attribute:  "company",
 			Type:       "varchar(100)",
 			Label:      "Company",
@@ -195,19 +197,19 @@ func (it *DefaultVisitorAddress) GetAttributesInfo() []models.T_AttributeInfo {
 			Default:    "",
 		},
 		models.T_AttributeInfo{
-			Model:      "VisitorAddress",
-			Collection: "visitor_address",
+			Model:      visitor.MODEL_NAME_VISITOR_ADDRESS,
+			Collection: COLLECTION_NAME_VISITOR_ADDRESS,
 			Attribute:  "country",
 			Type:       "varchar(50)",
 			Label:      "Country",
 			Group:      "General",
-			Editors:    "line_text",
-			Options:    "",
+			Editors:    "select",
+			Options:    utils.EncodeToJsonString(checkout.COUNTRIES_LIST),
 			Default:    "",
 		},
 		models.T_AttributeInfo{
-			Model:      "VisitorAddress",
-			Collection: "visitor_address",
+			Model:      visitor.MODEL_NAME_VISITOR_ADDRESS,
+			Collection: COLLECTION_NAME_VISITOR_ADDRESS,
 			Attribute:  "city",
 			Type:       "varchar(100)",
 			Label:      "City",
@@ -217,8 +219,8 @@ func (it *DefaultVisitorAddress) GetAttributesInfo() []models.T_AttributeInfo {
 			Default:    "",
 		},
 		models.T_AttributeInfo{
-			Model:      "VisitorAddress",
-			Collection: "visitor_address",
+			Model:      visitor.MODEL_NAME_VISITOR_ADDRESS,
+			Collection: COLLECTION_NAME_VISITOR_ADDRESS,
 			Attribute:  "phone",
 			Type:       "varchar(100)",
 			Label:      "Phone",
@@ -228,19 +230,19 @@ func (it *DefaultVisitorAddress) GetAttributesInfo() []models.T_AttributeInfo {
 			Default:    "",
 		},
 		models.T_AttributeInfo{
-			Model:      "VisitorAddress",
-			Collection: "visitor_address",
+			Model:      visitor.MODEL_NAME_VISITOR_ADDRESS,
+			Collection: COLLECTION_NAME_VISITOR_ADDRESS,
 			Attribute:  "state",
 			Type:       "varchar(2)",
 			Label:      "State",
 			Group:      "General",
-			Editors:    "line_text",
-			Options:    "",
+			Editors:    "select",
+			Options:    utils.EncodeToJsonString(checkout.STATES_LIST),
 			Default:    "",
 		},
 		models.T_AttributeInfo{
-			Model:      "VisitorAddress",
-			Collection: "visitor_address",
+			Model:      visitor.MODEL_NAME_VISITOR_ADDRESS,
+			Collection: COLLECTION_NAME_VISITOR_ADDRESS,
 			Attribute:  "zip_code",
 			Type:       "varchar(10)",
 			Label:      "Zip",
