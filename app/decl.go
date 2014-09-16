@@ -20,11 +20,10 @@ const (
 	CONFIG_PATH_STORE_ADDRESSLINE2 = "general.store.addressline2"
 	CONFIG_PATH_STORE_ZIP          = "general.store.zip"
 
-	CONFIG_PATH_MAIL_FROM     = "general.mail.from"
-	CONFIG_PATH_MAIL_TEMPLATE = "general.mail.template"
-
-	CONFIG_PATH_MAIL_SERVER   = "general.mail.server"
-	CONFIG_PATH_MAIL_PORT     = "general.mail.port"
-	CONFIG_PATH_MAIL_USER     = "general.mail.user"
-	CONFIG_PATH_MAIL_PASSWORD = "general.mail.password"
+	CONFIG_PATH_MAIL_FROM      = "general.mail.from"
+	CONFIG_PATH_MAIL_SIGNATURE = "general.mail.footer"
+	CONFIG_PATH_MAIL_SERVER    = "general.mail.server"
+	CONFIG_PATH_MAIL_PORT      = "general.mail.port"
+	CONFIG_PATH_MAIL_USER      = "general.mail.user"
+	CONFIG_PATH_MAIL_PASSWORD  = "general.mail.password"
 )

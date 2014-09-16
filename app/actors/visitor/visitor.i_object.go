@@ -61,7 +61,11 @@ func (it *DefaultVisitor) Set(attribute string, value interface{}) error {
 
 	// only address id coming - trying to get it from DB
 	case "billing_address_id", "shipping_address_id":
-		address := it.getVisitorAddressById(utils.InterfaceToString(value))
+		address, err := visitor.LoadVisitorAddressById(utils.InterfaceToString(value))
+		if err != nil {
+			return err
+		}
+
 		if address != nil && address.GetId() != "" {
 
 			if attribute == "billing_address_id" {

@@ -7,37 +7,13 @@ import (
 	"encoding/base64"
 	"time"
 
-	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/visitor"
 
 	"github.com/ottemo/foundation/app/utils"
-	"github.com/ottemo/foundation/app/utils/sendmail"
 	"github.com/ottemo/foundation/db"
 
 	"errors"
 )
-
-//---------------------------------
-// IMPLEMENTATION SPECIFIC METHODS
-//---------------------------------
-
-// returns I_VisitorAddress model filled with values from DB or blank structure if no id found in DB
-func (it *DefaultVisitor) getVisitorAddressById(addressId string) visitor.I_VisitorAddress {
-	address_model, err := models.GetModel("VisitorAddress")
-	if err != nil {
-		return nil
-	}
-
-	if address_model, ok := address_model.(visitor.I_VisitorAddress); ok {
-		if addressId != "" {
-			address_model.Load(addressId)
-		}
-
-		return address_model
-	}
-
-	return nil
-}
 
 // returns I_VisitorAddress model filled with values from DB or blank structure if no id found in DB
 func (it *DefaultVisitor) passwdEncode(passwd string) string {
@@ -51,10 +27,6 @@ func (it *DefaultVisitor) passwdEncode(passwd string) string {
 
 	return hex.EncodeToString(hasher.Sum(nil))
 }
-
-//--------------------------
-// INTERFACE IMPLEMENTATION
-//--------------------------
 
 func (it *DefaultVisitor) GetEmail() string      { return it.Email }
 func (it *DefaultVisitor) GetFacebookId() string { return it.FacebookId }
@@ -106,13 +78,12 @@ func (it *DefaultVisitor) Invalidate() error {
 		return err
 	}
 
-	// TODO: probably not a best solution to have it there
-	linkHref := utils.GetSiteBackUrl() + "visitor/validate/" + it.ValidateKey
-	//link := "<a href=\"" + linkHref + "\"/>" + linkHref + "</a>"
+	linkHref := utils.GetFoundationUrl("visitor/validate/" + it.ValidateKey)
+	// link := "<a href=\"" + linkHref + "\"/>" + linkHref + "</a>"
 
-	sendmail.SendMail(it.GetEmail(), "e-mail validation", "please follow the link to validate your e-mail: "+linkHref)
+	err = utils.SendMail(it.GetEmail(), "e-mail validation", "please follow the link to validate your e-mail: "+linkHref)
 
-	return nil
+	return err
 }
 
 // validates visitors e-mails for given key
@@ -169,7 +140,11 @@ func (it *DefaultVisitor) Validate(key string) error {
 			visitorModel.ValidateKey = ""
 			visitorModel.Save()
 		} else {
-			visitorModel.Invalidate()
+			err = visitorModel.Invalidate()
+			if err != nil {
+				return err
+			}
+
 			return errors.New("validation period expired, new validation URL was sent")
 		}
 	}

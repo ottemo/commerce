@@ -2,8 +2,8 @@ package app
 
 import (
 	"errors"
-	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/app/models/checkout"
+	"github.com/ottemo/foundation/env"
 )
 
 // setup configuration values
@@ -223,7 +223,6 @@ func setupConfig() error {
 		return err
 	}
 
-
 	err = config.RegisterItem(env.T_ConfigItem{
 		Path:        CONFIG_PATH_MAIL_GROUP,
 		Value:       nil,
@@ -256,12 +255,72 @@ func setupConfig() error {
 
 	err = config.RegisterItem(env.T_ConfigItem{
 		Path:        CONFIG_PATH_MAIL_PORT,
-		Value:       nil,
-		Type:        env.CONFIG_ITEM_GROUP_TYPE,
-		Editor:      "",
+		Value:       587,
+		Type:        "int",
+		Editor:      "integer",
 		Options:     nil,
 		Label:       "Port",
 		Description: "web store mailing server port",
+		Image:       "",
+	}, nil)
+
+	if err != nil {
+		return err
+	}
+
+	err = config.RegisterItem(env.T_ConfigItem{
+		Path:        CONFIG_PATH_MAIL_USER,
+		Value:       nil,
+		Type:        "varchar(100)",
+		Editor:      "text",
+		Options:     nil,
+		Label:       "User",
+		Description: "mail server username",
+		Image:       "",
+	}, nil)
+
+	if err != nil {
+		return err
+	}
+
+	err = config.RegisterItem(env.T_ConfigItem{
+		Path:        CONFIG_PATH_MAIL_PASSWORD,
+		Value:       nil,
+		Type:        "varchar(100)",
+		Editor:      "password",
+		Options:     nil,
+		Label:       "Password",
+		Description: "mail server password",
+		Image:       "",
+	}, nil)
+
+	if err != nil {
+		return err
+	}
+
+	err = config.RegisterItem(env.T_ConfigItem{
+		Path:        CONFIG_PATH_MAIL_FROM,
+		Value:       nil,
+		Type:        "varchar(100)",
+		Editor:      "text",
+		Options:     nil,
+		Label:       "From",
+		Description: "sending mail from field",
+		Image:       "",
+	}, nil)
+
+	if err != nil {
+		return err
+	}
+
+	err = config.RegisterItem(env.T_ConfigItem{
+		Path:        CONFIG_PATH_MAIL_SIGNATURE,
+		Value:       "Sincerely, Ottemo",
+		Type:        "text",
+		Editor:      "multiline_text",
+		Options:     nil,
+		Label:       "Signature",
+		Description: "sending mail signature",
 		Image:       "",
 	}, nil)
 

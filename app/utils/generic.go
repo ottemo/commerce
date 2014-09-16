@@ -173,11 +173,6 @@ func IsMD5(value string) bool {
 	return ok
 }
 
-// TODO: should be somewhere in other place
-func GetSiteBackUrl() string {
-	return "http://dev.ottemo.com:3000/"
-}
-
 // converts interface{} to string
 func InterfaceToBool(value interface{}) bool {
 	switch typedValue := value.(type) {

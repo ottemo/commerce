@@ -333,7 +333,10 @@ func restRegister(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil, err
 	}
 
-	visitorModel.Invalidate()
+	err = visitorModel.Invalidate()
+	if err != nil {
+		return nil, err
+	}
 
 	return visitorModel.ToHashMap(), nil
 }
