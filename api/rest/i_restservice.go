@@ -116,8 +116,14 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 
 			redirectLocation := ""
 			if redirect, ok := result.(api.T_RestRedirect); ok {
-				redirectLocation = redirect.Location
-				result = redirect.Result
+				if redirect.DoRedirect {
+					resp.Header().Add("Location", redirect.Location)
+					resp.WriteHeader(301)
+					result = []byte("")
+				} else {
+					redirectLocation = redirect.Location
+					result = redirect.Result
+				}
 			}
 
 			if _, ok := result.([]byte); !ok {

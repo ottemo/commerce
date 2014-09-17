@@ -36,7 +36,7 @@ Subject: {{.Subject}}
 
 {{.Body}}
 
-{{.Footer}}`
+{{.Signature}}`
 
 	emailTemplate := template.New("emailTemplate")
 	emailTemplate, err := emailTemplate.Parse(emailTemplateBody)

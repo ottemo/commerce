@@ -16,6 +16,8 @@ type T_APIHandlerParams struct {
 type T_RestRedirect struct {
 	Result   interface{}
 	Location string
+
+	DoRedirect bool
 }
 
 type F_APIHandler func(params *T_APIHandlerParams) (interface{}, error)

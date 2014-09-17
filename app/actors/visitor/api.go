@@ -69,6 +69,10 @@ func setupAPI() error {
 	if err != nil {
 		return err
 	}
+	err = api.GetRestService().RegisterAPI("visitor", "GET", "forgot-password/:email", restForgotPassword)
+	if err != nil {
+		return err
+	}
 	err = api.GetRestService().RegisterAPI("visitor", "GET", "info", restInfo)
 	if err != nil {
 		return err
@@ -89,11 +93,6 @@ func setupAPI() error {
 	if err != nil {
 		return err
 	}
-	/*err = api.GetRestService().RegisterAPI("visitor", "GET", "forgot-password", restForgotPassword)
-	if err != nil {
-		return err
-	}*/
-
 	err = api.GetRestService().RegisterAPI("visitor", "GET", "order/list", restListVisitorOrders)
 	if err != nil {
 		return err
@@ -341,6 +340,7 @@ func restRegister(params *api.T_APIHandlerParams) (interface{}, error) {
 	return visitorModel.ToHashMap(), nil
 }
 
+// WEB REST API used to validate e-mail address by key sent after registration
 func restValidate(params *api.T_APIHandlerParams) (interface{}, error) {
 	// check request params
 	//---------------------
@@ -359,7 +359,28 @@ func restValidate(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil, err
 	}
 
-	return "ok", nil
+	return api.T_RestRedirect{Location: utils.GetStorefrontUrl("login"), DoRedirect: true}, nil
+}
+
+// WEB REST API used to sent new password to customer e-mail
+func restForgotPassword(params *api.T_APIHandlerParams) (interface{}, error) {
+
+	visitorModel, err := visitor.GetVisitorModel()
+	if err != nil {
+		return nil, err
+	}
+
+	err = visitorModel.LoadByEmail(params.RequestURLParams["email"])
+	if err != nil {
+		return nil, err
+	}
+
+	err = visitorModel.GenerateNewPassword()
+	if err != nil {
+		return nil, err
+	}
+
+	return api.T_RestRedirect{Result: "ok", Location: utils.GetStorefrontUrl("login")}, nil
 }
 
 // WEB REST API function used to obtain visitor information

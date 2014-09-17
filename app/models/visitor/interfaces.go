@@ -30,6 +30,7 @@ type I_Visitor interface {
 
 	SetPassword(passwd string) error
 	CheckPassword(passwd string) bool
+	GenerateNewPassword() error
 
 	IsValidated() bool
 	Invalidate() error

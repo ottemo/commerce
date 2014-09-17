@@ -2,6 +2,7 @@ package visitor
 
 import (
 	"crypto/md5"
+	"crypto/rand"
 	"encoding/hex"
 
 	"encoding/base64"
@@ -28,27 +29,53 @@ func (it *DefaultVisitor) passwdEncode(passwd string) string {
 	return hex.EncodeToString(hasher.Sum(nil))
 }
 
-func (it *DefaultVisitor) GetEmail() string      { return it.Email }
-func (it *DefaultVisitor) GetFacebookId() string { return it.FacebookId }
-func (it *DefaultVisitor) GetGoogleId() string   { return it.GoogleId }
+// returns visitor e-mail, which also used as login
+func (it *DefaultVisitor) GetEmail() string {
+	return it.Email
+}
 
-func (it *DefaultVisitor) GetFullName() string  { return it.FirstName + " " + it.LastName }
-func (it *DefaultVisitor) GetFirstName() string { return it.FirstName }
-func (it *DefaultVisitor) GetLastName() string  { return it.LastName }
+// returns visitor facebook id
+func (it *DefaultVisitor) GetFacebookId() string {
+	return it.FacebookId
+}
 
+// returns visitor google id
+func (it *DefaultVisitor) GetGoogleId() string {
+	return it.GoogleId
+}
+
+// returns visitor full name
+func (it *DefaultVisitor) GetFullName() string {
+	return it.FirstName + " " + it.LastName
+}
+
+// returns visitor first name
+func (it *DefaultVisitor) GetFirstName() string {
+	return it.FirstName
+}
+
+// returns visitor last name
+func (it *DefaultVisitor) GetLastName() string {
+	return it.LastName
+}
+
+// returns shipping address for visitor
 func (it *DefaultVisitor) GetShippingAddress() visitor.I_VisitorAddress {
 	return it.ShippingAddress
 }
 
+// updates shipping address for visitor
 func (it *DefaultVisitor) SetShippingAddress(address visitor.I_VisitorAddress) error {
 	it.ShippingAddress = address
 	return nil
 }
 
+// returns billing address for visitor
 func (it *DefaultVisitor) GetBillingAddress() visitor.I_VisitorAddress {
 	return it.BillingAddress
 }
 
+// updates billing address for visitor
 func (it *DefaultVisitor) SetBillingAddress(address visitor.I_VisitorAddress) error {
 	it.BillingAddress = address
 	return nil
@@ -59,8 +86,7 @@ func (it *DefaultVisitor) IsValidated() bool {
 	return it.ValidateKey == ""
 }
 
-// marks visitor e-mail as not validated
-//	- sends to visitor e-mail new validation key
+// marks visitor e-mail as not validated, sends to visitor e-mail with new validation key
 func (it *DefaultVisitor) Invalidate() error {
 
 	if it.GetEmail() == "" {
@@ -79,7 +105,6 @@ func (it *DefaultVisitor) Invalidate() error {
 	}
 
 	linkHref := utils.GetFoundationUrl("visitor/validate/" + it.ValidateKey)
-	// link := "<a href=\"" + linkHref + "\"/>" + linkHref + "</a>"
 
 	err = utils.SendMail(it.GetEmail(), "e-mail validation", "please follow the link to validate your e-mail: "+linkHref)
 
@@ -92,24 +117,29 @@ func (it *DefaultVisitor) Validate(key string) error {
 
 	// looking for visitors with given validation key in DB and collecting ids
 	visitorIds := make([]string, 0)
-	if dbEngine := db.GetDBEngine(); dbEngine != nil {
-		if collection, err := dbEngine.GetCollection(COLLECTION_NAME_VISITOR); err == nil {
-			collection.AddFilter("validate", "=", key)
 
-			records, err := collection.Load()
-			if err != nil {
-				return err
-			}
+	collection, err := db.GetCollection(COLLECTION_NAME_VISITOR)
+	if err != nil {
+		return err
+	}
 
-			for _, record := range records {
-				if visitorId, present := record["_id"]; present {
-					if visitorId, ok := visitorId.(string); ok {
-						visitorIds = append(visitorIds, visitorId)
-					}
-				}
+	err = collection.AddFilter("validate", "=", key)
+	if err != nil {
+		return err
+	}
 
+	records, err := collection.Load()
+	if err != nil {
+		return err
+	}
+
+	for _, record := range records {
+		if visitorId, present := record["_id"]; present {
+			if visitorId, ok := visitorId.(string); ok {
+				visitorIds = append(visitorIds, visitorId)
 			}
 		}
+
 	}
 
 	// checking validation key expiration
@@ -128,10 +158,8 @@ func (it *DefaultVisitor) Validate(key string) error {
 
 	// processing visitors for given validation key
 	for _, visitorId := range visitorIds {
-		model, _ := it.New()
-		visitorModel := model.(*DefaultVisitor)
 
-		err := visitorModel.Load(visitorId)
+		visitorModel, err := visitor.LoadVisitorById(visitorId)
 		if err != nil {
 			return err
 		}
@@ -152,6 +180,7 @@ func (it *DefaultVisitor) Validate(key string) error {
 	return nil
 }
 
+// updates password for visitor
 func (it *DefaultVisitor) SetPassword(passwd string) error {
 	if len(passwd) > 0 {
 		if utils.IsMD5(passwd) {
@@ -166,99 +195,131 @@ func (it *DefaultVisitor) SetPassword(passwd string) error {
 	return nil
 }
 
+// validates password for visitor
 func (it *DefaultVisitor) CheckPassword(passwd string) bool {
 	return it.passwdEncode(passwd) == it.Password
 }
 
-// loads visitor information from DB based on google account id
-func (it *DefaultVisitor) LoadByGoogleId(googleId string) error {
-	if dbEngine := db.GetDBEngine(); dbEngine != nil {
-		if collection, err := dbEngine.GetCollection(COLLECTION_NAME_VISITOR); err == nil {
+// generates new password for user
+func (it *DefaultVisitor) GenerateNewPassword() error {
+	const alphanum = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+	const n = 10
 
-			collection.AddFilter("google_id", "=", googleId)
-			rows, err := collection.Load()
-			if err != nil {
-				return err
-			}
-
-			if len(rows) == 0 {
-				return errors.New("visitor was not found")
-			}
-
-			if len(rows) > 1 {
-				return errors.New("duplicated google account id")
-			} else {
-				err = it.FromHashMap(rows[0])
-				if err != nil {
-					return err
-				}
-
-				return nil
-			}
-		}
+	var bytes = make([]byte, n)
+	rand.Read(bytes)
+	for i, b := range bytes {
+		bytes[i] = alphanum[b%byte(len(alphanum))]
 	}
 
-	return errors.New("Something went wrong")
+	newPassword := string(bytes)
+	err := it.SetPassword(newPassword)
+	if err != nil {
+		return err
+	}
+
+	err = it.Save()
+	if err != nil {
+		return err
+	}
+
+	linkHref := utils.GetStorefrontUrl("login")
+	err = utils.SendMail(it.GetEmail(), "forgot password event", "Forgot password was requested for your account "+
+		it.GetEmail()+"\n\n"+
+		"New password: "+newPassword+"\n\n"+
+		"Please change your password on next login "+linkHref)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// loads visitor information from DB based on google account id
+func (it *DefaultVisitor) LoadByGoogleId(googleId string) error {
+
+	collection, err := db.GetCollection(COLLECTION_NAME_VISITOR)
+	if err != nil {
+		return err
+	}
+
+	collection.AddFilter("google_id", "=", googleId)
+	rows, err := collection.Load()
+	if err != nil {
+		return err
+	}
+
+	if len(rows) == 0 {
+		return errors.New("visitor was not found")
+	}
+
+	if len(rows) > 1 {
+		return errors.New("duplicated google account id")
+	}
+
+	err = it.FromHashMap(rows[0])
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // loads visitor information from DB based on facebook account id
 func (it *DefaultVisitor) LoadByFacebookId(facebookId string) error {
-	if dbEngine := db.GetDBEngine(); dbEngine != nil {
-		if collection, err := dbEngine.GetCollection(COLLECTION_NAME_VISITOR); err == nil {
 
-			collection.AddFilter("facebook_id", "=", facebookId)
-			rows, err := collection.Load()
-			if err != nil {
-				return err
-			}
-
-			if len(rows) == 0 {
-				return errors.New("visitor was not found")
-			}
-
-			if len(rows) > 1 {
-				return errors.New("duplicated facebook account id")
-			} else {
-				err = it.FromHashMap(rows[0])
-				if err != nil {
-					return err
-				}
-
-				return nil
-			}
-		}
+	collection, err := db.GetCollection(COLLECTION_NAME_VISITOR)
+	if err != nil {
+		return err
 	}
 
-	return errors.New("Something went wrong")
+	collection.AddFilter("facebook_id", "=", facebookId)
+	rows, err := collection.Load()
+	if err != nil {
+		return err
+	}
+
+	if len(rows) == 0 {
+		return errors.New("visitor was not found")
+	}
+
+	if len(rows) > 1 {
+		return errors.New("duplicated facebook account id")
+	}
+
+	err = it.FromHashMap(rows[0])
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // loads visitor information from DB based on email which must be unique
 func (it *DefaultVisitor) LoadByEmail(email string) error {
-	if dbEngine := db.GetDBEngine(); dbEngine != nil {
-		if collection, err := dbEngine.GetCollection(COLLECTION_NAME_VISITOR); err == nil {
 
-			collection.AddFilter("email", "=", email)
-			rows, err := collection.Load()
-			if err != nil {
-				return err
-			}
-
-			if len(rows) == 0 {
-				return errors.New("visitor was not found")
-			}
-
-			if len(rows) > 1 {
-				return errors.New("duplicated email")
-			} else {
-				err = it.FromHashMap(rows[0])
-				if err != nil {
-					return err
-				}
-
-				return nil
-			}
-		}
+	collection, err := db.GetCollection(COLLECTION_NAME_VISITOR)
+	if err != nil {
+		return err
 	}
 
-	return errors.New("Something went wrong")
+	collection.AddFilter("email", "=", email)
+	rows, err := collection.Load()
+	if err != nil {
+		return err
+	}
+
+	if len(rows) == 0 {
+		return errors.New("visitor was not found")
+	}
+
+	if len(rows) > 1 {
+		return errors.New("duplicated email")
+	}
+
+	err = it.FromHashMap(rows[0])
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
