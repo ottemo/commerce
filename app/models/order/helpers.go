@@ -5,9 +5,24 @@ import (
 	"github.com/ottemo/foundation/app/models"
 )
 
+// retrieves current I_OrderCollection model implementation
+func GetOrderCollectionModel() (I_OrderCollection, error) {
+	model, err := models.GetModel(MODEL_NAME_ORDER_COLLECTION)
+	if err != nil {
+		return nil, err
+	}
+
+	orderCollectionModel, ok := model.(I_OrderCollection)
+	if !ok {
+		return nil, errors.New("model " + model.GetImplementationName() + " is not 'I_OrderCollection' capable")
+	}
+
+	return orderCollectionModel, nil
+}
+
 // retrieves current I_Order model implementation
 func GetOrderModel() (I_Order, error) {
-	model, err := models.GetModel(ORDER_MODEL_NAME)
+	model, err := models.GetModel(MODEL_NAME_ORDER)
 	if err != nil {
 		return nil, err
 	}

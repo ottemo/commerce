@@ -488,8 +488,8 @@ func restSubmit(params *api.T_APIHandlerParams) (interface{}, error) {
 	//-----------------------------
 	currentCart.Deactivate()
 	currentCart.Save()
-	params.Session.Set(cart.SESSION_KEY_CURRENT_CART, nil)
 
+	params.Session.Set(cart.SESSION_KEY_CURRENT_CART, nil)
 	params.Session.Set(checkout.SESSION_KEY_CURRENT_CHECKOUT, nil)
 
 	return checkoutOrder.ToHashMap(), nil

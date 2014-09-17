@@ -165,6 +165,7 @@ func (it *DefaultVisitor) Validate(key string) error {
 		}
 
 		if !validationExpired {
+			visitorModel := visitorModel.(*DefaultVisitor)
 			visitorModel.ValidateKey = ""
 			visitorModel.Save()
 		} else {

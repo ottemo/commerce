@@ -62,7 +62,7 @@ func (it *DefaultOrder) Get(attribute string) interface{} {
 	case "created_at":
 		return it.CreatedAt
 
-	case "updaed_at":
+	case "updated_at":
 		return it.UpdatedAt
 
 	case "description":
@@ -182,7 +182,7 @@ func (it *DefaultOrder) ToHashMap() map[string]interface{} {
 	result["grand_total"] = it.Get("grand_total")
 
 	result["created_at"] = it.Get("created_at")
-	result["updaed_at"] = it.Get("updaed_at")
+	result["updated_at"] = it.Get("updated_at")
 
 	result["description"] = it.Get("description")
 

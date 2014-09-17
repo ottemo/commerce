@@ -106,7 +106,7 @@ func (it *DefaultOrder) RemoveItem(itemIdx int) error {
 			return errors.New("can't get DB engine")
 		}
 
-		orderItemsCollection, err := dbEngine.GetCollection(ORDER_ITEMS_COLLECTION_NAME)
+		orderItemsCollection, err := dbEngine.GetCollection(COLLECTION_NAME_ORDER_ITEMS)
 		if err != nil {
 			return err
 		}
@@ -157,9 +157,9 @@ func (it *DefaultOrder) CalculateTotals() error {
 	for _, orderItem := range it.Items {
 		subtotal += utils.RoundPrice(orderItem.GetPrice() * float64(orderItem.GetQty()))
 	}
-	it.Subtotal = subtotal
+	it.Subtotal = utils.RoundPrice(subtotal)
 
-	it.GrandTotal = it.Subtotal + it.ShippingAmount + it.TaxAmount - it.Discount
+	it.GrandTotal = utils.RoundPrice(it.Subtotal + it.ShippingAmount + it.TaxAmount - it.Discount)
 
 	return nil
 }

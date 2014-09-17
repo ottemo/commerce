@@ -21,48 +21,46 @@ func (it *DefaultOrder) SetId(NewId string) error {
 
 // loads order information from DB
 func (it *DefaultOrder) Load(Id string) error {
-	if dbEngine := db.GetDBEngine(); dbEngine != nil {
 
-		// loading category
-		orderCollection, err := dbEngine.GetCollection(ORDER_COLLECTION_NAME)
-		if err != nil {
-			return err
+	// loading order
+	orderCollection, err := db.GetCollection(COLLECTION_NAME_ORDER)
+	if err != nil {
+		return err
+	}
+
+	values, err := orderCollection.LoadById(Id)
+	if err != nil {
+		return err
+	}
+
+	// initializing DefaultOrder structure
+	for attribute, value := range values {
+		it.Set(attribute, value)
+	}
+
+	it.Items = make(map[int]order.I_OrderItem)
+	it.maxIdx = 0
+
+	// loading order items
+	orderItemsCollection, err := db.GetCollection(COLLECTION_NAME_ORDER_ITEMS)
+	if err != nil {
+		return err
+	}
+
+	orderItemsCollection.AddFilter("order_id", "=", it.GetId())
+	orderItems, err := orderItemsCollection.Load()
+	if err != nil {
+		return err
+	}
+
+	for _, orderItemValues := range orderItems {
+		orderItem := new(DefaultOrderItem)
+
+		for attribute, value := range orderItemValues {
+			orderItem.Set(attribute, value)
 		}
 
-		values, err := orderCollection.LoadById(Id)
-		if err != nil {
-			return err
-		}
-
-		// initializing DefaultOrder structure
-		for attribute, value := range values {
-			it.Set(attribute, value)
-		}
-
-		it.Items = make(map[int]order.I_OrderItem)
-		it.maxIdx = 0
-
-		// loading order items
-		orderItemsCollection, err := dbEngine.GetCollection(ORDER_ITEMS_COLLECTION_NAME)
-		if err != nil {
-			return err
-		}
-
-		orderItemsCollection.AddFilter("order_id", "=", it.GetId())
-		orderItems, err := orderItemsCollection.Load()
-		if err != nil {
-			return err
-		}
-
-		for _, orderItemValues := range orderItems {
-			orderItem := new(DefaultOrderItem)
-
-			for attribute, value := range orderItemValues {
-				orderItem.Set(attribute, value)
-			}
-
-			it.Items[orderItem.idx] = orderItem
-		}
+		it.Items[orderItem.idx] = orderItem
 	}
 
 	return nil
@@ -74,13 +72,8 @@ func (it *DefaultOrder) Delete() error {
 		return errors.New("order id is not set")
 	}
 
-	dbEngine := db.GetDBEngine()
-	if dbEngine == nil {
-		return errors.New("can't get DbEngine")
-	}
-
 	// deleting order items
-	orderItemsCollection, err := dbEngine.GetCollection(ORDER_ITEMS_COLLECTION_NAME)
+	orderItemsCollection, err := db.GetCollection(COLLECTION_NAME_ORDER_ITEMS)
 	if err != nil {
 		return err
 	}
@@ -96,7 +89,7 @@ func (it *DefaultOrder) Delete() error {
 	}
 
 	// deleting order
-	orderCollection, err := dbEngine.GetCollection(ORDER_COLLECTION_NAME)
+	orderCollection, err := db.GetCollection(COLLECTION_NAME_ORDER)
 	if err != nil {
 		return err
 	}
@@ -108,17 +101,12 @@ func (it *DefaultOrder) Delete() error {
 // stores current order in DB
 func (it *DefaultOrder) Save() error {
 
-	dbEngine := db.GetDBEngine()
-	if dbEngine == nil {
-		return errors.New("can't get DbEngine")
-	}
-
-	orderCollection, err := dbEngine.GetCollection(ORDER_COLLECTION_NAME)
+	orderCollection, err := db.GetCollection(COLLECTION_NAME_ORDER)
 	if err != nil {
 		return err
 	}
 
-	orderItemsCollection, err := dbEngine.GetCollection(ORDER_ITEMS_COLLECTION_NAME)
+	orderItemsCollection, err := db.GetCollection(COLLECTION_NAME_ORDER_ITEMS)
 	if err != nil {
 		return err
 	}
