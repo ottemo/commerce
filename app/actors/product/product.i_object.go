@@ -29,11 +29,9 @@ func (it *DefaultProduct) Get(attribute string) interface{} {
 		return it.Weight
 	case "options":
 		return it.Options
-	default:
-		return it.CustomAttributes.Get(attribute)
 	}
 
-	return nil
+	return it.CustomAttributes.Get(attribute)
 }
 
 // sets attribute value to object or returns error

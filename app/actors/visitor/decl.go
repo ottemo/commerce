@@ -1,6 +1,8 @@
 package visitor
 
 import (
+	"time"
+
 	"github.com/ottemo/foundation/app/models/visitor"
 	"github.com/ottemo/foundation/db"
 )
@@ -26,6 +28,11 @@ type DefaultVisitor struct {
 
 	Password    string
 	ValidateKey string
+
+	IsAdmin bool
+
+	Birthday  time.Time
+	CreatedAt time.Time
 }
 
 type DefaultVisitorCollection struct {

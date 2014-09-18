@@ -32,6 +32,12 @@ func (it *DefaultVisitor) Get(attribute string) interface{} {
 		return it.FacebookId
 	case "google_id":
 		return it.GoogleId
+	case "birthday":
+		return it.Birthday
+	case "is_admin":
+		return it.IsAdmin
+	case "created_at":
+		return it.IsAdmin
 	}
 
 	return nil
@@ -43,21 +49,27 @@ func (it *DefaultVisitor) Set(attribute string, value interface{}) error {
 
 	switch attribute {
 	case "_id", "id":
-		it.id = value.(string)
+		it.id = utils.InterfaceToString(value)
 	case "email", "e_mail", "e-mail":
-		it.Email = value.(string)
+		it.Email = utils.InterfaceToString(value)
 	case "fname", "first_name":
-		it.FirstName = value.(string)
+		it.FirstName = utils.InterfaceToString(value)
 	case "lname", "last_name":
-		it.LastName = value.(string)
+		it.LastName = utils.InterfaceToString(value)
 	case "password", "passwd":
-		it.SetPassword(value.(string))
+		it.SetPassword(utils.InterfaceToString(value))
 	case "validate":
-		it.ValidateKey = value.(string)
+		it.ValidateKey = utils.InterfaceToString(value)
 	case "facebook_id":
-		it.FacebookId = value.(string)
+		it.FacebookId = utils.InterfaceToString(value)
 	case "google_id":
-		it.GoogleId = value.(string)
+		it.GoogleId = utils.InterfaceToString(value)
+	case "birthday":
+		it.Birthday = utils.InterfaceToTime(value)
+	case "is_admin":
+		it.IsAdmin = utils.InterfaceToBool(value)
+	case "created_at":
+		it.CreatedAt = utils.InterfaceToTime(value)
 
 	// only address id coming - trying to get it from DB
 	case "billing_address_id", "shipping_address_id":
@@ -132,6 +144,9 @@ func (it *DefaultVisitor) ToHashMap() map[string]interface{} {
 	result["email"] = it.Email
 	result["first_name"] = it.FirstName
 	result["last_name"] = it.LastName
+
+	result["birthday"] = it.Birthday
+	result["created_at"] = it.CreatedAt
 
 	result["billing_address"] = nil
 	result["shipping_address"] = nil

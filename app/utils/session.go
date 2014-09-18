@@ -101,6 +101,4 @@ func GetCurrentCart(params *api.T_APIHandlerParams) (cart.I_Cart, error) {
 		}
 
 	}
-
-	return nil, errors.New("can't get cart for current session")
 }

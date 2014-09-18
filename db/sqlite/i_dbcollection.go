@@ -255,8 +255,6 @@ func (it *SQLiteCollection) Save(Item map[string]interface{}) (string, error) {
 	} else {
 		return "", sqlError(SQL, err)
 	}
-
-	return "", nil
 }
 
 // removes records that matches current select statement from DB

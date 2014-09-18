@@ -30,6 +30,11 @@ func (it *DefaultRestService) startup() error {
 
 	it.Router = httprouter.New()
 
+	it.Router.PanicHandler = func(resp http.ResponseWriter, req *http.Request, params interface{}) {
+		resp.WriteHeader(404)
+		resp.Write([]byte("page not found"))
+	}
+
 	// our homepage - shows all registered API in text representation
 	it.Router.GET("/",
 		func(resp http.ResponseWriter, req *http.Request, params httprouter.Params) {

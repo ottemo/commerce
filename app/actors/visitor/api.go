@@ -12,8 +12,8 @@ import (
 	"github.com/ottemo/foundation/app/utils"
 
 	"github.com/ottemo/foundation/app/models"
+	"github.com/ottemo/foundation/app/models/order"
 	"github.com/ottemo/foundation/app/models/visitor"
-	"github.com/ottemo/foundation/db"
 
 	"github.com/ottemo/foundation/api"
 )
@@ -38,7 +38,6 @@ func setupAPI() error {
 	if err != nil {
 		return err
 	}
-
 	err = api.GetRestService().RegisterAPI("visitor", "GET", "load/:id", restGetVisitor)
 	if err != nil {
 		return err
@@ -94,6 +93,10 @@ func setupAPI() error {
 		return err
 	}
 	err = api.GetRestService().RegisterAPI("visitor", "GET", "order/list", restListVisitorOrders)
+	if err != nil {
+		return err
+	}
+	err = api.GetRestService().RegisterAPI("visitor", "GET", "order/details/:id", restVisitorOrderDetails)
 	if err != nil {
 		return err
 	}
@@ -670,22 +673,48 @@ func restLoginGoogle(params *api.T_APIHandlerParams) (interface{}, error) {
 	return "ok", nil
 }
 
-// WEB REST API function used to get visitor orders information
-func restListVisitorOrders(params *api.T_APIHandlerParams) (interface{}, error) {
-	// TODO: should be re-developed to use order model (i.e. add I_Listable implementation to order model)
-
+// WEB REST API function used to get visitor order details information
+func restVisitorOrderDetails(params *api.T_APIHandlerParams) (interface{}, error) {
 	sessionValue := params.Session.Get("visitor_id")
-	visitorId, ok := sessionValue.(string)
-	if !ok {
+	visitorId := utils.InterfaceToString(sessionValue)
+	if visitorId == "" {
 		return "you are not logined in", nil
 	}
 
-	collection, err := db.GetCollection("orders")
+	orderModel, err := order.LoadOrderById(params.RequestURLParams["id"])
 	if err != nil {
 		return nil, err
 	}
 
-	collection.AddFilter("visitor_id", "=", visitorId)
+	if utils.InterfaceToString(orderModel.Get("visitor_id")) != visitorId {
+		return nil, errors.New("order is not belongs to logined user")
+	}
 
-	return collection.Load()
+	result := orderModel.ToHashMap()
+	result["items"] = orderModel.GetItems()
+
+	return result, nil
+}
+
+// WEB REST API function used to get visitor orders information
+func restListVisitorOrders(params *api.T_APIHandlerParams) (interface{}, error) {
+	sessionValue := params.Session.Get("visitor_id")
+	visitorId := utils.InterfaceToString(sessionValue)
+	if visitorId == "" {
+		return "you are not logined in", nil
+	}
+
+	orderCollection, err := order.GetOrderCollectionModel()
+	if err != nil {
+		return nil, err
+	}
+
+	err = orderCollection.ListFilterAdd("visitor_id", "=", visitorId)
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := orderCollection.List()
+
+	return result, err
 }
