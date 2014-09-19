@@ -79,6 +79,10 @@ func setupAPI() error {
 	if err != nil {
 		return err
 	}
+	err = api.GetRestService().RegisterAPI("product", "GET", "count", restCountProducts)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -541,4 +545,19 @@ func restListProducts(params *api.T_APIHandlerParams) (interface{}, error) {
 	}
 
 	return productCollectionModel.List()
+}
+
+// WEB REST API function used to obtain visitors count in model collection
+func restCountProducts(params *api.T_APIHandlerParams) (interface{}, error) {
+
+	productCollectionModel, err := product.GetProductCollectionModel()
+	if err != nil {
+		return nil, err
+	}
+	dbCollection := productCollectionModel.GetDBCollection()
+
+	// filters handle
+	api.ApplyFilters(params, dbCollection)
+
+	return dbCollection.Count()
 }
