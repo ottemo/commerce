@@ -3,7 +3,7 @@ package address
 import (
 	"errors"
 
-	"github.com/ottemo/foundation/app/utils"
+	"github.com/ottemo/foundation/utils"
 
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/app/models/visitor"

@@ -4,7 +4,7 @@ import (
 	"errors"
 
 	"github.com/ottemo/foundation/env"
-	"github.com/ottemo/foundation/app/utils"
+	"github.com/ottemo/foundation/utils"
 )
 
 // setup configuration values
@@ -34,7 +34,7 @@ func setupConfig() error {
 			Label:       "Enabled",
 			Description: "enables/disables payment method in checkout",
 			Image:       "",
-		}, func(value interface{}) (interface{}, error) { return utils.InterfaceToBool(value), nil} )
+		}, func(value interface{}) (interface{}, error) { return utils.InterfaceToBool(value), nil })
 
 		if err != nil {
 			return err
@@ -50,11 +50,12 @@ func setupConfig() error {
 			Description: "payment method name in checkout",
 			Image:       "",
 		}, func(value interface{}) (interface{}, error) {
-				if utils.CheckIsBlank(value) {
-					return nil, errors.New("can't be blank")
-				} else {
-					return value, nil
-				} })
+			if utils.CheckIsBlank(value) {
+				return nil, errors.New("can't be blank")
+			} else {
+				return value, nil
+			}
+		})
 
 		if err != nil {
 			return err
@@ -65,17 +66,17 @@ func setupConfig() error {
 			Value:       DPM_ACTION_AUTHORIZE_ONLY,
 			Type:        "string",
 			Editor:      "select",
-			Options:     map[string]string{ DPM_ACTION_AUTHORIZE_ONLY: "Authorize Only", DPM_ACTION_AUTHORIZE_AND_CAPTURE: "Authorize & Capture"},
+			Options:     map[string]string{DPM_ACTION_AUTHORIZE_ONLY: "Authorize Only", DPM_ACTION_AUTHORIZE_AND_CAPTURE: "Authorize & Capture"},
 			Label:       "Action",
 			Description: "specifies action on checkout submit",
 			Image:       "",
 		}, func(value interface{}) (interface{}, error) {
-				stringValue := utils.InterfaceToString(value)
-				if !utils.IsAmongStr(stringValue, DPM_ACTION_AUTHORIZE_ONLY, DPM_ACTION_AUTHORIZE_AND_CAPTURE) {
-					return nil, errors.New("should be " + DPM_ACTION_AUTHORIZE_ONLY + " or " + DPM_ACTION_AUTHORIZE_AND_CAPTURE)
-				}
-				return value, nil
-			})
+			stringValue := utils.InterfaceToString(value)
+			if !utils.IsAmongStr(stringValue, DPM_ACTION_AUTHORIZE_ONLY, DPM_ACTION_AUTHORIZE_AND_CAPTURE) {
+				return nil, errors.New("should be " + DPM_ACTION_AUTHORIZE_ONLY + " or " + DPM_ACTION_AUTHORIZE_AND_CAPTURE)
+			}
+			return value, nil
+		})
 
 		if err != nil {
 			return err

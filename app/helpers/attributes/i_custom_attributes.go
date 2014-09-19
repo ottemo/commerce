@@ -2,9 +2,9 @@ package attributes
 
 import (
 	"errors"
-	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/app/models"
-	"github.com/ottemo/foundation/app/utils"
+	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/foundation/utils"
 )
 
 // initializes helper before usage

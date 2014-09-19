@@ -5,7 +5,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/ottemo/foundation/app/utils"
+	"github.com/ottemo/foundation/utils"
 
 	"labix.org/v2/mgo"
 	"labix.org/v2/mgo/bson"

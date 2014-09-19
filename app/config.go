@@ -2,7 +2,7 @@ package app
 
 import (
 	"errors"
-	"github.com/ottemo/foundation/app/models/checkout"
+	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/env"
 )
 
@@ -138,7 +138,7 @@ func setupConfig() error {
 		Value:       "US",
 		Type:        "string",
 		Editor:      "select",
-		Options:     checkout.COUNTRIES_LIST,
+		Options:     models.COUNTRIES_LIST,
 		Label:       "Country",
 		Description: "store location country",
 		Image:       "",
@@ -153,7 +153,7 @@ func setupConfig() error {
 		Value:       "",
 		Type:        "string",
 		Editor:      "select",
-		Options:     checkout.STATES_LIST,
+		Options:     models.STATES_LIST,
 		Label:       "State",
 		Description: "store location state",
 		Image:       "",

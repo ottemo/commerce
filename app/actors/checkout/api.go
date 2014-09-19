@@ -11,7 +11,7 @@ import (
 	"github.com/ottemo/foundation/app/models/order"
 	"github.com/ottemo/foundation/app/models/visitor"
 
-	"github.com/ottemo/foundation/app/utils"
+	"github.com/ottemo/foundation/utils"
 )
 
 func setupAPI() error {
@@ -61,7 +61,7 @@ func setupAPI() error {
 // WEB REST API function to get current checkout process status
 func restCheckoutInfo(params *api.T_APIHandlerParams) (interface{}, error) {
 
-	currentCheckout, err := utils.GetCurrentCheckout(params)
+	currentCheckout, err := checkout.GetCurrentCheckout(params)
 	if err != nil {
 		return nil, err
 	}
@@ -128,7 +128,7 @@ func restCheckoutInfo(params *api.T_APIHandlerParams) (interface{}, error) {
 // WEB REST API function to get possible payment methods for checkout
 func restCheckoutPaymentMethods(params *api.T_APIHandlerParams) (interface{}, error) {
 
-	currentCheckout, err := utils.GetCurrentCheckout(params)
+	currentCheckout, err := checkout.GetCurrentCheckout(params)
 	if err != nil {
 		return nil, err
 	}
@@ -152,7 +152,7 @@ func restCheckoutPaymentMethods(params *api.T_APIHandlerParams) (interface{}, er
 // WEB REST API function to get possible shipping methods for checkout
 func restCheckoutShippingMethods(params *api.T_APIHandlerParams) (interface{}, error) {
 
-	currentCheckout, err := utils.GetCurrentCheckout(params)
+	currentCheckout, err := checkout.GetCurrentCheckout(params)
 	if err != nil {
 		return nil, err
 	}
@@ -224,7 +224,7 @@ func checkoutObtainAddress(params *api.T_APIHandlerParams) (visitor.I_VisitorAdd
 
 // WEB REST API function to set shipping address
 func restCheckoutSetShippingAddress(params *api.T_APIHandlerParams) (interface{}, error) {
-	currentCheckout, err := utils.GetCurrentCheckout(params)
+	currentCheckout, err := checkout.GetCurrentCheckout(params)
 	if err != nil {
 		return nil, err
 	}
@@ -244,7 +244,7 @@ func restCheckoutSetShippingAddress(params *api.T_APIHandlerParams) (interface{}
 
 // WEB REST API function to set billing address
 func restCheckoutSetBillingAddress(params *api.T_APIHandlerParams) (interface{}, error) {
-	currentCheckout, err := utils.GetCurrentCheckout(params)
+	currentCheckout, err := checkout.GetCurrentCheckout(params)
 	if err != nil {
 		return nil, err
 	}
@@ -264,7 +264,7 @@ func restCheckoutSetBillingAddress(params *api.T_APIHandlerParams) (interface{},
 
 // WEB REST API function to set payment method
 func restCheckoutSetPaymentMethod(params *api.T_APIHandlerParams) (interface{}, error) {
-	currentCheckout, err := utils.GetCurrentCheckout(params)
+	currentCheckout, err := checkout.GetCurrentCheckout(params)
 	if err != nil {
 		return nil, err
 	}
@@ -298,7 +298,7 @@ func restCheckoutSetPaymentMethod(params *api.T_APIHandlerParams) (interface{}, 
 
 // WEB REST API function to set payment method
 func restCheckoutSetShippingMethod(params *api.T_APIHandlerParams) (interface{}, error) {
-	currentCheckout, err := utils.GetCurrentCheckout(params)
+	currentCheckout, err := checkout.GetCurrentCheckout(params)
 	if err != nil {
 		return nil, err
 	}
@@ -343,7 +343,7 @@ func restSubmit(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// checking for needed information
 	//--------------------------------
-	currentCheckout, err := utils.GetCurrentCheckout(params)
+	currentCheckout, err := checkout.GetCurrentCheckout(params)
 	if err != nil {
 		return nil, err
 	}

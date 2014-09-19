@@ -4,8 +4,8 @@ import (
 	"errors"
 
 	"github.com/ottemo/foundation/api"
-
-	"github.com/ottemo/foundation/app/utils"
+	"github.com/ottemo/foundation/app/models/cart"
+	"github.com/ottemo/foundation/utils"
 )
 
 func setupAPI() error {
@@ -36,7 +36,7 @@ func setupAPI() error {
 //   - parent categories and categorys will not be present in list
 func restCartInfo(params *api.T_APIHandlerParams) (interface{}, error) {
 
-	currentCart, err := utils.GetCurrentCart(params)
+	currentCart, err := cart.GetCurrentCart(params)
 	if err != nil {
 		return nil, err
 	}
@@ -119,7 +119,7 @@ func restCartAdd(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// operation
 	//----------
-	currentCart, err := utils.GetCurrentCart(params)
+	currentCart, err := cart.GetCurrentCart(params)
 	if err != nil {
 		return nil, err
 	}
@@ -171,7 +171,7 @@ func restCartUpdate(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// operation
 	//----------
-	currentCart, err := utils.GetCurrentCart(params)
+	currentCart, err := cart.GetCurrentCart(params)
 	if err != nil {
 		return nil, err
 	}
@@ -212,7 +212,7 @@ func restCartDelete(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// operation
 	//----------
-	currentCart, err := utils.GetCurrentCart(params)
+	currentCart, err := cart.GetCurrentCart(params)
 	if err != nil {
 		return nil, err
 	}

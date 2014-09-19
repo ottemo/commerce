@@ -5,7 +5,7 @@ import (
 
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/category"
-	"github.com/ottemo/foundation/app/utils"
+	"github.com/ottemo/foundation/utils"
 )
 
 // enumerates items of model type

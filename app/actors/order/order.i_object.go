@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/ottemo/foundation/app/models"
-	"github.com/ottemo/foundation/app/utils"
+	"github.com/ottemo/foundation/utils"
 )
 
 // returns attribute of Order or nil

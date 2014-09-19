@@ -6,7 +6,7 @@ import (
 	"github.com/ottemo/foundation/api"
 
 	"github.com/ottemo/foundation/app/models/order"
-	"github.com/ottemo/foundation/app/utils"
+	"github.com/ottemo/foundation/utils"
 )
 
 func setupAPI() error {

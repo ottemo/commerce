@@ -7,7 +7,7 @@ import (
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/db"
 
-	"github.com/ottemo/foundation/app/utils"
+	"github.com/ottemo/foundation/utils"
 )
 
 // initializes API for tax

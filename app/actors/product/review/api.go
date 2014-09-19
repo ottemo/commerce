@@ -4,12 +4,11 @@ import (
 	"errors"
 	"time"
 
-	"github.com/ottemo/foundation/db"
-
 	"github.com/ottemo/foundation/api"
-
 	"github.com/ottemo/foundation/app/models/product"
-	"github.com/ottemo/foundation/app/utils"
+	"github.com/ottemo/foundation/app/models/visitor"
+	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/foundation/utils"
 )
 
 func setupAPI() error {
@@ -67,7 +66,7 @@ func restReviewList(params *api.T_APIHandlerParams) (interface{}, error) {
 // WEB REST API function used to add new review for a product
 func restReviewAdd(params *api.T_APIHandlerParams) (interface{}, error) {
 
-	visitorObject, err := utils.GetCurrentVisitor(params)
+	visitorObject, err := visitor.GetCurrentVisitor(params)
 	if err != nil {
 		return nil, err
 	}
@@ -166,7 +165,7 @@ func restReviewRemove(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	reviewId := params.RequestURLParams["reviewId"]
 
-	visitorObject, err := utils.GetCurrentVisitor(params)
+	visitorObject, err := visitor.GetCurrentVisitor(params)
 	if err != nil {
 		return nil, err
 	}

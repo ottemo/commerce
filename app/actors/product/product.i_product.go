@@ -3,7 +3,7 @@ package product
 import (
 	"errors"
 	"fmt"
-	"github.com/ottemo/foundation/app/utils"
+	"github.com/ottemo/foundation/utils"
 	"sort"
 	"strings"
 )

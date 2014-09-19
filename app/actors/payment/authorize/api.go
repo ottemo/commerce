@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 
 	"github.com/ottemo/foundation/api"
-	"github.com/ottemo/foundation/app/utils"
+	"github.com/ottemo/foundation/app/models/checkout"
 )
 
 // startup API registration
@@ -31,7 +31,7 @@ func restReceipt(params *api.T_APIHandlerParams) (interface{}, error) {
 	}
 
 	if bytes.Contains(body, []byte("Thank you for your order!")) {
-		currentCheckout, err := utils.GetCurrentCheckout(params)
+		currentCheckout, err := checkout.GetCurrentCheckout(params)
 		if err != nil {
 			return nil, err
 		}

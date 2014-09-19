@@ -1,8 +1,8 @@
 package category
 
 import (
-	"github.com/ottemo/foundation/app/utils"
 	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/foundation/utils"
 )
 
 func (it *DefaultCategory) GetId() string {

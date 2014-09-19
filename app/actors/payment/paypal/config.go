@@ -3,7 +3,7 @@ package paypal
 import (
 	"errors"
 	"github.com/ottemo/foundation/env"
-	"github.com/ottemo/foundation/app/utils"
+	"github.com/ottemo/foundation/utils"
 )
 
 // setup configuration values
@@ -53,11 +53,12 @@ func setupConfig() error {
 		Description: "payment method name in checkout",
 		Image:       "",
 	}, func(value interface{}) (interface{}, error) {
-			if utils.CheckIsBlank(value) {
-				return nil, errors.New("can't be blank")
-			} else {
-				return value, nil
-			} })
+		if utils.CheckIsBlank(value) {
+			return nil, errors.New("can't be blank")
+		} else {
+			return value, nil
+		}
+	})
 
 	if err != nil {
 		return err
@@ -143,7 +144,7 @@ func setupConfig() error {
 		Value:       "",
 		Type:        "string",
 		Editor:      "select",
-		Options:     map[string]string { PAYMENT_ACTION_SALE: "Sale", PAYMENT_ACTION_AUTHORIZATION: "Authorization"},
+		Options:     map[string]string{PAYMENT_ACTION_SALE: "Sale", PAYMENT_ACTION_AUTHORIZATION: "Authorization"},
 		Label:       "Signature",
 		Description: "PayPal signature",
 		Image:       "",

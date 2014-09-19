@@ -2,9 +2,8 @@ package address
 
 import (
 	"github.com/ottemo/foundation/app/models"
-	"github.com/ottemo/foundation/app/models/checkout"
 	"github.com/ottemo/foundation/app/models/visitor"
-	"github.com/ottemo/foundation/app/utils"
+	"github.com/ottemo/foundation/utils"
 	"strings"
 )
 
@@ -204,7 +203,7 @@ func (it *DefaultVisitorAddress) GetAttributesInfo() []models.T_AttributeInfo {
 			Label:      "Country",
 			Group:      "General",
 			Editors:    "select",
-			Options:    utils.EncodeToJsonString(checkout.COUNTRIES_LIST),
+			Options:    utils.EncodeToJsonString(models.COUNTRIES_LIST),
 			Default:    "",
 		},
 		models.T_AttributeInfo{
@@ -237,7 +236,7 @@ func (it *DefaultVisitorAddress) GetAttributesInfo() []models.T_AttributeInfo {
 			Label:      "State",
 			Group:      "General",
 			Editors:    "select",
-			Options:    utils.EncodeToJsonString(checkout.STATES_LIST),
+			Options:    utils.EncodeToJsonString(models.STATES_LIST),
 			Default:    "",
 		},
 		models.T_AttributeInfo{

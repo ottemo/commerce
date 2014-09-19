@@ -2,7 +2,11 @@ package checkout
 
 import (
 	"errors"
+
+	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/app/models"
+	"github.com/ottemo/foundation/app/models/cart"
+	"github.com/ottemo/foundation/app/models/visitor"
 )
 
 // retrieves current I_Checkout model implementation
@@ -42,4 +46,51 @@ func GetPaymentMethodByCode(code string) I_PaymentMethod {
 	}
 
 	return nil
+}
+
+// returns checkout for current session or creates new one
+func GetCurrentCheckout(params *api.T_APIHandlerParams) (I_Checkout, error) {
+	sessionObject := params.Session.Get(SESSION_KEY_CURRENT_CHECKOUT)
+
+	var checkoutInstance I_Checkout = nil
+
+	// trying to get checkout object from session, otherwise creating new one
+	if sessionCheckout, ok := sessionObject.(I_Checkout); ok {
+		checkoutInstance = sessionCheckout
+
+	} else {
+
+		// making new checkout object
+		newCheckoutInstance, err := GetCheckoutModel()
+		if err != nil {
+			return nil, err
+		}
+
+		// storing checkout object to session
+		params.Session.Set(SESSION_KEY_CURRENT_CHECKOUT, newCheckoutInstance)
+
+		//setting session
+		newCheckoutInstance.SetSession(params.Session)
+
+		checkoutInstance = newCheckoutInstance
+	}
+
+	// updating checkout object
+	//-------------------------
+
+	// setting cart
+	currentCart, err := cart.GetCurrentCart(params)
+	if err != nil {
+		return checkoutInstance, err
+	}
+	checkoutInstance.SetCart(currentCart)
+
+	// setting visitor
+	currentVisitor, err := visitor.GetCurrentVisitor(params)
+	if err != nil {
+		return checkoutInstance, err
+	}
+	checkoutInstance.SetVisitor(currentVisitor)
+
+	return checkoutInstance, nil
 }

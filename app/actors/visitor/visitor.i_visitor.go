@@ -10,8 +10,8 @@ import (
 
 	"github.com/ottemo/foundation/app/models/visitor"
 
-	"github.com/ottemo/foundation/app/utils"
 	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/foundation/utils"
 
 	"errors"
 )

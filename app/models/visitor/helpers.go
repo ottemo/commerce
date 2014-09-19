@@ -2,6 +2,7 @@ package visitor
 
 import (
 	"errors"
+	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/app/models"
 )
 
@@ -127,4 +128,16 @@ func LoadVisitorById(visitorId string) (I_Visitor, error) {
 	}
 
 	return visitorModel, nil
+}
+
+// returns visitor for current session if registered or error
+func GetCurrentVisitor(params *api.T_APIHandlerParams) (I_Visitor, error) {
+	sessionVisitorId, ok := params.Session.Get(SESSION_KEY_VISITOR_ID).(string)
+	if !ok {
+		return nil, errors.New("not registered visitor")
+	}
+
+	visitorInstance, err := LoadVisitorById(sessionVisitorId)
+
+	return visitorInstance, err
 }

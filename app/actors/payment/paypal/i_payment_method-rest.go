@@ -13,7 +13,7 @@ import (
 	"net/http"
 
 	"github.com/ottemo/foundation/app/models/checkout"
-	"github.com/ottemo/foundation/app/utils"
+	"github.com/ottemo/foundation/utils"
 )
 
 func (it *PayPalRest) GetName() string {

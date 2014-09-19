@@ -2,7 +2,10 @@ package cart
 
 import (
 	"errors"
+	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/app/models"
+	"github.com/ottemo/foundation/app/models/visitor"
+	"github.com/ottemo/foundation/utils"
 )
 
 // retrieves current I_Cart model implementation
@@ -65,4 +68,38 @@ func GetCartForVisitor(visitorId string) (I_Cart, error) {
 	}
 
 	return cartModel, nil
+}
+
+// returns cart for current session or creates new one
+func GetCurrentCart(params *api.T_APIHandlerParams) (I_Cart, error) {
+	sessionCartId := params.Session.Get(SESSION_KEY_CURRENT_CART)
+
+	if sessionCartId != nil && sessionCartId != "" {
+
+		// cart id was found in session - loading cart by id
+		currentCart, err := LoadCartById(utils.InterfaceToString(sessionCartId))
+		if err != nil {
+			return nil, err
+		}
+
+		return currentCart, nil
+
+	} else {
+
+		// no cart id was in session, trying to get cart for visitor
+		visitorId := params.Session.Get(visitor.SESSION_KEY_VISITOR_ID)
+		if visitorId != nil {
+			currentCart, err := GetCartForVisitor(utils.InterfaceToString(visitorId))
+			if err != nil {
+				return nil, err
+			}
+
+			params.Session.Set(SESSION_KEY_CURRENT_CART, currentCart.GetId())
+
+			return currentCart, nil
+		} else {
+			return nil, errors.New("you are not registered")
+		}
+
+	}
 }

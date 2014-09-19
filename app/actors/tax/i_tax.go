@@ -2,8 +2,8 @@ package tax
 
 import (
 	"github.com/ottemo/foundation/app/models/checkout"
-	"github.com/ottemo/foundation/app/utils"
 	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/foundation/utils"
 )
 
 func (it *DefaultTax) GetName() string {
