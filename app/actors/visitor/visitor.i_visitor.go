@@ -59,6 +59,16 @@ func (it *DefaultVisitor) GetLastName() string {
 	return it.LastName
 }
 
+// returns visitor birthday
+func (it *DefaultVisitor) GetBirthday() time.Time {
+	return it.Birthday
+}
+
+// returns visitor created at date
+func (it *DefaultVisitor) GetCreatedAt() time.Time {
+	return it.CreatedAt
+}
+
 // returns shipping address for visitor
 func (it *DefaultVisitor) GetShippingAddress() visitor.I_VisitorAddress {
 	return it.ShippingAddress
@@ -79,6 +89,11 @@ func (it *DefaultVisitor) GetBillingAddress() visitor.I_VisitorAddress {
 func (it *DefaultVisitor) SetBillingAddress(address visitor.I_VisitorAddress) error {
 	it.BillingAddress = address
 	return nil
+}
+
+// returns true if visitor is admin
+func (it *DefaultVisitor) IsAdmin() bool {
+	return it.Admin
 }
 
 // returns true if visitor e-mail was validated

@@ -1,6 +1,7 @@
 package visitor
 
 import (
+	"github.com/ottemo/foundation/app/helpers/attributes"
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/visitor"
 )
@@ -17,5 +18,11 @@ func (it *DefaultVisitor) GetImplementationName() string {
 
 // returns new instance of model implementation object
 func (it *DefaultVisitor) New() (models.I_Model, error) {
-	return &DefaultVisitor{}, nil
+
+	customAttributes, err := new(attributes.CustomAttributes).Init(visitor.MODEL_NAME_VISITOR)
+	if err != nil {
+		return nil, err
+	}
+
+	return &DefaultVisitor{CustomAttributes: customAttributes}, nil
 }

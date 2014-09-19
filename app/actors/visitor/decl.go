@@ -1,10 +1,10 @@
 package visitor
 
 import (
-	"time"
-
+	"github.com/ottemo/foundation/app/helpers/attributes"
 	"github.com/ottemo/foundation/app/models/visitor"
 	"github.com/ottemo/foundation/db"
+	"time"
 )
 
 const (
@@ -29,10 +29,12 @@ type DefaultVisitor struct {
 	Password    string
 	ValidateKey string
 
-	IsAdmin bool
+	Admin bool
 
 	Birthday  time.Time
 	CreatedAt time.Time
+
+	*attributes.CustomAttributes
 }
 
 type DefaultVisitorCollection struct {

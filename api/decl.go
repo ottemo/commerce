@@ -4,6 +4,10 @@ import (
 	"net/http"
 )
 
+var (
+	SESSION_KEY_ADMIN_RIGHTS = "adminRights"
+)
+
 type T_APIHandlerParams struct {
 	ResponseWriter   http.ResponseWriter
 	Request          *http.Request

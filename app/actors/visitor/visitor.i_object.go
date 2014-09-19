@@ -1,7 +1,6 @@
 package visitor
 
 import (
-	"errors"
 	"strings"
 
 	"github.com/ottemo/foundation/app/models"
@@ -35,12 +34,12 @@ func (it *DefaultVisitor) Get(attribute string) interface{} {
 	case "birthday":
 		return it.Birthday
 	case "is_admin":
-		return it.IsAdmin
+		return it.Admin
 	case "created_at":
 		return it.IsAdmin
 	}
 
-	return nil
+	return it.CustomAttributes.Get(attribute)
 }
 
 // sets attribute value to object or returns error
@@ -67,7 +66,7 @@ func (it *DefaultVisitor) Set(attribute string, value interface{}) error {
 	case "birthday":
 		it.Birthday = utils.InterfaceToTime(value)
 	case "is_admin":
-		it.IsAdmin = utils.InterfaceToBool(value)
+		it.Admin = utils.InterfaceToBool(value)
 	case "created_at":
 		it.CreatedAt = utils.InterfaceToTime(value)
 
@@ -116,9 +115,13 @@ func (it *DefaultVisitor) Set(attribute string, value interface{}) error {
 			}
 
 		default:
-			return errors.New("unsupported billing or shipping address value")
+			err := it.CustomAttributes.Set(attribute, value)
+			if err != nil {
+				return err
+			}
 		}
 	}
+
 	return nil
 }
 
@@ -137,7 +140,7 @@ func (it *DefaultVisitor) FromHashMap(input map[string]interface{}) error {
 // represents object as map[string]interface{}
 func (it *DefaultVisitor) ToHashMap() map[string]interface{} {
 
-	result := make(map[string]interface{})
+	result := it.CustomAttributes.ToHashMap()
 
 	result["_id"] = it.id
 
@@ -145,6 +148,7 @@ func (it *DefaultVisitor) ToHashMap() map[string]interface{} {
 	result["first_name"] = it.FirstName
 	result["last_name"] = it.LastName
 
+	result["is_admin"] = it.Admin
 	result["birthday"] = it.Birthday
 	result["created_at"] = it.CreatedAt
 
@@ -168,7 +172,7 @@ func (it *DefaultVisitor) ToHashMap() map[string]interface{} {
 // returns information about object attributes
 func (it *DefaultVisitor) GetAttributesInfo() []models.T_AttributeInfo {
 
-	info := []models.T_AttributeInfo{
+	result := []models.T_AttributeInfo{
 		models.T_AttributeInfo{
 			Model:      visitor.MODEL_NAME_VISITOR,
 			Collection: COLLECTION_NAME_VISITOR,
@@ -260,7 +264,51 @@ func (it *DefaultVisitor) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "model:VisitorAddress",
 			Default:    "",
 		},
+		models.T_AttributeInfo{
+			Model:      visitor.MODEL_NAME_VISITOR,
+			Collection: COLLECTION_NAME_VISITOR,
+			Attribute:  "birthday",
+			Type:       "datetime",
+			IsRequired: false,
+			IsStatic:   true,
+			Label:      "Birthday",
+			Group:      "General",
+			Editors:    "datetime",
+			Options:    "",
+			Default:    "",
+		},
+		models.T_AttributeInfo{
+			Model:      visitor.MODEL_NAME_VISITOR,
+			Collection: COLLECTION_NAME_VISITOR,
+			Attribute:  "created_at",
+			Type:       "datetime",
+			IsRequired: false,
+			IsStatic:   true,
+			Label:      "Created at",
+			Group:      "General",
+			Editors:    "not_editable",
+			Options:    "",
+			Default:    "",
+		},
+		models.T_AttributeInfo{
+			Model:      visitor.MODEL_NAME_VISITOR,
+			Collection: COLLECTION_NAME_VISITOR,
+			Attribute:  "is_admin",
+			Type:       "bool",
+			IsRequired: true,
+			IsStatic:   true,
+			Label:      "Is admin",
+			Group:      "General",
+			Editors:    "boolean",
+			Options:    "",
+			Default:    "false",
+		},
 	}
 
-	return info
+	customAttributesInfo := it.CustomAttributes.GetAttributesInfo()
+	for _, customAttribute := range customAttributesInfo {
+		result = append(result, customAttribute)
+	}
+
+	return result
 }

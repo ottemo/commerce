@@ -2,6 +2,7 @@ package visitor
 
 import (
 	"github.com/ottemo/foundation/app/models"
+	"time"
 )
 
 const (
@@ -22,6 +23,9 @@ type I_Visitor interface {
 	GetFirstName() string
 	GetLastName() string
 
+	GetBirthday() time.Time
+	GetCreatedAt() time.Time
+
 	GetShippingAddress() I_VisitorAddress
 	GetBillingAddress() I_VisitorAddress
 
@@ -31,6 +35,8 @@ type I_Visitor interface {
 	SetPassword(passwd string) error
 	CheckPassword(passwd string) bool
 	GenerateNewPassword() error
+
+	IsAdmin() bool
 
 	IsValidated() bool
 	Invalidate() error
@@ -43,6 +49,8 @@ type I_Visitor interface {
 	models.I_Model
 	models.I_Object
 	models.I_Storable
+
+	models.I_CustomAttributes
 }
 
 type I_VisitorCollection interface {

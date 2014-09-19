@@ -58,6 +58,14 @@ func setupAPI() error {
 	if err != nil {
 		return err
 	}
+	err = api.GetRestService().RegisterAPI("visitor", "DELETE", "attribute/remove/:attribute", restRemoveVisitorAttribute)
+	if err != nil {
+		return err
+	}
+	err = api.GetRestService().RegisterAPI("visitor", "POST", "attribute/add", restAddVisitorAttribute)
+	if err != nil {
+		return err
+	}
 
 	// Storefront API
 	err = api.GetRestService().RegisterAPI("visitor", "POST", "register", restRegister)
@@ -300,6 +308,103 @@ func restListVisitorAttributes(params *api.T_APIHandlerParams) (interface{}, err
 	return attrInfo, nil
 }
 
+// WEB REST API function used to add new custom attribute to visitor model
+func restAddVisitorAttribute(params *api.T_APIHandlerParams) (interface{}, error) {
+
+	// check request params
+	//---------------------
+	reqData, err := api.GetRequestContentAsMap(params)
+	if err != nil {
+		return nil, err
+	}
+
+	attributeName, isSpecified := reqData["Attribute"]
+	if !isSpecified {
+		return nil, errors.New("attribute name was not specified")
+	}
+
+	attributeLabel, isSpecified := reqData["Label"]
+	if !isSpecified {
+		return nil, errors.New("attribute label was not specified")
+	}
+
+	// make product attribute operation
+	//---------------------------------
+	visitorModel, err := visitor.GetVisitorModel()
+	if err != nil {
+		return nil, err
+	}
+
+	attribute := models.T_AttributeInfo{
+		Model:      visitor.MODEL_NAME_VISITOR,
+		Collection: COLLECTION_NAME_VISITOR,
+		Attribute:  utils.InterfaceToString(attributeName),
+		Type:       "text",
+		IsRequired: false,
+		IsStatic:   false,
+		Label:      utils.InterfaceToString(attributeLabel),
+		Group:      "General",
+		Editors:    "text",
+		Options:    "",
+		Default:    "",
+		Validators: "",
+		IsLayered:  false,
+	}
+
+	for key, value := range reqData {
+		switch strings.ToLower(key) {
+		case "type":
+			attribute.Type = utils.InterfaceToString(value)
+		case "group":
+			attribute.Group = utils.InterfaceToString(value)
+		case "editors":
+			attribute.Editors = utils.InterfaceToString(value)
+		case "options":
+			attribute.Options = utils.InterfaceToString(value)
+		case "default":
+			attribute.Default = utils.InterfaceToString(value)
+		case "validators":
+			attribute.Validators = utils.InterfaceToString(value)
+		case "isrequired", "required":
+			attribute.IsRequired = utils.InterfaceToBool(value)
+		case "islayered", "layered":
+			attribute.IsLayered = utils.InterfaceToBool(value)
+		}
+	}
+
+	err = visitorModel.AddNewAttribute(attribute)
+	if err != nil {
+		return nil, err
+	}
+
+	return attribute, nil
+}
+
+// WEB REST API function used to remove custom attribute of visitor model
+func restRemoveVisitorAttribute(params *api.T_APIHandlerParams) (interface{}, error) {
+
+	// check request params
+	//--------------------
+	attributeName, isSpecified := params.RequestURLParams["attribute"]
+	if !isSpecified {
+		return nil, errors.New("attribute name was not specified")
+	}
+
+	// remove attribute actions
+	//-------------------------
+	visitorModel, err := visitor.GetVisitorModel()
+	if err != nil {
+		return nil, err
+	}
+
+	err = visitorModel.RemoveAttribute(attributeName)
+	if err != nil {
+		return nil, err
+	}
+
+	return "ok", nil
+}
+
 // WEB REST API used to register new visitor (same as create but with email validation)
 //   - visitor attributes must be included in POST form
 //   - email attribute required
@@ -454,10 +559,15 @@ func restLogin(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil, errors.New("wrong password")
 	}
 
+	// api session updates
 	if visitorModel.IsValidated() {
 		params.Session.Set(visitor.SESSION_KEY_VISITOR_ID, visitorModel.GetId())
 	} else {
 		return nil, errors.New("visitor is not validated")
+	}
+
+	if visitorModel.IsAdmin() {
+		params.Session.Set(api.SESSION_KEY_ADMIN_RIGHTS, true)
 	}
 
 	return "ok", nil
@@ -564,7 +674,12 @@ func restLoginFacebook(params *api.T_APIHandlerParams) (interface{}, error) {
 		}
 	}
 
+	// api session updates
 	params.Session.Set(visitor.SESSION_KEY_VISITOR_ID, visitorModel.GetId())
+
+	if visitorModel.IsAdmin() {
+		params.Session.Set(api.SESSION_KEY_ADMIN_RIGHTS, true)
+	}
 
 	return "ok", nil
 }
@@ -668,7 +783,12 @@ func restLoginGoogle(params *api.T_APIHandlerParams) (interface{}, error) {
 		}
 	}
 
+	// api session updates
 	params.Session.Set(visitor.SESSION_KEY_VISITOR_ID, visitorModel.GetId())
+
+	if visitorModel.IsAdmin() {
+		params.Session.Set(api.SESSION_KEY_ADMIN_RIGHTS, true)
+	}
 
 	return "ok", nil
 }

@@ -16,6 +16,17 @@ func GetSessionById(sessionId string) I_Session {
 	return session
 }
 
+// returns true if admin rights allowed for current session
+func IsAdmin(params *T_APIHandlerParams) bool {
+	if value := params.Session.Get(SESSION_KEY_ADMIN_RIGHTS); value != nil {
+		if value.(bool) == true {
+			return true
+		}
+	}
+
+	return false
+}
+
 // tries to represent HTTP request content in map[string]interface{} format
 func GetRequestContentAsMap(params *T_APIHandlerParams) (map[string]interface{}, error) {
 

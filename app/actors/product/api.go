@@ -128,7 +128,7 @@ func restAddProductAttribute(params *api.T_APIHandlerParams) (interface{}, error
 
 	attribute := models.T_AttributeInfo{
 		Model:      product.MODEL_NAME_PRODUCT,
-		Collection: "product",
+		Collection: COLLECTION_NAME_PRODUCT,
 		Attribute:  utils.InterfaceToString(attributeName),
 		Type:       "text",
 		IsRequired: false,
