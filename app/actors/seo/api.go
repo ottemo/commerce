@@ -54,6 +54,7 @@ func setupAPI() error {
 
 // WEB REST API function used to obtain url rewrites list
 func restURLRewritesList(params *api.T_APIHandlerParams) (interface{}, error) {
+
 	collection, err := db.GetCollection(COLLECTION_NAME_URL_REWRITES)
 	if err != nil {
 		return nil, err
@@ -67,6 +68,7 @@ func restURLRewritesList(params *api.T_APIHandlerParams) (interface{}, error) {
 
 // WEB REST API function used to obtain rewrite for specified url
 func restURLRewritesGet(params *api.T_APIHandlerParams) (interface{}, error) {
+
 	collection, err := db.GetCollection(COLLECTION_NAME_URL_REWRITES)
 	if err != nil {
 		return nil, err
@@ -83,6 +85,11 @@ func restURLRewritesUpdate(params *api.T_APIHandlerParams) (interface{}, error) 
 
 	// check request params
 	//---------------------
+	// check rights
+	if err := api.ValidateAdminRights(params); err != nil {
+		return nil, err
+	}
+
 	postValues, err := api.GetRequestContentAsMap(params)
 	if err != nil {
 		return nil, err
@@ -140,6 +147,12 @@ func restURLRewritesAdd(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// checking request params
 	//------------------------
+
+	// check rights
+	if err := api.ValidateAdminRights(params); err != nil {
+		return nil, err
+	}
+
 	postValues, err := api.GetRequestContentAsMap(params)
 	if err != nil {
 		return nil, err
@@ -198,6 +211,11 @@ func restURLRewritesAdd(params *api.T_APIHandlerParams) (interface{}, error) {
 
 // WEB REST API function used to delete url rewrite
 func restURLRewritesDelete(params *api.T_APIHandlerParams) (interface{}, error) {
+	// check rights
+	if err := api.ValidateAdminRights(params); err != nil {
+		return nil, err
+	}
+
 	collection, err := db.GetCollection(COLLECTION_NAME_URL_REWRITES)
 	if err != nil {
 		return nil, err

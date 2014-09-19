@@ -68,6 +68,13 @@ func restCreateVisitorAddress(params *api.T_APIHandlerParams) (interface{}, erro
 		return nil, errors.New("visitor id was not specified")
 	}
 
+	// check rights
+	if err := api.ValidateAdminRights(params); err != nil {
+		if reqData["visitor_id"] != visitor.GetCurrentVisitorId(params) {
+			return nil, err
+		}
+	}
+
 	// create visitor address operation
 	//---------------------------------
 	visitorAddressModel, err := visitor.GetVisitorAddressModel()
@@ -107,13 +114,20 @@ func restUpdateVisitorAddress(params *api.T_APIHandlerParams) (interface{}, erro
 		return nil, err
 	}
 
-	// update operation
-	//-----------------
 	visitorAddressModel, err := visitor.LoadVisitorAddressById(addressId)
 	if err != nil {
 		return nil, err
 	}
 
+	// check rights
+	if err := api.ValidateAdminRights(params); err != nil {
+		if visitorAddressModel.GetVisitorId() != visitor.GetCurrentVisitorId(params) {
+			return nil, err
+		}
+	}
+
+	// update operation
+	//-----------------
 	for attribute, value := range reqData {
 		err := visitorAddressModel.Set(attribute, value)
 		if err != nil {
@@ -140,13 +154,19 @@ func restDeleteVisitorAddress(params *api.T_APIHandlerParams) (interface{}, erro
 		return nil, errors.New("visitor address id was not specified")
 	}
 
-	// delete operation
-	//-----------------
 	visitorAddressModel, err := visitor.GetVisitorAddressModelAndSetId(addressId)
 	if err != nil {
 		return nil, err
 	}
 
+	// check rights
+	if err := api.ValidateAdminRights(params); err != nil {
+		if visitorAddressModel.GetVisitorId() != visitor.GetCurrentVisitorId(params) {
+			return nil, err
+		}
+	}
+
+	// delete operation
 	err = visitorAddressModel.Delete()
 	if err != nil {
 		return nil, err
@@ -157,6 +177,12 @@ func restDeleteVisitorAddress(params *api.T_APIHandlerParams) (interface{}, erro
 
 // WEB REST API function used to obtain visitor address attributes information
 func restListVisitorAddressAttributes(params *api.T_APIHandlerParams) (interface{}, error) {
+
+	// check rights
+	if err := api.ValidateAdminRights(params); err != nil {
+		return nil, err
+	}
+
 	visitorAddressModel, err := visitor.GetVisitorAddressModel()
 	if err != nil {
 		return nil, err
@@ -168,6 +194,11 @@ func restListVisitorAddressAttributes(params *api.T_APIHandlerParams) (interface
 
 // WEB REST API function used to obtain visitors addresses count in model collection
 func restCountVisitorAddresses(params *api.T_APIHandlerParams) (interface{}, error) {
+
+	// check rights
+	if err := api.ValidateAdminRights(params); err != nil {
+		return nil, err
+	}
 
 	visitorAddressCollectionModel, err := visitor.GetVisitorAddressCollectionModel()
 	if err != nil {
@@ -199,12 +230,18 @@ func restListVisitorAddress(params *api.T_APIHandlerParams) (interface{}, error)
 	visitorId, isSpecifiedId := params.RequestURLParams["visitorId"]
 	if !isSpecifiedId {
 
-		sessionValue := params.Session.Get("visitor_id")
-		sessionVisitorId, ok := sessionValue.(string)
-		if !ok {
+		sessionVisitorId := visitor.GetCurrentVisitorId(params)
+		if sessionVisitorId == "" {
 			return nil, errors.New("you are not logined in")
 		}
 		visitorId = sessionVisitorId
+	}
+
+	// check rights
+	if err := api.ValidateAdminRights(params); err != nil {
+		if visitorId != visitor.GetCurrentVisitorId(params) {
+			return nil, err
+		}
 	}
 
 	// list operation
@@ -247,6 +284,13 @@ func restGetVisitorAddress(params *api.T_APIHandlerParams) (interface{}, error) 
 	visitorAddressModel, err := visitor.LoadVisitorAddressById(visitorAddressId)
 	if err != nil {
 		return nil, err
+	}
+
+	// check rights
+	if err := api.ValidateAdminRights(params); err != nil {
+		if visitorAddressModel.GetVisitorId() != visitor.GetCurrentVisitorId(params) {
+			return nil, err
+		}
 	}
 
 	return visitorAddressModel.ToHashMap(), nil

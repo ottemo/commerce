@@ -147,6 +147,11 @@ func restCMSPageAdd(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil, err
 	}
 
+	// check rights
+	if err := api.ValidateAdminRights(params); err != nil {
+		return nil, err
+	}
+
 	// operation
 	//----------
 	cmsPageModel, err := cms.GetCMSPageModel()
@@ -179,6 +184,11 @@ func restCMSPageUpdate(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil, err
 	}
 
+	// check rights
+	if err := api.ValidateAdminRights(params); err != nil {
+		return nil, err
+	}
+
 	// operation
 	//----------
 	cmsPageModel, err := cms.LoadCMSPageById(pageId)
@@ -204,6 +214,11 @@ func restCMSPageDelete(params *api.T_APIHandlerParams) (interface{}, error) {
 	pageId, present := params.RequestURLParams["id"]
 	if !present {
 		return nil, errors.New("cms page id should be specified")
+	}
+
+	// check rights
+	if err := api.ValidateAdminRights(params); err != nil {
+		return nil, err
 	}
 
 	// operation

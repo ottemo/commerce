@@ -130,6 +130,16 @@ func LoadVisitorById(visitorId string) (I_Visitor, error) {
 	return visitorModel, nil
 }
 
+// returns visitor id for current session if registered or ""
+func GetCurrentVisitorId(params *api.T_APIHandlerParams) string {
+	sessionVisitorId, ok := params.Session.Get(SESSION_KEY_VISITOR_ID).(string)
+	if !ok {
+		return ""
+	}
+
+	return sessionVisitorId
+}
+
 // returns visitor for current session if registered or error
 func GetCurrentVisitor(params *api.T_APIHandlerParams) (I_Visitor, error) {
 	sessionVisitorId, ok := params.Session.Get(SESSION_KEY_VISITOR_ID).(string)

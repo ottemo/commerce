@@ -9,6 +9,8 @@ type I_Session interface {
 
 	Get(key string) interface{}
 	Set(key string, value interface{})
+
+	Close() error
 }
 
 type I_RestService interface {

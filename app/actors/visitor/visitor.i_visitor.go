@@ -8,6 +8,7 @@ import (
 	"encoding/base64"
 	"time"
 
+	"github.com/ottemo/foundation/app"
 	"github.com/ottemo/foundation/app/models/visitor"
 
 	"github.com/ottemo/foundation/db"
@@ -119,9 +120,9 @@ func (it *DefaultVisitor) Invalidate() error {
 		return err
 	}
 
-	linkHref := utils.GetFoundationUrl("visitor/validate/" + it.ValidateKey)
+	linkHref := app.GetFoundationUrl("visitor/validate/" + it.ValidateKey)
 
-	err = utils.SendMail(it.GetEmail(), "e-mail validation", "please follow the link to validate your e-mail: "+linkHref)
+	err = app.SendMail(it.GetEmail(), "e-mail validation", "please follow the link to validate your e-mail: "+linkHref)
 
 	return err
 }
@@ -238,8 +239,8 @@ func (it *DefaultVisitor) GenerateNewPassword() error {
 		return err
 	}
 
-	linkHref := utils.GetStorefrontUrl("login")
-	err = utils.SendMail(it.GetEmail(), "forgot password event", "Forgot password was requested for your account "+
+	linkHref := app.GetStorefrontUrl("login")
+	err = app.SendMail(it.GetEmail(), "forgot password event", "Forgot password was requested for your account "+
 		it.GetEmail()+"\n\n"+
 		"New password: "+newPassword+"\n\n"+
 		"Please change your password on next login "+linkHref)

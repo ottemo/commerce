@@ -147,6 +147,11 @@ func restCMSBlockAdd(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil, err
 	}
 
+	// check rights
+	if err := api.ValidateAdminRights(params); err != nil {
+		return nil, err
+	}
+
 	// operation
 	//----------
 	cmsBlockModel, err := cms.GetCMSBlockModel()
@@ -179,6 +184,11 @@ func restCMSBlockUpdate(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil, err
 	}
 
+	// check rights
+	if err := api.ValidateAdminRights(params); err != nil {
+		return nil, err
+	}
+
 	// operation
 	//----------
 	cmsBlockModel, err := cms.LoadCMSBlockById(blockId)
@@ -204,6 +214,11 @@ func restCMSBlockDelete(params *api.T_APIHandlerParams) (interface{}, error) {
 	blockId, present := params.RequestURLParams["id"]
 	if !present {
 		return nil, errors.New("cms block id should be specified")
+	}
+
+	// check rights
+	if err := api.ValidateAdminRights(params); err != nil {
+		return nil, err
 	}
 
 	// operation

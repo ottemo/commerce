@@ -134,6 +134,36 @@ func setupConfig() error {
 	}
 
 	err = config.RegisterItem(env.T_ConfigItem{
+		Path:        CONFIG_PATH_STORE_ROOT_LOGIN,
+		Value:       "admin",
+		Type:        "varchar(255)",
+		Editor:      "text",
+		Options:     nil,
+		Label:       "Root login",
+		Description: "login to enter admin panel as root",
+		Image:       "",
+	}, nil)
+
+	if err != nil {
+		return err
+	}
+
+	err = config.RegisterItem(env.T_ConfigItem{
+		Path:        CONFIG_PATH_STORE_ROOT_PASSWORD,
+		Value:       "admin",
+		Type:        "varchar(255)",
+		Editor:      "password",
+		Options:     nil,
+		Label:       "Root password",
+		Description: "password to enter admin panel as root",
+		Image:       "",
+	}, nil)
+
+	if err != nil {
+		return err
+	}
+
+	err = config.RegisterItem(env.T_ConfigItem{
 		Path:        CONFIG_PATH_STORE_COUNTRY,
 		Value:       "US",
 		Type:        "string",

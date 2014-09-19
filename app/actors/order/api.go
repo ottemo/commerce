@@ -74,6 +74,11 @@ func restOrderList(params *api.T_APIHandlerParams) (interface{}, error) {
 		}
 	}
 
+	// check rights
+	if err := api.ValidateAdminRights(params); err != nil {
+		return nil, err
+	}
+
 	// operation start
 	//----------------
 	orderCollectionModel, err := order.GetOrderCollectionModel()
@@ -104,6 +109,11 @@ func restOrderList(params *api.T_APIHandlerParams) (interface{}, error) {
 // WEB REST API function used to obtain orders count in model collection
 func restOrderCount(params *api.T_APIHandlerParams) (interface{}, error) {
 
+	// check rights
+	if err := api.ValidateAdminRights(params); err != nil {
+		return nil, err
+	}
+
 	orderCollectionModel, err := order.GetOrderCollectionModel()
 	if err != nil {
 		return nil, err
@@ -126,6 +136,11 @@ func restOrderGet(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil, errors.New("order id should be specified")
 	}
 	blockId := utils.InterfaceToString(reqBlockId)
+
+	// check rights
+	if err := api.ValidateAdminRights(params); err != nil {
+		return nil, err
+	}
 
 	// operation
 	//----------
@@ -154,6 +169,11 @@ func restOrderUpdate(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil, err
 	}
 
+	// check rights
+	if err := api.ValidateAdminRights(params); err != nil {
+		return nil, err
+	}
+
 	// operation
 	//----------
 	orderModel, err := order.LoadOrderById(blockId)
@@ -179,6 +199,11 @@ func restOrderDelete(params *api.T_APIHandlerParams) (interface{}, error) {
 	blockId, present := params.RequestURLParams["id"]
 	if !present {
 		return nil, errors.New("order id should be specified")
+	}
+
+	// check rights
+	if err := api.ValidateAdminRights(params); err != nil {
+		return nil, err
 	}
 
 	// operation

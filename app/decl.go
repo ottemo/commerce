@@ -13,6 +13,9 @@ const (
 	CONFIG_PATH_STORE_NAME  = "general.store.name"
 	CONFIG_PATH_STORE_EMAIL = "general.store.email"
 
+	CONFIG_PATH_STORE_ROOT_LOGIN    = "general.store.root_login"
+	CONFIG_PATH_STORE_ROOT_PASSWORD = "general.store.root_password"
+
 	CONFIG_PATH_STORE_COUNTRY      = "general.store.country"
 	CONFIG_PATH_STORE_STATE        = "general.store.state"
 	CONFIG_PATH_STORE_CITY         = "general.store.city"

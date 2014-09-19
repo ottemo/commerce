@@ -181,41 +181,44 @@ func restReviewRemove(params *api.T_APIHandlerParams) (interface{}, error) {
 	}
 
 	if visitorId, present := reviewRecord["visitor_id"]; present {
-		if visitorId == visitorObject.GetId() {
 
-			// rating update if was set
-			//-------------------------
-			reviewRating := utils.InterfaceToInt(reviewRecord["rating"])
+		// check rights
+		if err := api.ValidateAdminRights(params); err != nil {
+			if visitorId != visitorObject.GetId() {
+				return nil, err
+			}
+		}
 
-			if reviewRating > 0 {
-				ratingCollection, err := db.GetCollection(RATING_COLLECTION_NAME)
-				if err != nil {
-					return nil, err
-				}
+		// rating update if was set
+		//-------------------------
+		reviewRating := utils.InterfaceToInt(reviewRecord["rating"])
 
-				ratingCollection.AddFilter("product_id", "=", reviewRecord["product_id"])
-				ratingRecords, err := ratingCollection.Load()
-				if err != nil {
-					return nil, err
-				}
-
-				var ratingRecord map[string]interface{} = nil
-
-				if len(ratingRecords) > 0 {
-					ratingRecord = ratingRecords[0]
-
-					recordAttribute := utils.InterfaceToString(reviewRating) + "star"
-					ratingRecord[recordAttribute] = utils.InterfaceToInt(ratingRecord[recordAttribute]) - 1
-					ratingCollection.Save(ratingRecord)
-				}
+		if reviewRating > 0 {
+			ratingCollection, err := db.GetCollection(RATING_COLLECTION_NAME)
+			if err != nil {
+				return nil, err
 			}
 
-			// review remove
-			//--------------
-			collection.DeleteById(reviewId)
-		} else {
-			return nil, errors.New("you can't delete foreign reviews")
+			ratingCollection.AddFilter("product_id", "=", reviewRecord["product_id"])
+			ratingRecords, err := ratingCollection.Load()
+			if err != nil {
+				return nil, err
+			}
+
+			var ratingRecord map[string]interface{} = nil
+
+			if len(ratingRecords) > 0 {
+				ratingRecord = ratingRecords[0]
+
+				recordAttribute := utils.InterfaceToString(reviewRating) + "star"
+				ratingRecord[recordAttribute] = utils.InterfaceToInt(ratingRecord[recordAttribute]) - 1
+				ratingCollection.Save(ratingRecord)
+			}
 		}
+
+		// review remove
+		//--------------
+		collection.DeleteById(reviewId)
 	}
 
 	return "ok", nil

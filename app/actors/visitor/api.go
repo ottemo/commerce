@@ -11,6 +11,7 @@ import (
 
 	"github.com/ottemo/foundation/utils"
 
+	"github.com/ottemo/foundation/app"
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/order"
 	"github.com/ottemo/foundation/app/models/visitor"
@@ -119,6 +120,10 @@ func restCreateVisitor(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
+	if err := api.ValidateAdminRights(params); err != nil {
+		return nil, err
+	}
+
 	reqData, err := api.GetRequestContentAsMap(params)
 	if err != nil {
 		return nil, err
@@ -173,6 +178,16 @@ func restUpdateVisitor(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil, err
 	}
 
+	if err := api.ValidateAdminRights(params); err != nil {
+		if visitor.GetCurrentVisitorId(params) != visitorId {
+			return nil, err
+		} else {
+			if _, present := reqData["is_admin"]; present {
+				return nil, err
+			}
+		}
+	}
+
 	// update operation
 	//-----------------
 	visitorModel, err := visitor.LoadVisitorById(visitorId)
@@ -201,6 +216,10 @@ func restDeleteVisitor(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
+	if err := api.ValidateAdminRights(params); err != nil {
+		return nil, err
+	}
+
 	visitorId, isSpecifiedId := params.RequestURLParams["id"]
 	if !isSpecifiedId {
 		return nil, errors.New("visitor id was not specified")
@@ -227,6 +246,10 @@ func restGetVisitor(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
+	if err := api.ValidateAdminRights(params); err != nil {
+		return nil, err
+	}
+
 	visitorId, isSpecifiedId := params.RequestURLParams["id"]
 	if !isSpecifiedId {
 		return nil, errors.New("visitor id was not specified")
@@ -245,6 +268,10 @@ func restGetVisitor(params *api.T_APIHandlerParams) (interface{}, error) {
 // WEB REST API function used to obtain visitors count in model collection
 func restCountVisitors(params *api.T_APIHandlerParams) (interface{}, error) {
 
+	if err := api.ValidateAdminRights(params); err != nil {
+		return nil, err
+	}
+
 	visitorCollectionModel, err := visitor.GetVisitorCollectionModel()
 	if err != nil {
 		return nil, err
@@ -261,6 +288,10 @@ func restCountVisitors(params *api.T_APIHandlerParams) (interface{}, error) {
 func restListVisitors(params *api.T_APIHandlerParams) (interface{}, error) {
 	// check request params
 	//---------------------
+	if err := api.ValidateAdminRights(params); err != nil {
+		return nil, err
+	}
+
 	reqData, ok := params.RequestContent.(map[string]interface{})
 	if !ok {
 		if params.Request.Method == "POST" {
@@ -313,6 +344,10 @@ func restAddVisitorAttribute(params *api.T_APIHandlerParams) (interface{}, error
 
 	// check request params
 	//---------------------
+	if err := api.ValidateAdminRights(params); err != nil {
+		return nil, err
+	}
+
 	reqData, err := api.GetRequestContentAsMap(params)
 	if err != nil {
 		return nil, err
@@ -385,6 +420,10 @@ func restRemoveVisitorAttribute(params *api.T_APIHandlerParams) (interface{}, er
 
 	// check request params
 	//--------------------
+	if err := api.ValidateAdminRights(params); err != nil {
+		return nil, err
+	}
+
 	attributeName, isSpecified := params.RequestURLParams["attribute"]
 	if !isSpecified {
 		return nil, errors.New("attribute name was not specified")
@@ -467,7 +506,7 @@ func restValidate(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil, err
 	}
 
-	return api.T_RestRedirect{Location: utils.GetStorefrontUrl("login"), DoRedirect: true}, nil
+	return api.T_RestRedirect{Location: app.GetStorefrontUrl("login"), DoRedirect: true}, nil
 }
 
 // WEB REST API used to sent new password to customer e-mail
@@ -488,7 +527,7 @@ func restForgotPassword(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil, err
 	}
 
-	return api.T_RestRedirect{Result: "ok", Location: utils.GetStorefrontUrl("login")}, nil
+	return api.T_RestRedirect{Result: "ok", Location: app.GetStorefrontUrl("login")}, nil
 }
 
 // WEB REST API function used to obtain visitor information
@@ -517,12 +556,8 @@ func restInfo(params *api.T_APIHandlerParams) (interface{}, error) {
 
 // WEB REST API function used to make visitor logout
 func restLogout(params *api.T_APIHandlerParams) (interface{}, error) {
-	sessionValue := params.Session.Get("visitor_id")
-	if sessionValue != nil {
-		return nil, errors.New("you are not logined in")
-	}
 
-	params.Session.Set(visitor.SESSION_KEY_VISITOR_ID, nil)
+	params.Session.Close()
 
 	return "ok", nil
 }
@@ -795,8 +830,7 @@ func restLoginGoogle(params *api.T_APIHandlerParams) (interface{}, error) {
 
 // WEB REST API function used to get visitor order details information
 func restVisitorOrderDetails(params *api.T_APIHandlerParams) (interface{}, error) {
-	sessionValue := params.Session.Get("visitor_id")
-	visitorId := utils.InterfaceToString(sessionValue)
+	visitorId := visitor.GetCurrentVisitorId(params)
 	if visitorId == "" {
 		return "you are not logined in", nil
 	}
@@ -818,8 +852,7 @@ func restVisitorOrderDetails(params *api.T_APIHandlerParams) (interface{}, error
 
 // WEB REST API function used to get visitor orders information
 func restListVisitorOrders(params *api.T_APIHandlerParams) (interface{}, error) {
-	sessionValue := params.Session.Get("visitor_id")
-	visitorId := utils.InterfaceToString(sessionValue)
+	visitorId := visitor.GetCurrentVisitorId(params)
 	if visitorId == "" {
 		return "you are not logined in", nil
 	}

@@ -123,6 +123,11 @@ func restAddProductAttribute(params *api.T_APIHandlerParams) (interface{}, error
 		return nil, errors.New("attribute label was not specified")
 	}
 
+	// check rights
+	if err := api.ValidateAdminRights(params); err != nil {
+		return nil, err
+	}
+
 	// make product attribute operation
 	//---------------------------------
 	productModel, err := product.GetProductModel()
@@ -185,6 +190,11 @@ func restRemoveProductAttribute(params *api.T_APIHandlerParams) (interface{}, er
 		return nil, errors.New("attribute name was not specified")
 	}
 
+	// check rights
+	if err := api.ValidateAdminRights(params); err != nil {
+		return nil, err
+	}
+
 	// remove attribute actions
 	//-------------------------
 	productModel, err := product.GetProductModel()
@@ -237,6 +247,11 @@ func restCreateProduct(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil, errors.New("product name and/or sku were not specified")
 	}
 
+	// check rights
+	if err := api.ValidateAdminRights(params); err != nil {
+		return nil, err
+	}
+
 	// create product operation
 	//-------------------------
 	productModel, err := product.GetProductModel()
@@ -270,6 +285,11 @@ func restDeleteProduct(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil, errors.New("product id was not specified")
 	}
 
+	// check rights
+	if err := api.ValidateAdminRights(params); err != nil {
+		return nil, err
+	}
+
 	// delete operation
 	//-----------------
 	productModel, err := product.GetProductModelAndSetId(productId)
@@ -300,6 +320,11 @@ func restUpdateProduct(params *api.T_APIHandlerParams) (interface{}, error) {
 	reqData, err := api.GetRequestContentAsMap(params)
 	if err != nil {
 		return nil, errors.New("unexpected request content")
+	}
+
+	// check rights
+	if err := api.ValidateAdminRights(params); err != nil {
+		return nil, err
 	}
 
 	// update operations
@@ -408,6 +433,11 @@ func restMediaAdd(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil, errors.New("media name was not specified")
 	}
 
+	// check rights
+	if err := api.ValidateAdminRights(params); err != nil {
+		return nil, err
+	}
+
 	// income file processing
 	//-----------------------
 	file, _, err := params.Request.FormFile("file")
@@ -455,6 +485,11 @@ func restMediaRemove(params *api.T_APIHandlerParams) (interface{}, error) {
 	mediaName, isNameSpecified := params.RequestURLParams["mediaName"]
 	if !isNameSpecified {
 		return nil, errors.New("media name was not specified")
+	}
+
+	// check rights
+	if err := api.ValidateAdminRights(params); err != nil {
+		return nil, err
 	}
 
 	// list media operation

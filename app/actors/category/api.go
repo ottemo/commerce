@@ -141,6 +141,11 @@ func restCreateCategory(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil, errors.New("category name was not specified")
 	}
 
+	// check rights
+	if err := api.ValidateAdminRights(params); err != nil {
+		return nil, err
+	}
+
 	// create category operation
 	//-------------------------
 	categoryModel, err := category.GetCategoryModel()
@@ -173,6 +178,11 @@ func restDeleteCategory(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil, errors.New("category id was not specified")
 	}
 
+	// check rights
+	if err := api.ValidateAdminRights(params); err != nil {
+		return nil, err
+	}
+
 	// delete operation
 	//-----------------
 	categoryModel, err := category.GetCategoryModelAndSetId(categoryId)
@@ -202,6 +212,11 @@ func restUpdateCategory(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	reqData, err := api.GetRequestContentAsMap(params)
 	if err != nil {
+		return nil, err
+	}
+
+	// check rights
+	if err := api.ValidateAdminRights(params); err != nil {
 		return nil, err
 	}
 
@@ -278,11 +293,6 @@ func restListCategoryProducts(params *api.T_APIHandlerParams) (interface{}, erro
 
 	// check request params
 	//---------------------
-	/*reqData, err := api.GetRequestContentAsMap(params)
-	if err != nil {
-		return nil, err
-	}*/
-
 	categoryId, isSpecifiedId := params.RequestURLParams["id"]
 	if !isSpecifiedId {
 		return nil, errors.New("category id was not specified")
@@ -302,10 +312,10 @@ func restListCategoryProducts(params *api.T_APIHandlerParams) (interface{}, erro
 	// preparing product information
 	result := make([]map[string]interface{}, 0)
 
-	for _, product := range productsCollection.ListProducts() {
-		productInfo := product.ToHashMap()
+	for _, productModel := range productsCollection.ListProducts() {
+		productInfo := productModel.ToHashMap()
 		if defaultImage, present := productInfo["default_image"]; present {
-			mediaPath, err := product.GetMediaPath("image")
+			mediaPath, err := productModel.GetMediaPath("image")
 			if defaultImage, ok := defaultImage.(string); ok && defaultImage != "" && err == nil {
 				productInfo["default_image"] = mediaPath + defaultImage
 			}
@@ -329,6 +339,11 @@ func restAddCategoryProduct(params *api.T_APIHandlerParams) (interface{}, error)
 	productId, isSpecifiedId := params.RequestURLParams["productId"]
 	if !isSpecifiedId {
 		return nil, errors.New("product id was not specified")
+	}
+
+	// check rights
+	if err := api.ValidateAdminRights(params); err != nil {
+		return nil, err
 	}
 
 	// category product add operation
@@ -359,6 +374,11 @@ func restRemoveCategoryProduct(params *api.T_APIHandlerParams) (interface{}, err
 	productId, isSpecifiedId := params.RequestURLParams["productId"]
 	if !isSpecifiedId {
 		return nil, errors.New("product id was not specified")
+	}
+
+	// check rights
+	if err := api.ValidateAdminRights(params); err != nil {
+		return nil, err
 	}
 
 	// category product add operation
