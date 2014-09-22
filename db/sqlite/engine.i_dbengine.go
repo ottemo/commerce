@@ -3,7 +3,9 @@ package sqlite
 import (
 	"strings"
 
+	"github.com/mxk/go-sqlite/sqlite3"
 	"github.com/ottemo/foundation/db"
+	"strconv"
 )
 
 // returns current DB engine name
@@ -52,11 +54,38 @@ func (it *SQLite) GetCollection(CollectionName string) (db.I_DBCollection, error
 		TableName:     CollectionName,
 		Connection:    it.Connection,
 		Columns:       map[string]string{},
-		Filters:       make(map[string]string),
+		FilterGroups:  make(map[string]*T_DBFilterGroup),
 		Order:         make([]string, 0),
 		ResultColumns: make([]string, 0),
-		StaticFilters: make(map[string]string),
 	}
 
 	return collection, nil
+}
+
+// returns collection(table) by name or creates new one
+func (it *SQLite) RawQuery(query string) (map[string]interface{}, error) {
+
+	result := make([]map[string]interface{}, 0, 10)
+
+	row := make(sqlite3.RowMap)
+
+	stmt, err := it.Connection.Query(query)
+	defer closeStatement(stmt)
+
+	if err == nil {
+		return nil, err
+	}
+
+	for ; err == nil; err = stmt.Next() {
+		if err := stmt.Scan(row); err == nil {
+			if _, present := row["_id"]; present {
+				row["_id"] = strconv.FormatInt(row["_id"].(int64), 10)
+			}
+			result = append(result, row)
+		} else {
+			return result[0], nil
+		}
+	}
+
+	return result[0], nil
 }

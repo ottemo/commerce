@@ -2,6 +2,7 @@ package sqlite
 
 import (
 	"errors"
+	"io"
 	"regexp"
 	"strconv"
 	"strings"
@@ -9,154 +10,34 @@ import (
 	sqlite3 "github.com/mxk/go-sqlite/sqlite3"
 )
 
-// close sqlite3 statement routine
-func closeStatement(statement *sqlite3.Stmt) {
-	if statement != nil {
-		statement.Close()
-	}
-}
-
-// formats SQL query error for output to log
-func sqlError(SQL string, err error) error {
-	return errors.New("SQL \"" + SQL + "\" error: " + err.Error())
-}
-
-// returns string that represents value for SQL query
-func convertValueForSQL(value interface{}) string {
-	result := ""
-
-	switch typedValue := value.(type) {
-	case string:
-		result = strings.Replace(typedValue, "'", "''", -1)
-		result = strings.Replace(result, "\\", "\\\\", -1)
-		result = "'" + typedValue + "'"
-
-	case []string:
-		result := ""
-		for _, item := range typedValue {
-			if result != "" {
-				result += ", "
-			}
-			result += convertValueForSQL(item)
-		}
-		return result
-	}
-
-	return result
-}
-
-// returns type used inside sqlite for given general name
-func GetDBType(ColumnType string) (string, error) {
-	ColumnType = strings.ToLower(ColumnType)
-	switch {
-	case ColumnType == "id" || ColumnType == "int" || ColumnType == "integer":
-		return "INTEGER", nil
-	case ColumnType == "real" || ColumnType == "float":
-		return "REAL", nil
-	case ColumnType == "string" || ColumnType == "text" || strings.Contains(ColumnType, "char"):
-		return "TEXT", nil
-	case ColumnType == "blob" || ColumnType == "struct" || ColumnType == "data":
-		return "BLOB", nil
-	case strings.Contains(ColumnType, "numeric") || strings.Contains(ColumnType, "decimal") || ColumnType == "money":
-		return "NUMERIC", nil
-	case ColumnType == "bool" || ColumnType == "boolean":
-		return "NUMERIC", nil
-	}
-
-	return "?", errors.New("Unknown type '" + ColumnType + "'")
-}
-
-// makes SQL filter string based on ColumnName, Operator and Value parameters or returns nil
-//   - internal usage function for AddFilter and AddStaticFilter routines
-func (it *SQLiteCollection) makeSQLFilterString(ColumnName string, Operator string, Value interface{}) (string, error) {
-	if it.HasColumn(ColumnName) {
-		Operator = strings.ToUpper(Operator)
-		if Operator == "" || Operator == "=" || Operator == "<>" || Operator == ">" || Operator == "<" || Operator == "LIKE" || Operator == "IN" {
-			return ColumnName + " " + Operator + " " + convertValueForSQL(Value), nil
-		} else {
-			return "", errors.New("unknown operator '" + Operator + "' supposed  '', '=', '>', '<', '<>', 'LIKE', 'IN' " + ColumnName + "'")
-		}
-	} else {
-		return "", errors.New("can't find column '" + ColumnName + "'")
-	}
-}
-
-// collects all filters in a single string (for internal usage)
-func (it *SQLiteCollection) getSQLFilters() string {
-	sqlFilter := ""
-	for _, value := range it.StaticFilters {
-		if sqlFilter != "" {
-			sqlFilter += " AND "
-		}
-		sqlFilter += value
-	}
-
-	for _, value := range it.Filters {
-		if sqlFilter != "" {
-			sqlFilter += " AND "
-		}
-		sqlFilter += value
-	}
-
-	if sqlFilter != "" {
-		sqlFilter = " WHERE " + sqlFilter
-	}
-
-	return sqlFilter
-}
-
 // loads record from DB by it's id
 func (it *SQLiteCollection) LoadById(id string) (map[string]interface{}, error) {
-	row := make(sqlite3.RowMap)
+	var result map[string]interface{} = nil
 
-	sqlColumns := strings.Join(it.ResultColumns, ", ")
-	if sqlColumns == "" {
-		sqlColumns = "*"
-	}
+	err := it.Iterate(func(row map[string]interface{}) bool {
+		result = row
+		return false
+	})
 
-	SQL := "SELECT " + sqlColumns + " FROM " + it.TableName + " WHERE _id = " + id
-
-	if DEBUG_SQL {
-		println(SQL)
-	}
-
-	stmt, err := it.Connection.Query(SQL)
-	defer closeStatement(stmt)
-
-	if err == nil {
-		if err := stmt.Scan(row); err == nil {
-
-			row["_id"] = strconv.FormatInt(row["_id"].(int64), 10)
-
-			return map[string]interface{}(row), nil
-		} else {
-			return nil, err
-		}
-	} else {
-		return nil, err
-	}
+	return result, err
 }
 
 // loads records from DB for current collection and filter if it set
 func (it *SQLiteCollection) Load() ([]map[string]interface{}, error) {
-	result := make([]map[string]interface{}, 0, 10)
+	result := make([]map[string]interface{}, 0)
 
-	row := make(sqlite3.RowMap)
+	err := it.Iterate(func(row map[string]interface{}) bool {
+		result = append(result, row)
+		return true
+	})
 
-	sqlLoadFilter := it.getSQLFilters()
+	return result, err
+}
 
-	sqlOrder := strings.Join(it.Order, ", ")
-	if sqlOrder != "" {
-		sqlOrder = " ORDER BY " + sqlOrder
-	}
+// applies [iterator] function to each record, stops on return false
+func (it *SQLiteCollection) Iterate(iteratorFunc func(record map[string]interface{}) bool) error {
 
-	sqlColumns := strings.Join(it.ResultColumns, ", ")
-	if sqlColumns == "" {
-		sqlColumns = "*"
-	}
-
-	SQL := "SELECT " + sqlColumns + " FROM " + it.TableName + sqlLoadFilter + sqlOrder + it.Limit
-
+	SQL := "SELECT " + it.getSQLResultColumns() + " FROM " + it.TableName + it.getSQLFilters() + it.getSQLOrder() + it.Limit
 	if DEBUG_SQL {
 		println(SQL)
 	}
@@ -164,18 +45,60 @@ func (it *SQLiteCollection) Load() ([]map[string]interface{}, error) {
 	stmt, err := it.Connection.Query(SQL)
 	defer closeStatement(stmt)
 
+	if err != nil {
+		return sqlError(SQL, err)
+	}
+
+	row := make(sqlite3.RowMap)
+	for ; err == nil; err = stmt.Next() {
+		if err := stmt.Scan(row); err == nil {
+			it.modifyResultRowId(row)
+
+			if !iteratorFunc(row) {
+				break
+			}
+		}
+	}
+
+	if err == io.EOF {
+		err = nil
+	}
+
+	return err
+}
+
+// returns distinct values of specified attribute
+func (it *SQLiteCollection) Distinct(columnName string) ([]interface{}, error) {
+
+	if len(it.ResultColumns) != 1 {
+		return nil, errors.New("should be 1 result column")
+	}
+
+	SQL := "SELECT " + it.getSQLResultColumns() + " FROM " + it.TableName + it.getSQLFilters() + it.getSQLOrder() + it.Limit
+	if DEBUG_SQL {
+		println(SQL)
+	}
+
+	stmt, err := it.Connection.Query(SQL)
+	defer closeStatement(stmt)
+
+	result := make([]interface{}, 0)
 	if err == nil {
+		row := make(sqlite3.RowMap)
+
 		for ; err == nil; err = stmt.Next() {
-
 			if err := stmt.Scan(row); err == nil {
+				it.modifyResultRowId(row)
 
-				row["_id"] = strconv.FormatInt(row["_id"].(int64), 10)
-
-				result = append(result, row)
+				for _, columnValue := range row {
+					result = append(result, columnValue)
+					break
+				}
 			} else {
 				return result, err
 			}
 		}
+
 	} else {
 		err = sqlError(SQL, err)
 	}
@@ -285,33 +208,64 @@ func (it *SQLiteCollection) DeleteById(id string) error {
 	return it.Connection.Exec(SQL)
 }
 
-// adds selection filter that will not be cleared by ClearFilters() function
-func (it *SQLiteCollection) AddStaticFilter(ColumnName string, Operator string, Value interface{}) error {
+// setups filter group params for collection
+func (it *SQLiteCollection) SetupFilterGroup(groupName string, orSequence bool, parentGroup string) error {
+	if _, present := it.FilterGroups[parentGroup]; !present && parentGroup != "" {
+		return errors.New("invalid parent group")
+	}
 
-	sqlFilter, err := it.makeSQLFilterString(ColumnName, Operator, Value)
+	filterGroup := it.getFilterGroup(groupName)
+	filterGroup.OrSequence = orSequence
+	filterGroup.ParentGroup = parentGroup
+
+	return nil
+}
+
+// removes filter group for collection
+func (it *SQLiteCollection) RemoveFilterGroup(groupName string) error {
+	if _, present := it.FilterGroups[groupName]; !present {
+		return errors.New("invalid group name")
+	}
+	delete(it.FilterGroups, groupName)
+	return nil
+}
+
+// adds selection filter to specific filter group (all filter groups will be joined before db query)
+func (it *SQLiteCollection) AddGroupFilter(groupName string, columnName string, operator string, value interface{}) error {
+	err := it.updateFilterGroup(groupName, columnName, operator, value)
 	if err != nil {
 		return err
 	}
-	it.StaticFilters[ColumnName] = sqlFilter
+	return nil
+}
 
+// adds selection filter that will not be cleared by ClearFilters() function
+func (it *SQLiteCollection) AddStaticFilter(columnName string, operator string, value interface{}) error {
+
+	err := it.updateFilterGroup(FILTER_GROUP_STATIC, columnName, operator, value)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
 // adds selection filter to current collection(table) object
 func (it *SQLiteCollection) AddFilter(ColumnName string, Operator string, Value interface{}) error {
 
-	sqlFilter, err := it.makeSQLFilterString(ColumnName, Operator, Value)
+	err := it.updateFilterGroup(FILTER_GROUP_DEFAULT, ColumnName, Operator, Value)
 	if err != nil {
 		return err
 	}
-	it.Filters[ColumnName] = sqlFilter
-
 	return nil
 }
 
-// removes all filters that were set for current collection
+// removes all filters that were set for current collection, except static
 func (it *SQLiteCollection) ClearFilters() error {
-	it.Filters = make(map[string]string)
+	for filterGroup, _ := range it.FilterGroups {
+		if filterGroup != FILTER_GROUP_STATIC {
+			delete(it.FilterGroups, filterGroup)
+		}
+	}
 	return nil
 }
 
@@ -384,6 +338,19 @@ func (it *SQLiteCollection) RefreshColumns() {
 func (it *SQLiteCollection) ListColumns() map[string]string {
 	it.RefreshColumns()
 	return it.Columns
+}
+
+// returns SQL like type of attribute in current collection, or if not present ""
+func (it *SQLiteCollection) GetColumnType(columnName string) string {
+	if columnName == "_id" {
+		return "string"
+	}
+
+	if columnType, present := it.Columns[columnName]; present {
+		return columnType
+	}
+
+	return ""
 }
 
 // check for attribute(column) presence in current collection
