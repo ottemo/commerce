@@ -24,6 +24,10 @@ func setupAPI() error {
 	if err != nil {
 		return err
 	}
+	err = api.GetRestService().RegisterAPI("app", "GET", "rights", restRightsInfo)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -34,7 +38,7 @@ func restLogin(params *api.T_APIHandlerParams) (interface{}, error) {
 	var requestLogin string
 	var requestPassword string
 
-	if utils.KeysInMapAndNotBlank(params.RequestGETParams, "login", "password") {
+	if params.Request.Method == "GET" && utils.KeysInMapAndNotBlank(params.RequestGETParams, "login", "password") {
 		requestLogin = params.RequestGETParams["login"]
 		requestPassword = params.RequestGETParams["password"]
 
@@ -72,4 +76,13 @@ func restLogout(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil, err
 	}
 	return "ok", nil
+}
+
+// WEB REST API function to get info about current rights
+func restRightsInfo(params *api.T_APIHandlerParams) (interface{}, error) {
+	result := make(map[string]interface{})
+
+	result["is_admin"] = utils.InterfaceToBool(params.Session.Get(api.SESSION_KEY_ADMIN_RIGHTS))
+
+	return result, nil
 }

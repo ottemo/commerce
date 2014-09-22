@@ -534,10 +534,14 @@ func restForgotPassword(params *api.T_APIHandlerParams) (interface{}, error) {
 //   - visitor id must be specified in request URI
 func restInfo(params *api.T_APIHandlerParams) (interface{}, error) {
 
-	sessionValue := params.Session.Get("visitor_id")
+	sessionValue := params.Session.Get(visitor.SESSION_KEY_VISITOR_ID)
 	visitorId, ok := sessionValue.(string)
 	if !ok {
-		return "you are not logined in", nil
+		if api.ValidateAdminRights(params) == nil {
+			return map[string]interface{}{"is_admin": true}, nil
+		} else {
+			return "you are not logined in", nil
+		}
 	}
 
 	// visitor info
