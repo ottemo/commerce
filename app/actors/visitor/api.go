@@ -9,14 +9,13 @@ import (
 	"encoding/json"
 	"strings"
 
-	"github.com/ottemo/foundation/utils"
-
+	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/app"
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/order"
 	"github.com/ottemo/foundation/app/models/visitor"
-
-	"github.com/ottemo/foundation/api"
+	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/foundation/utils"
 )
 
 // REST API registration function
@@ -581,6 +580,22 @@ func restLogin(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil, errors.New("email and/or password were not specified")
 	}
 
+	requestLogin := utils.InterfaceToString(reqData["email"])
+	requestPassword := utils.InterfaceToString(reqData["password"])
+
+	if !strings.Contains(requestLogin, "@") {
+		rootLogin := utils.InterfaceToString(env.ConfigGetValue(app.CONFIG_PATH_STORE_ROOT_LOGIN))
+		rootPassword := utils.InterfaceToString(env.ConfigGetValue(app.CONFIG_PATH_STORE_ROOT_PASSWORD))
+
+		if requestLogin == rootLogin && requestPassword == rootPassword {
+			params.Session.Set(api.SESSION_KEY_ADMIN_RIGHTS, true)
+
+			return "ok", nil
+		}
+	} else {
+		return nil, errors.New("wrong login - should be email")
+	}
+
 	// visitor info
 	//--------------
 	visitorModel, err := visitor.GetVisitorModel()
@@ -588,12 +603,12 @@ func restLogin(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil, err
 	}
 
-	err = visitorModel.LoadByEmail(utils.InterfaceToString(reqData["email"]))
+	err = visitorModel.LoadByEmail(requestLogin)
 	if err != nil {
 		return nil, err
 	}
 
-	ok := visitorModel.CheckPassword(utils.InterfaceToString(reqData["password"]))
+	ok := visitorModel.CheckPassword(requestPassword)
 	if !ok {
 		return nil, errors.New("wrong password")
 	}
