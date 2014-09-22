@@ -591,9 +591,9 @@ func restLogin(params *api.T_APIHandlerParams) (interface{}, error) {
 			params.Session.Set(api.SESSION_KEY_ADMIN_RIGHTS, true)
 
 			return "ok", nil
+		} else {
+			return nil, errors.New("wrong login - should be email")
 		}
-	} else {
-		return nil, errors.New("wrong login - should be email")
 	}
 
 	// visitor info
