@@ -302,6 +302,12 @@ func InterfaceToFloat64(value interface{}) float64 {
 	}
 }
 
+// checks time for zero value
+func IsZeroTime(value time.Time) bool {
+	zeroTime := time.Unix(0, 0)
+	return value == zeroTime
+}
+
 // converts interface{} to time.Time
 func InterfaceToTime(value interface{}) time.Time {
 	switch typedValue := value.(type) {
