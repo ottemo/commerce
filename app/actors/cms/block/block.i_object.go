@@ -116,7 +116,7 @@ func (it *DefaultCMSBlock) GetAttributesInfo() []models.T_AttributeInfo {
 			IsStatic:   true,
 			Label:      "Content",
 			Group:      "General",
-			Editors:    "text",
+			Editors:    "html",
 			Options:    "",
 			Default:    "",
 		},

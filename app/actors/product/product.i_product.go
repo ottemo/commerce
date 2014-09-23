@@ -128,6 +128,8 @@ func (it *DefaultProduct) ApplyOptions(options map[string]interface{}) error {
 					}
 				}
 			}
+		} else {
+			return errors.New("unknown option '" + itemOptionName + "'")
 		}
 	}
 

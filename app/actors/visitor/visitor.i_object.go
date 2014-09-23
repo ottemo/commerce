@@ -1,6 +1,7 @@
 package visitor
 
 import (
+	"errors"
 	"strings"
 
 	"github.com/ottemo/foundation/app/models"
@@ -70,7 +71,7 @@ func (it *DefaultVisitor) Set(attribute string, value interface{}) error {
 	case "created_at":
 		it.CreatedAt = utils.InterfaceToTime(value)
 
-	// only address id coming - trying to get it from DB
+	// only address id was specified - trying to load it
 	case "billing_address_id", "shipping_address_id":
 		address, err := visitor.LoadVisitorAddressById(utils.InterfaceToString(value))
 		if err != nil {
@@ -87,7 +88,7 @@ func (it *DefaultVisitor) Set(attribute string, value interface{}) error {
 
 		}
 
-	// address with details coming
+	// address detailed information was specified
 	case "billing_address", "shipping_address":
 		switch value := value.(type) {
 
@@ -113,12 +114,14 @@ func (it *DefaultVisitor) Set(attribute string, value interface{}) error {
 			} else {
 				it.ShippingAddress = addressModel
 			}
-
 		default:
-			err := it.CustomAttributes.Set(attribute, value)
-			if err != nil {
-				return err
-			}
+			return errors.New("unsupported billing or shipping address value")
+		}
+
+	default:
+		err := it.CustomAttributes.Set(attribute, value)
+		if err != nil {
+			return err
 		}
 	}
 

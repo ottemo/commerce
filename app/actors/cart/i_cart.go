@@ -44,7 +44,7 @@ func (it *DefaultCart) checkOptions(productOptions map[string]interface{}, cartI
 							}
 						}
 					default:
-						return errors.New("unexpected option value for " + optionName + " option")
+						return errors.New("unexpected option value for '" + optionName + "' option")
 					}
 
 					// checking for option customer set with available for product
@@ -54,7 +54,7 @@ func (it *DefaultCart) checkOptions(productOptions map[string]interface{}, cartI
 						switch productOptionValues := productOption["options"].(type) {
 						case map[string]interface{}:
 							if _, present := productOptionValues[optionValue]; !present {
-								return errors.New(optionName + "not valid value")
+								return errors.New("invalid value for option '" + optionName + "'")
 							}
 
 						case []interface{}:
@@ -66,17 +66,19 @@ func (it *DefaultCart) checkOptions(productOptions map[string]interface{}, cartI
 								}
 							}
 							if !found {
-								return errors.New(optionName + "not valid value")
+								return errors.New("invalid value for option '" + optionName + "'")
 							}
 
 						default:
 							if productOptionValues != optionValue {
-								return errors.New(optionName + "not valid value")
+								return errors.New("invalid value for option '" + optionName + "'")
 							}
 						}
 					}
 				}
 			}
+		} else {
+			return errors.New("unknown option '" + optionName + "'")
 		}
 	}
 

@@ -24,6 +24,10 @@ func setupAPI() error {
 	if err != nil {
 		return err
 	}
+	err = api.GetRestService().RegisterAPI("category", "GET", "count", restCountCategories)
+	if err != nil {
+		return err
+	}
 	err = api.GetRestService().RegisterAPI("category", "POST", "create", restCreateCategory)
 	if err != nil {
 		return err
@@ -40,24 +44,24 @@ func setupAPI() error {
 	if err != nil {
 		return err
 	}
-
-	err = api.GetRestService().RegisterAPI("category", "GET", "products/:id", restListCategoryProducts)
-	if err != nil {
-		return err
-	}
-	err = api.GetRestService().RegisterAPI("category", "GET", "product/count/:id", restCategoryProductsCount)
-	if err != nil {
-		return err
-	}
-	err = api.GetRestService().RegisterAPI("category", "POST", "products/:id", restListCategoryProducts)
-	if err != nil {
-		return err
-	}
 	err = api.GetRestService().RegisterAPI("category", "GET", "layers/:id", restListCategoryLayers)
 	if err != nil {
 		return err
 	}
 	err = api.GetRestService().RegisterAPI("category", "POST", "layers/:id", restListCategoryLayers)
+	if err != nil {
+		return err
+	}
+
+	err = api.GetRestService().RegisterAPI("category", "GET", "product/list/:categoryId", restListCategoryProducts)
+	if err != nil {
+		return err
+	}
+	err = api.GetRestService().RegisterAPI("category", "POST", "product/list/:categoryId", restListCategoryProducts)
+	if err != nil {
+		return err
+	}
+	err = api.GetRestService().RegisterAPI("category", "GET", "product/count/:categoryId", restCategoryProductsCount)
 	if err != nil {
 		return err
 	}
@@ -123,6 +127,20 @@ func restListCategories(params *api.T_APIHandlerParams) (interface{}, error) {
 	}
 
 	return categoryCollectionModel.List()
+}
+
+// WEB REST API function used to obtain categories count in model collection
+func restCountCategories(params *api.T_APIHandlerParams) (interface{}, error) {
+	categoryCollectionModel, err := category.GetCategoryCollectionModel()
+	if err != nil {
+		return nil, err
+	}
+	dbCollection := categoryCollectionModel.GetDBCollection()
+
+	// filters handle
+	api.ApplyFilters(params, dbCollection)
+
+	return dbCollection.Count()
 }
 
 // WEB REST API used to create new category
@@ -293,7 +311,7 @@ func restListCategoryProducts(params *api.T_APIHandlerParams) (interface{}, erro
 
 	// check request params
 	//---------------------
-	categoryId, isSpecifiedId := params.RequestURLParams["id"]
+	categoryId, isSpecifiedId := params.RequestURLParams["categoryId"]
 	if !isSpecifiedId {
 		return nil, errors.New("category id was not specified")
 	}
@@ -421,7 +439,7 @@ func restGetCategory(params *api.T_APIHandlerParams) (interface{}, error) {
 //   - category id must be specified in request URI
 func restCategoryProductsCount(params *api.T_APIHandlerParams) (interface{}, error) {
 
-	categoryId, isSpecifiedId := params.RequestURLParams["id"]
+	categoryId, isSpecifiedId := params.RequestURLParams["categoryId"]
 	if !isSpecifiedId {
 		return nil, errors.New("category id was not specified")
 	}
@@ -448,12 +466,7 @@ func restGetCategoriesTree(params *api.T_APIHandlerParams) (interface{}, error) 
 
 	var result = make([]map[string]interface{}, 0)
 
-	dbEngine := db.GetDBEngine()
-	if dbEngine == nil {
-		return nil, errors.New("can't get DB engine")
-	}
-
-	collection, err := dbEngine.GetCollection(COLLECTION_NAME_CATEGORY)
+	collection, err := db.GetCollection(COLLECTION_NAME_CATEGORY)
 	if err != nil {
 		return nil, err
 	}

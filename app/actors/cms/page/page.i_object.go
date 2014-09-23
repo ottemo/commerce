@@ -156,7 +156,7 @@ func (it *DefaultCMSPage) GetAttributesInfo() []models.T_AttributeInfo {
 			Model:      cms.MODEL_NAME_CMS_PAGE,
 			Collection: CMS_PAGE_COLLECTION_NAME,
 			Attribute:  "content",
-			Type:       "text",
+			Type:       "html",
 			IsRequired: false,
 			IsStatic:   true,
 			Label:      "Content",

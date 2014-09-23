@@ -104,6 +104,10 @@ func setupAPI() error {
 	if err != nil {
 		return err
 	}
+	err = api.GetRestService().RegisterAPI("visitor", "POST", "order/list", restListVisitorOrders)
+	if err != nil {
+		return err
+	}
 	err = api.GetRestService().RegisterAPI("visitor", "GET", "order/details/:id", restVisitorOrderDetails)
 	if err != nil {
 		return err
@@ -871,6 +875,16 @@ func restVisitorOrderDetails(params *api.T_APIHandlerParams) (interface{}, error
 
 // WEB REST API function used to get visitor orders information
 func restListVisitorOrders(params *api.T_APIHandlerParams) (interface{}, error) {
+
+	// check request params
+	//---------------------
+	reqData, ok := params.RequestContent.(map[string]interface{})
+	if !ok {
+		reqData = make(map[string]interface{})
+	}
+
+	// list operation
+	//---------------
 	visitorId := visitor.GetCurrentVisitorId(params)
 	if visitorId == "" {
 		return "you are not logined in", nil
@@ -884,6 +898,20 @@ func restListVisitorOrders(params *api.T_APIHandlerParams) (interface{}, error) 
 	err = orderCollection.ListFilterAdd("visitor_id", "=", visitorId)
 	if err != nil {
 		return nil, err
+	}
+
+	// filters handle
+	api.ApplyFilters(params, orderCollection.GetDBCollection())
+
+	// extra parameter handle
+	if extra, isExtra := reqData["extra"]; isExtra {
+		extra := utils.Explode(utils.InterfaceToString(extra), ",")
+		for _, value := range extra {
+			err := orderCollection.ListAddExtraAttribute(value)
+			if err != nil {
+				return nil, err
+			}
+		}
 	}
 
 	result, err := orderCollection.List()

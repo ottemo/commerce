@@ -219,8 +219,8 @@ func (it *DefaultCategory) GetAttributesInfo() []models.T_AttributeInfo {
 			IsStatic:   true,
 			Label:      "Parent",
 			Group:      "General",
-			Editors:    "model_selector",
-			Options:    "model: category",
+			Editors:    "category_selector",
+			Options:    "",
 			Default:    "",
 		},
 		models.T_AttributeInfo{
@@ -232,8 +232,8 @@ func (it *DefaultCategory) GetAttributesInfo() []models.T_AttributeInfo {
 			IsStatic:   true,
 			Label:      "Products",
 			Group:      "General",
-			Editors:    "array_model_selector",
-			Options:    "model: product",
+			Editors:    "product_selector",
+			Options:    "",
 			Default:    "",
 		},
 	}
