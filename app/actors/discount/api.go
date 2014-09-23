@@ -81,8 +81,18 @@ func restDiscountApply(params *api.T_APIHandlerParams) (interface{}, error) {
 		// to be applicable coupon should satisfy following conditions:
 		//   [applyTimes] should be -1 or >0 and [workSince] >= currentTime <= [workUntil] if set
 		if (applyTimes == -1 || applyTimes > 0) &&
-			(utils.IsZeroTime(workSince) || workSince.Unix() >= currentTime.Unix()) &&
-			(utils.IsZeroTime(workUntil) || workUntil.Unix() <= currentTime.Unix()) {
+			(utils.IsZeroTime(workSince) || workSince.Unix() <= currentTime.Unix()) &&
+			(utils.IsZeroTime(workUntil) || workUntil.Unix() >= currentTime.Unix()) {
+
+			// TODO: coupon loosing with session clear, probably should be made on order creation, or have event on session
+			// times used decrease
+			if applyTimes > 0 {
+				discountCoupon["times"] = applyTimes - 1
+				_, err := collection.Save(discountCoupon)
+				if err != nil {
+					return nil, err
+				}
+			}
 
 			// coupon is working - applying it
 			appliedCoupons = append(appliedCoupons, couponCode)
@@ -110,15 +120,38 @@ func restDiscountNeglect(params *api.T_APIHandlerParams) (interface{}, error) {
 	}
 
 	if appliedCoupons, ok := params.Session.Get(SESSION_KEY_APPLIED_DISCOUNT_CODES).([]string); ok {
-
 		newAppliedCoupons := make([]string, 0)
 		for _, value := range appliedCoupons {
 			if value != couponCode {
 				newAppliedCoupons = append(newAppliedCoupons, value)
 			}
 		}
-
 		params.Session.Set(SESSION_KEY_APPLIED_DISCOUNT_CODES, newAppliedCoupons)
+
+		// times used increase
+		collection, err := db.GetCollection(COLLECTION_NAME_COUPON_DISCOUNTS)
+		if err != nil {
+			return nil, err
+		}
+		err = collection.AddFilter("code", "=", couponCode)
+		if err != nil {
+			return nil, err
+		}
+		records, err := collection.Load()
+		if err != nil {
+			return nil, err
+		}
+		if len(records) > 0 {
+			applyTimes := utils.InterfaceToInt(records[0]["times"])
+			if applyTimes >= 0 {
+				records[0]["times"] = applyTimes + 1
+
+				_, err := collection.Save(records[0])
+				if err != nil {
+					return nil, err
+				}
+			}
+		}
 	}
 
 	return "ok", nil
@@ -198,11 +231,16 @@ func restDiscountCSVUpload(params *api.T_APIHandlerParams) (interface{}, error) 
 				continue
 			}
 
+			times := utils.InterfaceToInt(csvRecord[4])
+			if csvRecord[4] == "" {
+				times = -1
+			}
+
 			record["code"] = code
 			record["name"] = name
 			record["amount"] = utils.InterfaceToFloat64(csvRecord[2])
 			record["percent"] = utils.InterfaceToFloat64(csvRecord[3])
-			record["times"] = utils.InterfaceToInt(csvRecord[4])
+			record["times"] = times
 			record["since"] = utils.InterfaceToTime(csvRecord[5])
 			record["until"] = utils.InterfaceToTime(csvRecord[6])
 

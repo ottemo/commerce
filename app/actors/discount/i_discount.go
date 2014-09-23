@@ -64,8 +64,8 @@ func (it *DefaultDiscount) CalculateDiscount(checkoutInstance checkout.I_Checkou
 					// to be applicable coupon should satisfy following conditions:
 					//   [applyTimes] should be -1 or >0 and [workSince] >= currentTime <= [workUntil] if set
 					if (applyTimes == -1 || applyTimes > 0) &&
-						(utils.IsZeroTime(workSince) || workSince.Unix() >= currentTime.Unix()) &&
-						(utils.IsZeroTime(workUntil) || workUntil.Unix() <= currentTime.Unix()) {
+						(utils.IsZeroTime(workSince) || workSince.Unix() <= currentTime.Unix()) &&
+						(utils.IsZeroTime(workUntil) || workUntil.Unix() >= currentTime.Unix()) {
 
 						// calculating coupon discount amount
 						discountAmount := utils.InterfaceToFloat64(discountCoupon["amount"])
@@ -73,7 +73,7 @@ func (it *DefaultDiscount) CalculateDiscount(checkoutInstance checkout.I_Checkou
 
 						discountAmount = utils.RoundPrice(discountAmount) + utils.RoundPrice(grandTotalAmount/100*discountPercent)
 
-						if discountableAmount < discountAmount {
+						if discountableAmount > discountAmount {
 							discountableAmount -= discountAmount
 						} else {
 							discountAmount = discountableAmount

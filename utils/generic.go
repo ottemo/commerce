@@ -314,19 +314,30 @@ func InterfaceToTime(value interface{}) time.Time {
 	case time.Time:
 		return typedValue
 	case string:
-		newValue, err := time.Parse(time.UnixDate, typedValue)
-		if err == nil {
-			return newValue
+
+		tryFirst := []string{time.RFC3339, time.UnixDate}
+
+		for _, currentFormat := range tryFirst {
+			newValue, err := time.Parse(currentFormat, typedValue)
+			if err == nil {
+				return newValue
+			}
 		}
 
-		newValue, err = time.Parse(time.RFC3339, typedValue)
-		if err == nil {
-			return newValue
-		}
+		dateFormats := []string{"02/01/2006", "02/01/06", "2006-01-02", "2006-Jan-_2", "_2 Jan 2006", "01.02.2006"}
+		timeFormats := []string{"", " 3:04PM", " 15:04", " 15:04:05", "T15:04:05"}
+		zoneFormats := []string{"", " MST", " -0700", "Z07:00"}
 
-		newValue, err = time.Parse(time.RFC822Z, typedValue)
-		if err == nil {
-			return newValue
+		for _, zoneFormat := range zoneFormats {
+			for _, timeFormat := range timeFormats {
+				for _, dateFormat := range dateFormats {
+					currentFormat := dateFormat + timeFormat + zoneFormat
+					newValue, err := time.Parse(currentFormat, typedValue)
+					if err == nil {
+						return newValue
+					}
+				}
+			}
 		}
 	}
 
