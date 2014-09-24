@@ -3,8 +3,8 @@ package block
 import (
 	"time"
 
-	"github.com/ottemo/foundation/utils"
 	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/foundation/utils"
 )
 
 // returns id for cms block

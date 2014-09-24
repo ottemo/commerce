@@ -1,8 +1,8 @@
 package product
 
 import (
-	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/app/helpers/attributes"
+	"github.com/ottemo/foundation/db"
 )
 
 const (

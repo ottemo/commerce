@@ -5,7 +5,7 @@ import (
 )
 
 const (
-	MODEL_NAME_PRODUCT = "Product"
+	MODEL_NAME_PRODUCT            = "Product"
 	MODEL_NAME_PRODUCT_COLLECTION = "ProductCollection"
 )
 

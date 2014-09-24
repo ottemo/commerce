@@ -4,7 +4,7 @@ const (
 	PAYMENT_CODE = "paypal_express"
 	PAYMENT_NAME = "PayPal Express"
 
-	PAYMENT_ACTION_SALE = "Sale"
+	PAYMENT_ACTION_SALE          = "Sale"
 	PAYMENT_ACTION_AUTHORIZATION = "Authorization"
 
 	CONFIG_PATH_GROUP = "payment.paypal"
