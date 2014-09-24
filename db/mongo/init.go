@@ -8,6 +8,7 @@ import (
 	"labix.org/v2/mgo"
 )
 
+// package self initializer
 func init() {
 	instance := new(MongoDB)
 
@@ -15,6 +16,7 @@ func init() {
 	db.RegisterDBEngine(instance)
 }
 
+// mongo DB engine startup, opens connections to database
 func (it *MongoDB) Startup() error {
 
 	var DBUri = "mongodb://localhost:27017/ottemo"
@@ -40,6 +42,11 @@ func (it *MongoDB) Startup() error {
 	it.DBName = DBName
 	it.collections = map[string]bool{}
 
+	if MONGO_DEBUG {
+		mgo.SetDebug(true)
+		mgo.SetLogger(it)
+	}
+
 	if collectionsList, err := it.database.CollectionNames(); err == nil {
 		for _, collection := range collectionsList {
 			it.collections[collection] = true
@@ -48,5 +55,11 @@ func (it *MongoDB) Startup() error {
 
 	db.OnDatabaseStart()
 
+	return nil
+}
+
+// debug logger mgo.log_Logger implementation
+func (it *MongoDB) Output(calldepth int, s string) error {
+	println(s)
 	return nil
 }

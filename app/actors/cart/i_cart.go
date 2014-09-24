@@ -16,33 +16,140 @@ func (it *DefaultCart) cartChanged() {
 	it.Subtotal = 0
 }
 
+// function checks that options were set correctly (required elements, option values)
+func (it *DefaultCart) checkOptions(productOptions map[string]interface{}, cartItemOptions map[string]interface{}) error {
+
+	// loop 1: checking that all products customer set are available for product
+	for optionName, optionValue := range cartItemOptions {
+
+		// checking if product have attribute customer set
+		if productOption, present := productOptions[optionName]; present {
+
+			// checking that product option values are strictly predefined
+			if productOption, ok := productOption.(map[string]interface{}); ok {
+				if _, present := productOption["options"]; present {
+
+					// checking for valid value was set by customer
+					// cart option value can be one or multiple values, but should be string there
+					optionValuesToCheck := make([]string, 0)
+					switch typedOptionValue := optionValue.(type) {
+					case string:
+						optionValuesToCheck = append(optionValuesToCheck, typedOptionValue)
+					case []string:
+						optionValuesToCheck = typedOptionValue
+					case []interface{}:
+						for _, value := range typedOptionValue {
+							if value, ok := value.(string); ok {
+								optionValuesToCheck = append(optionValuesToCheck, value)
+							}
+						}
+					default:
+						return errors.New("unexpected option value for '" + optionName + "' option")
+					}
+
+					// checking for option customer set with available for product
+					for _, optionValue := range optionValuesToCheck {
+
+						// there could be couple forms of product available options specification
+						switch productOptionValues := productOption["options"].(type) {
+						case map[string]interface{}:
+							if _, present := productOptionValues[optionValue]; !present {
+								return errors.New("invalid value for option '" + optionName + "'")
+							}
+
+						case []interface{}:
+							found := false
+							for _, productOptionValue := range productOptionValues {
+								if productOptionValue == optionValue {
+									found = true
+									break
+								}
+							}
+							if !found {
+								return errors.New("invalid value for option '" + optionName + "'")
+							}
+
+						default:
+							if productOptionValues != optionValue {
+								return errors.New("invalid value for option '" + optionName + "'")
+							}
+						}
+					}
+				}
+			}
+		} else {
+			return errors.New("unknown option '" + optionName + "'")
+		}
+	}
+
+	// loop 2: checking that all product required options were set
+	for productOption, productOptionValue := range productOptions {
+		// required product option means that "productOption["required"]=true" should be set
+		if productOptionValue, ok := productOptionValue.(map[string]interface{}); ok {
+			if _, present := productOptionValue["required"]; present {
+				if value, ok := productOptionValue["required"].(bool); ok && value {
+
+					//checking cart item option for required option existence
+					if itemOptionValue, present := cartItemOptions[productOption]; !present {
+						return errors.New(productOption + " was not specified")
+					} else {
+						// for multi value options additional check
+						switch typedValue := itemOptionValue.(type) {
+						case []interface{}:
+							if len(typedValue) == 0 {
+								return errors.New(productOption + " was not specified")
+							}
+						}
+					}
+
+				}
+			}
+		}
+	}
+
+	return nil
+}
+
 // adds item to the current cart
 //   - returns added item or nil if error happened
 func (it *DefaultCart) AddItem(productId string, qty int, options map[string]interface{}) (cart.I_CartItem, error) {
+
+	//checking qty
 	if qty <= 0 {
 		return nil, errors.New("qty can't be zero or less")
 	}
 
+	// checking product existence
 	reqProduct, err := product.LoadProductById(productId)
 	if err != nil {
 		return nil, err
 	}
 
+	// options default value if them are not set
 	if options == nil {
 		options = make(map[string]interface{})
 	}
 
-	it.maxIdx += 1
-
+	// preparing new cart item
 	cartItem := &DefaultCartItem{
 		idx:       it.maxIdx,
 		ProductId: reqProduct.GetId(),
 		Qty:       qty,
 		Options:   options,
-		Cart:      it}
+		Cart:      it,
+	}
 
+	// checking for right options
+	if err := it.checkOptions(reqProduct.GetOptions(), cartItem.Options); err != nil {
+		return nil, err
+	}
+
+	// adding new item to others
+	it.maxIdx += 1
+	cartItem.idx = it.maxIdx
 	it.Items[it.maxIdx] = cartItem
 
+	// cart change event broadcast
 	it.cartChanged()
 
 	return cartItem, nil
@@ -102,6 +209,7 @@ func (it *DefaultCart) GetSubtotal() float64 {
 	if it.Subtotal == 0 {
 		for _, cartItem := range it.Items {
 			if cartProduct := cartItem.GetProduct(); cartProduct != nil {
+				cartProduct.ApplyOptions(cartItem.GetOptions())
 				it.Subtotal += cartProduct.GetPrice() * float64(cartItem.GetQty())
 			}
 		}

@@ -35,6 +35,15 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 			mappedParams[param.Key] = param.Value
 		}
 
+		// getting params from URL, those after "?"
+		urlGETParams := make(map[string]string)
+		urlParsedParams, err := url.ParseQuery(req.URL.RawQuery)
+		if err == nil {
+			for key, value := range urlParsedParams {
+				urlGETParams[key] = value[0]
+			}
+		}
+
 		// request content conversion (if possible)
 		var content interface{} = nil
 
@@ -55,17 +64,16 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 		case strings.Contains(contentType, "form-data"):
 			newContent := map[string]interface{}{}
 
-			// TODO: should be separated on 2 cases
+			req.ParseForm()
+			for attribute, value := range req.PostForm {
+				newContent[attribute], _ = url.QueryUnescape(value[0])
+			}
+
 			req.ParseMultipartForm(32 << 20) // 32 MB
 			if req.MultipartForm != nil {
 				for attribute, value := range req.MultipartForm.Value {
 					newContent[attribute], _ = url.QueryUnescape(value[0])
 				}
-			}
-
-			req.ParseForm()
-			for attribute, value := range req.PostForm {
-				newContent[attribute], _ = url.QueryUnescape(value[0])
 			}
 
 			content = newContent
@@ -93,6 +101,7 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 		apiParams := new(api.T_APIHandlerParams)
 		apiParams.Request = req
 		apiParams.RequestURLParams = mappedParams
+		apiParams.RequestGETParams = urlGETParams
 		apiParams.RequestContent = content
 		apiParams.ResponseWriter = resp
 		apiParams.Session = session
@@ -107,8 +116,14 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 
 			redirectLocation := ""
 			if redirect, ok := result.(api.T_RestRedirect); ok {
-				redirectLocation = redirect.Location
-				result = redirect.Result
+				if redirect.DoRedirect {
+					resp.Header().Add("Location", redirect.Location)
+					resp.WriteHeader(301)
+					result = []byte("")
+				} else {
+					redirectLocation = redirect.Location
+					result = redirect.Result
+				}
 			}
 
 			if _, ok := result.([]byte); !ok {

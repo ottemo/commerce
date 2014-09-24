@@ -5,8 +5,10 @@ import (
 )
 
 const (
-	CMS_PAGE_MODEL_NAME  = "CMSPage"
-	CMS_BLOCK_MODEL_NAME = "CMSBlock"
+	MODEL_NAME_CMS_PAGE             = "CMSPage"
+	MODEL_NAME_CMS_PAGE_COLLECTION  = "CMSPageCollection"
+	MODEL_NAME_CMS_BLOCK            = "CMSBlock"
+	MODEL_NAME_CMS_BLOCK_COLLECTION = "CMSBlockCollection"
 )
 
 type I_CMSPage interface {
@@ -31,7 +33,12 @@ type I_CMSPage interface {
 	models.I_Model
 	models.I_Object
 	models.I_Storable
-	models.I_Listable
+}
+
+type I_CMSPageCollection interface {
+	ListCMSPages() []I_CMSPage
+
+	models.I_Collection
 }
 
 type I_CMSBlock interface {
@@ -44,5 +51,10 @@ type I_CMSBlock interface {
 	models.I_Model
 	models.I_Object
 	models.I_Storable
-	models.I_Listable
+}
+
+type I_CMSBlockCollection interface {
+	ListCMSBlocks() []I_CMSBlock
+
+	models.I_Collection
 }

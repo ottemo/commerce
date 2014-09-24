@@ -4,8 +4,8 @@ import (
 	"errors"
 
 	"github.com/ottemo/foundation/api"
-
-	"github.com/ottemo/foundation/app/utils"
+	"github.com/ottemo/foundation/app/models/cart"
+	"github.com/ottemo/foundation/utils"
 )
 
 func setupAPI() error {
@@ -36,7 +36,7 @@ func setupAPI() error {
 //   - parent categories and categorys will not be present in list
 func restCartInfo(params *api.T_APIHandlerParams) (interface{}, error) {
 
-	currentCart, err := utils.GetCurrentCart(params)
+	currentCart, err := cart.GetCurrentCart(params)
 	if err != nil {
 		return nil, err
 	}
@@ -55,6 +55,9 @@ func restCartInfo(params *api.T_APIHandlerParams) (interface{}, error) {
 		item["options"] = cartItem.GetOptions()
 
 		if product := cartItem.GetProduct(); product != nil {
+
+			product.ApplyOptions(cartItem.GetOptions())
+
 			productData := make(map[string]interface{})
 
 			mediaPath, _ := product.GetMediaPath("image")
@@ -64,7 +67,7 @@ func restCartInfo(params *api.T_APIHandlerParams) (interface{}, error) {
 			productData["image"] = mediaPath + product.GetDefaultImage()
 			productData["price"] = product.GetPrice()
 			productData["weight"] = product.GetWeight()
-			productData["size"] = product.GetSize()
+			productData["options"] = product.GetOptions()
 
 			item["product"] = productData
 		}
@@ -106,7 +109,7 @@ func restCartAdd(params *api.T_APIHandlerParams) (interface{}, error) {
 		qty = utils.InterfaceToInt(reqQty)
 	}
 
-	var options map[string]interface{} = nil
+	var options map[string]interface{} = reqData
 	reqOptions, present := reqData["options"]
 	if present {
 		if tmpOptions, ok := reqOptions.(map[string]interface{}); ok {
@@ -116,7 +119,7 @@ func restCartAdd(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// operation
 	//----------
-	currentCart, err := utils.GetCurrentCart(params)
+	currentCart, err := cart.GetCurrentCart(params)
 	if err != nil {
 		return nil, err
 	}
@@ -124,8 +127,8 @@ func restCartAdd(params *api.T_APIHandlerParams) (interface{}, error) {
 	addItemFlag := true
 	cartItems := currentCart.GetItems()
 	for _, item := range cartItems {
-		cartItemOptions, _ := utils.EncodeToJsonString(item.GetOptions())
-		newItemOptions, _ := utils.EncodeToJsonString(item.GetOptions())
+		cartItemOptions := utils.EncodeToJsonString(item.GetOptions())
+		newItemOptions := utils.EncodeToJsonString(options)
 		if item.GetProductId() == pid && cartItemOptions == newItemOptions {
 			item.SetQty(item.GetQty() + qty)
 			addItemFlag = false
@@ -133,7 +136,10 @@ func restCartAdd(params *api.T_APIHandlerParams) (interface{}, error) {
 	}
 
 	if addItemFlag {
-		currentCart.AddItem(pid, qty, options)
+		_, err := currentCart.AddItem(pid, qty, options)
+		if err != nil {
+			return nil, err
+		}
 	}
 	currentCart.Save()
 
@@ -165,7 +171,7 @@ func restCartUpdate(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// operation
 	//----------
-	currentCart, err := utils.GetCurrentCart(params)
+	currentCart, err := cart.GetCurrentCart(params)
 	if err != nil {
 		return nil, err
 	}
@@ -206,7 +212,7 @@ func restCartDelete(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// operation
 	//----------
-	currentCart, err := utils.GetCurrentCart(params)
+	currentCart, err := cart.GetCurrentCart(params)
 	if err != nil {
 		return nil, err
 	}

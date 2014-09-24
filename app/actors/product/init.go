@@ -1,42 +1,44 @@
 package product
 
 import (
-	"errors"
-	"github.com/ottemo/foundation/app/models"
+	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/db"
 
-	"github.com/ottemo/foundation/api"
+	"github.com/ottemo/foundation/app/models"
+	"github.com/ottemo/foundation/app/models/product"
 )
 
 // module entry point before app start
 func init() {
-	instance := new(DefaultProduct)
+	productInstance := new(DefaultProduct)
+	var _ product.I_Product = productInstance
+	models.RegisterModel(product.MODEL_NAME_PRODUCT, productInstance)
 
-	models.RegisterModel("Product", instance)
-	db.RegisterOnDatabaseStart(instance.setupDB)
+	collectionInstance := new(DefaultProductCollection)
+	var _ product.I_ProductCollection = collectionInstance
+	models.RegisterModel(product.MODEL_NAME_PRODUCT_COLLECTION, collectionInstance)
 
+	db.RegisterOnDatabaseStart(setupDB)
 	api.RegisterOnRestServiceStart(setupAPI)
 }
 
 // DB preparations for current model implementation
-func (it *DefaultProduct) setupDB() error {
+func setupDB() error {
 
-	if dbEngine := db.GetDBEngine(); dbEngine != nil {
-		if collection, err := dbEngine.GetCollection("Product"); err == nil {
-			collection.AddColumn("sku", "text", true)
-			collection.AddColumn("name", "text", true)
-			collection.AddColumn("short_description", "text", false)
-			collection.AddColumn("description", "text", false)
-			collection.AddColumn("default_image", "text", false)
-			collection.AddColumn("price", "numeric", false)
-			collection.AddColumn("weight", "numeric", false)
-			collection.AddColumn("size", "numeric", false)
-		} else {
-			return err
-		}
-	} else {
-		return errors.New("Can't get database engine")
+	collection, err := db.GetCollection(COLLECTION_NAME_PRODUCT)
+	if err != nil {
+		return err
 	}
+
+	collection.AddColumn("sku", "text", true)
+	collection.AddColumn("name", "text", true)
+	collection.AddColumn("short_description", "text", false)
+	collection.AddColumn("description", "text", false)
+	collection.AddColumn("default_image", "text", false)
+	collection.AddColumn("price", "numeric", false)
+	collection.AddColumn("weight", "numeric", false)
+	collection.AddColumn("size", "numeric", false)
+	collection.AddColumn("options", "text", false)
 
 	return nil
 }

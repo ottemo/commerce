@@ -1,7 +1,6 @@
 package category
 
 import (
-	"errors"
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/db"
 
@@ -12,56 +11,36 @@ import (
 
 // module entry point before app start
 func init() {
-	instance := new(DefaultCategory)
+	categoryInstance := new(DefaultCategory)
+	var _ category.I_Category = categoryInstance
+	models.RegisterModel(category.MODEL_NAME_CATEGORY, categoryInstance)
 
-	ifce := interface{}(instance)
-	if _, ok := ifce.(models.I_Model); !ok {
-		panic("DefaultCategory - I_Model interface not implemented")
-	}
-	if _, ok := ifce.(models.I_Object); !ok {
-		panic("DefaultCategory - I_Object interface not implemented")
-	}
-	if _, ok := ifce.(models.I_Storable); !ok {
-		panic("DefaultCategory - I_Storable interface not implemented")
-	}
-	if _, ok := ifce.(models.I_Listable); !ok {
-		panic("DefaultCategory - I_Listable interface not implemented")
-	}
-	if _, ok := ifce.(category.I_Category); !ok {
-		panic("DefaultCategory - I_Category interface not implemented")
-	}
+	categoryCollectionInstance := new(DefaultCategoryCollection)
+	var _ category.I_CategoryCollection = categoryCollectionInstance
+	models.RegisterModel(category.MODEL_NAME_CATEGORY_COLLECTION, categoryCollectionInstance)
 
-	models.RegisterModel("Category", instance)
-
-	db.RegisterOnDatabaseStart(instance.setupDB)
-
+	db.RegisterOnDatabaseStart(categoryInstance.setupDB)
 	api.RegisterOnRestServiceStart(setupAPI)
 }
 
 // DB preparations for current model implementation
 func (it *DefaultCategory) setupDB() error {
-
-	if dbEngine := db.GetDBEngine(); dbEngine != nil {
-		collection, err := dbEngine.GetCollection(CATEGORY_COLLECTION_NAME)
-		if err != nil {
-			return err
-		}
-
-		collection.AddColumn("parent_id", "id", true)
-		collection.AddColumn("path", "text", true)
-		collection.AddColumn("name", "text", true)
-
-		collection, err = dbEngine.GetCollection(CATEGORY_PRODUCT_JUNCTION_COLLECTION_NAME)
-		if err != nil {
-			return err
-		}
-
-		collection.AddColumn("category_id", "id", true)
-		collection.AddColumn("product_id", "id", true)
-
-	} else {
-		return errors.New("Can't get database engine")
+	collection, err := db.GetCollection(COLLECTION_NAME_CATEGORY)
+	if err != nil {
+		return err
 	}
+
+	collection.AddColumn("parent_id", "id", true)
+	collection.AddColumn("path", "text", true)
+	collection.AddColumn("name", "text", true)
+
+	collection, err = db.GetCollection(COLLECTION_NAME_CATEGORY_PRODUCT_JUNCTION)
+	if err != nil {
+		return err
+	}
+
+	collection.AddColumn("category_id", "id", true)
+	collection.AddColumn("product_id", "id", true)
 
 	return nil
 }

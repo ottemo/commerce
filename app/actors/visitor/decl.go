@@ -1,13 +1,14 @@
 package visitor
 
 import (
+	"github.com/ottemo/foundation/app/helpers/attributes"
 	"github.com/ottemo/foundation/app/models/visitor"
-
 	"github.com/ottemo/foundation/db"
+	"time"
 )
 
 const (
-	VISITOR_COLLECTION_NAME = "visitor"
+	COLLECTION_NAME_VISITOR = "visitor"
 
 	EMAIL_VALIDATE_EXPIRE = 60 * 60 * 24
 )
@@ -28,6 +29,15 @@ type DefaultVisitor struct {
 	Password    string
 	ValidateKey string
 
+	Admin bool
+
+	Birthday  time.Time
+	CreatedAt time.Time
+
+	*attributes.CustomAttributes
+}
+
+type DefaultVisitorCollection struct {
 	listCollection     db.I_DBCollection
 	listExtraAtributes []string
 }

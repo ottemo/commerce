@@ -17,7 +17,9 @@ type DefaultCMSBlock struct {
 
 	CreatedAt time.Time
 	UpdatedAt time.Time
+}
 
+type DefaultCMSBlockCollection struct {
 	listCollection     db.I_DBCollection
 	listExtraAtributes []string
 }

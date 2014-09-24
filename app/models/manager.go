@@ -4,14 +4,6 @@ import (
 	"errors"
 )
 
-// Package variables
-//------------------
-
-var declaredModels = map[string]I_Model{}
-
-// Managing routines
-//------------------
-
 func RegisterModel(ModelName string, Model I_Model) error {
 	if _, present := declaredModels[ModelName]; present {
 		return errors.New("model with name '" + ModelName + "' already registered")

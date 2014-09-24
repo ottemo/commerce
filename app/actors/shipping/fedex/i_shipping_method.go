@@ -9,8 +9,8 @@ import (
 	"launchpad.net/xmlpath"
 
 	"github.com/ottemo/foundation/app/models/checkout"
-	"github.com/ottemo/foundation/app/utils"
 	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/foundation/utils"
 )
 
 func (it *FedEx) GetName() string {
@@ -37,7 +37,7 @@ func (it *FedEx) GetRates(checkoutObject checkout.I_Checkout) []checkout.T_Shipp
 		"origin":      utils.InterfaceToString(env.ConfigGetValue(checkout.CONFIG_PATH_PAYMENT_ORIGIN_ZIP)),
 		"dropoff":     utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_DROPOFF)),
 		"packaging":   utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_PACKAGING)),
-		"destination": checkoutObject.GetShippingAddress().GetZipCode(),
+		"destination": nil,
 		"weight":      "0.01",
 	}
 

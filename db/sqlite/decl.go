@@ -7,7 +7,19 @@ import (
 
 const (
 	DEBUG_SQL = false
+
+	FILTER_GROUP_STATIC  = "static"
+	FILTER_GROUP_DEFAULT = "default"
+
+	COLLECTION_NAME_COLUMN_INFO = "collection_column_info"
 )
+
+type T_DBFilterGroup struct {
+	Name         string
+	FilterValues []string
+	ParentGroup  string
+	OrSequence   bool
+}
 
 type SQLiteCollection struct {
 	Connection *sqlite3.Conn
@@ -15,10 +27,8 @@ type SQLiteCollection struct {
 	Columns    map[string]string
 
 	ResultColumns []string
-	StaticFilters map[string]string
-
-	Filters map[string]string
-	Order   []string
+	FilterGroups  map[string]*T_DBFilterGroup
+	Order         []string
 
 	Limit string
 }

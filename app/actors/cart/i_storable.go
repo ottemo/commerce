@@ -4,8 +4,8 @@ import (
 	"errors"
 	"github.com/ottemo/foundation/app/models/cart"
 
-	"github.com/ottemo/foundation/app/utils"
 	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/foundation/utils"
 )
 
 // returns id of current cart
@@ -55,6 +55,7 @@ func (it *DefaultCart) Load(Id string) error {
 		}
 
 		for _, cartItemValues := range cartItems {
+
 			cartItem := new(DefaultCartItem)
 
 			cartItem.id = utils.InterfaceToString(cartItemValues["_id"])
@@ -67,9 +68,17 @@ func (it *DefaultCart) Load(Id string) error {
 			cartItem.Cart = it
 			cartItem.ProductId = utils.InterfaceToString(cartItemValues["product_id"])
 			cartItem.Qty = utils.InterfaceToInt(cartItemValues["qty"])
-			cartItem.Options, _ = utils.DecodeJsonToStringKeyMap(cartItemValues["options"])
+			cartItem.Options = utils.InterfaceToMap(cartItemValues["options"])
 
-			it.Items[cartItem.idx] = cartItem
+			// check for product existence and options validation
+			if itemProduct := cartItem.GetProduct(); itemProduct != nil &&
+				it.checkOptions(itemProduct.GetOptions(), cartItem.GetOptions()) == nil {
+
+				it.Items[cartItem.idx] = cartItem
+			} else {
+				cartItemsCollection.DeleteById(utils.InterfaceToString(cartItemValues["_id"]))
+			}
+
 		}
 	}
 
@@ -77,7 +86,7 @@ func (it *DefaultCart) Load(Id string) error {
 }
 
 // removes current cart from DB
-func (it *DefaultCart) Delete(Id string) error {
+func (it *DefaultCart) Delete() error {
 	if it.GetId() == "" {
 		return errors.New("cart id is not set")
 	}
@@ -137,7 +146,7 @@ func (it *DefaultCart) Save() error {
 	cartStoringValues["_id"] = it.GetId()
 	cartStoringValues["visitor_id"] = it.VisitorId
 	cartStoringValues["active"] = it.Active
-	cartStoringValues["info"], _ = utils.EncodeToJsonString(it.Info)
+	cartStoringValues["info"] = utils.EncodeToJsonString(it.Info)
 
 	newId, err := cartCollection.Save(cartStoringValues)
 	if err != nil {

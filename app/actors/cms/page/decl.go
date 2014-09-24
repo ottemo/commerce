@@ -24,7 +24,9 @@ type DefaultCMSPage struct {
 
 	CreatedAt time.Time
 	UpdatedAt time.Time
+}
 
+type DefaultCMSPageCollection struct {
 	listCollection     db.I_DBCollection
 	listExtraAtributes []string
 }

@@ -29,3 +29,14 @@ func (it *Session) Get(key string) interface{} {
 func (it *Session) Set(key string, value interface{}) {
 	it.values[key] = value
 }
+
+// clears session data
+func (it *Session) Close() error {
+	sessionsMutex.Lock()
+
+	delete(Sessions, it.GetId())
+
+	sessionsMutex.Unlock()
+
+	return nil
+}

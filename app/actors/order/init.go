@@ -3,56 +3,37 @@ package order
 import (
 	"errors"
 
+	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/app/models"
+	"github.com/ottemo/foundation/app/models/order"
 	"github.com/ottemo/foundation/db"
 
 	"github.com/ottemo/foundation/env"
-
-	"github.com/ottemo/foundation/app/utils"
 )
 
 // module entry point before app start
 func init() {
-	instance := new(DefaultOrder)
+	orderInstance := new(DefaultOrder)
+	var _ order.I_Order = orderInstance
+	var _ order.I_OrderItem = new(DefaultOrderItem)
+	models.RegisterModel(order.MODEL_NAME_ORDER, orderInstance)
 
-	models.RegisterModel("Order", instance)
+	orderCollectionInstance := new(DefaultOrderCollection)
+	var _ order.I_OrderCollection = orderCollectionInstance
+	models.RegisterModel(order.MODEL_NAME_ORDER_COLLECTION, orderCollectionInstance)
 
 	db.RegisterOnDatabaseStart(setupDB)
 	env.RegisterOnConfigStart(setupConfig)
 
+	api.RegisterOnRestServiceStart(setupAPI)
 	// api.RegisterOnRestServiceStart(setupAPI)
-}
-
-func setupConfig() error {
-	config := env.GetConfig()
-
-	config.RegisterItem(env.T_ConfigItem{
-		Path:  CONFIG_PATH_LAST_INCREMENT_ID,
-		Value: 0,
-
-		Type: "int",
-
-		Editor:  "integer",
-		Options: "",
-
-		Label:       "Last Order Increment ID: ",
-		Description: "Do not change this value unless you know what you doing",
-
-		Image: "",
-	}, func(value interface{}) (interface{}, error) {
-		return utils.InterfaceToInt(value), nil
-	})
-
-	lastIncrementId = utils.InterfaceToInt(config.GetValue(CONFIG_PATH_LAST_INCREMENT_ID))
-
-	return nil
 }
 
 // DB preparations for current model implementation
 func setupDB() error {
 
 	if dbEngine := db.GetDBEngine(); dbEngine != nil {
-		collection, err := dbEngine.GetCollection(ORDER_COLLECTION_NAME)
+		collection, err := dbEngine.GetCollection(COLLECTION_NAME_ORDER)
 		if err != nil {
 			return err
 		}
@@ -79,11 +60,11 @@ func setupDB() error {
 		collection.AddColumn("grand_total", "decimal(10,2)", false)
 
 		collection.AddColumn("created_at", "datetime", false)
-		collection.AddColumn("updaed_at", "datetime", false)
+		collection.AddColumn("updated_at", "datetime", false)
 
 		collection.AddColumn("description", "text", false)
 
-		collection, err = dbEngine.GetCollection(ORDER_ITEMS_COLLECTION_NAME)
+		collection, err = dbEngine.GetCollection(COLLECTION_NAME_ORDER_ITEMS)
 		if err != nil {
 			return err
 		}

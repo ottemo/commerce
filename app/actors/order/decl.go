@@ -2,9 +2,10 @@ package order
 
 import (
 	"github.com/ottemo/foundation/app/models/order"
-	"time"
+	"github.com/ottemo/foundation/db"
 
 	"sync"
+	"time"
 )
 
 var (
@@ -13,8 +14,8 @@ var (
 )
 
 const (
-	ORDER_COLLECTION_NAME       = "orders"
-	ORDER_ITEMS_COLLECTION_NAME = "order_items"
+	COLLECTION_NAME_ORDER       = "orders"
+	COLLECTION_NAME_ORDER_ITEMS = "order_items"
 
 	INCREMENT_ID_FORMAT = "%0.10d"
 
@@ -36,11 +37,10 @@ type DefaultOrderItem struct {
 
 	ShortDescription string
 
-	ProductOptions map[string]interface{}
+	Options map[string]interface{}
 
 	Price  float64
 	Weight float64
-	Size   float64
 }
 
 type DefaultOrder struct {
@@ -75,4 +75,9 @@ type DefaultOrder struct {
 	Items map[int]order.I_OrderItem
 
 	maxIdx int
+}
+
+type DefaultOrderCollection struct {
+	listCollection     db.I_DBCollection
+	listExtraAtributes []string
 }

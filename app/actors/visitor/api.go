@@ -9,13 +9,13 @@ import (
 	"encoding/json"
 	"strings"
 
-	"github.com/ottemo/foundation/app/utils"
-
-	"github.com/ottemo/foundation/app/models"
-	"github.com/ottemo/foundation/app/models/visitor"
-	"github.com/ottemo/foundation/db"
-
 	"github.com/ottemo/foundation/api"
+	"github.com/ottemo/foundation/app"
+	"github.com/ottemo/foundation/app/models"
+	"github.com/ottemo/foundation/app/models/order"
+	"github.com/ottemo/foundation/app/models/visitor"
+	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/foundation/utils"
 )
 
 // REST API registration function
@@ -38,7 +38,6 @@ func setupAPI() error {
 	if err != nil {
 		return err
 	}
-
 	err = api.GetRestService().RegisterAPI("visitor", "GET", "load/:id", restGetVisitor)
 	if err != nil {
 		return err
@@ -47,7 +46,23 @@ func setupAPI() error {
 	if err != nil {
 		return err
 	}
+	err = api.GetRestService().RegisterAPI("visitor", "POST", "list", restListVisitors)
+	if err != nil {
+		return err
+	}
+	err = api.GetRestService().RegisterAPI("visitor", "GET", "count", restCountVisitors)
+	if err != nil {
+		return err
+	}
 	err = api.GetRestService().RegisterAPI("visitor", "GET", "attribute/list", restListVisitorAttributes)
+	if err != nil {
+		return err
+	}
+	err = api.GetRestService().RegisterAPI("visitor", "DELETE", "attribute/remove/:attribute", restRemoveVisitorAttribute)
+	if err != nil {
+		return err
+	}
+	err = api.GetRestService().RegisterAPI("visitor", "POST", "attribute/add", restAddVisitorAttribute)
 	if err != nil {
 		return err
 	}
@@ -58,6 +73,10 @@ func setupAPI() error {
 		return err
 	}
 	err = api.GetRestService().RegisterAPI("visitor", "GET", "validate/:key", restValidate)
+	if err != nil {
+		return err
+	}
+	err = api.GetRestService().RegisterAPI("visitor", "GET", "forgot-password/:email", restForgotPassword)
 	if err != nil {
 		return err
 	}
@@ -81,12 +100,15 @@ func setupAPI() error {
 	if err != nil {
 		return err
 	}
-	/*err = api.GetRestService().RegisterAPI("visitor", "GET", "forgot-password", restForgotPassword)
+	err = api.GetRestService().RegisterAPI("visitor", "GET", "order/list", restListVisitorOrders)
 	if err != nil {
 		return err
-	}*/
-
-	err = api.GetRestService().RegisterAPI("visitor", "GET", "order/list", restListVisitorOrders)
+	}
+	err = api.GetRestService().RegisterAPI("visitor", "POST", "order/list", restListVisitorOrders)
+	if err != nil {
+		return err
+	}
+	err = api.GetRestService().RegisterAPI("visitor", "GET", "order/details/:id", restVisitorOrderDetails)
 	if err != nil {
 		return err
 	}
@@ -101,6 +123,10 @@ func restCreateVisitor(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
+	if err := api.ValidateAdminRights(params); err != nil {
+		return nil, err
+	}
+
 	reqData, err := api.GetRequestContentAsMap(params)
 	if err != nil {
 		return nil, err
@@ -155,6 +181,16 @@ func restUpdateVisitor(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil, err
 	}
 
+	if err := api.ValidateAdminRights(params); err != nil {
+		if visitor.GetCurrentVisitorId(params) != visitorId {
+			return nil, err
+		} else {
+			if _, present := reqData["is_admin"]; present {
+				return nil, err
+			}
+		}
+	}
+
 	// update operation
 	//-----------------
 	visitorModel, err := visitor.LoadVisitorById(visitorId)
@@ -183,6 +219,10 @@ func restDeleteVisitor(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
+	if err := api.ValidateAdminRights(params); err != nil {
+		return nil, err
+	}
+
 	visitorId, isSpecifiedId := params.RequestURLParams["id"]
 	if !isSpecifiedId {
 		return nil, errors.New("visitor id was not specified")
@@ -190,12 +230,12 @@ func restDeleteVisitor(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// delete operation
 	//-----------------
-	visitorModel, err := visitor.GetVisitorModel()
+	visitorModel, err := visitor.GetVisitorModelAndSetId(visitorId)
 	if err != nil {
 		return nil, err
 	}
 
-	err = visitorModel.Delete(visitorId)
+	err = visitorModel.Delete()
 	if err != nil {
 		return nil, err
 	}
@@ -209,6 +249,10 @@ func restGetVisitor(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
+	if err := api.ValidateAdminRights(params); err != nil {
+		return nil, err
+	}
+
 	visitorId, isSpecifiedId := params.RequestURLParams["id"]
 	if !isSpecifiedId {
 		return nil, errors.New("visitor id was not specified")
@@ -224,14 +268,67 @@ func restGetVisitor(params *api.T_APIHandlerParams) (interface{}, error) {
 	return visitorModel.ToHashMap(), nil
 }
 
+// WEB REST API function used to obtain visitors count in model collection
+func restCountVisitors(params *api.T_APIHandlerParams) (interface{}, error) {
+
+	if err := api.ValidateAdminRights(params); err != nil {
+		return nil, err
+	}
+
+	visitorCollectionModel, err := visitor.GetVisitorCollectionModel()
+	if err != nil {
+		return nil, err
+	}
+	dbCollection := visitorCollectionModel.GetDBCollection()
+
+	// filters handle
+	api.ApplyFilters(params, dbCollection)
+
+	return dbCollection.Count()
+}
+
 // WEB REST API function used to get visitors list
 func restListVisitors(params *api.T_APIHandlerParams) (interface{}, error) {
-	visitorModel, err := visitor.GetVisitorModel()
+	// check request params
+	//---------------------
+	if err := api.ValidateAdminRights(params); err != nil {
+		return nil, err
+	}
+
+	reqData, ok := params.RequestContent.(map[string]interface{})
+	if !ok {
+		if params.Request.Method == "POST" {
+			return nil, errors.New("unexpected request content")
+		} else {
+			reqData = make(map[string]interface{})
+		}
+	}
+
+	// operation start
+	//----------------
+	visitorCollectionModel, err := visitor.GetVisitorCollectionModel()
 	if err != nil {
 		return nil, err
 	}
 
-	return visitorModel.List()
+	// limit parameter handle
+	visitorCollectionModel.ListLimit(api.GetListLimit(params))
+
+	// filters handle
+	api.ApplyFilters(params, visitorCollectionModel.GetDBCollection())
+
+	// extra parameter handle
+	if extra, isExtra := reqData["extra"]; isExtra {
+		extra := utils.Explode(utils.InterfaceToString(extra), ",")
+		for _, value := range extra {
+			err := visitorCollectionModel.ListAddExtraAttribute(value)
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+
+	return visitorCollectionModel.List()
 }
 
 // WEB REST API function used to obtain visitor attributes information
@@ -243,6 +340,111 @@ func restListVisitorAttributes(params *api.T_APIHandlerParams) (interface{}, err
 
 	attrInfo := visitorModel.GetAttributesInfo()
 	return attrInfo, nil
+}
+
+// WEB REST API function used to add new custom attribute to visitor model
+func restAddVisitorAttribute(params *api.T_APIHandlerParams) (interface{}, error) {
+
+	// check request params
+	//---------------------
+	if err := api.ValidateAdminRights(params); err != nil {
+		return nil, err
+	}
+
+	reqData, err := api.GetRequestContentAsMap(params)
+	if err != nil {
+		return nil, err
+	}
+
+	attributeName, isSpecified := reqData["Attribute"]
+	if !isSpecified {
+		return nil, errors.New("attribute name was not specified")
+	}
+
+	attributeLabel, isSpecified := reqData["Label"]
+	if !isSpecified {
+		return nil, errors.New("attribute label was not specified")
+	}
+
+	// make product attribute operation
+	//---------------------------------
+	visitorModel, err := visitor.GetVisitorModel()
+	if err != nil {
+		return nil, err
+	}
+
+	attribute := models.T_AttributeInfo{
+		Model:      visitor.MODEL_NAME_VISITOR,
+		Collection: COLLECTION_NAME_VISITOR,
+		Attribute:  utils.InterfaceToString(attributeName),
+		Type:       "text",
+		IsRequired: false,
+		IsStatic:   false,
+		Label:      utils.InterfaceToString(attributeLabel),
+		Group:      "General",
+		Editors:    "text",
+		Options:    "",
+		Default:    "",
+		Validators: "",
+		IsLayered:  false,
+	}
+
+	for key, value := range reqData {
+		switch strings.ToLower(key) {
+		case "type":
+			attribute.Type = utils.InterfaceToString(value)
+		case "group":
+			attribute.Group = utils.InterfaceToString(value)
+		case "editors":
+			attribute.Editors = utils.InterfaceToString(value)
+		case "options":
+			attribute.Options = utils.InterfaceToString(value)
+		case "default":
+			attribute.Default = utils.InterfaceToString(value)
+		case "validators":
+			attribute.Validators = utils.InterfaceToString(value)
+		case "isrequired", "required":
+			attribute.IsRequired = utils.InterfaceToBool(value)
+		case "islayered", "layered":
+			attribute.IsLayered = utils.InterfaceToBool(value)
+		}
+	}
+
+	err = visitorModel.AddNewAttribute(attribute)
+	if err != nil {
+		return nil, err
+	}
+
+	return attribute, nil
+}
+
+// WEB REST API function used to remove custom attribute of visitor model
+func restRemoveVisitorAttribute(params *api.T_APIHandlerParams) (interface{}, error) {
+
+	// check request params
+	//--------------------
+	if err := api.ValidateAdminRights(params); err != nil {
+		return nil, err
+	}
+
+	attributeName, isSpecified := params.RequestURLParams["attribute"]
+	if !isSpecified {
+		return nil, errors.New("attribute name was not specified")
+	}
+
+	// remove attribute actions
+	//-------------------------
+	visitorModel, err := visitor.GetVisitorModel()
+	if err != nil {
+		return nil, err
+	}
+
+	err = visitorModel.RemoveAttribute(attributeName)
+	if err != nil {
+		return nil, err
+	}
+
+	return "ok", nil
 }
 
 // WEB REST API used to register new visitor (same as create but with email validation)
@@ -280,11 +482,15 @@ func restRegister(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil, err
 	}
 
-	visitorModel.Invalidate()
+	err = visitorModel.Invalidate()
+	if err != nil {
+		return nil, err
+	}
 
 	return visitorModel.ToHashMap(), nil
 }
 
+// WEB REST API used to validate e-mail address by key sent after registration
 func restValidate(params *api.T_APIHandlerParams) (interface{}, error) {
 	// check request params
 	//---------------------
@@ -303,17 +509,42 @@ func restValidate(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil, err
 	}
 
-	return "ok", nil
+	return api.T_RestRedirect{Location: app.GetStorefrontUrl("login"), DoRedirect: true}, nil
+}
+
+// WEB REST API used to sent new password to customer e-mail
+func restForgotPassword(params *api.T_APIHandlerParams) (interface{}, error) {
+
+	visitorModel, err := visitor.GetVisitorModel()
+	if err != nil {
+		return nil, err
+	}
+
+	err = visitorModel.LoadByEmail(params.RequestURLParams["email"])
+	if err != nil {
+		return nil, err
+	}
+
+	err = visitorModel.GenerateNewPassword()
+	if err != nil {
+		return nil, err
+	}
+
+	return api.T_RestRedirect{Result: "ok", Location: app.GetStorefrontUrl("login")}, nil
 }
 
 // WEB REST API function used to obtain visitor information
 //   - visitor id must be specified in request URI
 func restInfo(params *api.T_APIHandlerParams) (interface{}, error) {
 
-	sessionValue := params.Session.Get("visitor_id")
+	sessionValue := params.Session.Get(visitor.SESSION_KEY_VISITOR_ID)
 	visitorId, ok := sessionValue.(string)
 	if !ok {
-		return "you are not logined in", nil
+		if api.ValidateAdminRights(params) == nil {
+			return map[string]interface{}{"is_admin": true}, nil
+		} else {
+			return "you are not logined in", nil
+		}
 	}
 
 	// visitor info
@@ -332,12 +563,8 @@ func restInfo(params *api.T_APIHandlerParams) (interface{}, error) {
 
 // WEB REST API function used to make visitor logout
 func restLogout(params *api.T_APIHandlerParams) (interface{}, error) {
-	sessionValue := params.Session.Get("visitor_id")
-	if sessionValue != nil {
-		return nil, errors.New("you are not logined in")
-	}
 
-	params.Session.Set(visitor.SESSION_KEY_VISITOR_ID, nil)
+	params.Session.Close()
 
 	return "ok", nil
 }
@@ -357,6 +584,22 @@ func restLogin(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil, errors.New("email and/or password were not specified")
 	}
 
+	requestLogin := utils.InterfaceToString(reqData["email"])
+	requestPassword := utils.InterfaceToString(reqData["password"])
+
+	if !strings.Contains(requestLogin, "@") {
+		rootLogin := utils.InterfaceToString(env.ConfigGetValue(app.CONFIG_PATH_STORE_ROOT_LOGIN))
+		rootPassword := utils.InterfaceToString(env.ConfigGetValue(app.CONFIG_PATH_STORE_ROOT_PASSWORD))
+
+		if requestLogin == rootLogin && requestPassword == rootPassword {
+			params.Session.Set(api.SESSION_KEY_ADMIN_RIGHTS, true)
+
+			return "ok", nil
+		} else {
+			return nil, errors.New("wrong login - should be email")
+		}
+	}
+
 	// visitor info
 	//--------------
 	visitorModel, err := visitor.GetVisitorModel()
@@ -364,20 +607,25 @@ func restLogin(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil, err
 	}
 
-	err = visitorModel.LoadByEmail(utils.InterfaceToString(reqData["email"]))
+	err = visitorModel.LoadByEmail(requestLogin)
 	if err != nil {
 		return nil, err
 	}
 
-	ok := visitorModel.CheckPassword(utils.InterfaceToString(reqData["password"]))
+	ok := visitorModel.CheckPassword(requestPassword)
 	if !ok {
 		return nil, errors.New("wrong password")
 	}
 
+	// api session updates
 	if visitorModel.IsValidated() {
 		params.Session.Set(visitor.SESSION_KEY_VISITOR_ID, visitorModel.GetId())
 	} else {
 		return nil, errors.New("visitor is not validated")
+	}
+
+	if visitorModel.IsAdmin() {
+		params.Session.Set(api.SESSION_KEY_ADMIN_RIGHTS, true)
 	}
 
 	return "ok", nil
@@ -484,7 +732,12 @@ func restLoginFacebook(params *api.T_APIHandlerParams) (interface{}, error) {
 		}
 	}
 
+	// api session updates
 	params.Session.Set(visitor.SESSION_KEY_VISITOR_ID, visitorModel.GetId())
+
+	if visitorModel.IsAdmin() {
+		params.Session.Set(api.SESSION_KEY_ADMIN_RIGHTS, true)
+	}
 
 	return "ok", nil
 }
@@ -588,27 +841,80 @@ func restLoginGoogle(params *api.T_APIHandlerParams) (interface{}, error) {
 		}
 	}
 
+	// api session updates
 	params.Session.Set(visitor.SESSION_KEY_VISITOR_ID, visitorModel.GetId())
+
+	if visitorModel.IsAdmin() {
+		params.Session.Set(api.SESSION_KEY_ADMIN_RIGHTS, true)
+	}
 
 	return "ok", nil
 }
 
-// WEB REST API function used to get visitor orders information
-func restListVisitorOrders(params *api.T_APIHandlerParams) (interface{}, error) {
-	// TODO: should be re-developed to use order model (i.e. add I_Listable implementation to order model)
-
-	sessionValue := params.Session.Get("visitor_id")
-	visitorId, ok := sessionValue.(string)
-	if !ok {
+// WEB REST API function used to get visitor order details information
+func restVisitorOrderDetails(params *api.T_APIHandlerParams) (interface{}, error) {
+	visitorId := visitor.GetCurrentVisitorId(params)
+	if visitorId == "" {
 		return "you are not logined in", nil
 	}
 
-	collection, err := db.GetCollection("orders")
+	orderModel, err := order.LoadOrderById(params.RequestURLParams["id"])
 	if err != nil {
 		return nil, err
 	}
 
-	collection.AddFilter("visitor_id", "=", visitorId)
+	if utils.InterfaceToString(orderModel.Get("visitor_id")) != visitorId {
+		return nil, errors.New("order is not belongs to logined user")
+	}
 
-	return collection.Load()
+	result := orderModel.ToHashMap()
+	result["items"] = orderModel.GetItems()
+
+	return result, nil
+}
+
+// WEB REST API function used to get visitor orders information
+func restListVisitorOrders(params *api.T_APIHandlerParams) (interface{}, error) {
+
+	// check request params
+	//---------------------
+	reqData, ok := params.RequestContent.(map[string]interface{})
+	if !ok {
+		reqData = make(map[string]interface{})
+	}
+
+	// list operation
+	//---------------
+	visitorId := visitor.GetCurrentVisitorId(params)
+	if visitorId == "" {
+		return "you are not logined in", nil
+	}
+
+	orderCollection, err := order.GetOrderCollectionModel()
+	if err != nil {
+		return nil, err
+	}
+
+	err = orderCollection.ListFilterAdd("visitor_id", "=", visitorId)
+	if err != nil {
+		return nil, err
+	}
+
+	// filters handle
+	api.ApplyFilters(params, orderCollection.GetDBCollection())
+
+	// extra parameter handle
+	if extra, isExtra := reqData["extra"]; isExtra {
+		extra := utils.Explode(utils.InterfaceToString(extra), ",")
+		for _, value := range extra {
+			err := orderCollection.ListAddExtraAttribute(value)
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+
+	result, err := orderCollection.List()
+
+	return result, err
 }

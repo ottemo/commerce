@@ -2,14 +2,14 @@ package category
 
 import (
 	"errors"
-
-	"strconv"
 	"strings"
 
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/db"
 
 	"github.com/ottemo/foundation/app/models/category"
+	"github.com/ottemo/foundation/app/models/product"
+	"github.com/ottemo/foundation/utils"
 )
 
 func setupAPI() error {
@@ -21,6 +21,10 @@ func setupAPI() error {
 		return err
 	}
 	err = api.GetRestService().RegisterAPI("category", "POST", "list", restListCategories)
+	if err != nil {
+		return err
+	}
+	err = api.GetRestService().RegisterAPI("category", "GET", "count", restCountCategories)
 	if err != nil {
 		return err
 	}
@@ -40,16 +44,24 @@ func setupAPI() error {
 	if err != nil {
 		return err
 	}
+	err = api.GetRestService().RegisterAPI("category", "GET", "layers/:id", restListCategoryLayers)
+	if err != nil {
+		return err
+	}
+	err = api.GetRestService().RegisterAPI("category", "POST", "layers/:id", restListCategoryLayers)
+	if err != nil {
+		return err
+	}
 
-	err = api.GetRestService().RegisterAPI("category", "GET", "products/:id", restListCategoryProducts)
+	err = api.GetRestService().RegisterAPI("category", "GET", "product/list/:categoryId", restListCategoryProducts)
 	if err != nil {
 		return err
 	}
-	err = api.GetRestService().RegisterAPI("category", "GET", "product/count/:id", restCategoryProductsCount)
+	err = api.GetRestService().RegisterAPI("category", "POST", "product/list/:categoryId", restListCategoryProducts)
 	if err != nil {
 		return err
 	}
-	err = api.GetRestService().RegisterAPI("category", "POST", "products/:id", restListCategoryProducts)
+	err = api.GetRestService().RegisterAPI("category", "GET", "product/count/:categoryId", restCategoryProductsCount)
 	if err != nil {
 		return err
 	}
@@ -92,58 +104,43 @@ func restListCategories(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// operation start
 	//----------------
-	categoryModel, err := category.GetCategoryModel()
+	categoryCollectionModel, err := category.GetCategoryCollectionModel()
 	if err != nil {
 		return nil, err
 	}
 
 	// limit parameter handler
-	if limit, isLimit := reqData["limit"]; isLimit {
-		if limit, ok := limit.(string); ok {
-			splitResult := strings.Split(limit, ",")
-			if len(splitResult) > 1 {
+	categoryCollectionModel.ListLimit(api.GetListLimit(params))
 
-				offset, err := strconv.Atoi(strings.TrimSpace(splitResult[0]))
-				if err != nil {
-					return nil, err
-				}
-
-				limit, err := strconv.Atoi(strings.TrimSpace(splitResult[1]))
-				if err != nil {
-					return nil, err
-				}
-
-				categoryModel.ListLimit(offset, limit)
-			} else if len(splitResult) > 0 {
-				limit, err := strconv.Atoi(strings.TrimSpace(splitResult[0]))
-				if err != nil {
-					return nil, err
-				}
-
-				categoryModel.ListLimit(0, limit)
-			} else {
-				categoryModel.ListLimit(0, 0)
-			}
-		}
-	}
+	// filters handle
+	api.ApplyFilters(params, categoryCollectionModel.GetDBCollection())
 
 	// extra parameter handler
 	if extra, isExtra := reqData["extra"]; isExtra {
-		extra, ok := extra.(string)
-		if !ok {
-			return nil, errors.New("extra parameter should be string")
-		}
-
-		splitResult := strings.Split(extra, ",")
-		for _, extraAttribute := range splitResult {
-			err := categoryModel.ListAddExtraAttribute(strings.TrimSpace(extraAttribute))
+		extra := utils.Explode(utils.InterfaceToString(extra), ",")
+		for _, value := range extra {
+			err := categoryCollectionModel.ListAddExtraAttribute(value)
 			if err != nil {
 				return nil, err
 			}
 		}
 	}
 
-	return categoryModel.List()
+	return categoryCollectionModel.List()
+}
+
+// WEB REST API function used to obtain categories count in model collection
+func restCountCategories(params *api.T_APIHandlerParams) (interface{}, error) {
+	categoryCollectionModel, err := category.GetCategoryCollectionModel()
+	if err != nil {
+		return nil, err
+	}
+	dbCollection := categoryCollectionModel.GetDBCollection()
+
+	// filters handle
+	api.ApplyFilters(params, dbCollection)
+
+	return dbCollection.Count()
 }
 
 // WEB REST API used to create new category
@@ -160,6 +157,11 @@ func restCreateCategory(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	if _, present := reqData["name"]; !present {
 		return nil, errors.New("category name was not specified")
+	}
+
+	// check rights
+	if err := api.ValidateAdminRights(params); err != nil {
+		return nil, err
 	}
 
 	// create category operation
@@ -194,14 +196,19 @@ func restDeleteCategory(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil, errors.New("category id was not specified")
 	}
 
+	// check rights
+	if err := api.ValidateAdminRights(params); err != nil {
+		return nil, err
+	}
+
 	// delete operation
 	//-----------------
-	categoryModel, err := category.GetCategoryModel()
+	categoryModel, err := category.GetCategoryModelAndSetId(categoryId)
 	if err != nil {
 		return nil, err
 	}
 
-	err = categoryModel.Delete(categoryId)
+	err = categoryModel.Delete()
 	if err != nil {
 		return nil, err
 	}
@@ -223,6 +230,11 @@ func restUpdateCategory(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	reqData, err := api.GetRequestContentAsMap(params)
 	if err != nil {
+		return nil, err
+	}
+
+	// check rights
+	if err := api.ValidateAdminRights(params); err != nil {
 		return nil, err
 	}
 
@@ -260,18 +272,46 @@ func restListCategoryAttributes(params *api.T_APIHandlerParams) (interface{}, er
 	return attrInfo, nil
 }
 
+// WEB REST API function used to obtain layered navigation options for products in category
+//   - category id must be specified in request URI
+func restListCategoryLayers(params *api.T_APIHandlerParams) (interface{}, error) {
+	categoryId := params.RequestURLParams["id"]
+
+	categoryModel, err := category.LoadCategoryById(categoryId)
+	if err != nil {
+		return nil, err
+	}
+
+	productsCollection := categoryModel.GetProductsCollection()
+	productsDBCollection := productsCollection.GetDBCollection()
+
+	productModel, err := product.GetProductModel()
+	if err != nil {
+		return nil, err
+	}
+	productAttributesInfo := productModel.GetAttributesInfo()
+
+	result := make(map[string]interface{})
+
+	api.ApplyFilters(params, productsDBCollection)
+
+	for _, productAttribute := range productAttributesInfo {
+		if productAttribute.IsLayered {
+			distinctValues, _ := productsDBCollection.Distinct(productAttribute.Attribute)
+			result[productAttribute.Attribute] = distinctValues
+		}
+	}
+
+	return result, nil
+}
+
 // WEB REST API function used to list product in category
 //   - category id must be specified in request URI
 func restListCategoryProducts(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
-	reqData, err := api.GetRequestContentAsMap(params)
-	if err != nil {
-		return nil, err
-	}
-
-	categoryId, isSpecifiedId := params.RequestURLParams["id"]
+	categoryId, isSpecifiedId := params.RequestURLParams["categoryId"]
 	if !isSpecifiedId {
 		return nil, errors.New("category id was not specified")
 	}
@@ -283,56 +323,22 @@ func restListCategoryProducts(params *api.T_APIHandlerParams) (interface{}, erro
 		return nil, err
 	}
 
-	// synthetic product list limit
-	offset := 0
-	limit := -1
+	productsCollection := categoryModel.GetProductsCollection()
 
-	// limit parameter handler
-	if limitParam, isLimit := reqData["limit"]; isLimit {
-		if limitParam, ok := limitParam.(string); ok {
-			splitResult := strings.Split(limitParam, ",")
-			if len(splitResult) > 1 {
+	api.ApplyFilters(params, productsCollection.GetDBCollection())
 
-				offset, err = strconv.Atoi(strings.TrimSpace(splitResult[0]))
-				if err != nil {
-					return nil, err
-				}
-
-				limit, err = strconv.Atoi(strings.TrimSpace(splitResult[1]))
-				if err != nil {
-					return nil, err
-				}
-			} else if len(splitResult) > 0 {
-				limit, err = strconv.Atoi(strings.TrimSpace(splitResult[0]))
-				if err != nil {
-					return nil, err
-				}
-			}
-		}
-	}
-
-	products := categoryModel.GetProducts()
-
-	i := 0
+	// preparing product information
 	result := make([]map[string]interface{}, 0)
-	for _, product := range products {
-		if limit == 0 {
-			break
-		}
-		if i >= offset {
-			limit -= 1
 
-			// preparing product information
-			productInfo := product.ToHashMap()
-			if defaultImage, present := productInfo["default_image"]; present {
-				mediaPath, err := product.GetMediaPath("image")
-				if defaultImage, ok := defaultImage.(string); ok && defaultImage != "" && err == nil {
-					productInfo["default_image"] = mediaPath + defaultImage
-				}
+	for _, productModel := range productsCollection.ListProducts() {
+		productInfo := productModel.ToHashMap()
+		if defaultImage, present := productInfo["default_image"]; present {
+			mediaPath, err := productModel.GetMediaPath("image")
+			if defaultImage, ok := defaultImage.(string); ok && defaultImage != "" && err == nil {
+				productInfo["default_image"] = mediaPath + defaultImage
 			}
-			result = append(result, productInfo)
 		}
-		i += 1
+		result = append(result, productInfo)
 	}
 
 	return result, nil
@@ -351,6 +357,11 @@ func restAddCategoryProduct(params *api.T_APIHandlerParams) (interface{}, error)
 	productId, isSpecifiedId := params.RequestURLParams["productId"]
 	if !isSpecifiedId {
 		return nil, errors.New("product id was not specified")
+	}
+
+	// check rights
+	if err := api.ValidateAdminRights(params); err != nil {
+		return nil, err
 	}
 
 	// category product add operation
@@ -381,6 +392,11 @@ func restRemoveCategoryProduct(params *api.T_APIHandlerParams) (interface{}, err
 	productId, isSpecifiedId := params.RequestURLParams["productId"]
 	if !isSpecifiedId {
 		return nil, errors.New("product id was not specified")
+	}
+
+	// check rights
+	if err := api.ValidateAdminRights(params); err != nil {
+		return nil, err
 	}
 
 	// category product add operation
@@ -423,7 +439,7 @@ func restGetCategory(params *api.T_APIHandlerParams) (interface{}, error) {
 //   - category id must be specified in request URI
 func restCategoryProductsCount(params *api.T_APIHandlerParams) (interface{}, error) {
 
-	categoryId, isSpecifiedId := params.RequestURLParams["id"]
+	categoryId, isSpecifiedId := params.RequestURLParams["categoryId"]
 	if !isSpecifiedId {
 		return nil, errors.New("category id was not specified")
 	}
@@ -435,7 +451,14 @@ func restCategoryProductsCount(params *api.T_APIHandlerParams) (interface{}, err
 		return nil, err
 	}
 
-	return len(categoryModel.GetProducts()), nil
+	// count when we have filters (more complex and slow)
+	if len(params.RequestGETParams) > 0 {
+		productsDBCollection := categoryModel.GetProductsCollection().GetDBCollection()
+		api.ApplyFilters(params, productsDBCollection)
+		return productsDBCollection.Count()
+	}
+
+	return len(categoryModel.GetProductIds()), nil
 }
 
 // WEB REST API function used to categories menu
@@ -443,12 +466,7 @@ func restGetCategoriesTree(params *api.T_APIHandlerParams) (interface{}, error) 
 
 	var result = make([]map[string]interface{}, 0)
 
-	dbEngine := db.GetDBEngine()
-	if dbEngine == nil {
-		return nil, errors.New("can't get DB engine")
-	}
-
-	collection, err := dbEngine.GetCollection(CATEGORY_COLLECTION_NAME)
+	collection, err := db.GetCollection(COLLECTION_NAME_CATEGORY)
 	if err != nil {
 		return nil, err
 	}

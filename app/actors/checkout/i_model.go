@@ -12,7 +12,7 @@ func (it *DefaultCheckout) GetModelName() string {
 
 // returns name of current model implementation
 func (it *DefaultCheckout) GetImplementationName() string {
-	return "DefaultCheckout"
+	return "Default" + checkout.CHECKOUT_MODEL_NAME
 }
 
 // makes new instance of model

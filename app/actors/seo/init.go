@@ -5,10 +5,6 @@ import (
 	"github.com/ottemo/foundation/db"
 )
 
-const (
-	URL_REWRITES_COLLECTION_NAME = "url_rewrites"
-)
-
 // module entry point before app start
 func init() {
 	api.RegisterOnRestServiceStart(setupAPI)
@@ -18,7 +14,7 @@ func init() {
 // DB preparations for current model implementation
 func setupDB() error {
 
-	if collection, err := db.GetCollection(URL_REWRITES_COLLECTION_NAME); err == nil {
+	if collection, err := db.GetCollection(COLLECTION_NAME_URL_REWRITES); err == nil {
 		collection.AddColumn("url", "varchar(255)", true)
 		collection.AddColumn("type", "varchar(255)", true)
 		collection.AddColumn("rewrite", "varchar(255)", false)

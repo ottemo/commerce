@@ -2,13 +2,62 @@ package visitor
 
 import (
 	"github.com/ottemo/foundation/app/models"
+	"time"
 )
 
 const (
-	VISITOR_MODEL_NAME         = "Visitor"
-	VISITOR_ADDRESS_MODEL_NAME = "VisitorAddress"
-	SESSION_KEY_VISITOR_ID     = "visitor_id"
+	MODEL_NAME_VISITOR                    = "Visitor"
+	MODEL_NAME_VISITOR_COLLECTION         = "VisitorCollection"
+	MODEL_NAME_VISITOR_ADDRESS            = "VisitorAddress"
+	MODEL_NAME_VISITOR_ADDRESS_COLLECTION = "VisitorAddressCollection"
+
+	SESSION_KEY_VISITOR_ID = "visitor_id"
 )
+
+type I_Visitor interface {
+	GetEmail() string
+	GetFacebookId() string
+	GetGoogleId() string
+
+	GetFullName() string
+	GetFirstName() string
+	GetLastName() string
+
+	GetBirthday() time.Time
+	GetCreatedAt() time.Time
+
+	GetShippingAddress() I_VisitorAddress
+	GetBillingAddress() I_VisitorAddress
+
+	SetShippingAddress(address I_VisitorAddress) error
+	SetBillingAddress(address I_VisitorAddress) error
+
+	SetPassword(passwd string) error
+	CheckPassword(passwd string) bool
+	GenerateNewPassword() error
+
+	IsAdmin() bool
+
+	IsValidated() bool
+	Invalidate() error
+	Validate(key string) error
+
+	LoadByEmail(email string) error
+	LoadByFacebookId(facebookId string) error
+	LoadByGoogleId(googleId string) error
+
+	models.I_Model
+	models.I_Object
+	models.I_Storable
+
+	models.I_CustomAttributes
+}
+
+type I_VisitorCollection interface {
+	ListVisitors() []I_Visitor
+
+	models.I_Collection
+}
 
 type I_VisitorAddress interface {
 	GetVisitorId() string
@@ -32,37 +81,10 @@ type I_VisitorAddress interface {
 	models.I_Model
 	models.I_Object
 	models.I_Storable
-	models.I_Listable
 }
 
-type I_Visitor interface {
-	GetEmail() string
-	GetFacebookId() string
-	GetGoogleId() string
+type I_VisitorAddressCollection interface {
+	ListVisitorsAddresses() []I_VisitorAddress
 
-	GetFullName() string
-	GetFirstName() string
-	GetLastName() string
-
-	GetShippingAddress() I_VisitorAddress
-	GetBillingAddress() I_VisitorAddress
-
-	SetShippingAddress(address I_VisitorAddress) error
-	SetBillingAddress(address I_VisitorAddress) error
-
-	SetPassword(passwd string) error
-	CheckPassword(passwd string) bool
-
-	IsValidated() bool
-	Invalidate() error
-	Validate(key string) error
-
-	LoadByEmail(email string) error
-	LoadByFacebookId(facebookId string) error
-	LoadByGoogleId(googleId string) error
-
-	models.I_Model
-	models.I_Object
-	models.I_Storable
-	models.I_Listable
+	models.I_Collection
 }

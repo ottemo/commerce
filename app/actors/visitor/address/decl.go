@@ -5,7 +5,7 @@ import (
 )
 
 const (
-	VISITOR_ADDRESS_COLLECTION_NAME = "visitor_address"
+	COLLECTION_NAME_VISITOR_ADDRESS = "visitor_address"
 )
 
 type DefaultVisitorAddress struct {
@@ -26,7 +26,9 @@ type DefaultVisitorAddress struct {
 
 	Phone   string
 	ZipCode string
+}
 
+type DefaultVisitorAddressCollection struct {
 	listCollection     db.I_DBCollection
 	listExtraAtributes []string
 }

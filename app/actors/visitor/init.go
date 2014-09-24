@@ -1,46 +1,50 @@
 package visitor
 
 import (
-	"errors"
-	"github.com/ottemo/foundation/app/models"
+	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/db"
 
-	"github.com/ottemo/foundation/api"
+	"github.com/ottemo/foundation/app/models"
+	"github.com/ottemo/foundation/app/models/visitor"
 )
 
-// package self initializator
+// package self initializer
 func init() {
-	instance := new(DefaultVisitor)
+	visitorInstance := new(DefaultVisitor)
+	var _ visitor.I_Visitor = visitorInstance
+	models.RegisterModel(visitor.MODEL_NAME_VISITOR, visitorInstance)
 
-	models.RegisterModel("Visitor", instance)
+	visitorCollectionInstance := new(DefaultVisitorCollection)
+	var _ visitor.I_VisitorCollection = visitorCollectionInstance
+	models.RegisterModel(visitor.MODEL_NAME_VISITOR_COLLECTION, visitorCollectionInstance)
 
-	db.RegisterOnDatabaseStart(instance.setupDB)
-
+	db.RegisterOnDatabaseStart(setupDB)
 	api.RegisterOnRestServiceStart(setupAPI)
 }
 
 // setups database tables for model usage
-func (it *DefaultVisitor) setupDB() error {
+func setupDB() error {
 
-	if dbEngine := db.GetDBEngine(); dbEngine != nil {
-		if collection, err := dbEngine.GetCollection(VISITOR_COLLECTION_NAME); err == nil {
-			collection.AddColumn("email", "id", true)
-			collection.AddColumn("validate", "varchar(128)", false)
-			collection.AddColumn("password", "varchar(128)", false)
-			collection.AddColumn("first_name", "varchar(50)", true)
-			collection.AddColumn("last_name", "varchar(50)", true)
-
-			collection.AddColumn("facebook_id", "varchar(100)", true)
-			collection.AddColumn("google_id", "varchar(100)", true)
-
-			collection.AddColumn("billing_address_id", "id", false)
-			collection.AddColumn("shipping_address_id", "id", false)
-		} else {
-			return err
-		}
-	} else {
-		return errors.New("Can't get database engine")
+	collection, err := db.GetCollection(COLLECTION_NAME_VISITOR)
+	if err != nil {
+		return err
 	}
+
+	collection.AddColumn("email", "id", true)
+	collection.AddColumn("validate", "varchar(128)", false)
+	collection.AddColumn("password", "varchar(128)", false)
+	collection.AddColumn("first_name", "varchar(50)", true)
+	collection.AddColumn("last_name", "varchar(50)", true)
+
+	collection.AddColumn("facebook_id", "varchar(100)", true)
+	collection.AddColumn("google_id", "varchar(100)", true)
+
+	collection.AddColumn("billing_address_id", "id", false)
+	collection.AddColumn("shipping_address_id", "id", false)
+
+	collection.AddColumn("birthday", "datetime", false)
+	collection.AddColumn("is_admin", "bool", false)
+	collection.AddColumn("created_at", "datetime", false)
 
 	return nil
 }

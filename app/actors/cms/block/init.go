@@ -10,12 +10,13 @@ import (
 
 // module entry point before app start
 func init() {
-	blockInstance := new(DefaultCMSBlock)
+	cmsBlockInstance := new(DefaultCMSBlock)
+	var _ cms.I_CMSBlock = cmsBlockInstance
+	models.RegisterModel(cms.MODEL_NAME_CMS_BLOCK, cmsBlockInstance)
 
-	//checking interface implementation
-	(func(cms.I_CMSBlock) {})(blockInstance)
-
-	models.RegisterModel(cms.CMS_BLOCK_MODEL_NAME, blockInstance)
+	cmsBlockCollectionInstance := new(DefaultCMSBlockCollection)
+	var _ cms.I_CMSBlockCollection = cmsBlockCollectionInstance
+	models.RegisterModel(cms.MODEL_NAME_CMS_BLOCK_COLLECTION, cmsBlockCollectionInstance)
 
 	db.RegisterOnDatabaseStart(setupDB)
 	api.RegisterOnRestServiceStart(setupAPI)

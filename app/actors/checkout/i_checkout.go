@@ -35,35 +35,49 @@ func (it *DefaultCheckout) GetBillingAddress() visitor.I_VisitorAddress {
 
 // SetPaymentMethod sets payment method for checkout
 func (it *DefaultCheckout) SetPaymentMethod(paymentMethod checkout.I_PaymentMethod) error {
-	it.PaymentMethod = paymentMethod
+	it.PaymentMethodCode = paymentMethod.GetCode()
 	return nil
 }
 
 // GetPaymentMethod returns checkout payment method
 func (it *DefaultCheckout) GetPaymentMethod() checkout.I_PaymentMethod {
-	return it.PaymentMethod
+	if paymentMethods := checkout.GetRegisteredPaymentMethods(); paymentMethods != nil {
+		for _, paymentMethod := range checkout.PaymentMethods {
+			if paymentMethod.GetCode() == it.PaymentMethodCode {
+				return paymentMethod
+			}
+		}
+	}
+	return nil
 }
 
 // SetShippingMethod sets payment method for checkout
 func (it *DefaultCheckout) SetShippingMethod(shippingMethod checkout.I_ShippingMehod) error {
-	it.ShippingMethod = shippingMethod
+	it.ShippingMethodCode = shippingMethod.GetCode()
 	return nil
 }
 
-// GetShippingRate returns checkout shipping rate
-func (it *DefaultCheckout) GetShippingRate() *checkout.T_ShippingRate {
-	return it.ShippingRate
+// return checkout shipping method
+func (it *DefaultCheckout) GetShippingMethod() checkout.I_ShippingMehod {
+	if shippingMethods := checkout.GetRegisteredShippingMethods(); shippingMethods != nil {
+		for _, shippingMethod := range shippingMethods {
+			if shippingMethod.GetCode() == it.ShippingMethodCode {
+				return shippingMethod
+			}
+		}
+	}
+	return nil
 }
 
 // SetShippingRate sets shipping rate for checkout
 func (it *DefaultCheckout) SetShippingRate(shippingRate checkout.T_ShippingRate) error {
-	it.ShippingRate = &shippingRate
+	it.ShippingRate = shippingRate
 	return nil
 }
 
-// GetShippingMethod return checkout shipping method
-func (it *DefaultCheckout) GetShippingMethod() checkout.I_ShippingMehod {
-	return it.ShippingMethod
+// returns checkout shipping rate
+func (it *DefaultCheckout) GetShippingRate() *checkout.T_ShippingRate {
+	return &it.ShippingRate
 }
 
 // SetCart sets cart for checkout
@@ -101,13 +115,13 @@ func (it *DefaultCheckout) GetVisitor() visitor.I_Visitor {
 
 // SetSession sets visitor for checkout
 func (it *DefaultCheckout) SetSession(checkoutSession api.I_Session) error {
-	it.Session = checkoutSession
+	it.SessionId = checkoutSession.GetId()
 	return nil
 }
 
 // GetSession return checkout visitor
 func (it *DefaultCheckout) GetSession() api.I_Session {
-	return it.Session
+	return api.GetSessionById(it.SessionId)
 }
 
 // GetTaxes collects taxes applied for current checkout

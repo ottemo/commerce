@@ -2,6 +2,7 @@ package checkout
 
 import (
 	"errors"
+	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/checkout"
 	"github.com/ottemo/foundation/env"
 )
@@ -49,7 +50,7 @@ func setupConfig() error {
 		Value:       "US",
 		Type:        "string",
 		Editor:      "select",
-		Options:     checkout.COUNTRIES_LIST,
+		Options:     models.COUNTRIES_LIST,
 		Label:       "Country",
 		Description: "payment methods origin country",
 		Image:       "",
@@ -64,7 +65,7 @@ func setupConfig() error {
 		Value:       "",
 		Type:        "string",
 		Editor:      "select",
-		Options:     checkout.STATES_LIST,
+		Options:     models.STATES_LIST,
 		Label:       "State",
 		Description: "payment methods origin state",
 		Image:       "",
@@ -171,7 +172,7 @@ func setupConfig() error {
 		Value:       "US",
 		Type:        "string",
 		Editor:      "select",
-		Options:     checkout.COUNTRIES_LIST,
+		Options:     models.COUNTRIES_LIST,
 		Label:       "Country",
 		Description: "shipping methods origin country",
 		Image:       "",
@@ -186,7 +187,7 @@ func setupConfig() error {
 		Value:       "",
 		Type:        "string",
 		Editor:      "select",
-		Options:     checkout.STATES_LIST,
+		Options:     models.STATES_LIST,
 		Label:       "State",
 		Description: "shipping methods origin state",
 		Image:       "",
