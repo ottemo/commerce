@@ -9,37 +9,37 @@ import (
 	"github.com/ottemo/foundation/api"
 )
 
-// sets shipping address for checkout
+// SetShippingAddress sets shipping address for checkout
 func (it *DefaultCheckout) SetShippingAddress(address visitor.I_VisitorAddress) error {
 	it.ShippingAddressId = address.GetId()
 	return nil
 }
 
-// returns checkout shipping address
+// GetShippingAddress returns checkout shipping address
 func (it *DefaultCheckout) GetShippingAddress() visitor.I_VisitorAddress {
 	shippingAddress, _ := visitor.LoadVisitorAddressById(it.ShippingAddressId)
 	return shippingAddress
 }
 
-// sets billing address for checkout
+// SetBillingAddress sets billing address for checkout
 func (it *DefaultCheckout) SetBillingAddress(address visitor.I_VisitorAddress) error {
 	it.BillingAddressId = address.GetId()
 	return nil
 }
 
-// returns checkout billing address
+// GetBillingAddress returns checkout billing address
 func (it *DefaultCheckout) GetBillingAddress() visitor.I_VisitorAddress {
 	billingAddress, _ := visitor.LoadVisitorAddressById(it.BillingAddressId)
 	return billingAddress
 }
 
-// sets payment method for checkout
+// SetPaymentMethod sets payment method for checkout
 func (it *DefaultCheckout) SetPaymentMethod(paymentMethod checkout.I_PaymentMethod) error {
 	it.PaymentMethodCode = paymentMethod.GetCode()
 	return nil
 }
 
-// returns checkout payment method
+// GetPaymentMethod returns checkout payment method
 func (it *DefaultCheckout) GetPaymentMethod() checkout.I_PaymentMethod {
 	if paymentMethods := checkout.GetRegisteredPaymentMethods(); paymentMethods != nil {
 		for _, paymentMethod := range checkout.PaymentMethods {
@@ -51,7 +51,7 @@ func (it *DefaultCheckout) GetPaymentMethod() checkout.I_PaymentMethod {
 	return nil
 }
 
-// sets payment method for checkout
+// SetShippingMethod sets payment method for checkout
 func (it *DefaultCheckout) SetShippingMethod(shippingMethod checkout.I_ShippingMehod) error {
 	it.ShippingMethodCode = shippingMethod.GetCode()
 	return nil
@@ -69,7 +69,7 @@ func (it *DefaultCheckout) GetShippingMethod() checkout.I_ShippingMehod {
 	return nil
 }
 
-// sets shipping rate for checkout
+// SetShippingRate sets shipping rate for checkout
 func (it *DefaultCheckout) SetShippingRate(shippingRate checkout.T_ShippingRate) error {
 	it.ShippingRate = shippingRate
 	return nil
@@ -80,19 +80,19 @@ func (it *DefaultCheckout) GetShippingRate() *checkout.T_ShippingRate {
 	return &it.ShippingRate
 }
 
-// sets cart for checkout
+// SetCart sets cart for checkout
 func (it *DefaultCheckout) SetCart(checkoutCart cart.I_Cart) error {
 	it.CartId = checkoutCart.GetId()
 	return nil
 }
 
-// return checkout cart
+// GetCart return checkout cart
 func (it *DefaultCheckout) GetCart() cart.I_Cart {
 	cartInstance, _ := cart.LoadCartById(it.CartId)
 	return cartInstance
 }
 
-// sets visitor for checkout
+// SetVisitor sets visitor for checkout
 func (it *DefaultCheckout) SetVisitor(checkoutVisitor visitor.I_Visitor) error {
 	it.VisitorId = checkoutVisitor.GetId()
 
@@ -107,27 +107,27 @@ func (it *DefaultCheckout) SetVisitor(checkoutVisitor visitor.I_Visitor) error {
 	return nil
 }
 
-// return checkout visitor
+// GetVisitor return checkout visitor
 func (it *DefaultCheckout) GetVisitor() visitor.I_Visitor {
 	visitorInstance, _ := visitor.LoadVisitorById(it.VisitorId)
 	return visitorInstance
 }
 
-// sets visitor for checkout
+// SetSession sets visitor for checkout
 func (it *DefaultCheckout) SetSession(checkoutSession api.I_Session) error {
 	it.SessionId = checkoutSession.GetId()
 	return nil
 }
 
-// return checkout visitor
+// GetSession return checkout visitor
 func (it *DefaultCheckout) GetSession() api.I_Session {
 	return api.GetSessionById(it.SessionId)
 }
 
-// collects taxes applied for current checkout
+// GetTaxes collects taxes applied for current checkout
 func (it *DefaultCheckout) GetTaxes() (float64, []checkout.T_TaxRate) {
 
-	var amount float64 = 0
+	var amount float64
 
 	if !it.taxesCalculateFlag {
 		it.taxesCalculateFlag = true
@@ -150,10 +150,10 @@ func (it *DefaultCheckout) GetTaxes() (float64, []checkout.T_TaxRate) {
 	return amount, it.Taxes
 }
 
-// collects discounts applied for current checkout
+// GetDiscounts collects discounts applied for current checkout
 func (it *DefaultCheckout) GetDiscounts() (float64, []checkout.T_Discount) {
 
-	var amount float64 = 0
+	var amount float64
 
 	if !it.discountsCalculateFlag {
 		it.discountsCalculateFlag = true
@@ -176,9 +176,9 @@ func (it *DefaultCheckout) GetDiscounts() (float64, []checkout.T_Discount) {
 	return amount, it.Discounts
 }
 
-// return grand total for current checkout: [cart subtotal] + [shipping rate] + [taxes] - [discounts]
+// GetGrandTotal return grand total for current checkout: [cart subtotal] + [shipping rate] + [taxes] - [discounts]
 func (it *DefaultCheckout) GetGrandTotal() float64 {
-	var amount float64 = 0
+	var amount float64
 
 	currentCart := it.GetCart()
 	if currentCart != nil {
@@ -198,14 +198,14 @@ func (it *DefaultCheckout) GetGrandTotal() float64 {
 	return amount
 }
 
-// sets additional info for checkout - any values related to checkout process
+// SetInfo sets additional info for checkout - any values related to checkout process
 func (it *DefaultCheckout) SetInfo(key string, value interface{}) error {
 	it.Info[key] = value
 
 	return nil
 }
 
-// returns additional checkout info value or nil
+// GetInfo returns additional checkout info value or nil
 func (it *DefaultCheckout) GetInfo(key string) interface{} {
 	if value, present := it.Info[key]; present {
 		return value
@@ -213,13 +213,13 @@ func (it *DefaultCheckout) GetInfo(key string) interface{} {
 	return nil
 }
 
-// sets order for current checkout
+// SetOrder sets order for current checkout
 func (it *DefaultCheckout) SetOrder(checkoutOrder order.I_Order) error {
 	it.OrderId = checkoutOrder.GetId()
 	return nil
 }
 
-// returns current checkout related order or nil if not created yet
+// GetOrder returns current checkout related order or nil if not created yet
 func (it *DefaultCheckout) GetOrder() order.I_Order {
 	if it.OrderId != "" {
 		orderInstance, err := order.LoadOrderById(it.OrderId)

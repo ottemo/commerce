@@ -2,6 +2,7 @@ package cms
 
 import (
 	"errors"
+
 	"github.com/ottemo/foundation/app/models"
 )
 
@@ -81,6 +82,9 @@ func GetCMSBlockCollectionModel() (I_CMSBlockCollection, error) {
 
 	return csmBlockCollectionModel, nil
 }
+
+// CMS Block helpers
+//------------------
 
 // retrieves current I_CMSBlock model implementation
 func GetCMSBlockModel() (I_CMSBlock, error) {
