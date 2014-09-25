@@ -55,12 +55,17 @@ func (it *DefaultOrderCollection) List() ([]models.T_ListItem, error) {
 // allows to obtain additional attributes from  List() function
 func (it *DefaultOrderCollection) ListAddExtraAttribute(attribute string) error {
 
-	if utils.IsAmongStr(attribute, "increment_id", "status", "visitor_id", "cart_id",
-		"shipping_address", "billing_address", "customer_email", "customer_name",
-		"payment_method", "shipping_method", "subtotal", "discount",
-		"tax_amount", "shipping_amount", "grand_total", "created_at",
-		"updated_at", "description") {
+	orderModel, err := order.GetOrderModel()
+	if err != nil {
+		return err
+	}
 
+	allowedAttributes := make([]string, 0)
+	for _, attributeInfo := range orderModel.GetAttributesInfo() {
+		allowedAttributes = append(allowedAttributes, attributeInfo.Attribute)
+	}
+
+	if utils.IsInArray(attribute, allowedAttributes) {
 		if !utils.IsInListStr(attribute, it.listExtraAtributes) {
 			it.listExtraAtributes = append(it.listExtraAtributes, attribute)
 		} else {

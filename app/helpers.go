@@ -53,6 +53,7 @@ func SendMail(to string, subject string, body string) error {
 	emailTemplateBody := `From: {{.From}}
 To: {{.To}}
 Subject: {{.Subject}}
+Content-Type: text/html
 
 {{.Body}}
 

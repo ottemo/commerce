@@ -14,6 +14,8 @@ func (it *DefaultVisitor) Get(attribute string) interface{} {
 	switch strings.ToLower(attribute) {
 	case "_id", "id":
 		return it.id
+	case "email":
+		return it.Email
 	case "fname", "first_name":
 		return it.FirstName
 	case "lname", "last_name":

@@ -112,6 +112,10 @@ func setupAPI() error {
 	if err != nil {
 		return err
 	}
+	err = api.GetRestService().RegisterAPI("visitor", "POST", "sendmail", restVisitorSendMail)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -917,4 +921,34 @@ func restListVisitorOrders(params *api.T_APIHandlerParams) (interface{}, error) 
 	result, err := orderCollection.List()
 
 	return result, err
+}
+
+// WEB REST API function used to get visitor orders information
+func restVisitorSendMail(params *api.T_APIHandlerParams) (interface{}, error) {
+	reqData, ok := params.RequestContent.(map[string]interface{})
+	if !ok {
+		reqData = make(map[string]interface{})
+	}
+
+	if !utils.StrKeysInMap(reqData, "subject", "content", "visitor_ids") {
+		return nil, errors.New("'visitor_ids', 'subject' or 'content' field was not set")
+	}
+
+	subject := utils.InterfaceToString(reqData["subject"])
+	content := utils.InterfaceToString(reqData["content"])
+	visitor_ids := utils.InterfaceToArray(reqData["visitor_ids"])
+
+	for _, visitor_id := range visitor_ids {
+		visitorModel, err := visitor.LoadVisitorById(utils.InterfaceToString(visitor_id))
+		if err != nil {
+			return nil, err
+		}
+
+		err = app.SendMail(visitorModel.GetEmail(), subject, content)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return "ok", nil
 }

@@ -55,7 +55,18 @@ func (it *DefaultCategoryCollection) List() ([]models.T_ListItem, error) {
 // allows to obtain additional attributes from  List() function
 func (it *DefaultCategoryCollection) ListAddExtraAttribute(attribute string) error {
 
-	if utils.IsAmongStr(attribute, "parent", "products") {
+	categoryModel, err := category.GetCategoryModel()
+	if err != nil {
+		return err
+	}
+
+	allowedAttributes := make([]string, 0)
+	for _, attributeInfo := range categoryModel.GetAttributesInfo() {
+		allowedAttributes = append(allowedAttributes, attributeInfo.Attribute)
+	}
+	allowedAttributes = append(allowedAttributes, "parent")
+
+	if utils.IsInArray(attribute, allowedAttributes) {
 		if !utils.IsInListStr(attribute, it.listExtraAtributes) {
 			it.listExtraAtributes = append(it.listExtraAtributes, attribute)
 		} else {

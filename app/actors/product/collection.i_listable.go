@@ -64,7 +64,17 @@ func (it *DefaultProductCollection) List() ([]models.T_ListItem, error) {
 // allows to obtain additional attributes from  List() function
 func (it *DefaultProductCollection) ListAddExtraAttribute(attribute string) error {
 
-	if utils.IsAmongStr(attribute, "sku", "name", "short_description", "description", "default_image", "price", "weight", "options") {
+	productModel, err := product.GetProductModel()
+	if err != nil {
+		return err
+	}
+
+	allowedAttributes := make([]string, 0)
+	for _, attributeInfo := range productModel.GetAttributesInfo() {
+		allowedAttributes = append(allowedAttributes, attributeInfo.Attribute)
+	}
+
+	if utils.IsInArray(attribute, allowedAttributes) {
 		if !utils.IsInListStr(attribute, it.listExtraAtributes) {
 			it.listExtraAtributes = append(it.listExtraAtributes, attribute)
 		} else {

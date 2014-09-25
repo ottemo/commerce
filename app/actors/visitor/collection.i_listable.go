@@ -51,7 +51,17 @@ func (it *DefaultVisitorCollection) List() ([]models.T_ListItem, error) {
 // allows to obtain additional attributes from  List() function
 func (it *DefaultVisitorCollection) ListAddExtraAttribute(attribute string) error {
 
-	if utils.IsAmongStr(attribute, "billing_address", "shipping_address") {
+	visitorModel, err := visitor.GetVisitorModel()
+	if err != nil {
+		return err
+	}
+
+	allowedAttributes := make([]string, 0)
+	for _, attributeInfo := range visitorModel.GetAttributesInfo() {
+		allowedAttributes = append(allowedAttributes, attributeInfo.Attribute)
+	}
+
+	if utils.IsInArray(attribute, allowedAttributes) {
 		if utils.IsInListStr(attribute, it.listExtraAtributes) {
 			it.listExtraAtributes = append(it.listExtraAtributes, attribute)
 		} else {
