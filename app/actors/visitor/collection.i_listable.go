@@ -60,9 +60,10 @@ func (it *DefaultVisitorCollection) ListAddExtraAttribute(attribute string) erro
 	for _, attributeInfo := range visitorModel.GetAttributesInfo() {
 		allowedAttributes = append(allowedAttributes, attributeInfo.Attribute)
 	}
+	allowedAttributes = append(allowedAttributes, "billing_address", "shipping_address")
 
 	if utils.IsInArray(attribute, allowedAttributes) {
-		if utils.IsInListStr(attribute, it.listExtraAtributes) {
+		if !utils.IsInListStr(attribute, it.listExtraAtributes) {
 			it.listExtraAtributes = append(it.listExtraAtributes, attribute)
 		} else {
 			return errors.New("attribute already in list")
