@@ -75,12 +75,19 @@ func (it *DefaultVisitor) Set(attribute string, value interface{}) error {
 
 	// only address id was specified - trying to load it
 	case "billing_address_id", "shipping_address_id":
-		address, err := visitor.LoadVisitorAddressById(utils.InterfaceToString(value))
-		if err != nil {
-			return err
+		value := utils.InterfaceToString(value)
+
+		var address visitor.I_VisitorAddress = nil
+		var err error = nil
+
+		if value != "" {
+			address, err = visitor.LoadVisitorAddressById(value)
+			if err != nil {
+				return err
+			}
 		}
 
-		if address != nil && address.GetId() != "" {
+		if address == nil || address.GetId() != "" {
 
 			if attribute == "billing_address_id" {
 				it.BillingAddress = address
