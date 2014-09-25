@@ -3,6 +3,10 @@ package checkout
 const (
 	CHECKOUT_MODEL_NAME = "Checkout"
 
+	CONFIG_PATH_GROUP              = "general.checkout"
+	CONFIG_PATH_CONFIRMATION_EMAIL = "general.checkout.order_confirmation_email"
+	CONFIG_PATH_CHECKOUT_TYPE      = "general.checkout.checkout_type"
+
 	CONFIG_PATH_SHIPPING_GROUP               = "shipping"
 	CONFIG_PATH_SHIPPING_ORIGIN_GROUP        = "shipping.origin"
 	CONFIG_PATH_SHIPPING_ORIGIN_COUNTRY      = "shipping.origin.country"

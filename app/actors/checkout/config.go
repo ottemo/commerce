@@ -13,9 +13,56 @@ func setupConfig() error {
 		return errors.New("can't obtain config")
 	}
 
+	// Checkout
+	//---------
+	err := config.RegisterItem(env.T_ConfigItem{
+		Path:        checkout.CONFIG_PATH_GROUP,
+		Value:       nil,
+		Type:        env.CONFIG_ITEM_GROUP_TYPE,
+		Editor:      "",
+		Options:     nil,
+		Label:       "Checkout",
+		Description: "checkout related options",
+		Image:       "",
+	}, nil)
+
+	if err != nil {
+		return err
+	}
+
+	config.RegisterItem(env.T_ConfigItem{
+		Path:        checkout.CONFIG_PATH_CONFIRMATION_EMAIL,
+		Value:       "",
+		Type:        "text",
+		Editor:      "multiline_text",
+		Options:     "",
+		Label:       "Order confirmation e-mail: ",
+		Description: "contents of email will be sent to customer on success checkout",
+		Image:       "",
+	}, nil)
+
+	if err != nil {
+		return err
+	}
+
+	err = config.RegisterItem(env.T_ConfigItem{
+		Path:        checkout.CONFIG_PATH_CHECKOUT_TYPE,
+		Value:       "accordion",
+		Type:        "varchar(255)",
+		Editor:      "select",
+		Options:     map[string]string{"accordion": "Accordion checkout", "onepage": "OnePage checkout"},
+		Label:       "Type of checkout",
+		Description: "type of checkout customer will be reached by default",
+		Image:       "",
+	}, nil)
+
+	if err != nil {
+		return err
+	}
+
 	// Payment
 	//--------
-	err := config.RegisterItem(env.T_ConfigItem{
+	err = config.RegisterItem(env.T_ConfigItem{
 		Path:        checkout.CONFIG_PATH_PAYMENT_GROUP,
 		Value:       nil,
 		Type:        env.CONFIG_ITEM_GROUP_TYPE,

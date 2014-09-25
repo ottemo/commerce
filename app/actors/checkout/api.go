@@ -484,6 +484,13 @@ func restSubmit(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil, err
 	}
 
+	if currentCheckout, ok := currentCheckout.(*DefaultCheckout); ok {
+		err = currentCheckout.SendOrderConfirmationMail()
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	// cleanup checkout information
 	//-----------------------------
 	currentCart.Deactivate()
