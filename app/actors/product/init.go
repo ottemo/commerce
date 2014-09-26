@@ -37,7 +37,6 @@ func setupDB() error {
 	collection.AddColumn("default_image", "text", false)
 	collection.AddColumn("price", "numeric", false)
 	collection.AddColumn("weight", "numeric", false)
-	collection.AddColumn("size", "numeric", false)
 	collection.AddColumn("options", "text", false)
 
 	return nil
