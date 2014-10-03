@@ -1,12 +1,11 @@
 package checkout
 
 import (
-	"errors"
-
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/cart"
 	"github.com/ottemo/foundation/app/models/visitor"
+	"github.com/ottemo/foundation/env"
 )
 
 // retrieves current I_Checkout model implementation
@@ -18,7 +17,7 @@ func GetCheckoutModel() (I_Checkout, error) {
 
 	checkoutModel, ok := model.(I_Checkout)
 	if !ok {
-		return nil, errors.New("model " + model.GetImplementationName() + " is not 'I_Checkout' capable")
+		return nil, env.ErrorNew("model " + model.GetImplementationName() + " is not 'I_Checkout' capable")
 	}
 
 	return checkoutModel, nil

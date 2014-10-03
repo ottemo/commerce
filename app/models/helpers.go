@@ -1,7 +1,7 @@
 package models
 
 import (
-	"errors"
+	"github.com/ottemo/foundation/env"
 )
 
 // retrieves current model implementation and sets its ID to some value
@@ -13,7 +13,7 @@ func GetModelAndSetId(modelName string, modelId string) (I_Storable, error) {
 
 	storableModel, ok := someModel.(I_Storable)
 	if !ok {
-		return nil, errors.New("model is not I_Storable capable")
+		return nil, env.ErrorNew("model is not I_Storable capable")
 	}
 
 	err = storableModel.SetId(modelId)
@@ -34,7 +34,7 @@ func LoadModelById(modelName string, modelId string) (I_Storable, error) {
 
 	storableModel, ok := someModel.(I_Storable)
 	if !ok {
-		return nil, errors.New("model is not I_Storable capable")
+		return nil, env.ErrorNew("model is not I_Storable capable")
 	}
 
 	err = storableModel.Load(modelId)

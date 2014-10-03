@@ -1,9 +1,9 @@
 package cart
 
 import (
-	"errors"
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/foundation/env"
 
 	"github.com/ottemo/foundation/api"
 
@@ -56,7 +56,7 @@ func (it *DefaultCart) setupDB() error {
 		collection.AddColumn("options", "text", false)
 
 	} else {
-		return errors.New("Can't get database engine")
+		return env.ErrorNew("Can't get database engine")
 	}
 
 	return nil

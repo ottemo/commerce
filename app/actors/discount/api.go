@@ -2,11 +2,12 @@ package discount
 
 import (
 	"encoding/csv"
-	"errors"
+
 	"time"
 
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
 )
 
@@ -50,7 +51,7 @@ func restDiscountApply(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// checking if coupon was already applied
 	if utils.IsInArray(couponCode, appliedCoupons) {
-		return nil, errors.New("coupon code already applied")
+		return nil, env.ErrorNew("coupon code already applied")
 	}
 
 	// loading coupon for specified code
@@ -99,10 +100,10 @@ func restDiscountApply(params *api.T_APIHandlerParams) (interface{}, error) {
 			params.Session.Set(SESSION_KEY_APPLIED_DISCOUNT_CODES, appliedCoupons)
 
 		} else {
-			return nil, errors.New("coupon is not applicable")
+			return nil, env.ErrorNew("coupon is not applicable")
 		}
 	} else {
-		return nil, errors.New("coupon code not found")
+		return nil, env.ErrorNew("coupon code not found")
 	}
 
 	return "ok", nil

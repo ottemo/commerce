@@ -1,14 +1,14 @@
 package db
 
 import (
-	"errors"
+	"github.com/ottemo/foundation/env"
 )
 
 // returns database collection or error otherwise
 func GetCollection(CollectionName string) (I_DBCollection, error) {
 	dbEngine := GetDBEngine()
 	if dbEngine == nil {
-		return nil, errors.New("Can't get DBEngine")
+		return nil, env.ErrorNew("Can't get DBEngine")
 	}
 
 	return dbEngine.GetCollection(CollectionName)

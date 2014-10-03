@@ -1,19 +1,23 @@
 package logger
 
 import (
-	"github.com/ottemo/foundation/env"
+	"fmt"
 	"os"
 	"time"
+
+	"github.com/ottemo/foundation/env"
 )
 
 // general logging function
 func (it *DefaultLogger) Log(storage string, prefix string, msg string) {
-	logFile, err := os.OpenFile(baseDirectory+storage, os.O_WRONLY|os.O_APPEND, 0660)
+	message := time.Now().Format(time.RFC3339) + ": " + msg + "\n"
+
+	logFile, err := os.OpenFile(baseDirectory+storage, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0660)
 	if err != nil {
+		fmt.Println(message)
 		return
 	}
 
-	message := time.Now().Format(time.RFC3339) + ": " + msg + "\n"
 	logFile.Write([]byte(message))
 
 	logFile.Close()

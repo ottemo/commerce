@@ -1,8 +1,6 @@
 package order
 
 import (
-	"errors"
-
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/order"
@@ -87,7 +85,7 @@ func setupDB() error {
 		collection.AddColumn("size", "decimal(10,2)", false)
 
 	} else {
-		return errors.New("Can't get database engine")
+		return env.ErrorNew("Can't get database engine")
 	}
 
 	return nil

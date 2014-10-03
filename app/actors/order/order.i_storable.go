@@ -1,11 +1,11 @@
 package order
 
 import (
-	"errors"
 	"time"
 
 	"github.com/ottemo/foundation/app/models/order"
 	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/foundation/env"
 )
 
 // returns id of current order
@@ -69,7 +69,7 @@ func (it *DefaultOrder) Load(Id string) error {
 // removes current order from DB
 func (it *DefaultOrder) Delete() error {
 	if it.GetId() == "" {
-		return errors.New("order id is not set")
+		return env.ErrorNew("order id is not set")
 	}
 
 	// deleting order items
@@ -95,7 +95,7 @@ func (it *DefaultOrder) Delete() error {
 	}
 	err = orderCollection.DeleteById(it.GetId())
 
-	return err
+	return env.ErrorDispatch(err)
 }
 
 // stores current order in DB

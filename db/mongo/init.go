@@ -1,7 +1,6 @@
 package mongo
 
 import (
-	"errors"
 	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/env"
 
@@ -34,7 +33,7 @@ func (it *MongoDB) Startup() error {
 
 	session, err := mgo.Dial(DBUri)
 	if err != nil {
-		return errors.New("Can't connect to MongoDB")
+		return env.ErrorNew("Can't connect to MongoDB")
 	}
 
 	it.session = session

@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"errors"
+	"github.com/ottemo/foundation/env"
 )
 
 const (
@@ -29,7 +29,7 @@ func GetSessionById(sessionId string) (*Session, error) {
 	if session, ok := Sessions[sessionId]; ok == true {
 		return session, nil
 	} else {
-		return nil, errors.New("session not found")
+		return nil, env.ErrorNew("session not found")
 	}
 }
 
@@ -87,7 +87,7 @@ func newSession(responseWriter http.ResponseWriter) (*Session, error) {
 func newSessionId() (string, error) {
 	sessionId := make([]byte, 32)
 	if _, err := rand.Read(sessionId); err != nil {
-		return "", errors.New("can't generate sessionId")
+		return "", env.ErrorNew("can't generate sessionId")
 	}
 
 	for i := 0; i < 32; i++ {

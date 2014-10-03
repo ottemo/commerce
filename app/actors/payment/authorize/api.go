@@ -2,11 +2,12 @@ package authorize
 
 import (
 	"bytes"
-	"errors"
+
 	"io/ioutil"
 
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/app/models/checkout"
+	"github.com/ottemo/foundation/env"
 )
 
 // startup API registration
@@ -50,8 +51,8 @@ func restReceipt(params *api.T_APIHandlerParams) (interface{}, error) {
 			return checkoutOrder.ToHashMap(), nil
 		}
 	} else {
-		return nil, errors.New("Response error: " + string(body))
+		return nil, env.ErrorNew("Response error: " + string(body))
 	}
 
-	return nil, errors.New("can't process authorize.net response")
+	return nil, env.ErrorNew("can't process authorize.net response")
 }

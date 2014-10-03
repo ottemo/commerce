@@ -7,7 +7,8 @@ import (
 )
 
 var (
-	MSG_REGEXP = regexp.MustCompile(`\s*[\[{(]?\s*(?:([0-9]+)?[-: ]([0-9a-fA-F]+)?)?\s*[\]})]?\s*[:\->]*\s*(.+)`)
+	MSG_REGEXP    = regexp.MustCompile(`\s*[\[{(]?\s*(?:([0-9]+)?[-: ]([0-9a-fA-F]+)?)?\s*[\]})]?\s*[:\->]*\s*(.+)`)
+	INCLUDE_STACK = false
 )
 
 type DefaultErrorBus struct {
@@ -19,9 +20,15 @@ type OttemoError struct {
 	Code    string
 	Level   int
 
+	Stack string
+
 	handled bool
 }
 
 func (it *OttemoError) Error() string {
-	return fmt.Sprintf("%d:%s - %s\n", it.Level, it.Code, it.Message)
+	message := it.Message
+	if it.Stack != "" {
+		message += "\n" + it.Stack
+	}
+	return fmt.Sprintf("%d:%s - %s", it.Level, it.Code, message)
 }

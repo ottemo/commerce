@@ -2,10 +2,10 @@ package tax
 
 import (
 	"encoding/csv"
-	"errors"
 
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/foundation/env"
 
 	"github.com/ottemo/foundation/utils"
 )
@@ -66,7 +66,7 @@ func restTaxCSVDownload(params *api.T_APIHandlerParams) (interface{}, error) {
 			return nil, nil
 		}
 	} else {
-		return nil, errors.New("can't get DB engine")
+		return nil, env.ErrorNew("can't get DB engine")
 	}
 
 	return nil, nil
@@ -110,7 +110,7 @@ func restTaxCSVUpload(params *api.T_APIHandlerParams) (interface{}, error) {
 			return nil, err
 		}
 	} else {
-		return nil, errors.New("can't get DB engine")
+		return nil, env.ErrorNew("can't get DB engine")
 	}
 
 	return "ok", nil

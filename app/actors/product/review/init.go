@@ -1,10 +1,9 @@
 package review
 
 import (
-	"errors"
-
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/foundation/env"
 )
 
 // module entry point before app start
@@ -18,7 +17,7 @@ func setupDB() error {
 
 	dbEngine := db.GetDBEngine()
 	if dbEngine == nil {
-		return errors.New("Can't get database engine")
+		return env.ErrorNew("Can't get database engine")
 	}
 
 	if collection, err := dbEngine.GetCollection("review"); err == nil {

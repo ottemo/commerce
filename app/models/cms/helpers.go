@@ -1,9 +1,8 @@
 package cms
 
 import (
-	"errors"
-
 	"github.com/ottemo/foundation/app/models"
+	"github.com/ottemo/foundation/env"
 )
 
 // retrieves current I_CMSPageCollection model implementation
@@ -15,7 +14,7 @@ func GetCMSPageCollectionModel() (I_CMSPageCollection, error) {
 
 	cmsPageCollectionModel, ok := model.(I_CMSPageCollection)
 	if !ok {
-		return nil, errors.New("model " + model.GetImplementationName() + " is not 'I_CMSPageCollection' capable")
+		return nil, env.ErrorNew("model " + model.GetImplementationName() + " is not 'I_CMSPageCollection' capable")
 	}
 
 	return cmsPageCollectionModel, nil
@@ -30,7 +29,7 @@ func GetCMSPageModel() (I_CMSPage, error) {
 
 	cmsPageModel, ok := model.(I_CMSPage)
 	if !ok {
-		return nil, errors.New("model " + model.GetImplementationName() + " is not 'I_CMSPage' capable")
+		return nil, env.ErrorNew("model " + model.GetImplementationName() + " is not 'I_CMSPage' capable")
 	}
 
 	return cmsPageModel, nil
@@ -77,7 +76,7 @@ func GetCMSBlockCollectionModel() (I_CMSBlockCollection, error) {
 
 	csmBlockCollectionModel, ok := model.(I_CMSBlockCollection)
 	if !ok {
-		return nil, errors.New("model " + model.GetImplementationName() + " is not 'I_CMSBlockCollection' capable")
+		return nil, env.ErrorNew("model " + model.GetImplementationName() + " is not 'I_CMSBlockCollection' capable")
 	}
 
 	return csmBlockCollectionModel, nil
@@ -95,7 +94,7 @@ func GetCMSBlockModel() (I_CMSBlock, error) {
 
 	csmBlockModel, ok := model.(I_CMSBlock)
 	if !ok {
-		return nil, errors.New("model " + model.GetImplementationName() + " is not 'I_CMSBlock' capable")
+		return nil, env.ErrorNew("model " + model.GetImplementationName() + " is not 'I_CMSBlock' capable")
 	}
 
 	return csmBlockModel, nil

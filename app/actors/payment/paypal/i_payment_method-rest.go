@@ -3,7 +3,7 @@ package paypal
 /*
 import (
 	"bytes"
-	"errors"
+
 	"fmt"
 
 	"text/template"
@@ -12,6 +12,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/app/models/checkout"
 	"github.com/ottemo/foundation/utils"
 )
@@ -36,17 +37,17 @@ func (it *PayPalRest) Authorize(checkoutInstance checkout.I_Checkout) error {
 
 	ccInfo := utils.InterfaceToMap(checkoutInstance.GetInfo("cc"))
 	if !utils.StrKeysInMap(ccInfo, "type", "number", "expire_month", "expire_year", "cvv") {
-		return errors.New("credit card info was not specified")
+		return env.ErrorNew("credit card info was not specified")
 	}
 
 	billingAddress := checkoutInstance.GetBillingAddress()
 	if billingAddress == nil {
-		return errors.New("no billing address information")
+		return env.ErrorNew("no billing address information")
 	}
 
 	order := checkoutInstance.GetOrder()
 	if order == nil {
-		return errors.New("no created order")
+		return env.ErrorNew("no created order")
 	}
 
 	templateValues := map[string]interface{}{
@@ -149,9 +150,9 @@ func (it *PayPalRest) Authorize(checkoutInstance checkout.I_Checkout) error {
 
 	if response.StatusCode != 201 {
 		if response.StatusCode == 400 {
-			return errors.New(utils.InterfaceToString(result["details"]))
+			return env.ErrorNew(utils.InterfaceToString(result["details"]))
 		}
-		return errors.New("payment was not processed")
+		return env.ErrorNew("payment was not processed")
 	}
 
 	//TODO: should store information to order
@@ -207,5 +208,5 @@ func (it *PayPalRest) GetAccessToken(checkoutInstance checkout.I_Checkout) (stri
 		return utils.InterfaceToString(token), nil
 	}
 
-	return "", errors.New("unexpected response - without access_token")
+	return "", env.ErrorNew("unexpected response - without access_token")
 }*/

@@ -1,10 +1,10 @@
 package mongo
 
 import (
-	"errors"
 	"sort"
 	"strings"
 
+	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
 
 	"labix.org/v2/mgo"
@@ -91,7 +91,7 @@ func (it *MongoDBCollection) getMongoOperator(columnName string, operator string
 		}
 	}
 
-	return "?", "?", errors.New("Unknown operator '" + operator + "'")
+	return "?", "?", env.ErrorNew("Unknown operator '" + operator + "'")
 }
 
 // returns filter group, creates new one if not exists
@@ -108,7 +108,7 @@ func (it *MongoDBCollection) getFilterGroup(groupName string) *T_DBFilterGroup {
 func (it *MongoDBCollection) updateFilterGroup(groupName string, columnName string, operator string, value interface{}) error {
 
 	/*if !it.HasColumn(columnName) {
-		return errors.New("not existing column " + columnName)
+		return env.ErrorNew("not existing column " + columnName)
 	}*/
 
 	// converting operator and value for mongoDB usage

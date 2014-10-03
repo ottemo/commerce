@@ -1,8 +1,8 @@
 package product
 
 import (
-	"errors"
 	"github.com/ottemo/foundation/app/models"
+	"github.com/ottemo/foundation/env"
 )
 
 // retrieves current I_ProductCollection model implementation
@@ -14,7 +14,7 @@ func GetProductCollectionModel() (I_ProductCollection, error) {
 
 	productModel, ok := model.(I_ProductCollection)
 	if !ok {
-		return nil, errors.New("model " + model.GetImplementationName() + " is not 'I_ProductCollection' capable")
+		return nil, env.ErrorNew("model " + model.GetImplementationName() + " is not 'I_ProductCollection' capable")
 	}
 
 	return productModel, nil
@@ -29,7 +29,7 @@ func GetProductModel() (I_Product, error) {
 
 	productModel, ok := model.(I_Product)
 	if !ok {
-		return nil, errors.New("model " + model.GetImplementationName() + " is not 'I_Product' capable")
+		return nil, env.ErrorNew("model " + model.GetImplementationName() + " is not 'I_Product' capable")
 	}
 
 	return productModel, nil

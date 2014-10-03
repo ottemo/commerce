@@ -1,11 +1,11 @@
 package visitor
 
 import (
-	"errors"
 	"strings"
 
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/visitor"
+	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
 )
 
@@ -124,7 +124,7 @@ func (it *DefaultVisitor) Set(attribute string, value interface{}) error {
 				it.ShippingAddress = addressModel
 			}
 		default:
-			return errors.New("unsupported billing or shipping address value")
+			return env.ErrorNew("unsupported billing or shipping address value")
 		}
 
 	default:

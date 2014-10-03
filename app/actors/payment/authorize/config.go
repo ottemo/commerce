@@ -1,8 +1,6 @@
 package authorize
 
 import (
-	"errors"
-
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
 )
@@ -51,7 +49,7 @@ func setupConfig() error {
 			Image:       "",
 		}, func(value interface{}) (interface{}, error) {
 			if utils.CheckIsBlank(value) {
-				return nil, errors.New("can't be blank")
+				return nil, env.ErrorNew("can't be blank")
 			} else {
 				return value, nil
 			}
@@ -73,7 +71,7 @@ func setupConfig() error {
 		}, func(value interface{}) (interface{}, error) {
 			stringValue := utils.InterfaceToString(value)
 			if !utils.IsAmongStr(stringValue, DPM_ACTION_AUTHORIZE_ONLY, DPM_ACTION_AUTHORIZE_AND_CAPTURE) {
-				return nil, errors.New("should be " + DPM_ACTION_AUTHORIZE_ONLY + " or " + DPM_ACTION_AUTHORIZE_AND_CAPTURE)
+				return nil, env.ErrorNew("should be " + DPM_ACTION_AUTHORIZE_ONLY + " or " + DPM_ACTION_AUTHORIZE_AND_CAPTURE)
 			}
 			return value, nil
 		})

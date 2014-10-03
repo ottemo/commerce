@@ -1,7 +1,6 @@
 package fedex
 
 import (
-	"errors"
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
 )
@@ -49,7 +48,7 @@ func setupConfig() error {
 			Image:       "",
 		}, func(value interface{}) (interface{}, error) {
 			if utils.CheckIsBlank(value) {
-				return nil, errors.New("can't be blank")
+				return nil, env.ErrorNew("can't be blank")
 			} else {
 				return value, nil
 			}
@@ -172,7 +171,7 @@ func setupConfig() error {
 		}, func(value interface{}) (interface{}, error) {
 			stringValue := utils.InterfaceToString(value)
 			if _, present := SHIPPING_DROPOFF[stringValue]; !present {
-				return nil, errors.New("wrong value")
+				return nil, env.ErrorNew("wrong value")
 			} else {
 				return value, nil
 			}
@@ -194,7 +193,7 @@ func setupConfig() error {
 		}, func(value interface{}) (interface{}, error) {
 			stringValue := utils.InterfaceToString(value)
 			if _, present := SHIPPING_PACKAGING[stringValue]; !present {
-				return nil, errors.New("wrong value")
+				return nil, env.ErrorNew("wrong value")
 			} else {
 				return value, nil
 			}

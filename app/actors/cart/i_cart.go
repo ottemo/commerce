@@ -1,7 +1,6 @@
 package cart
 
 import (
-	"errors"
 	"sort"
 	"strconv"
 
@@ -9,6 +8,7 @@ import (
 	"github.com/ottemo/foundation/app/models/product"
 	"github.com/ottemo/foundation/app/models/visitor"
 	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/foundation/env"
 )
 
 // function calls when cart was changes and subtotal recalculation needed
@@ -44,7 +44,7 @@ func (it *DefaultCart) checkOptions(productOptions map[string]interface{}, cartI
 							}
 						}
 					default:
-						return errors.New("unexpected option value for '" + optionName + "' option")
+						return env.ErrorNew("unexpected option value for '" + optionName + "' option")
 					}
 
 					// checking for option customer set with available for product
@@ -54,7 +54,7 @@ func (it *DefaultCart) checkOptions(productOptions map[string]interface{}, cartI
 						switch productOptionValues := productOption["options"].(type) {
 						case map[string]interface{}:
 							if _, present := productOptionValues[optionValue]; !present {
-								return errors.New("invalid value for option '" + optionName + "'")
+								return env.ErrorNew("invalid value for option '" + optionName + "'")
 							}
 
 						case []interface{}:
@@ -66,19 +66,19 @@ func (it *DefaultCart) checkOptions(productOptions map[string]interface{}, cartI
 								}
 							}
 							if !found {
-								return errors.New("invalid value for option '" + optionName + "'")
+								return env.ErrorNew("invalid value for option '" + optionName + "'")
 							}
 
 						default:
 							if productOptionValues != optionValue {
-								return errors.New("invalid value for option '" + optionName + "'")
+								return env.ErrorNew("invalid value for option '" + optionName + "'")
 							}
 						}
 					}
 				}
 			}
 		} else {
-			return errors.New("unknown option '" + optionName + "'")
+			return env.ErrorNew("unknown option '" + optionName + "'")
 		}
 	}
 
@@ -91,13 +91,13 @@ func (it *DefaultCart) checkOptions(productOptions map[string]interface{}, cartI
 
 					//checking cart item option for required option existence
 					if itemOptionValue, present := cartItemOptions[productOption]; !present {
-						return errors.New(productOption + " was not specified")
+						return env.ErrorNew(productOption + " was not specified")
 					} else {
 						// for multi value options additional check
 						switch typedValue := itemOptionValue.(type) {
 						case []interface{}:
 							if len(typedValue) == 0 {
-								return errors.New(productOption + " was not specified")
+								return env.ErrorNew(productOption + " was not specified")
 							}
 						}
 					}
@@ -116,7 +116,7 @@ func (it *DefaultCart) AddItem(productId string, qty int, options map[string]int
 
 	//checking qty
 	if qty <= 0 {
-		return nil, errors.New("qty can't be zero or less")
+		return nil, env.ErrorNew("qty can't be zero or less")
 	}
 
 	// checking product existence
@@ -162,7 +162,7 @@ func (it *DefaultCart) RemoveItem(itemIdx int) error {
 
 		dbEngine := db.GetDBEngine()
 		if dbEngine == nil {
-			return errors.New("can't get DB engine")
+			return env.ErrorNew("can't get DB engine")
 		}
 
 		cartItemsCollection, err := dbEngine.GetCollection(CART_ITEMS_COLLECTION_NAME)
@@ -181,7 +181,7 @@ func (it *DefaultCart) RemoveItem(itemIdx int) error {
 
 		return nil
 	} else {
-		return errors.New("can't find index " + strconv.Itoa(itemIdx))
+		return env.ErrorNew("can't find index " + strconv.Itoa(itemIdx))
 	}
 }
 
@@ -199,7 +199,7 @@ func (it *DefaultCart) SetQty(itemIdx int, qty int) error {
 
 		return nil
 	} else {
-		return errors.New("there is no item with idx=" + strconv.Itoa(itemIdx))
+		return env.ErrorNew("there is no item with idx=" + strconv.Itoa(itemIdx))
 	}
 }
 
@@ -274,7 +274,7 @@ func (it *DefaultCart) GetCartInfo() map[string]interface{} {
 func (it *DefaultCart) MakeCartForVisitor(visitorId string) error {
 	dbEngine := db.GetDBEngine()
 	if dbEngine == nil {
-		return errors.New("can't get DB Engine")
+		return env.ErrorNew("can't get DB Engine")
 	}
 
 	cartCollection, err := dbEngine.GetCollection(CART_COLLECTION_NAME)

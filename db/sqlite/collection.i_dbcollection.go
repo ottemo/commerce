@@ -19,7 +19,7 @@ func (it *SQLiteCollection) LoadById(id string) (map[string]interface{}, error) 
 		return false
 	})
 
-	return result, err
+	return result, env.ErrorDispatch(err)
 }
 
 // loads records from DB for current collection and filter if it set
@@ -31,7 +31,7 @@ func (it *SQLiteCollection) Load() ([]map[string]interface{}, error) {
 		return true
 	})
 
-	return result, err
+	return result, env.ErrorDispatch(err)
 }
 
 // applies [iterator] function to each record, stops on return false
@@ -64,14 +64,14 @@ func (it *SQLiteCollection) Iterate(iteratorFunc func(record map[string]interfac
 		err = nil
 	}
 
-	return err
+	return env.ErrorDispatch(err)
 }
 
 // returns distinct values of specified attribute
 func (it *SQLiteCollection) Distinct(columnName string) ([]interface{}, error) {
 
 	if len(it.ResultColumns) != 1 {
-		return nil, errors.New("should be 1 result column")
+		return nil, env.ErrorNew("should be 1 result column")
 	}
 
 	SQL := "SELECT " + it.getSQLResultColumns() + " FROM " + it.TableName + it.getSQLFilters() + it.getSQLOrder() + it.Limit
@@ -103,7 +103,7 @@ func (it *SQLiteCollection) Distinct(columnName string) ([]interface{}, error) {
 		err = sqlError(SQL, err)
 	}
 
-	return result, err
+	return result, env.ErrorDispatch(err)
 }
 
 // returns count of rows matching current select statement
@@ -194,7 +194,7 @@ func (it *SQLiteCollection) Delete() (int, error) {
 	err := it.Connection.Exec(SQL)
 	affected := it.Connection.RowsAffected()
 
-	return affected, err
+	return affected, env.ErrorDispatch(err)
 }
 
 // removes record from DB by is's id
@@ -211,7 +211,7 @@ func (it *SQLiteCollection) DeleteById(id string) error {
 // setups filter group params for collection
 func (it *SQLiteCollection) SetupFilterGroup(groupName string, orSequence bool, parentGroup string) error {
 	if _, present := it.FilterGroups[parentGroup]; !present && parentGroup != "" {
-		return errors.New("invalid parent group")
+		return env.ErrorNew("invalid parent group")
 	}
 
 	filterGroup := it.getFilterGroup(groupName)
@@ -224,7 +224,7 @@ func (it *SQLiteCollection) SetupFilterGroup(groupName string, orSequence bool, 
 // removes filter group for collection
 func (it *SQLiteCollection) RemoveFilterGroup(groupName string) error {
 	if _, present := it.FilterGroups[groupName]; !present {
-		return errors.New("invalid group name")
+		return env.ErrorNew("invalid group name")
 	}
 	delete(it.FilterGroups, groupName)
 	return nil
@@ -278,7 +278,7 @@ func (it *SQLiteCollection) AddSort(ColumnName string, Desc bool) error {
 			it.Order = append(it.Order, ColumnName)
 		}
 	} else {
-		return errors.New("can't find column '" + ColumnName + "'")
+		return env.ErrorNew("can't find column '" + ColumnName + "'")
 	}
 
 	return nil
@@ -294,7 +294,7 @@ func (it *SQLiteCollection) ClearSort() error {
 func (it *SQLiteCollection) SetResultColumns(columns ...string) error {
 	for _, columnName := range columns {
 		if !it.HasColumn(columnName) {
-			return errors.New("there is no column " + columnName + " found")
+			return env.ErrorNew("there is no column " + columnName + " found")
 		}
 
 		it.ResultColumns = append(it.ResultColumns, columnName)
@@ -370,7 +370,7 @@ func (it *SQLiteCollection) AddColumn(ColumnName string, ColumnType string, inde
 	// TODO: there probably need column name check to be only lowercase, exclude some chars, etc.
 
 	if it.HasColumn(ColumnName) {
-		return errors.New("column '" + ColumnName + "' already exists for '" + it.TableName + "' collection")
+		return env.ErrorNew("column '" + ColumnName + "' already exists for '" + it.TableName + "' collection")
 	}
 
 	if ColumnType, err := GetDBType(ColumnType); err == nil {
@@ -399,7 +399,7 @@ func (it *SQLiteCollection) RemoveColumn(ColumnName string) error {
 
 	// checking column in table
 	if !it.HasColumn(ColumnName) {
-		return errors.New("column '" + ColumnName + "' not exists in '" + it.TableName + "' collection")
+		return env.ErrorNew("column '" + ColumnName + "' not exists in '" + it.TableName + "' collection")
 	}
 
 	// getting table create SQL to take columns from
@@ -443,7 +443,7 @@ func (it *SQLiteCollection) RemoveColumn(ColumnName string) error {
 
 		}
 	} else {
-		return errors.New("can't find table create columns in '" + tableCreateSQL + "', found [" + strings.Join(regexMatch, ", ") + "]")
+		return env.ErrorNew("can't find table create columns in '" + tableCreateSQL + "', found [" + strings.Join(regexMatch, ", ") + "]")
 	}
 
 	// making new table without removing column, and filling with values from old table

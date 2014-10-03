@@ -1,8 +1,8 @@
 package cart
 
 import (
-	"errors"
 	"github.com/ottemo/foundation/app/models/cart"
+	"github.com/ottemo/foundation/env"
 
 	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/utils"
@@ -88,12 +88,12 @@ func (it *DefaultCart) Load(Id string) error {
 // removes current cart from DB
 func (it *DefaultCart) Delete() error {
 	if it.GetId() == "" {
-		return errors.New("cart id is not set")
+		return env.ErrorNew("cart id is not set")
 	}
 
 	dbEngine := db.GetDBEngine()
 	if dbEngine == nil {
-		return errors.New("can't get DbEngine")
+		return env.ErrorNew("can't get DbEngine")
 	}
 
 	// deleting cart items
@@ -119,7 +119,7 @@ func (it *DefaultCart) Delete() error {
 	}
 	err = cartCollection.DeleteById(it.GetId())
 
-	return err
+	return env.ErrorDispatch(err)
 }
 
 // stores current cart in DB
@@ -127,7 +127,7 @@ func (it *DefaultCart) Save() error {
 
 	dbEngine := db.GetDBEngine()
 	if dbEngine == nil {
-		return errors.New("can't get DbEngine")
+		return env.ErrorNew("can't get DbEngine")
 	}
 
 	cartCollection, err := dbEngine.GetCollection(CART_COLLECTION_NAME)

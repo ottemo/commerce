@@ -82,7 +82,7 @@ func ErrorDispatch(err error) error {
 }
 
 // creates new error and dispatches it
-func Error(message string) error {
+func ErrorNew(message string) error {
 	if errorBus := GetErrorBus(); errorBus != nil {
 		return errorBus.New(message)
 	}

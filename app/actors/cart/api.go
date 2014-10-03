@@ -1,10 +1,9 @@
 package cart
 
 import (
-	"errors"
-
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/app/models/cart"
+	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
 )
 
@@ -100,7 +99,7 @@ func restCartAdd(params *api.T_APIHandlerParams) (interface{}, error) {
 	reqPid, present := params.RequestURLParams["productId"]
 	pid = utils.InterfaceToString(reqPid)
 	if !present || pid == "" {
-		return nil, errors.New("pid should be specified")
+		return nil, env.ErrorNew("pid should be specified")
 	}
 
 	var qty int = 1
@@ -153,7 +152,7 @@ func restCartUpdate(params *api.T_APIHandlerParams) (interface{}, error) {
 	// check request params
 	//---------------------
 	if !utils.KeysInMapAndNotBlank(params.RequestURLParams, "itemIdx", "qty") {
-		return nil, errors.New("itemIdx and qty should be specified")
+		return nil, env.ErrorNew("itemIdx and qty should be specified")
 	}
 
 	itemIdx, err := utils.StringToInteger(params.RequestURLParams["itemIdx"])
@@ -166,7 +165,7 @@ func restCartUpdate(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil, err
 	}
 	if qty <= 0 {
-		return nil, errors.New("qty should be greather then 0")
+		return nil, env.ErrorNew("qty should be greather then 0")
 	}
 
 	// operation
@@ -188,7 +187,7 @@ func restCartUpdate(params *api.T_APIHandlerParams) (interface{}, error) {
 	}
 
 	if !found {
-		return nil, errors.New("wrong itemIdx was specified")
+		return nil, env.ErrorNew("wrong itemIdx was specified")
 	}
 
 	currentCart.Save()
@@ -202,7 +201,7 @@ func restCartDelete(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	_, present := params.RequestURLParams["itemIdx"]
 	if !present {
-		return nil, errors.New("itemIdx should be specified")
+		return nil, env.ErrorNew("itemIdx should be specified")
 	}
 
 	itemIdx, err := utils.StringToInteger(params.RequestURLParams["itemIdx"])

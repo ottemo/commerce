@@ -1,9 +1,9 @@
 package visitor
 
 import (
-	"errors"
 	"github.com/ottemo/foundation/app/actors/visitor/address"
 	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/foundation/env"
 )
 
 // returns current product id
@@ -78,7 +78,7 @@ func (it *DefaultVisitor) Save() error {
 			return err
 		}
 		if n > 0 {
-			return errors.New("email already exists")
+			return env.ErrorNew("email already exists")
 		}
 	}
 
@@ -88,7 +88,7 @@ func (it *DefaultVisitor) Save() error {
 	delete(storableValues, "shipping_address")
 
 	/*if it.Password == "" {
-		return errors.New("password can't be blank")
+		return env.ErrorNew("password can't be blank")
 	}*/
 
 	storableValues["facebook_id"] = it.FacebookId

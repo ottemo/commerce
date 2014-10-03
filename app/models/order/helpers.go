@@ -1,8 +1,8 @@
 package order
 
 import (
-	"errors"
 	"github.com/ottemo/foundation/app/models"
+	"github.com/ottemo/foundation/env"
 )
 
 // retrieves current I_OrderCollection model implementation
@@ -14,7 +14,7 @@ func GetOrderCollectionModel() (I_OrderCollection, error) {
 
 	orderCollectionModel, ok := model.(I_OrderCollection)
 	if !ok {
-		return nil, errors.New("model " + model.GetImplementationName() + " is not 'I_OrderCollection' capable")
+		return nil, env.ErrorNew("model " + model.GetImplementationName() + " is not 'I_OrderCollection' capable")
 	}
 
 	return orderCollectionModel, nil
@@ -29,7 +29,7 @@ func GetOrderModel() (I_Order, error) {
 
 	orderModel, ok := model.(I_Order)
 	if !ok {
-		return nil, errors.New("model " + model.GetImplementationName() + " is not 'I_Order' capable")
+		return nil, env.ErrorNew("model " + model.GetImplementationName() + " is not 'I_Order' capable")
 	}
 
 	return orderModel, nil

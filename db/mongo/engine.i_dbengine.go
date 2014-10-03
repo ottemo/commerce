@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/foundation/env"
 
 	"labix.org/v2/mgo"
 	"labix.org/v2/mgo/bson"
@@ -32,7 +33,7 @@ func (it *MongoDB) CreateCollection(CollectionName string) error {
 	//println(CMD)
 	//err := it.database.Run(CMD, nil)
 
-	return err
+	return env.ErrorDispatch(err)
 }
 
 // returns collection by name or creates new one

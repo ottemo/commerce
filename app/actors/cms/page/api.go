@@ -1,9 +1,8 @@
 package page
 
 import (
-	"errors"
-
 	"github.com/ottemo/foundation/api"
+	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
 
 	"github.com/ottemo/foundation/app/models/cms"
@@ -68,7 +67,7 @@ func restCMSPageList(params *api.T_APIHandlerParams) (interface{}, error) {
 	reqData, ok := params.RequestContent.(map[string]interface{})
 	if !ok {
 		if params.Request.Method == "POST" {
-			return nil, errors.New("unexpected request content")
+			return nil, env.ErrorNew("unexpected request content")
 		} else {
 			reqData = make(map[string]interface{})
 		}
@@ -123,7 +122,7 @@ func restCMSPageGet(params *api.T_APIHandlerParams) (interface{}, error) {
 	//---------------------
 	reqPageId, present := params.RequestURLParams["id"]
 	if !present {
-		return nil, errors.New("cms page id should be specified")
+		return nil, env.ErrorNew("cms page id should be specified")
 	}
 	pageId := utils.InterfaceToString(reqPageId)
 
@@ -176,7 +175,7 @@ func restCMSPageUpdate(params *api.T_APIHandlerParams) (interface{}, error) {
 	//---------------------
 	pageId, present := params.RequestURLParams["id"]
 	if !present {
-		return nil, errors.New("cms page id should be specified")
+		return nil, env.ErrorNew("cms page id should be specified")
 	}
 
 	reqData, err := api.GetRequestContentAsMap(params)
@@ -213,7 +212,7 @@ func restCMSPageDelete(params *api.T_APIHandlerParams) (interface{}, error) {
 	//---------------------
 	pageId, present := params.RequestURLParams["id"]
 	if !present {
-		return nil, errors.New("cms page id should be specified")
+		return nil, env.ErrorNew("cms page id should be specified")
 	}
 
 	// check rights

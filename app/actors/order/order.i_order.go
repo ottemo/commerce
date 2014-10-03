@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"sort"
 
-	"errors"
-
 	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
@@ -103,7 +101,7 @@ func (it *DefaultOrder) RemoveItem(itemIdx int) error {
 
 		dbEngine := db.GetDBEngine()
 		if dbEngine == nil {
-			return errors.New("can't get DB engine")
+			return env.ErrorNew("can't get DB engine")
 		}
 
 		orderItemsCollection, err := dbEngine.GetCollection(COLLECTION_NAME_ORDER_ITEMS)
@@ -120,7 +118,7 @@ func (it *DefaultOrder) RemoveItem(itemIdx int) error {
 
 		return nil
 	} else {
-		return errors.New("can't find index " + utils.InterfaceToString(itemIdx))
+		return env.ErrorNew("can't find index " + utils.InterfaceToString(itemIdx))
 	}
 }
 

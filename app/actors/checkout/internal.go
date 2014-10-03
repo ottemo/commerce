@@ -1,8 +1,6 @@
 package checkout
 
 import (
-	"errors"
-
 	"github.com/ottemo/foundation/app"
 	"github.com/ottemo/foundation/app/models/checkout"
 	"github.com/ottemo/foundation/env"
@@ -14,14 +12,14 @@ func (it *DefaultCheckout) SendOrderConfirmationMail() error {
 
 	checkoutOrder := it.GetOrder()
 	if checkoutOrder == nil {
-		return errors.New("checkout order is not exists")
+		return env.ErrorNew("checkout order is not exists")
 	}
 
 	confirmationEmail := utils.InterfaceToString(env.ConfigGetValue(checkout.CONFIG_PATH_CONFIRMATION_EMAIL))
 	if confirmationEmail != "" {
 		email := utils.InterfaceToString(checkoutOrder.Get("customer_email"))
 		if email == "" {
-			return errors.New("customer email for order is not set")
+			return env.ErrorNew("customer email for order is not set")
 		}
 
 		confirmationEmail, err := utils.TextTemplate(confirmationEmail,

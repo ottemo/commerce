@@ -1,11 +1,11 @@
 package block
 
 import (
-	"errors"
 	"strings"
 
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/cms"
+	"github.com/ottemo/foundation/env"
 
 	"github.com/ottemo/foundation/utils"
 )
@@ -47,7 +47,7 @@ func (it *DefaultCMSBlock) Set(attribute string, value interface{}) error {
 		return nil
 	}
 
-	return errors.New("unknown attribute '" + attribute + "'")
+	return env.ErrorNew("unknown attribute '" + attribute + "'")
 }
 
 // represents object as map[string]interface{}

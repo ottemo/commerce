@@ -4,7 +4,9 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"github.com/ottemo/foundation/env"
+	"runtime"
 	"strconv"
+	"strings"
 )
 
 // converts error message to OttemoError instance
@@ -24,6 +26,22 @@ func parseErrorMessage(message string) *OttemoError {
 		hasher.Write([]byte(resultError.Message))
 
 		resultError.Code = hex.EncodeToString(hasher.Sum(nil))
+	}
+
+	// primitive stack trace
+	if INCLUDE_STACK {
+		cutStopFlag := false
+		skip := 0
+		_, file, line, ok := runtime.Caller(skip)
+		for ok {
+			if cutStopFlag || !strings.Contains(file, "github.com/ottemo/foundation/env/") {
+				cutStopFlag = true
+				resultError.Stack += file + ":" + strconv.Itoa(line) + "\n"
+			}
+
+			skip += 1
+			_, file, line, ok = runtime.Caller(skip)
+		}
 	}
 
 	return resultError

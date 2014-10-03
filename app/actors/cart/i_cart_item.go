@@ -1,10 +1,9 @@
 package cart
 
 import (
-	"errors"
-
 	"github.com/ottemo/foundation/app/models/cart"
 	"github.com/ottemo/foundation/app/models/product"
+	"github.com/ottemo/foundation/env"
 )
 
 // returns id of cart item
@@ -27,7 +26,7 @@ func (it *DefaultCartItem) GetIdx() int {
 func (it *DefaultCartItem) SetIdx(newIdx int) error {
 
 	if newIdx < 0 {
-		return errors.New("wrong cart item index")
+		return env.ErrorNew("wrong cart item index")
 	}
 
 	if value, present := it.Cart.Items[newIdx]; present {
@@ -68,7 +67,7 @@ func (it *DefaultCartItem) SetQty(qty int) error {
 	if qty > 0 {
 		it.Qty = qty
 	} else {
-		return errors.New("qty must be greater then 0")
+		return env.ErrorNew("qty must be greater then 0")
 	}
 
 	it.Cart.cartChanged()
@@ -82,7 +81,7 @@ func (it *DefaultCartItem) Remove() error {
 	if it.Cart != nil {
 		return it.Cart.RemoveItem(it.idx)
 	} else {
-		return errors.New("item is not bound to cart")
+		return env.ErrorNew("item is not bound to cart")
 	}
 }
 

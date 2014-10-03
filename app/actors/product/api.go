@@ -1,11 +1,11 @@
 package product
 
 import (
-	"errors"
 	"mime"
 	"strings"
 
 	"github.com/ottemo/foundation/api"
+	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
 
 	"github.com/ottemo/foundation/app/models"
@@ -115,12 +115,12 @@ func restAddProductAttribute(params *api.T_APIHandlerParams) (interface{}, error
 
 	attributeName, isSpecified := reqData["Attribute"]
 	if !isSpecified {
-		return nil, errors.New("attribute name was not specified")
+		return nil, env.ErrorNew("attribute name was not specified")
 	}
 
 	attributeLabel, isSpecified := reqData["Label"]
 	if !isSpecified {
-		return nil, errors.New("attribute label was not specified")
+		return nil, env.ErrorNew("attribute label was not specified")
 	}
 
 	// check rights
@@ -187,7 +187,7 @@ func restRemoveProductAttribute(params *api.T_APIHandlerParams) (interface{}, er
 	//--------------------
 	attributeName, isSpecified := params.RequestURLParams["attribute"]
 	if !isSpecified {
-		return nil, errors.New("attribute name was not specified")
+		return nil, env.ErrorNew("attribute name was not specified")
 	}
 
 	// check rights
@@ -218,7 +218,7 @@ func restGetProduct(params *api.T_APIHandlerParams) (interface{}, error) {
 	//---------------------
 	productId, isSpecifiedId := params.RequestURLParams["id"]
 	if !isSpecifiedId {
-		return nil, errors.New("product id was not specified")
+		return nil, env.ErrorNew("product id was not specified")
 	}
 
 	// load product operation
@@ -244,7 +244,7 @@ func restCreateProduct(params *api.T_APIHandlerParams) (interface{}, error) {
 	}
 
 	if !utils.KeysInMapAndNotBlank(params.RequestURLParams, "sku", "name") {
-		return nil, errors.New("product name and/or sku were not specified")
+		return nil, env.ErrorNew("product name and/or sku were not specified")
 	}
 
 	// check rights
@@ -282,7 +282,7 @@ func restDeleteProduct(params *api.T_APIHandlerParams) (interface{}, error) {
 	//--------------------
 	productId, isSpecifiedId := params.RequestURLParams["id"]
 	if !isSpecifiedId {
-		return nil, errors.New("product id was not specified")
+		return nil, env.ErrorNew("product id was not specified")
 	}
 
 	// check rights
@@ -314,12 +314,12 @@ func restUpdateProduct(params *api.T_APIHandlerParams) (interface{}, error) {
 	//---------------------
 	productId, isSpecifiedId := params.RequestURLParams["id"]
 	if !isSpecifiedId {
-		return nil, errors.New("product id was not specified")
+		return nil, env.ErrorNew("product id was not specified")
 	}
 
 	reqData, err := api.GetRequestContentAsMap(params)
 	if err != nil {
-		return nil, errors.New("unexpected request content")
+		return nil, env.ErrorNew("unexpected request content")
 	}
 
 	// check rights
@@ -357,12 +357,12 @@ func restMediaPath(params *api.T_APIHandlerParams) (interface{}, error) {
 	//---------------------
 	productId, isIdSpecified := params.RequestURLParams["productId"]
 	if !isIdSpecified {
-		return nil, errors.New("product id was not specified")
+		return nil, env.ErrorNew("product id was not specified")
 	}
 
 	mediaType, isTypeSpecified := params.RequestURLParams["mediaType"]
 	if !isTypeSpecified {
-		return nil, errors.New("media type was not specified")
+		return nil, env.ErrorNew("media type was not specified")
 	}
 
 	// list media operation
@@ -388,12 +388,12 @@ func restMediaList(params *api.T_APIHandlerParams) (interface{}, error) {
 	//---------------------
 	productId, isIdSpecified := params.RequestURLParams["productId"]
 	if !isIdSpecified {
-		return nil, errors.New("product id was not specified")
+		return nil, env.ErrorNew("product id was not specified")
 	}
 
 	mediaType, isTypeSpecified := params.RequestURLParams["mediaType"]
 	if !isTypeSpecified {
-		return nil, errors.New("media type was not specified")
+		return nil, env.ErrorNew("media type was not specified")
 	}
 
 	// list media operation
@@ -420,17 +420,17 @@ func restMediaAdd(params *api.T_APIHandlerParams) (interface{}, error) {
 	//---------------------
 	productId, isIdSpecified := params.RequestURLParams["productId"]
 	if !isIdSpecified {
-		return nil, errors.New("product id was not specified")
+		return nil, env.ErrorNew("product id was not specified")
 	}
 
 	mediaType, isTypeSpecified := params.RequestURLParams["mediaType"]
 	if !isTypeSpecified {
-		return nil, errors.New("media type was not specified")
+		return nil, env.ErrorNew("media type was not specified")
 	}
 
 	mediaName, isNameSpecified := params.RequestURLParams["mediaName"]
 	if !isNameSpecified {
-		return nil, errors.New("media name was not specified")
+		return nil, env.ErrorNew("media name was not specified")
 	}
 
 	// check rights
@@ -474,17 +474,17 @@ func restMediaRemove(params *api.T_APIHandlerParams) (interface{}, error) {
 	//---------------------
 	productId, isIdSpecified := params.RequestURLParams["productId"]
 	if !isIdSpecified {
-		return nil, errors.New("product id was not specified")
+		return nil, env.ErrorNew("product id was not specified")
 	}
 
 	mediaType, isTypeSpecified := params.RequestURLParams["mediaType"]
 	if !isTypeSpecified {
-		return nil, errors.New("media type was not specified")
+		return nil, env.ErrorNew("media type was not specified")
 	}
 
 	mediaName, isNameSpecified := params.RequestURLParams["mediaName"]
 	if !isNameSpecified {
-		return nil, errors.New("media name was not specified")
+		return nil, env.ErrorNew("media name was not specified")
 	}
 
 	// check rights
@@ -515,17 +515,17 @@ func restMediaGet(params *api.T_APIHandlerParams) (interface{}, error) {
 	//---------------------
 	productId, isIdSpecified := params.RequestURLParams["productId"]
 	if !isIdSpecified {
-		return nil, errors.New("product id was not specified")
+		return nil, env.ErrorNew("product id was not specified")
 	}
 
 	mediaType, isTypeSpecified := params.RequestURLParams["mediaType"]
 	if !isTypeSpecified {
-		return nil, errors.New("media type was not specified")
+		return nil, env.ErrorNew("media type was not specified")
 	}
 
 	mediaName, isNameSpecified := params.RequestURLParams["mediaName"]
 	if !isNameSpecified {
-		return nil, errors.New("media name was not specified")
+		return nil, env.ErrorNew("media name was not specified")
 	}
 
 	params.ResponseWriter.Header().Set("Content-Type", mime.TypeByExtension(mediaName))

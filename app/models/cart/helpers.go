@@ -1,10 +1,10 @@
 package cart
 
 import (
-	"errors"
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/visitor"
+	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
 )
 
@@ -17,7 +17,7 @@ func GetCartModel() (I_Cart, error) {
 
 	cartModel, ok := model.(I_Cart)
 	if !ok {
-		return nil, errors.New("model " + model.GetImplementationName() + " is not 'I_Cart' capable")
+		return nil, env.ErrorNew("model " + model.GetImplementationName() + " is not 'I_Cart' capable")
 	}
 
 	return cartModel, nil
@@ -98,7 +98,7 @@ func GetCurrentCart(params *api.T_APIHandlerParams) (I_Cart, error) {
 
 			return currentCart, nil
 		} else {
-			return nil, errors.New("you are not registered")
+			return nil, env.ErrorNew("you are not registered")
 		}
 
 	}

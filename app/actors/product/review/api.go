@@ -1,13 +1,13 @@
 package review
 
 import (
-	"errors"
 	"time"
 
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/app/models/product"
 	"github.com/ottemo/foundation/app/models/visitor"
 	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
 )
 
@@ -88,7 +88,7 @@ func restReviewAdd(params *api.T_APIHandlerParams) (interface{}, error) {
 
 		starsNum := utils.InterfaceToInt(starsValue)
 		if starsNum <= 0 || starsNum > 5 {
-			return nil, errors.New("stars should be value integer beetween 1 and 5")
+			return nil, env.ErrorNew("stars should be value integer beetween 1 and 5")
 		}
 
 		reviewCollection.AddFilter("product_id", "=", productObject.GetId())
@@ -101,7 +101,7 @@ func restReviewAdd(params *api.T_APIHandlerParams) (interface{}, error) {
 		}
 
 		if records > 0 {
-			return nil, errors.New("you have already vote for that product")
+			return nil, env.ErrorNew("you have already vote for that product")
 		}
 
 		ratingValue = starsNum

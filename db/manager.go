@@ -1,7 +1,7 @@
 package db
 
 import (
-	"errors"
+	"github.com/ottemo/foundation/env"
 )
 
 var currentDBEngine I_DBEngine = nil
@@ -24,7 +24,7 @@ func RegisterDBEngine(newEngine I_DBEngine) error {
 	if currentDBEngine == nil {
 		currentDBEngine = newEngine
 	} else {
-		return errors.New("Sorry, '" + currentDBEngine.GetName() + "' already registered")
+		return env.ErrorNew("Sorry, '" + currentDBEngine.GetName() + "' already registered")
 	}
 	return nil
 }

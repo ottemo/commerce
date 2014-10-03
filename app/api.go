@@ -1,8 +1,6 @@
 package app
 
 import (
-	"errors"
-
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
@@ -50,7 +48,7 @@ func restLogin(params *api.T_APIHandlerParams) (interface{}, error) {
 		}
 
 		if !utils.KeysInMapAndNotBlank(reqData, "login", "password") {
-			return nil, errors.New("login and password should be specified")
+			return nil, env.ErrorNew("login and password should be specified")
 		}
 
 		requestLogin = utils.InterfaceToString(reqData["login"])
@@ -66,7 +64,7 @@ func restLogin(params *api.T_APIHandlerParams) (interface{}, error) {
 		return "ok", nil
 	}
 
-	return nil, errors.New("wrong login or password")
+	return nil, env.ErrorNew("wrong login or password")
 }
 
 // WEB REST API function logout application - session data clear

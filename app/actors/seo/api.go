@@ -1,12 +1,12 @@
 package seo
 
 import (
-	"errors"
 	"os"
 	"time"
 
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/foundation/env"
 
 	"github.com/ottemo/foundation/utils"
 
@@ -63,7 +63,7 @@ func restURLRewritesList(params *api.T_APIHandlerParams) (interface{}, error) {
 	collection.SetResultColumns("url", "type", "rewrite")
 	records, err := collection.Load()
 
-	return records, err
+	return records, env.ErrorDispatch(err)
 }
 
 // WEB REST API function used to obtain rewrite for specified url
@@ -77,7 +77,7 @@ func restURLRewritesGet(params *api.T_APIHandlerParams) (interface{}, error) {
 	collection.AddFilter("url", "=", params.RequestURLParams["url"])
 	records, err := collection.Load()
 
-	return records, err
+	return records, env.ErrorDispatch(err)
 }
 
 // WEB REST API function used to update existing url rewrite
@@ -117,7 +117,7 @@ func restURLRewritesUpdate(params *api.T_APIHandlerParams) (interface{}, error) 
 			return nil, err
 		}
 		if recordsNumber > 0 {
-			return nil, errors.New("rewrite for url '" + urlValue + "' already exists")
+			return nil, env.ErrorNew("rewrite for url '" + urlValue + "' already exists")
 		}
 
 		record["url"] = urlValue
@@ -159,7 +159,7 @@ func restURLRewritesAdd(params *api.T_APIHandlerParams) (interface{}, error) {
 	}
 
 	if !utils.KeysInMapAndNotBlank(postValues, "url", "rewrite") {
-		return nil, errors.New("'url' and 'rewrite' params should be specified")
+		return nil, env.ErrorNew("'url' and 'rewrite' params should be specified")
 	}
 
 	valueUrl := utils.InterfaceToString(postValues["url"])
@@ -178,7 +178,7 @@ func restURLRewritesAdd(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil, err
 	}
 	if recordsNumber > 0 {
-		return nil, errors.New("rewrite for url '" + valueUrl + "' already exists")
+		return nil, env.ErrorNew("rewrite for url '" + valueUrl + "' already exists")
 	}
 
 	// making new record and storing it
@@ -260,7 +260,7 @@ func restSitemap(params *api.T_APIHandlerParams) (interface{}, error) {
 		}
 	}
 
-	return nil, err
+	return nil, env.ErrorDispatch(err)
 }
 
 // WEB REST API function used to generate new sitemap

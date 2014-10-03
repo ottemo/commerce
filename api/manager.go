@@ -1,7 +1,7 @@
 package api
 
 import (
-	"errors"
+	"github.com/ottemo/foundation/env"
 )
 
 var currentRestService I_RestService = nil
@@ -23,7 +23,7 @@ func RegisterRestService(newService I_RestService) error {
 	if currentRestService == nil {
 		currentRestService = newService
 	} else {
-		return errors.New("Sorry, '" + currentRestService.GetName() + "' already registered")
+		return env.ErrorNew("Sorry, '" + currentRestService.GetName() + "' already registered")
 	}
 	return nil
 }

@@ -10,11 +10,10 @@ import (
 
 	"github.com/ottemo/foundation/app"
 	"github.com/ottemo/foundation/app/models/visitor"
+	"github.com/ottemo/foundation/env"
 
 	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/utils"
-
-	"errors"
 )
 
 // returns I_VisitorAddress model filled with values from DB or blank structure if no id found in DB
@@ -106,7 +105,7 @@ func (it *DefaultVisitor) IsValidated() bool {
 func (it *DefaultVisitor) Invalidate() error {
 
 	if it.GetEmail() == "" {
-		return errors.New("email is not specified")
+		return env.ErrorNew("email is not specified")
 	}
 
 	data, err := time.Now().MarshalBinary()
@@ -124,7 +123,7 @@ func (it *DefaultVisitor) Invalidate() error {
 
 	err = app.SendMail(it.GetEmail(), "e-mail validation", "please follow the link to validate your e-mail: "+linkHref)
 
-	return err
+	return env.ErrorDispatch(err)
 }
 
 // validates visitors e-mails for given key
@@ -190,7 +189,7 @@ func (it *DefaultVisitor) Validate(key string) error {
 				return err
 			}
 
-			return errors.New("validation period expired, new validation URL was sent")
+			return env.ErrorNew("validation period expired, new validation URL was sent")
 		}
 	}
 
@@ -206,7 +205,7 @@ func (it *DefaultVisitor) SetPassword(passwd string) error {
 			it.Password = it.passwdEncode(passwd)
 		}
 	} else {
-		return errors.New("password can't be blank")
+		return env.ErrorNew("password can't be blank")
 	}
 
 	return nil
@@ -266,11 +265,11 @@ func (it *DefaultVisitor) LoadByGoogleId(googleId string) error {
 	}
 
 	if len(rows) == 0 {
-		return errors.New("visitor was not found")
+		return env.ErrorNew("visitor was not found")
 	}
 
 	if len(rows) > 1 {
-		return errors.New("duplicated google account id")
+		return env.ErrorNew("duplicated google account id")
 	}
 
 	err = it.FromHashMap(rows[0])
@@ -296,11 +295,11 @@ func (it *DefaultVisitor) LoadByFacebookId(facebookId string) error {
 	}
 
 	if len(rows) == 0 {
-		return errors.New("visitor was not found")
+		return env.ErrorNew("visitor was not found")
 	}
 
 	if len(rows) > 1 {
-		return errors.New("duplicated facebook account id")
+		return env.ErrorNew("duplicated facebook account id")
 	}
 
 	err = it.FromHashMap(rows[0])
@@ -326,11 +325,11 @@ func (it *DefaultVisitor) LoadByEmail(email string) error {
 	}
 
 	if len(rows) == 0 {
-		return errors.New("visitor was not found")
+		return env.ErrorNew("visitor was not found")
 	}
 
 	if len(rows) > 1 {
-		return errors.New("duplicated email")
+		return env.ErrorNew("duplicated email")
 	}
 
 	err = it.FromHashMap(rows[0])

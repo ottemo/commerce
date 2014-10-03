@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
 )
 
@@ -59,7 +60,7 @@ func (it *DefaultCMSPage) Delete() error {
 		return err
 	}
 
-	return err
+	return env.ErrorDispatch(err)
 }
 
 // stores current cms block to DB

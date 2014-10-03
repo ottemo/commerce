@@ -1,9 +1,8 @@
 package block
 
 import (
-	"errors"
-
 	"github.com/ottemo/foundation/api"
+	"github.com/ottemo/foundation/env"
 
 	"github.com/ottemo/foundation/app/models/cms"
 	"github.com/ottemo/foundation/utils"
@@ -68,7 +67,7 @@ func restCMSBlockList(params *api.T_APIHandlerParams) (interface{}, error) {
 	reqData, ok := params.RequestContent.(map[string]interface{})
 	if !ok {
 		if params.Request.Method == "POST" {
-			return nil, errors.New("unexpected request content")
+			return nil, env.ErrorNew("unexpected request content")
 		} else {
 			reqData = make(map[string]interface{})
 		}
@@ -123,7 +122,7 @@ func restCMSBlockGet(params *api.T_APIHandlerParams) (interface{}, error) {
 	//---------------------
 	reqBlockId, present := params.RequestURLParams["id"]
 	if !present {
-		return nil, errors.New("cms block id should be specified")
+		return nil, env.ErrorNew("cms block id should be specified")
 	}
 	blockId := utils.InterfaceToString(reqBlockId)
 
@@ -176,7 +175,7 @@ func restCMSBlockUpdate(params *api.T_APIHandlerParams) (interface{}, error) {
 	//---------------------
 	blockId, present := params.RequestURLParams["id"]
 	if !present {
-		return nil, errors.New("cms block id should be specified")
+		return nil, env.ErrorNew("cms block id should be specified")
 	}
 
 	reqData, err := api.GetRequestContentAsMap(params)
@@ -213,7 +212,7 @@ func restCMSBlockDelete(params *api.T_APIHandlerParams) (interface{}, error) {
 	//---------------------
 	blockId, present := params.RequestURLParams["id"]
 	if !present {
-		return nil, errors.New("cms block id should be specified")
+		return nil, env.ErrorNew("cms block id should be specified")
 	}
 
 	// check rights

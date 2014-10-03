@@ -1,11 +1,11 @@
 package category
 
 import (
-	"errors"
 	"strings"
 
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/foundation/env"
 
 	"github.com/ottemo/foundation/app/models/category"
 	"github.com/ottemo/foundation/app/models/product"
@@ -96,7 +96,7 @@ func restListCategories(params *api.T_APIHandlerParams) (interface{}, error) {
 	reqData, ok := params.RequestContent.(map[string]interface{})
 	if !ok {
 		if params.Request.Method == "POST" {
-			return nil, errors.New("unexpected request content")
+			return nil, env.ErrorNew("unexpected request content")
 		} else {
 			reqData = make(map[string]interface{})
 		}
@@ -156,7 +156,7 @@ func restCreateCategory(params *api.T_APIHandlerParams) (interface{}, error) {
 	}
 
 	if _, present := reqData["name"]; !present {
-		return nil, errors.New("category name was not specified")
+		return nil, env.ErrorNew("category name was not specified")
 	}
 
 	// check rights
@@ -193,7 +193,7 @@ func restDeleteCategory(params *api.T_APIHandlerParams) (interface{}, error) {
 	//--------------------
 	categoryId, isSpecifiedId := params.RequestURLParams["id"]
 	if !isSpecifiedId {
-		return nil, errors.New("category id was not specified")
+		return nil, env.ErrorNew("category id was not specified")
 	}
 
 	// check rights
@@ -225,7 +225,7 @@ func restUpdateCategory(params *api.T_APIHandlerParams) (interface{}, error) {
 	//---------------------
 	categoryId, isSpecifiedId := params.RequestURLParams["id"]
 	if !isSpecifiedId {
-		return nil, errors.New("category id was not specified")
+		return nil, env.ErrorNew("category id was not specified")
 	}
 
 	reqData, err := api.GetRequestContentAsMap(params)
@@ -313,7 +313,7 @@ func restListCategoryProducts(params *api.T_APIHandlerParams) (interface{}, erro
 	//---------------------
 	categoryId, isSpecifiedId := params.RequestURLParams["categoryId"]
 	if !isSpecifiedId {
-		return nil, errors.New("category id was not specified")
+		return nil, env.ErrorNew("category id was not specified")
 	}
 
 	// product list operation
@@ -352,11 +352,11 @@ func restAddCategoryProduct(params *api.T_APIHandlerParams) (interface{}, error)
 	//---------------------
 	categoryId, isSpecifiedId := params.RequestURLParams["categoryId"]
 	if !isSpecifiedId {
-		return nil, errors.New("category id was not specified")
+		return nil, env.ErrorNew("category id was not specified")
 	}
 	productId, isSpecifiedId := params.RequestURLParams["productId"]
 	if !isSpecifiedId {
-		return nil, errors.New("product id was not specified")
+		return nil, env.ErrorNew("product id was not specified")
 	}
 
 	// check rights
@@ -387,11 +387,11 @@ func restRemoveCategoryProduct(params *api.T_APIHandlerParams) (interface{}, err
 	//---------------------
 	categoryId, isSpecifiedId := params.RequestURLParams["categoryId"]
 	if !isSpecifiedId {
-		return nil, errors.New("category id was not specified")
+		return nil, env.ErrorNew("category id was not specified")
 	}
 	productId, isSpecifiedId := params.RequestURLParams["productId"]
 	if !isSpecifiedId {
-		return nil, errors.New("product id was not specified")
+		return nil, env.ErrorNew("product id was not specified")
 	}
 
 	// check rights
@@ -422,7 +422,7 @@ func restGetCategory(params *api.T_APIHandlerParams) (interface{}, error) {
 	//---------------------
 	categoryId, isSpecifiedId := params.RequestURLParams["id"]
 	if !isSpecifiedId {
-		return nil, errors.New("category id was not specified")
+		return nil, env.ErrorNew("category id was not specified")
 	}
 
 	// load product operation
@@ -441,7 +441,7 @@ func restCategoryProductsCount(params *api.T_APIHandlerParams) (interface{}, err
 
 	categoryId, isSpecifiedId := params.RequestURLParams["categoryId"]
 	if !isSpecifiedId {
-		return nil, errors.New("category id was not specified")
+		return nil, env.ErrorNew("category id was not specified")
 	}
 
 	// product list operation
@@ -506,7 +506,7 @@ func restGetCategoriesTree(params *api.T_APIHandlerParams) (interface{}, error) 
 
 				parentChild, ok := parent["child"].([]map[string]interface{})
 				if !ok {
-					return nil, errors.New("category tree builder internal error")
+					return nil, env.ErrorNew("category tree builder internal error")
 				}
 
 				parent["child"] = append(parentChild, currentItem)

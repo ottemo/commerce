@@ -1,8 +1,7 @@
 package address
 
 import (
-	"errors"
-
+	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
 
 	"github.com/ottemo/foundation/api"
@@ -65,7 +64,7 @@ func restCreateVisitorAddress(params *api.T_APIHandlerParams) (interface{}, erro
 	}
 
 	if _, ok := reqData["visitor_id"]; !ok {
-		return nil, errors.New("visitor id was not specified")
+		return nil, env.ErrorNew("visitor id was not specified")
 	}
 
 	// check rights
@@ -106,7 +105,7 @@ func restUpdateVisitorAddress(params *api.T_APIHandlerParams) (interface{}, erro
 	//---------------------
 	addressId, isSpecifiedId := params.RequestURLParams["id"]
 	if !isSpecifiedId {
-		return nil, errors.New("visitor address 'id' was not specified")
+		return nil, env.ErrorNew("visitor address 'id' was not specified")
 	}
 
 	reqData, err := api.GetRequestContentAsMap(params)
@@ -151,7 +150,7 @@ func restDeleteVisitorAddress(params *api.T_APIHandlerParams) (interface{}, erro
 	//--------------------
 	addressId, isSpecifiedId := params.RequestURLParams["id"]
 	if !isSpecifiedId {
-		return nil, errors.New("visitor address id was not specified")
+		return nil, env.ErrorNew("visitor address id was not specified")
 	}
 
 	visitorAddressModel, err := visitor.GetVisitorAddressModelAndSetId(addressId)
@@ -221,7 +220,7 @@ func restListVisitorAddress(params *api.T_APIHandlerParams) (interface{}, error)
 	reqData, ok := params.RequestContent.(map[string]interface{})
 	if !ok {
 		if params.Request.Method == "POST" {
-			return nil, errors.New("unexpected request content")
+			return nil, env.ErrorNew("unexpected request content")
 		} else {
 			reqData = make(map[string]interface{})
 		}
@@ -232,7 +231,7 @@ func restListVisitorAddress(params *api.T_APIHandlerParams) (interface{}, error)
 
 		sessionVisitorId := visitor.GetCurrentVisitorId(params)
 		if sessionVisitorId == "" {
-			return nil, errors.New("you are not logined in")
+			return nil, env.ErrorNew("you are not logined in")
 		}
 		visitorId = sessionVisitorId
 	}
@@ -278,7 +277,7 @@ func restListVisitorAddress(params *api.T_APIHandlerParams) (interface{}, error)
 func restGetVisitorAddress(params *api.T_APIHandlerParams) (interface{}, error) {
 	visitorAddressId, isSpecifiedId := params.RequestURLParams["id"]
 	if !isSpecifiedId {
-		return nil, errors.New("visitor 'id' was not specified")
+		return nil, env.ErrorNew("visitor 'id' was not specified")
 	}
 
 	visitorAddressModel, err := visitor.LoadVisitorAddressById(visitorAddressId)

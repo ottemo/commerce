@@ -1,7 +1,6 @@
 package checkout
 
 import (
-	"errors"
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/checkout"
 	"github.com/ottemo/foundation/env"
@@ -10,7 +9,7 @@ import (
 func setupConfig() error {
 	config := env.GetConfig()
 	if config == nil {
-		return errors.New("can't obtain config")
+		return env.ErrorNew("can't obtain config")
 	}
 
 	// Checkout

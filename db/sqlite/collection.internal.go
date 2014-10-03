@@ -17,7 +17,7 @@ func closeStatement(statement *sqlite3.Stmt) {
 
 // formats SQL query error for output to log
 func sqlError(SQL string, err error) error {
-	return errors.New("SQL \"" + SQL + "\" error: " + err.Error())
+	return env.ErrorNew("SQL \"" + SQL + "\" error: " + err.Error())
 }
 
 // returns string that represents value for SQL query
@@ -62,7 +62,7 @@ func GetDBType(ColumnType string) (string, error) {
 		return "NUMERIC", nil
 	}
 
-	return "?", errors.New("Unknown type '" + ColumnType + "'")
+	return "?", env.ErrorNew("Unknown type '" + ColumnType + "'")
 }
 
 // makes SQL filter string based on ColumnName, Operator and Value parameters or returns nil
@@ -73,10 +73,10 @@ func (it *SQLiteCollection) makeSQLFilterString(ColumnName string, Operator stri
 		if Operator == "" || Operator == "=" || Operator == "<>" || Operator == ">" || Operator == "<" || Operator == "LIKE" || Operator == "IN" {
 			return ColumnName + " " + Operator + " " + convertValueForSQL(Value), nil
 		} else {
-			return "", errors.New("unknown operator '" + Operator + "' supposed  '', '=', '>', '<', '<>', 'LIKE', 'IN' " + ColumnName + "'")
+			return "", env.ErrorNew("unknown operator '" + Operator + "' supposed  '', '=', '>', '<', '<>', 'LIKE', 'IN' " + ColumnName + "'")
 		}
 	} else {
-		return "", errors.New("can't find column '" + ColumnName + "'")
+		return "", env.ErrorNew("can't find column '" + ColumnName + "'")
 	}
 }
 
@@ -154,7 +154,7 @@ func (it *SQLiteCollection) getFilterGroup(groupName string) *T_DBFilterGroup {
 func (it *SQLiteCollection) updateFilterGroup(groupName string, columnName string, operator string, value interface{}) error {
 
 	/*if !it.HasColumn(columnName) {
-		return errors.New("not existing column " + columnName)
+		return env.ErrorNew("not existing column " + columnName)
 	}*/
 
 	newValue, err := it.makeSQLFilterString(columnName, operator, value)

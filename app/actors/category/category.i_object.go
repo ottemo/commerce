@@ -1,12 +1,12 @@
 package category
 
 import (
-	"errors"
 	"strings"
 
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/category"
 	"github.com/ottemo/foundation/app/models/product"
+	"github.com/ottemo/foundation/env"
 )
 
 //---------------------------------
@@ -88,7 +88,7 @@ func (it *DefaultCategory) Set(attribute string, value interface{}) error {
 				}
 				categoryModel, ok := model.(category.I_Category)
 				if !ok {
-					return errors.New("unsupported category model " + model.GetImplementationName())
+					return env.ErrorNew("unsupported category model " + model.GetImplementationName())
 				}
 
 				err = categoryModel.Load(value)
@@ -102,7 +102,7 @@ func (it *DefaultCategory) Set(attribute string, value interface{}) error {
 					if categoryModel.GetId() != selfId && ok && !strings.Contains(parentPath, selfId) {
 						it.Parent = categoryModel
 					} else {
-						return errors.New("category can't have sub-category or itself as parent")
+						return env.ErrorNew("category can't have sub-category or itself as parent")
 					}
 				} else {
 					it.Parent = categoryModel
@@ -111,7 +111,7 @@ func (it *DefaultCategory) Set(attribute string, value interface{}) error {
 				it.Parent = nil
 			}
 		} else {
-			return errors.New("unsupported id specified")
+			return env.ErrorNew("unsupported id specified")
 		}
 		it.updatePath()
 
@@ -122,7 +122,7 @@ func (it *DefaultCategory) Set(attribute string, value interface{}) error {
 		case string:
 			it.Set("parent_id", value)
 		default:
-			errors.New("unsupported 'parent' value")
+			env.ErrorNew("unsupported 'parent' value")
 		}
 		// path should be changed as well
 		it.updatePath()
@@ -150,7 +150,7 @@ func (it *DefaultCategory) Set(attribute string, value interface{}) error {
 			}
 
 		default:
-			return errors.New("unsupported 'products' value")
+			return env.ErrorNew("unsupported 'products' value")
 		}
 	}
 	return nil

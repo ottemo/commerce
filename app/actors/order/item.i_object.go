@@ -1,10 +1,10 @@
 package order
 
 import (
-	"errors"
 	"strings"
 
 	"github.com/ottemo/foundation/app/models"
+	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
 
 	"github.com/ottemo/foundation/app/models/order"
@@ -91,7 +91,7 @@ func (it *DefaultOrderItem) Set(attribute string, value interface{}) error {
 		if mapValue, ok := value.(map[string]interface{}); ok {
 			it.Options = mapValue
 		} else {
-			return errors.New("options should me map[string]interface{} type")
+			return env.ErrorNew("options should me map[string]interface{} type")
 		}
 
 	case "price":
@@ -101,7 +101,7 @@ func (it *DefaultOrderItem) Set(attribute string, value interface{}) error {
 		it.Weight = utils.InterfaceToFloat64(value)
 
 	default:
-		return errors.New("unknown attribute: " + attribute)
+		return env.ErrorNew("unknown attribute: " + attribute)
 	}
 
 	return nil

@@ -1,7 +1,7 @@
 package checkout
 
 import (
-	"errors"
+	"github.com/ottemo/foundation/env"
 )
 
 // Package variables
@@ -22,7 +22,7 @@ var (
 func RegisterShippingMethod(shippingMethod I_ShippingMehod) error {
 	for _, registeredMethod := range ShippingMethods {
 		if registeredMethod == shippingMethod {
-			return errors.New("shipping method already registered")
+			return env.ErrorNew("shipping method already registered")
 		}
 	}
 
@@ -35,7 +35,7 @@ func RegisterShippingMethod(shippingMethod I_ShippingMehod) error {
 func RegisterPaymentMethod(paymentMethod I_PaymentMethod) error {
 	for _, registeredMethod := range PaymentMethods {
 		if registeredMethod == paymentMethod {
-			return errors.New("payment method already registered")
+			return env.ErrorNew("payment method already registered")
 		}
 	}
 
@@ -48,7 +48,7 @@ func RegisterPaymentMethod(paymentMethod I_PaymentMethod) error {
 func RegisterTax(tax I_Tax) error {
 	for _, registeredTax := range Taxes {
 		if registeredTax == tax {
-			return errors.New("tax already registered")
+			return env.ErrorNew("tax already registered")
 		}
 	}
 
@@ -61,7 +61,7 @@ func RegisterTax(tax I_Tax) error {
 func RegisterDiscount(discount I_Discount) error {
 	for _, registeredDiscount := range Discounts {
 		if registeredDiscount == discount {
-			return errors.New("discount already registered")
+			return env.ErrorNew("discount already registered")
 		}
 	}
 

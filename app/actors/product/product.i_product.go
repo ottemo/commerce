@@ -1,8 +1,8 @@
 package product
 
 import (
-	"errors"
 	"fmt"
+	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
 	"sort"
 	"strings"
@@ -103,7 +103,7 @@ func (it *DefaultProduct) ApplyOptions(options map[string]interface{}) error {
 								}
 							}
 						default:
-							return errors.New("unexpected option value for " + itemOptionName + " option")
+							return env.ErrorNew("unexpected option value for " + itemOptionName + " option")
 						}
 
 						// loop through option values customer set for product
@@ -114,7 +114,7 @@ func (it *DefaultProduct) ApplyOptions(options map[string]interface{}) error {
 									applyOptionModifiers(productOptionValue)
 								}
 							} else {
-								return errors.New("invalid '" + itemOptionName + "' option value: '" + itemOptionValue)
+								return env.ErrorNew("invalid '" + itemOptionName + "' option value: '" + itemOptionValue)
 							}
 
 						}
@@ -129,7 +129,7 @@ func (it *DefaultProduct) ApplyOptions(options map[string]interface{}) error {
 				}
 			}
 		} else {
-			return errors.New("unknown option '" + itemOptionName + "'")
+			return env.ErrorNew("unknown option '" + itemOptionName + "'")
 		}
 	}
 

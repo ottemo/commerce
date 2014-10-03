@@ -1,10 +1,10 @@
 package order
 
 import (
-	"errors"
 	"strings"
 
 	"github.com/ottemo/foundation/app/models"
+	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
 )
 
@@ -135,7 +135,7 @@ func (it *DefaultOrder) Set(attribute string, value interface{}) error {
 		it.Description = utils.InterfaceToString(value)
 
 	default:
-		return errors.New("unknown attribute: " + attribute)
+		return env.ErrorNew("unknown attribute: " + attribute)
 	}
 
 	return nil

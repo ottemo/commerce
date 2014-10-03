@@ -1,7 +1,6 @@
 package authorize
 
 import (
-	"errors"
 	"fmt"
 	"time"
 
@@ -123,15 +122,15 @@ func (it *AuthorizeNetDPM) Authorize(orderInstance order.I_Order, paymentInfo ma
 
 // makes payment method capture operation
 func (it *AuthorizeNetDPM) Capture(orderInstance order.I_Order, paymentInfo map[string]interface{}) (interface{}, error) {
-	return nil, errors.New("Not implemented")
+	return nil, env.ErrorNew("Not implemented")
 }
 
 // makes payment method refund operation
 func (it *AuthorizeNetDPM) Refund(orderInstance order.I_Order, paymentInfo map[string]interface{}) (interface{}, error) {
-	return nil, errors.New("Not implemented")
+	return nil, env.ErrorNew("Not implemented")
 }
 
 // makes payment method void operation
 func (it *AuthorizeNetDPM) Void(orderInstance order.I_Order, paymentInfo map[string]interface{}) (interface{}, error) {
-	return nil, errors.New("Not implemented")
+	return nil, env.ErrorNew("Not implemented")
 }

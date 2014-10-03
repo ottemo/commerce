@@ -1,9 +1,9 @@
 package visitor
 
 import (
-	"errors"
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/app/models"
+	"github.com/ottemo/foundation/env"
 )
 
 // retrieves current I_VisitorAddressCollection model implementation
@@ -15,7 +15,7 @@ func GetVisitorAddressCollectionModel() (I_VisitorAddressCollection, error) {
 
 	visitorAddressCollectionModel, ok := model.(I_VisitorAddressCollection)
 	if !ok {
-		return nil, errors.New("model " + model.GetImplementationName() + " is not 'I_VisitorAddressCollection' capable")
+		return nil, env.ErrorNew("model " + model.GetImplementationName() + " is not 'I_VisitorAddressCollection' capable")
 	}
 
 	return visitorAddressCollectionModel, nil
@@ -30,7 +30,7 @@ func GetVisitorAddressModel() (I_VisitorAddress, error) {
 
 	visitorAddressModel, ok := model.(I_VisitorAddress)
 	if !ok {
-		return nil, errors.New("model " + model.GetImplementationName() + " is not 'I_VisitorAddress' capable")
+		return nil, env.ErrorNew("model " + model.GetImplementationName() + " is not 'I_VisitorAddress' capable")
 	}
 
 	return visitorAddressModel, nil
@@ -45,7 +45,7 @@ func GetVisitorCollectionModel() (I_VisitorCollection, error) {
 
 	visitorCollectionModel, ok := model.(I_VisitorCollection)
 	if !ok {
-		return nil, errors.New("model " + model.GetImplementationName() + " is not 'I_VisitorCollection' capable")
+		return nil, env.ErrorNew("model " + model.GetImplementationName() + " is not 'I_VisitorCollection' capable")
 	}
 
 	return visitorCollectionModel, nil
@@ -60,7 +60,7 @@ func GetVisitorModel() (I_Visitor, error) {
 
 	visitorModel, ok := model.(I_Visitor)
 	if !ok {
-		return nil, errors.New("model " + model.GetImplementationName() + " is not 'I_Visitor' capable")
+		return nil, env.ErrorNew("model " + model.GetImplementationName() + " is not 'I_Visitor' capable")
 	}
 
 	return visitorModel, nil
@@ -144,10 +144,10 @@ func GetCurrentVisitorId(params *api.T_APIHandlerParams) string {
 func GetCurrentVisitor(params *api.T_APIHandlerParams) (I_Visitor, error) {
 	sessionVisitorId, ok := params.Session.Get(SESSION_KEY_VISITOR_ID).(string)
 	if !ok {
-		return nil, errors.New("not registered visitor")
+		return nil, env.ErrorNew("not registered visitor")
 	}
 
 	visitorInstance, err := LoadVisitorById(sessionVisitorId)
 
-	return visitorInstance, err
+	return visitorInstance, env.ErrorDispatch(err)
 }

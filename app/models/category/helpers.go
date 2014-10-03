@@ -1,8 +1,8 @@
 package category
 
 import (
-	"errors"
 	"github.com/ottemo/foundation/app/models"
+	"github.com/ottemo/foundation/env"
 )
 
 // retrieves current I_CategoryCollection model implementation
@@ -14,7 +14,7 @@ func GetCategoryCollectionModel() (I_CategoryCollection, error) {
 
 	categoryModel, ok := model.(I_CategoryCollection)
 	if !ok {
-		return nil, errors.New("model " + model.GetImplementationName() + " is not 'I_CategoryCollection' capable")
+		return nil, env.ErrorNew("model " + model.GetImplementationName() + " is not 'I_CategoryCollection' capable")
 	}
 
 	return categoryModel, nil
@@ -29,7 +29,7 @@ func GetCategoryModel() (I_Category, error) {
 
 	categoryModel, ok := model.(I_Category)
 	if !ok {
-		return nil, errors.New("model " + model.GetImplementationName() + " is not 'I_Category' capable")
+		return nil, env.ErrorNew("model " + model.GetImplementationName() + " is not 'I_Category' capable")
 	}
 
 	return categoryModel, nil

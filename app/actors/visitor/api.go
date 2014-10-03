@@ -1,7 +1,6 @@
 package visitor
 
 import (
-	"errors"
 	"net/http"
 
 	"io/ioutil"
@@ -137,7 +136,7 @@ func restCreateVisitor(params *api.T_APIHandlerParams) (interface{}, error) {
 	}
 
 	if !utils.KeysInMapAndNotBlank(reqData, "email") {
-		return nil, errors.New("'email' was not specified")
+		return nil, env.ErrorNew("'email' was not specified")
 	}
 
 	// create operation
@@ -175,7 +174,7 @@ func restUpdateVisitor(params *api.T_APIHandlerParams) (interface{}, error) {
 		sessionValue := params.Session.Get(visitor.SESSION_KEY_VISITOR_ID)
 		sessionVisitorId, ok := sessionValue.(string)
 		if !ok {
-			return nil, errors.New("you are not logined in")
+			return nil, env.ErrorNew("you are not logined in")
 		}
 		visitorId = sessionVisitorId
 	}
@@ -229,7 +228,7 @@ func restDeleteVisitor(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	visitorId, isSpecifiedId := params.RequestURLParams["id"]
 	if !isSpecifiedId {
-		return nil, errors.New("visitor id was not specified")
+		return nil, env.ErrorNew("visitor id was not specified")
 	}
 
 	// delete operation
@@ -259,7 +258,7 @@ func restGetVisitor(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	visitorId, isSpecifiedId := params.RequestURLParams["id"]
 	if !isSpecifiedId {
-		return nil, errors.New("visitor id was not specified")
+		return nil, env.ErrorNew("visitor id was not specified")
 	}
 
 	// get operation
@@ -302,7 +301,7 @@ func restListVisitors(params *api.T_APIHandlerParams) (interface{}, error) {
 	reqData, ok := params.RequestContent.(map[string]interface{})
 	if !ok {
 		if params.Request.Method == "POST" {
-			return nil, errors.New("unexpected request content")
+			return nil, env.ErrorNew("unexpected request content")
 		} else {
 			reqData = make(map[string]interface{})
 		}
@@ -362,12 +361,12 @@ func restAddVisitorAttribute(params *api.T_APIHandlerParams) (interface{}, error
 
 	attributeName, isSpecified := reqData["Attribute"]
 	if !isSpecified {
-		return nil, errors.New("attribute name was not specified")
+		return nil, env.ErrorNew("attribute name was not specified")
 	}
 
 	attributeLabel, isSpecified := reqData["Label"]
 	if !isSpecified {
-		return nil, errors.New("attribute label was not specified")
+		return nil, env.ErrorNew("attribute label was not specified")
 	}
 
 	// make product attribute operation
@@ -433,7 +432,7 @@ func restRemoveVisitorAttribute(params *api.T_APIHandlerParams) (interface{}, er
 
 	attributeName, isSpecified := params.RequestURLParams["attribute"]
 	if !isSpecified {
-		return nil, errors.New("attribute name was not specified")
+		return nil, env.ErrorNew("attribute name was not specified")
 	}
 
 	// remove attribute actions
@@ -464,7 +463,7 @@ func restRegister(params *api.T_APIHandlerParams) (interface{}, error) {
 	}
 
 	if !utils.KeysInMapAndNotBlank(reqData, "email") {
-		return nil, errors.New("email was not specified")
+		return nil, env.ErrorNew("email was not specified")
 	}
 
 	// register visitor operation
@@ -500,7 +499,7 @@ func restValidate(params *api.T_APIHandlerParams) (interface{}, error) {
 	//---------------------
 	validationKey, isKeySpecified := params.RequestURLParams["key"]
 	if !isKeySpecified {
-		return nil, errors.New("validation key was not specified")
+		return nil, env.ErrorNew("validation key was not specified")
 	}
 
 	visitorModel, err := visitor.GetVisitorModel()
@@ -585,7 +584,7 @@ func restLogin(params *api.T_APIHandlerParams) (interface{}, error) {
 	}
 
 	if !utils.KeysInMapAndNotBlank(reqData, "email", "password") {
-		return nil, errors.New("email and/or password were not specified")
+		return nil, env.ErrorNew("email and/or password were not specified")
 	}
 
 	requestLogin := utils.InterfaceToString(reqData["email"])
@@ -600,7 +599,7 @@ func restLogin(params *api.T_APIHandlerParams) (interface{}, error) {
 
 			return "ok", nil
 		} else {
-			return nil, errors.New("wrong login - should be email")
+			return nil, env.ErrorNew("wrong login - should be email")
 		}
 	}
 
@@ -618,14 +617,14 @@ func restLogin(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	ok := visitorModel.CheckPassword(requestPassword)
 	if !ok {
-		return nil, errors.New("wrong password")
+		return nil, env.ErrorNew("wrong password")
 	}
 
 	// api session updates
 	if visitorModel.IsValidated() {
 		params.Session.Set(visitor.SESSION_KEY_VISITOR_ID, visitorModel.GetId())
 	} else {
-		return nil, errors.New("visitor is not validated")
+		return nil, env.ErrorNew("visitor is not validated")
 	}
 
 	if visitorModel.IsAdmin() {
@@ -647,11 +646,11 @@ func restLoginFacebook(params *api.T_APIHandlerParams) (interface{}, error) {
 	}
 
 	if !utils.KeysInMapAndNotBlank(reqData, "access_token") {
-		return nil, errors.New("access_token was not specified")
+		return nil, env.ErrorNew("access_token was not specified")
 	}
 
 	if !utils.KeysInMapAndNotBlank(reqData, "user_id") {
-		return nil, errors.New("user_id was not specified")
+		return nil, env.ErrorNew("user_id was not specified")
 	}
 
 	// facebook login operation
@@ -665,7 +664,7 @@ func restLoginFacebook(params *api.T_APIHandlerParams) (interface{}, error) {
 	}
 
 	if facebookResponse.StatusCode != 200 {
-		return nil, errors.New("Can't use google API: " + facebookResponse.Status)
+		return nil, env.ErrorNew("Can't use google API: " + facebookResponse.Status)
 	}
 
 	var responseData []byte
@@ -690,7 +689,7 @@ func restLoginFacebook(params *api.T_APIHandlerParams) (interface{}, error) {
 	}
 
 	if !utils.StrKeysInMap(jsonMap, "id", "email", "first_name", "last_name", "verified") {
-		return nil, errors.New("unexpected facebook response")
+		return nil, env.ErrorNew("unexpected facebook response")
 	}
 
 	// trying to load visitor from our DB
@@ -701,7 +700,7 @@ func restLoginFacebook(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	visitorModel, ok := model.(visitor.I_Visitor)
 	if !ok {
-		return nil, errors.New("visitor model is not I_Visitor campatible")
+		return nil, env.ErrorNew("visitor model is not I_Visitor campatible")
 	}
 
 	// trying to load visitor by facebook_id
@@ -724,7 +723,7 @@ func restLoginFacebook(params *api.T_APIHandlerParams) (interface{}, error) {
 		} else {
 			// we have visitor with that e-mail just updating token, if it verified
 			if value, ok := jsonMap["verified"].(bool); !(ok && value) {
-				return nil, errors.New("facebook account email unverified")
+				return nil, env.ErrorNew("facebook account email unverified")
 			}
 
 			visitorModel.Set("facebook_id", jsonMap["id"])
@@ -754,11 +753,11 @@ func restLoginGoogle(params *api.T_APIHandlerParams) (interface{}, error) {
 	//---------------------
 	reqData, err := api.GetRequestContentAsMap(params)
 	if err != nil {
-		return nil, errors.New("unexpected request content")
+		return nil, env.ErrorNew("unexpected request content")
 	}
 
 	if !utils.KeysInMapAndNotBlank(reqData, "access_token") {
-		return nil, errors.New("access_token was not specified")
+		return nil, env.ErrorNew("access_token was not specified")
 	}
 
 	// google login operation
@@ -772,7 +771,7 @@ func restLoginGoogle(params *api.T_APIHandlerParams) (interface{}, error) {
 	}
 
 	if googleResponse.StatusCode != 200 {
-		return nil, errors.New("Can't use google API: " + googleResponse.Status)
+		return nil, env.ErrorNew("Can't use google API: " + googleResponse.Status)
 	}
 
 	var responseData []byte
@@ -797,7 +796,7 @@ func restLoginGoogle(params *api.T_APIHandlerParams) (interface{}, error) {
 	}
 
 	if !utils.StrKeysInMap(jsonMap, "id", "email", "verified_email", "given_name", "family_name") {
-		return nil, errors.New("unexpected google response")
+		return nil, env.ErrorNew("unexpected google response")
 	}
 
 	// trying to load visitor from our DB
@@ -808,7 +807,7 @@ func restLoginGoogle(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	visitorModel, ok := model.(visitor.I_Visitor)
 	if !ok {
-		return nil, errors.New("visitor model is not I_Visitor campatible")
+		return nil, env.ErrorNew("visitor model is not I_Visitor campatible")
 	}
 
 	// trying to load visitor by google_id
@@ -833,7 +832,7 @@ func restLoginGoogle(params *api.T_APIHandlerParams) (interface{}, error) {
 		} else {
 			// we have visitor with that e-mail just updating token, if it verified
 			if value, ok := jsonMap["verified_email"].(bool); !(ok && value) {
-				return nil, errors.New("google account email unverified")
+				return nil, env.ErrorNew("google account email unverified")
 			}
 
 			visitorModel.Set("google_id", jsonMap["id"])
@@ -868,7 +867,7 @@ func restVisitorOrderDetails(params *api.T_APIHandlerParams) (interface{}, error
 	}
 
 	if utils.InterfaceToString(orderModel.Get("visitor_id")) != visitorId {
-		return nil, errors.New("order is not belongs to logined user")
+		return nil, env.ErrorNew("order is not belongs to logined user")
 	}
 
 	result := orderModel.ToHashMap()
@@ -920,7 +919,7 @@ func restListVisitorOrders(params *api.T_APIHandlerParams) (interface{}, error) 
 
 	result, err := orderCollection.List()
 
-	return result, err
+	return result, env.ErrorDispatch(err)
 }
 
 // WEB REST API function used to get visitor orders information
@@ -931,7 +930,7 @@ func restVisitorSendMail(params *api.T_APIHandlerParams) (interface{}, error) {
 	}
 
 	if !utils.StrKeysInMap(reqData, "subject", "content", "visitor_ids") {
-		return nil, errors.New("'visitor_ids', 'subject' or 'content' field was not set")
+		return nil, env.ErrorNew("'visitor_ids', 'subject' or 'content' field was not set")
 	}
 
 	subject := utils.InterfaceToString(reqData["subject"])

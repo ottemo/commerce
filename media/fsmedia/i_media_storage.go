@@ -1,8 +1,8 @@
 package fsmedia
 
 import (
-	"errors"
 	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/foundation/env"
 	"io/ioutil"
 	"os"
 )
@@ -53,7 +53,7 @@ func (it *FilesystemMediaStorage) Save(model string, objId string, mediaType str
 
 	dbEngine := db.GetDBEngine()
 	if dbEngine == nil {
-		return errors.New("Can't get database engine")
+		return env.ErrorNew("Can't get database engine")
 	}
 
 	collection, err := dbEngine.GetCollection(MEDIA_DB_COLLECTION)
@@ -87,7 +87,7 @@ func (it *FilesystemMediaStorage) Remove(model string, objId string, mediaType s
 	// removing DB records
 	dbEngine := db.GetDBEngine()
 	if dbEngine == nil {
-		return errors.New("Can't get database engine")
+		return env.ErrorNew("Can't get database engine")
 	}
 
 	collection, err := dbEngine.GetCollection(MEDIA_DB_COLLECTION)
@@ -110,7 +110,7 @@ func (it *FilesystemMediaStorage) ListMedia(model string, objId string, mediaTyp
 
 	dbEngine := db.GetDBEngine()
 	if dbEngine == nil {
-		return result, errors.New("Can't get database engine")
+		return result, env.ErrorNew("Can't get database engine")
 	}
 
 	collection, err := dbEngine.GetCollection(MEDIA_DB_COLLECTION)
@@ -128,5 +128,5 @@ func (it *FilesystemMediaStorage) ListMedia(model string, objId string, mediaTyp
 		result = append(result, record["media"].(string))
 	}
 
-	return result, err
+	return result, env.ErrorDispatch(err)
 }
