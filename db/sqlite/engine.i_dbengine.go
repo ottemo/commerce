@@ -1,11 +1,12 @@
 package sqlite
 
 import (
-	"strings"
+	//"strings"
+	"strconv"
 
 	"github.com/mxk/go-sqlite/sqlite3"
 	"github.com/ottemo/foundation/db"
-	"strconv"
+	"github.com/ottemo/foundation/env"
 )
 
 // returns current DB engine name
@@ -14,10 +15,10 @@ func (it *SQLite) GetName() string {
 }
 
 // checks if collection(table) already exists
-func (it *SQLite) HasCollection(CollectionName string) bool {
-	CollectionName = strings.ToLower(CollectionName)
+func (it *SQLite) HasCollection(collectionName string) bool {
+	// collectionName = strings.ToLower(collectionName)
 
-	SQL := "SELECT name FROM sqlite_master WHERE type='table' AND name='" + CollectionName + "'"
+	SQL := "SELECT name FROM sqlite_master WHERE type='table' AND name='" + collectionName + "'"
 
 	stmt, err := it.Connection.Query(SQL)
 	defer closeStatement(stmt)
@@ -30,30 +31,32 @@ func (it *SQLite) HasCollection(CollectionName string) bool {
 }
 
 // creates cllection(table) by it's name
-func (it *SQLite) CreateCollection(CollectionName string) error {
-	CollectionName = strings.ToLower(CollectionName)
+func (it *SQLite) CreateCollection(collectionName string) error {
+	// collectionName = strings.ToLower(collectionName)
 
-	SQL := "CREATE TABLE " + CollectionName + "(_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL)"
+	SQL := "CREATE TABLE " + collectionName + " (_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL)"
 	if err := it.Connection.Exec(SQL); err == nil {
 		return nil
 	} else {
-		return err
+		return env.ErrorDispatch(err)
 	}
 }
 
 // returns collection(table) by name or creates new one
-func (it *SQLite) GetCollection(CollectionName string) (db.I_DBCollection, error) {
+func (it *SQLite) GetCollection(collectionName string) (db.I_DBCollection, error) {
+	if !SQL_NAME_VALIDATOR.MatchString(collectionName) {
+		return nil, env.ErrorNew("not valid collection name for DB engine")
+	}
 
-	if !it.HasCollection(CollectionName) {
-		if err := it.CreateCollection(CollectionName); err != nil {
-			return nil, err
+	if !it.HasCollection(collectionName) {
+		if err := it.CreateCollection(collectionName); err != nil {
+			return nil, env.ErrorDispatch(err)
 		}
 	}
 
 	collection := &SQLiteCollection{
-		TableName:     CollectionName,
+		Name:          collectionName,
 		Connection:    it.Connection,
-		Columns:       map[string]string{},
 		FilterGroups:  make(map[string]*T_DBFilterGroup),
 		Order:         make([]string, 0),
 		ResultColumns: make([]string, 0),
@@ -73,7 +76,7 @@ func (it *SQLite) RawQuery(query string) (map[string]interface{}, error) {
 	defer closeStatement(stmt)
 
 	if err == nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	for ; err == nil; err = stmt.Next() {

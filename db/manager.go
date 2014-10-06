@@ -14,7 +14,7 @@ func RegisterOnDatabaseStart(callback func() error) {
 func OnDatabaseStart() error {
 	for _, callback := range callbacksOnDatabaseStart {
 		if err := callback(); err != nil {
-			return err
+			return env.ErrorDispatch(err)
 		}
 	}
 	return nil

@@ -1,13 +1,13 @@
 package sqlite
 
 import (
-	"errors"
 	"io"
 	"regexp"
 	"strconv"
 	"strings"
 
 	sqlite3 "github.com/mxk/go-sqlite/sqlite3"
+	"github.com/ottemo/foundation/env"
 )
 
 // loads record from DB by it's id
@@ -37,31 +37,31 @@ func (it *SQLiteCollection) Load() ([]map[string]interface{}, error) {
 // applies [iterator] function to each record, stops on return false
 func (it *SQLiteCollection) Iterate(iteratorFunc func(record map[string]interface{}) bool) error {
 
-	SQL := "SELECT " + it.getSQLResultColumns() + " FROM " + it.TableName + it.getSQLFilters() + it.getSQLOrder() + it.Limit
+	SQL := it.getSelectSQL()
 	if DEBUG_SQL {
-		println(SQL)
+		env.Log("sqlite", env.LOG_PREFIX_INFO, SQL)
 	}
 
 	stmt, err := it.Connection.Query(SQL)
 	defer closeStatement(stmt)
 
-	if err != nil {
-		return sqlError(SQL, err)
-	}
+	if err == nil {
+		for ; err == nil; err = stmt.Next() {
+			row := make(sqlite3.RowMap)
+			if err := stmt.Scan(row); err == nil {
+				it.modifyResultRowId(row)
 
-	row := make(sqlite3.RowMap)
-	for ; err == nil; err = stmt.Next() {
-		if err := stmt.Scan(row); err == nil {
-			it.modifyResultRowId(row)
-
-			if !iteratorFunc(row) {
-				break
+				if !iteratorFunc(row) {
+					break
+				}
 			}
 		}
 	}
 
 	if err == io.EOF {
 		err = nil
+	} else if err != nil {
+		err = sqlError(SQL, err)
 	}
 
 	return env.ErrorDispatch(err)
@@ -74,9 +74,9 @@ func (it *SQLiteCollection) Distinct(columnName string) ([]interface{}, error) {
 		return nil, env.ErrorNew("should be 1 result column")
 	}
 
-	SQL := "SELECT " + it.getSQLResultColumns() + " FROM " + it.TableName + it.getSQLFilters() + it.getSQLOrder() + it.Limit
+	SQL := "SELECT DISTINCT " + it.getSQLResultColumns() + " FROM " + it.Name + it.getSQLFilters() + it.getSQLOrder() + it.Limit
 	if DEBUG_SQL {
-		println(SQL)
+		env.Log("sqlite", env.LOG_PREFIX_INFO, SQL)
 	}
 
 	stmt, err := it.Connection.Query(SQL)
@@ -84,9 +84,8 @@ func (it *SQLiteCollection) Distinct(columnName string) ([]interface{}, error) {
 
 	result := make([]interface{}, 0)
 	if err == nil {
-		row := make(sqlite3.RowMap)
-
 		for ; err == nil; err = stmt.Next() {
+			row := make(sqlite3.RowMap)
 			if err := stmt.Scan(row); err == nil {
 				it.modifyResultRowId(row)
 
@@ -94,12 +93,13 @@ func (it *SQLiteCollection) Distinct(columnName string) ([]interface{}, error) {
 					result = append(result, columnValue)
 					break
 				}
-			} else {
-				return result, err
 			}
 		}
+	}
 
-	} else {
+	if err == io.EOF {
+		err = nil
+	} else if err != nil {
 		err = sqlError(SQL, err)
 	}
 
@@ -110,27 +110,30 @@ func (it *SQLiteCollection) Distinct(columnName string) ([]interface{}, error) {
 func (it *SQLiteCollection) Count() (int, error) {
 	sqlLoadFilter := it.getSQLFilters()
 
-	row := make(sqlite3.RowMap)
-
-	SQL := "SELECT COUNT(*) AS cnt FROM " + it.TableName + sqlLoadFilter
+	SQL := "SELECT COUNT(*) AS cnt FROM " + it.Name + sqlLoadFilter
 
 	if DEBUG_SQL {
-		println(SQL)
+		env.Log("sqlite", env.LOG_PREFIX_INFO, SQL)
 	}
 
 	stmt, err := it.Connection.Query(SQL)
 	defer closeStatement(stmt)
 
 	if err == nil {
-		if err := stmt.Scan(row); err == nil {
+		row := make(sqlite3.RowMap)
+		if err = stmt.Scan(row); err == nil {
 			cnt := int(row["cnt"].(int64)) //TODO: check this assertion works
 			return cnt, err
-		} else {
-			return 0, err
 		}
-	} else {
-		return 0, err
 	}
+
+	if err == io.EOF {
+		err = nil
+	} else if err != nil {
+		err = sqlError(SQL, err)
+	}
+
+	return 0, err
 }
 
 // stores record in DB for current collection
@@ -154,17 +157,21 @@ func (it *SQLiteCollection) Save(Item map[string]interface{}) (string, error) {
 	values := make([]interface{}, 0, len(Item))
 
 	for k, v := range Item {
-		columns = append(columns, "\""+k+"\"")
-		args = append(args, "$_"+k)
-		values = append(values, v)
+		if Item[k] != nil {
+			columns = append(columns, "\""+k+"\"")
+			args = append(args, convertValueForSQL(v))
+
+			//args = append(args, "$_"+k)
+			//values = append(values, convertValueForSQL(v))
+		}
 	}
 
-	SQL := "INSERT OR REPLACE INTO  " + it.TableName +
-		" (" + strings.Join(columns, ",") + ") VALUES " +
+	SQL := "INSERT OR REPLACE INTO " + it.Name +
+		" (" + strings.Join(columns, ",") + ") VALUES" +
 		" (" + strings.Join(args, ",") + ")"
 
 	if DEBUG_SQL {
-		println(SQL)
+		env.Log("sqlite", env.LOG_PREFIX_INFO, SQL)
 	}
 
 	if err := it.Connection.Exec(SQL, values...); err == nil {
@@ -185,7 +192,7 @@ func (it *SQLiteCollection) Save(Item map[string]interface{}) (string, error) {
 func (it *SQLiteCollection) Delete() (int, error) {
 	sqlDeleteFilter := it.getSQLFilters()
 
-	SQL := "DELETE FROM " + it.TableName + sqlDeleteFilter
+	SQL := "DELETE FROM " + it.Name + sqlDeleteFilter
 
 	if DEBUG_SQL {
 		println(SQL)
@@ -199,10 +206,10 @@ func (it *SQLiteCollection) Delete() (int, error) {
 
 // removes record from DB by is's id
 func (it *SQLiteCollection) DeleteById(id string) error {
-	SQL := "DELETE FROM " + it.TableName + " WHERE _id = " + id
+	SQL := "DELETE FROM " + it.Name + " WHERE _id = " + id
 
 	if DEBUG_SQL {
-		println(SQL)
+		env.Log("sqlite", env.LOG_PREFIX_INFO, SQL)
 	}
 
 	return it.Connection.Exec(SQL)
@@ -226,6 +233,7 @@ func (it *SQLiteCollection) RemoveFilterGroup(groupName string) error {
 	if _, present := it.FilterGroups[groupName]; !present {
 		return env.ErrorNew("invalid group name")
 	}
+
 	delete(it.FilterGroups, groupName)
 	return nil
 }
@@ -236,6 +244,7 @@ func (it *SQLiteCollection) AddGroupFilter(groupName string, columnName string, 
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -246,6 +255,7 @@ func (it *SQLiteCollection) AddStaticFilter(columnName string, operator string, 
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -256,6 +266,7 @@ func (it *SQLiteCollection) AddFilter(ColumnName string, Operator string, Value 
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -266,6 +277,7 @@ func (it *SQLiteCollection) ClearFilters() error {
 			delete(it.FilterGroups, filterGroup)
 		}
 	}
+
 	return nil
 }
 
@@ -299,6 +311,7 @@ func (it *SQLiteCollection) SetResultColumns(columns ...string) error {
 
 		it.ResultColumns = append(it.ResultColumns, columnName)
 	}
+
 	return nil
 }
 
@@ -309,35 +322,44 @@ func (it *SQLiteCollection) SetLimit(Offset int, Limit int) error {
 	} else {
 		it.Limit = " LIMIT " + strconv.Itoa(Limit) + " OFFSET " + strconv.Itoa(Offset)
 	}
+
 	return nil
-}
-
-// updates information about attributes(columns) for current collection(table) (loads them from DB)
-func (it *SQLiteCollection) RefreshColumns() {
-	SQL := "PRAGMA table_info(" + it.TableName + ")"
-
-	if DEBUG_SQL {
-		println(SQL)
-	}
-
-	row := make(sqlite3.RowMap)
-
-	stmt, err := it.Connection.Query(SQL)
-	defer closeStatement(stmt)
-
-	for ; err == nil; err = stmt.Next() {
-		stmt.Scan(row)
-
-		key := row["name"].(string)
-		value := row["type"].(string)
-		it.Columns[key] = value
-	}
 }
 
 // returns attributes(columns) available for current collection(table)
 func (it *SQLiteCollection) ListColumns() map[string]string {
-	it.RefreshColumns()
-	return it.Columns
+
+	result := map[string]string{}
+
+	// updating column into collection
+	SQL := "SELECT column, type FROM " + COLLECTION_NAME_COLUMN_INFO + " WHERE collection = '" + it.Name + "'"
+	it.Connection.Query(SQL)
+
+	stmt, err := it.Connection.Query(SQL)
+	defer closeStatement(stmt)
+
+	row := make(sqlite3.RowMap)
+	for ; err == nil; err = stmt.Next() {
+		stmt.Scan(row)
+
+		key := row["column"].(string)
+		value := row["type"].(string)
+
+		result[key] = value
+	}
+
+	// updating cached attribute types information
+	if _, present := attributeTypes[it.Name]; !present {
+		attributeTypes[it.Name] = make(map[string]string)
+	}
+
+	attributeTypesMutex.Lock()
+	for attributeName, attributeType := range result {
+		attributeTypes[it.Name][attributeName] = attributeType
+	}
+	attributeTypesMutex.Unlock()
+
+	return result
 }
 
 // returns SQL like type of attribute in current collection, or if not present ""
@@ -346,51 +368,87 @@ func (it *SQLiteCollection) GetColumnType(columnName string) string {
 		return "string"
 	}
 
-	if columnType, present := it.Columns[columnName]; present {
-		return columnType
+	// looking in cache first
+	attributeType, present := attributeTypes[it.Name][columnName]
+	if !present {
+		// updating cache, and looking again
+		it.ListColumns()
+		attributeType, present = attributeTypes[it.Name][columnName]
 	}
 
-	return ""
+	return attributeType
 }
 
 // check for attribute(column) presence in current collection
 func (it *SQLiteCollection) HasColumn(ColumnName string) bool {
-	if _, present := it.Columns[ColumnName]; present {
-		return true
-	} else {
-		it.RefreshColumns()
-		_, present := it.Columns[ColumnName]
-		return present
+	// looking in cache first
+	_, present := attributeTypes[it.Name][ColumnName]
+	if !present {
+		// updating cache, and looking again
+		it.ListColumns()
+		_, present = attributeTypes[it.Name][ColumnName]
 	}
+
+	return present
 }
 
 // adds new attribute(column) to current collection(table)
-func (it *SQLiteCollection) AddColumn(ColumnName string, ColumnType string, indexed bool) error {
+func (it *SQLiteCollection) AddColumn(columnName string, columnType string, indexed bool) error {
 
-	// TODO: there probably need column name check to be only lowercase, exclude some chars, etc.
-
-	if it.HasColumn(ColumnName) {
-		return env.ErrorNew("column '" + ColumnName + "' already exists for '" + it.TableName + "' collection")
+	// checking column name
+	if !SQL_NAME_VALIDATOR.MatchString(columnName) {
+		return env.ErrorNew("not valid column name for DB engine: " + columnName)
 	}
 
-	if ColumnType, err := GetDBType(ColumnType); err == nil {
-
-		SQL := "ALTER TABLE " + it.TableName + " ADD COLUMN \"" + ColumnName + "\" " + ColumnType
-
-		if DEBUG_SQL {
-			println(SQL)
-		}
-
-		if err := it.Connection.Exec(SQL); err == nil {
-			return nil
+	// checking if column already present
+	if it.HasColumn(columnName) {
+		if currentType := it.GetColumnType(columnName); currentType != columnType {
+			return env.ErrorNew("column '" + columnName + "' already exists with type '" + currentType + "' for '" + it.Name + "' collection. Requested type '" + columnType + "'")
 		} else {
-			return sqlError(SQL, err)
+			return nil
 		}
-
-	} else {
-		return err
 	}
 
+	// updating physical table
+	//-------------------------
+	ColumnType, err := GetDBType(columnType)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	SQL := "ALTER TABLE " + it.Name + " ADD COLUMN \"" + columnName + "\" " + ColumnType
+
+	if DEBUG_SQL {
+		env.Log("sqlite", env.LOG_PREFIX_INFO, SQL)
+	}
+
+	err = it.Connection.Exec(SQL)
+	if err != nil {
+		return sqlError(SQL, err)
+	}
+
+	// updating collection info table
+	//--------------------------------
+	SQL = "INSERT INTO " + COLLECTION_NAME_COLUMN_INFO + "(collection, column, type, indexed) VALUES (" +
+		"'" + it.Name + "', " +
+		"'" + columnName + "', " +
+		"'" + columnType + "', "
+	if indexed {
+		SQL += "1)"
+	} else {
+		SQL += "0)"
+	}
+
+	if DEBUG_SQL {
+		env.Log("sqlite", env.LOG_PREFIX_INFO, SQL)
+	}
+
+	err = it.Connection.Exec(SQL)
+	if err != nil {
+		return sqlError(SQL, err)
+	}
+
+	return nil
 }
 
 // removes attribute(column) to current collection(table)
@@ -399,14 +457,14 @@ func (it *SQLiteCollection) RemoveColumn(ColumnName string) error {
 
 	// checking column in table
 	if !it.HasColumn(ColumnName) {
-		return env.ErrorNew("column '" + ColumnName + "' not exists in '" + it.TableName + "' collection")
+		return env.ErrorNew("column '" + ColumnName + "' not exists in '" + it.Name + "' collection")
 	}
 
 	// getting table create SQL to take columns from
 	//----------------------------------------------
 	var tableCreateSQL string = ""
 
-	SQL := "SELECT sql FROM sqlite_master WHERE tbl_name='" + it.TableName + "' AND type='table'"
+	SQL := "SELECT sql FROM sqlite_master WHERE tbl_name='" + it.Name + "' AND type='table'"
 
 	stmt, err := it.Connection.Query(SQL)
 	if err != nil {
@@ -448,29 +506,29 @@ func (it *SQLiteCollection) RemoveColumn(ColumnName string) error {
 
 	// making new table without removing column, and filling with values from old table
 	//---------------------------------------------------------------------------------
-	SQL = "CREATE TABLE " + it.TableName + "_removecolumn (" + tableColumnsWTypes + ") "
+	SQL = "CREATE TABLE " + it.Name + "_removecolumn (" + tableColumnsWTypes + ") "
 	if err := it.Connection.Exec(SQL); err != nil {
 		return sqlError(SQL, err)
 	}
 
-	SQL = "INSERT INTO " + it.TableName + "_removecolumn (" + tableColumnsWoTypes + ") SELECT " + tableColumnsWoTypes + " FROM " + it.TableName
+	SQL = "INSERT INTO " + it.Name + "_removecolumn (" + tableColumnsWoTypes + ") SELECT " + tableColumnsWoTypes + " FROM " + it.Name
 	if err := it.Connection.Exec(SQL); err != nil {
 		return sqlError(SQL, err)
 	}
 
 	// switching newly created table, deleting old table
 	//---------------------------------------------------
-	SQL = "ALTER TABLE " + it.TableName + " RENAME TO " + it.TableName + "_fordelete"
+	SQL = "ALTER TABLE " + it.Name + " RENAME TO " + it.Name + "_fordelete"
 	if err := it.Connection.Exec(SQL); err != nil {
 		return sqlError(SQL, err)
 	}
 
-	SQL = "ALTER TABLE " + it.TableName + "_removecolumn RENAME TO " + it.TableName
+	SQL = "ALTER TABLE " + it.Name + "_removecolumn RENAME TO " + it.Name
 	if err := it.Connection.Exec(SQL); err != nil {
 		return sqlError(SQL, err)
 	}
 
-	SQL = "DROP TABLE " + it.TableName + "_fordelete"
+	SQL = "DROP TABLE " + it.Name + "_fordelete"
 	if err := it.Connection.Exec(SQL); err != nil {
 		return sqlError(SQL, err)
 	}

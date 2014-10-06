@@ -117,7 +117,7 @@ func restReviewAdd(params *api.T_APIHandlerParams) (interface{}, error) {
 			return nil, env.ErrorDispatch(err)
 		}
 
-		recordAttribute := utils.InterfaceToString(ratingValue) + "star"
+		recordAttribute := "stars_" + utils.InterfaceToString(ratingValue)
 		var ratingRecord map[string]interface{} = nil
 
 		if len(ratingRecords) > 0 {
@@ -127,11 +127,11 @@ func restReviewAdd(params *api.T_APIHandlerParams) (interface{}, error) {
 		} else {
 			ratingRecord = map[string]interface{}{
 				"product_id": productObject.GetId(),
-				"1star":      0,
-				"2star":      0,
-				"3star":      0,
-				"4star":      0,
-				"5star":      0,
+				"stars_1":    0,
+				"stars_2":    0,
+				"stars_3":    0,
+				"stars_4":    0,
+				"stars_5":    0,
 			}
 
 			ratingRecord[recordAttribute] = 1
@@ -210,7 +210,7 @@ func restReviewRemove(params *api.T_APIHandlerParams) (interface{}, error) {
 			if len(ratingRecords) > 0 {
 				ratingRecord = ratingRecords[0]
 
-				recordAttribute := utils.InterfaceToString(reviewRating) + "star"
+				recordAttribute := "stars_" + utils.InterfaceToString(reviewRating)
 				ratingRecord[recordAttribute] = utils.InterfaceToInt(ratingRecord[recordAttribute]) - 1
 				ratingCollection.Save(ratingRecord)
 			}

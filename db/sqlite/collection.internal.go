@@ -1,11 +1,12 @@
 package sqlite
 
 import (
-	"errors"
+	"strconv"
 	"strings"
 
 	sqlite3 "github.com/mxk/go-sqlite/sqlite3"
-	"strconv"
+	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/foundation/utils"
 )
 
 // close sqlite3 statement routine
@@ -22,17 +23,28 @@ func sqlError(SQL string, err error) error {
 
 // returns string that represents value for SQL query
 func convertValueForSQL(value interface{}) string {
-	result := ""
 
-	switch typedValue := value.(type) {
+	switch value.(type) {
+	case bool:
+		if value.(bool) {
+			return "1"
+		}
+		return "0"
+
 	case string:
-		result = strings.Replace(typedValue, "'", "''", -1)
+		result := value.(string)
+		result = strings.Replace(result, "'", "''", -1)
 		result = strings.Replace(result, "\\", "\\\\", -1)
-		result = "'" + typedValue + "'"
+		result = "'" + result + "'"
+
+		return result
+
+	case map[string]interface{}, map[string]string:
+		return convertValueForSQL(utils.EncodeToJsonString(value))
 
 	case []string:
 		result := ""
-		for _, item := range typedValue {
+		for _, item := range value.([]string) {
 			if result != "" {
 				result += ", "
 			}
@@ -41,7 +53,7 @@ func convertValueForSQL(value interface{}) string {
 		return result
 	}
 
-	return result
+	return convertValueForSQL(utils.InterfaceToString(value))
 }
 
 // returns type used inside sqlite for given general name
@@ -58,6 +70,8 @@ func GetDBType(ColumnType string) (string, error) {
 		return "BLOB", nil
 	case strings.Contains(ColumnType, "numeric") || strings.Contains(ColumnType, "decimal") || ColumnType == "money":
 		return "NUMERIC", nil
+	case strings.Contains(ColumnType, "date") || strings.Contains(ColumnType, "time"):
+		return "NUMERIC", nil
 	case ColumnType == "bool" || ColumnType == "boolean":
 		return "NUMERIC", nil
 	}
@@ -71,6 +85,23 @@ func (it *SQLiteCollection) makeSQLFilterString(ColumnName string, Operator stri
 	if it.HasColumn(ColumnName) {
 		Operator = strings.ToUpper(Operator)
 		if Operator == "" || Operator == "=" || Operator == "<>" || Operator == ">" || Operator == "<" || Operator == "LIKE" || Operator == "IN" {
+			switch Operator {
+			case "LIKE":
+				if typedValue, ok := Value.(string); ok && !strings.Contains(typedValue, "%") {
+					Value = "%" + typedValue + "%"
+				}
+			case "IN":
+				if typedValue, ok := Value.(SQLiteCollection); ok {
+					Value = "(" + typedValue.getSelectSQL() + ")"
+				} else {
+					newValue := "("
+					for _, arrayItem := range utils.InterfaceToArray(Value) {
+						newValue += utils.InterfaceToString(arrayItem)
+					}
+					newValue += ")"
+					Value = newValue
+				}
+			}
 			return ColumnName + " " + Operator + " " + convertValueForSQL(Value), nil
 		} else {
 			return "", env.ErrorNew("unknown operator '" + Operator + "' supposed  '', '=', '>', '<', '<>', 'LIKE', 'IN' " + ColumnName + "'")
@@ -78,6 +109,11 @@ func (it *SQLiteCollection) makeSQLFilterString(ColumnName string, Operator stri
 	} else {
 		return "", env.ErrorNew("can't find column '" + ColumnName + "'")
 	}
+}
+
+func (it *SQLiteCollection) getSelectSQL() string {
+	SQL := "SELECT " + it.getSQLResultColumns() + " FROM " + it.Name + it.getSQLFilters() + it.getSQLOrder() + it.Limit
+	return SQL
 }
 
 // converts _id field from int for string

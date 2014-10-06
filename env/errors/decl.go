@@ -8,7 +8,7 @@ import (
 
 var (
 	MSG_REGEXP    = regexp.MustCompile(`\s*[\[{(]?\s*(?:([0-9]+)?[-: ]([0-9a-fA-F]+)?)?\s*[\]})]?\s*[:\->]*\s*(.+)`)
-	INCLUDE_STACK = false
+	INCLUDE_STACK = true
 )
 
 type DefaultErrorBus struct {

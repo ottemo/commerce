@@ -1,8 +1,10 @@
 package sqlite
 
 import (
+	"regexp"
+	"sync"
+
 	"github.com/mxk/go-sqlite/sqlite3"
-	"github.com/ottemo/foundation/db"
 )
 
 const (
@@ -14,6 +16,13 @@ const (
 	COLLECTION_NAME_COLUMN_INFO = "collection_column_info"
 )
 
+var (
+	attributeTypes      = make(map[string]map[string]string)
+	attributeTypesMutex sync.RWMutex
+
+	SQL_NAME_VALIDATOR = regexp.MustCompile("^[A-Za-z_][A-Za-z0-9_]*$")
+)
+
 type T_DBFilterGroup struct {
 	Name         string
 	FilterValues []string
@@ -23,8 +32,8 @@ type T_DBFilterGroup struct {
 
 type SQLiteCollection struct {
 	Connection *sqlite3.Conn
-	TableName  string
-	Columns    map[string]string
+
+	Name string
 
 	ResultColumns []string
 	FilterGroups  map[string]*T_DBFilterGroup
@@ -36,5 +45,3 @@ type SQLiteCollection struct {
 type SQLite struct {
 	Connection *sqlite3.Conn
 }
-
-var collections = map[string]db.I_DBCollection{}

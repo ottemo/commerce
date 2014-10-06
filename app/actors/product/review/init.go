@@ -33,11 +33,11 @@ func setupDB() error {
 
 	if collection, err := dbEngine.GetCollection("rating"); err == nil {
 		collection.AddColumn("product_id", "id", true)
-		collection.AddColumn("1star", "int", false)
-		collection.AddColumn("2star", "int", false)
-		collection.AddColumn("3star", "int", false)
-		collection.AddColumn("4star", "int", false)
-		collection.AddColumn("5star", "int", false)
+		collection.AddColumn("stars_1", "int", false)
+		collection.AddColumn("stars_2", "int", false)
+		collection.AddColumn("stars_3", "int", false)
+		collection.AddColumn("stars_4", "int", false)
+		collection.AddColumn("stars_5", "int", false)
 	} else {
 		return env.ErrorDispatch(err)
 	}
