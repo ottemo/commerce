@@ -83,7 +83,7 @@ func (it *DefaultVisitor) Set(attribute string, value interface{}) error {
 		if value != "" {
 			address, err = visitor.LoadVisitorAddressById(value)
 			if err != nil {
-				return err
+				return env.ErrorDispatch(err)
 			}
 		}
 
@@ -115,7 +115,7 @@ func (it *DefaultVisitor) Set(attribute string, value interface{}) error {
 
 			err = addressModel.FromHashMap(value)
 			if err != nil {
-				return err
+				return env.ErrorDispatch(err)
 			}
 
 			if attribute == "billing_address" {
@@ -130,7 +130,7 @@ func (it *DefaultVisitor) Set(attribute string, value interface{}) error {
 	default:
 		err := it.CustomAttributes.Set(attribute, value)
 		if err != nil {
-			return err
+			return env.ErrorDispatch(err)
 		}
 	}
 
@@ -142,7 +142,7 @@ func (it *DefaultVisitor) FromHashMap(input map[string]interface{}) error {
 
 	for attribute, value := range input {
 		if err := it.Set(attribute, value); err != nil {
-			return err
+			return env.ErrorDispatch(err)
 		}
 	}
 

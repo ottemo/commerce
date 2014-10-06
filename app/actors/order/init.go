@@ -33,7 +33,7 @@ func setupDB() error {
 	if dbEngine := db.GetDBEngine(); dbEngine != nil {
 		collection, err := dbEngine.GetCollection(COLLECTION_NAME_ORDER)
 		if err != nil {
-			return err
+			return env.ErrorDispatch(err)
 		}
 
 		collection.AddColumn("increment_id", "varchar(50)", true)
@@ -64,7 +64,7 @@ func setupDB() error {
 
 		collection, err = dbEngine.GetCollection(COLLECTION_NAME_ORDER_ITEMS)
 		if err != nil {
-			return err
+			return env.ErrorDispatch(err)
 		}
 
 		collection.AddColumn("idx", "int", false)

@@ -13,13 +13,13 @@ func (it *DefaultCMSPageCollection) List() ([]models.T_ListItem, error) {
 
 	dbRecords, err := it.listCollection.Load()
 	if err != nil {
-		return result, err
+		return result, env.ErrorDispatch(err)
 	}
 
 	for _, dbRecordData := range dbRecords {
 		cmsPageModel, err := cms.GetCMSPageModel()
 		if err != nil {
-			return result, err
+			return result, env.ErrorDispatch(err)
 		}
 		cmsPageModel.FromHashMap(dbRecordData)
 

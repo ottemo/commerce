@@ -122,7 +122,7 @@ func (it *DefaultCart) AddItem(productId string, qty int, options map[string]int
 	// checking product existence
 	reqProduct, err := product.LoadProductById(productId)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	// options default value if them are not set
@@ -141,7 +141,7 @@ func (it *DefaultCart) AddItem(productId string, qty int, options map[string]int
 
 	// checking for right options
 	if err := it.checkOptions(reqProduct.GetOptions(), cartItem.Options); err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	// adding new item to others
@@ -167,12 +167,12 @@ func (it *DefaultCart) RemoveItem(itemIdx int) error {
 
 		cartItemsCollection, err := dbEngine.GetCollection(CART_ITEMS_COLLECTION_NAME)
 		if err != nil {
-			return err
+			return env.ErrorDispatch(err)
 		}
 
 		err = cartItemsCollection.DeleteById(cartItem.GetId())
 		if err != nil {
-			return err
+			return env.ErrorDispatch(err)
 		}
 
 		delete(it.Items, itemIdx)
@@ -192,7 +192,7 @@ func (it *DefaultCart) SetQty(itemIdx int, qty int) error {
 	if present {
 		err := cartItem.SetQty(qty)
 		if err != nil {
-			return err
+			return env.ErrorDispatch(err)
 		}
 
 		it.cartChanged()
@@ -279,20 +279,20 @@ func (it *DefaultCart) MakeCartForVisitor(visitorId string) error {
 
 	cartCollection, err := dbEngine.GetCollection(CART_COLLECTION_NAME)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	cartCollection.AddFilter("visitor_id", "=", visitorId)
 	cartCollection.AddFilter("active", "=", true)
 	rowsData, err := cartCollection.Load()
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	if len(rowsData) < 1 {
 		newModel, err := it.New()
 		if err != nil {
-			return err
+			return env.ErrorDispatch(err)
 		}
 		newCart := newModel.(*DefaultCart)
 		newCart.SetVisitorId(visitorId)
@@ -303,7 +303,7 @@ func (it *DefaultCart) MakeCartForVisitor(visitorId string) error {
 	} else {
 		err := it.Load(rowsData[0]["_id"].(string))
 		if err != nil {
-			return err
+			return env.ErrorDispatch(err)
 		}
 	}
 

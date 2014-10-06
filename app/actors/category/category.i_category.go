@@ -56,7 +56,7 @@ func (it *DefaultCategory) AddProduct(productId string) error {
 
 	collection, err := dbEngine.GetCollection(COLLECTION_NAME_CATEGORY_PRODUCT_JUNCTION)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	categoryId := it.GetId()
@@ -71,13 +71,13 @@ func (it *DefaultCategory) AddProduct(productId string) error {
 	collection.AddFilter("product_id", "=", productId)
 	cnt, err := collection.Count()
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	if cnt == 0 {
 		_, err := collection.Save(map[string]interface{}{"category_id": categoryId, "product_id": productId})
 		if err != nil {
-			return err
+			return env.ErrorDispatch(err)
 		}
 	} else {
 		return env.ErrorNew("junction already exists")
@@ -95,7 +95,7 @@ func (it *DefaultCategory) RemoveProduct(productId string) error {
 
 	collection, err := dbEngine.GetCollection(COLLECTION_NAME_CATEGORY_PRODUCT_JUNCTION)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	categoryId := it.GetId()

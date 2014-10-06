@@ -17,22 +17,22 @@ func setupAPI() error {
 
 	err = api.GetRestService().RegisterAPI("discount", "GET", "apply/:code", restDiscountApply)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = api.GetRestService().RegisterAPI("discount", "GET", "neglect/:code", restDiscountNeglect)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = api.GetRestService().RegisterAPI("discount", "GET", "download/csv", restDiscountCSVDownload)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = api.GetRestService().RegisterAPI("discount", "POST", "upload/csv", restDiscountCSVUpload)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	return nil
@@ -57,16 +57,16 @@ func restDiscountApply(params *api.T_APIHandlerParams) (interface{}, error) {
 	// loading coupon for specified code
 	collection, err := db.GetCollection(COLLECTION_NAME_COUPON_DISCOUNTS)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 	err = collection.AddFilter("code", "=", couponCode)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	records, err := collection.Load()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	// checking and applying obtained coupon
@@ -91,7 +91,7 @@ func restDiscountApply(params *api.T_APIHandlerParams) (interface{}, error) {
 				discountCoupon["times"] = applyTimes - 1
 				_, err := collection.Save(discountCoupon)
 				if err != nil {
-					return nil, err
+					return nil, env.ErrorDispatch(err)
 				}
 			}
 
@@ -132,15 +132,15 @@ func restDiscountNeglect(params *api.T_APIHandlerParams) (interface{}, error) {
 		// times used increase
 		collection, err := db.GetCollection(COLLECTION_NAME_COUPON_DISCOUNTS)
 		if err != nil {
-			return nil, err
+			return nil, env.ErrorDispatch(err)
 		}
 		err = collection.AddFilter("code", "=", couponCode)
 		if err != nil {
-			return nil, err
+			return nil, env.ErrorDispatch(err)
 		}
 		records, err := collection.Load()
 		if err != nil {
-			return nil, err
+			return nil, env.ErrorDispatch(err)
 		}
 		if len(records) > 0 {
 			applyTimes := utils.InterfaceToInt(records[0]["times"])
@@ -149,7 +149,7 @@ func restDiscountNeglect(params *api.T_APIHandlerParams) (interface{}, error) {
 
 				_, err := collection.Save(records[0])
 				if err != nil {
-					return nil, err
+					return nil, env.ErrorDispatch(err)
 				}
 			}
 		}
@@ -163,7 +163,7 @@ func restDiscountCSVDownload(params *api.T_APIHandlerParams) (interface{}, error
 
 	// check rights
 	if err := api.ValidateAdminRights(params); err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	// preparing csv writer
@@ -178,7 +178,7 @@ func restDiscountCSVDownload(params *api.T_APIHandlerParams) (interface{}, error
 	// loading records from DB and writing them in csv format
 	collection, err := db.GetCollection(COLLECTION_NAME_COUPON_DISCOUNTS)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	err = collection.Iterate(func(record map[string]interface{}) bool {
@@ -204,12 +204,12 @@ func restDiscountCSVUpload(params *api.T_APIHandlerParams) (interface{}, error) 
 
 	// check rights
 	if err := api.ValidateAdminRights(params); err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	csvFile, _, err := params.Request.FormFile("file")
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	csvReader := csv.NewReader(csvFile)
@@ -217,7 +217,7 @@ func restDiscountCSVUpload(params *api.T_APIHandlerParams) (interface{}, error) 
 
 	collection, err := db.GetCollection(COLLECTION_NAME_COUPON_DISCOUNTS)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 	collection.Delete()
 

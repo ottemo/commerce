@@ -96,19 +96,19 @@ func (it *PayPalExpress) Authorize(orderInstance order.I_Order, paymentInfo map[
 
 	request, err := http.NewRequest("GET", nvpGateway+"?"+requestParams, nil)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	response, err := http.DefaultClient.Do(request)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	// reading/decoding response from NVP
 	//-----------------------------------
 	responseData, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	// println(string(responseData))

@@ -12,40 +12,40 @@ import (
 func setupAPI() error {
 	err := api.GetRestService().RegisterAPI("visitor/address", "POST", "create", restCreateVisitorAddress)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("visitor/address", "PUT", "update/:id", restUpdateVisitorAddress)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("visitor/address", "DELETE", "delete/:id", restDeleteVisitorAddress)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = api.GetRestService().RegisterAPI("visitor/address", "GET", "attribute/list", restListVisitorAddressAttributes)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("visitor/address", "GET", "list", restListVisitorAddress)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("visitor/address", "POST", "list", restListVisitorAddress)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("visitor/address", "GET", "count", restCountVisitorAddresses)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("visitor/address", "GET", "list/:visitorId", restListVisitorAddress)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("visitor/address", "GET", "load/:id", restGetVisitorAddress)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	return nil
@@ -60,7 +60,7 @@ func restCreateVisitorAddress(params *api.T_APIHandlerParams) (interface{}, erro
 	//---------------------
 	reqData, err := api.GetRequestContentAsMap(params)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	if _, ok := reqData["visitor_id"]; !ok {
@@ -70,7 +70,7 @@ func restCreateVisitorAddress(params *api.T_APIHandlerParams) (interface{}, erro
 	// check rights
 	if err := api.ValidateAdminRights(params); err != nil {
 		if reqData["visitor_id"] != visitor.GetCurrentVisitorId(params) {
-			return nil, err
+			return nil, env.ErrorDispatch(err)
 		}
 	}
 
@@ -78,19 +78,19 @@ func restCreateVisitorAddress(params *api.T_APIHandlerParams) (interface{}, erro
 	//---------------------------------
 	visitorAddressModel, err := visitor.GetVisitorAddressModel()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	for attribute, value := range reqData {
 		err := visitorAddressModel.Set(attribute, value)
 		if err != nil {
-			return nil, err
+			return nil, env.ErrorDispatch(err)
 		}
 	}
 
 	err = visitorAddressModel.Save()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	return visitorAddressModel.ToHashMap(), nil
@@ -110,18 +110,18 @@ func restUpdateVisitorAddress(params *api.T_APIHandlerParams) (interface{}, erro
 
 	reqData, err := api.GetRequestContentAsMap(params)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	visitorAddressModel, err := visitor.LoadVisitorAddressById(addressId)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	// check rights
 	if err := api.ValidateAdminRights(params); err != nil {
 		if visitorAddressModel.GetVisitorId() != visitor.GetCurrentVisitorId(params) {
-			return nil, err
+			return nil, env.ErrorDispatch(err)
 		}
 	}
 
@@ -130,13 +130,13 @@ func restUpdateVisitorAddress(params *api.T_APIHandlerParams) (interface{}, erro
 	for attribute, value := range reqData {
 		err := visitorAddressModel.Set(attribute, value)
 		if err != nil {
-			return nil, err
+			return nil, env.ErrorDispatch(err)
 		}
 	}
 
 	err = visitorAddressModel.Save()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	return visitorAddressModel.ToHashMap(), nil
@@ -155,20 +155,20 @@ func restDeleteVisitorAddress(params *api.T_APIHandlerParams) (interface{}, erro
 
 	visitorAddressModel, err := visitor.GetVisitorAddressModelAndSetId(addressId)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	// check rights
 	if err := api.ValidateAdminRights(params); err != nil {
 		if visitorAddressModel.GetVisitorId() != visitor.GetCurrentVisitorId(params) {
-			return nil, err
+			return nil, env.ErrorDispatch(err)
 		}
 	}
 
 	// delete operation
 	err = visitorAddressModel.Delete()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	return "ok", nil
@@ -179,12 +179,12 @@ func restListVisitorAddressAttributes(params *api.T_APIHandlerParams) (interface
 
 	// check rights
 	if err := api.ValidateAdminRights(params); err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	visitorAddressModel, err := visitor.GetVisitorAddressModel()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	attrInfo := visitorAddressModel.GetAttributesInfo()
@@ -196,12 +196,12 @@ func restCountVisitorAddresses(params *api.T_APIHandlerParams) (interface{}, err
 
 	// check rights
 	if err := api.ValidateAdminRights(params); err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	visitorAddressCollectionModel, err := visitor.GetVisitorAddressCollectionModel()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 	dbCollection := visitorAddressCollectionModel.GetDBCollection()
 
@@ -239,7 +239,7 @@ func restListVisitorAddress(params *api.T_APIHandlerParams) (interface{}, error)
 	// check rights
 	if err := api.ValidateAdminRights(params); err != nil {
 		if visitorId != visitor.GetCurrentVisitorId(params) {
-			return nil, err
+			return nil, env.ErrorDispatch(err)
 		}
 	}
 
@@ -247,7 +247,7 @@ func restListVisitorAddress(params *api.T_APIHandlerParams) (interface{}, error)
 	//---------------
 	visitorAddressCollectionModel, err := visitor.GetVisitorAddressCollectionModel()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 	dbCollection := visitorAddressCollectionModel.GetDBCollection()
 	dbCollection.AddStaticFilter("visitor_id", "=", visitorId)
@@ -264,7 +264,7 @@ func restListVisitorAddress(params *api.T_APIHandlerParams) (interface{}, error)
 		for _, value := range extra {
 			err := visitorAddressCollectionModel.ListAddExtraAttribute(value)
 			if err != nil {
-				return nil, err
+				return nil, env.ErrorDispatch(err)
 			}
 		}
 	}
@@ -282,13 +282,13 @@ func restGetVisitorAddress(params *api.T_APIHandlerParams) (interface{}, error) 
 
 	visitorAddressModel, err := visitor.LoadVisitorAddressById(visitorAddressId)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	// check rights
 	if err := api.ValidateAdminRights(params); err != nil {
 		if visitorAddressModel.GetVisitorId() != visitor.GetCurrentVisitorId(params) {
-			return nil, err
+			return nil, env.ErrorDispatch(err)
 		}
 	}
 

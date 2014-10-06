@@ -117,11 +117,11 @@ func (it *PayPalRest) Authorize(checkoutInstance checkout.I_Checkout) error {
 
 	request, err := http.NewRequest("POST", "https://api.sandbox.paypal.com/v1/payments/payment", &body)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	accessToken, err := it.GetAccessToken(checkoutInstance)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	fmt.Println(accessToken)
@@ -132,12 +132,12 @@ func (it *PayPalRest) Authorize(checkoutInstance checkout.I_Checkout) error {
 
 	response, err := http.DefaultClient.Do(request)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	buf, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	fmt.Println(response)
 	fmt.Println(string(buf))
@@ -145,7 +145,7 @@ func (it *PayPalRest) Authorize(checkoutInstance checkout.I_Checkout) error {
 	result := make(map[string]interface{})
 	err = json.Unmarshal(buf, &result)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	if response.StatusCode != 201 {
@@ -179,7 +179,7 @@ func (it *PayPalRest) GetAccessToken(checkoutInstance checkout.I_Checkout) (stri
 
 	req, err := http.NewRequest("POST", "https://api.sandbox.paypal.com/v1/oauth2/token", bytes.NewBufferString(body))
 	if err != nil {
-		return "", err
+		return "", env.ErrorDispatch(err)
 	}
 
 	req.SetBasicAuth("AbrcnhDi238ke9aG2NIQqVkW90oMJVg3B1QsjC68d2xRBLDq8boIrCaigPli", "EPcLWBCmfM_AwSOO1jC6TEDLCg-xZhFrUmXQnvTQ9yZV5_786xc5OkQ4Gx2-")
@@ -190,18 +190,18 @@ func (it *PayPalRest) GetAccessToken(checkoutInstance checkout.I_Checkout) (stri
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return "", err
+		return "", env.ErrorDispatch(err)
 	}
 
 	buf, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return "", err
+		return "", env.ErrorDispatch(err)
 	}
 
 	result := make(map[string]interface{})
 	err = json.Unmarshal(buf, &result)
 	if err != nil {
-		return "", err
+		return "", env.ErrorDispatch(err)
 	}
 
 	if token, present := result["access_token"]; present {

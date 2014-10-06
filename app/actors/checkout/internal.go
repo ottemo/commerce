@@ -28,12 +28,12 @@ func (it *DefaultCheckout) SendOrderConfirmationMail() error {
 				"Visitor": it.GetVisitor().ToHashMap(),
 			})
 		if err != nil {
-			return err
+			return env.ErrorDispatch(err)
 		}
 
 		err = app.SendMail(email, "Order confirmation", confirmationEmail)
 		if err != nil {
-			return err
+			return env.ErrorDispatch(err)
 		}
 	}
 

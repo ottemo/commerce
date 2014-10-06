@@ -23,12 +23,12 @@ func (it *DefaultCMSPage) SetId(newId string) error {
 func (it *DefaultCMSPage) Load(id string) error {
 	collection, err := db.GetCollection(CMS_PAGE_COLLECTION_NAME)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	dbValues, err := collection.LoadById(id)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	it.SetId(utils.InterfaceToString(dbValues["_id"]))
@@ -52,12 +52,12 @@ func (it *DefaultCMSPage) Load(id string) error {
 func (it *DefaultCMSPage) Delete() error {
 	collection, err := db.GetCollection(CMS_PAGE_COLLECTION_NAME)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = collection.DeleteById(it.GetId())
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	return env.ErrorDispatch(err)
@@ -67,7 +67,7 @@ func (it *DefaultCMSPage) Delete() error {
 func (it *DefaultCMSPage) Save() error {
 	collection, err := db.GetCollection(CMS_PAGE_COLLECTION_NAME)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	// packing data before save
@@ -94,7 +94,7 @@ func (it *DefaultCMSPage) Save() error {
 
 	newId, err := collection.Save(storingValues)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	it.SetId(newId)
 

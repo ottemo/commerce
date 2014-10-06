@@ -13,13 +13,13 @@ func (it *DefaultCMSBlockCollection) List() ([]models.T_ListItem, error) {
 
 	dbRecords, err := it.listCollection.Load()
 	if err != nil {
-		return result, err
+		return result, env.ErrorDispatch(err)
 	}
 
 	for _, dbRecordData := range dbRecords {
 		cmsBlockModel, err := cms.GetCMSBlockModel()
 		if err != nil {
-			return result, err
+			return result, env.ErrorDispatch(err)
 		}
 		cmsBlockModel.FromHashMap(dbRecordData)
 

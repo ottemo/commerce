@@ -9,7 +9,7 @@ import (
 func GetCategoryCollectionModel() (I_CategoryCollection, error) {
 	model, err := models.GetModel(MODEL_NAME_CATEGORY_COLLECTION)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	categoryModel, ok := model.(I_CategoryCollection)
@@ -24,7 +24,7 @@ func GetCategoryCollectionModel() (I_CategoryCollection, error) {
 func GetCategoryModel() (I_Category, error) {
 	model, err := models.GetModel(MODEL_NAME_CATEGORY)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	categoryModel, ok := model.(I_Category)
@@ -40,12 +40,12 @@ func GetCategoryModelAndSetId(categoryId string) (I_Category, error) {
 
 	categoryModel, err := GetCategoryModel()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	err = categoryModel.SetId(categoryId)
 	if err != nil {
-		return categoryModel, err
+		return categoryModel, env.ErrorDispatch(err)
 	}
 
 	return categoryModel, nil
@@ -56,12 +56,12 @@ func LoadCategoryById(categoryId string) (I_Category, error) {
 
 	categoryModel, err := GetCategoryModel()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	err = categoryModel.Load(categoryId)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	return categoryModel, nil

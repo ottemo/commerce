@@ -10,7 +10,7 @@ import (
 func GetVisitorAddressCollectionModel() (I_VisitorAddressCollection, error) {
 	model, err := models.GetModel(MODEL_NAME_VISITOR_ADDRESS_COLLECTION)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	visitorAddressCollectionModel, ok := model.(I_VisitorAddressCollection)
@@ -25,7 +25,7 @@ func GetVisitorAddressCollectionModel() (I_VisitorAddressCollection, error) {
 func GetVisitorAddressModel() (I_VisitorAddress, error) {
 	model, err := models.GetModel(MODEL_NAME_VISITOR_ADDRESS)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	visitorAddressModel, ok := model.(I_VisitorAddress)
@@ -40,7 +40,7 @@ func GetVisitorAddressModel() (I_VisitorAddress, error) {
 func GetVisitorCollectionModel() (I_VisitorCollection, error) {
 	model, err := models.GetModel(MODEL_NAME_VISITOR_COLLECTION)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	visitorCollectionModel, ok := model.(I_VisitorCollection)
@@ -55,7 +55,7 @@ func GetVisitorCollectionModel() (I_VisitorCollection, error) {
 func GetVisitorModel() (I_Visitor, error) {
 	model, err := models.GetModel(MODEL_NAME_VISITOR)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	visitorModel, ok := model.(I_Visitor)
@@ -71,12 +71,12 @@ func GetVisitorAddressModelAndSetId(visitorAddressId string) (I_VisitorAddress, 
 
 	visitorAddressModel, err := GetVisitorAddressModel()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	err = visitorAddressModel.SetId(visitorAddressId)
 	if err != nil {
-		return visitorAddressModel, err
+		return visitorAddressModel, env.ErrorDispatch(err)
 	}
 
 	return visitorAddressModel, nil
@@ -87,12 +87,12 @@ func GetVisitorModelAndSetId(visitorId string) (I_Visitor, error) {
 
 	visitorModel, err := GetVisitorModel()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	err = visitorModel.SetId(visitorId)
 	if err != nil {
-		return visitorModel, err
+		return visitorModel, env.ErrorDispatch(err)
 	}
 
 	return visitorModel, nil
@@ -103,12 +103,12 @@ func LoadVisitorAddressById(visitorAddressId string) (I_VisitorAddress, error) {
 
 	visitorAddressModel, err := GetVisitorAddressModel()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	err = visitorAddressModel.Load(visitorAddressId)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	return visitorAddressModel, nil
@@ -119,12 +119,12 @@ func LoadVisitorById(visitorId string) (I_Visitor, error) {
 
 	visitorModel, err := GetVisitorModel()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	err = visitorModel.Load(visitorId)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	return visitorModel, nil

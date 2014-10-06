@@ -12,19 +12,19 @@ func setupAPI() error {
 
 	err = api.GetRestService().RegisterAPI("app", "GET", "login", restLogin)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("app", "POST", "login", restLogin)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("app", "GET", "logout", restLogout)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("app", "GET", "rights", restRightsInfo)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	return nil
@@ -44,7 +44,7 @@ func restLogin(params *api.T_APIHandlerParams) (interface{}, error) {
 
 		reqData, err := api.GetRequestContentAsMap(params)
 		if err != nil {
-			return nil, err
+			return nil, env.ErrorDispatch(err)
 		}
 
 		if !utils.KeysInMapAndNotBlank(reqData, "login", "password") {
@@ -71,7 +71,7 @@ func restLogin(params *api.T_APIHandlerParams) (interface{}, error) {
 func restLogout(params *api.T_APIHandlerParams) (interface{}, error) {
 	err := params.Session.Close()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 	return "ok", nil
 }

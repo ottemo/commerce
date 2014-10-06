@@ -62,13 +62,13 @@ Content-Type: text/html
 	emailTemplate := template.New("emailTemplate")
 	emailTemplate, err := emailTemplate.Parse(emailTemplateBody)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	var doc bytes.Buffer
 	err = emailTemplate.Execute(&doc, context)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	var auth smtp.Auth = nil
@@ -77,5 +77,5 @@ Content-Type: text/html
 	}
 
 	err = smtp.SendMail(mailServer+mailPort, auth, userName, []string{to}, doc.Bytes())
-	return err
+	return env.ErrorDispatch(err)
 }

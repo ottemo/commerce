@@ -8,7 +8,7 @@ import (
 func GetModelAndSetId(modelName string, modelId string) (I_Storable, error) {
 	someModel, err := GetModel(modelName)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	storableModel, ok := someModel.(I_Storable)
@@ -18,7 +18,7 @@ func GetModelAndSetId(modelName string, modelId string) (I_Storable, error) {
 
 	err = storableModel.SetId(modelId)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	return storableModel, nil
@@ -29,7 +29,7 @@ func LoadModelById(modelName string, modelId string) (I_Storable, error) {
 
 	someModel, err := GetModel(modelName)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	storableModel, ok := someModel.(I_Storable)
@@ -39,7 +39,7 @@ func LoadModelById(modelName string, modelId string) (I_Storable, error) {
 
 	err = storableModel.Load(modelId)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	return storableModel, nil

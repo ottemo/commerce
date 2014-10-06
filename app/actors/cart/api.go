@@ -13,19 +13,19 @@ func setupAPI() error {
 
 	err = api.GetRestService().RegisterAPI("cart", "GET", "info", restCartInfo)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("cart", "POST", "add/:productId/:qty", restCartAdd)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("cart", "PUT", "update/:itemIdx/:qty", restCartUpdate)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("cart", "DELETE", "delete/:itemIdx", restCartDelete)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	return nil
@@ -37,7 +37,7 @@ func restCartInfo(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	currentCart, err := cart.GetCurrentCart(params)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	items := make([]map[string]interface{}, 0)
@@ -92,7 +92,7 @@ func restCartAdd(params *api.T_APIHandlerParams) (interface{}, error) {
 	//---------------------
 	reqData, err := api.GetRequestContentAsMap(params)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	var pid string = ""
@@ -120,7 +120,7 @@ func restCartAdd(params *api.T_APIHandlerParams) (interface{}, error) {
 	//----------
 	currentCart, err := cart.GetCurrentCart(params)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	addItemFlag := true
@@ -137,7 +137,7 @@ func restCartAdd(params *api.T_APIHandlerParams) (interface{}, error) {
 	if addItemFlag {
 		_, err := currentCart.AddItem(pid, qty, options)
 		if err != nil {
-			return nil, err
+			return nil, env.ErrorDispatch(err)
 		}
 	}
 	currentCart.Save()
@@ -157,12 +157,12 @@ func restCartUpdate(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	itemIdx, err := utils.StringToInteger(params.RequestURLParams["itemIdx"])
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	qty, err := utils.StringToInteger(params.RequestURLParams["qty"])
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 	if qty <= 0 {
 		return nil, env.ErrorNew("qty should be greather then 0")
@@ -172,7 +172,7 @@ func restCartUpdate(params *api.T_APIHandlerParams) (interface{}, error) {
 	//----------
 	currentCart, err := cart.GetCurrentCart(params)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	found := false
@@ -206,19 +206,19 @@ func restCartDelete(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	itemIdx, err := utils.StringToInteger(params.RequestURLParams["itemIdx"])
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	// operation
 	//----------
 	currentCart, err := cart.GetCurrentCart(params)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	err = currentCart.RemoveItem(itemIdx)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 	currentCart.Save()
 

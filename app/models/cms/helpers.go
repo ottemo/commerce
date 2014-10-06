@@ -9,7 +9,7 @@ import (
 func GetCMSPageCollectionModel() (I_CMSPageCollection, error) {
 	model, err := models.GetModel(MODEL_NAME_CMS_PAGE_COLLECTION)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	cmsPageCollectionModel, ok := model.(I_CMSPageCollection)
@@ -24,7 +24,7 @@ func GetCMSPageCollectionModel() (I_CMSPageCollection, error) {
 func GetCMSPageModel() (I_CMSPage, error) {
 	model, err := models.GetModel(MODEL_NAME_CMS_PAGE)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	cmsPageModel, ok := model.(I_CMSPage)
@@ -40,12 +40,12 @@ func GetCMSPageModelAndSetId(cmsPageId string) (I_CMSPage, error) {
 
 	cmsPageModel, err := GetCMSPageModel()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	err = cmsPageModel.SetId(cmsPageId)
 	if err != nil {
-		return cmsPageModel, err
+		return cmsPageModel, env.ErrorDispatch(err)
 	}
 
 	return cmsPageModel, nil
@@ -56,12 +56,12 @@ func LoadCMSPageById(cmsPageId string) (I_CMSPage, error) {
 
 	cmsPageModel, err := GetCMSPageModel()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	err = cmsPageModel.Load(cmsPageId)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	return cmsPageModel, nil
@@ -71,7 +71,7 @@ func LoadCMSPageById(cmsPageId string) (I_CMSPage, error) {
 func GetCMSBlockCollectionModel() (I_CMSBlockCollection, error) {
 	model, err := models.GetModel(MODEL_NAME_CMS_BLOCK_COLLECTION)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	csmBlockCollectionModel, ok := model.(I_CMSBlockCollection)
@@ -89,7 +89,7 @@ func GetCMSBlockCollectionModel() (I_CMSBlockCollection, error) {
 func GetCMSBlockModel() (I_CMSBlock, error) {
 	model, err := models.GetModel(MODEL_NAME_CMS_BLOCK)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	csmBlockModel, ok := model.(I_CMSBlock)
@@ -105,12 +105,12 @@ func GetCMSBlockModelAndSetId(csmBlockId string) (I_CMSBlock, error) {
 
 	csmBlockModel, err := GetCMSBlockModel()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	err = csmBlockModel.SetId(csmBlockId)
 	if err != nil {
-		return csmBlockModel, err
+		return csmBlockModel, env.ErrorDispatch(err)
 	}
 
 	return csmBlockModel, nil
@@ -121,12 +121,12 @@ func LoadCMSBlockById(csmBlockId string) (I_CMSBlock, error) {
 
 	csmBlockModel, err := GetCMSBlockModel()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	err = csmBlockModel.Load(csmBlockId)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	return csmBlockModel, nil

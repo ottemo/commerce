@@ -2,10 +2,10 @@ package visitor
 
 import (
 	"github.com/ottemo/foundation/api"
-	"github.com/ottemo/foundation/db"
-
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/visitor"
+	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/foundation/env"
 )
 
 // package self initializer
@@ -27,7 +27,7 @@ func setupDB() error {
 
 	collection, err := db.GetCollection(COLLECTION_NAME_VISITOR)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	collection.AddColumn("email", "id", true)

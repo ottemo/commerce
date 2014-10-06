@@ -23,97 +23,97 @@ func setupAPI() error {
 	// Dashboard API
 	err := api.GetRestService().RegisterAPI("visitor", "POST", "create", restCreateVisitor)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("visitor", "PUT", "update", restUpdateVisitor)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("visitor", "PUT", "update/:id", restUpdateVisitor)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("visitor", "DELETE", "delete/:id", restDeleteVisitor)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("visitor", "GET", "load/:id", restGetVisitor)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("visitor", "GET", "list", restListVisitors)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("visitor", "POST", "list", restListVisitors)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("visitor", "GET", "count", restCountVisitors)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("visitor", "GET", "attribute/list", restListVisitorAttributes)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("visitor", "DELETE", "attribute/remove/:attribute", restRemoveVisitorAttribute)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("visitor", "POST", "attribute/add", restAddVisitorAttribute)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	// Storefront API
 	err = api.GetRestService().RegisterAPI("visitor", "POST", "register", restRegister)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("visitor", "GET", "validate/:key", restValidate)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("visitor", "GET", "forgot-password/:email", restForgotPassword)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("visitor", "GET", "info", restInfo)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("visitor", "GET", "logout", restLogout)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("visitor", "POST", "login", restLogin)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("visitor", "POST", "login-facebook", restLoginFacebook)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("visitor", "POST", "login-google", restLoginGoogle)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("visitor", "GET", "order/list", restListVisitorOrders)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("visitor", "POST", "order/list", restListVisitorOrders)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("visitor", "GET", "order/details/:id", restVisitorOrderDetails)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("visitor", "POST", "sendmail", restVisitorSendMail)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	return nil
@@ -127,12 +127,12 @@ func restCreateVisitor(params *api.T_APIHandlerParams) (interface{}, error) {
 	// check request params
 	//---------------------
 	if err := api.ValidateAdminRights(params); err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	reqData, err := api.GetRequestContentAsMap(params)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	if !utils.KeysInMapAndNotBlank(reqData, "email") {
@@ -143,19 +143,19 @@ func restCreateVisitor(params *api.T_APIHandlerParams) (interface{}, error) {
 	//-----------------
 	visitorModel, err := visitor.GetVisitorModel()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	for attribute, value := range reqData {
 		err := visitorModel.Set(attribute, value)
 		if err != nil {
-			return nil, err
+			return nil, env.ErrorDispatch(err)
 		}
 	}
 
 	err = visitorModel.Save()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	return visitorModel.ToHashMap(), nil
@@ -181,15 +181,15 @@ func restUpdateVisitor(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	reqData, err := api.GetRequestContentAsMap(params)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	if err := api.ValidateAdminRights(params); err != nil {
 		if visitor.GetCurrentVisitorId(params) != visitorId {
-			return nil, err
+			return nil, env.ErrorDispatch(err)
 		} else {
 			if _, present := reqData["is_admin"]; present {
-				return nil, err
+				return nil, env.ErrorDispatch(err)
 			}
 		}
 	}
@@ -198,19 +198,19 @@ func restUpdateVisitor(params *api.T_APIHandlerParams) (interface{}, error) {
 	//-----------------
 	visitorModel, err := visitor.LoadVisitorById(visitorId)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	for attribute, value := range reqData {
 		err := visitorModel.Set(attribute, value)
 		if err != nil {
-			return nil, err
+			return nil, env.ErrorDispatch(err)
 		}
 	}
 
 	err = visitorModel.Save()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	return visitorModel.ToHashMap(), nil
@@ -223,7 +223,7 @@ func restDeleteVisitor(params *api.T_APIHandlerParams) (interface{}, error) {
 	// check request params
 	//---------------------
 	if err := api.ValidateAdminRights(params); err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	visitorId, isSpecifiedId := params.RequestURLParams["id"]
@@ -235,12 +235,12 @@ func restDeleteVisitor(params *api.T_APIHandlerParams) (interface{}, error) {
 	//-----------------
 	visitorModel, err := visitor.GetVisitorModelAndSetId(visitorId)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	err = visitorModel.Delete()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	return "ok", nil
@@ -253,7 +253,7 @@ func restGetVisitor(params *api.T_APIHandlerParams) (interface{}, error) {
 	// check request params
 	//---------------------
 	if err := api.ValidateAdminRights(params); err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	visitorId, isSpecifiedId := params.RequestURLParams["id"]
@@ -265,7 +265,7 @@ func restGetVisitor(params *api.T_APIHandlerParams) (interface{}, error) {
 	//--------------
 	visitorModel, err := visitor.LoadVisitorById(visitorId)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	return visitorModel.ToHashMap(), nil
@@ -275,12 +275,12 @@ func restGetVisitor(params *api.T_APIHandlerParams) (interface{}, error) {
 func restCountVisitors(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	if err := api.ValidateAdminRights(params); err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	visitorCollectionModel, err := visitor.GetVisitorCollectionModel()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 	dbCollection := visitorCollectionModel.GetDBCollection()
 
@@ -295,7 +295,7 @@ func restListVisitors(params *api.T_APIHandlerParams) (interface{}, error) {
 	// check request params
 	//---------------------
 	if err := api.ValidateAdminRights(params); err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	reqData, ok := params.RequestContent.(map[string]interface{})
@@ -311,7 +311,7 @@ func restListVisitors(params *api.T_APIHandlerParams) (interface{}, error) {
 	//----------------
 	visitorCollectionModel, err := visitor.GetVisitorCollectionModel()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	// limit parameter handle
@@ -326,7 +326,7 @@ func restListVisitors(params *api.T_APIHandlerParams) (interface{}, error) {
 		for _, value := range extra {
 			err := visitorCollectionModel.ListAddExtraAttribute(value)
 			if err != nil {
-				return nil, err
+				return nil, env.ErrorDispatch(err)
 			}
 		}
 	}
@@ -338,7 +338,7 @@ func restListVisitors(params *api.T_APIHandlerParams) (interface{}, error) {
 func restListVisitorAttributes(params *api.T_APIHandlerParams) (interface{}, error) {
 	visitorModel, err := visitor.GetVisitorModel()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	attrInfo := visitorModel.GetAttributesInfo()
@@ -351,12 +351,12 @@ func restAddVisitorAttribute(params *api.T_APIHandlerParams) (interface{}, error
 	// check request params
 	//---------------------
 	if err := api.ValidateAdminRights(params); err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	reqData, err := api.GetRequestContentAsMap(params)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	attributeName, isSpecified := reqData["Attribute"]
@@ -373,7 +373,7 @@ func restAddVisitorAttribute(params *api.T_APIHandlerParams) (interface{}, error
 	//---------------------------------
 	visitorModel, err := visitor.GetVisitorModel()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	attribute := models.T_AttributeInfo{
@@ -415,7 +415,7 @@ func restAddVisitorAttribute(params *api.T_APIHandlerParams) (interface{}, error
 
 	err = visitorModel.AddNewAttribute(attribute)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	return attribute, nil
@@ -427,7 +427,7 @@ func restRemoveVisitorAttribute(params *api.T_APIHandlerParams) (interface{}, er
 	// check request params
 	//--------------------
 	if err := api.ValidateAdminRights(params); err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	attributeName, isSpecified := params.RequestURLParams["attribute"]
@@ -439,12 +439,12 @@ func restRemoveVisitorAttribute(params *api.T_APIHandlerParams) (interface{}, er
 	//-------------------------
 	visitorModel, err := visitor.GetVisitorModel()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	err = visitorModel.RemoveAttribute(attributeName)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	return "ok", nil
@@ -459,7 +459,7 @@ func restRegister(params *api.T_APIHandlerParams) (interface{}, error) {
 	//---------------------
 	reqData, err := api.GetRequestContentAsMap(params)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	if !utils.KeysInMapAndNotBlank(reqData, "email") {
@@ -470,24 +470,24 @@ func restRegister(params *api.T_APIHandlerParams) (interface{}, error) {
 	//---------------------------
 	visitorModel, err := visitor.GetVisitorModel()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	for attribute, value := range reqData {
 		err := visitorModel.Set(attribute, value)
 		if err != nil {
-			return nil, err
+			return nil, env.ErrorDispatch(err)
 		}
 	}
 
 	err = visitorModel.Save()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	err = visitorModel.Invalidate()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	return visitorModel.ToHashMap(), nil
@@ -504,12 +504,12 @@ func restValidate(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	visitorModel, err := visitor.GetVisitorModel()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	err = visitorModel.Validate(validationKey)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	return api.T_RestRedirect{Location: app.GetStorefrontUrl("login"), DoRedirect: true}, nil
@@ -520,17 +520,17 @@ func restForgotPassword(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	visitorModel, err := visitor.GetVisitorModel()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	err = visitorModel.LoadByEmail(params.RequestURLParams["email"])
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	err = visitorModel.GenerateNewPassword()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	return api.T_RestRedirect{Result: "ok", Location: app.GetStorefrontUrl("login")}, nil
@@ -554,7 +554,7 @@ func restInfo(params *api.T_APIHandlerParams) (interface{}, error) {
 	//--------------
 	visitorModel, err := visitor.LoadVisitorById(visitorId)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	result := visitorModel.ToHashMap()
@@ -580,7 +580,7 @@ func restLogin(params *api.T_APIHandlerParams) (interface{}, error) {
 	//---------------------
 	reqData, err := api.GetRequestContentAsMap(params)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	if !utils.KeysInMapAndNotBlank(reqData, "email", "password") {
@@ -607,12 +607,12 @@ func restLogin(params *api.T_APIHandlerParams) (interface{}, error) {
 	//--------------
 	visitorModel, err := visitor.GetVisitorModel()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	err = visitorModel.LoadByEmail(requestLogin)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	ok := visitorModel.CheckPassword(requestPassword)
@@ -642,7 +642,7 @@ func restLoginFacebook(params *api.T_APIHandlerParams) (interface{}, error) {
 	//---------------------
 	reqData, err := api.GetRequestContentAsMap(params)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	if !utils.KeysInMapAndNotBlank(reqData, "access_token") {
@@ -660,7 +660,7 @@ func restLoginFacebook(params *api.T_APIHandlerParams) (interface{}, error) {
 	url := "https://graph.facebook.com/" + reqData["user_id"].(string) + "?access_token=" + reqData["access_token"].(string)
 	facebookResponse, err := http.Get(url)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	if facebookResponse.StatusCode != 200 {
@@ -672,12 +672,12 @@ func restLoginFacebook(params *api.T_APIHandlerParams) (interface{}, error) {
 		responseData = make([]byte, facebookResponse.ContentLength)
 		_, err := facebookResponse.Body.Read(responseData)
 		if err != nil {
-			return nil, err
+			return nil, env.ErrorDispatch(err)
 		}
 	} else {
 		responseData, err = ioutil.ReadAll(facebookResponse.Body)
 		if err != nil {
-			return nil, err
+			return nil, env.ErrorDispatch(err)
 		}
 	}
 
@@ -685,7 +685,7 @@ func restLoginFacebook(params *api.T_APIHandlerParams) (interface{}, error) {
 	jsonMap := make(map[string]interface{})
 	err = json.Unmarshal(responseData, &jsonMap)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	if !utils.StrKeysInMap(jsonMap, "id", "email", "first_name", "last_name", "verified") {
@@ -695,7 +695,7 @@ func restLoginFacebook(params *api.T_APIHandlerParams) (interface{}, error) {
 	// trying to load visitor from our DB
 	model, err := models.GetModel("Visitor")
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	visitorModel, ok := model.(visitor.I_Visitor)
@@ -718,7 +718,7 @@ func restLoginFacebook(params *api.T_APIHandlerParams) (interface{}, error) {
 
 			err := visitorModel.Save()
 			if err != nil {
-				return nil, err
+				return nil, env.ErrorDispatch(err)
 			}
 		} else {
 			// we have visitor with that e-mail just updating token, if it verified
@@ -730,7 +730,7 @@ func restLoginFacebook(params *api.T_APIHandlerParams) (interface{}, error) {
 
 			err := visitorModel.Save()
 			if err != nil {
-				return nil, err
+				return nil, env.ErrorDispatch(err)
 			}
 		}
 	}
@@ -767,7 +767,7 @@ func restLoginGoogle(params *api.T_APIHandlerParams) (interface{}, error) {
 	url := "https://www.googleapis.com/oauth2/v1/userinfo?access_token=" + reqData["access_token"].(string)
 	googleResponse, err := http.Get(url)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	if googleResponse.StatusCode != 200 {
@@ -779,12 +779,12 @@ func restLoginGoogle(params *api.T_APIHandlerParams) (interface{}, error) {
 		responseData = make([]byte, googleResponse.ContentLength)
 		_, err := googleResponse.Body.Read(responseData)
 		if err != nil {
-			return nil, err
+			return nil, env.ErrorDispatch(err)
 		}
 	} else {
 		responseData, err = ioutil.ReadAll(googleResponse.Body)
 		if err != nil {
-			return nil, err
+			return nil, env.ErrorDispatch(err)
 		}
 	}
 
@@ -792,7 +792,7 @@ func restLoginGoogle(params *api.T_APIHandlerParams) (interface{}, error) {
 	jsonMap := make(map[string]interface{})
 	err = json.Unmarshal(responseData, &jsonMap)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	if !utils.StrKeysInMap(jsonMap, "id", "email", "verified_email", "given_name", "family_name") {
@@ -802,7 +802,7 @@ func restLoginGoogle(params *api.T_APIHandlerParams) (interface{}, error) {
 	// trying to load visitor from our DB
 	model, err := models.GetModel("Visitor")
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	visitorModel, ok := model.(visitor.I_Visitor)
@@ -826,7 +826,7 @@ func restLoginGoogle(params *api.T_APIHandlerParams) (interface{}, error) {
 
 			err := visitorModel.Save()
 			if err != nil {
-				return nil, err
+				return nil, env.ErrorDispatch(err)
 			}
 
 		} else {
@@ -839,7 +839,7 @@ func restLoginGoogle(params *api.T_APIHandlerParams) (interface{}, error) {
 
 			err := visitorModel.Save()
 			if err != nil {
-				return nil, err
+				return nil, env.ErrorDispatch(err)
 			}
 		}
 	}
@@ -863,7 +863,7 @@ func restVisitorOrderDetails(params *api.T_APIHandlerParams) (interface{}, error
 
 	orderModel, err := order.LoadOrderById(params.RequestURLParams["id"])
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	if utils.InterfaceToString(orderModel.Get("visitor_id")) != visitorId {
@@ -895,12 +895,12 @@ func restListVisitorOrders(params *api.T_APIHandlerParams) (interface{}, error) 
 
 	orderCollection, err := order.GetOrderCollectionModel()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	err = orderCollection.ListFilterAdd("visitor_id", "=", visitorId)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	// filters handle
@@ -912,7 +912,7 @@ func restListVisitorOrders(params *api.T_APIHandlerParams) (interface{}, error) 
 		for _, value := range extra {
 			err := orderCollection.ListAddExtraAttribute(value)
 			if err != nil {
-				return nil, err
+				return nil, env.ErrorDispatch(err)
 			}
 		}
 	}
@@ -940,12 +940,12 @@ func restVisitorSendMail(params *api.T_APIHandlerParams) (interface{}, error) {
 	for _, visitor_id := range visitor_ids {
 		visitorModel, err := visitor.LoadVisitorById(utils.InterfaceToString(visitor_id))
 		if err != nil {
-			return nil, err
+			return nil, env.ErrorDispatch(err)
 		}
 
 		err = app.SendMail(visitorModel.GetEmail(), subject, content)
 		if err != nil {
-			return nil, err
+			return nil, env.ErrorDispatch(err)
 		}
 	}
 

@@ -14,7 +14,7 @@ func (it *DefaultProduct) AddMedia(mediaType string, mediaName string, content [
 
 	mediaStorage, err := media.GetMediaStorage()
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	return mediaStorage.Save(it.GetModelName(), productId, mediaType, mediaName, content)
@@ -29,7 +29,7 @@ func (it *DefaultProduct) RemoveMedia(mediaType string, mediaName string) error 
 
 	mediaStorage, err := media.GetMediaStorage()
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	return mediaStorage.Remove(it.GetModelName(), productId, mediaType, mediaName)
@@ -46,7 +46,7 @@ func (it *DefaultProduct) ListMedia(mediaType string) ([]string, error) {
 
 	mediaStorage, err := media.GetMediaStorage()
 	if err != nil {
-		return result, err
+		return result, env.ErrorDispatch(err)
 	}
 
 	return mediaStorage.ListMedia(it.GetModelName(), productId, mediaType)
@@ -61,7 +61,7 @@ func (it *DefaultProduct) GetMedia(mediaType string, mediaName string) ([]byte, 
 
 	mediaStorage, err := media.GetMediaStorage()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	return mediaStorage.Load(it.GetModelName(), productId, mediaType, mediaName)
@@ -76,7 +76,7 @@ func (it *DefaultProduct) GetMediaPath(mediaType string) (string, error) {
 
 	mediaStorage, err := media.GetMediaStorage()
 	if err != nil {
-		return "", err
+		return "", env.ErrorDispatch(err)
 	}
 
 	return mediaStorage.GetMediaPath(it.GetModelName(), productId, mediaType)

@@ -37,12 +37,12 @@ func (it *DefaultOrder) AddItem(productId string, qty int, productOptions map[st
 
 	productModel, err := product.LoadProductById(productId)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	err = productModel.ApplyOptions(productOptions)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	newOrderItem := new(DefaultOrderItem)
@@ -50,42 +50,42 @@ func (it *DefaultOrder) AddItem(productId string, qty int, productOptions map[st
 
 	err = newOrderItem.Set("product_id", productModel.GetId())
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	err = newOrderItem.Set("qty", qty)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	err = newOrderItem.Set("options", productModel.GetOptions())
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	err = newOrderItem.Set("name", productModel.GetName())
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	err = newOrderItem.Set("sku", productModel.GetSku())
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	err = newOrderItem.Set("short_description", productModel.GetShortDescription())
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	err = newOrderItem.Set("price", productModel.GetPrice())
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	err = newOrderItem.Set("weight", productModel.GetWeight())
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	it.maxIdx += 1
@@ -106,12 +106,12 @@ func (it *DefaultOrder) RemoveItem(itemIdx int) error {
 
 		orderItemsCollection, err := dbEngine.GetCollection(COLLECTION_NAME_ORDER_ITEMS)
 		if err != nil {
-			return err
+			return env.ErrorDispatch(err)
 		}
 
 		err = orderItemsCollection.DeleteById(orderItem.GetId())
 		if err != nil {
-			return err
+			return env.ErrorDispatch(err)
 		}
 
 		delete(it.Items, itemIdx)

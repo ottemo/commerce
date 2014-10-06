@@ -21,32 +21,32 @@ func setupAPI() error {
 
 	err = api.GetRestService().RegisterAPI("url_rewrite", "GET", "list", restURLRewritesList)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("url_rewrite", "GET", "get/:url", restURLRewritesGet)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("url_rewrite", "POST", "add", restURLRewritesAdd)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("url_rewrite", "PUT", "update/:id", restURLRewritesUpdate)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("url_rewrite", "DELETE", "delete/:id", restURLRewritesDelete)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = api.GetRestService().RegisterAPI("sitemap", "GET", "", restSitemapGenerate)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("sitemap", "GET", "sitemap.xml", restSitemap)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	return nil
@@ -57,7 +57,7 @@ func restURLRewritesList(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	collection, err := db.GetCollection(COLLECTION_NAME_URL_REWRITES)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	collection.SetResultColumns("url", "type", "rewrite")
@@ -71,7 +71,7 @@ func restURLRewritesGet(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	collection, err := db.GetCollection(COLLECTION_NAME_URL_REWRITES)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	collection.AddFilter("url", "=", params.RequestURLParams["url"])
@@ -87,23 +87,23 @@ func restURLRewritesUpdate(params *api.T_APIHandlerParams) (interface{}, error) 
 	//---------------------
 	// check rights
 	if err := api.ValidateAdminRights(params); err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	postValues, err := api.GetRequestContentAsMap(params)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	collection, err := db.GetCollection(COLLECTION_NAME_URL_REWRITES)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	urlRewriteId := params.RequestURLParams["id"]
 	record, err := collection.LoadById(urlRewriteId)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	// if rewrite 'url' was changed - checking new value for duplicates
@@ -114,7 +114,7 @@ func restURLRewritesUpdate(params *api.T_APIHandlerParams) (interface{}, error) 
 		collection.AddFilter("url", "=", urlValue)
 		recordsNumber, err := collection.Count()
 		if err != nil {
-			return nil, err
+			return nil, env.ErrorDispatch(err)
 		}
 		if recordsNumber > 0 {
 			return nil, env.ErrorNew("rewrite for url '" + urlValue + "' already exists")
@@ -136,7 +136,7 @@ func restURLRewritesUpdate(params *api.T_APIHandlerParams) (interface{}, error) 
 	//---------------
 	_, err = collection.Save(record)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	return record, nil
@@ -150,12 +150,12 @@ func restURLRewritesAdd(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// check rights
 	if err := api.ValidateAdminRights(params); err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	postValues, err := api.GetRequestContentAsMap(params)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	if !utils.KeysInMapAndNotBlank(postValues, "url", "rewrite") {
@@ -169,13 +169,13 @@ func restURLRewritesAdd(params *api.T_APIHandlerParams) (interface{}, error) {
 	//-----------------------------
 	collection, err := db.GetCollection(COLLECTION_NAME_URL_REWRITES)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	collection.AddFilter("url", "=", valueUrl)
 	recordsNumber, err := collection.Count()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 	if recordsNumber > 0 {
 		return nil, env.ErrorNew("rewrite for url '" + valueUrl + "' already exists")
@@ -201,7 +201,7 @@ func restURLRewritesAdd(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	newId, err := collection.Save(newRecord)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	newRecord["_id"] = newId
@@ -213,17 +213,17 @@ func restURLRewritesAdd(params *api.T_APIHandlerParams) (interface{}, error) {
 func restURLRewritesDelete(params *api.T_APIHandlerParams) (interface{}, error) {
 	// check rights
 	if err := api.ValidateAdminRights(params); err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	collection, err := db.GetCollection(COLLECTION_NAME_URL_REWRITES)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	err = collection.DeleteById(params.RequestURLParams["id"])
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	return "ok", nil
@@ -241,7 +241,7 @@ func restSitemap(params *api.T_APIHandlerParams) (interface{}, error) {
 	// using generated otherwise
 	sitemapFile, err := os.Open(SITEMAP_FILE_PATH)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 	defer sitemapFile.Close()
 
@@ -271,7 +271,7 @@ func restSitemapGenerate(params *api.T_APIHandlerParams) (interface{}, error) {
 	// creating sitemap file
 	sitemapFile, err := os.Create(SITEMAP_FILE_PATH)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 	defer sitemapFile.Close()
 

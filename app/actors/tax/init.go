@@ -29,7 +29,7 @@ func setupDB() error {
 			collection.AddColumn("zip", "text", false)
 			collection.AddColumn("rate", "text", false)
 		} else {
-			return err
+			return env.ErrorDispatch(err)
 		}
 	} else {
 		return env.ErrorNew("Can't get database engine")

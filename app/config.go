@@ -24,7 +24,7 @@ func setupConfig() error {
 	}, nil)
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = config.RegisterItem(env.T_ConfigItem{
@@ -39,7 +39,7 @@ func setupConfig() error {
 	}, nil)
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = config.RegisterItem(env.T_ConfigItem{
@@ -54,7 +54,7 @@ func setupConfig() error {
 	}, nil)
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = config.RegisterItem(env.T_ConfigItem{
@@ -69,7 +69,7 @@ func setupConfig() error {
 	}, nil)
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = config.RegisterItem(env.T_ConfigItem{
@@ -84,7 +84,7 @@ func setupConfig() error {
 	}, nil)
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = config.RegisterItem(env.T_ConfigItem{
@@ -99,7 +99,7 @@ func setupConfig() error {
 	}, nil)
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = config.RegisterItem(env.T_ConfigItem{
@@ -114,7 +114,7 @@ func setupConfig() error {
 	}, nil)
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = config.RegisterItem(env.T_ConfigItem{
@@ -129,7 +129,7 @@ func setupConfig() error {
 	}, nil)
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = config.RegisterItem(env.T_ConfigItem{
@@ -144,7 +144,7 @@ func setupConfig() error {
 	}, nil)
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = config.RegisterItem(env.T_ConfigItem{
@@ -159,7 +159,7 @@ func setupConfig() error {
 	}, nil)
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = config.RegisterItem(env.T_ConfigItem{
@@ -174,7 +174,7 @@ func setupConfig() error {
 	}, nil)
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = config.RegisterItem(env.T_ConfigItem{
@@ -189,7 +189,7 @@ func setupConfig() error {
 	}, nil)
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = config.RegisterItem(env.T_ConfigItem{
@@ -204,7 +204,7 @@ func setupConfig() error {
 	}, nil)
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = config.RegisterItem(env.T_ConfigItem{
@@ -219,7 +219,7 @@ func setupConfig() error {
 	}, nil)
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = config.RegisterItem(env.T_ConfigItem{
@@ -234,7 +234,7 @@ func setupConfig() error {
 	}, nil)
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = config.RegisterItem(env.T_ConfigItem{
@@ -249,7 +249,7 @@ func setupConfig() error {
 	}, nil)
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = config.RegisterItem(env.T_ConfigItem{
@@ -264,7 +264,7 @@ func setupConfig() error {
 	}, nil)
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = config.RegisterItem(env.T_ConfigItem{
@@ -279,7 +279,7 @@ func setupConfig() error {
 	}, nil)
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = config.RegisterItem(env.T_ConfigItem{
@@ -294,7 +294,7 @@ func setupConfig() error {
 	}, nil)
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = config.RegisterItem(env.T_ConfigItem{
@@ -309,7 +309,7 @@ func setupConfig() error {
 	}, nil)
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = config.RegisterItem(env.T_ConfigItem{
@@ -324,7 +324,7 @@ func setupConfig() error {
 	}, nil)
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = config.RegisterItem(env.T_ConfigItem{
@@ -339,7 +339,7 @@ func setupConfig() error {
 	}, nil)
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = config.RegisterItem(env.T_ConfigItem{
@@ -354,7 +354,7 @@ func setupConfig() error {
 	}, nil)
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	return nil

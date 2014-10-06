@@ -15,7 +15,7 @@ func (it *DefaultCategoryCollection) List() ([]models.T_ListItem, error) {
 	//---------------------
 	dbItems, err := it.listCollection.Load()
 	if err != nil {
-		return result, err
+		return result, env.ErrorDispatch(err)
 	}
 
 	// converting db record to T_ListItem
@@ -23,7 +23,7 @@ func (it *DefaultCategoryCollection) List() ([]models.T_ListItem, error) {
 	for _, dbItemData := range dbItems {
 		categoryModel, err := category.GetCategoryModel()
 		if err != nil {
-			return result, err
+			return result, env.ErrorDispatch(err)
 		}
 		categoryModel.FromHashMap(dbItemData)
 
@@ -56,7 +56,7 @@ func (it *DefaultCategoryCollection) ListAddExtraAttribute(attribute string) err
 
 	categoryModel, err := category.GetCategoryModel()
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	allowedAttributes := make([]string, 0)

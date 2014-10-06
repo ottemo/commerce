@@ -2,9 +2,9 @@ package product
 
 import (
 	"github.com/ottemo/foundation/app/helpers/attributes"
-
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/product"
+	"github.com/ottemo/foundation/env"
 )
 
 // returns model name
@@ -22,7 +22,7 @@ func (it *DefaultProduct) New() (models.I_Model, error) {
 
 	customAttributes, err := new(attributes.CustomAttributes).Init(product.MODEL_NAME_PRODUCT)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	return &DefaultProduct{CustomAttributes: customAttributes}, nil

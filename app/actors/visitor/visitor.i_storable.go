@@ -22,17 +22,17 @@ func (it *DefaultVisitor) Load(Id string) error {
 
 	collection, err := db.GetCollection(COLLECTION_NAME_VISITOR)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	values, err := collection.LoadById(Id)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = it.FromHashMap(values)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	return nil
@@ -43,21 +43,21 @@ func (it *DefaultVisitor) Delete() error {
 
 	collection, err := db.GetCollection(COLLECTION_NAME_VISITOR)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	addressCollection, err := db.GetCollection(address.COLLECTION_NAME_VISITOR_ADDRESS)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	addressCollection.AddFilter("visitor_id", "=", it.GetId())
 	if _, err := addressCollection.Delete(); err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = collection.DeleteById(it.GetId())
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	return nil
@@ -68,14 +68,14 @@ func (it *DefaultVisitor) Save() error {
 
 	collection, err := db.GetCollection(COLLECTION_NAME_VISITOR)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	if it.GetId() == "" {
 		collection.AddFilter("email", "=", it.GetEmail())
 		n, err := collection.Count()
 		if err != nil {
-			return err
+			return env.ErrorDispatch(err)
 		}
 		if n > 0 {
 			return env.ErrorNew("email already exists")
@@ -100,7 +100,7 @@ func (it *DefaultVisitor) Save() error {
 	if it.ShippingAddress != nil {
 		err := it.ShippingAddress.Save()
 		if err != nil {
-			return err
+			return env.ErrorDispatch(err)
 		}
 
 		storableValues["shipping_address_id"] = it.ShippingAddress.GetId()
@@ -110,7 +110,7 @@ func (it *DefaultVisitor) Save() error {
 	if it.BillingAddress != nil {
 		err := it.BillingAddress.Save()
 		if err != nil {
-			return err
+			return env.ErrorDispatch(err)
 		}
 
 		storableValues["billing_address_id"] = it.BillingAddress.GetId()
@@ -120,7 +120,7 @@ func (it *DefaultVisitor) Save() error {
 	if newId, err := collection.Save(storableValues); err == nil {
 		it.Set("_id", newId)
 	} else {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	return nil

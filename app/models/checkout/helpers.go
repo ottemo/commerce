@@ -12,7 +12,7 @@ import (
 func GetCheckoutModel() (I_Checkout, error) {
 	model, err := models.GetModel(CHECKOUT_MODEL_NAME)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	checkoutModel, ok := model.(I_Checkout)
@@ -62,7 +62,7 @@ func GetCurrentCheckout(params *api.T_APIHandlerParams) (I_Checkout, error) {
 		// making new checkout object
 		newCheckoutInstance, err := GetCheckoutModel()
 		if err != nil {
-			return nil, err
+			return nil, env.ErrorDispatch(err)
 		}
 
 		// storing checkout object to session
@@ -80,14 +80,14 @@ func GetCurrentCheckout(params *api.T_APIHandlerParams) (I_Checkout, error) {
 	// setting cart
 	currentCart, err := cart.GetCurrentCart(params)
 	if err != nil {
-		return checkoutInstance, err
+		return checkoutInstance, env.ErrorDispatch(err)
 	}
 	checkoutInstance.SetCart(currentCart)
 
 	// setting visitor
 	currentVisitor, err := visitor.GetCurrentVisitor(params)
 	if err != nil {
-		return checkoutInstance, err
+		return checkoutInstance, env.ErrorDispatch(err)
 	}
 	checkoutInstance.SetVisitor(currentVisitor)
 

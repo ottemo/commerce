@@ -20,68 +20,68 @@ func setupAPI() error {
 	//----------------------
 	err = api.GetRestService().RegisterAPI("product", "GET", "get/:id", restGetProduct)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("product", "POST", "create", restCreateProduct)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("product", "PUT", "update/:id", restUpdateProduct)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("product", "DELETE", "delete/:id", restDeleteProduct)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = api.GetRestService().RegisterAPI("product", "GET", "attribute/list", restListProductAttributes)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("product", "DELETE", "attribute/remove/:attribute", restRemoveProductAttribute)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("product", "POST", "attribute/add", restAddProductAttribute)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = api.GetRestService().RegisterAPI("product", "GET", "media/get/:productId/:mediaType/:mediaName", restMediaGet)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("product", "GET", "media/list/:productId/:mediaType", restMediaList)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("product", "GET", "media/path/:productId/:mediaType", restMediaPath)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("product", "POST", "media/add/:productId/:mediaType/:mediaName", restMediaAdd)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("product", "DELETE", "media/remove/:productId/:mediaType/:mediaName", restMediaRemove)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	// 2. DefaultProductCollection API
 	//--------------------------------
 	err = api.GetRestService().RegisterAPI("product", "GET", "list", restListProducts)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("product", "POST", "list", restListProducts)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("product", "GET", "count", restCountProducts)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	return nil
@@ -95,7 +95,7 @@ func setupAPI() error {
 func restListProductAttributes(params *api.T_APIHandlerParams) (interface{}, error) {
 	productModel, err := product.GetProductModel()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	attrInfo := productModel.GetAttributesInfo()
@@ -110,7 +110,7 @@ func restAddProductAttribute(params *api.T_APIHandlerParams) (interface{}, error
 	//---------------------
 	reqData, err := api.GetRequestContentAsMap(params)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	attributeName, isSpecified := reqData["Attribute"]
@@ -125,14 +125,14 @@ func restAddProductAttribute(params *api.T_APIHandlerParams) (interface{}, error
 
 	// check rights
 	if err := api.ValidateAdminRights(params); err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	// make product attribute operation
 	//---------------------------------
 	productModel, err := product.GetProductModel()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	attribute := models.T_AttributeInfo{
@@ -174,7 +174,7 @@ func restAddProductAttribute(params *api.T_APIHandlerParams) (interface{}, error
 
 	err = productModel.AddNewAttribute(attribute)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	return attribute, nil
@@ -192,19 +192,19 @@ func restRemoveProductAttribute(params *api.T_APIHandlerParams) (interface{}, er
 
 	// check rights
 	if err := api.ValidateAdminRights(params); err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	// remove attribute actions
 	//-------------------------
 	productModel, err := product.GetProductModel()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	err = productModel.RemoveAttribute(attributeName)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	return "ok", nil
@@ -225,7 +225,7 @@ func restGetProduct(params *api.T_APIHandlerParams) (interface{}, error) {
 	//-----------------------
 	productModel, err := product.LoadProductById(productId)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	return productModel.ToHashMap(), nil
@@ -240,7 +240,7 @@ func restCreateProduct(params *api.T_APIHandlerParams) (interface{}, error) {
 	//---------------------
 	reqData, err := api.GetRequestContentAsMap(params)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	if !utils.KeysInMapAndNotBlank(params.RequestURLParams, "sku", "name") {
@@ -249,26 +249,26 @@ func restCreateProduct(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// check rights
 	if err := api.ValidateAdminRights(params); err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	// create product operation
 	//-------------------------
 	productModel, err := product.GetProductModel()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	for attribute, value := range reqData {
 		err := productModel.Set(attribute, value)
 		if err != nil {
-			return nil, err
+			return nil, env.ErrorDispatch(err)
 		}
 	}
 
 	err = productModel.Save()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	return productModel.ToHashMap(), nil
@@ -287,19 +287,19 @@ func restDeleteProduct(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// check rights
 	if err := api.ValidateAdminRights(params); err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	// delete operation
 	//-----------------
 	productModel, err := product.GetProductModelAndSetId(productId)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	err = productModel.Delete()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	return "ok", nil
@@ -324,26 +324,26 @@ func restUpdateProduct(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// check rights
 	if err := api.ValidateAdminRights(params); err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	// update operations
 	//------------------
 	productModel, err := product.LoadProductById(productId)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	for attrName, attrVal := range reqData {
 		err = productModel.Set(attrName, attrVal)
 		if err != nil {
-			return nil, err
+			return nil, env.ErrorDispatch(err)
 		}
 	}
 
 	err = productModel.Save()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	return productModel.ToHashMap(), nil
@@ -369,12 +369,12 @@ func restMediaPath(params *api.T_APIHandlerParams) (interface{}, error) {
 	//---------------------
 	productModel, err := product.GetProductModelAndSetId(productId)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	mediaList, err := productModel.GetMediaPath(mediaType)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	return mediaList, nil
@@ -400,12 +400,12 @@ func restMediaList(params *api.T_APIHandlerParams) (interface{}, error) {
 	//---------------------
 	productModel, err := product.GetProductModelAndSetId(productId)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	mediaList, err := productModel.ListMedia(mediaType)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	return mediaList, nil
@@ -435,14 +435,14 @@ func restMediaAdd(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// check rights
 	if err := api.ValidateAdminRights(params); err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	// income file processing
 	//-----------------------
 	file, _, err := params.Request.FormFile("file")
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	fileSize, _ := file.Seek(0, 2)
@@ -455,12 +455,12 @@ func restMediaAdd(params *api.T_APIHandlerParams) (interface{}, error) {
 	//--------------------
 	productModel, err := product.GetProductModelAndSetId(productId)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	err = productModel.AddMedia(mediaType, mediaName, fileContents)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	return "ok", nil
@@ -489,19 +489,19 @@ func restMediaRemove(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// check rights
 	if err := api.ValidateAdminRights(params); err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	// list media operation
 	//---------------------
 	productModel, err := product.GetProductModelAndSetId(productId)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	err = productModel.RemoveMedia(mediaType, mediaName)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	return "ok", nil
@@ -534,7 +534,7 @@ func restMediaGet(params *api.T_APIHandlerParams) (interface{}, error) {
 	//---------------------
 	productModel, err := product.GetProductModelAndSetId(productId)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	return productModel.GetMedia(mediaType, mediaName)
@@ -552,14 +552,14 @@ func restListProducts(params *api.T_APIHandlerParams) (interface{}, error) {
 	//---------------------
 	reqData, err := api.GetRequestContentAsMap(params)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	// api function routine
 	//---------------------
 	productCollectionModel, err := product.GetProductCollectionModel()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	// limit parameter handle
@@ -574,7 +574,7 @@ func restListProducts(params *api.T_APIHandlerParams) (interface{}, error) {
 		for _, value := range extra {
 			err := productCollectionModel.ListAddExtraAttribute(value)
 			if err != nil {
-				return nil, err
+				return nil, env.ErrorDispatch(err)
 			}
 		}
 	}
@@ -587,7 +587,7 @@ func restCountProducts(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	productCollectionModel, err := product.GetProductCollectionModel()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 	dbCollection := productCollectionModel.GetDBCollection()
 

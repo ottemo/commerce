@@ -1,10 +1,10 @@
 package product
 
 import (
-	"github.com/ottemo/foundation/db"
-
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/product"
+	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/foundation/env"
 )
 
 // returns model name
@@ -21,7 +21,7 @@ func (it *DefaultProductCollection) GetImplementationName() string {
 func (it *DefaultProductCollection) New() (models.I_Model, error) {
 	dbCollection, err := db.GetCollection(COLLECTION_NAME_PRODUCT)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	return &DefaultProductCollection{listCollection: dbCollection, listExtraAtributes: make([]string, 0)}, nil

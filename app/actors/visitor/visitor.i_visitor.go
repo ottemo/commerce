@@ -110,13 +110,13 @@ func (it *DefaultVisitor) Invalidate() error {
 
 	data, err := time.Now().MarshalBinary()
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	it.ValidateKey = hex.EncodeToString([]byte(base64.StdEncoding.EncodeToString(data)))
 	err = it.Save()
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	linkHref := app.GetFoundationUrl("visitor/validate/" + it.ValidateKey)
@@ -135,17 +135,17 @@ func (it *DefaultVisitor) Validate(key string) error {
 
 	collection, err := db.GetCollection(COLLECTION_NAME_VISITOR)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = collection.AddFilter("validate", "=", key)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	records, err := collection.Load()
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	for _, record := range records {
@@ -161,7 +161,7 @@ func (it *DefaultVisitor) Validate(key string) error {
 	step1, err := hex.DecodeString(key)
 	data, err := base64.StdEncoding.DecodeString(string(step1))
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	stamp := time.Now()
@@ -176,7 +176,7 @@ func (it *DefaultVisitor) Validate(key string) error {
 
 		visitorModel, err := visitor.LoadVisitorById(visitorId)
 		if err != nil {
-			return err
+			return env.ErrorDispatch(err)
 		}
 
 		if !validationExpired {
@@ -186,7 +186,7 @@ func (it *DefaultVisitor) Validate(key string) error {
 		} else {
 			err = visitorModel.Invalidate()
 			if err != nil {
-				return err
+				return env.ErrorDispatch(err)
 			}
 
 			return env.ErrorNew("validation period expired, new validation URL was sent")
@@ -230,12 +230,12 @@ func (it *DefaultVisitor) GenerateNewPassword() error {
 	newPassword := string(bytes)
 	err := it.SetPassword(newPassword)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = it.Save()
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	linkHref := app.GetStorefrontUrl("login")
@@ -244,7 +244,7 @@ func (it *DefaultVisitor) GenerateNewPassword() error {
 		"New password: "+newPassword+"\n\n"+
 		"Please change your password on next login "+linkHref)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	return nil
@@ -255,13 +255,13 @@ func (it *DefaultVisitor) LoadByGoogleId(googleId string) error {
 
 	collection, err := db.GetCollection(COLLECTION_NAME_VISITOR)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	collection.AddFilter("google_id", "=", googleId)
 	rows, err := collection.Load()
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	if len(rows) == 0 {
@@ -274,7 +274,7 @@ func (it *DefaultVisitor) LoadByGoogleId(googleId string) error {
 
 	err = it.FromHashMap(rows[0])
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	return nil
@@ -285,13 +285,13 @@ func (it *DefaultVisitor) LoadByFacebookId(facebookId string) error {
 
 	collection, err := db.GetCollection(COLLECTION_NAME_VISITOR)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	collection.AddFilter("facebook_id", "=", facebookId)
 	rows, err := collection.Load()
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	if len(rows) == 0 {
@@ -304,7 +304,7 @@ func (it *DefaultVisitor) LoadByFacebookId(facebookId string) error {
 
 	err = it.FromHashMap(rows[0])
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	return nil
@@ -315,13 +315,13 @@ func (it *DefaultVisitor) LoadByEmail(email string) error {
 
 	collection, err := db.GetCollection(COLLECTION_NAME_VISITOR)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	collection.AddFilter("email", "=", email)
 	rows, err := collection.Load()
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	if len(rows) == 0 {
@@ -334,7 +334,7 @@ func (it *DefaultVisitor) LoadByEmail(email string) error {
 
 	err = it.FromHashMap(rows[0])
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	return nil

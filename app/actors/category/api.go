@@ -18,70 +18,70 @@ func setupAPI() error {
 
 	err = api.GetRestService().RegisterAPI("category", "GET", "list", restListCategories)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("category", "POST", "list", restListCategories)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("category", "GET", "count", restCountCategories)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("category", "POST", "create", restCreateCategory)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("category", "PUT", "update/:id", restUpdateCategory)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("category", "DELETE", "delete/:id", restDeleteCategory)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("category", "GET", "get/:id", restGetCategory)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("category", "GET", "layers/:id", restListCategoryLayers)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("category", "POST", "layers/:id", restListCategoryLayers)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = api.GetRestService().RegisterAPI("category", "GET", "product/list/:categoryId", restListCategoryProducts)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("category", "POST", "product/list/:categoryId", restListCategoryProducts)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("category", "GET", "product/count/:categoryId", restCategoryProductsCount)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("category", "GET", "product/add/:categoryId/:productId", restAddCategoryProduct)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("category", "GET", "product/remove/:categoryId/:productId", restRemoveCategoryProduct)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = api.GetRestService().RegisterAPI("category", "GET", "attribute/list", restListCategoryAttributes)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = api.GetRestService().RegisterAPI("category", "GET", "tree", restGetCategoriesTree)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	return nil
@@ -106,7 +106,7 @@ func restListCategories(params *api.T_APIHandlerParams) (interface{}, error) {
 	//----------------
 	categoryCollectionModel, err := category.GetCategoryCollectionModel()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	// limit parameter handler
@@ -121,7 +121,7 @@ func restListCategories(params *api.T_APIHandlerParams) (interface{}, error) {
 		for _, value := range extra {
 			err := categoryCollectionModel.ListAddExtraAttribute(value)
 			if err != nil {
-				return nil, err
+				return nil, env.ErrorDispatch(err)
 			}
 		}
 	}
@@ -133,7 +133,7 @@ func restListCategories(params *api.T_APIHandlerParams) (interface{}, error) {
 func restCountCategories(params *api.T_APIHandlerParams) (interface{}, error) {
 	categoryCollectionModel, err := category.GetCategoryCollectionModel()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 	dbCollection := categoryCollectionModel.GetDBCollection()
 
@@ -152,7 +152,7 @@ func restCreateCategory(params *api.T_APIHandlerParams) (interface{}, error) {
 	//---------------------
 	reqData, err := api.GetRequestContentAsMap(params)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	if _, present := reqData["name"]; !present {
@@ -161,26 +161,26 @@ func restCreateCategory(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// check rights
 	if err := api.ValidateAdminRights(params); err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	// create category operation
 	//-------------------------
 	categoryModel, err := category.GetCategoryModel()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	for attribute, value := range reqData {
 		err := categoryModel.Set(attribute, value)
 		if err != nil {
-			return nil, err
+			return nil, env.ErrorDispatch(err)
 		}
 	}
 
 	err = categoryModel.Save()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	return categoryModel.ToHashMap(), nil
@@ -198,19 +198,19 @@ func restDeleteCategory(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// check rights
 	if err := api.ValidateAdminRights(params); err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	// delete operation
 	//-----------------
 	categoryModel, err := category.GetCategoryModelAndSetId(categoryId)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	err = categoryModel.Delete()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	return "ok", nil
@@ -230,31 +230,31 @@ func restUpdateCategory(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	reqData, err := api.GetRequestContentAsMap(params)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	// check rights
 	if err := api.ValidateAdminRights(params); err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	// update operations
 	//------------------
 	categoryModel, err := category.LoadCategoryById(categoryId)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	for attrName, attrVal := range reqData {
 		err = categoryModel.Set(attrName, attrVal)
 		if err != nil {
-			return nil, err
+			return nil, env.ErrorDispatch(err)
 		}
 	}
 
 	err = categoryModel.Save()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	return categoryModel.ToHashMap(), nil
@@ -264,7 +264,7 @@ func restUpdateCategory(params *api.T_APIHandlerParams) (interface{}, error) {
 func restListCategoryAttributes(params *api.T_APIHandlerParams) (interface{}, error) {
 	categoryModel, err := category.GetCategoryModel()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	attrInfo := categoryModel.GetAttributesInfo()
@@ -279,7 +279,7 @@ func restListCategoryLayers(params *api.T_APIHandlerParams) (interface{}, error)
 
 	categoryModel, err := category.LoadCategoryById(categoryId)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	productsCollection := categoryModel.GetProductsCollection()
@@ -287,7 +287,7 @@ func restListCategoryLayers(params *api.T_APIHandlerParams) (interface{}, error)
 
 	productModel, err := product.GetProductModel()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 	productAttributesInfo := productModel.GetAttributesInfo()
 
@@ -320,7 +320,7 @@ func restListCategoryProducts(params *api.T_APIHandlerParams) (interface{}, erro
 	//-----------------------
 	categoryModel, err := category.LoadCategoryById(categoryId)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	productsCollection := categoryModel.GetProductsCollection()
@@ -361,19 +361,19 @@ func restAddCategoryProduct(params *api.T_APIHandlerParams) (interface{}, error)
 
 	// check rights
 	if err := api.ValidateAdminRights(params); err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	// category product add operation
 	//-------------------------------
 	categoryModel, err := category.GetCategoryModelAndSetId(categoryId)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	err = categoryModel.AddProduct(productId)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	return "ok", nil
@@ -396,19 +396,19 @@ func restRemoveCategoryProduct(params *api.T_APIHandlerParams) (interface{}, err
 
 	// check rights
 	if err := api.ValidateAdminRights(params); err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	// category product add operation
 	//-------------------------------
 	categoryModel, err := category.GetCategoryModelAndSetId(categoryId)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	err = categoryModel.RemoveProduct(productId)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	return "ok", nil
@@ -429,7 +429,7 @@ func restGetCategory(params *api.T_APIHandlerParams) (interface{}, error) {
 	//-----------------------
 	categoryModel, err := category.LoadCategoryById(categoryId)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	return categoryModel.ToHashMap(), nil
@@ -448,7 +448,7 @@ func restCategoryProductsCount(params *api.T_APIHandlerParams) (interface{}, err
 	//-----------------------
 	categoryModel, err := category.LoadCategoryById(categoryId)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	// count when we have filters (more complex and slow)
@@ -468,17 +468,17 @@ func restGetCategoriesTree(params *api.T_APIHandlerParams) (interface{}, error) 
 
 	collection, err := db.GetCollection(COLLECTION_NAME_CATEGORY)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	err = collection.AddSort("path", false)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	rowData, err := collection.Load()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	categoryStack := make([]map[string]interface{}, 0)

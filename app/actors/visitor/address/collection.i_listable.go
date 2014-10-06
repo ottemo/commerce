@@ -14,13 +14,13 @@ func (it *DefaultVisitorAddressCollection) List() ([]models.T_ListItem, error) {
 
 	dbRecords, err := it.listCollection.Load()
 	if err != nil {
-		return result, err
+		return result, env.ErrorDispatch(err)
 	}
 
 	for _, dbRecordData := range dbRecords {
 		visitorAddressModel, err := visitor.GetVisitorAddressModel()
 		if err != nil {
-			return result, err
+			return result, env.ErrorDispatch(err)
 		}
 		visitorAddressModel.FromHashMap(dbRecordData)
 

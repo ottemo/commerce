@@ -14,18 +14,18 @@ func (it *DefaultProductCollection) List() ([]models.T_ListItem, error) {
 
 	dbRecords, err := it.listCollection.Load()
 	if err != nil {
-		return result, err
+		return result, env.ErrorDispatch(err)
 	}
 
 	for _, dbRecordData := range dbRecords {
 
 		productModel, err := product.GetProductModel()
 		if err != nil {
-			return result, err
+			return result, env.ErrorDispatch(err)
 		}
 		err = productModel.FromHashMap(dbRecordData)
 		if err != nil {
-			return result, err
+			return result, env.ErrorDispatch(err)
 		}
 
 		// retrieving minimal data needed for list
@@ -33,7 +33,7 @@ func (it *DefaultProductCollection) List() ([]models.T_ListItem, error) {
 
 		mediaPath, err := productModel.GetMediaPath("image")
 		if err != nil {
-			return result, err
+			return result, env.ErrorDispatch(err)
 		}
 
 		resultItem.Id = productModel.GetId()
@@ -65,7 +65,7 @@ func (it *DefaultProductCollection) ListAddExtraAttribute(attribute string) erro
 
 	productModel, err := product.GetProductModel()
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	allowedAttributes := make([]string, 0)

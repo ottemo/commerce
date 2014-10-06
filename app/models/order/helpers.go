@@ -9,7 +9,7 @@ import (
 func GetOrderCollectionModel() (I_OrderCollection, error) {
 	model, err := models.GetModel(MODEL_NAME_ORDER_COLLECTION)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	orderCollectionModel, ok := model.(I_OrderCollection)
@@ -24,7 +24,7 @@ func GetOrderCollectionModel() (I_OrderCollection, error) {
 func GetOrderModel() (I_Order, error) {
 	model, err := models.GetModel(MODEL_NAME_ORDER)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	orderModel, ok := model.(I_Order)
@@ -40,12 +40,12 @@ func GetOrderModelAndSetId(orderId string) (I_Order, error) {
 
 	orderModel, err := GetOrderModel()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	err = orderModel.SetId(orderId)
 	if err != nil {
-		return orderModel, err
+		return orderModel, env.ErrorDispatch(err)
 	}
 
 	return orderModel, nil
@@ -56,12 +56,12 @@ func LoadOrderById(orderId string) (I_Order, error) {
 
 	orderModel, err := GetOrderModel()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	err = orderModel.Load(orderId)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	return orderModel, nil

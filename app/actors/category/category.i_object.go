@@ -84,7 +84,7 @@ func (it *DefaultCategory) Set(attribute string, value interface{}) error {
 			if value != "" {
 				model, err := models.GetModel("Category")
 				if err != nil {
-					return err
+					return env.ErrorDispatch(err)
 				}
 				categoryModel, ok := model.(category.I_Category)
 				if !ok {
@@ -93,7 +93,7 @@ func (it *DefaultCategory) Set(attribute string, value interface{}) error {
 
 				err = categoryModel.Load(value)
 				if err != nil {
-					return err
+					return env.ErrorDispatch(err)
 				}
 
 				selfId := it.GetId()
@@ -136,7 +136,7 @@ func (it *DefaultCategory) Set(attribute string, value interface{}) error {
 				if ok {
 					productModel, err := product.LoadProductById(productId)
 					if err != nil {
-						return err
+						return env.ErrorDispatch(err)
 					}
 
 					it.ProductIds = append(it.ProductIds, productModel.GetId())
@@ -160,7 +160,7 @@ func (it *DefaultCategory) FromHashMap(input map[string]interface{}) error {
 
 	for attribute, value := range input {
 		if err := it.Set(attribute, value); err != nil {
-			return err
+			return env.ErrorDispatch(err)
 		}
 	}
 

@@ -14,13 +14,13 @@ func (it *DefaultVisitorCollection) List() ([]models.T_ListItem, error) {
 
 	dbRecords, err := it.listCollection.Load()
 	if err != nil {
-		return result, err
+		return result, env.ErrorDispatch(err)
 	}
 
 	for _, dbRecordData := range dbRecords {
 		visitorModel, err := visitor.GetVisitorModel()
 		if err != nil {
-			return result, err
+			return result, env.ErrorDispatch(err)
 		}
 		visitorModel.FromHashMap(dbRecordData)
 
@@ -52,7 +52,7 @@ func (it *DefaultVisitorCollection) ListAddExtraAttribute(attribute string) erro
 
 	visitorModel, err := visitor.GetVisitorModel()
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	allowedAttributes := make([]string, 0)

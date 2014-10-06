@@ -26,12 +26,12 @@ func (it *DefaultCart) Load(Id string) error {
 		// loading category
 		cartCollection, err := dbEngine.GetCollection(CART_COLLECTION_NAME)
 		if err != nil {
-			return err
+			return env.ErrorDispatch(err)
 		}
 
 		values, err := cartCollection.LoadById(Id)
 		if err != nil {
-			return err
+			return env.ErrorDispatch(err)
 		}
 
 		// initializing DefaultCart structure
@@ -45,13 +45,13 @@ func (it *DefaultCart) Load(Id string) error {
 		// loading cart items
 		cartItemsCollection, err := dbEngine.GetCollection(CART_ITEMS_COLLECTION_NAME)
 		if err != nil {
-			return err
+			return env.ErrorDispatch(err)
 		}
 
 		cartItemsCollection.AddFilter("cart_id", "=", it.GetId())
 		cartItems, err := cartItemsCollection.Load()
 		if err != nil {
-			return err
+			return env.ErrorDispatch(err)
 		}
 
 		for _, cartItemValues := range cartItems {
@@ -99,23 +99,23 @@ func (it *DefaultCart) Delete() error {
 	// deleting cart items
 	cartItemsCollection, err := dbEngine.GetCollection(CART_ITEMS_COLLECTION_NAME)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = cartItemsCollection.AddFilter("cart_id", "=", it.GetId())
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	_, err = cartItemsCollection.Delete()
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	// deleting cart
 	cartCollection, err := dbEngine.GetCollection(CART_COLLECTION_NAME)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = cartCollection.DeleteById(it.GetId())
 
@@ -132,12 +132,12 @@ func (it *DefaultCart) Save() error {
 
 	cartCollection, err := dbEngine.GetCollection(CART_COLLECTION_NAME)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	cartItemsCollection, err := dbEngine.GetCollection(CART_ITEMS_COLLECTION_NAME)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	// packing data before save
@@ -150,7 +150,7 @@ func (it *DefaultCart) Save() error {
 
 	newId, err := cartCollection.Save(cartStoringValues)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	it.SetId(newId)
 
@@ -167,7 +167,7 @@ func (it *DefaultCart) Save() error {
 
 		newId, err := cartItemsCollection.Save(cartItemStoringValues)
 		if err != nil {
-			return err
+			return env.ErrorDispatch(err)
 		}
 		cartItem.SetId(newId)
 	}

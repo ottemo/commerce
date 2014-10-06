@@ -17,23 +17,23 @@ func setupAPI() error {
 
 	err = api.GetRestService().RegisterAPI("product", "GET", "review/list/:pid", restReviewList)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("product", "POST", "review/add/:pid", restReviewAdd)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("product", "POST", "review/add/:pid/:stars", restReviewAdd)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("product", "DELETE", "review/remove/:reviewId", restReviewRemove)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("product", "GET", "rating/info/:pid", restRatingInfo)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	return nil
@@ -44,12 +44,12 @@ func restReviewList(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	productObject, err := product.LoadProductById(params.RequestURLParams["pid"])
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	collection, err := db.GetCollection(REVIEW_COLLECTION_NAME)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	collection.AddFilter("product_id", "=", productObject.GetId())
@@ -57,7 +57,7 @@ func restReviewList(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	records, err := collection.Load()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	return records, nil
@@ -68,17 +68,17 @@ func restReviewAdd(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	visitorObject, err := visitor.GetCurrentVisitor(params)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	productObject, err := product.LoadProductById(params.RequestURLParams["pid"])
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	reviewCollection, err := db.GetCollection(REVIEW_COLLECTION_NAME)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	// rating update if was set
@@ -97,7 +97,7 @@ func restReviewAdd(params *api.T_APIHandlerParams) (interface{}, error) {
 
 		records, err := reviewCollection.Count()
 		if err != nil {
-			return nil, err
+			return nil, env.ErrorDispatch(err)
 		}
 
 		if records > 0 {
@@ -108,13 +108,13 @@ func restReviewAdd(params *api.T_APIHandlerParams) (interface{}, error) {
 
 		ratingCollection, err := db.GetCollection(RATING_COLLECTION_NAME)
 		if err != nil {
-			return nil, err
+			return nil, env.ErrorDispatch(err)
 		}
 
 		ratingCollection.AddFilter("product_id", "=", productObject.GetId())
 		ratingRecords, err := ratingCollection.Load()
 		if err != nil {
-			return nil, err
+			return nil, env.ErrorDispatch(err)
 		}
 
 		recordAttribute := utils.InterfaceToString(ratingValue) + "star"
@@ -152,7 +152,7 @@ func restReviewAdd(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	newId, err := reviewCollection.Save(storingValues)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	storingValues["_id"] = newId
@@ -167,17 +167,17 @@ func restReviewRemove(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	visitorObject, err := visitor.GetCurrentVisitor(params)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	collection, err := db.GetCollection(REVIEW_COLLECTION_NAME)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	reviewRecord, err := collection.LoadById(reviewId)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	if visitorId, present := reviewRecord["visitor_id"]; present {
@@ -185,7 +185,7 @@ func restReviewRemove(params *api.T_APIHandlerParams) (interface{}, error) {
 		// check rights
 		if err := api.ValidateAdminRights(params); err != nil {
 			if visitorId != visitorObject.GetId() {
-				return nil, err
+				return nil, env.ErrorDispatch(err)
 			}
 		}
 
@@ -196,13 +196,13 @@ func restReviewRemove(params *api.T_APIHandlerParams) (interface{}, error) {
 		if reviewRating > 0 {
 			ratingCollection, err := db.GetCollection(RATING_COLLECTION_NAME)
 			if err != nil {
-				return nil, err
+				return nil, env.ErrorDispatch(err)
 			}
 
 			ratingCollection.AddFilter("product_id", "=", reviewRecord["product_id"])
 			ratingRecords, err := ratingCollection.Load()
 			if err != nil {
-				return nil, err
+				return nil, env.ErrorDispatch(err)
 			}
 
 			var ratingRecord map[string]interface{} = nil
@@ -229,18 +229,18 @@ func restRatingInfo(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	productObject, err := product.LoadProductById(params.RequestURLParams["pid"])
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	ratingCollection, err := db.GetCollection(RATING_COLLECTION_NAME)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	ratingCollection.AddFilter("product_id", "=", productObject.GetId())
 	ratingRecords, err := ratingCollection.Load()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	return ratingRecords, nil

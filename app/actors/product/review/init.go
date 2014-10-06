@@ -28,7 +28,7 @@ func setupDB() error {
 		collection.AddColumn("review", "text", false)
 		collection.AddColumn("created_at", "datetime", false)
 	} else {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	if collection, err := dbEngine.GetCollection("rating"); err == nil {
@@ -39,7 +39,7 @@ func setupDB() error {
 		collection.AddColumn("4star", "int", false)
 		collection.AddColumn("5star", "int", false)
 	} else {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	return nil

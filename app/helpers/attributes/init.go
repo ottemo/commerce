@@ -2,6 +2,7 @@ package attributes
 
 import (
 	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/foundation/env"
 )
 
 // package self initializer
@@ -27,7 +28,7 @@ func SetupDB() error {
 		collection.AddColumn("layered", "bool", false)
 
 	} else {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	return nil

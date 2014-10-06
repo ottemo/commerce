@@ -14,18 +14,18 @@ func (it *DefaultOrderCollection) List() ([]models.T_ListItem, error) {
 
 	dbRecords, err := it.listCollection.Load()
 	if err != nil {
-		return result, err
+		return result, env.ErrorDispatch(err)
 	}
 
 	for _, dbRecordData := range dbRecords {
 
 		orderModel, err := order.GetOrderModel()
 		if err != nil {
-			return result, err
+			return result, env.ErrorDispatch(err)
 		}
 		err = orderModel.FromHashMap(dbRecordData)
 		if err != nil {
-			return result, err
+			return result, env.ErrorDispatch(err)
 		}
 
 		// retrieving minimal data needed for list
@@ -56,7 +56,7 @@ func (it *DefaultOrderCollection) ListAddExtraAttribute(attribute string) error 
 
 	orderModel, err := order.GetOrderModel()
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	allowedAttributes := make([]string, 0)

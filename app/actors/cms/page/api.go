@@ -14,35 +14,35 @@ func setupAPI() error {
 
 	err = api.GetRestService().RegisterAPI("cms", "GET", "page/attributes", restCMSPageAttributes)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("cms", "GET", "page/list", restCMSPageList)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("cms", "POST", "page/list", restCMSPageList)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("cms", "GET", "page/count", restCMSPageCount)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("cms", "GET", "page/get/:id", restCMSPageGet)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("cms", "POST", "page/add", restCMSPageAdd)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("cms", "PUT", "page/update/:id", restCMSPageUpdate)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("cms", "DELETE", "page/delete/:id", restCMSPageDelete)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	return nil
@@ -53,7 +53,7 @@ func restCMSPageAttributes(params *api.T_APIHandlerParams) (interface{}, error) 
 
 	cmsPage, err := cms.GetCMSPageModel()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	return cmsPage.GetAttributesInfo(), nil
@@ -77,7 +77,7 @@ func restCMSPageList(params *api.T_APIHandlerParams) (interface{}, error) {
 	//----------------
 	cmsPageCollectionModel, err := cms.GetCMSPageCollectionModel()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	// limit parameter handle
@@ -92,7 +92,7 @@ func restCMSPageList(params *api.T_APIHandlerParams) (interface{}, error) {
 		for _, value := range extra {
 			err := cmsPageCollectionModel.ListAddExtraAttribute(value)
 			if err != nil {
-				return nil, err
+				return nil, env.ErrorDispatch(err)
 			}
 		}
 	}
@@ -105,7 +105,7 @@ func restCMSPageCount(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	cmsPageCollectionModel, err := cms.GetCMSBlockCollectionModel()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 	dbCollection := cmsPageCollectionModel.GetDBCollection()
 
@@ -130,7 +130,7 @@ func restCMSPageGet(params *api.T_APIHandlerParams) (interface{}, error) {
 	//----------
 	cmsPage, err := cms.LoadCMSPageById(pageId)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	return cmsPage.ToHashMap(), nil
@@ -143,19 +143,19 @@ func restCMSPageAdd(params *api.T_APIHandlerParams) (interface{}, error) {
 	//---------------------
 	reqData, err := api.GetRequestContentAsMap(params)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	// check rights
 	if err := api.ValidateAdminRights(params); err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	// operation
 	//----------
 	cmsPageModel, err := cms.GetCMSPageModel()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	for attribute, value := range reqData {
@@ -180,19 +180,19 @@ func restCMSPageUpdate(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	reqData, err := api.GetRequestContentAsMap(params)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	// check rights
 	if err := api.ValidateAdminRights(params); err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	// operation
 	//----------
 	cmsPageModel, err := cms.LoadCMSPageById(pageId)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	for attribute, value := range reqData {
@@ -217,14 +217,14 @@ func restCMSPageDelete(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// check rights
 	if err := api.ValidateAdminRights(params); err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	// operation
 	//----------
 	cmsPageModel, err := cms.GetCMSPageModelAndSetId(pageId)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	cmsPageModel.Delete()
