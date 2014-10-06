@@ -184,7 +184,9 @@ func (it DefaultRestService) ServeHTTP(responseWriter http.ResponseWriter, reque
 
 		// default output format
 		responseWriter.Header().Set("Content-Type", "application/json")
-
+		
+		request.URL.Path = strings.Replace(request.URL.Path, "/foundation", "", -1)
+		
 		it.Router.ServeHTTP(responseWriter, request)
 	}
 }
