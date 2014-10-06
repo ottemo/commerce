@@ -9,6 +9,7 @@ import (
 	"encoding/hex"
 	"math/rand"
 
+	"github.com/ottemo/foundation/app"
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/env"
 
@@ -59,8 +60,9 @@ func (it *AuthorizeNetDPM) Authorize(orderInstance order.I_Order, paymentInfo ma
 	// preparing post form values
 	//---------------------------
 	formValues := map[string]string{
-		// "x_relay_response": "true",
-		// "x_relay_url": "http://dev.ottemo.com:3000/authorizenet/receipt",
+		"x_relay_response": "false",
+		"x_relay_url": utils.InterfaceToString(env.ConfigGetValue(app.CONFIG_PATH_FOUNDATION_URL)) + "authorizenet/receipt",
+
 		"x_test_request": utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_DPM_TEST)),
 
 		"x_fp_sequence":  sequence,
