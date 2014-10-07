@@ -1,6 +1,7 @@
 package sqlite
 
 import (
+	"fmt"
 	"io"
 	"regexp"
 	"strconv"
@@ -49,7 +50,7 @@ func (it *SQLiteCollection) Iterate(iteratorFunc func(record map[string]interfac
 		for ; err == nil; err = stmt.Next() {
 			row := make(sqlite3.RowMap)
 			if err := stmt.Scan(row); err == nil {
-				it.modifyResultRowId(row)
+				it.modifyResultRow(row)
 
 				if !iteratorFunc(row) {
 					break
@@ -87,7 +88,7 @@ func (it *SQLiteCollection) Distinct(columnName string) ([]interface{}, error) {
 		for ; err == nil; err = stmt.Next() {
 			row := make(sqlite3.RowMap)
 			if err := stmt.Scan(row); err == nil {
-				it.modifyResultRowId(row)
+				it.modifyResultRow(row)
 
 				for _, columnValue := range row {
 					result = append(result, columnValue)
@@ -138,17 +139,22 @@ func (it *SQLiteCollection) Count() (int, error) {
 
 // stores record in DB for current collection
 func (it *SQLiteCollection) Save(Item map[string]interface{}) (string, error) {
-
 	// _id in SQLite supposed to be auto-incremented int but for MongoDB it forced to be string
 	// collection interface also forced us to use string but we still want it ti be int in DB
 	// to make that we need to convert it before save from  string to int or nil
 	// and after save get auto-incremented id as convert to string
-	if Item["_id"] != nil {
-		if intValue, err := strconv.ParseInt(Item["_id"].(string), 10, 64); err == nil {
-			Item["_id"] = intValue
+	if idValue, present := Item["_id"]; present && idValue != nil {
+		if idValue, ok := idValue.(string); ok {
+			if intValue, err := strconv.ParseInt(idValue, 10, 64); err == nil {
+				Item["_id"] = intValue
+			} else {
+				Item["_id"] = nil
+			}
 		} else {
-			Item["_id"] = nil
+			return "", env.ErrorNew("unexpected _id value '" + fmt.Sprint(Item) + "'")
 		}
+	} else {
+		Item["_id"] = nil
 	}
 
 	// SQL generation
@@ -174,17 +180,17 @@ func (it *SQLiteCollection) Save(Item map[string]interface{}) (string, error) {
 		env.Log("sqlite", env.LOG_PREFIX_INFO, SQL)
 	}
 
-	if err := it.Connection.Exec(SQL, values...); err == nil {
-
-		// auto-incremented _id back to string
-		newIdInt := it.Connection.LastInsertId()
-		newIdString := strconv.FormatInt(newIdInt, 10)
-		Item["_id"] = newIdString
-
-		return newIdString, nil
-	} else {
+	err := it.Connection.Exec(SQL, values...)
+	if err != nil {
 		return "", sqlError(SQL, err)
 	}
+
+	// auto-incremented _id back to string
+	newIdInt := it.Connection.LastInsertId()
+	newIdString := strconv.FormatInt(newIdInt, 10)
+	Item["_id"] = newIdString
+
+	return newIdString, nil
 }
 
 // removes records that matches current select statement from DB
@@ -195,7 +201,7 @@ func (it *SQLiteCollection) Delete() (int, error) {
 	SQL := "DELETE FROM " + it.Name + sqlDeleteFilter
 
 	if DEBUG_SQL {
-		println(SQL)
+		env.Log("sqlite", env.LOG_PREFIX_INFO, SQL)
 	}
 
 	err := it.Connection.Exec(SQL)

@@ -47,6 +47,7 @@ func (it *DefaultConfig) RegisterItem(Item env.T_ConfigItem, Validator env.F_Con
 		}
 
 		it.configValues[Item.Path] = Item.Value
+		it.configTypes[Item.Path] = Item.Type
 	}
 
 	if _, present := it.configValidators[Item.Path]; Validator != nil && !present {
@@ -182,6 +183,7 @@ func (it *DefaultConfig) GetGroupItems() []env.T_ConfigItem {
 
 			Image: utils.InterfaceToString(record["image"]),
 		}
+		configItem.Value = db.ConvertTypeFromDbToGo(configItem.Value, configItem.Type)
 
 		result = append(result, configItem)
 	}
@@ -225,6 +227,7 @@ func (it *DefaultConfig) GetItemsInfo(Path string) []env.T_ConfigItem {
 
 			Image: utils.InterfaceToString(record["image"]),
 		}
+		configItem.Value = db.ConvertTypeFromDbToGo(configItem.Value, configItem.Type)
 
 		result = append(result, configItem)
 	}
@@ -236,26 +239,9 @@ func (it *DefaultConfig) GetItemsInfo(Path string) []env.T_ConfigItem {
 //   - calls env.OnConfigStart() after
 func (it *DefaultConfig) Load() error {
 
-	collection, err := db.GetCollection(CONFIG_COLLECTION_NAME)
+	err := it.Reload()
 	if err != nil {
 		return err
-	}
-
-	err = collection.SetResultColumns("path", "value")
-	if err != nil {
-		return err
-	}
-
-	records, err := collection.Load()
-	if err != nil {
-		return err
-	}
-
-	for _, record := range records {
-		path := utils.InterfaceToString(record["path"])
-		value := record["value"]
-
-		it.configValues[path] = value
 	}
 
 	err = env.OnConfigStart()
@@ -269,13 +255,14 @@ func (it *DefaultConfig) Load() error {
 // updates all config values from database
 func (it *DefaultConfig) Reload() error {
 	it.configValues = make(map[string]interface{})
+	it.configTypes = make(map[string]string)
 
 	collection, err := db.GetCollection(CONFIG_COLLECTION_NAME)
 	if err != nil {
 		return err
 	}
 
-	err = collection.SetResultColumns("path", "value")
+	err = collection.SetResultColumns("path", "type", "value")
 	if err != nil {
 		return err
 	}
@@ -286,10 +273,11 @@ func (it *DefaultConfig) Reload() error {
 	}
 
 	for _, record := range records {
-		path := utils.InterfaceToString(record["path"])
-		value := record["value"]
+		valuePath := utils.InterfaceToString(record["path"])
+		valueType := utils.InterfaceToString(record["type"])
 
-		it.configValues[path] = value
+		it.configValues[valuePath] = db.ConvertTypeFromDbToGo(record["value"], valueType)
+		it.configTypes[valuePath] = valueType
 	}
 
 	return nil

@@ -6,5 +6,6 @@ import (
 
 type DefaultConfig struct {
 	configValues     map[string]interface{}
+	configTypes      map[string]string
 	configValidators map[string]env.F_ConfigValueValidator
 }

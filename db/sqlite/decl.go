@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	DEBUG_SQL = false
+	DEBUG_SQL = true
 
 	FILTER_GROUP_STATIC  = "static"
 	FILTER_GROUP_DEFAULT = "default"

@@ -79,7 +79,6 @@ func restConfigGet(params *api.T_APIHandlerParams) (interface{}, error) {
 // WEB REST API used to set value of particular item in config
 //   - path should be without any wildcard
 func restConfigSet(params *api.T_APIHandlerParams) (interface{}, error) {
-
 	config := env.GetConfig()
 
 	var setValue interface{} = nil
@@ -95,6 +94,9 @@ func restConfigSet(params *api.T_APIHandlerParams) (interface{}, error) {
 	}
 
 	err = config.SetValue(configPath, setValue)
+	if err != nil {
+		return nil, err
+	}
 
 	return config.GetValue(configPath), err
 }

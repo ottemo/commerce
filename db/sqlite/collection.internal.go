@@ -1,10 +1,10 @@
 package sqlite
 
 import (
-	"strconv"
 	"strings"
 
 	sqlite3 "github.com/mxk/go-sqlite/sqlite3"
+	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
 )
@@ -82,33 +82,37 @@ func GetDBType(ColumnType string) (string, error) {
 // makes SQL filter string based on ColumnName, Operator and Value parameters or returns nil
 //   - internal usage function for AddFilter and AddStaticFilter routines
 func (it *SQLiteCollection) makeSQLFilterString(ColumnName string, Operator string, Value interface{}) (string, error) {
-	if it.HasColumn(ColumnName) {
-		Operator = strings.ToUpper(Operator)
-		if Operator == "" || Operator == "=" || Operator == "<>" || Operator == ">" || Operator == "<" || Operator == "LIKE" || Operator == "IN" {
-			switch Operator {
-			case "LIKE":
-				if typedValue, ok := Value.(string); ok && !strings.Contains(typedValue, "%") {
-					Value = "%" + typedValue + "%"
-				}
-			case "IN":
-				if typedValue, ok := Value.(SQLiteCollection); ok {
-					Value = "(" + typedValue.getSelectSQL() + ")"
-				} else {
-					newValue := "("
-					for _, arrayItem := range utils.InterfaceToArray(Value) {
-						newValue += utils.InterfaceToString(arrayItem)
-					}
-					newValue += ")"
-					Value = newValue
-				}
-			}
-			return ColumnName + " " + Operator + " " + convertValueForSQL(Value), nil
-		} else {
-			return "", env.ErrorNew("unknown operator '" + Operator + "' supposed  '', '=', '>', '<', '<>', 'LIKE', 'IN' " + ColumnName + "'")
-		}
-	} else {
+	if !it.HasColumn(ColumnName) {
 		return "", env.ErrorNew("can't find column '" + ColumnName + "'")
 	}
+
+	Operator = strings.ToUpper(Operator)
+	allowedOperators := []string{"=", "!=", "<>", ">", "<", "LIKE", "IN"}
+
+	if !utils.IsInListStr(Operator, allowedOperators) {
+		return "", env.ErrorNew("unknown operator '" + Operator + "' for column '" + ColumnName + "', allowed: '" + strings.Join(allowedOperators, "', ") + "'")
+	}
+
+	switch Operator {
+	case "LIKE":
+		if typedValue, ok := Value.(string); ok && !strings.Contains(typedValue, "%") {
+			Value = "%" + typedValue + "%"
+		}
+
+	case "IN":
+		if typedValue, ok := Value.(SQLiteCollection); ok {
+			Value = "(" + typedValue.getSelectSQL() + ")"
+		} else {
+			newValue := "("
+			for _, arrayItem := range utils.InterfaceToArray(Value) {
+				newValue += utils.InterfaceToString(arrayItem)
+			}
+			newValue += ")"
+			Value = newValue
+		}
+	}
+
+	return ColumnName + " " + Operator + " " + convertValueForSQL(Value), nil
 }
 
 func (it *SQLiteCollection) getSelectSQL() string {
@@ -116,10 +120,18 @@ func (it *SQLiteCollection) getSelectSQL() string {
 	return SQL
 }
 
-// converts _id field from int for string
-func (it *SQLiteCollection) modifyResultRowId(row sqlite3.RowMap) sqlite3.RowMap {
+// un-serialize object values
+func (it *SQLiteCollection) modifyResultRow(row sqlite3.RowMap) sqlite3.RowMap {
+
+	for columnName, columnValue := range row {
+		columnType := it.GetColumnType(columnName)
+		if columnType != "" {
+			row[columnName] = db.ConvertTypeFromDbToGo(columnValue, columnType)
+		}
+	}
+
 	if _, present := row["_id"]; present {
-		row["_id"] = strconv.FormatInt(row["_id"].(int64), 10)
+		row["_id"] = utils.InterfaceToString(row["_id"])
 	}
 
 	return row

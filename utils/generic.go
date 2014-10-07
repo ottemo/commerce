@@ -275,11 +275,17 @@ func InterfaceToInt(value interface{}) int {
 	switch typedValue := value.(type) {
 	case int:
 		return typedValue
+	case int32:
+		return int(typedValue)
+	case int64:
+		return int(typedValue)
+	case float32:
+		return int(typedValue)
+	case float64:
+		return int(typedValue)
 	case string:
 		intValue, _ := strconv.ParseInt(typedValue, 10, 64)
 		return int(intValue)
-	case float64:
-		return int(typedValue)
 	default:
 		return 0
 	}
