@@ -1,6 +1,6 @@
 package objectref
 
-import "errors"
+import "github.com/ottemo/foundation/env"
 
 func (it *DBObjectRef) Save() error {
 	return env.ErrorNew("not implemented")

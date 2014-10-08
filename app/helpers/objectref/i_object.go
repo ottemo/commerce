@@ -2,6 +2,7 @@ package objectref
 
 import (
 	"github.com/ottemo/foundation/app/models"
+	"github.com/ottemo/foundation/env"
 )
 
 // returns attribute value for current object or nil if no such attribute
