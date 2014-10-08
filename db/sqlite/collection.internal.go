@@ -39,6 +39,9 @@ func convertValueForSQL(value interface{}) string {
 
 		return result
 
+	case int, int32, int64:
+		return utils.InterfaceToString(value)
+
 	case map[string]interface{}, map[string]string:
 		return convertValueForSQL(utils.EncodeToJsonString(value))
 
@@ -90,7 +93,7 @@ func (it *SQLiteCollection) makeSQLFilterString(ColumnName string, Operator stri
 	}
 
 	Operator = strings.ToUpper(Operator)
-	allowedOperators := []string{"=", "!=", "<>", ">", "<", "LIKE", "IN"}
+	allowedOperators := []string{"=", "!=", "<>", ">", ">=", "<", "<=", "LIKE", "IN"}
 
 	if !utils.IsInListStr(Operator, allowedOperators) {
 		return "", env.ErrorNew("unknown operator '" + Operator + "' for column '" + ColumnName + "', allowed: '" + strings.Join(allowedOperators, "', ") + "'")

@@ -15,6 +15,12 @@ import (
 func (it *SQLiteCollection) LoadById(id string) (map[string]interface{}, error) {
 	var result map[string]interface{} = nil
 
+	if idValue, err := strconv.ParseInt(id, 10, 64); err == nil {
+		it.AddFilter("_id", "=", idValue)
+	} else {
+		it.AddFilter("_id", "=", id)
+	}
+
 	err := it.Iterate(func(row map[string]interface{}) bool {
 		result = row
 		return false
@@ -335,7 +341,7 @@ func (it *SQLiteCollection) SetLimit(Offset int, Limit int) error {
 // returns attributes(columns) available for current collection(table)
 func (it *SQLiteCollection) ListColumns() map[string]string {
 
-	result := map[string]string{}
+	result := map[string]string{"_id": "int"}
 
 	// updating column into collection
 	SQL := "SELECT column, type FROM " + COLLECTION_NAME_COLUMN_INFO + " WHERE collection = '" + it.Name + "'"
