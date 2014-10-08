@@ -78,6 +78,17 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 
 			content = newContent
 
+		// x-www-form-urlencoded content
+		case strings.Contains(contentType, "urlencode"):
+			newContent := map[string]interface{}{}
+
+			req.ParseForm()
+			for attribute, value := range req.PostForm {
+				newContent[attribute], _ = url.QueryUnescape(value[0])
+			}
+
+			content = newContent
+
 		default:
 			var body []byte = nil
 

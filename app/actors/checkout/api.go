@@ -377,10 +377,15 @@ func restSubmit(params *api.T_APIHandlerParams) (interface{}, error) {
 	// checking for additional info
 	//-----------------------------
 	contentValues := make(map[string]interface{})
+
 	if params.Request.Method == "POST" {
-		contentValues, _ = api.GetRequestContentAsMap(params)
+		postValues, err := api.GetRequestContentAsMap(params)
+		if err == nil {
+			contentValues = postValues
+		}
 	}
 
+	contentValues["sessionId"] = params.Session.GetId()
 	// making new order if needed
 	//---------------------------
 	currentTime := time.Now()

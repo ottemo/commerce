@@ -17,8 +17,9 @@ const (
 	CONFIG_PATH_DPM_KEY     = "payment.authorizeNetDPM.key"
 	CONFIG_PATH_DPM_GATEWAY = "payment.authorizeNetDPM.gateway"
 
-	CONFIG_PATH_DPM_TEST  = "payment.authorizeNetDPM.test"
-	CONFIG_PATH_DPM_DEBUG = "payment.authorizeNetDPM.debug"
+	CONFIG_PATH_DPM_TEST     = "payment.authorizeNetDPM.test"
+	CONFIG_PATH_DPM_DEBUG    = "payment.authorizeNetDPM.debug"
+	CONFIG_PATH_DPM_CHECKOUT = "payment.authorizeNetDPM.checkout"
 )
 
 type AuthorizeNetDPM struct{}
