@@ -29,7 +29,7 @@ func setupDB() error {
 
 	collection, err := db.GetCollection(CONFIG_COLLECTION_NAME)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	collection.AddColumn("path", "varchar(255)", true)

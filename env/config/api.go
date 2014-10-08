@@ -13,35 +13,35 @@ func setupAPI() error {
 
 	err = api.GetRestService().RegisterAPI("config", "GET", "groups", restConfigGroups)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("config", "GET", "info/:path", restConfigInfo)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("config", "GET", "list", restConfigList)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("config", "GET", "get/:path", restConfigGet)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("config", "POST", "set/:path", restConfigSet)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("config", "POST", "register", restConfigRegister)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("config", "DELETE", "unregister/:path", restConfigUnRegister)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("config", "GET", "reload", restConfigReload)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	return nil
@@ -95,17 +95,17 @@ func restConfigSet(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	err = config.SetValue(configPath, setValue)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
-	return config.GetValue(configPath), err
+	return config.GetValue(configPath), env.ErrorDispatch(err)
 }
 
 // WEB REST API used to add new config Item to a config system
 func restConfigRegister(params *api.T_APIHandlerParams) (interface{}, error) {
 	inputData, err := api.GetRequestContentAsMap(params)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	config := env.GetConfig()
@@ -136,7 +136,7 @@ func restConfigUnRegister(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	err := config.UnregisterItem(params.RequestURLParams["path"])
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	return "ok", nil
@@ -148,7 +148,7 @@ func restConfigReload(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	err := config.Reload()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	return "ok", nil

@@ -1,7 +1,6 @@
 package config
 
 import (
-	"errors"
 	"sort"
 	"strings"
 
@@ -28,7 +27,7 @@ func (it *DefaultConfig) RegisterItem(Item env.T_ConfigItem, Validator env.F_Con
 
 		collection, err := db.GetCollection(CONFIG_COLLECTION_NAME)
 		if err != nil {
-			return err
+			return env.ErrorDispatch(err)
 		}
 
 		recordValues := make(map[string]interface{})
@@ -43,7 +42,7 @@ func (it *DefaultConfig) RegisterItem(Item env.T_ConfigItem, Validator env.F_Con
 
 		_, err = collection.Save(recordValues)
 		if err != nil {
-			return err
+			return env.ErrorDispatch(err)
 		}
 
 		it.configValues[Item.Path] = Item.Value
@@ -64,17 +63,17 @@ func (it *DefaultConfig) UnregisterItem(Path string) error {
 
 		collection, err := db.GetCollection(CONFIG_COLLECTION_NAME)
 		if err != nil {
-			return err
+			return env.ErrorDispatch(err)
 		}
 
 		err = collection.AddFilter("path", "LIKE", Path+"%")
 		if err != nil {
-			return err
+			return env.ErrorDispatch(err)
 		}
 
 		_, err = collection.Delete()
 		if err != nil {
-			return err
+			return env.ErrorDispatch(err)
 		}
 
 		return it.Reload()
@@ -101,7 +100,7 @@ func (it *DefaultConfig) SetValue(Path string, Value interface{}) error {
 		if validator, present := it.configValidators[Path]; present {
 
 			if newVal, err := validator(Value); err != nil {
-				return err
+				return env.ErrorDispatch(err)
 			} else {
 				it.configValues[Path] = newVal
 			}
@@ -114,21 +113,21 @@ func (it *DefaultConfig) SetValue(Path string, Value interface{}) error {
 		//---------------------
 		collection, err := db.GetCollection(CONFIG_COLLECTION_NAME)
 		if err != nil {
-			return err
+			return env.ErrorDispatch(err)
 		}
 
 		err = collection.AddFilter("path", "=", Path)
 		if err != nil {
-			return err
+			return env.ErrorDispatch(err)
 		}
 
 		records, err := collection.Load()
 		if err != nil {
-			return err
+			return env.ErrorDispatch(err)
 		}
 
 		if len(records) == 0 {
-			return errors.New("config item '" + Path + "' is not registered")
+			return env.ErrorNew("config item '" + Path + "' is not registered")
 		}
 
 		record := records[0]
@@ -137,11 +136,11 @@ func (it *DefaultConfig) SetValue(Path string, Value interface{}) error {
 
 		_, err = collection.Save(record)
 		if err != nil {
-			return err
+			return env.ErrorDispatch(err)
 		}
 
 	} else {
-		return errors.New("can not find config item '" + Path + "' ")
+		return env.ErrorNew("can not find config item '" + Path + "' ")
 	}
 
 	return nil
@@ -241,12 +240,12 @@ func (it *DefaultConfig) Load() error {
 
 	err := it.Reload()
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = env.OnConfigStart()
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	return nil
@@ -259,17 +258,17 @@ func (it *DefaultConfig) Reload() error {
 
 	collection, err := db.GetCollection(CONFIG_COLLECTION_NAME)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = collection.SetResultColumns("path", "type", "value")
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	records, err := collection.Load()
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	for _, record := range records {

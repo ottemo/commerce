@@ -42,15 +42,18 @@ func convertValueForSQL(value interface{}) string {
 	case map[string]interface{}, map[string]string:
 		return convertValueForSQL(utils.EncodeToJsonString(value))
 
-	case []string:
+	case []string, []int, []int64, []int32, []float64, []bool:
+		return convertValueForSQL(utils.InterfaceToArray(value))
+
+	case []interface{}:
 		result := ""
-		for _, item := range value.([]string) {
+		for _, item := range value.([]interface{}) {
 			if result != "" {
 				result += ", "
 			}
-			result += convertValueForSQL(item)
+			result += utils.InterfaceToString(item)
 		}
-		return result
+		return convertValueForSQL(result)
 	}
 
 	return convertValueForSQL(utils.InterfaceToString(value))

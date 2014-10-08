@@ -148,6 +148,7 @@ func (it *FedEx) GetRates(checkoutObject checkout.I_Checkout) []checkout.T_Shipp
 	url := utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_GATEWAY)) + "/rate"
 	request, err := http.NewRequest("POST", url, &body)
 	if err != nil {
+		env.ErrorDispatch(err)
 		return result
 	}
 
@@ -158,21 +159,27 @@ func (it *FedEx) GetRates(checkoutObject checkout.I_Checkout) []checkout.T_Shipp
 	//--------------------------------------
 	response, err := http.DefaultClient.Do(request)
 	if err != nil {
+		env.ErrorDispatch(err)
 		return result
 	}
 
 	responseData, err := ioutil.ReadAll(response.Body)
 	if err != nil {
+		env.ErrorDispatch(err)
 		return result
 	}
-
-	// println(string(responseData))
 
 	// parsing xml response to rates
 	//------------------------------
 	xmlRoot, err := xmlpath.Parse(bytes.NewReader(responseData))
 	if err != nil {
+		env.ErrorDispatch(err)
 		return result
+	}
+
+	xmlErrorFlag, _ := xmlpath.Compile("//Severity")
+	if value, ok := xmlErrorFlag.String(xmlRoot); ok && value == "ERROR" {
+		env.ErrorNew(string(responseData))
 	}
 
 	xmlPostage, _ := xmlpath.Compile("//RateReplyDetails")
@@ -195,7 +202,6 @@ func (it *FedEx) GetRates(checkoutObject checkout.I_Checkout) []checkout.T_Shipp
 		}
 
 		if len(allowedMethodsArray) == 0 || utils.IsInArray(stringMethod, allowedMethodsArray) {
-
 			rateName, present := SHIPPING_METHODS[stringMethod]
 			if !present {
 				rateName = stringMethod
