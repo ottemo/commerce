@@ -272,7 +272,7 @@ func InterfaceToString(value interface{}) string {
 	case string:
 		return value
 	default:
-		return ""
+		return EncodeToJsonString(value)
 	}
 }
 
