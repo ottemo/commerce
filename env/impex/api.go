@@ -80,11 +80,12 @@ func restImpexImport(params *api.T_APIHandlerParams) (interface{}, error) {
 	}
 
 	object, isObject := model.(models.I_Object)
-	if !isObject {
-		return nil, env.ErrorNew(modelName + " not implements I_Object interface")
+	_, isStorable := model.(models.I_Storable)
+	if !isObject || !isStorable {
+		return nil, env.ErrorNew(modelName + " not implements I_Object or I_Storable interface")
 	}
 
-	attributes := make(map[string]T_AttributeInfo)
+	attributes := make(map[string]models.T_AttributeInfo)
 	for _, attribute := range object.GetAttributesInfo() {
 		attributes[attribute.Attribute] = attribute
 	}
@@ -111,7 +112,12 @@ func restImpexImport(params *api.T_APIHandlerParams) (interface{}, error) {
 	}
 
 	for csvRecord, err := csvReader.Read(); err == nil; csvRecord, err = csvReader.Read() {
-
+		model, _ = model.New()
+		object, _ = model.(models.I_Object)
+		for idx, value := range csvRecord {
+			object.Set(csvColumns[idx], value)
+		}
+		object.(models.I_Storable).Save()
 	}
 
 	return nil, env.ErrorNew("not implemented")

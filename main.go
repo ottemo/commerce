@@ -47,6 +47,8 @@ import (
 
 	_ "github.com/ottemo/foundation/app/actors/payment/authorize"
 	_ "github.com/ottemo/foundation/app/actors/shipping/fedex"
+
+	_ "github.com/ottemo/foundation/env/impex"
 )
 
 func main() {

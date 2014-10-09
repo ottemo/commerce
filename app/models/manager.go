@@ -34,6 +34,6 @@ func GetModel(ModelName string) (I_Model, error) {
 }
 
 // returns all currently registered in system models
-func GetDeclaredModels() []map[string]I_Model {
+func GetDeclaredModels() map[string]I_Model {
 	return declaredModels
 }
