@@ -67,6 +67,9 @@ func (it *DefaultOrder) Get(attribute string) interface{} {
 
 	case "description":
 		return it.Description
+
+	case "payment_info":
+		return it.PaymentInfo
 	}
 
 	return nil
@@ -134,6 +137,9 @@ func (it *DefaultOrder) Set(attribute string, value interface{}) error {
 	case "description":
 		it.Description = utils.InterfaceToString(value)
 
+	case "payment_info":
+		it.PaymentInfo = utils.InterfaceToMap(value)
+
 	default:
 		return env.ErrorNew("unknown attribute: " + attribute)
 	}
@@ -185,6 +191,7 @@ func (it *DefaultOrder) ToHashMap() map[string]interface{} {
 	result["updated_at"] = it.Get("updated_at")
 
 	result["description"] = it.Get("description")
+	result["payment_info"] = it.Get("payment_info")
 
 	return result
 }

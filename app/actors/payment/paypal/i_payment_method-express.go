@@ -12,6 +12,7 @@ import (
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
 
+	"github.com/ottemo/foundation/app"
 	"github.com/ottemo/foundation/app/models/checkout"
 	"github.com/ottemo/foundation/app/models/order"
 )
@@ -70,8 +71,8 @@ func (it *PayPalExpress) Authorize(orderInstance order.I_Order, paymentInfo map[
 	description := "Purchase%20for%20%24" + fmt.Sprintf("%.2f", grandTotal)
 	custom := orderInstance.GetId()
 
-	cancelUrl := "http://dev.ottemo.com:3000/paypal/cancel"
-	returnUrl := "http://dev.ottemo.com:3000/paypal/success"
+	cancelUrl := app.GetFoundationUrl("paypal/cancel")
+	returnUrl := app.GetFoundationUrl("paypal/success")
 
 	// making NVP request
 	//-------------------
@@ -90,7 +91,7 @@ func (it *PayPalExpress) Authorize(orderInstance order.I_Order, paymentInfo map[
 		"&cancelUrl=" + cancelUrl +
 		"&returnUrl=" + returnUrl
 
-	// println(requestParams)
+	//	println(requestParams)
 
 	nvpGateway := utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_NVP))
 
@@ -111,8 +112,6 @@ func (it *PayPalExpress) Authorize(orderInstance order.I_Order, paymentInfo map[
 		return nil, env.ErrorDispatch(err)
 	}
 
-	// println(string(responseData))
-
 	responseValues, err := url.ParseQuery(string(responseData))
 	if err != nil {
 		return nil, env.ErrorNew("payment unexpected response")
@@ -123,6 +122,14 @@ func (it *PayPalExpress) Authorize(orderInstance order.I_Order, paymentInfo map[
 			return nil, env.ErrorNew("payment error " + responseValues.Get("L_ERRORCODE0") + ": " + "L_LONGMESSAGE0")
 		}
 	}
+	waitingTokensMutex.Lock()
+	waitingTokens[responseValues.Get("TOKEN")] = utils.InterfaceToString(paymentInfo["sessionId"])
+	waitingTokensMutex.Unlock()
+
+	env.Log("paypal.log", env.LOG_PREFIX_INFO, "NEW TRANSACTION: " +
+				"Visitor ID - " + utils.InterfaceToString(orderInstance.Get("visitor_id")) + ", " +
+				"Order ID - " + utils.InterfaceToString(orderInstance.GetId()) + ", " +
+				"TOKEN - " + utils.InterfaceToString(responseValues.Get("TOKEN")))
 
 	// redirecting user to PayPal server for following checkout
 	//---------------------------------------------------------
@@ -132,6 +139,71 @@ func (it *PayPalExpress) Authorize(orderInstance order.I_Order, paymentInfo map[
 		Location: redirectGateway,
 	}, nil
 }
+
+//// makes payment method authorize operation
+//func (it *PayPalExpress) Completes(orderInstance order.I_Order, token string, payerId string) (interface{}, error) {
+//
+//	// getting order information
+//	//--------------------------
+//	grandTotal := orderInstance.GetGrandTotal()
+//	shippingPrice := orderInstance.GetShippingAmount()
+//
+//	// getting request param values
+//	//-----------------------------
+//	user := utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_USER))
+//	password := utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_PASS))
+//	signature := utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_SIGNATURE))
+//	action := utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_ACTION))
+//
+//	amount := fmt.Sprintf("%.2f", grandTotal)
+//	shippingAmount := fmt.Sprintf("%.2f", shippingPrice)
+//	itemAmount := fmt.Sprintf("%.2f", grandTotal-shippingPrice)
+//
+//	description := "Purchase%20for%20%24" + fmt.Sprintf("%.2f", grandTotal)
+//	custom := orderInstance.GetId()
+//
+//	// making NVP request
+//	//-------------------
+//	requestParams := "USER=" + user +
+//			"&PWD=" + password +
+//			"&SIGNATURE=" + signature +
+//			"&METHOD=DoExpressCheckoutPayment" +
+//			"&VERSION=78" +
+//			"&PAYMENTREQUEST_0_PAYMENTACTION=" + action +
+//			"&PAYMENTREQUEST_0_AMT=" + amount +
+//			"&PAYMENTREQUEST_0_SHIPPINGAMT=" + shippingAmount +
+//			"&PAYMENTREQUEST_0_ITEMAMT=" + itemAmount +
+//			"&PAYMENTREQUEST_0_DESC=" + description +
+//			"&PAYMENTREQUEST_0_CUSTOM=" + custom +
+//			"&PAYMENTREQUEST_0_CURRENCYCODE=USD" +
+//			"&PAYERID=" + payerId +
+//			"&TOKEN=" + token
+//
+//	//	println(requestParams)
+//
+//	nvpGateway := utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_NVP))
+//
+//	request, err := http.NewRequest("GET", nvpGateway+"?"+requestParams, nil)
+//	if err != nil {
+//		return nil, env.ErrorDispatch(err)
+//	}
+//
+//	response, err := http.DefaultClient.Do(request)
+//	if err != nil {
+//		return nil, env.ErrorDispatch(err)
+//	}
+//
+//	// reading/decoding response from NVP
+//	//-----------------------------------
+//	responseData, err := ioutil.ReadAll(response.Body)
+//	if err != nil {
+//		return nil, env.ErrorDispatch(err)
+//	}
+//
+//	fmt.Println(responseData)
+//
+//	return nil, nil
+//}
 
 // makes payment method capture operation
 func (it *PayPalExpress) Capture(orderInstance order.I_Order, paymentInfo map[string]interface{}) (interface{}, error) {

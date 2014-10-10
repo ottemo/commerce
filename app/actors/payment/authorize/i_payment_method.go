@@ -114,6 +114,10 @@ func (it *AuthorizeNetDPM) Authorize(orderInstance order.I_Order, paymentInfo ma
 	htmlText += "<input type='submit' value='Submit' />"
 	htmlText += "</form>"
 
+	env.Log("authorizenet.log", env.LOG_PREFIX_INFO, "NEW TRANSACTION: " +
+				"Visitor ID - " + utils.InterfaceToString(orderInstance.Get("visitor_id")) + ", " +
+				"Order ID - " + utils.InterfaceToString(orderInstance.GetId()))
+
 	return api.T_RestRedirect{Result: htmlText, Location: utils.InterfaceToString(env.ConfigGetValue(app.CONFIG_PATH_FOUNDATION_URL)) + "authorizenet/relay"}, nil
 }
 
