@@ -1,7 +1,11 @@
 package sqlite
 
 import (
+	"crypto/rand"
+	"encoding/hex"
+	"strconv"
 	"strings"
+	"time"
 
 	sqlite3 "github.com/mxk/go-sqlite/sqlite3"
 	"github.com/ottemo/foundation/db"
@@ -102,7 +106,7 @@ func (it *SQLiteCollection) makeSQLFilterString(ColumnName string, Operator stri
 	switch Operator {
 	case "LIKE":
 		if typedValue, ok := Value.(string); ok && !strings.Contains(typedValue, "%") {
-			Value = "%" + typedValue + "%"
+			Value = "'%" + typedValue + "%'"
 		}
 
 	case "IN":
@@ -111,16 +115,20 @@ func (it *SQLiteCollection) makeSQLFilterString(ColumnName string, Operator stri
 		} else {
 			newValue := "("
 			for _, arrayItem := range utils.InterfaceToArray(Value) {
-				newValue += utils.InterfaceToString(arrayItem)
+				newValue += convertValueForSQL(arrayItem) + ", "
 			}
-			newValue += ")"
+			newValue = strings.TrimRight(newValue, ", ") + ")"
 			Value = newValue
 		}
+
+	default:
+		Value = convertValueForSQL(Value)
 	}
 
-	return ColumnName + " " + Operator + " " + convertValueForSQL(Value), nil
+	return ColumnName + " " + Operator + " " + utils.InterfaceToString(Value), nil
 }
 
+// returns SQL select statement for current collection
 func (it *SQLiteCollection) getSelectSQL() string {
 	SQL := "SELECT " + it.getSQLResultColumns() + " FROM " + it.Name + it.getSQLFilters() + it.getSQLOrder() + it.Limit
 	return SQL
@@ -220,4 +228,21 @@ func (it *SQLiteCollection) updateFilterGroup(groupName string, columnName strin
 	filterGroup.FilterValues = append(filterGroup.FilterValues, newValue)
 
 	return nil
+}
+
+func (it *SQLiteCollection) makeUUID(id string) string {
+
+	if len(id) != 24 {
+		timeStamp := strconv.FormatInt(time.Now().Unix(), 16)
+
+		randomBytes := make([]byte, 8)
+		rand.Reader.Read(randomBytes)
+
+		randomHex := make([]byte, 16)
+		hex.Encode(randomHex, randomBytes)
+
+		id = timeStamp + string(randomHex)
+	}
+
+	return id
 }

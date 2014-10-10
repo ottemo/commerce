@@ -8,6 +8,8 @@ import (
 )
 
 const (
+	UUID_ID = true
+
 	DEBUG_SQL = true
 
 	FILTER_GROUP_STATIC  = "static"

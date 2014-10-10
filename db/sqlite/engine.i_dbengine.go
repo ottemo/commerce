@@ -1,7 +1,6 @@
 package sqlite
 
 import (
-	//"strings"
 	"strconv"
 
 	"github.com/mxk/go-sqlite/sqlite3"
@@ -35,6 +34,10 @@ func (it *SQLite) CreateCollection(collectionName string) error {
 	// collectionName = strings.ToLower(collectionName)
 
 	SQL := "CREATE TABLE " + collectionName + " (_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL)"
+	if UUID_ID {
+		SQL = "CREATE TABLE " + collectionName + " (_id NCHAR(24) PRIMARY KEY NOT NULL)"
+	}
+
 	if err := it.Connection.Exec(SQL); err == nil {
 		return nil
 	} else {
@@ -81,9 +84,13 @@ func (it *SQLite) RawQuery(query string) (map[string]interface{}, error) {
 
 	for ; err == nil; err = stmt.Next() {
 		if err := stmt.Scan(row); err == nil {
-			if _, present := row["_id"]; present {
-				row["_id"] = strconv.FormatInt(row["_id"].(int64), 10)
+
+			if UUID_ID {
+				if _, present := row["_id"]; present {
+					row["_id"] = strconv.FormatInt(row["_id"].(int64), 10)
+				}
 			}
+
 			result = append(result, row)
 		} else {
 			return result[0], nil

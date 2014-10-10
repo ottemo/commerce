@@ -230,9 +230,11 @@ func InterfaceToArray(value interface{}) []interface{} {
 		for idx, value := range splitValues {
 			result[idx] = strings.Trim(value, " \t\n")
 		}
+
+	default:
+		result = append(result, value)
 	}
 
-	result = append(result, value)
 	return result
 }
 

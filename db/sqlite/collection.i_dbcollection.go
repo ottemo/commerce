@@ -15,10 +15,14 @@ import (
 func (it *SQLiteCollection) LoadById(id string) (map[string]interface{}, error) {
 	var result map[string]interface{} = nil
 
-	if idValue, err := strconv.ParseInt(id, 10, 64); err == nil {
-		it.AddFilter("_id", "=", idValue)
-	} else {
+	if !UUID_ID {
 		it.AddFilter("_id", "=", id)
+	} else {
+		if idValue, err := strconv.ParseInt(id, 10, 64); err == nil {
+			it.AddFilter("_id", "=", idValue)
+		} else {
+			it.AddFilter("_id", "=", id)
+		}
 	}
 
 	err := it.Iterate(func(row map[string]interface{}) bool {
@@ -77,14 +81,15 @@ func (it *SQLiteCollection) Iterate(iteratorFunc func(record map[string]interfac
 // returns distinct values of specified attribute
 func (it *SQLiteCollection) Distinct(columnName string) ([]interface{}, error) {
 
-	if len(it.ResultColumns) != 1 {
-		return nil, env.ErrorNew("should be 1 result column")
-	}
+	prevResultColumns := it.ResultColumns
+	it.SetResultColumns(columnName)
 
 	SQL := "SELECT DISTINCT " + it.getSQLResultColumns() + " FROM " + it.Name + it.getSQLFilters() + it.getSQLOrder() + it.Limit
 	if DEBUG_SQL {
 		env.Log("sqlite", env.LOG_PREFIX_INFO, SQL)
 	}
+
+	it.ResultColumns = prevResultColumns
 
 	stmt, err := it.Connection.Query(SQL)
 	defer closeStatement(stmt)
@@ -144,32 +149,45 @@ func (it *SQLiteCollection) Count() (int, error) {
 }
 
 // stores record in DB for current collection
-func (it *SQLiteCollection) Save(Item map[string]interface{}) (string, error) {
-	// _id in SQLite supposed to be auto-incremented int but for MongoDB it forced to be string
-	// collection interface also forced us to use string but we still want it ti be int in DB
-	// to make that we need to convert it before save from  string to int or nil
-	// and after save get auto-incremented id as convert to string
-	if idValue, present := Item["_id"]; present && idValue != nil {
-		if idValue, ok := idValue.(string); ok {
-			if intValue, err := strconv.ParseInt(idValue, 10, 64); err == nil {
-				Item["_id"] = intValue
-			} else {
-				Item["_id"] = nil
-			}
+func (it *SQLiteCollection) Save(item map[string]interface{}) (string, error) {
+
+	if UUID_ID {
+		if idValue, present := item["_id"]; !present || idValue == nil {
+			item["_id"] = it.makeUUID("")
 		} else {
-			return "", env.ErrorNew("unexpected _id value '" + fmt.Sprint(Item) + "'")
+			if idValue, ok := idValue.(string); ok {
+				item["_id"] = it.makeUUID(idValue)
+			}
 		}
 	} else {
-		Item["_id"] = nil
+		// _id in SQLite supposed to be auto-incremented int but for MongoDB it forced to be string
+		// collection interface also forced us to use string but we still want it ti be int in DB
+		// to make that we need to convert it before save from  string to int or nil
+		// and after save get auto-incremented id as convert to string
+		if idValue, present := item["_id"]; present && idValue != nil {
+			if idValue, ok := idValue.(string); ok {
+
+				if intValue, err := strconv.ParseInt(idValue, 10, 64); err == nil {
+					item["_id"] = intValue
+				} else {
+					item["_id"] = nil
+				}
+
+			} else {
+				return "", env.ErrorNew("unexpected _id value '" + fmt.Sprint(item) + "'")
+			}
+		} else {
+			item["_id"] = nil
+		}
 	}
 
 	// SQL generation
-	columns := make([]string, 0, len(Item))
-	args := make([]string, 0, len(Item))
-	values := make([]interface{}, 0, len(Item))
+	columns := make([]string, 0, len(item))
+	args := make([]string, 0, len(item))
+	values := make([]interface{}, 0, len(item))
 
-	for k, v := range Item {
-		if Item[k] != nil {
+	for k, v := range item {
+		if item[k] != nil {
 			columns = append(columns, "\""+k+"\"")
 			args = append(args, convertValueForSQL(v))
 
@@ -191,12 +209,14 @@ func (it *SQLiteCollection) Save(Item map[string]interface{}) (string, error) {
 		return "", sqlError(SQL, err)
 	}
 
-	// auto-incremented _id back to string
-	newIdInt := it.Connection.LastInsertId()
-	newIdString := strconv.FormatInt(newIdInt, 10)
-	Item["_id"] = newIdString
+	if !UUID_ID {
+		// auto-incremented _id back to string
+		newIdInt := it.Connection.LastInsertId()
+		newIdString := strconv.FormatInt(newIdInt, 10)
+		item["_id"] = newIdString
+	}
 
-	return newIdString, nil
+	return item["_id"].(string), nil
 }
 
 // removes records that matches current select statement from DB
@@ -218,7 +238,7 @@ func (it *SQLiteCollection) Delete() (int, error) {
 
 // removes record from DB by is's id
 func (it *SQLiteCollection) DeleteById(id string) error {
-	SQL := "DELETE FROM " + it.Name + " WHERE _id = " + id
+	SQL := "DELETE FROM " + it.Name + " WHERE _id = " + convertValueForSQL(id)
 
 	if DEBUG_SQL {
 		env.Log("sqlite", env.LOG_PREFIX_INFO, SQL)
@@ -341,7 +361,13 @@ func (it *SQLiteCollection) SetLimit(Offset int, Limit int) error {
 // returns attributes(columns) available for current collection(table)
 func (it *SQLiteCollection) ListColumns() map[string]string {
 
-	result := map[string]string{"_id": "int"}
+	result := make(map[string]string)
+
+	if UUID_ID {
+		result["_id"] = "int"
+	} else {
+		result["_id"] = "varchar"
+	}
 
 	// updating column into collection
 	SQL := "SELECT column, type FROM " + COLLECTION_NAME_COLUMN_INFO + " WHERE collection = '" + it.Name + "'"
@@ -392,13 +418,13 @@ func (it *SQLiteCollection) GetColumnType(columnName string) string {
 }
 
 // check for attribute(column) presence in current collection
-func (it *SQLiteCollection) HasColumn(ColumnName string) bool {
+func (it *SQLiteCollection) HasColumn(columnName string) bool {
 	// looking in cache first
-	_, present := attributeTypes[it.Name][ColumnName]
+	_, present := attributeTypes[it.Name][columnName]
 	if !present {
 		// updating cache, and looking again
 		it.ListColumns()
-		_, present = attributeTypes[it.Name][ColumnName]
+		_, present = attributeTypes[it.Name][columnName]
 	}
 
 	return present
@@ -465,11 +491,16 @@ func (it *SQLiteCollection) AddColumn(columnName string, columnType string, inde
 
 // removes attribute(column) to current collection(table)
 //   - sqlite do not have alter DROP COLUMN statements so it is hard task...
-func (it *SQLiteCollection) RemoveColumn(ColumnName string) error {
+func (it *SQLiteCollection) RemoveColumn(columnName string) error {
 
 	// checking column in table
-	if !it.HasColumn(ColumnName) {
-		return env.ErrorNew("column '" + ColumnName + "' not exists in '" + it.Name + "' collection")
+	//-------------------------
+	if columnName == "_id" {
+		return env.ErrorNew("you can't remove _id column")
+	}
+
+	if !it.HasColumn(columnName) {
+		return env.ErrorNew("column '" + columnName + "' not exists in '" + it.Name + "' collection")
 	}
 
 	// getting table create SQL to take columns from
@@ -502,7 +533,7 @@ func (it *SQLiteCollection) RemoveColumn(ColumnName string) error {
 		for _, tableColumn := range tableColumnsList {
 			tableColumn = strings.Trim(tableColumn, "\n\t ")
 
-			if !strings.HasPrefix(tableColumn, ColumnName) && !strings.HasPrefix(tableColumn, "\""+ColumnName+"\"") {
+			if !strings.HasPrefix(tableColumn, columnName) && !strings.HasPrefix(tableColumn, "\""+columnName+"\"") {
 				if tableColumnsWTypes != "" {
 					tableColumnsWTypes += ", "
 					tableColumnsWoTypes += ", "
