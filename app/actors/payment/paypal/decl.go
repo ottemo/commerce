@@ -1,5 +1,9 @@
 package paypal
 
+import (
+	"sync"
+)
+
 const (
 	PAYMENT_CODE = "paypal_express"
 	PAYMENT_NAME = "PayPal Express"
@@ -20,6 +24,11 @@ const (
 
 	CONFIG_PATH_SIGNATURE = "payment.paypal.signature"
 	CONFIG_PATH_ACTION    = "payment.paypal.action"
+)
+
+var (
+	waitingTokens      = make(map[string]interface{})
+	waitingTokensMutex sync.RWMutex
 )
 
 type PayPalExpress struct{}

@@ -31,7 +31,17 @@ func setupConfig() error {
 
 	config.RegisterItem(env.T_ConfigItem{
 		Path:        checkout.CONFIG_PATH_CONFIRMATION_EMAIL,
-		Value:       "",
+		Value:       `Dear {{.Visitor.last_name}} {{.Visitor.first_name}}
+<br />
+<br />
+Thank for your order.
+<br />
+<h3>Order #{{.Order.increment_id}}: </h3><br />
+Order summary<br />
+Subtotal: ${{.Order.subtotal}}<br />
+Tax: ${{.Order.tax_amount}}<br />
+Shipping: ${{.Order.shipping_amount}}<br />
+Total: ${{.Order.grand_total}}<br />`,
 		Type:        "text",
 		Editor:      "multiline_text",
 		Options:     "",
