@@ -371,8 +371,6 @@ func (it *SQLiteCollection) ListColumns() map[string]string {
 
 	// updating column into collection
 	SQL := "SELECT column, type FROM " + COLLECTION_NAME_COLUMN_INFO + " WHERE collection = '" + it.Name + "'"
-	it.Connection.Query(SQL)
-
 	stmt, err := it.Connection.Query(SQL)
 	defer closeStatement(stmt)
 
@@ -510,6 +508,7 @@ func (it *SQLiteCollection) RemoveColumn(columnName string) error {
 	SQL := "SELECT sql FROM sqlite_master WHERE tbl_name='" + it.Name + "' AND type='table'"
 
 	stmt, err := it.Connection.Query(SQL)
+	defer closeStatement(stmt)
 	if err != nil {
 		return sqlError(SQL, err)
 	}
