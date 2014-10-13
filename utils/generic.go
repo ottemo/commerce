@@ -186,6 +186,10 @@ func InterfaceToBool(value interface{}) bool {
 		}
 	case int:
 		return typedValue > 0
+	case int32:
+		return typedValue > 0
+	case int64:
+		return typedValue > 0
 	default:
 		return false
 	}

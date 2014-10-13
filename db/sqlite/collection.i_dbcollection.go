@@ -188,7 +188,7 @@ func (it *SQLiteCollection) Save(item map[string]interface{}) (string, error) {
 
 	for k, v := range item {
 		if item[k] != nil {
-			columns = append(columns, "\""+k+"\"")
+			columns = append(columns, "`"+k+"`")
 			args = append(args, convertValueForSQL(v))
 
 			//args = append(args, "$_"+k)

@@ -125,7 +125,7 @@ func (it *SQLiteCollection) makeSQLFilterString(ColumnName string, Operator stri
 		Value = convertValueForSQL(Value)
 	}
 
-	return ColumnName + " " + Operator + " " + utils.InterfaceToString(Value), nil
+	return "`" + ColumnName + "` " + Operator + " " + utils.InterfaceToString(Value), nil
 }
 
 // returns SQL select statement for current collection
@@ -153,7 +153,7 @@ func (it *SQLiteCollection) modifyResultRow(row sqlite3.RowMap) sqlite3.RowMap {
 
 // joins result columns in string
 func (it *SQLiteCollection) getSQLResultColumns() string {
-	sqlColumns := strings.Join(it.ResultColumns, ", ")
+	sqlColumns := "`" + strings.Join(it.ResultColumns, "`, `") + "`"
 	if sqlColumns == "" {
 		sqlColumns = "*"
 	}
