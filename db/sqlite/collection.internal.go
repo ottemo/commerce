@@ -154,7 +154,7 @@ func (it *SQLiteCollection) modifyResultRow(row sqlite3.RowMap) sqlite3.RowMap {
 // joins result columns in string
 func (it *SQLiteCollection) getSQLResultColumns() string {
 	sqlColumns := "`" + strings.Join(it.ResultColumns, "`, `") + "`"
-	if sqlColumns == "" {
+	if sqlColumns == "``" {
 		sqlColumns = "*"
 	}
 
