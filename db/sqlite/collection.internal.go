@@ -70,6 +70,8 @@ func convertValueForSQL(value interface{}) string {
 func GetDBType(ColumnType string) (string, error) {
 	ColumnType = strings.ToLower(ColumnType)
 	switch {
+	case strings.HasPrefix(ColumnType, "[]"):
+		return "TEXT", nil
 	case ColumnType == db.DB_BASETYPE_ID:
 		if UUID_ID {
 			return "TEXT", nil
