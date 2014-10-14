@@ -1,6 +1,7 @@
 package db
 
 const (
+	DB_BASETYPE_ID       = "id"
 	DB_BASETYPE_BOOLEAN  = "bool"
 	DB_BASETYPE_VARCHAR  = "varchar"
 	DB_BASETYPE_TEXT     = "text"

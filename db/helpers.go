@@ -48,7 +48,7 @@ func ConvertTypeFromDbToGo(value interface{}, valueType string) interface{} {
 		result, _ := utils.DecodeJsonToStringKeyMap(value)
 		return result
 
-	case strings.HasPrefix(valueType, DB_BASETYPE_VARCHAR), valueType == DB_BASETYPE_TEXT:
+	case strings.HasPrefix(valueType, DB_BASETYPE_VARCHAR), valueType == DB_BASETYPE_TEXT, valueType == DB_BASETYPE_ID:
 		return utils.InterfaceToString(value)
 
 	}

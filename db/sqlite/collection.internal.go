@@ -70,7 +70,13 @@ func convertValueForSQL(value interface{}) string {
 func GetDBType(ColumnType string) (string, error) {
 	ColumnType = strings.ToLower(ColumnType)
 	switch {
-	case ColumnType == "id" || ColumnType == "int" || ColumnType == "integer":
+	case ColumnType == db.DB_BASETYPE_ID:
+		if UUID_ID {
+			return "TEXT", nil
+		} else {
+			return "INTEGER", nil
+		}
+	case ColumnType == "int" || ColumnType == "integer":
 		return "INTEGER", nil
 	case ColumnType == "real" || ColumnType == "float":
 		return "REAL", nil
