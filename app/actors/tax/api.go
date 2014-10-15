@@ -2,10 +2,10 @@ package tax
 
 import (
 	"encoding/csv"
-	"errors"
 
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/foundation/env"
 
 	"github.com/ottemo/foundation/utils"
 )
@@ -16,12 +16,12 @@ func setupAPI() error {
 
 	err = api.GetRestService().RegisterAPI("tax", "GET", "download/csv", restTaxCSVDownload)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = api.GetRestService().RegisterAPI("tax", "POST", "upload/csv", restTaxCSVUpload)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	return nil
@@ -32,7 +32,7 @@ func restTaxCSVDownload(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// check rights
 	if err := api.ValidateAdminRights(params); err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	csvWriter := csv.NewWriter(params.ResponseWriter)
@@ -41,12 +41,12 @@ func restTaxCSVDownload(params *api.T_APIHandlerParams) (interface{}, error) {
 		if collection, err := dbEngine.GetCollection("Taxes"); err == nil {
 			records, err := collection.Load()
 			if err != nil {
-				return nil, err
+				return nil, env.ErrorDispatch(err)
 			}
 
 			err = csvWriter.Write([]string{"Code", "Country", "State", "Zip", "Rate"})
 			if err != nil {
-				return nil, err
+				return nil, env.ErrorDispatch(err)
 			}
 
 			params.ResponseWriter.Header().Set("Content-type", "text/csv")
@@ -66,7 +66,7 @@ func restTaxCSVDownload(params *api.T_APIHandlerParams) (interface{}, error) {
 			return nil, nil
 		}
 	} else {
-		return nil, errors.New("can't get DB engine")
+		return nil, env.ErrorNew("can't get DB engine")
 	}
 
 	return nil, nil
@@ -77,12 +77,12 @@ func restTaxCSVUpload(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// check rights
 	if err := api.ValidateAdminRights(params); err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	csvFile, _, err := params.Request.FormFile("file")
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	csvReader := csv.NewReader(csvFile)
@@ -107,10 +107,10 @@ func restTaxCSVUpload(params *api.T_APIHandlerParams) (interface{}, error) {
 				}
 			}
 		} else {
-			return nil, err
+			return nil, env.ErrorDispatch(err)
 		}
 	} else {
-		return nil, errors.New("can't get DB engine")
+		return nil, env.ErrorNew("can't get DB engine")
 	}
 
 	return "ok", nil

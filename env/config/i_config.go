@@ -1,7 +1,6 @@
 package config
 
 import (
-	"errors"
 	"sort"
 	"strings"
 
@@ -28,7 +27,7 @@ func (it *DefaultConfig) RegisterItem(Item env.T_ConfigItem, Validator env.F_Con
 
 		collection, err := db.GetCollection(CONFIG_COLLECTION_NAME)
 		if err != nil {
-			return err
+			return env.ErrorDispatch(err)
 		}
 
 		recordValues := make(map[string]interface{})
@@ -43,10 +42,11 @@ func (it *DefaultConfig) RegisterItem(Item env.T_ConfigItem, Validator env.F_Con
 
 		_, err = collection.Save(recordValues)
 		if err != nil {
-			return err
+			return env.ErrorDispatch(err)
 		}
 
 		it.configValues[Item.Path] = Item.Value
+		it.configTypes[Item.Path] = Item.Type
 	}
 
 	if _, present := it.configValidators[Item.Path]; Validator != nil && !present {
@@ -63,17 +63,17 @@ func (it *DefaultConfig) UnregisterItem(Path string) error {
 
 		collection, err := db.GetCollection(CONFIG_COLLECTION_NAME)
 		if err != nil {
-			return err
+			return env.ErrorDispatch(err)
 		}
 
 		err = collection.AddFilter("path", "LIKE", Path+"%")
 		if err != nil {
-			return err
+			return env.ErrorDispatch(err)
 		}
 
 		_, err = collection.Delete()
 		if err != nil {
-			return err
+			return env.ErrorDispatch(err)
 		}
 
 		return it.Reload()
@@ -100,7 +100,7 @@ func (it *DefaultConfig) SetValue(Path string, Value interface{}) error {
 		if validator, present := it.configValidators[Path]; present {
 
 			if newVal, err := validator(Value); err != nil {
-				return err
+				return env.ErrorDispatch(err)
 			} else {
 				it.configValues[Path] = newVal
 			}
@@ -113,21 +113,21 @@ func (it *DefaultConfig) SetValue(Path string, Value interface{}) error {
 		//---------------------
 		collection, err := db.GetCollection(CONFIG_COLLECTION_NAME)
 		if err != nil {
-			return err
+			return env.ErrorDispatch(err)
 		}
 
 		err = collection.AddFilter("path", "=", Path)
 		if err != nil {
-			return err
+			return env.ErrorDispatch(err)
 		}
 
 		records, err := collection.Load()
 		if err != nil {
-			return err
+			return env.ErrorDispatch(err)
 		}
 
 		if len(records) == 0 {
-			return errors.New("config item '" + Path + "' is not registered")
+			return env.ErrorNew("config item '" + Path + "' is not registered")
 		}
 
 		record := records[0]
@@ -136,11 +136,11 @@ func (it *DefaultConfig) SetValue(Path string, Value interface{}) error {
 
 		_, err = collection.Save(record)
 		if err != nil {
-			return err
+			return env.ErrorDispatch(err)
 		}
 
 	} else {
-		return errors.New("can not find config item '" + Path + "' ")
+		return env.ErrorNew("can not find config item '" + Path + "' ")
 	}
 
 	return nil
@@ -182,6 +182,7 @@ func (it *DefaultConfig) GetGroupItems() []env.T_ConfigItem {
 
 			Image: utils.InterfaceToString(record["image"]),
 		}
+		configItem.Value = db.ConvertTypeFromDbToGo(configItem.Value, configItem.Type)
 
 		result = append(result, configItem)
 	}
@@ -225,6 +226,7 @@ func (it *DefaultConfig) GetItemsInfo(Path string) []env.T_ConfigItem {
 
 			Image: utils.InterfaceToString(record["image"]),
 		}
+		configItem.Value = db.ConvertTypeFromDbToGo(configItem.Value, configItem.Type)
 
 		result = append(result, configItem)
 	}
@@ -236,31 +238,14 @@ func (it *DefaultConfig) GetItemsInfo(Path string) []env.T_ConfigItem {
 //   - calls env.OnConfigStart() after
 func (it *DefaultConfig) Load() error {
 
-	collection, err := db.GetCollection(CONFIG_COLLECTION_NAME)
+	err := it.Reload()
 	if err != nil {
-		return err
-	}
-
-	err = collection.SetResultColumns("path", "value")
-	if err != nil {
-		return err
-	}
-
-	records, err := collection.Load()
-	if err != nil {
-		return err
-	}
-
-	for _, record := range records {
-		path := utils.InterfaceToString(record["path"])
-		value := record["value"]
-
-		it.configValues[path] = value
+		return env.ErrorDispatch(err)
 	}
 
 	err = env.OnConfigStart()
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	return nil
@@ -269,27 +254,29 @@ func (it *DefaultConfig) Load() error {
 // updates all config values from database
 func (it *DefaultConfig) Reload() error {
 	it.configValues = make(map[string]interface{})
+	it.configTypes = make(map[string]string)
 
 	collection, err := db.GetCollection(CONFIG_COLLECTION_NAME)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
-	err = collection.SetResultColumns("path", "value")
+	err = collection.SetResultColumns("path", "type", "value")
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	records, err := collection.Load()
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	for _, record := range records {
-		path := utils.InterfaceToString(record["path"])
-		value := record["value"]
+		valuePath := utils.InterfaceToString(record["path"])
+		valueType := utils.InterfaceToString(record["type"])
 
-		it.configValues[path] = value
+		it.configValues[valuePath] = db.ConvertTypeFromDbToGo(record["value"], valueType)
+		it.configTypes[valuePath] = valueType
 	}
 
 	return nil

@@ -1,7 +1,6 @@
 package rest
 
 import (
-	"errors"
 	"log"
 	"strings"
 
@@ -16,6 +15,7 @@ import (
 
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/api/session"
+	"github.com/ottemo/foundation/env"
 )
 
 // returns implementation name of our REST API service
@@ -161,7 +161,7 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 	case "DELETE":
 		it.Router.DELETE(path, wrappedHandler)
 	default:
-		return errors.New("unsupported method '" + method + "'")
+		return env.ErrorNew("unsupported method '" + method + "'")
 	}
 
 	key := path + " {" + method + "}"

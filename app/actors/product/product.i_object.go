@@ -1,11 +1,11 @@
 package product
 
 import (
-	"strings"
-
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/product"
+	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
+	"strings"
 )
 
 // returns object attribute value or nil
@@ -60,7 +60,7 @@ func (it *DefaultProduct) Set(attribute string, value interface{}) error {
 	default:
 		err := it.CustomAttributes.Set(attribute, value)
 		if err != nil {
-			return err
+			return env.ErrorDispatch(err)
 		}
 	}
 
@@ -71,7 +71,7 @@ func (it *DefaultProduct) Set(attribute string, value interface{}) error {
 func (it *DefaultProduct) FromHashMap(input map[string]interface{}) error {
 	for attribute, value := range input {
 		if err := it.Set(attribute, value); err != nil {
-			return err
+			return env.ErrorDispatch(err)
 		}
 	}
 	return nil

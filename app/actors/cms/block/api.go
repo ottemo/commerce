@@ -1,9 +1,8 @@
 package block
 
 import (
-	"errors"
-
 	"github.com/ottemo/foundation/api"
+	"github.com/ottemo/foundation/env"
 
 	"github.com/ottemo/foundation/app/models/cms"
 	"github.com/ottemo/foundation/utils"
@@ -15,35 +14,35 @@ func setupAPI() error {
 
 	err = api.GetRestService().RegisterAPI("cms", "GET", "block/attributes", restCMSBlockAttributes)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("cms", "GET", "block/list", restCMSBlockList)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("cms", "POST", "block/list", restCMSBlockList)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("cms", "GET", "block/count", restCMSBlockCount)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("cms", "GET", "block/get/:id", restCMSBlockGet)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("cms", "POST", "block/add", restCMSBlockAdd)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("cms", "PUT", "block/update/:id", restCMSBlockUpdate)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("cms", "DELETE", "block/delete/:id", restCMSBlockDelete)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	return nil
@@ -54,7 +53,7 @@ func restCMSBlockAttributes(params *api.T_APIHandlerParams) (interface{}, error)
 
 	cmsBlock, err := cms.GetCMSBlockModel()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	return cmsBlock.GetAttributesInfo(), nil
@@ -68,7 +67,7 @@ func restCMSBlockList(params *api.T_APIHandlerParams) (interface{}, error) {
 	reqData, ok := params.RequestContent.(map[string]interface{})
 	if !ok {
 		if params.Request.Method == "POST" {
-			return nil, errors.New("unexpected request content")
+			return nil, env.ErrorNew("unexpected request content")
 		} else {
 			reqData = make(map[string]interface{})
 		}
@@ -78,7 +77,7 @@ func restCMSBlockList(params *api.T_APIHandlerParams) (interface{}, error) {
 	//----------------
 	cmsBlockCollectionModel, err := cms.GetCMSBlockCollectionModel()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	// limit parameter handle
@@ -93,7 +92,7 @@ func restCMSBlockList(params *api.T_APIHandlerParams) (interface{}, error) {
 		for _, value := range extra {
 			err := cmsBlockCollectionModel.ListAddExtraAttribute(value)
 			if err != nil {
-				return nil, err
+				return nil, env.ErrorDispatch(err)
 			}
 		}
 	}
@@ -106,7 +105,7 @@ func restCMSBlockCount(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	cmsBlockCollectionModel, err := cms.GetCMSBlockCollectionModel()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 	dbCollection := cmsBlockCollectionModel.GetDBCollection()
 
@@ -123,7 +122,7 @@ func restCMSBlockGet(params *api.T_APIHandlerParams) (interface{}, error) {
 	//---------------------
 	reqBlockId, present := params.RequestURLParams["id"]
 	if !present {
-		return nil, errors.New("cms block id should be specified")
+		return nil, env.ErrorNew("cms block id should be specified")
 	}
 	blockId := utils.InterfaceToString(reqBlockId)
 
@@ -131,7 +130,7 @@ func restCMSBlockGet(params *api.T_APIHandlerParams) (interface{}, error) {
 	//----------
 	cmsBlock, err := cms.LoadCMSBlockById(blockId)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	return cmsBlock.ToHashMap(), nil
@@ -144,19 +143,19 @@ func restCMSBlockAdd(params *api.T_APIHandlerParams) (interface{}, error) {
 	//---------------------
 	reqData, err := api.GetRequestContentAsMap(params)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	// check rights
 	if err := api.ValidateAdminRights(params); err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	// operation
 	//----------
 	cmsBlockModel, err := cms.GetCMSBlockModel()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	for attribute, value := range reqData {
@@ -176,24 +175,24 @@ func restCMSBlockUpdate(params *api.T_APIHandlerParams) (interface{}, error) {
 	//---------------------
 	blockId, present := params.RequestURLParams["id"]
 	if !present {
-		return nil, errors.New("cms block id should be specified")
+		return nil, env.ErrorNew("cms block id should be specified")
 	}
 
 	reqData, err := api.GetRequestContentAsMap(params)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	// check rights
 	if err := api.ValidateAdminRights(params); err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	// operation
 	//----------
 	cmsBlockModel, err := cms.LoadCMSBlockById(blockId)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	for attribute, value := range reqData {
@@ -213,19 +212,19 @@ func restCMSBlockDelete(params *api.T_APIHandlerParams) (interface{}, error) {
 	//---------------------
 	blockId, present := params.RequestURLParams["id"]
 	if !present {
-		return nil, errors.New("cms block id should be specified")
+		return nil, env.ErrorNew("cms block id should be specified")
 	}
 
 	// check rights
 	if err := api.ValidateAdminRights(params); err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	// operation
 	//----------
 	cmsBlockModel, err := cms.GetCMSBlockModelAndSetId(blockId)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	cmsBlockModel.Delete()

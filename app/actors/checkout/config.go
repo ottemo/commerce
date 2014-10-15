@@ -1,7 +1,6 @@
 package checkout
 
 import (
-	"errors"
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/checkout"
 	"github.com/ottemo/foundation/env"
@@ -10,12 +9,59 @@ import (
 func setupConfig() error {
 	config := env.GetConfig()
 	if config == nil {
-		return errors.New("can't obtain config")
+		return env.ErrorNew("can't obtain config")
+	}
+
+	// Checkout
+	//---------
+	err := config.RegisterItem(env.T_ConfigItem{
+		Path:        checkout.CONFIG_PATH_GROUP,
+		Value:       nil,
+		Type:        env.CONFIG_ITEM_GROUP_TYPE,
+		Editor:      "",
+		Options:     nil,
+		Label:       "Checkout",
+		Description: "checkout related options",
+		Image:       "",
+	}, nil)
+
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	config.RegisterItem(env.T_ConfigItem{
+		Path:        checkout.CONFIG_PATH_CONFIRMATION_EMAIL,
+		Value:       "",
+		Type:        "text",
+		Editor:      "multiline_text",
+		Options:     "",
+		Label:       "Order confirmation e-mail: ",
+		Description: "contents of email will be sent to customer on success checkout",
+		Image:       "",
+	}, nil)
+
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	err = config.RegisterItem(env.T_ConfigItem{
+		Path:        checkout.CONFIG_PATH_CHECKOUT_TYPE,
+		Value:       "accordion",
+		Type:        "varchar(255)",
+		Editor:      "select",
+		Options:     map[string]string{"accordion": "Accordion checkout", "onepage": "OnePage checkout"},
+		Label:       "Type of checkout",
+		Description: "type of checkout customer will be reached by default",
+		Image:       "",
+	}, nil)
+
+	if err != nil {
+		return env.ErrorDispatch(err)
 	}
 
 	// Payment
 	//--------
-	err := config.RegisterItem(env.T_ConfigItem{
+	err = config.RegisterItem(env.T_ConfigItem{
 		Path:        checkout.CONFIG_PATH_PAYMENT_GROUP,
 		Value:       nil,
 		Type:        env.CONFIG_ITEM_GROUP_TYPE,
@@ -27,7 +73,7 @@ func setupConfig() error {
 	}, nil)
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = config.RegisterItem(env.T_ConfigItem{
@@ -42,7 +88,7 @@ func setupConfig() error {
 	}, nil)
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = config.RegisterItem(env.T_ConfigItem{
@@ -57,7 +103,7 @@ func setupConfig() error {
 	}, nil)
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = config.RegisterItem(env.T_ConfigItem{
@@ -72,7 +118,7 @@ func setupConfig() error {
 	}, nil)
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = config.RegisterItem(env.T_ConfigItem{
@@ -87,7 +133,7 @@ func setupConfig() error {
 	}, nil)
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = config.RegisterItem(env.T_ConfigItem{
@@ -102,7 +148,7 @@ func setupConfig() error {
 	}, nil)
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = config.RegisterItem(env.T_ConfigItem{
@@ -117,7 +163,7 @@ func setupConfig() error {
 	}, nil)
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = config.RegisterItem(env.T_ConfigItem{
@@ -132,7 +178,7 @@ func setupConfig() error {
 	}, nil)
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	// Shipping
@@ -149,7 +195,7 @@ func setupConfig() error {
 	}, nil)
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = config.RegisterItem(env.T_ConfigItem{
@@ -164,7 +210,7 @@ func setupConfig() error {
 	}, nil)
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = config.RegisterItem(env.T_ConfigItem{
@@ -179,7 +225,7 @@ func setupConfig() error {
 	}, nil)
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = config.RegisterItem(env.T_ConfigItem{
@@ -194,7 +240,7 @@ func setupConfig() error {
 	}, nil)
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = config.RegisterItem(env.T_ConfigItem{
@@ -209,7 +255,7 @@ func setupConfig() error {
 	}, nil)
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = config.RegisterItem(env.T_ConfigItem{
@@ -224,7 +270,7 @@ func setupConfig() error {
 	}, nil)
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = config.RegisterItem(env.T_ConfigItem{
@@ -239,7 +285,7 @@ func setupConfig() error {
 	}, nil)
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = config.RegisterItem(env.T_ConfigItem{
@@ -254,7 +300,7 @@ func setupConfig() error {
 	}, nil)
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	return nil

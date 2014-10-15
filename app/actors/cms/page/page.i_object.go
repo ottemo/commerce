@@ -1,11 +1,11 @@
 package page
 
 import (
-	"errors"
 	"strings"
 
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/cms"
+	"github.com/ottemo/foundation/env"
 
 	"github.com/ottemo/foundation/utils"
 )
@@ -63,7 +63,7 @@ func (it *DefaultCMSPage) Set(attribute string, value interface{}) error {
 		return nil
 	}
 
-	return errors.New("unknown attribute '" + attribute + "'")
+	return env.ErrorNew("unknown attribute '" + attribute + "'")
 }
 
 // fills object attributes from map[string]interface{}
@@ -71,7 +71,7 @@ func (it *DefaultCMSPage) FromHashMap(input map[string]interface{}) error {
 
 	for attribute, value := range input {
 		if err := it.Set(attribute, value); err != nil {
-			return err
+			return env.ErrorDispatch(err)
 		}
 	}
 

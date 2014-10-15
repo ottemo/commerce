@@ -1,7 +1,6 @@
 package app
 
 import (
-	"errors"
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/env"
 )
@@ -10,7 +9,7 @@ import (
 func setupConfig() error {
 	config := env.GetConfig()
 	if config == nil {
-		return errors.New("can't obtain config")
+		return env.ErrorNew("can't obtain config")
 	}
 
 	err := config.RegisterItem(env.T_ConfigItem{
@@ -25,7 +24,7 @@ func setupConfig() error {
 	}, nil)
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = config.RegisterItem(env.T_ConfigItem{
@@ -40,7 +39,7 @@ func setupConfig() error {
 	}, nil)
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = config.RegisterItem(env.T_ConfigItem{
@@ -55,7 +54,7 @@ func setupConfig() error {
 	}, nil)
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = config.RegisterItem(env.T_ConfigItem{
@@ -70,7 +69,7 @@ func setupConfig() error {
 	}, nil)
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = config.RegisterItem(env.T_ConfigItem{
@@ -85,7 +84,7 @@ func setupConfig() error {
 	}, nil)
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = config.RegisterItem(env.T_ConfigItem{
@@ -100,7 +99,7 @@ func setupConfig() error {
 	}, nil)
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = config.RegisterItem(env.T_ConfigItem{
@@ -115,7 +114,7 @@ func setupConfig() error {
 	}, nil)
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = config.RegisterItem(env.T_ConfigItem{
@@ -130,7 +129,7 @@ func setupConfig() error {
 	}, nil)
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = config.RegisterItem(env.T_ConfigItem{
@@ -145,7 +144,7 @@ func setupConfig() error {
 	}, nil)
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = config.RegisterItem(env.T_ConfigItem{
@@ -160,7 +159,7 @@ func setupConfig() error {
 	}, nil)
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = config.RegisterItem(env.T_ConfigItem{
@@ -175,7 +174,7 @@ func setupConfig() error {
 	}, nil)
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = config.RegisterItem(env.T_ConfigItem{
@@ -190,7 +189,7 @@ func setupConfig() error {
 	}, nil)
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = config.RegisterItem(env.T_ConfigItem{
@@ -205,7 +204,7 @@ func setupConfig() error {
 	}, nil)
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = config.RegisterItem(env.T_ConfigItem{
@@ -220,7 +219,7 @@ func setupConfig() error {
 	}, nil)
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = config.RegisterItem(env.T_ConfigItem{
@@ -235,7 +234,7 @@ func setupConfig() error {
 	}, nil)
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = config.RegisterItem(env.T_ConfigItem{
@@ -250,7 +249,7 @@ func setupConfig() error {
 	}, nil)
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = config.RegisterItem(env.T_ConfigItem{
@@ -265,7 +264,7 @@ func setupConfig() error {
 	}, nil)
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = config.RegisterItem(env.T_ConfigItem{
@@ -280,7 +279,7 @@ func setupConfig() error {
 	}, nil)
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = config.RegisterItem(env.T_ConfigItem{
@@ -295,7 +294,7 @@ func setupConfig() error {
 	}, nil)
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = config.RegisterItem(env.T_ConfigItem{
@@ -310,7 +309,7 @@ func setupConfig() error {
 	}, nil)
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = config.RegisterItem(env.T_ConfigItem{
@@ -325,7 +324,7 @@ func setupConfig() error {
 	}, nil)
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = config.RegisterItem(env.T_ConfigItem{
@@ -340,7 +339,7 @@ func setupConfig() error {
 	}, nil)
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = config.RegisterItem(env.T_ConfigItem{
@@ -355,7 +354,7 @@ func setupConfig() error {
 	}, nil)
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	return nil

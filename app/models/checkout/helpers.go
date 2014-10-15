@@ -1,24 +1,23 @@
 package checkout
 
 import (
-	"errors"
-
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/cart"
 	"github.com/ottemo/foundation/app/models/visitor"
+	"github.com/ottemo/foundation/env"
 )
 
 // retrieves current I_Checkout model implementation
 func GetCheckoutModel() (I_Checkout, error) {
 	model, err := models.GetModel(CHECKOUT_MODEL_NAME)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	checkoutModel, ok := model.(I_Checkout)
 	if !ok {
-		return nil, errors.New("model " + model.GetImplementationName() + " is not 'I_Checkout' capable")
+		return nil, env.ErrorNew("model " + model.GetImplementationName() + " is not 'I_Checkout' capable")
 	}
 
 	return checkoutModel, nil
@@ -63,7 +62,7 @@ func GetCurrentCheckout(params *api.T_APIHandlerParams) (I_Checkout, error) {
 		// making new checkout object
 		newCheckoutInstance, err := GetCheckoutModel()
 		if err != nil {
-			return nil, err
+			return nil, env.ErrorDispatch(err)
 		}
 
 		// storing checkout object to session
@@ -81,14 +80,14 @@ func GetCurrentCheckout(params *api.T_APIHandlerParams) (I_Checkout, error) {
 	// setting cart
 	currentCart, err := cart.GetCurrentCart(params)
 	if err != nil {
-		return checkoutInstance, err
+		return checkoutInstance, env.ErrorDispatch(err)
 	}
 	checkoutInstance.SetCart(currentCart)
 
 	// setting visitor
 	currentVisitor, err := visitor.GetCurrentVisitor(params)
 	if err != nil {
-		return checkoutInstance, err
+		return checkoutInstance, env.ErrorDispatch(err)
 	}
 	checkoutInstance.SetVisitor(currentVisitor)
 

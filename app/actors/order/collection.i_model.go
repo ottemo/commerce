@@ -1,10 +1,10 @@
 package order
 
 import (
-	"github.com/ottemo/foundation/db"
-
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/order"
+	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/foundation/env"
 )
 
 // returns model name
@@ -21,7 +21,7 @@ func (it *DefaultOrderCollection) GetImplementationName() string {
 func (it *DefaultOrderCollection) New() (models.I_Model, error) {
 	dbCollection, err := db.GetCollection(COLLECTION_NAME_ORDER)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	return &DefaultOrderCollection{listCollection: dbCollection, listExtraAtributes: make([]string, 0)}, nil

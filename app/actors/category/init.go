@@ -1,12 +1,11 @@
 package category
 
 import (
-	"github.com/ottemo/foundation/app/models"
-	"github.com/ottemo/foundation/db"
-
 	"github.com/ottemo/foundation/api"
-
+	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/category"
+	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/foundation/env"
 )
 
 // module entry point before app start
@@ -27,7 +26,7 @@ func init() {
 func (it *DefaultCategory) setupDB() error {
 	collection, err := db.GetCollection(COLLECTION_NAME_CATEGORY)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	collection.AddColumn("parent_id", "id", true)
@@ -36,7 +35,7 @@ func (it *DefaultCategory) setupDB() error {
 
 	collection, err = db.GetCollection(COLLECTION_NAME_CATEGORY_PRODUCT_JUNCTION)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	collection.AddColumn("category_id", "id", true)

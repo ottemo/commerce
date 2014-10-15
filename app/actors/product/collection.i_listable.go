@@ -1,9 +1,8 @@
 package product
 
 import (
-	"errors"
-
 	"github.com/ottemo/foundation/app/models"
+	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
 
 	"github.com/ottemo/foundation/app/models/product"
@@ -15,18 +14,18 @@ func (it *DefaultProductCollection) List() ([]models.T_ListItem, error) {
 
 	dbRecords, err := it.listCollection.Load()
 	if err != nil {
-		return result, err
+		return result, env.ErrorDispatch(err)
 	}
 
 	for _, dbRecordData := range dbRecords {
 
 		productModel, err := product.GetProductModel()
 		if err != nil {
-			return result, err
+			return result, env.ErrorDispatch(err)
 		}
 		err = productModel.FromHashMap(dbRecordData)
 		if err != nil {
-			return result, err
+			return result, env.ErrorDispatch(err)
 		}
 
 		// retrieving minimal data needed for list
@@ -34,7 +33,7 @@ func (it *DefaultProductCollection) List() ([]models.T_ListItem, error) {
 
 		mediaPath, err := productModel.GetMediaPath("image")
 		if err != nil {
-			return result, err
+			return result, env.ErrorDispatch(err)
 		}
 
 		resultItem.Id = productModel.GetId()
@@ -64,14 +63,24 @@ func (it *DefaultProductCollection) List() ([]models.T_ListItem, error) {
 // allows to obtain additional attributes from  List() function
 func (it *DefaultProductCollection) ListAddExtraAttribute(attribute string) error {
 
-	if utils.IsAmongStr(attribute, "sku", "name", "short_description", "description", "default_image", "price", "weight", "options") {
+	productModel, err := product.GetProductModel()
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	allowedAttributes := make([]string, 0)
+	for _, attributeInfo := range productModel.GetAttributesInfo() {
+		allowedAttributes = append(allowedAttributes, attributeInfo.Attribute)
+	}
+
+	if utils.IsInArray(attribute, allowedAttributes) {
 		if !utils.IsInListStr(attribute, it.listExtraAtributes) {
 			it.listExtraAtributes = append(it.listExtraAtributes, attribute)
 		} else {
-			return errors.New("attribute already in list")
+			return env.ErrorNew("attribute already in list")
 		}
 	} else {
-		return errors.New("not allowed attribute")
+		return env.ErrorNew("not allowed attribute")
 	}
 
 	return nil

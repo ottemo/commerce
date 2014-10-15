@@ -1,10 +1,9 @@
 package page
 
 import (
-	"errors"
-
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/cms"
+	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
 )
 
@@ -14,13 +13,13 @@ func (it *DefaultCMSPageCollection) List() ([]models.T_ListItem, error) {
 
 	dbRecords, err := it.listCollection.Load()
 	if err != nil {
-		return result, err
+		return result, env.ErrorDispatch(err)
 	}
 
 	for _, dbRecordData := range dbRecords {
 		cmsPageModel, err := cms.GetCMSPageModel()
 		if err != nil {
-			return result, err
+			return result, env.ErrorDispatch(err)
 		}
 		cmsPageModel.FromHashMap(dbRecordData)
 
@@ -54,10 +53,10 @@ func (it *DefaultCMSPageCollection) ListAddExtraAttribute(attribute string) erro
 		if !utils.IsInListStr(attribute, it.listExtraAtributes) {
 			it.listExtraAtributes = append(it.listExtraAtributes, attribute)
 		} else {
-			return errors.New("attribute already in list")
+			return env.ErrorNew("attribute already in list")
 		}
 	} else {
-		return errors.New("not allowed attribute")
+		return env.ErrorNew("not allowed attribute")
 	}
 
 	return nil

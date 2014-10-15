@@ -2,6 +2,7 @@ package objectref
 
 import (
 	"github.com/ottemo/foundation/app/models"
+	"github.com/ottemo/foundation/env"
 )
 
 // returns attribute value for current object or nil if no such attribute
@@ -35,7 +36,7 @@ func (it *DBObjectRef) FromHashMap(input map[string]interface{}) error {
 
 	for attribute, value := range input {
 		if err := it.Set(attribute, value); err != nil {
-			return err
+			return env.ErrorDispatch(err)
 		}
 	}
 

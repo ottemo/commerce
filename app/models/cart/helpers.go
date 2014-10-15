@@ -1,10 +1,10 @@
 package cart
 
 import (
-	"errors"
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/visitor"
+	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
 )
 
@@ -12,12 +12,12 @@ import (
 func GetCartModel() (I_Cart, error) {
 	model, err := models.GetModel(CART_MODEL_NAME)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	cartModel, ok := model.(I_Cart)
 	if !ok {
-		return nil, errors.New("model " + model.GetImplementationName() + " is not 'I_Cart' capable")
+		return nil, env.ErrorNew("model " + model.GetImplementationName() + " is not 'I_Cart' capable")
 	}
 
 	return cartModel, nil
@@ -28,12 +28,12 @@ func GetCartModelAndSetId(cartId string) (I_Cart, error) {
 
 	cartModel, err := GetCartModel()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	err = cartModel.SetId(cartId)
 	if err != nil {
-		return cartModel, err
+		return cartModel, env.ErrorDispatch(err)
 	}
 
 	return cartModel, nil
@@ -44,12 +44,12 @@ func LoadCartById(cartId string) (I_Cart, error) {
 
 	cartModel, err := GetCartModel()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	err = cartModel.Load(cartId)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	return cartModel, nil
@@ -59,12 +59,12 @@ func LoadCartById(cartId string) (I_Cart, error) {
 func GetCartForVisitor(visitorId string) (I_Cart, error) {
 	cartModel, err := GetCartModel()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	err = cartModel.MakeCartForVisitor(visitorId)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	return cartModel, nil
@@ -79,7 +79,7 @@ func GetCurrentCart(params *api.T_APIHandlerParams) (I_Cart, error) {
 		// cart id was found in session - loading cart by id
 		currentCart, err := LoadCartById(utils.InterfaceToString(sessionCartId))
 		if err != nil {
-			return nil, err
+			return nil, env.ErrorDispatch(err)
 		}
 
 		return currentCart, nil
@@ -91,14 +91,14 @@ func GetCurrentCart(params *api.T_APIHandlerParams) (I_Cart, error) {
 		if visitorId != nil {
 			currentCart, err := GetCartForVisitor(utils.InterfaceToString(visitorId))
 			if err != nil {
-				return nil, err
+				return nil, env.ErrorDispatch(err)
 			}
 
 			params.Session.Set(SESSION_KEY_CURRENT_CART, currentCart.GetId())
 
 			return currentCart, nil
 		} else {
-			return nil, errors.New("you are not registered")
+			return nil, env.ErrorNew("you are not registered")
 		}
 
 	}

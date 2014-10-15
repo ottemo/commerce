@@ -1,13 +1,13 @@
 package api
 
 import (
-	"errors"
 	"net/url"
 	"strconv"
 	"strings"
 
 	"github.com/ottemo/foundation/api/session"
 	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/foundation/env"
 )
 
 // returns session instance by id or nil
@@ -24,7 +24,7 @@ func ValidateAdminRights(params *T_APIHandlerParams) error {
 		}
 	}
 
-	return errors.New("no admin rights")
+	return env.ErrorNew("no admin rights")
 }
 
 // tries to represent HTTP request content in map[string]interface{} format
@@ -33,7 +33,7 @@ func GetRequestContentAsMap(params *T_APIHandlerParams) (map[string]interface{},
 	result, ok := params.RequestContent.(map[string]interface{})
 	if !ok {
 		if params.Request.Method == "POST" {
-			return nil, errors.New("unexpected request content")
+			return nil, env.ErrorNew("unexpected request content")
 		} else {
 			result = make(map[string]interface{})
 		}

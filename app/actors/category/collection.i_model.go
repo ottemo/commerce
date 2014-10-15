@@ -4,6 +4,7 @@ import (
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/category"
 	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/foundation/env"
 )
 
 // returns model name
@@ -20,7 +21,7 @@ func (it *DefaultCategoryCollection) GetImplementationName() string {
 func (it *DefaultCategoryCollection) New() (models.I_Model, error) {
 	dbCollection, err := db.GetCollection(COLLECTION_NAME_CATEGORY)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	return &DefaultCategoryCollection{listCollection: dbCollection, listExtraAtributes: make([]string, 0)}, nil

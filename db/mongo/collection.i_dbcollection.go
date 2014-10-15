@@ -1,10 +1,9 @@
 package mongo
 
 import (
-	"errors"
-	"sort"
-
+	"github.com/ottemo/foundation/env"
 	"labix.org/v2/mgo/bson"
+	"sort"
 )
 
 // loads one record from DB by record _id
@@ -13,7 +12,7 @@ func (it *MongoDBCollection) LoadById(id string) (map[string]interface{}, error)
 
 	err := it.collection.FindId(id).One(&result)
 
-	return result, err
+	return result, env.ErrorDispatch(err)
 }
 
 // loads records from DB for current collection and filter if it set
@@ -22,7 +21,7 @@ func (it *MongoDBCollection) Load() ([]map[string]interface{}, error) {
 
 	err := it.prepareQuery().All(&result)
 
-	return result, err
+	return result, env.ErrorDispatch(err)
 }
 
 // applies [iterator] function to each record, stops on return false
@@ -55,7 +54,7 @@ func (it *MongoDBCollection) Distinct(columnName string) ([]interface{}, error) 
 
 	err := it.prepareQuery().Distinct(columnName, &result)
 
-	return result, err
+	return result, env.ErrorDispatch(err)
 }
 
 // stores record in DB for current collection
@@ -96,14 +95,14 @@ func (it *MongoDBCollection) Save(Item map[string]interface{}) (string, error) {
 		//id = changeInfo.UpsertedId
 	}
 
-	return id, err
+	return id, env.ErrorDispatch(err)
 }
 
 // removes records that matches current select statement from DB, returns amount of affected rows
 func (it *MongoDBCollection) Delete() (int, error) {
 	changeInfo, err := it.collection.RemoveAll(it.makeSelector())
 
-	return changeInfo.Removed, err
+	return changeInfo.Removed, env.ErrorDispatch(err)
 }
 
 // removes record from DB by is's id
@@ -114,7 +113,7 @@ func (it *MongoDBCollection) DeleteById(id string) error {
 // setups filter group params for collection
 func (it *MongoDBCollection) SetupFilterGroup(groupName string, orSequence bool, parentGroup string) error {
 	if _, present := it.FilterGroups[parentGroup]; !present && parentGroup != "" {
-		return errors.New("invalid parent group")
+		return env.ErrorNew("invalid parent group")
 	}
 
 	filterGroup := it.getFilterGroup(groupName)
@@ -127,7 +126,7 @@ func (it *MongoDBCollection) SetupFilterGroup(groupName string, orSequence bool,
 // removes filter group for collection
 func (it *MongoDBCollection) RemoveFilterGroup(GroupName string) error {
 	if _, present := it.FilterGroups[GroupName]; !present {
-		return errors.New("invalid group name")
+		return env.ErrorNew("invalid group name")
 	}
 	delete(it.FilterGroups, GroupName)
 	return nil
@@ -200,7 +199,7 @@ func (it *MongoDBCollection) SetResultColumns(columns ...string) error {
 		it.ResultAttributes = []string{}
 
 		if !it.HasColumn(columnName) {
-			return errors.New("there is no column " + columnName + " found")
+			return env.ErrorNew("there is no column " + columnName + " found")
 		}
 
 		it.ResultAttributes = append(it.ResultAttributes, columnName)
@@ -287,7 +286,7 @@ func (it *MongoDBCollection) AddColumn(ColumnName string, ColumnType string, ind
 
 	_, err := infoCollection.Upsert(selector, data)
 
-	return err
+	return env.ErrorDispatch(err)
 }
 
 // removes attribute from current collection

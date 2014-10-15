@@ -1,10 +1,9 @@
 package tax
 
 import (
-	"errors"
-
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/foundation/env"
 
 	"github.com/ottemo/foundation/app/models/checkout"
 )
@@ -30,10 +29,10 @@ func setupDB() error {
 			collection.AddColumn("zip", "text", false)
 			collection.AddColumn("rate", "text", false)
 		} else {
-			return err
+			return env.ErrorDispatch(err)
 		}
 	} else {
-		return errors.New("Can't get database engine")
+		return env.ErrorNew("Can't get database engine")
 	}
 
 	return nil

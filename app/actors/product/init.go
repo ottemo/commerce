@@ -2,10 +2,10 @@ package product
 
 import (
 	"github.com/ottemo/foundation/api"
-	"github.com/ottemo/foundation/db"
-
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/product"
+	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/foundation/env"
 )
 
 // module entry point before app start
@@ -24,10 +24,9 @@ func init() {
 
 // DB preparations for current model implementation
 func setupDB() error {
-
 	collection, err := db.GetCollection(COLLECTION_NAME_PRODUCT)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	collection.AddColumn("sku", "text", true)
@@ -37,7 +36,6 @@ func setupDB() error {
 	collection.AddColumn("default_image", "text", false)
 	collection.AddColumn("price", "numeric", false)
 	collection.AddColumn("weight", "numeric", false)
-	collection.AddColumn("size", "numeric", false)
 	collection.AddColumn("options", "text", false)
 
 	return nil

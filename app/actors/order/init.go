@@ -1,8 +1,6 @@
 package order
 
 import (
-	"errors"
-
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/order"
@@ -35,7 +33,7 @@ func setupDB() error {
 	if dbEngine := db.GetDBEngine(); dbEngine != nil {
 		collection, err := dbEngine.GetCollection(COLLECTION_NAME_ORDER)
 		if err != nil {
-			return err
+			return env.ErrorDispatch(err)
 		}
 
 		collection.AddColumn("increment_id", "varchar(50)", true)
@@ -66,7 +64,7 @@ func setupDB() error {
 
 		collection, err = dbEngine.GetCollection(COLLECTION_NAME_ORDER_ITEMS)
 		if err != nil {
-			return err
+			return env.ErrorDispatch(err)
 		}
 
 		collection.AddColumn("idx", "int", false)
@@ -87,7 +85,7 @@ func setupDB() error {
 		collection.AddColumn("size", "decimal(10,2)", false)
 
 	} else {
-		return errors.New("Can't get database engine")
+		return env.ErrorNew("Can't get database engine")
 	}
 
 	return nil

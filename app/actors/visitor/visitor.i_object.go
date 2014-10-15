@@ -1,11 +1,11 @@
 package visitor
 
 import (
-	"errors"
 	"strings"
 
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/visitor"
+	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
 )
 
@@ -14,6 +14,8 @@ func (it *DefaultVisitor) Get(attribute string) interface{} {
 	switch strings.ToLower(attribute) {
 	case "_id", "id":
 		return it.id
+	case "email":
+		return it.Email
 	case "fname", "first_name":
 		return it.FirstName
 	case "lname", "last_name":
@@ -73,12 +75,19 @@ func (it *DefaultVisitor) Set(attribute string, value interface{}) error {
 
 	// only address id was specified - trying to load it
 	case "billing_address_id", "shipping_address_id":
-		address, err := visitor.LoadVisitorAddressById(utils.InterfaceToString(value))
-		if err != nil {
-			return err
+		value := utils.InterfaceToString(value)
+
+		var address visitor.I_VisitorAddress = nil
+		var err error = nil
+
+		if value != "" {
+			address, err = visitor.LoadVisitorAddressById(value)
+			if err != nil {
+				return env.ErrorDispatch(err)
+			}
 		}
 
-		if address != nil && address.GetId() != "" {
+		if address == nil || address.GetId() != "" {
 
 			if attribute == "billing_address_id" {
 				it.BillingAddress = address
@@ -106,7 +115,7 @@ func (it *DefaultVisitor) Set(attribute string, value interface{}) error {
 
 			err = addressModel.FromHashMap(value)
 			if err != nil {
-				return err
+				return env.ErrorDispatch(err)
 			}
 
 			if attribute == "billing_address" {
@@ -115,13 +124,13 @@ func (it *DefaultVisitor) Set(attribute string, value interface{}) error {
 				it.ShippingAddress = addressModel
 			}
 		default:
-			return errors.New("unsupported billing or shipping address value")
+			return env.ErrorNew("unsupported billing or shipping address value")
 		}
 
 	default:
 		err := it.CustomAttributes.Set(attribute, value)
 		if err != nil {
-			return err
+			return env.ErrorDispatch(err)
 		}
 	}
 
@@ -133,7 +142,7 @@ func (it *DefaultVisitor) FromHashMap(input map[string]interface{}) error {
 
 	for attribute, value := range input {
 		if err := it.Set(attribute, value); err != nil {
-			return err
+			return env.ErrorDispatch(err)
 		}
 	}
 

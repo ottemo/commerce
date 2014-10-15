@@ -1,20 +1,20 @@
 package product
 
 import (
-	"errors"
 	"github.com/ottemo/foundation/app/models"
+	"github.com/ottemo/foundation/env"
 )
 
 // retrieves current I_ProductCollection model implementation
 func GetProductCollectionModel() (I_ProductCollection, error) {
 	model, err := models.GetModel(MODEL_NAME_PRODUCT_COLLECTION)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	productModel, ok := model.(I_ProductCollection)
 	if !ok {
-		return nil, errors.New("model " + model.GetImplementationName() + " is not 'I_ProductCollection' capable")
+		return nil, env.ErrorNew("model " + model.GetImplementationName() + " is not 'I_ProductCollection' capable")
 	}
 
 	return productModel, nil
@@ -24,12 +24,12 @@ func GetProductCollectionModel() (I_ProductCollection, error) {
 func GetProductModel() (I_Product, error) {
 	model, err := models.GetModel(MODEL_NAME_PRODUCT)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	productModel, ok := model.(I_Product)
 	if !ok {
-		return nil, errors.New("model " + model.GetImplementationName() + " is not 'I_Product' capable")
+		return nil, env.ErrorNew("model " + model.GetImplementationName() + " is not 'I_Product' capable")
 	}
 
 	return productModel, nil
@@ -40,12 +40,12 @@ func GetProductModelAndSetId(productId string) (I_Product, error) {
 
 	productModel, err := GetProductModel()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	err = productModel.SetId(productId)
 	if err != nil {
-		return productModel, err
+		return productModel, env.ErrorDispatch(err)
 	}
 
 	return productModel, nil
@@ -56,12 +56,12 @@ func LoadProductById(productId string) (I_Product, error) {
 
 	productModel, err := GetProductModel()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	err = productModel.Load(productId)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	return productModel, nil

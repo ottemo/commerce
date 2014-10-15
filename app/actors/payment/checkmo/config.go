@@ -1,8 +1,6 @@
 package checkmo
 
 import (
-	"errors"
-
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
 )
@@ -11,7 +9,7 @@ import (
 func setupConfig() error {
 	config := env.GetConfig()
 	if config == nil {
-		return errors.New("can't obtain config")
+		return env.ErrorNew("can't obtain config")
 	}
 
 	err := config.RegisterItem(env.T_ConfigItem{
@@ -26,7 +24,7 @@ func setupConfig() error {
 	}, nil)
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = config.RegisterItem(env.T_ConfigItem{
@@ -41,7 +39,7 @@ func setupConfig() error {
 	}, func(value interface{}) (interface{}, error) { return utils.InterfaceToBool(value), nil })
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = config.RegisterItem(env.T_ConfigItem{
@@ -55,14 +53,14 @@ func setupConfig() error {
 		Image:       "",
 	}, func(value interface{}) (interface{}, error) {
 		if utils.CheckIsBlank(value) {
-			return nil, errors.New("can't be blank")
+			return nil, env.ErrorNew("can't be blank")
 		} else {
 			return value, nil
 		}
 	})
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	return nil

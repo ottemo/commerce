@@ -1,21 +1,21 @@
 package visitor
 
 import (
-	"errors"
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/app/models"
+	"github.com/ottemo/foundation/env"
 )
 
 // retrieves current I_VisitorAddressCollection model implementation
 func GetVisitorAddressCollectionModel() (I_VisitorAddressCollection, error) {
 	model, err := models.GetModel(MODEL_NAME_VISITOR_ADDRESS_COLLECTION)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	visitorAddressCollectionModel, ok := model.(I_VisitorAddressCollection)
 	if !ok {
-		return nil, errors.New("model " + model.GetImplementationName() + " is not 'I_VisitorAddressCollection' capable")
+		return nil, env.ErrorNew("model " + model.GetImplementationName() + " is not 'I_VisitorAddressCollection' capable")
 	}
 
 	return visitorAddressCollectionModel, nil
@@ -25,12 +25,12 @@ func GetVisitorAddressCollectionModel() (I_VisitorAddressCollection, error) {
 func GetVisitorAddressModel() (I_VisitorAddress, error) {
 	model, err := models.GetModel(MODEL_NAME_VISITOR_ADDRESS)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	visitorAddressModel, ok := model.(I_VisitorAddress)
 	if !ok {
-		return nil, errors.New("model " + model.GetImplementationName() + " is not 'I_VisitorAddress' capable")
+		return nil, env.ErrorNew("model " + model.GetImplementationName() + " is not 'I_VisitorAddress' capable")
 	}
 
 	return visitorAddressModel, nil
@@ -40,12 +40,12 @@ func GetVisitorAddressModel() (I_VisitorAddress, error) {
 func GetVisitorCollectionModel() (I_VisitorCollection, error) {
 	model, err := models.GetModel(MODEL_NAME_VISITOR_COLLECTION)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	visitorCollectionModel, ok := model.(I_VisitorCollection)
 	if !ok {
-		return nil, errors.New("model " + model.GetImplementationName() + " is not 'I_VisitorCollection' capable")
+		return nil, env.ErrorNew("model " + model.GetImplementationName() + " is not 'I_VisitorCollection' capable")
 	}
 
 	return visitorCollectionModel, nil
@@ -55,12 +55,12 @@ func GetVisitorCollectionModel() (I_VisitorCollection, error) {
 func GetVisitorModel() (I_Visitor, error) {
 	model, err := models.GetModel(MODEL_NAME_VISITOR)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	visitorModel, ok := model.(I_Visitor)
 	if !ok {
-		return nil, errors.New("model " + model.GetImplementationName() + " is not 'I_Visitor' capable")
+		return nil, env.ErrorNew("model " + model.GetImplementationName() + " is not 'I_Visitor' capable")
 	}
 
 	return visitorModel, nil
@@ -71,12 +71,12 @@ func GetVisitorAddressModelAndSetId(visitorAddressId string) (I_VisitorAddress, 
 
 	visitorAddressModel, err := GetVisitorAddressModel()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	err = visitorAddressModel.SetId(visitorAddressId)
 	if err != nil {
-		return visitorAddressModel, err
+		return visitorAddressModel, env.ErrorDispatch(err)
 	}
 
 	return visitorAddressModel, nil
@@ -87,12 +87,12 @@ func GetVisitorModelAndSetId(visitorId string) (I_Visitor, error) {
 
 	visitorModel, err := GetVisitorModel()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	err = visitorModel.SetId(visitorId)
 	if err != nil {
-		return visitorModel, err
+		return visitorModel, env.ErrorDispatch(err)
 	}
 
 	return visitorModel, nil
@@ -103,12 +103,12 @@ func LoadVisitorAddressById(visitorAddressId string) (I_VisitorAddress, error) {
 
 	visitorAddressModel, err := GetVisitorAddressModel()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	err = visitorAddressModel.Load(visitorAddressId)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	return visitorAddressModel, nil
@@ -119,12 +119,12 @@ func LoadVisitorById(visitorId string) (I_Visitor, error) {
 
 	visitorModel, err := GetVisitorModel()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	err = visitorModel.Load(visitorId)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	return visitorModel, nil
@@ -144,10 +144,10 @@ func GetCurrentVisitorId(params *api.T_APIHandlerParams) string {
 func GetCurrentVisitor(params *api.T_APIHandlerParams) (I_Visitor, error) {
 	sessionVisitorId, ok := params.Session.Get(SESSION_KEY_VISITOR_ID).(string)
 	if !ok {
-		return nil, errors.New("not registered visitor")
+		return nil, env.ErrorNew("not registered visitor")
 	}
 
 	visitorInstance, err := LoadVisitorById(sessionVisitorId)
 
-	return visitorInstance, err
+	return visitorInstance, env.ErrorDispatch(err)
 }

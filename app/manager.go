@@ -2,6 +2,7 @@ package app
 
 import (
 	"github.com/ottemo/foundation/api"
+	"github.com/ottemo/foundation/env"
 )
 
 var callbacksOnAppInit = []func() error{}
@@ -19,7 +20,7 @@ func OnAppStart(callback func() error) {
 func Start() error {
 	for _, callback := range callbacksOnAppStart {
 		if err := callback(); err != nil {
-			return err
+			return env.ErrorDispatch(err)
 		}
 	}
 
@@ -29,7 +30,7 @@ func Start() error {
 func Init() error {
 	for _, callback := range callbacksOnAppInit {
 		if err := callback(); err != nil {
-			return err
+			return env.ErrorDispatch(err)
 		}
 	}
 

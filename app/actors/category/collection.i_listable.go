@@ -1,10 +1,9 @@
 package category
 
 import (
-	"errors"
-
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/category"
+	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
 )
 
@@ -16,7 +15,7 @@ func (it *DefaultCategoryCollection) List() ([]models.T_ListItem, error) {
 	//---------------------
 	dbItems, err := it.listCollection.Load()
 	if err != nil {
-		return result, err
+		return result, env.ErrorDispatch(err)
 	}
 
 	// converting db record to T_ListItem
@@ -24,7 +23,7 @@ func (it *DefaultCategoryCollection) List() ([]models.T_ListItem, error) {
 	for _, dbItemData := range dbItems {
 		categoryModel, err := category.GetCategoryModel()
 		if err != nil {
-			return result, err
+			return result, env.ErrorDispatch(err)
 		}
 		categoryModel.FromHashMap(dbItemData)
 
@@ -55,14 +54,25 @@ func (it *DefaultCategoryCollection) List() ([]models.T_ListItem, error) {
 // allows to obtain additional attributes from  List() function
 func (it *DefaultCategoryCollection) ListAddExtraAttribute(attribute string) error {
 
-	if utils.IsAmongStr(attribute, "parent", "products") {
+	categoryModel, err := category.GetCategoryModel()
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	allowedAttributes := make([]string, 0)
+	for _, attributeInfo := range categoryModel.GetAttributesInfo() {
+		allowedAttributes = append(allowedAttributes, attributeInfo.Attribute)
+	}
+	allowedAttributes = append(allowedAttributes, "parent")
+
+	if utils.IsInArray(attribute, allowedAttributes) {
 		if !utils.IsInListStr(attribute, it.listExtraAtributes) {
 			it.listExtraAtributes = append(it.listExtraAtributes, attribute)
 		} else {
-			return errors.New("attribute already in list")
+			return env.ErrorNew("attribute already in list")
 		}
 	} else {
-		return errors.New("not allowed attribute")
+		return env.ErrorNew("not allowed attribute")
 	}
 
 	return nil

@@ -2,10 +2,10 @@ package page
 
 import (
 	"github.com/ottemo/foundation/api"
-	"github.com/ottemo/foundation/db"
-
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/cms"
+	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/foundation/env"
 )
 
 // module entry point before app start
@@ -26,7 +26,7 @@ func init() {
 func setupDB() error {
 	collection, err := db.GetCollection(CMS_PAGE_COLLECTION_NAME)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	collection.AddColumn("identifier", "varchar(255)", true)

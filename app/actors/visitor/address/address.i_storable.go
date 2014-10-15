@@ -2,6 +2,7 @@ package address
 
 import (
 	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/foundation/env"
 )
 
 func (it *DefaultVisitorAddress) GetId() string {
@@ -19,14 +20,14 @@ func (it *DefaultVisitorAddress) Load(Id string) error {
 
 			if values, err := collection.LoadById(Id); err == nil {
 				if err := it.FromHashMap(values); err != nil {
-					return err
+					return env.ErrorDispatch(err)
 				}
 			} else {
-				return err
+				return env.ErrorDispatch(err)
 			}
 
 		} else {
-			return err
+			return env.ErrorDispatch(err)
 		}
 	}
 	return nil
@@ -37,10 +38,10 @@ func (it *DefaultVisitorAddress) Delete() error {
 		if collection, err := dbEngine.GetCollection(COLLECTION_NAME_VISITOR_ADDRESS); err == nil {
 			err := collection.DeleteById(it.GetId())
 			if err != nil {
-				return err
+				return env.ErrorDispatch(err)
 			}
 		} else {
-			return err
+			return env.ErrorDispatch(err)
 		}
 	}
 	return nil
@@ -52,18 +53,18 @@ func (it *DefaultVisitorAddress) Save() error {
 		if collection, err := dbEngine.GetCollection(COLLECTION_NAME_VISITOR_ADDRESS); err == nil {
 
 			//if it.ZipCode== "" {
-			//	return errors.New("Zip code for address - required")
+			//	return env.ErrorNew("Zip code for address - required")
 			//}
 
 			if newId, err := collection.Save(it.ToHashMap()); err == nil {
 				it.Set("_id", newId)
-				return err
+				return env.ErrorDispatch(err)
 			} else {
-				return err
+				return env.ErrorDispatch(err)
 			}
 
 		} else {
-			return err
+			return env.ErrorDispatch(err)
 		}
 	}
 	return nil

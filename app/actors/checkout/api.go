@@ -1,7 +1,6 @@
 package checkout
 
 import (
-	"errors"
 	"fmt"
 	"time"
 
@@ -10,6 +9,7 @@ import (
 	"github.com/ottemo/foundation/app/models/checkout"
 	"github.com/ottemo/foundation/app/models/order"
 	"github.com/ottemo/foundation/app/models/visitor"
+	"github.com/ottemo/foundation/env"
 
 	"github.com/ottemo/foundation/utils"
 )
@@ -20,39 +20,39 @@ func setupAPI() error {
 
 	err = api.GetRestService().RegisterAPI("checkout", "GET", "info", restCheckoutInfo)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("checkout", "GET", "payment/methods", restCheckoutPaymentMethods)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("checkout", "GET", "shipping/methods", restCheckoutShippingMethods)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("checkout", "POST", "set/shipping/address", restCheckoutSetShippingAddress)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("checkout", "POST", "set/billing/address", restCheckoutSetBillingAddress)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("checkout", "POST", "set/payment/method/:method", restCheckoutSetPaymentMethod)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("checkout", "POST", "set/shipping/method/:method/:rate", restCheckoutSetShippingMethod)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("checkout", "GET", "submit", restSubmit)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("checkout", "POST", "submit", restSubmit)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	return nil
@@ -63,7 +63,7 @@ func restCheckoutInfo(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	currentCheckout, err := checkout.GetCurrentCheckout(params)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	result := map[string]interface{}{
@@ -130,7 +130,7 @@ func restCheckoutPaymentMethods(params *api.T_APIHandlerParams) (interface{}, er
 
 	currentCheckout, err := checkout.GetCurrentCheckout(params)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	type ResultValue struct {
@@ -154,7 +154,7 @@ func restCheckoutShippingMethods(params *api.T_APIHandlerParams) (interface{}, e
 
 	currentCheckout, err := checkout.GetCurrentCheckout(params)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	type ResultValue struct {
@@ -178,7 +178,7 @@ func checkoutObtainAddress(params *api.T_APIHandlerParams) (visitor.I_VisitorAdd
 
 	reqData, err := api.GetRequestContentAsMap(params)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	if addressId, present := reqData["id"]; present {
@@ -186,12 +186,12 @@ func checkoutObtainAddress(params *api.T_APIHandlerParams) (visitor.I_VisitorAdd
 		// Address id was specified - trying to load
 		visitorAddress, err := visitor.LoadVisitorAddressById(utils.InterfaceToString(addressId))
 		if err != nil {
-			return nil, err
+			return nil, env.ErrorDispatch(err)
 		}
 
 		currentVisitorId := utils.InterfaceToString(params.Session.Get(visitor.SESSION_KEY_VISITOR_ID))
 		if visitorAddress.GetVisitorId() != currentVisitorId {
-			return nil, errors.New("wrong address id")
+			return nil, env.ErrorNew("wrong address id")
 		}
 
 		return visitorAddress, nil
@@ -200,13 +200,13 @@ func checkoutObtainAddress(params *api.T_APIHandlerParams) (visitor.I_VisitorAdd
 		// supposedly address data was specified
 		visitorAddressModel, err := visitor.GetVisitorAddressModel()
 		if err != nil {
-			return nil, err
+			return nil, env.ErrorDispatch(err)
 		}
 
 		for attribute, value := range reqData {
 			err := visitorAddressModel.Set(attribute, value)
 			if err != nil {
-				return nil, err
+				return nil, env.ErrorDispatch(err)
 			}
 		}
 
@@ -215,7 +215,7 @@ func checkoutObtainAddress(params *api.T_APIHandlerParams) (visitor.I_VisitorAdd
 
 		err = visitorAddressModel.Save()
 		if err != nil {
-			return nil, err
+			return nil, env.ErrorDispatch(err)
 		}
 
 		return visitorAddressModel, nil
@@ -226,17 +226,17 @@ func checkoutObtainAddress(params *api.T_APIHandlerParams) (visitor.I_VisitorAdd
 func restCheckoutSetShippingAddress(params *api.T_APIHandlerParams) (interface{}, error) {
 	currentCheckout, err := checkout.GetCurrentCheckout(params)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	address, err := checkoutObtainAddress(params)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	err = currentCheckout.SetShippingAddress(address)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	return address.ToHashMap(), nil
@@ -246,17 +246,17 @@ func restCheckoutSetShippingAddress(params *api.T_APIHandlerParams) (interface{}
 func restCheckoutSetBillingAddress(params *api.T_APIHandlerParams) (interface{}, error) {
 	currentCheckout, err := checkout.GetCurrentCheckout(params)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	address, err := checkoutObtainAddress(params)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	err = currentCheckout.SetBillingAddress(address)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	return address.ToHashMap(), nil
@@ -266,7 +266,7 @@ func restCheckoutSetBillingAddress(params *api.T_APIHandlerParams) (interface{},
 func restCheckoutSetPaymentMethod(params *api.T_APIHandlerParams) (interface{}, error) {
 	currentCheckout, err := checkout.GetCurrentCheckout(params)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	// looking for payment method
@@ -277,7 +277,7 @@ func restCheckoutSetPaymentMethod(params *api.T_APIHandlerParams) (interface{}, 
 				// updating checkout payment method
 				err := currentCheckout.SetPaymentMethod(paymentMethod)
 				if err != nil {
-					return nil, err
+					return nil, env.ErrorDispatch(err)
 				}
 
 				// checking for additional info
@@ -288,19 +288,19 @@ func restCheckoutSetPaymentMethod(params *api.T_APIHandlerParams) (interface{}, 
 
 				return "ok", nil
 			} else {
-				return nil, errors.New("payment method not allowed")
+				return nil, env.ErrorNew("payment method not allowed")
 			}
 		}
 	}
 
-	return nil, errors.New("payment method not found")
+	return nil, env.ErrorNew("payment method not found")
 }
 
 // WEB REST API function to set payment method
 func restCheckoutSetShippingMethod(params *api.T_APIHandlerParams) (interface{}, error) {
 	currentCheckout, err := checkout.GetCurrentCheckout(params)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	// looking for shipping method
@@ -314,12 +314,12 @@ func restCheckoutSetShippingMethod(params *api.T_APIHandlerParams) (interface{},
 
 						err := currentCheckout.SetShippingMethod(shippingMethod)
 						if err != nil {
-							return nil, err
+							return nil, env.ErrorDispatch(err)
 						}
 
 						err = currentCheckout.SetShippingRate(shippingRate)
 						if err != nil {
-							return nil, err
+							return nil, env.ErrorDispatch(err)
 						}
 
 						return "ok", nil
@@ -327,12 +327,12 @@ func restCheckoutSetShippingMethod(params *api.T_APIHandlerParams) (interface{},
 				}
 
 			} else {
-				return nil, errors.New("shipping method not allowed")
+				return nil, env.ErrorNew("shipping method not allowed")
 			}
 		}
 	}
 
-	return nil, errors.New("shipping method and/or rate were not found")
+	return nil, env.ErrorNew("shipping method and/or rate were not found")
 }
 
 // WEB REST API function to submit checkout information and make order
@@ -345,33 +345,33 @@ func restSubmit(params *api.T_APIHandlerParams) (interface{}, error) {
 	//--------------------------------
 	currentCheckout, err := checkout.GetCurrentCheckout(params)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	if currentCheckout.GetBillingAddress() == nil {
-		return nil, errors.New("Billing address is not set")
+		return nil, env.ErrorNew("Billing address is not set")
 	}
 
 	if currentCheckout.GetShippingAddress() == nil {
-		return nil, errors.New("Shipping address is not set")
+		return nil, env.ErrorNew("Shipping address is not set")
 	}
 
 	if currentCheckout.GetPaymentMethod() == nil {
-		return nil, errors.New("Payment method is not set")
+		return nil, env.ErrorNew("Payment method is not set")
 	}
 
 	if currentCheckout.GetShippingMethod() == nil {
-		return nil, errors.New("Shipping method is not set")
+		return nil, env.ErrorNew("Shipping method is not set")
 	}
 
 	currentCart := currentCheckout.GetCart()
 	if currentCart == nil {
-		return nil, errors.New("Cart is not specified")
+		return nil, env.ErrorNew("Cart is not specified")
 	}
 
 	cartItems := currentCart.GetItems()
 	if len(cartItems) == 0 {
-		return nil, errors.New("Cart have no products inside")
+		return nil, env.ErrorNew("Cart have no products inside")
 	}
 
 	// checking for additional info
@@ -389,7 +389,7 @@ func restSubmit(params *api.T_APIHandlerParams) (interface{}, error) {
 	if checkoutOrder == nil {
 		newOrder, err := order.GetOrderModel()
 		if err != nil {
-			return nil, err
+			return nil, env.ErrorDispatch(err)
 		}
 
 		newOrder.Set("created_at", currentTime)
@@ -435,7 +435,7 @@ func restSubmit(params *api.T_APIHandlerParams) (interface{}, error) {
 	for _, cartItem := range cartItems {
 		orderItem, err := checkoutOrder.AddItem(cartItem.GetProductId(), cartItem.GetQty(), cartItem.GetOptions())
 		if err != nil {
-			return nil, err
+			return nil, env.ErrorDispatch(err)
 		}
 
 		if generateDescriptionFlag {
@@ -449,24 +449,24 @@ func restSubmit(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	err = checkoutOrder.CalculateTotals()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	err = checkoutOrder.Save()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	currentCheckout.SetOrder(checkoutOrder)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	// trying to process payment
 	//--------------------------
 	result, err := currentCheckout.GetPaymentMethod().Authorize(checkoutOrder, contentValues)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	if result != nil {
@@ -481,7 +481,14 @@ func restSubmit(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	err = checkoutOrder.Save()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
+	}
+
+	if currentCheckout, ok := currentCheckout.(*DefaultCheckout); ok {
+		err = currentCheckout.SendOrderConfirmationMail()
+		if err != nil {
+			return nil, env.ErrorDispatch(err)
+		}
 	}
 
 	// cleanup checkout information

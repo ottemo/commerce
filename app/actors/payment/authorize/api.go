@@ -2,11 +2,12 @@ package authorize
 
 import (
 	"bytes"
-	"errors"
+
 	"io/ioutil"
 
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/app/models/checkout"
+	"github.com/ottemo/foundation/env"
 )
 
 // startup API registration
@@ -16,7 +17,7 @@ func setupAPI() error {
 
 	err = api.GetRestService().RegisterAPI("authorizenet", "POST", "receipt", restReceipt)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	return nil
@@ -27,13 +28,13 @@ func restReceipt(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	body, err := ioutil.ReadAll(params.Request.Body)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	if bytes.Contains(body, []byte("Thank you for your order!")) {
 		currentCheckout, err := checkout.GetCurrentCheckout(params)
 		if err != nil {
-			return nil, err
+			return nil, env.ErrorDispatch(err)
 		}
 
 		checkoutOrder := currentCheckout.GetOrder()
@@ -44,14 +45,14 @@ func restReceipt(params *api.T_APIHandlerParams) (interface{}, error) {
 
 			err = checkoutOrder.Save()
 			if err != nil {
-				return nil, err
+				return nil, env.ErrorDispatch(err)
 			}
 
 			return checkoutOrder.ToHashMap(), nil
 		}
 	} else {
-		return nil, errors.New("Response error: " + string(body))
+		return nil, env.ErrorNew("Response error: " + string(body))
 	}
 
-	return nil, errors.New("can't process authorize.net response")
+	return nil, env.ErrorNew("can't process authorize.net response")
 }

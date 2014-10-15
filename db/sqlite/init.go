@@ -6,15 +6,23 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
-func init() {
-	instance := new(SQLite)
+var (
+	dbEngine *SQLite
+)
 
-	env.RegisterOnConfigIniStart(instance.Startup)
-	db.RegisterDBEngine(instance)
+func init() {
+	dbEngine = new(SQLite)
+	dbEngine.attributeTypes = make(map[string]map[string]string)
+
+	var _ db.I_DBEngine = dbEngine
+
+	env.RegisterOnConfigIniStart(dbEngine.Startup)
+	db.RegisterDBEngine(dbEngine)
 }
 
 func (it *SQLite) Startup() error {
 
+	// opening connection
 	var uri string = "ottemo.db"
 
 	if iniConfig := env.GetIniConfig(); iniConfig != nil {
@@ -24,9 +32,22 @@ func (it *SQLite) Startup() error {
 	}
 
 	if newConnection, err := sqlite3.Open(uri); err == nil {
-		it.Connection = newConnection
+		it.connection = newConnection
 	} else {
-		return err
+		return env.ErrorDispatch(err)
+	}
+
+	// making column info table
+	SQL := "CREATE TABLE IF NOT EXISTS " + COLLECTION_NAME_COLUMN_INFO + ` (
+		_id        INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+		collection VARCHAR(255),
+		column     VARCHAR(255),
+		type       VARCHAR(255),
+		indexed    NUMERIC)`
+
+	err := it.connection.Exec(SQL)
+	if err != nil {
+		return sqlError(SQL, err)
 	}
 
 	db.OnDatabaseStart()

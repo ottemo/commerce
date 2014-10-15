@@ -1,8 +1,8 @@
 package attributes
 
 import (
-	"errors"
 	"github.com/ottemo/foundation/app/models"
+	"github.com/ottemo/foundation/env"
 )
 
 // returns object attribute value or nil
@@ -15,7 +15,7 @@ func (it *CustomAttributes) Set(attribute string, value interface{}) error {
 	if _, present := it.attributes[attribute]; present {
 		it.values[attribute] = value
 	} else {
-		return errors.New("attribute '" + attribute + "' invalid")
+		return env.ErrorNew("attribute '" + attribute + "' invalid")
 	}
 
 	return nil

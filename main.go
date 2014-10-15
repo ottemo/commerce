@@ -6,10 +6,13 @@ import (
 	"github.com/ottemo/foundation/app"
 
 	_ "github.com/ottemo/foundation/env/config"
+	_ "github.com/ottemo/foundation/env/errors"
+	_ "github.com/ottemo/foundation/env/events"
 	_ "github.com/ottemo/foundation/env/ini"
+	_ "github.com/ottemo/foundation/env/logger"
 
-	//_ "github.com/ottemo/foundation/db/sqlite"
-	_ "github.com/ottemo/foundation/db/mongo"
+	_ "github.com/ottemo/foundation/db/sqlite"
+	// _ "github.com/ottemo/foundation/db/mongo"
 
 	_ "github.com/ottemo/foundation/media/fsmedia"
 

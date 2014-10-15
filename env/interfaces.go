@@ -2,7 +2,38 @@ package env
 
 const (
 	CONFIG_ITEM_GROUP_TYPE = "group"
+
+	LOG_PREFIX_ERROR   = "ERROR"
+	LOG_PREFIX_WARNING = "WARNING"
+	LOG_PREFIX_DEBUG   = "DEBUG"
+	LOG_PREFIX_INFO    = "INFO"
 )
+
+type I_EventBus interface {
+	RegisterListener(F_EventListener)
+	New(string, map[string]interface{})
+}
+
+type I_ErrorBus interface {
+	GetErrorLevel(error) int
+	GetErrorCode(error) string
+	GetErrorMessage(error) string
+
+	RegisterListener(F_ErrorListener)
+
+	Dispatch(error) error
+	New(string) error
+}
+
+type I_Logger interface {
+	Log(storage string, prefix string, message string)
+
+	LogError(err error)
+	LogMessage(message string)
+
+	LogToStorage(storage string, message string)
+	LogWithPrefix(prefix string, message string)
+}
 
 type I_IniConfig interface {
 	GetValue(Name string, Default string) string
@@ -25,6 +56,8 @@ type I_Config interface {
 }
 
 type F_ConfigValueValidator func(interface{}) (interface{}, error)
+type F_EventListener func(string, map[string]interface{}) bool
+type F_ErrorListener func(error) bool
 
 type T_ConfigItem struct {
 	Path  string

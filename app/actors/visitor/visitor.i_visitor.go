@@ -10,11 +10,10 @@ import (
 
 	"github.com/ottemo/foundation/app"
 	"github.com/ottemo/foundation/app/models/visitor"
+	"github.com/ottemo/foundation/env"
 
 	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/utils"
-
-	"errors"
 )
 
 // returns I_VisitorAddress model filled with values from DB or blank structure if no id found in DB
@@ -106,25 +105,25 @@ func (it *DefaultVisitor) IsValidated() bool {
 func (it *DefaultVisitor) Invalidate() error {
 
 	if it.GetEmail() == "" {
-		return errors.New("email is not specified")
+		return env.ErrorNew("email is not specified")
 	}
 
 	data, err := time.Now().MarshalBinary()
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	it.ValidateKey = hex.EncodeToString([]byte(base64.StdEncoding.EncodeToString(data)))
 	err = it.Save()
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	linkHref := app.GetFoundationUrl("visitor/validate/" + it.ValidateKey)
 
 	err = app.SendMail(it.GetEmail(), "e-mail validation", "please follow the link to validate your e-mail: "+linkHref)
 
-	return err
+	return env.ErrorDispatch(err)
 }
 
 // validates visitors e-mails for given key
@@ -136,17 +135,17 @@ func (it *DefaultVisitor) Validate(key string) error {
 
 	collection, err := db.GetCollection(COLLECTION_NAME_VISITOR)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = collection.AddFilter("validate", "=", key)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	records, err := collection.Load()
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	for _, record := range records {
@@ -162,7 +161,7 @@ func (it *DefaultVisitor) Validate(key string) error {
 	step1, err := hex.DecodeString(key)
 	data, err := base64.StdEncoding.DecodeString(string(step1))
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	stamp := time.Now()
@@ -177,7 +176,7 @@ func (it *DefaultVisitor) Validate(key string) error {
 
 		visitorModel, err := visitor.LoadVisitorById(visitorId)
 		if err != nil {
-			return err
+			return env.ErrorDispatch(err)
 		}
 
 		if !validationExpired {
@@ -187,10 +186,10 @@ func (it *DefaultVisitor) Validate(key string) error {
 		} else {
 			err = visitorModel.Invalidate()
 			if err != nil {
-				return err
+				return env.ErrorDispatch(err)
 			}
 
-			return errors.New("validation period expired, new validation URL was sent")
+			return env.ErrorNew("validation period expired, new validation URL was sent")
 		}
 	}
 
@@ -206,7 +205,7 @@ func (it *DefaultVisitor) SetPassword(passwd string) error {
 			it.Password = it.passwdEncode(passwd)
 		}
 	} else {
-		return errors.New("password can't be blank")
+		return env.ErrorNew("password can't be blank")
 	}
 
 	return nil
@@ -231,12 +230,12 @@ func (it *DefaultVisitor) GenerateNewPassword() error {
 	newPassword := string(bytes)
 	err := it.SetPassword(newPassword)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = it.Save()
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	linkHref := app.GetStorefrontUrl("login")
@@ -245,7 +244,7 @@ func (it *DefaultVisitor) GenerateNewPassword() error {
 		"New password: "+newPassword+"\n\n"+
 		"Please change your password on next login "+linkHref)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	return nil
@@ -256,26 +255,26 @@ func (it *DefaultVisitor) LoadByGoogleId(googleId string) error {
 
 	collection, err := db.GetCollection(COLLECTION_NAME_VISITOR)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	collection.AddFilter("google_id", "=", googleId)
 	rows, err := collection.Load()
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	if len(rows) == 0 {
-		return errors.New("visitor was not found")
+		return env.ErrorNew("visitor was not found")
 	}
 
 	if len(rows) > 1 {
-		return errors.New("duplicated google account id")
+		return env.ErrorNew("duplicated google account id")
 	}
 
 	err = it.FromHashMap(rows[0])
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	return nil
@@ -286,26 +285,26 @@ func (it *DefaultVisitor) LoadByFacebookId(facebookId string) error {
 
 	collection, err := db.GetCollection(COLLECTION_NAME_VISITOR)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	collection.AddFilter("facebook_id", "=", facebookId)
 	rows, err := collection.Load()
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	if len(rows) == 0 {
-		return errors.New("visitor was not found")
+		return env.ErrorNew("visitor was not found")
 	}
 
 	if len(rows) > 1 {
-		return errors.New("duplicated facebook account id")
+		return env.ErrorNew("duplicated facebook account id")
 	}
 
 	err = it.FromHashMap(rows[0])
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	return nil
@@ -316,26 +315,26 @@ func (it *DefaultVisitor) LoadByEmail(email string) error {
 
 	collection, err := db.GetCollection(COLLECTION_NAME_VISITOR)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	collection.AddFilter("email", "=", email)
 	rows, err := collection.Load()
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	if len(rows) == 0 {
-		return errors.New("visitor was not found")
+		return env.ErrorNew("visitor was not found")
 	}
 
 	if len(rows) > 1 {
-		return errors.New("duplicated email")
+		return env.ErrorNew("duplicated email")
 	}
 
 	err = it.FromHashMap(rows[0])
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	return nil

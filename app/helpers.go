@@ -53,6 +53,7 @@ func SendMail(to string, subject string, body string) error {
 	emailTemplateBody := `From: {{.From}}
 To: {{.To}}
 Subject: {{.Subject}}
+Content-Type: text/html
 
 {{.Body}}
 
@@ -61,13 +62,13 @@ Subject: {{.Subject}}
 	emailTemplate := template.New("emailTemplate")
 	emailTemplate, err := emailTemplate.Parse(emailTemplateBody)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	var doc bytes.Buffer
 	err = emailTemplate.Execute(&doc, context)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	var auth smtp.Auth = nil
@@ -76,5 +77,5 @@ Subject: {{.Subject}}
 	}
 
 	err = smtp.SendMail(mailServer+mailPort, auth, userName, []string{to}, doc.Bytes())
-	return err
+	return env.ErrorDispatch(err)
 }

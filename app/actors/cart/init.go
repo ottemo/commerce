@@ -1,9 +1,9 @@
 package cart
 
 import (
-	"errors"
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/foundation/env"
 
 	"github.com/ottemo/foundation/api"
 
@@ -37,7 +37,7 @@ func (it *DefaultCart) setupDB() error {
 	if dbEngine := db.GetDBEngine(); dbEngine != nil {
 		collection, err := dbEngine.GetCollection(CART_COLLECTION_NAME)
 		if err != nil {
-			return err
+			return env.ErrorDispatch(err)
 		}
 
 		collection.AddColumn("visitor_id", "id", true)
@@ -46,7 +46,7 @@ func (it *DefaultCart) setupDB() error {
 
 		collection, err = dbEngine.GetCollection(CART_ITEMS_COLLECTION_NAME)
 		if err != nil {
-			return err
+			return env.ErrorDispatch(err)
 		}
 
 		collection.AddColumn("idx", "int", false)
@@ -56,7 +56,7 @@ func (it *DefaultCart) setupDB() error {
 		collection.AddColumn("options", "text", false)
 
 	} else {
-		return errors.New("Can't get database engine")
+		return env.ErrorNew("Can't get database engine")
 	}
 
 	return nil

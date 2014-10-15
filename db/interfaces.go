@@ -1,5 +1,18 @@
 package db
 
+const (
+	DB_BASETYPE_ID       = "id"
+	DB_BASETYPE_BOOLEAN  = "bool"
+	DB_BASETYPE_VARCHAR  = "varchar"
+	DB_BASETYPE_TEXT     = "text"
+	DB_BASETYPE_INTEGER  = "int"
+	DB_BASETYPE_DECIMAL  = "decimal"
+	DB_BASETYPE_MONEY    = "money"
+	DB_BASETYPE_FLOAT    = "float"
+	DB_BASETYPE_DATETIME = "datetime"
+	DB_BASETYPE_JSON     = "json"
+)
+
 type I_DBEngine interface {
 	GetName() string
 

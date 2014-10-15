@@ -1,7 +1,7 @@
 package product
 
 import (
-	"errors"
+	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/media"
 )
 
@@ -9,12 +9,12 @@ import (
 func (it *DefaultProduct) AddMedia(mediaType string, mediaName string, content []byte) error {
 	productId := it.GetId()
 	if productId == "" {
-		return errors.New("product id not set")
+		return env.ErrorNew("product id not set")
 	}
 
 	mediaStorage, err := media.GetMediaStorage()
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	return mediaStorage.Save(it.GetModelName(), productId, mediaType, mediaName, content)
@@ -24,12 +24,12 @@ func (it *DefaultProduct) AddMedia(mediaType string, mediaName string, content [
 func (it *DefaultProduct) RemoveMedia(mediaType string, mediaName string) error {
 	productId := it.GetId()
 	if productId == "" {
-		return errors.New("product id not set")
+		return env.ErrorNew("product id not set")
 	}
 
 	mediaStorage, err := media.GetMediaStorage()
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	return mediaStorage.Remove(it.GetModelName(), productId, mediaType, mediaName)
@@ -41,12 +41,12 @@ func (it *DefaultProduct) ListMedia(mediaType string) ([]string, error) {
 
 	productId := it.GetId()
 	if productId == "" {
-		return result, errors.New("product id not set")
+		return result, env.ErrorNew("product id not set")
 	}
 
 	mediaStorage, err := media.GetMediaStorage()
 	if err != nil {
-		return result, err
+		return result, env.ErrorDispatch(err)
 	}
 
 	return mediaStorage.ListMedia(it.GetModelName(), productId, mediaType)
@@ -56,12 +56,12 @@ func (it *DefaultProduct) ListMedia(mediaType string) ([]string, error) {
 func (it *DefaultProduct) GetMedia(mediaType string, mediaName string) ([]byte, error) {
 	productId := it.GetId()
 	if productId == "" {
-		return nil, errors.New("product id not set")
+		return nil, env.ErrorNew("product id not set")
 	}
 
 	mediaStorage, err := media.GetMediaStorage()
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	return mediaStorage.Load(it.GetModelName(), productId, mediaType, mediaName)
@@ -71,12 +71,12 @@ func (it *DefaultProduct) GetMedia(mediaType string, mediaName string) ([]byte, 
 func (it *DefaultProduct) GetMediaPath(mediaType string) (string, error) {
 	productId := it.GetId()
 	if productId == "" {
-		return "", errors.New("product id not set")
+		return "", env.ErrorNew("product id not set")
 	}
 
 	mediaStorage, err := media.GetMediaStorage()
 	if err != nil {
-		return "", err
+		return "", env.ErrorDispatch(err)
 	}
 
 	return mediaStorage.GetMediaPath(it.GetModelName(), productId, mediaType)

@@ -1,7 +1,6 @@
 package paypal
 
 import (
-	"errors"
 	"fmt"
 
 	"io/ioutil"
@@ -97,31 +96,31 @@ func (it *PayPalExpress) Authorize(orderInstance order.I_Order, paymentInfo map[
 
 	request, err := http.NewRequest("GET", nvpGateway+"?"+requestParams, nil)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	response, err := http.DefaultClient.Do(request)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	// reading/decoding response from NVP
 	//-----------------------------------
 	responseData, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	// println(string(responseData))
 
 	responseValues, err := url.ParseQuery(string(responseData))
 	if err != nil {
-		return nil, errors.New("payment unexpected response")
+		return nil, env.ErrorNew("payment unexpected response")
 	}
 
 	if responseValues.Get("ACK") != "Success" || responseValues.Get("TOKEN") == "" {
 		if responseValues.Get("L_ERRORCODE0") != "" {
-			return nil, errors.New("payment error " + responseValues.Get("L_ERRORCODE0") + ": " + "L_LONGMESSAGE0")
+			return nil, env.ErrorNew("payment error " + responseValues.Get("L_ERRORCODE0") + ": " + "L_LONGMESSAGE0")
 		}
 	}
 
@@ -136,15 +135,15 @@ func (it *PayPalExpress) Authorize(orderInstance order.I_Order, paymentInfo map[
 
 // makes payment method capture operation
 func (it *PayPalExpress) Capture(orderInstance order.I_Order, paymentInfo map[string]interface{}) (interface{}, error) {
-	return nil, errors.New("Not implemented")
+	return nil, env.ErrorNew("Not implemented")
 }
 
 // makes payment method refund operation
 func (it *PayPalExpress) Refund(orderInstance order.I_Order, paymentInfo map[string]interface{}) (interface{}, error) {
-	return nil, errors.New("Not implemented")
+	return nil, env.ErrorNew("Not implemented")
 }
 
 // makes payment method void operation
 func (it *PayPalExpress) Void(orderInstance order.I_Order, paymentInfo map[string]interface{}) (interface{}, error) {
-	return nil, errors.New("Not implemented")
+	return nil, env.ErrorNew("Not implemented")
 }

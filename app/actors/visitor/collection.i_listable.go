@@ -1,8 +1,7 @@
 package visitor
 
 import (
-	"errors"
-
+	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
 
 	"github.com/ottemo/foundation/app/models"
@@ -15,13 +14,13 @@ func (it *DefaultVisitorCollection) List() ([]models.T_ListItem, error) {
 
 	dbRecords, err := it.listCollection.Load()
 	if err != nil {
-		return result, err
+		return result, env.ErrorDispatch(err)
 	}
 
 	for _, dbRecordData := range dbRecords {
 		visitorModel, err := visitor.GetVisitorModel()
 		if err != nil {
-			return result, err
+			return result, env.ErrorDispatch(err)
 		}
 		visitorModel.FromHashMap(dbRecordData)
 
@@ -51,14 +50,25 @@ func (it *DefaultVisitorCollection) List() ([]models.T_ListItem, error) {
 // allows to obtain additional attributes from  List() function
 func (it *DefaultVisitorCollection) ListAddExtraAttribute(attribute string) error {
 
-	if utils.IsAmongStr(attribute, "billing_address", "shipping_address") {
-		if utils.IsInListStr(attribute, it.listExtraAtributes) {
+	visitorModel, err := visitor.GetVisitorModel()
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	allowedAttributes := make([]string, 0)
+	for _, attributeInfo := range visitorModel.GetAttributesInfo() {
+		allowedAttributes = append(allowedAttributes, attributeInfo.Attribute)
+	}
+	allowedAttributes = append(allowedAttributes, "billing_address", "shipping_address")
+
+	if utils.IsInArray(attribute, allowedAttributes) {
+		if !utils.IsInListStr(attribute, it.listExtraAtributes) {
 			it.listExtraAtributes = append(it.listExtraAtributes, attribute)
 		} else {
-			return errors.New("attribute already in list")
+			return env.ErrorNew("attribute already in list")
 		}
 	} else {
-		return errors.New("not allowed attribute")
+		return env.ErrorNew("not allowed attribute")
 	}
 
 	return nil

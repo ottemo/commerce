@@ -1,7 +1,7 @@
 package media
 
 import (
-	"errors"
+	"github.com/ottemo/foundation/env"
 )
 
 var currentMediaStorage IMediaStorage = nil
@@ -24,7 +24,7 @@ func RegisterMediaStorage(newEngine IMediaStorage) error {
 	if currentMediaStorage == nil {
 		currentMediaStorage = newEngine
 	} else {
-		return errors.New("Sorry, '" + currentMediaStorage.GetName() + "' media storage already registered")
+		return env.ErrorNew("Sorry, '" + currentMediaStorage.GetName() + "' media storage already registered")
 	}
 	return nil
 }
@@ -33,6 +33,6 @@ func GetMediaStorage() (IMediaStorage, error) {
 	if currentMediaStorage != nil {
 		return currentMediaStorage, nil
 	} else {
-		return nil, errors.New("no registered media storage")
+		return nil, env.ErrorNew("no registered media storage")
 	}
 }

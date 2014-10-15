@@ -2,6 +2,7 @@ package category
 
 import (
 	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
 )
 
@@ -19,17 +20,17 @@ func (it *DefaultCategory) Load(Id string) error {
 	// loading category
 	categoryCollection, err := db.GetCollection(COLLECTION_NAME_CATEGORY)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	dbRecord, err := categoryCollection.LoadById(Id)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = it.FromHashMap(dbRecord)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	it.updatePath()
@@ -37,13 +38,13 @@ func (it *DefaultCategory) Load(Id string) error {
 	// loading category product ids
 	junctionCollection, err := db.GetCollection(COLLECTION_NAME_CATEGORY_PRODUCT_JUNCTION)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	junctionCollection.AddFilter("category_id", "=", it.GetId())
 	junctedProducts, err := junctionCollection.Load()
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	for _, junctionRecord := range junctedProducts {
@@ -57,28 +58,28 @@ func (it *DefaultCategory) Delete() error {
 	//deleting category products join
 	junctionCollection, err := db.GetCollection(COLLECTION_NAME_CATEGORY_PRODUCT_JUNCTION)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = junctionCollection.AddFilter("category_id", "=", it.GetId())
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	_, err = junctionCollection.Delete()
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	// deleting category
 	categoryCollection, err := db.GetCollection(COLLECTION_NAME_CATEGORY)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	err = categoryCollection.DeleteById(it.GetId())
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	return nil
@@ -92,7 +93,7 @@ func (it *DefaultCategory) Save() error {
 
 	categoryCollection, err := db.GetCollection(COLLECTION_NAME_CATEGORY)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	// saving category
@@ -103,20 +104,20 @@ func (it *DefaultCategory) Save() error {
 			it.Save()
 		}
 	} else {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	// saving category products assignment
 	junctionCollection, err := db.GetCollection(COLLECTION_NAME_CATEGORY_PRODUCT_JUNCTION)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	// deleting old assigned products
 	junctionCollection.AddFilter("category_id", "=", it.GetId())
 	_, err = junctionCollection.Delete()
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	// adding new assignments

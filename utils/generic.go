@@ -186,6 +186,10 @@ func InterfaceToBool(value interface{}) bool {
 		}
 	case int:
 		return typedValue > 0
+	case int32:
+		return typedValue > 0
+	case int64:
+		return typedValue > 0
 	default:
 		return false
 	}
@@ -230,9 +234,11 @@ func InterfaceToArray(value interface{}) []interface{} {
 		for idx, value := range splitValues {
 			result[idx] = strings.Trim(value, " \t\n")
 		}
+
+	default:
+		result = append(result, value)
 	}
 
-	result = append(result, value)
 	return result
 }
 
@@ -275,11 +281,17 @@ func InterfaceToInt(value interface{}) int {
 	switch typedValue := value.(type) {
 	case int:
 		return typedValue
+	case int32:
+		return int(typedValue)
+	case int64:
+		return int(typedValue)
+	case float32:
+		return int(typedValue)
+	case float64:
+		return int(typedValue)
 	case string:
 		intValue, _ := strconv.ParseInt(typedValue, 10, 64)
 		return int(intValue)
-	case float64:
-		return int(typedValue)
 	default:
 		return 0
 	}

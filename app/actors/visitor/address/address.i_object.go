@@ -3,6 +3,7 @@ package address
 import (
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/visitor"
+	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
 	"strings"
 )
@@ -83,7 +84,7 @@ func (it *DefaultVisitorAddress) FromHashMap(input map[string]interface{}) error
 
 	for attribute, value := range input {
 		if err := it.Set(attribute, value); err != nil {
-			return err
+			return env.ErrorDispatch(err)
 		}
 	}
 

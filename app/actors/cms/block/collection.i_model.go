@@ -4,6 +4,7 @@ import (
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/cms"
 	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/foundation/env"
 )
 
 // returns model name
@@ -20,7 +21,7 @@ func (it *DefaultCMSBlockCollection) GetImplementationName() string {
 func (it *DefaultCMSBlockCollection) New() (models.I_Model, error) {
 	dbCollection, err := db.GetCollection(CMS_BLOCK_COLLECTION_NAME)
 	if err != nil {
-		return nil, err
+		return nil, env.ErrorDispatch(err)
 	}
 
 	return &DefaultCMSBlockCollection{listCollection: dbCollection, listExtraAtributes: make([]string, 0)}, nil
