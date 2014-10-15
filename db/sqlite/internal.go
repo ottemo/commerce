@@ -14,7 +14,7 @@ func connectionExecWLastInsertId(SQL string, args ...interface{}) (int64, error)
 	dbEngine.connectionMutex.Lock()
 	defer dbEngine.connectionMutex.Unlock()
 
-	err := dbEngine.connection.Exec(SQL, args)
+	err := dbEngine.connection.Exec(SQL, args...)
 	if err != nil {
 		return dbEngine.connection.LastInsertId(), err
 	}
@@ -27,7 +27,7 @@ func connectionExecWAffected(SQL string, args ...interface{}) (int, error) {
 	dbEngine.connectionMutex.Lock()
 	defer dbEngine.connectionMutex.Unlock()
 
-	err := dbEngine.connection.Exec(SQL, args)
+	err := dbEngine.connection.Exec(SQL, args...)
 	if err != nil {
 		return dbEngine.connection.RowsAffected(), err
 	}
@@ -40,7 +40,7 @@ func connectionExec(SQL string, args ...interface{}) error {
 	dbEngine.connectionMutex.Lock()
 	defer dbEngine.connectionMutex.Unlock()
 
-	return dbEngine.connection.Exec(SQL, args)
+	return dbEngine.connection.Exec(SQL, args...)
 }
 
 // query routines
@@ -53,8 +53,8 @@ func connectionQuery(SQL string) (*sqlite3.Stmt, error) {
 func closeStatement(statement *sqlite3.Stmt) {
 	if statement != nil {
 		statement.Close()
-		dbEngine.connectionMutex.Unlock()
 	}
+	dbEngine.connectionMutex.Unlock()
 }
 
 // formats SQL query error for output to log
