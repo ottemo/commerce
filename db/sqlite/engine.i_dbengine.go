@@ -19,7 +19,7 @@ func (it *SQLite) HasCollection(collectionName string) bool {
 
 	SQL := "SELECT name FROM sqlite_master WHERE type='table' AND name='" + collectionName + "'"
 
-	stmt, err := it.Connection.Query(SQL)
+	stmt, err := connectionQuery(SQL)
 	defer closeStatement(stmt)
 
 	if err == nil {
@@ -38,7 +38,7 @@ func (it *SQLite) CreateCollection(collectionName string) error {
 		SQL = "CREATE TABLE " + collectionName + " (_id NCHAR(24) PRIMARY KEY NOT NULL)"
 	}
 
-	if err := it.Connection.Exec(SQL); err == nil {
+	if err := connectionExec(SQL); err == nil {
 		return nil
 	} else {
 		return env.ErrorDispatch(err)
@@ -59,7 +59,6 @@ func (it *SQLite) GetCollection(collectionName string) (db.I_DBCollection, error
 
 	collection := &SQLiteCollection{
 		Name:          collectionName,
-		Connection:    it.Connection,
 		FilterGroups:  make(map[string]*T_DBFilterGroup),
 		Order:         make([]string, 0),
 		ResultColumns: make([]string, 0),
@@ -75,7 +74,7 @@ func (it *SQLite) RawQuery(query string) (map[string]interface{}, error) {
 
 	row := make(sqlite3.RowMap)
 
-	stmt, err := it.Connection.Query(query)
+	stmt, err := connectionQuery(query)
 	defer closeStatement(stmt)
 
 	if err == nil {

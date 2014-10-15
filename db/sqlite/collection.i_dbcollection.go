@@ -53,7 +53,7 @@ func (it *SQLiteCollection) Iterate(iteratorFunc func(record map[string]interfac
 		env.Log("sqlite", env.LOG_PREFIX_INFO, SQL)
 	}
 
-	stmt, err := it.Connection.Query(SQL)
+	stmt, err := connectionQuery(SQL)
 	defer closeStatement(stmt)
 
 	if err == nil {
@@ -91,7 +91,7 @@ func (it *SQLiteCollection) Distinct(columnName string) ([]interface{}, error) {
 
 	it.ResultColumns = prevResultColumns
 
-	stmt, err := it.Connection.Query(SQL)
+	stmt, err := connectionQuery(SQL)
 	defer closeStatement(stmt)
 
 	result := make([]interface{}, 0)
@@ -128,7 +128,7 @@ func (it *SQLiteCollection) Count() (int, error) {
 		env.Log("sqlite", env.LOG_PREFIX_INFO, SQL)
 	}
 
-	stmt, err := it.Connection.Query(SQL)
+	stmt, err := connectionQuery(SQL)
 	defer closeStatement(stmt)
 
 	if err == nil {
@@ -204,16 +204,20 @@ func (it *SQLiteCollection) Save(item map[string]interface{}) (string, error) {
 		env.Log("sqlite", env.LOG_PREFIX_INFO, SQL)
 	}
 
-	err := it.Connection.Exec(SQL, values...)
-	if err != nil {
-		return "", sqlError(SQL, err)
-	}
-
 	if !UUID_ID {
+		newIdInt64, err := connectionExecWLastInsertId(SQL, values...)
+		if err != nil {
+			return "", sqlError(SQL, err)
+		}
+
 		// auto-incremented _id back to string
-		newIdInt := it.Connection.LastInsertId()
-		newIdString := strconv.FormatInt(newIdInt, 10)
+		newIdString := strconv.FormatInt(newIdInt64, 10)
 		item["_id"] = newIdString
+	} else {
+		err := connectionExec(SQL, values...)
+		if err != nil {
+			return "", sqlError(SQL, err)
+		}
 	}
 
 	return item["_id"].(string), nil
@@ -230,8 +234,7 @@ func (it *SQLiteCollection) Delete() (int, error) {
 		env.Log("sqlite", env.LOG_PREFIX_INFO, SQL)
 	}
 
-	err := it.Connection.Exec(SQL)
-	affected := it.Connection.RowsAffected()
+	affected, err := connectionExecWAffected(SQL)
 
 	return affected, env.ErrorDispatch(err)
 }
@@ -244,7 +247,7 @@ func (it *SQLiteCollection) DeleteById(id string) error {
 		env.Log("sqlite", env.LOG_PREFIX_INFO, SQL)
 	}
 
-	return it.Connection.Exec(SQL)
+	return connectionExec(SQL)
 }
 
 // setups filter group params for collection
@@ -371,7 +374,7 @@ func (it *SQLiteCollection) ListColumns() map[string]string {
 
 	// updating column into collection
 	SQL := "SELECT column, type FROM " + COLLECTION_NAME_COLUMN_INFO + " WHERE collection = '" + it.Name + "'"
-	stmt, err := it.Connection.Query(SQL)
+	stmt, err := connectionQuery(SQL)
 	defer closeStatement(stmt)
 
 	row := make(sqlite3.RowMap)
@@ -385,15 +388,15 @@ func (it *SQLiteCollection) ListColumns() map[string]string {
 	}
 
 	// updating cached attribute types information
-	if _, present := attributeTypes[it.Name]; !present {
-		attributeTypes[it.Name] = make(map[string]string)
+	if _, present := dbEngine.attributeTypes[it.Name]; !present {
+		dbEngine.attributeTypes[it.Name] = make(map[string]string)
 	}
 
-	attributeTypesMutex.Lock()
+	dbEngine.attributeTypesMutex.Lock()
 	for attributeName, attributeType := range result {
-		attributeTypes[it.Name][attributeName] = attributeType
+		dbEngine.attributeTypes[it.Name][attributeName] = attributeType
 	}
-	attributeTypesMutex.Unlock()
+	dbEngine.attributeTypesMutex.Unlock()
 
 	return result
 }
@@ -405,11 +408,11 @@ func (it *SQLiteCollection) GetColumnType(columnName string) string {
 	}
 
 	// looking in cache first
-	attributeType, present := attributeTypes[it.Name][columnName]
+	attributeType, present := dbEngine.attributeTypes[it.Name][columnName]
 	if !present {
 		// updating cache, and looking again
 		it.ListColumns()
-		attributeType, present = attributeTypes[it.Name][columnName]
+		attributeType, present = dbEngine.attributeTypes[it.Name][columnName]
 	}
 
 	return attributeType
@@ -418,11 +421,11 @@ func (it *SQLiteCollection) GetColumnType(columnName string) string {
 // check for attribute(column) presence in current collection
 func (it *SQLiteCollection) HasColumn(columnName string) bool {
 	// looking in cache first
-	_, present := attributeTypes[it.Name][columnName]
+	_, present := dbEngine.attributeTypes[it.Name][columnName]
 	if !present {
 		// updating cache, and looking again
 		it.ListColumns()
-		_, present = attributeTypes[it.Name][columnName]
+		_, present = dbEngine.attributeTypes[it.Name][columnName]
 	}
 
 	return present
@@ -458,7 +461,7 @@ func (it *SQLiteCollection) AddColumn(columnName string, columnType string, inde
 		env.Log("sqlite", env.LOG_PREFIX_INFO, SQL)
 	}
 
-	err = it.Connection.Exec(SQL)
+	err = connectionExec(SQL)
 	if err != nil {
 		return sqlError(SQL, err)
 	}
@@ -479,7 +482,7 @@ func (it *SQLiteCollection) AddColumn(columnName string, columnType string, inde
 		env.Log("sqlite", env.LOG_PREFIX_INFO, SQL)
 	}
 
-	err = it.Connection.Exec(SQL)
+	err = connectionExec(SQL)
 	if err != nil {
 		return sqlError(SQL, err)
 	}
@@ -507,7 +510,7 @@ func (it *SQLiteCollection) RemoveColumn(columnName string) error {
 
 	SQL := "SELECT sql FROM sqlite_master WHERE tbl_name='" + it.Name + "' AND type='table'"
 
-	stmt, err := it.Connection.Query(SQL)
+	stmt, err := connectionQuery(SQL)
 	defer closeStatement(stmt)
 	if err != nil {
 		return sqlError(SQL, err)
@@ -549,29 +552,29 @@ func (it *SQLiteCollection) RemoveColumn(columnName string) error {
 	// making new table without removing column, and filling with values from old table
 	//---------------------------------------------------------------------------------
 	SQL = "CREATE TABLE " + it.Name + "_removecolumn (" + tableColumnsWTypes + ") "
-	if err := it.Connection.Exec(SQL); err != nil {
+	if err := connectionExec(SQL); err != nil {
 		return sqlError(SQL, err)
 	}
 
 	SQL = "INSERT INTO " + it.Name + "_removecolumn (" + tableColumnsWoTypes + ") SELECT " + tableColumnsWoTypes + " FROM " + it.Name
-	if err := it.Connection.Exec(SQL); err != nil {
+	if err := connectionExec(SQL); err != nil {
 		return sqlError(SQL, err)
 	}
 
 	// switching newly created table, deleting old table
 	//---------------------------------------------------
 	SQL = "ALTER TABLE " + it.Name + " RENAME TO " + it.Name + "_fordelete"
-	if err := it.Connection.Exec(SQL); err != nil {
+	if err := connectionExec(SQL); err != nil {
 		return sqlError(SQL, err)
 	}
 
 	SQL = "ALTER TABLE " + it.Name + "_removecolumn RENAME TO " + it.Name
-	if err := it.Connection.Exec(SQL); err != nil {
+	if err := connectionExec(SQL); err != nil {
 		return sqlError(SQL, err)
 	}
 
 	SQL = "DROP TABLE " + it.Name + "_fordelete"
-	if err := it.Connection.Exec(SQL); err != nil {
+	if err := connectionExec(SQL); err != nil {
 		return sqlError(SQL, err)
 	}
 

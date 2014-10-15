@@ -6,11 +6,18 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
-func init() {
-	instance := new(SQLite)
+var (
+	dbEngine *SQLite
+)
 
-	env.RegisterOnConfigIniStart(instance.Startup)
-	db.RegisterDBEngine(instance)
+func init() {
+	dbEngine = new(SQLite)
+	dbEngine.attributeTypes = make(map[string]map[string]string)
+
+	var _ db.I_DBEngine = dbEngine
+
+	env.RegisterOnConfigIniStart(dbEngine.Startup)
+	db.RegisterDBEngine(dbEngine)
 }
 
 func (it *SQLite) Startup() error {
@@ -25,7 +32,7 @@ func (it *SQLite) Startup() error {
 	}
 
 	if newConnection, err := sqlite3.Open(uri); err == nil {
-		it.Connection = newConnection
+		it.connection = newConnection
 	} else {
 		return env.ErrorDispatch(err)
 	}
@@ -38,7 +45,7 @@ func (it *SQLite) Startup() error {
 		type       VARCHAR(255),
 		indexed    NUMERIC)`
 
-	err := it.Connection.Exec(SQL)
+	err := it.connection.Exec(SQL)
 	if err != nil {
 		return sqlError(SQL, err)
 	}
