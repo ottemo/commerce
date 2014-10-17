@@ -67,7 +67,7 @@ func (it *SQLiteCollection) modifyResultRow(row sqlite3.RowMap) sqlite3.RowMap {
 			columnType = ""
 		}
 
-		if columnType != "" {
+		if columnName != "_id" && columnType != "" {
 			row[columnName] = db.ConvertTypeFromDbToGo(columnValue, columnType)
 		}
 	}
