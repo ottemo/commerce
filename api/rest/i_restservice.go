@@ -78,6 +78,17 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 
 			content = newContent
 
+		// x-www-form-urlencoded content
+		case strings.Contains(contentType, "urlencode"):
+			newContent := map[string]interface{}{}
+
+			req.ParseForm()
+			for attribute, value := range req.PostForm {
+				newContent[attribute], _ = url.QueryUnescape(value[0])
+			}
+
+			content = newContent
+
 		default:
 			var body []byte = nil
 
@@ -184,7 +195,9 @@ func (it DefaultRestService) ServeHTTP(responseWriter http.ResponseWriter, reque
 
 		// default output format
 		responseWriter.Header().Set("Content-Type", "application/json")
-
+		
+		request.URL.Path = strings.Replace(request.URL.Path, "/foundation", "", -1)
+		
 		it.Router.ServeHTTP(responseWriter, request)
 	}
 }

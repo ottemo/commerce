@@ -155,6 +155,20 @@ func setupConfig() error {
 			return env.ErrorDispatch(err)
 		}
 
+		config.RegisterItem(env.T_ConfigItem{
+			Path:        CONFIG_PATH_DPM_CHECKOUT,
+			Value:       false,
+			Type:        "bool",
+			Editor:      "boolean",
+			Options:     nil,
+			Label:       "Custom checkout page",
+			Description: "use the custom relay page on checkout",
+			Image:       "",
+		}, func(value interface{}) (interface{}, error) { return utils.InterfaceToBool(value), nil })
+
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

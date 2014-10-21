@@ -45,6 +45,8 @@ type I_Checkout interface {
 	SetOrder(checkoutOrder order.I_Order) error
 	GetOrder() order.I_Order
 
+	SendOrderConfirmationMail() error
+
 	models.I_Model
 }
 

@@ -9,6 +9,7 @@ import (
 	"encoding/hex"
 	"math/rand"
 
+	"github.com/ottemo/foundation/app"
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/env"
 
@@ -59,8 +60,9 @@ func (it *AuthorizeNetDPM) Authorize(orderInstance order.I_Order, paymentInfo ma
 	// preparing post form values
 	//---------------------------
 	formValues := map[string]string{
-		// "x_relay_response": "true",
-		// "x_relay_url": "http://dev.ottemo.com:3000/authorizenet/receipt",
+		"x_relay_response": utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_DPM_CHECKOUT)),
+		"x_relay_url": utils.InterfaceToString(env.ConfigGetValue(app.CONFIG_PATH_FOUNDATION_URL)) + "authorizenet/relay",
+
 		"x_test_request": utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_DPM_TEST)),
 
 		"x_fp_sequence":  sequence,
@@ -97,13 +99,8 @@ func (it *AuthorizeNetDPM) Authorize(orderInstance order.I_Order, paymentInfo ma
 
 		"x_exp_date": "$CC_MONTH/$CC_YEAR",
 		"x_card_num": "$CC_NUM",
-
-		// "x_email_customer":0
-		// "x_merchant_email":
-		// "x_customer_ip": 62.244.38.120
-		// "x_customer_tax_id":
-		// "x_po_num":
-		// "is_secure":
+		"x_duplicate_window": "30",
+		"x_session": utils.InterfaceToString(paymentInfo["sessionId"]),
 	}
 
 	// generating post form
@@ -117,7 +114,11 @@ func (it *AuthorizeNetDPM) Authorize(orderInstance order.I_Order, paymentInfo ma
 	htmlText += "<input type='submit' value='Submit' />"
 	htmlText += "</form>"
 
-	return api.T_RestRedirect{Result: htmlText, Location: "http://dev.ottemo.com:3000/authorizenet/receipt"}, nil
+	env.Log("authorizenet.log", env.LOG_PREFIX_INFO, "NEW TRANSACTION: " +
+				"Visitor ID - " + utils.InterfaceToString(orderInstance.Get("visitor_id")) + ", " +
+				"Order ID - " + utils.InterfaceToString(orderInstance.GetId()))
+
+	return api.T_RestRedirect{Result: htmlText, Location: utils.InterfaceToString(env.ConfigGetValue(app.CONFIG_PATH_FOUNDATION_URL)) + "authorizenet/relay"}, nil
 }
 
 // makes payment method capture operation
