@@ -62,8 +62,12 @@ func (it *SQLiteCollection) getSelectSQL() string {
 func (it *SQLiteCollection) modifyResultRow(row sqlite3.RowMap) sqlite3.RowMap {
 
 	for columnName, columnValue := range row {
-		columnType := it.GetColumnType(columnName)
-		if columnType != "" {
+		columnType, present := dbEngine.attributeTypes[it.Name][columnName]
+		if !present {
+			columnType = ""
+		}
+
+		if columnName != "_id" && columnType != "" {
 			row[columnName] = db.ConvertTypeFromDbToGo(columnValue, columnType)
 		}
 	}

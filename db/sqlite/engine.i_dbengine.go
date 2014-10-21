@@ -64,6 +64,10 @@ func (it *SQLite) GetCollection(collectionName string) (db.I_DBCollection, error
 		ResultColumns: make([]string, 0),
 	}
 
+	if _, present := it.attributeTypes[collectionName]; !present {
+		collection.ListColumns()
+	}
+
 	return collection, nil
 }
 

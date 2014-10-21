@@ -512,6 +512,8 @@ func (it *SQLiteCollection) RemoveColumn(columnName string) error {
 
 	stmt, err := connectionQuery(SQL)
 	defer closeStatement(stmt)
+	defer it.ListColumns()
+
 	if err != nil {
 		return sqlError(SQL, err)
 	}
