@@ -26,6 +26,8 @@ type DefaultProduct struct {
 
 	Options map[string]interface{}
 
+	RelatedProductIds []string
+
 	*attributes.CustomAttributes
 }
 

@@ -3,6 +3,7 @@ package product
 import (
 	"mime"
 	"strings"
+	"math/rand"
 
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/env"
@@ -65,6 +66,10 @@ func setupAPI() error {
 		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("product", "DELETE", "media/remove/:productId/:mediaType/:mediaName", restMediaRemove)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+	err = api.GetRestService().RegisterAPI("product", "POST", "related/:productId", restRelatedList)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -546,7 +551,7 @@ func restMediaGet(params *api.T_APIHandlerParams) (interface{}, error) {
 
 // WEB REST API function used to obtain product list we have in database
 //   - only [_id, sku, name] attributes returns by default
-func restListProducts(params *api.T_APIHandlerParams) (interface{}, error) {
+func  restListProducts(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -580,6 +585,124 @@ func restListProducts(params *api.T_APIHandlerParams) (interface{}, error) {
 	}
 
 	return productCollectionModel.List()
+}
+
+func restRelatedList(params *api.T_APIHandlerParams) (interface{}, error) {
+
+	// check request params
+	//---------------------
+	productId, isSpecifiedId := params.RequestURLParams["productId"]
+	if !isSpecifiedId {
+		return nil, env.ErrorNew("product id was not specified")
+	}
+
+	reqData, err := api.GetRequestContentAsMap(params)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	count := 5;
+	if utils.InterfaceToInt(reqData["count"]) > 0 {
+		count = utils.InterfaceToInt(reqData["count"])
+	}
+
+	// load product operation
+	//-----------------------
+	productModel, err := product.LoadProductById(productId)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	result := make([]models.T_ListItem, 0)
+	relatedPids := utils.InterfaceToArray(productModel.Get("related_pids"))
+
+	if len(relatedPids) > count {
+		indexes := make([]int,0)
+		for len(indexes) < count {
+
+			new := rand.Intn(len(relatedPids));
+
+			inArray := false
+			for _, b := range indexes {
+				if utils.InterfaceToInt(b) == new {
+					inArray = true
+				}
+			}
+			if !inArray {
+				indexes = append(indexes, new)
+			}
+		}
+		for _, index := range indexes {
+			if productId := utils.InterfaceToString(relatedPids[index]); productId != "" {
+				if productModel, err := product.LoadProductById(productId); err == nil {
+					if err == nil {
+						resultItem := new(models.T_ListItem)
+
+						mediaPath, err := productModel.GetMediaPath("image")
+						if err != nil {
+							return result, env.ErrorDispatch(err)
+						}
+
+						resultItem.Id = productModel.GetId()
+						resultItem.Name = "[" + productModel.GetSku() + "] " + productModel.GetName()
+						resultItem.Image = ""
+						resultItem.Desc = productModel.GetShortDescription()
+
+						if productModel.GetDefaultImage() != "" {
+							resultItem.Image = mediaPath + productModel.GetDefaultImage()
+						}
+
+						if extra, isExtra := reqData["extra"]; isExtra {
+							resultItem.Extra = make(map[string]interface{})
+							extra := utils.Explode(utils.InterfaceToString(extra), ",")
+							for _, value := range extra {
+								resultItem.Extra[value] = productModel.Get(value)
+							}
+						}
+
+						result = append(result, *resultItem)
+					}
+				}
+			}
+		}
+	} else {
+		for _, productId := range relatedPids {
+			if productId == "" {
+				continue
+			}
+
+			productModel, err := product.LoadProductById(utils.InterfaceToString(productId))
+			if err == nil {
+				resultItem := new(models.T_ListItem)
+
+				mediaPath, err := productModel.GetMediaPath("image")
+				if err != nil {
+					return result, env.ErrorDispatch(err)
+				}
+
+				resultItem.Id = productModel.GetId()
+				resultItem.Name = "[" + productModel.GetSku() + "] " + productModel.GetName()
+				resultItem.Image = ""
+				resultItem.Desc = productModel.GetShortDescription()
+
+				if productModel.GetDefaultImage() != "" {
+					resultItem.Image = mediaPath + productModel.GetDefaultImage()
+				}
+
+				if extra, isExtra := reqData["extra"]; isExtra {
+					resultItem.Extra = make(map[string]interface{})
+					extra := utils.Explode(utils.InterfaceToString(extra), ",")
+					for _, value := range extra {
+						resultItem.Extra[value] = productModel.Get(value)
+					}
+				}
+
+				result = append(result, *resultItem)
+			}
+		}
+	}
+
+	return result, nil
 }
 
 // WEB REST API function used to obtain visitors count in model collection

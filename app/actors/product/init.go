@@ -38,5 +38,7 @@ func setupDB() error {
 	collection.AddColumn("weight", "numeric", false)
 	collection.AddColumn("options", "text", false)
 
+	collection.AddColumn("related_pids", "[]text", false)
+
 	return nil
 }
