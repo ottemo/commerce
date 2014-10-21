@@ -1,6 +1,6 @@
 web:
     image: ottemo/foundation:latest
-    command: ./root/go/bin/foundation
+    command: /bin/sh /root/go/bin/foundation
     ports:
         - "3000:3000"
     volumes:
