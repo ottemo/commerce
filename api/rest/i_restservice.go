@@ -123,40 +123,37 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 		}
 
 		// result conversion before output
-		if result != nil || err != nil {
-
-			redirectLocation := ""
-			if redirect, ok := result.(api.T_RestRedirect); ok {
-				if redirect.DoRedirect {
-					resp.Header().Add("Location", redirect.Location)
-					resp.WriteHeader(301)
-					result = []byte("")
-				} else {
-					redirectLocation = redirect.Location
-					result = redirect.Result
-				}
+		redirectLocation := ""
+		if redirect, ok := result.(api.T_RestRedirect); ok {
+			if redirect.DoRedirect {
+				resp.Header().Add("Location", redirect.Location)
+				resp.WriteHeader(301)
+				result = []byte("")
+			} else {
+				redirectLocation = redirect.Location
+				result = redirect.Result
 			}
-
-			if _, ok := result.([]byte); !ok {
-
-				// JSON encode
-				if resp.Header().Get("Content-Type") == "application/json" {
-					errorMsg := ""
-					if err != nil {
-						errorMsg = err.Error()
-					}
-
-					result, _ = json.Marshal(map[string]interface{}{"result": result, "error": errorMsg, "redirect": redirectLocation})
-				}
-
-				// XML encode
-				if resp.Header().Get("Content-Type") == "text/xml" {
-					result, _ = xml.Marshal(result)
-				}
-			}
-
-			resp.Write(result.([]byte))
 		}
+
+		if _, ok := result.([]byte); !ok {
+
+			// JSON encode
+			if resp.Header().Get("Content-Type") == "application/json" {
+				errorMsg := ""
+				if err != nil {
+					errorMsg = err.Error()
+				}
+
+				result, _ = json.Marshal(map[string]interface{}{"result": result, "error": errorMsg, "redirect": redirectLocation})
+			}
+
+			// XML encode
+			if resp.Header().Get("Content-Type") == "text/xml" {
+				result, _ = xml.Marshal(result)
+			}
+		}
+
+		resp.Write(result.([]byte))
 	}
 
 	// registration to httprouter
