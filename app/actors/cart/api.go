@@ -142,6 +142,10 @@ func restCartAdd(params *api.T_APIHandlerParams) (interface{}, error) {
 	}
 	currentCart.Save()
 
+	eventData := make(map[string]interface{})
+	eventData["sessionId"] = params.Session.GetId()
+	env.Event("api.addToCart", eventData)
+
 	return "ok", nil
 }
 

@@ -504,5 +504,9 @@ func restSubmit(params *api.T_APIHandlerParams) (interface{}, error) {
 	params.Session.Set(cart.SESSION_KEY_CURRENT_CART, nil)
 	params.Session.Set(checkout.SESSION_KEY_CURRENT_CHECKOUT, nil)
 
+	eventData := make(map[string]interface{})
+	eventData["sessionId"] = params.Session.GetId()
+	env.Event("api.reachedCheckout", eventData)
+
 	return checkoutOrder.ToHashMap(), nil
 }
