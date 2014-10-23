@@ -2,23 +2,36 @@ package impex
 
 import (
 	"encoding/csv"
+	"os"
 	"time"
 
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
+
+	"github.com/ottemo/foundation/app/models/product"
 )
 
 func setupAPI() error {
 
 	var err error = nil
 
-	err = api.GetRestService().RegisterAPI("impex", "GET", "export/:model", restImpexExport)
+	err = api.GetRestService().RegisterAPI("impex", "GET", "export/:model", restImpexExportModel)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("impex", "POST", "import/:model", restImpexImport)
+	err = api.GetRestService().RegisterAPI("impex", "POST", "import/:model", restImpexImportModel)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	err = api.GetRestService().RegisterAPI("impex", "GET", "tstImport", restImpexTstImport)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	err = api.GetRestService().RegisterAPI("impex", "GET", "tstExport", restImpexTstExport)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -27,7 +40,7 @@ func setupAPI() error {
 }
 
 // WEB REST API used export specific model data from system
-func restImpexExport(params *api.T_APIHandlerParams) (interface{}, error) {
+func restImpexExportModel(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	model, err := models.GetModel(params.RequestURLParams["model"])
 	if err != nil {
@@ -71,7 +84,7 @@ func restImpexExport(params *api.T_APIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API used import data to system
-func restImpexImport(params *api.T_APIHandlerParams) (interface{}, error) {
+func restImpexImportModel(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	modelName := params.RequestURLParams["model"]
 	model, err := models.GetModel(modelName)
@@ -121,4 +134,46 @@ func restImpexImport(params *api.T_APIHandlerParams) (interface{}, error) {
 	}
 
 	return nil, env.ErrorNew("not implemented")
+}
+
+// WEB REST API
+func restImpexTstImport(params *api.T_APIHandlerParams) (interface{}, error) {
+	csvFile, err := os.OpenFile("test.csv", os.O_RDONLY, 0666)
+	defer csvFile.Close()
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	result := make([]map[string]interface{}, 0)
+	processor := func(item map[string]interface{}) bool {
+		result = append(result, item)
+		return true
+	}
+	err = CSVToMap(csvFile, processor)
+
+	return result, err
+}
+
+// WEB REST API
+func restImpexTstExport(params *api.T_APIHandlerParams) (interface{}, error) {
+
+	params.ResponseWriter.Header().Set("Content-Type", "application/csv")
+
+	data := make([]map[string]interface{}, 0)
+
+	productCollection, err := product.GetProductCollectionModel()
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	for _, productItem := range productCollection.ListProducts() {
+		data = append(data, productItem.ToHashMap())
+	}
+
+	err = MapToCSV(data, params.ResponseWriter)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	return []byte{}, nil
 }
