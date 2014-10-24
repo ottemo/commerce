@@ -2,6 +2,7 @@ package impex
 
 import (
 	"encoding/csv"
+	"fmt"
 	"os"
 	"time"
 
@@ -22,6 +23,11 @@ func setupAPI() error {
 		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("impex", "POST", "import/:model", restImpexImportModel)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	err = api.GetRestService().RegisterAPI("impex", "POST", "import", restImpexImport)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -81,6 +87,25 @@ func restImpexExportModel(params *api.T_APIHandlerParams) (interface{}, error) {
 	}
 
 	return nil, nil
+}
+
+func restImpexImport(params *api.T_APIHandlerParams) (interface{}, error) {
+
+	filesProcessed := 0
+	for _, fileInfoArray := range params.Request.MultipartForm.File {
+		for _, fileInfo := range fileInfoArray {
+			// if utils.IsAmongStr(fileInfo.Header.Get("Content-Type"), "application/csv", "text/csv") {
+			attachedFile, err := fileInfo.Open()
+			defer attachedFile.Close()
+			if err != nil {
+				return nil, env.ErrorDispatch(err)
+			}
+
+			filesProcessed += 1
+		}
+	}
+
+	return fmt.Sprintf("%d file(s) processed", filesProcessed), nil
 }
 
 // WEB REST API used import data to system
