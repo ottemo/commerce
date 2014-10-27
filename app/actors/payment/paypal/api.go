@@ -9,7 +9,6 @@ import (
 	"github.com/ottemo/foundation/utils"
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/app/models/checkout"
-	"github.com/ottemo/foundation/app/models/cart"
 	"github.com/ottemo/foundation/app/models/order"
 	"github.com/ottemo/foundation/api/session"
 	"net/http"
@@ -36,33 +35,6 @@ func setupAPI() error {
 }
 
 // completes paypal transaction
-/**
-TOKEN=EC%2d2KK6368096400733J
-SUCCESSPAGEREDIRECTREQUESTED=false
-TIMESTAMP=2014%2d10%2d13T07%3a35%3a39Z
-CORRELATIONID=2fc2f4867c46a
-ACK=Success
-VERSION=78
-BUILD=13298800
-INSURANCEOPTIONSELECTED=false
-SHIPPINGOPTIONISDEFAULT=false
-PAYMENTINFO_0_TRANSACTIONID=4JG56001NB517953X
-PAYMENTINFO_0_TRANSACTIONTYPE=expresscheckout
-PAYMENTINFO_0_PAYMENTTYPE=instant
-PAYMENTINFO_0_ORDERTIME=2014%2d10%2d13T07%3a35%3a39Z
-PAYMENTINFO_0_AMT=43%2e00
-PAYMENTINFO_0_FEEAMT=1%2e55
-PAYMENTINFO_0_TAXAMT=0%2e00
-PAYMENTINFO_0_CURRENCYCODE=USD
-PAYMENTINFO_0_PAYMENTSTATUS=Completed
-PAYMENTINFO_0_PENDINGREASON=None
-PAYMENTINFO_0_REASONCODE=None
-PAYMENTINFO_0_PROTECTIONELIGIBILITY=Eligible
-PAYMENTINFO_0_PROTECTIONELIGIBILITYTYPE=ItemNotReceivedEligible%2cUnauthorizedPaymentEligible
-PAYMENTINFO_0_SECUREMERCHANTACCOUNTID=P2J4W2PSKHBKQ
-PAYMENTINFO_0_ERRORCODE=0
-PAYMENTINFO_0_ACK=Success
- */
 func Completes(orderInstance order.I_Order, token string, payerId string) (map[string]string, error) {
 
 	// getting order information
@@ -177,21 +149,13 @@ func restSuccess(params *api.T_APIHandlerParams) (interface{}, error) {
 
 		checkoutOrder.NewIncrementId()
 
-		checkoutOrder.Set("status", "pending shipping")
+		checkoutOrder.Set("status", "pending_shipping")
 		checkoutOrder.Set("payment_info", completeData)
 
-		err = checkoutOrder.Save()
+		err = currentCheckout.CheckoutSuccess(checkoutOrder, params.Session)
 		if err != nil {
 			return nil, err
 		}
-
-		// cleanup checkout information
-		//-----------------------------
-		currentCart.Deactivate()
-		currentCart.Save()
-
-		params.Session.Set(cart.SESSION_KEY_CURRENT_CART, nil)
-		params.Session.Set(checkout.SESSION_KEY_CURRENT_CHECKOUT, nil)
 
 		// Send confirmation email
 		err = currentCheckout.SendOrderConfirmationMail()

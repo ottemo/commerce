@@ -6,13 +6,20 @@ import (
 	"github.com/ottemo/foundation/utils"
 	"time"
 	"fmt"
+	"io"
+	"crypto/md5"
 )
 
 func setupAPI() error {
 	var err error = nil
 
-	// 1. DefaultProduct API
+	// 1. DefaultRtsAPI
 	//----------------------
+	err = api.GetRestService().RegisterAPI("rts", "GET", "visit", restRegVisit)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
 	err = api.GetRestService().RegisterAPI("rts", "GET", "referrers", restGetReferrers)
 	if err != nil {
 		return env.ErrorDispatch(err)
@@ -33,9 +40,28 @@ func setupAPI() error {
 		return env.ErrorDispatch(err)
 	}
 
+	err = api.GetRestService().RegisterAPI("rts", "GET", "sales", restGetSales)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	err = api.GetRestService().RegisterAPI("rts", "GET", "sales/details/:from/:to", restGetSalesDetails)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
 	return nil
 }
 
+func restRegVisit(params *api.T_APIHandlerParams) (interface{}, error) {
+	eventData := make(map[string]interface{})
+	session := params.Session
+	eventData["sessionId"] = session.GetId()
+
+	env.Event("api.visits", eventData)
+
+	return nil, nil
+}
 
 func restGetReferrers(params *api.T_APIHandlerParams) (interface{}, error) {
 	result := make(map[string]int)
@@ -67,15 +93,12 @@ func restGetVisits(params *api.T_APIHandlerParams) (interface{}, error) {
 func restGetVisitsDetails(params *api.T_APIHandlerParams) (interface{}, error) {
 	result := make(map[string]int)
 
-	// check request params
-	//---------------------
 	fromDate_tmp, present := params.RequestURLParams["from"]
 	if !present {
 		fromDate_tmp = time.Now().Format("2006-01-02")
 	}
 	fromDate, _ := time.Parse("2006-01-02", fromDate_tmp)
-	// check request params
-	//---------------------
+
 	toDate_tmp, present := params.RequestURLParams["to"]
 	if !present {
 		toDate_tmp = time.Now().AddDate(0, 0, -1).Format("2006-01-02")
@@ -119,6 +142,83 @@ func restGetConversions(params *api.T_APIHandlerParams) (interface{}, error) {
 	result["purchased"] = len(conversions["purchased"])
 
 
+
+	return result, nil
+}
+
+func restGetSales(params *api.T_APIHandlerParams) (interface{}, error) {
+	result := make(map[string]interface{})
+
+	currDate, _ := time.Parse("2006-01-02", time.Now().Format("2006-01-02"))
+	yesterdayDate, _ := time.Parse("2006-01-02", currDate.AddDate(0, 0, -1).Format("2006-01-02"))
+
+	if sales.lastUpdate == 0 { // Init sales data
+		GetTotalSales(currDate, yesterdayDate)
+		result["today"] = sales.today
+		result["ratio"] = sales.ratio
+	} else {
+		lastUpdate, _ := time.Parse("2006-01-02", time.Unix(int64(sales.lastUpdate), 0).Format("2006-01-02"))
+		delta := currDate.Sub(lastUpdate)
+		if delta > 1 {  // Updates the sales data if they older 1 hour
+			GetTotalSales(currDate, yesterdayDate)
+			result["today"] = sales.today
+			result["ratio"] = sales.ratio
+		} else {
+			// Returns the  existing data
+			result["today"] = sales.today
+			result["ratio"] = sales.ratio
+		}
+	}
+
+	return result, nil
+}
+
+func restGetSalesDetails(params *api.T_APIHandlerParams) (interface{}, error) {
+	result := make(map[string]int)
+
+	// check request params
+	//---------------------
+	fromDate_tmp, present := params.RequestURLParams["from"]
+	if !present {
+		fromDate_tmp = time.Now().Format("2006-01-02")
+	}
+	fromDate, _ := time.Parse("2006-01-02", fromDate_tmp)
+	// check request params
+	//---------------------
+	toDate_tmp, present := params.RequestURLParams["to"]
+	if !present {
+		toDate_tmp = time.Now().AddDate(0, 0, -1).Format("2006-01-02")
+	}
+	toDate, _ := time.Parse("2006-01-02", toDate_tmp)
+
+	h := md5.New()
+	io.WriteString(h, fromDate_tmp+"/"+toDate_tmp)
+	periodHash := fmt.Sprintf("%x", h.Sum(nil))
+
+	if _, ok := salesDetail[periodHash]; !ok {
+		salesDetail[periodHash] = &SalesDetailData{Data: make(map[string]int)}
+
+		GetSalesDetail(fromDate, toDate, periodHash)
+
+	} else {
+		// check last updates
+		if salesDetail[periodHash].lastUpdate == 0 {
+
+			GetSalesDetail(fromDate, toDate, periodHash)
+
+		} else {
+			currDate, _ := time.Parse("2006-01-02", time.Now().Format("2006-01-02"))
+			lastUpdate, _ := time.Parse("2006-01-02", time.Unix(int64(salesDetail[periodHash].lastUpdate), 0).Format("2006-01-02"))
+			delta := currDate.Sub(lastUpdate)
+			if delta > 1 {  // Updates the sales data if they older 1 hour
+
+				GetSalesDetail(fromDate, toDate, periodHash)
+
+			}
+		}
+	}
+
+	result = salesDetail[periodHash].Data
 
 	return result, nil
 }

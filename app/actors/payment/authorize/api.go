@@ -6,7 +6,6 @@ import (
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/api/session"
 	"github.com/ottemo/foundation/app"
-	"github.com/ottemo/foundation/app/models/cart"
 	"github.com/ottemo/foundation/app/models/checkout"
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
@@ -70,18 +69,10 @@ func restReceipt(params *api.T_APIHandlerParams) (interface{}, error) {
 				checkoutOrder.Set("status", "pending")
 				checkoutOrder.Set("payment_info", postData)
 
-				err = checkoutOrder.Save()
+				err = currentCheckout.CheckoutSuccess(checkoutOrder, params.Session)
 				if err != nil {
 					return nil, err
 				}
-
-				// cleanup checkout information
-				//-----------------------------
-				currentCart.Deactivate()
-				currentCart.Save()
-
-				params.Session.Set(cart.SESSION_KEY_CURRENT_CART, nil)
-				params.Session.Set(checkout.SESSION_KEY_CURRENT_CHECKOUT, nil)
 
 				// Send confirmation email
 				err = currentCheckout.SendOrderConfirmationMail()
@@ -172,18 +163,10 @@ func restRelay(params *api.T_APIHandlerParams) (interface{}, error) {
 				checkoutOrder.Set("status", "pending")
 				checkoutOrder.Set("payment_info", postData)
 
-				err = checkoutOrder.Save()
+				err = currentCheckout.CheckoutSuccess(checkoutOrder, params.Session)
 				if err != nil {
 					return nil, err
 				}
-
-				// cleanup checkout information
-				//-----------------------------
-				currentCart.Deactivate()
-				currentCart.Save()
-
-				params.Session.Set(cart.SESSION_KEY_CURRENT_CART, nil)
-				params.Session.Set(checkout.SESSION_KEY_CURRENT_CHECKOUT, nil)
 
 				// Send confirmation email
 				err = currentCheckout.SendOrderConfirmationMail()

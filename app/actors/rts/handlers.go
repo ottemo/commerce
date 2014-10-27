@@ -9,7 +9,7 @@ import (
 
 func referrerHandler(event string, data map[string]interface{}) bool {
 
-	if "api.referer" == event && "" != utils.InterfaceToString(data["referer"]) {
+	if "api.referer" != event || "" == utils.InterfaceToString(data["referer"]) {
 		return true
 	}
 
@@ -43,7 +43,7 @@ func referrerHandler(event string, data map[string]interface{}) bool {
 
 func visitsHandler(event string, data map[string]interface{}) bool {
 
-	if "api.visits" == event && "" != utils.InterfaceToString(data["referer"]) {
+	if "api.visits" != event {
 		return true
 	}
 
@@ -133,6 +133,30 @@ func reachedCheckoutHandler(event string, data map[string]interface{}) bool {
 
 	if _, ok := conversions["reachedCheckout"][sessionId]; !ok {
 		conversions["reachedCheckout"][sessionId] = 1
+	}
+
+	fmt.Println(conversions)
+
+	return true
+}
+
+func purchasedHandler(event string, data map[string]interface{}) bool {
+
+	if "api.purchased" != event {
+		return true
+	}
+
+	sessionId := utils.InterfaceToString(data["sessionId"])
+	if "" == sessionId {
+		return true
+	}
+
+	if _, ok := conversions["purchased"]; !ok {
+		conversions["purchased"] = make(map[string]int)
+	}
+
+	if _, ok := conversions["purchased"][sessionId]; !ok {
+		conversions["purchased"][sessionId] = 1
 	}
 
 	fmt.Println(conversions)

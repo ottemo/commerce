@@ -110,9 +110,6 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 		eventData["sessionId"] = session.GetId()
 		env.Event("api.referer", eventData)
 
-		eventData["sessionId"] = session.GetId()
-		env.Event("api.visits", eventData)
-
 		if err != nil {
 			log.Println("Session init fail: " + err.Error())
 		}

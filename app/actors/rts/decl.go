@@ -37,21 +37,49 @@ package rts
  *		"visitors": X
  * }
  *
+ * sales = {
+ *		"lastUpdate": timestamp,
+ *		"today": x,
+ *		"yesterday": y,
+ *		"ratio": z,
+ * }
+ *
+ * salesDetail = {
+ *		"period(MD5(dateFrom/dateTo))": {
+ *			"Data": {},
+ *			"lastUpdate": timestamp
+ *		}
+ * }
+ *
  */
 
 var (
 	referrers   = make(map[string]*ReferrerData)
 	visits      = Visits{Data: make(map[string]map[string]int32)}
 	conversions = make(map[string]map[string]int)
+	sales 		= Sales{}
+	salesDetail = make(map[string]*SalesDetailData)
 )
 
 type ReferrerData struct {
-	Data    map[string]map[string]bool
-	Count 	int
+	Data    		map[string]map[string]bool
+	Count 			int
 }
 
 type Visits struct {
-	Data 		map[string]map[string]int32
-	Yesterday 	string
-	Today 		string
+	Data 			map[string]map[string]int32
+	Yesterday 		string
+	Today 			string
+}
+
+type Sales struct {
+	lastUpdate 		int64
+	today 			int
+	yesterday 		int
+	ratio 			float64
+}
+
+type SalesDetailData struct {
+	Data    		map[string]int
+	lastUpdate 		int64
 }

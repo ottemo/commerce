@@ -19,6 +19,7 @@ func initListners() error {
 	env.EventRegisterListener(visitsHandler)
 	env.EventRegisterListener(addToCartHandler)
 	env.EventRegisterListener(reachedCheckoutHandler)
+	env.EventRegisterListener(purchasedHandler)
 
 	return nil
 }
