@@ -7,8 +7,8 @@ import (
 func init() {
 	api.RegisterOnRestServiceStart(setupAPI)
 
-	RegisterImportCommand("insert", new(ImpexImportCmdInsert))
-	RegisterImportCommand("update", new(ImpexImportCmdUpdate))
-	RegisterImportCommand("delete", new(ImpexImportCmdDelete))
-	RegisterImportCommand("store", new(ImpexImportCmdStore))
+	RegisterImportCommand("INSERT", new(ImpexImportCmdInsert))
+	RegisterImportCommand("UPDATE", new(ImpexImportCmdUpdate))
+	RegisterImportCommand("DELETE", new(ImpexImportCmdDelete))
+	RegisterImportCommand("STORE", new(ImpexImportCmdStore))
 }

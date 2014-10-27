@@ -8,10 +8,8 @@ import (
 
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/app/models"
-	"github.com/ottemo/foundation/env"
-	"github.com/ottemo/foundation/utils"
-
 	"github.com/ottemo/foundation/app/models/product"
+	"github.com/ottemo/foundation/env"
 )
 
 func setupAPI() error {
@@ -26,7 +24,6 @@ func setupAPI() error {
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-
 	err = api.GetRestService().RegisterAPI("impex", "POST", "import", restImpexImport)
 	if err != nil {
 		return env.ErrorDispatch(err)
@@ -67,23 +64,29 @@ func restImpexExportModel(params *api.T_APIHandlerParams) (interface{}, error) {
 
 		// preparing csv writer
 		csvWriter := csv.NewWriter(params.ResponseWriter)
+		csvWriter.Comma = ','
 
 		params.ResponseWriter.Header().Set("Content-type", "text/csv")
 		params.ResponseWriter.Header().Set("Content-disposition", "attachment;filename=export_"+time.Now().Format(time.RFC3339)+".csv")
 
-		csvWriter.Write(attributes)
-		csvWriter.Flush()
+		// csvWriter.Write(attributes)
+		// csvWriter.Flush()
+
+		records := make([]map[string]interface{}, 0)
 
 		list, _ := collection.List()
 		for _, item := range list {
-			record := make([]string, len(attributes))
+			records = append(records, item.Extra)
+
+			/*record := make([]string, len(attributes))
 			for idx, attribute := range attributes {
 				record[idx] = utils.InterfaceToString(item.Extra[attribute])
 			}
 			csvWriter.Write(record)
-			csvWriter.Flush()
+			csvWriter.Flush()*/
 		}
 
+		MapToCSV(records, csvWriter)
 	}
 
 	return nil, nil
@@ -207,7 +210,10 @@ func restImpexTstExport(params *api.T_APIHandlerParams) (interface{}, error) {
 		data = append(data, productItem.ToHashMap())
 	}
 
-	err = MapToCSV(data, params.ResponseWriter)
+	csvWriter := csv.NewWriter(params.ResponseWriter)
+	csvWriter.Comma = ','
+
+	err = MapToCSV(data, csvWriter)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}

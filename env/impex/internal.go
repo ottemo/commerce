@@ -12,15 +12,12 @@ import (
 )
 
 // converts map[string]interface{} to csv data
-func MapToCSV(input []map[string]interface{}, output io.Writer) error {
+func MapToCSV(input []map[string]interface{}, csvWriter *csv.Writer) error {
 
-	// preparing writer for csv file
-	//-------------------------------
-	csvWriter := csv.NewWriter(output)
-	csvWriter.Comma = ','
+	csvColumnHeaders := make(map[string]string)
 
-	columnPath := make(map[string]string)
-
+	// recursuve functions for internal usage
+	//----------------------------------------
 	var collectColumns func(mapItem map[string]interface{}, path string) = nil
 	var getPathValue func(item map[string]interface{}, path []string) interface{}
 
@@ -47,10 +44,10 @@ func MapToCSV(input []map[string]interface{}, output io.Writer) error {
 					}
 				}
 				if !isMapItemsInside {
-					columnPath[currentPath] = "^" + currentPath
+					csvColumnHeaders[currentPath] = "^" + currentPath
 				}
 			default:
-				columnPath[currentPath] = currentPath
+				csvColumnHeaders[currentPath] = currentPath
 			}
 		}
 	}
@@ -91,15 +88,15 @@ func MapToCSV(input []map[string]interface{}, output io.Writer) error {
 		collectColumns(mapItem, "")
 	}
 
-	sortedPaths := make([]string, 0, len(columnPath))
-	for path, _ := range columnPath {
+	sortedPaths := make([]string, 0, len(csvColumnHeaders))
+	for path, _ := range csvColumnHeaders {
 		sortedPaths = append(sortedPaths, path)
 	}
 	sort.Strings(sortedPaths)
 
 	csvHeader := make([]string, 0)
 	for _, currentPath := range sortedPaths {
-		csvHeader = append(csvHeader, columnPath[currentPath])
+		csvHeader = append(csvHeader, csvColumnHeaders[currentPath])
 	}
 
 	csvWriter.Write(csvHeader)
@@ -107,7 +104,7 @@ func MapToCSV(input []map[string]interface{}, output io.Writer) error {
 
 	// making contents
 	//------------------
-	numberOfColumns := len(columnPath)
+	numberOfColumns := len(csvColumnHeaders)
 
 	for _, mapItem := range input { // 2nd loop - writing content rows
 		// one record by default for item
@@ -123,7 +120,11 @@ func MapToCSV(input []map[string]interface{}, output io.Writer) error {
 						itemCSVRecords[lineIdx][columnIdx] = utils.InterfaceToString(lineValue)
 					} else {
 						newCSVRecord := make([]string, numberOfColumns)
-						newCSVRecord[columnIdx] = utils.InterfaceToString(lineValue)
+
+						if lineValue != nil {
+							newCSVRecord[columnIdx] = utils.InterfaceToString(lineValue)
+						}
+
 						itemCSVRecords = append(itemCSVRecords, newCSVRecord)
 					}
 				}
@@ -434,51 +435,14 @@ func ImportCSV(csvReader *csv.Reader) error {
 			env.Log("impex.log", env.LOG_PREFIX_DEBUG, fmt.Sprintf("Command line: %s", commandLine))
 		}
 
-		// splitting command line to separate commands and their arguments
-		//-----------------------------------------------------------------
-		splitQuotedArgsBy := func(separators ...rune) func(currentChar rune) bool {
-			lastQuote := rune(0)
-			escapeFlag := false
-
-			return func(currentChar rune) bool {
-
-				isSeparatorChar := false
-				for _, separator := range separators {
-					if currentChar == separator {
-						isSeparatorChar = true
-						break
-					}
-				}
-
-				switch {
-				case currentChar == '\\':
-					escapeFlag = true
-
-				case !escapeFlag && lastQuote == currentChar:
-					lastQuote = rune(0)
-					return false
-
-				case lastQuote == rune(0) && (currentChar == '"' || currentChar == '\''):
-					lastQuote = currentChar
-					return false
-
-				case lastQuote == rune(0) && isSeparatorChar:
-					return true
-				}
-
-				escapeFlag = false
-				return false
-			}
-		}
-
 		// looking for required commands and preparing them to process
 		//-------------------------------------------------------------
 		exchangeDict := make(map[string]interface{})
 		commandsChain := make([]ImpexImportCmd, 0)
 
-		for _, command := range strings.FieldsFunc(commandLine, splitQuotedArgsBy('|')) {
+		for _, command := range utils.SplitQuotedStringBy(commandLine, '|') {
 			command = strings.TrimSpace(command)
-			args := strings.FieldsFunc(command, splitQuotedArgsBy(' ', '\n', '\t'))
+			args := utils.SplitQuotedStringBy(command, ' ', '\n', '\t')
 			if len(args) > 0 {
 				if cmd, present := importCmd[args[0]]; present {
 					if err := cmd.Init(args, exchangeDict); err == nil {
@@ -510,13 +474,13 @@ func ImportCSV(csvReader *csv.Reader) error {
 
 				input, err = command.Process(itemData, input, exchangeDict)
 				if err != nil {
-					if DEBUG_LOG {
+					if IMPEX_LOG || DEBUG_LOG {
 						env.Log("impex.log", env.LOG_PREFIX_DEBUG, fmt.Sprintf("Error: %s", err.Error()))
 					}
 					env.ErrorDispatch(err)
 					return false
 				}
-				if DEBUG_LOG {
+				if IMPEX_LOG || DEBUG_LOG {
 					env.Log("impex.log", env.LOG_PREFIX_DEBUG, "Finished ok")
 				}
 			}

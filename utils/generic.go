@@ -390,3 +390,42 @@ func Round(val float64, roundOn float64, places int) float64 {
 func RoundPrice(price float64) float64 {
 	return Round(price, 0.5, 2)
 }
+
+// splits string by character(s) unless it in quotes
+func SplitQuotedStringBy(text string, separators ...rune) []string {
+
+	lastQuote := rune(0)
+	escapeFlag := false
+
+	operator := func(currentChar rune) bool {
+
+		isSeparatorChar := false
+		for _, separator := range separators {
+			if currentChar == separator {
+				isSeparatorChar = true
+				break
+			}
+		}
+
+		switch {
+		case currentChar == '\\':
+			escapeFlag = true
+
+		case !escapeFlag && lastQuote == currentChar:
+			lastQuote = rune(0)
+			return false
+
+		case lastQuote == rune(0) && (currentChar == '"' || currentChar == '\''):
+			lastQuote = currentChar
+			return false
+
+		case lastQuote == rune(0) && isSeparatorChar:
+			return true
+		}
+
+		escapeFlag = false
+		return false
+	}
+
+	return strings.FieldsFunc(text, operator)
+}
