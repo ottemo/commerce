@@ -2,10 +2,12 @@ package impex
 
 import (
 	"encoding/csv"
+	"fmt"
 	"io"
 	"sort"
 	"strings"
 
+	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
 )
 
@@ -140,12 +142,7 @@ func MapToCSV(input []map[string]interface{}, output io.Writer) error {
 }
 
 // converts csv data to map[string]interface{} and sends to processorFunc
-func CSVToMap(input io.Reader, processorFunc func(item map[string]interface{}) bool) error {
-
-	// preparing reader for csv file
-	//-------------------------------
-	csvReader := csv.NewReader(input)
-	csvReader.Comma = ','
+func CSVToMap(csvReader *csv.Reader, processorFunc func(item map[string]interface{}) bool) error {
 
 	// reading header/columns information
 	//------------------------------------
@@ -382,6 +379,159 @@ func CSVToMap(input io.Reader, processorFunc func(item map[string]interface{}) b
 		csvRecordNum += 1
 	}
 	processorFunc(csvRecordMap)
+
+	return nil
+}
+
+// imports csv data using command->data csv format
+func ImportCSV(csvReader *csv.Reader) error {
+
+	// impex csv file should contain command preceding data
+	commandLine := ""
+	appendFlag := false
+	for csvRecord, err := csvReader.Read(); err == nil; csvRecord, err = csvReader.Read() { // csv records loop
+
+		// reading csv command line
+		//--------------------------
+		csvLine := ""
+		for columnIdx, csvColumn := range csvRecord {
+			csvColumn = strings.TrimSpace(csvColumn)
+			if columnIdx != 0 && strings.Contains(csvColumn, " ") {
+				csvColumn = "\"" + strings.Replace(csvColumn, "\"", "\\\"", -1) + "\""
+			}
+
+			csvLine += " " + csvColumn
+		}
+		csvLine = strings.TrimSpace(csvLine)
+
+		// skipping blank lines
+		if csvLine == "" {
+			continue
+		}
+
+		// checking that command line not suppose to read following csv record
+		//---------------------------------------------------------------------
+		if strings.HasPrefix(csvLine, "|") {
+			if appendFlag {
+				commandLine += " " + csvLine
+				appendFlag = false
+			} else {
+				commandLine = csvLine + " " + commandLine
+				continue
+			}
+		}
+
+		if strings.HasSuffix(csvLine, "...") {
+			csvLine = strings.TrimSuffix(csvLine, "...")
+			commandLine += " " + csvLine
+			appendFlag = true
+			continue
+		}
+		commandLine = csvLine + " " + commandLine
+		commandLine = strings.TrimSpace(commandLine)
+
+		if IMPEX_LOG || DEBUG_LOG {
+			env.Log("impex.log", env.LOG_PREFIX_DEBUG, fmt.Sprintf("Command line: %s", commandLine))
+		}
+
+		// splitting command line to separate commands and their arguments
+		//-----------------------------------------------------------------
+		splitQuotedArgsBy := func(separators ...rune) func(currentChar rune) bool {
+			lastQuote := rune(0)
+			escapeFlag := false
+
+			return func(currentChar rune) bool {
+
+				isSeparatorChar := false
+				for _, separator := range separators {
+					if currentChar == separator {
+						isSeparatorChar = true
+						break
+					}
+				}
+
+				switch {
+				case currentChar == '\\':
+					escapeFlag = true
+
+				case !escapeFlag && lastQuote == currentChar:
+					lastQuote = rune(0)
+					return false
+
+				case lastQuote == rune(0) && (currentChar == '"' || currentChar == '\''):
+					lastQuote = currentChar
+					return false
+
+				case lastQuote == rune(0) && isSeparatorChar:
+					return true
+				}
+
+				escapeFlag = false
+				return false
+			}
+		}
+
+		// looking for required commands and preparing them to process
+		//-------------------------------------------------------------
+		exchangeDict := make(map[string]interface{})
+		commandsChain := make([]ImpexImportCmd, 0)
+
+		for _, command := range strings.FieldsFunc(commandLine, splitQuotedArgsBy('|')) {
+			command = strings.TrimSpace(command)
+			args := strings.FieldsFunc(command, splitQuotedArgsBy(' ', '\n', '\t'))
+			if len(args) > 0 {
+				if cmd, present := importCmd[args[0]]; present {
+					if err := cmd.Init(args, exchangeDict); err == nil {
+						commandsChain = append(commandsChain, cmd)
+					}
+				}
+			}
+		}
+
+		if len(commandsChain) == 0 {
+			return env.ErrorNew("There are no commands for csv data processing")
+		}
+
+		// making csv data processor based on received commands
+		//------------------------------------------------------
+		dataProcessor := func(itemData map[string]interface{}) bool {
+			if IMPEX_LOG || DEBUG_LOG {
+				env.Log("impex.log", env.LOG_PREFIX_DEBUG, fmt.Sprintf("Processing: %s", utils.EncodeToJsonString(itemData)))
+			}
+
+			var input interface{} = nil
+			for _, command := range commandsChain {
+				if DEBUG_LOG {
+					env.Log("impex.log", env.LOG_PREFIX_DEBUG, fmt.Sprintf("Command: %T", command))
+					env.Log("impex.log", env.LOG_PREFIX_DEBUG, fmt.Sprintf("Input: %#v", input))
+					env.Log("impex.log", env.LOG_PREFIX_DEBUG, fmt.Sprintf("itemData: %s", utils.EncodeToJsonString(itemData)))
+					env.Log("impex.log", env.LOG_PREFIX_DEBUG, fmt.Sprintf("Exchange: %s", utils.EncodeToJsonString(exchangeDict)))
+				}
+
+				input, err = command.Process(itemData, input, exchangeDict)
+				if err != nil {
+					if DEBUG_LOG {
+						env.Log("impex.log", env.LOG_PREFIX_DEBUG, fmt.Sprintf("Error: %s", err.Error()))
+					}
+					env.ErrorDispatch(err)
+					return false
+				}
+				if DEBUG_LOG {
+					env.Log("impex.log", env.LOG_PREFIX_DEBUG, "Finished ok")
+				}
+			}
+			return true
+		}
+
+		// passing control to data block reader
+		//--------------------------------------
+		err = CSVToMap(csvReader, dataProcessor)
+		if err != nil && err != io.EOF {
+			return env.ErrorDispatch(err)
+		}
+
+		commandLine = ""
+	}
 
 	return nil
 }

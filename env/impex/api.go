@@ -101,6 +101,15 @@ func restImpexImport(params *api.T_APIHandlerParams) (interface{}, error) {
 				return nil, env.ErrorDispatch(err)
 			}
 
+			// preparing csv reader
+			csvReader := csv.NewReader(attachedFile)
+			csvReader.Comma = ','
+
+			err = ImportCSV(csvReader)
+			if err != nil {
+				return nil, env.ErrorDispatch(err)
+			}
+
 			filesProcessed += 1
 		}
 	}
@@ -174,7 +183,10 @@ func restImpexTstImport(params *api.T_APIHandlerParams) (interface{}, error) {
 		result = append(result, item)
 		return true
 	}
-	err = CSVToMap(csvFile, processor)
+
+	reader := csv.NewReader(csvFile)
+	reader.Comma = ','
+	err = CSVToMap(reader, processor)
 
 	return result, err
 }

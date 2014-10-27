@@ -5,6 +5,9 @@ import (
 )
 
 var (
+	IMPEX_LOG = true
+	DEBUG_LOG = false
+
 	/*
 	 *	column format: [flags]path [memorize] [type] [convertors]
 	 *
@@ -38,5 +41,5 @@ var (
 
 type ImpexImportCmd interface {
 	Init(args []string, exchange map[string]interface{}) error
-	Process(data []map[string]interface{}, exchange map[string]interface{}) error
+	Process(itemData map[string]interface{}, input interface{}, exchange map[string]interface{}) (interface{}, error)
 }
