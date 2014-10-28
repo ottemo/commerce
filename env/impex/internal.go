@@ -443,11 +443,16 @@ func ImportCSV(csvReader *csv.Reader) error {
 		for _, command := range utils.SplitQuotedStringBy(commandLine, '|') {
 			command = strings.TrimSpace(command)
 			args := utils.SplitQuotedStringBy(command, ' ', '\n', '\t')
+
 			if len(args) > 0 {
 				if cmd, present := importCmd[args[0]]; present {
 					if err := cmd.Init(args, exchangeDict); err == nil {
 						commandsChain = append(commandsChain, cmd)
+					} else {
+						return env.ErrorDispatch(err)
 					}
+				} else {
+					return env.ErrorNew("unknows cmd '" + args[0] + "'")
 				}
 			}
 		}
@@ -478,7 +483,7 @@ func ImportCSV(csvReader *csv.Reader) error {
 						env.Log("impex.log", env.LOG_PREFIX_DEBUG, fmt.Sprintf("Error: %s", err.Error()))
 					}
 					env.ErrorDispatch(err)
-					return false
+					return true
 				}
 				if IMPEX_LOG || DEBUG_LOG {
 					env.Log("impex.log", env.LOG_PREFIX_DEBUG, "Finished ok")

@@ -1,6 +1,8 @@
 package impex
 
 import (
+	"io/ioutil"
+	"net/http"
 	"strings"
 
 	"github.com/ottemo/foundation/app/models"
@@ -11,6 +13,7 @@ import (
 type ImpexImportCmdInsert struct {
 	model      models.I_Model
 	attributes map[string]bool
+	skipErrors bool
 }
 
 type ImpexImportCmdUpdate struct {
@@ -22,6 +25,12 @@ type ImpexImportCmdUpdate struct {
 type ImpexImportCmdDelete struct {
 	model models.I_Model
 	idKey string
+}
+
+type ImpexImportCmdMedia struct {
+	mediaField string
+	mediaType  string
+	mediaName  string
 }
 
 type ImpexImportCmdStore struct {
@@ -148,6 +157,11 @@ func (it *ImpexImportCmdInsert) Init(args []string, exchange map[string]interfac
 	it.model = workingModel
 	it.attributes = ArgsFindWorkingAttributes(args)
 
+	namedArgs := ArgsGetAsNamed(args, false)
+	if _, present := namedArgs["--skipErrors"]; present {
+		it.skipErrors = true
+	}
+
 	return nil
 }
 
@@ -171,14 +185,17 @@ func (it *ImpexImportCmdInsert) Process(itemData map[string]interface{}, input i
 	//--------------------------
 	for attribute, value := range itemData {
 		if useAttribute, wasMentioned := it.attributes[attribute]; !wasMentioned || useAttribute {
-			modelAsObject.Set(attribute, value)
+			err := modelAsObject.Set(attribute, value)
+			if err != nil && !it.skipErrors {
+				return nil, err
+			}
 		}
 	}
 
 	// storing model
 	//---------------
 	err = modelAsStorable.Save()
-	if err != nil {
+	if err != nil && !it.skipErrors {
 		return nil, err
 	}
 
@@ -348,6 +365,90 @@ func (it *ImpexImportCmdStore) Process(itemData map[string]interface{}, input in
 	for itemKey, storeAs := range it.storeValueAs {
 		if _, present := itemData[itemKey]; present {
 			exchange[prefix+storeAs] = itemData[itemKey]
+		}
+	}
+
+	return input, nil
+}
+
+// MEDIA command initialization
+func (it *ImpexImportCmdMedia) Init(args []string, exchange map[string]interface{}) error {
+
+	if len(args) > 1 {
+		it.mediaField = args[1]
+	}
+
+	if len(args) > 2 {
+		it.mediaType = args[2]
+	}
+
+	if len(args) > 3 {
+		it.mediaName = args[3]
+	}
+
+	if it.mediaField == "" {
+		return env.ErrorNew("media field was not specified")
+	}
+
+	return nil
+}
+
+// MEDIA command processing
+func (it *ImpexImportCmdMedia) Process(itemData map[string]interface{}, input interface{}, exchange map[string]interface{}) (interface{}, error) {
+	inputAsMedia, ok := input.(models.I_Media)
+	if !ok {
+		return nil, env.ErrorNew("object not implements I_Media interface")
+	}
+
+	if value, present := itemData[it.mediaField]; present {
+		mediaArray := make([]string, 0)
+
+		switch typedValue := value.(type) {
+		case string:
+			mediaArray = append(mediaArray, typedValue)
+		case []string:
+			mediaArray = typedValue
+		case []interface{}:
+			for _, value := range typedValue {
+				mediaArray = append(mediaArray, utils.InterfaceToString(value))
+			}
+		default:
+			mediaArray = append(mediaArray, utils.InterfaceToString(typedValue))
+		}
+
+		for _, mediaValue := range mediaArray {
+			var mediaContents []byte = []byte{}
+			var err error = nil
+
+			mediaType := it.mediaType
+			mediaName := ""
+
+			if nameValue, present := itemData[it.mediaName]; present {
+				mediaName = utils.InterfaceToString(nameValue)
+			}
+
+			if strings.HasPrefix(mediaValue, "http") {
+				response, err := http.Get(mediaValue)
+				if err != nil {
+					return input, env.ErrorDispatch(err)
+				}
+
+				if strings.Contains(response.Header.Get("Content-Type"), "image") {
+					mediaType = "image"
+				}
+
+				mediaContents, err = ioutil.ReadAll(response.Body)
+				if err != nil {
+					return input, env.ErrorDispatch(err)
+				}
+			} else {
+				mediaContents, err = ioutil.ReadFile(mediaValue)
+				if err != nil {
+					return input, env.ErrorDispatch(err)
+				}
+			}
+
+			inputAsMedia.AddMedia(mediaType, mediaName, mediaContents)
 		}
 	}
 

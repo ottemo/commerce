@@ -10,5 +10,7 @@ func init() {
 	RegisterImportCommand("INSERT", new(ImpexImportCmdInsert))
 	RegisterImportCommand("UPDATE", new(ImpexImportCmdUpdate))
 	RegisterImportCommand("DELETE", new(ImpexImportCmdDelete))
+
 	RegisterImportCommand("STORE", new(ImpexImportCmdStore))
+	RegisterImportCommand("MEDIA", new(ImpexImportCmdMedia))
 }
