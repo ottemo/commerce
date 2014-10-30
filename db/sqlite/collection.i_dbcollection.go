@@ -99,6 +99,16 @@ func (it *SQLiteCollection) Distinct(columnName string) ([]interface{}, error) {
 		for ; err == nil; err = stmt.Next() {
 			row := make(sqlite3.RowMap)
 			if err := stmt.Scan(row); err == nil {
+				ignoreNull := false
+				for _, columnValue := range row {
+					if columnValue == nil {
+						ignoreNull = true
+					}
+				}
+				if ignoreNull {
+					continue
+				}
+
 				it.modifyResultRow(row)
 
 				for _, columnValue := range row {
