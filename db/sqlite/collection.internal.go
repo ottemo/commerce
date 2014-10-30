@@ -38,7 +38,7 @@ func (it *SQLiteCollection) makeSQLFilterString(ColumnName string, Operator stri
 		}
 
 	case "IN":
-		if typedValue, ok := Value.(SQLiteCollection); ok {
+		if typedValue, ok := Value.(*SQLiteCollection); ok {
 			Value = "(" + typedValue.getSelectSQL() + ")"
 		} else {
 			newValue := "("

@@ -67,6 +67,9 @@ func sqlError(SQL string, err error) error {
 func convertValueForSQL(value interface{}) string {
 
 	switch value.(type) {
+	case *SQLiteCollection:
+		return value.(*SQLiteCollection).getSelectSQL()
+
 	case bool:
 		if value.(bool) {
 			return "1"
