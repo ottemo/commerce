@@ -20,10 +20,19 @@ func GetCollection(CollectionName string) (I_DBCollection, error) {
 func ConvertTypeFromDbToGo(value interface{}, valueType string) interface{} {
 	switch {
 	case strings.HasPrefix(valueType, "[]"):
-		array := strings.Split(utils.InterfaceToString(value), ", ")
+		result := make([]interface{}, 0)
+		if value == nil {
+			return result
+		}
+
+		valueString := utils.InterfaceToString(value)
+		if valueString == "" {
+			return result
+		}
+
+		array := strings.Split(valueString, ", ")
 		arrayType := strings.TrimPrefix(valueType, "[]")
 
-		result := make([]interface{}, 0)
 		for _, arrayValue := range array {
 			result = append(result, ConvertTypeFromDbToGo(arrayValue, arrayType))
 		}
