@@ -1,6 +1,7 @@
 package impex
 
 import (
+	"path"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -195,8 +196,12 @@ func (it *ImpexImportCmdInsert) Process(itemData map[string]interface{}, input i
 	// storing model
 	//---------------
 	err = modelAsStorable.Save()
-	if err != nil && !it.skipErrors {
-		return nil, err
+	if err != nil {
+		err = env.ErrorDispatch(err)
+
+		if !it.skipErrors {
+			return cmdModel, err
+		}
 	}
 
 	return cmdModel, nil
@@ -400,9 +405,11 @@ func (it *ImpexImportCmdMedia) Process(itemData map[string]interface{}, input in
 		return nil, env.ErrorNew("object not implements I_Media interface")
 	}
 
+	// checking for media field in itemData
 	if value, present := itemData[it.mediaField]; present {
 		mediaArray := make([]string, 0)
 
+		// checking media field type and making it uniform
 		switch typedValue := value.(type) {
 		case string:
 			mediaArray = append(mediaArray, typedValue)
@@ -416,39 +423,79 @@ func (it *ImpexImportCmdMedia) Process(itemData map[string]interface{}, input in
 			mediaArray = append(mediaArray, utils.InterfaceToString(typedValue))
 		}
 
+		// adding found media value(s)
 		for _, mediaValue := range mediaArray {
 			var mediaContents []byte = []byte{}
 			var err error = nil
 
+			// looking for media type
 			mediaType := it.mediaType
-			mediaName := ""
+			if nameValue, present := itemData[it.mediaType]; present {
+				mediaType = utils.InterfaceToString(nameValue)
+			}
 
+			// looking for media name
+			mediaName := it.mediaName
 			if nameValue, present := itemData[it.mediaName]; present {
 				mediaName = utils.InterfaceToString(nameValue)
 			}
 
-			if strings.HasPrefix(mediaValue, "http") {
+			// checking value type
+			if strings.HasPrefix(mediaValue, "http") { // we have http link
 				response, err := http.Get(mediaValue)
 				if err != nil {
 					return input, env.ErrorDispatch(err)
 				}
 
-				if strings.Contains(response.Header.Get("Content-Type"), "image") {
+				// updating media type if wasn't set
+				if mediaType == "" && strings.Contains(response.Header.Get("Content-Type"), "image") {
 					mediaType = "image"
 				}
 
+				// updating media name if wasn't set
+				if mediaName == "" {
+					mediaName = path.Base(response.Request.URL.Path)
+				}
+
+				// receiving media contents
 				mediaContents, err = ioutil.ReadAll(response.Body)
 				if err != nil {
 					return input, env.ErrorDispatch(err)
 				}
-			} else {
+			} else { // we have regular file
+
+				// updating media name if wasn't set
+				if mediaName == "" {
+					mediaName = path.Base(mediaValue)
+				}
+
+				// receiving media contents
 				mediaContents, err = ioutil.ReadFile(mediaValue)
 				if err != nil {
 					return input, env.ErrorDispatch(err)
 				}
 			}
 
-			inputAsMedia.AddMedia(mediaType, mediaName, mediaContents)
+			// checking if media type and name still not set
+			if mediaType == "" {
+				mediaType = "unknown"
+			}
+
+			if mediaName == "" {
+				mediaName = "media"
+
+				if object, ok := inputAsMedia.(models.I_Object); ok {
+					if objectId := utils.InterfaceToString(object.Get("_id")); objectId != "" {
+						mediaName += "_" + objectId
+					}
+				}
+			}
+
+			// finally adding media to object
+			err = inputAsMedia.AddMedia(mediaType, mediaName, mediaContents)
+			if err != nil {
+				return input, env.ErrorDispatch(err)
+			}
 		}
 	}
 
