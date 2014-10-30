@@ -61,12 +61,21 @@ func (it *DefaultCheckout) CheckoutSuccess(checkoutOrder order.I_Order, session 
 	currentCart.Deactivate()
 	currentCart.Save()
 
+
 	session.Set(cart.SESSION_KEY_CURRENT_CART, nil)
 	session.Set(checkout.SESSION_KEY_CURRENT_CHECKOUT, nil)
 
 	eventData := make(map[string]interface{})
 	eventData["sessionId"] = session.GetId()
 	env.Event("api.purchased", eventData)
+
+	eventData = make(map[string]interface{})
+
+	products := currentCart.GetItems()
+	for i, _ := range products {
+		eventData[products[i].GetProductId()] = products[i].GetQty()
+	}
+	env.Event("api.sales", eventData)
 
 	return nil
 }

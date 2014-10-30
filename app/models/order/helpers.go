@@ -20,6 +20,21 @@ func GetOrderCollectionModel() (I_OrderCollection, error) {
 	return orderCollectionModel, nil
 }
 
+// retrieves current I_OrderCollection model implementation
+func GetOrderItemCollectionModel() (I_OrderItemCollection, error) {
+	model, err := models.GetModel(MODEL_NAME_ORDER_ITEM_COLLECTION)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	orderItemCollectionModel, ok := model.(I_OrderItemCollection)
+	if !ok {
+		return nil, env.ErrorNew("model " + model.GetImplementationName() + " is not 'I_OrderItemCollection' capable")
+	}
+
+	return orderItemCollectionModel, nil
+}
+
 // retrieves current I_Order model implementation
 func GetOrderModel() (I_Order, error) {
 	model, err := models.GetModel(MODEL_NAME_ORDER)

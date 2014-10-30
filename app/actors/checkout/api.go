@@ -396,7 +396,6 @@ func restSubmit(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	checkoutOrder := currentCheckout.GetOrder()
 	if checkoutOrder == nil {
-		println("SET CREATED_AT")
 		newOrder, err := order.GetOrderModel()
 		if err != nil {
 			return nil, env.ErrorDispatch(err)
@@ -405,7 +404,6 @@ func restSubmit(params *api.T_APIHandlerParams) (interface{}, error) {
 		newOrder.Set("created_at", currentTime)
 
 		checkoutOrder = newOrder
-		fmt.Println(checkoutOrder)
 	}
 
 	// updating order information

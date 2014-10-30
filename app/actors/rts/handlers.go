@@ -4,6 +4,7 @@ import (
 	"github.com/ottemo/foundation/utils"
 	"regexp"
 	"time"
+	"github.com/ottemo/foundation/db"
 	"fmt"
 )
 
@@ -49,7 +50,7 @@ func visitsHandler(event string, data map[string]interface{}) bool {
 
 	sessionId := utils.InterfaceToString(data["sessionId"])
 	today := time.Now().Format("2006-01-02")
-	yesterday := time.Now().AddDate(0,0,-1).Format("2006-01-02")
+	yesterday := time.Now().AddDate(0, 0, -1).Format("2006-01-02")
 
 	if visits.Today != today {
 		visits.Yesterday = yesterday
@@ -66,17 +67,30 @@ func visitsHandler(event string, data map[string]interface{}) bool {
 		visits.Data["2014-10-22"]["b4"] = int32(1414005062) // 2014-10-22 19:11:02
 
 		// 1,2,2,3,1,1
+		visits.Data["2014-10-23"] = make(map[string]int32)
+		visits.Data["2014-10-23"]["a2"] = int32(1414028132) // 2014-10-23 01:35:32
+		visits.Data["2014-10-23"]["a3"] = int32(1414042542) // 2014-10-23 05:35:42
+		visits.Data["2014-10-23"]["a5"] = int32(1414040722) // 2014-10-23 05:05:22
+		visits.Data["2014-10-23"]["a0"] = int32(1414065912) // 2014-10-23 12:05:12
+		visits.Data["2014-10-23"]["a4"] = int32(1414066552) // 2014-10-23 12:15:52
+		visits.Data["2014-10-23"]["a6"] = int32(1414069962) // 2014-10-23 13:12:42
+		visits.Data["2014-10-23"]["a7"] = int32(1414071672) // 2014-10-23 13:41:12
+		visits.Data["2014-10-23"]["a8"] = int32(1414072342) // 2014-10-23 13:52:22
+		visits.Data["2014-10-23"]["a1"] = int32(1414077202) // 2014-10-23 15:13:22
+		visits.Data["2014-10-23"]["a9"] = int32(1414102532) // 2014-10-23 22:15:32
+
+		// 1,2,2,3,1,1
 		visits.Data[yesterday] = make(map[string]int32)
-		visits.Data[yesterday]["a2"] = int32(1414028132) // 2014-10-23 01:35:32
-		visits.Data[yesterday]["a3"] = int32(1414042542) // 2014-10-23 05:35:42
-		visits.Data[yesterday]["a5"] = int32(1414040722) // 2014-10-23 05:05:22
-		visits.Data[yesterday]["a0"] = int32(1414065912) // 2014-10-23 12:05:12
-		visits.Data[yesterday]["a4"] = int32(1414066552) // 2014-10-23 12:15:52
-		visits.Data[yesterday]["a6"] = int32(1414069962) // 2014-10-23 13:12:42
-		visits.Data[yesterday]["a7"] = int32(1414071672) // 2014-10-23 13:41:12
-		visits.Data[yesterday]["a8"] = int32(1414072342) // 2014-10-23 13:52:22
-		visits.Data[yesterday]["a1"] = int32(1414077202) // 2014-10-23 15:13:22
-		visits.Data[yesterday]["a9"] = int32(1414102532) // 2014-10-23 22:15:32
+		visits.Data[yesterday]["a2"] = int32(1414373732) // 2014-10-27 01:35:32
+		visits.Data[yesterday]["a3"] = int32(1414388142) // 2014-10-27 05:35:42
+		visits.Data[yesterday]["a5"] = int32(1414386322) // 2014-10-27 05:05:22
+		visits.Data[yesterday]["a0"] = int32(1414411512) // 2014-10-27 12:05:12
+		visits.Data[yesterday]["a4"] = int32(1414412152) // 2014-10-27 12:15:52
+		visits.Data[yesterday]["a6"] = int32(1414415562) // 2014-10-27 13:12:42
+		visits.Data[yesterday]["a7"] = int32(1414417272) // 2014-10-27 13:41:12
+		visits.Data[yesterday]["a8"] = int32(1414417942) // 2014-10-27 13:52:22
+		visits.Data[yesterday]["a1"] = int32(1414422802) // 2014-10-27 15:13:22
+		visits.Data[yesterday]["a9"] = int32(1414448132) // 2014-10-27 22:15:32
 
 		visits.Data[today] = make(map[string]int32)
 	}
@@ -111,7 +125,6 @@ func addToCartHandler(event string, data map[string]interface{}) bool {
 		conversions["addedToCart"][sessionId] = 1
 	}
 
-	fmt.Println(conversions)
 
 	return true
 }
@@ -135,8 +148,6 @@ func reachedCheckoutHandler(event string, data map[string]interface{}) bool {
 		conversions["reachedCheckout"][sessionId] = 1
 	}
 
-	fmt.Println(conversions)
-
 	return true
 }
 
@@ -159,7 +170,53 @@ func purchasedHandler(event string, data map[string]interface{}) bool {
 		conversions["purchased"][sessionId] = 1
 	}
 
-	fmt.Println(conversions)
+	return true
+}
+
+func salesHandler(event string, data map[string]interface{}) bool {
+
+	if "api.sales" != event || len(data) == 0 {
+		return true
+	}
+	salesData := make(map[string]int)
+
+	salesHistoryCollection, err := db.GetCollection(COLLECTION_NAME_SALES_HISTORY)
+	if err != nil {
+		return true
+	}
+
+
+	for productId, count := range data {
+		year := time.Now().Year()
+		month := time.Now().Month()
+		day := time.Now().Day()
+		date := time.Date(year, month, day, 0, 0, 0, 0, time.Local)
+		salesHistoryRow := make(map[string]interface{})
+		salesData[productId] = utils.InterfaceToInt(count)
+
+		salesHistoryCollection.ClearFilters()
+		salesHistoryCollection.AddFilter("created_at", "=", date)
+		salesHistoryCollection.AddFilter("product_id", "=", productId)
+		dbSaleRow, _ := salesHistoryCollection.Load()
+		fmt.Println(dbSaleRow)
+		newCount  := utils.InterfaceToInt(count)
+		if len(dbSaleRow) > 0 {
+			salesHistoryRow["_id"] = utils.InterfaceToString(dbSaleRow[0]["_id"])
+			oldCount := utils.InterfaceToInt(dbSaleRow[0]["count"])
+			newCount += oldCount
+		}
+
+		// Add history row
+		salesHistoryRow["product_id"] = productId
+		salesHistoryRow["created_at"] = date
+		salesHistoryRow["count"] = newCount
+		_, err = salesHistoryCollection.Save(salesHistoryRow)
+		if err != nil {
+			return true
+		}
+	}
+
+	SaveSalesData(salesData)
 
 	return true
 }

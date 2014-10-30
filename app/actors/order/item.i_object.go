@@ -88,11 +88,7 @@ func (it *DefaultOrderItem) Set(attribute string, value interface{}) error {
 		it.ShortDescription = utils.InterfaceToString(value)
 
 	case "options":
-		if mapValue, ok := value.(map[string]interface{}); ok {
-			it.Options = mapValue
-		} else {
-			return env.ErrorNew("options should me map[string]interface{} type")
-		}
+		it.Options = utils.InterfaceToMap(value)
 
 	case "price":
 		it.Price = utils.InterfaceToFloat64(value)
