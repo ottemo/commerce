@@ -1,15 +1,20 @@
 package impex
 
 import (
-	"path"
 	"io/ioutil"
 	"net/http"
+	"path"
 	"strings"
 
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
 )
+
+type ImpexImportCmdAttributeAdd struct {
+	model     models.I_Model
+	attribute models.T_AttributeInfo
+}
 
 type ImpexImportCmdInsert struct {
 	model      models.I_Model
@@ -74,6 +79,8 @@ func CheckModelImplements(modelName string, neededInterfaces []string) (models.I
 	return cmdModel, nil
 }
 
+// TODO: make command parameters standardized parser to split required/optional parameters and get then in one function call
+
 // function collects arguments into map, unnamed arguments will go as position index
 func ArgsGetAsNamed(args []string, includeIndexes bool) map[string]string {
 	result := make(map[string]string)
@@ -81,10 +88,10 @@ func ArgsGetAsNamed(args []string, includeIndexes bool) map[string]string {
 		splited := utils.SplitQuotedStringBy(arg, '=', ':')
 		if len(splited) > 1 {
 			key := splited[0]
-			key = strings.Trim(strings.TrimSpace(key), "\"'")
+			key = strings.Trim(strings.TrimSpace(key), "\"'`")
 
 			value := strings.Join(splited[1:], " ")
-			value = strings.Trim(strings.TrimSpace(value), "\"'")
+			value = strings.Trim(strings.TrimSpace(value), "\"'`")
 
 			result[key] = value
 		} else {
@@ -447,9 +454,15 @@ func (it *ImpexImportCmdMedia) Process(itemData map[string]interface{}, input in
 					return input, env.ErrorDispatch(err)
 				}
 
+				if response.StatusCode != 200 {
+					return input, env.ErrorNew("can't get image " + mediaValue + " (Status: " + response.Status + ")")
+				}
+
 				// updating media type if wasn't set
-				if mediaType == "" && strings.Contains(response.Header.Get("Content-Type"), "image") {
-					mediaType = "image"
+				if contentType := response.Header.Get("Content-Type"); mediaType == "" && contentType != "" {
+					if value := strings.Split(contentType, "/"); len(value) == 2 {
+						mediaType = value[0]
+					}
 				}
 
 				// updating media name if wasn't set
@@ -477,6 +490,23 @@ func (it *ImpexImportCmdMedia) Process(itemData map[string]interface{}, input in
 			}
 
 			// checking if media type and name still not set
+			if mediaType == "" && mediaName != "" {
+				for _, imageExt := range []string{".jpg", ".jpeg", ".png", ".gif", ".svg", ".ico", ".bmp", ".tif", ".tiff"} {
+					if strings.Contains(mediaName, imageExt) {
+						mediaType = "image"
+						break
+					}
+				}
+				if mediaType == "" {
+					for _, imageExt := range []string{".txt", ".rtf", ".pdf", ".doc", "docx", ".xls", ".xlsx", ".ppt", ".pptx"} {
+						if strings.Contains(mediaName, imageExt) {
+							mediaType = "document"
+							break
+						}
+					}
+				}
+			}
+
 			if mediaType == "" {
 				mediaType = "unknown"
 			}
@@ -497,6 +527,85 @@ func (it *ImpexImportCmdMedia) Process(itemData map[string]interface{}, input in
 				return input, env.ErrorDispatch(err)
 			}
 		}
+	}
+
+	return input, nil
+}
+
+// ATTRIBUTE_ADD command initialization
+func (it *ImpexImportCmdAttributeAdd) Init(args []string, exchange map[string]interface{}) error {
+
+	workingModel, err := ArgsFindWorkingModel(args, []string{"I_CustomAttributes"})
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+	modelAsCustomAttributesInterface := workingModel.(models.I_CustomAttributes)
+
+	attributeName := ""
+
+	namedArgs := ArgsGetAsNamed(args, true)
+	for _, checkingKey := range []string{"attribute", "attr", "2"} {
+		if argValue, present := namedArgs[checkingKey]; present {
+			attributeName = argValue
+			break
+		}
+	}
+
+	if attributeName == "" {
+		return env.ErrorNew("attribute name was not specified, untill impex attribute add")
+	}
+
+	attribute := models.T_AttributeInfo{
+		Model:      workingModel.GetModelName(),
+		Collection: modelAsCustomAttributesInterface.GetCustomAttributeCollectionName(),
+		Attribute:  attributeName,
+		Type:       "text",
+		IsRequired: false,
+		IsStatic:   false,
+		Label:      strings.Title(attributeName),
+		Group:      "General",
+		Editors:    "text",
+		Options:    "",
+		Default:    "",
+		Validators: "",
+		IsLayered:  false,
+	}
+
+	for key, value := range namedArgs {
+		switch strings.ToLower(key) {
+		case "type":
+			attribute.Type = utils.InterfaceToString(value)
+		case "label":
+			attribute.Label = utils.InterfaceToString(value)
+		case "group":
+			attribute.Group = utils.InterfaceToString(value)
+		case "editors":
+			attribute.Editors = utils.InterfaceToString(value)
+		case "options":
+			attribute.Options = utils.InterfaceToString(value)
+		case "default":
+			attribute.Default = utils.InterfaceToString(value)
+		case "validators":
+			attribute.Validators = utils.InterfaceToString(value)
+		case "isrequired", "required":
+			attribute.IsRequired = utils.InterfaceToBool(value)
+		case "islayered", "layered":
+			attribute.IsLayered = utils.InterfaceToBool(value)
+		}
+	}
+
+	it.model = workingModel
+	it.attribute = attribute
+
+	return nil
+}
+
+// ATTRIBUTE_ADD command processing
+func (it *ImpexImportCmdAttributeAdd) Process(itemData map[string]interface{}, input interface{}, exchange map[string]interface{}) (interface{}, error) {
+	modelAsCustomAttributesInterface := it.model.(models.I_CustomAttributes)
+	err := modelAsCustomAttributesInterface.AddNewAttribute(it.attribute)
+	if err != nil {
+		env.ErrorDispatch(err)
 	}
 
 	return input, nil

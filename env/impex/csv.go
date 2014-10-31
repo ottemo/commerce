@@ -160,6 +160,7 @@ func CSVToMap(csvReader *csv.Reader, processorFunc func(item map[string]interfac
 	csvColumnType := make([]string, csvColumnsNumber)
 	csvColumnConvertors := make([]string, csvColumnsNumber)
 
+	allColumnsBlankFlag := true
 	// extracting column header parts
 	for idx, column := range csvColumns {
 		regexpGroups := CSV_COLUMN_REGEXP.FindStringSubmatch(column)
@@ -167,9 +168,11 @@ func CSVToMap(csvReader *csv.Reader, processorFunc func(item map[string]interfac
 		if len(regexpGroups) == 0 { // un-recognized column header
 			if strings.TrimSpace(column) != "" { // unless it is blank, considering as path
 				csvColumnPath[idx] = column
+				allColumnsBlankFlag = false
 			}
 			continue
 		}
+		allColumnsBlankFlag = false
 
 		csvColumnFlags[idx] = regexpGroups[1]
 		csvColumnPath[idx] = regexpGroups[2]
@@ -182,6 +185,11 @@ func CSVToMap(csvReader *csv.Reader, processorFunc func(item map[string]interfac
 
 		csvColumnType[idx] = strings.TrimSpace(regexpGroups[4])
 		csvColumnConvertors[idx] = strings.TrimSpace(regexpGroups[5])
+	}
+
+	if allColumnsBlankFlag {
+		processorFunc(make(map[string]interface{}))
+		return nil
 	}
 
 	// reading CSV contents

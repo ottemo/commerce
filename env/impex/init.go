@@ -13,4 +13,6 @@ func init() {
 
 	RegisterImportCommand("STORE", new(ImpexImportCmdStore))
 	RegisterImportCommand("MEDIA", new(ImpexImportCmdMedia))
+
+	RegisterImportCommand("ATTRIBUTE_ADD", new(ImpexImportCmdAttributeAdd))
 }

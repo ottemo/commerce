@@ -415,7 +415,7 @@ func SplitQuotedStringBy(text string, separators ...rune) []string {
 			lastQuote = rune(0)
 			return false
 
-		case lastQuote == rune(0) && (currentChar == '"' || currentChar == '\''):
+		case lastQuote == rune(0) && (currentChar == '"' || currentChar == '\'' || currentChar == '`'):
 			lastQuote = currentChar
 			return false
 

@@ -8,8 +8,9 @@ import (
 )
 
 // initializes helper before usage
-func (it *CustomAttributes) Init(model string) (*CustomAttributes, error) {
+func (it *CustomAttributes) Init(model string, collection string) (*CustomAttributes, error) {
 	it.model = model
+	it.collection = collection
 	it.values = make(map[string]interface{})
 
 	globalCustomAttributesMutex.Lock()
@@ -171,4 +172,9 @@ func (it *CustomAttributes) AddNewAttribute(newAttribute models.T_AttributeInfo)
 	it.attributes[newAttribute.Attribute] = newAttribute
 
 	return env.ErrorDispatch(err)
+}
+
+// returns collection name you can use to fill CustomAttributes struct
+func (it *CustomAttributes) GetCustomAttributeCollectionName() string {
+	return it.collection
 }

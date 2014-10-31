@@ -34,6 +34,8 @@ type I_Listable interface {
 }
 
 type I_CustomAttributes interface {
+	GetCustomAttributeCollectionName() string
+
 	AddNewAttribute(newAttribute T_AttributeInfo) error
 	RemoveAttribute(attributeName string) error
 }
