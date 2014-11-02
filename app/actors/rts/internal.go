@@ -1,14 +1,81 @@
 package rts
 
 import (
+	"encoding/json"
 	"fmt"
+	"github.com/ottemo/foundation/app"
 	"github.com/ottemo/foundation/app/models/order"
+	"github.com/ottemo/foundation/app/models/product"
+	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
+	"regexp"
+	"strings"
 	"time"
-	"github.com/ottemo/foundation/db"
-	"github.com/ottemo/foundation/app/models/product"
 )
+
+func GetReferrer(url string) (string, error) {
+	excludeUrls := []string{app.GetFoundationUrl(""), app.GetDashboardUrl("")}
+
+	r := regexp.MustCompile(`^(http|https):\/\/(.+)\/.*$`)
+	groups := r.FindStringSubmatch(url)
+	if len(groups) == 0 {
+		return "", env.ErrorNew("Invalid URL in referrer")
+	}
+	result := groups[2]
+
+	for index := 0; index < len(excludeUrls); index += 1 {
+		if strings.Contains(excludeUrls[index], result) {
+			return "", env.ErrorNew("Invalid URL in referrer")
+		}
+	}
+
+	return result, nil
+}
+
+func IncreaseOnline(typeCounter int) {
+	switch typeCounter {
+	case REFERRER_TYPE_DIRECT:
+		OnlineDirect += 1
+		if OnlineDirect > OnlineDirectMax {
+			OnlineDirectMax = OnlineDirect
+		}
+		break
+	case REFERRER_TYPE_SEARCH:
+		OnlineSearch += 1
+		if OnlineSearch > OnlineSearchMax {
+			OnlineSearchMax = OnlineSearch
+		}
+		break
+	case REFERRER_TYPE_SITE:
+		OnlineSite += 1
+		if OnlineSite > OnlineSiteMax {
+			OnlineSiteMax = OnlineSite
+		}
+		break
+	}
+}
+
+func DecreaseOnline(typeCounter int) {
+	switch typeCounter {
+	case REFERRER_TYPE_DIRECT:
+		if OnlineDirect != 0 {
+			OnlineDirect -= 1
+		}
+		break
+	case REFERRER_TYPE_SEARCH:
+		if OnlineSearch != 0 {
+			OnlineSearch -= 1
+		}
+
+		break
+	case REFERRER_TYPE_SITE:
+		if OnlineSite != 0 {
+			OnlineSite -= 1
+		}
+		break
+	}
+}
 
 func GetProducts() ([]map[string]interface{}, error) {
 	productCollectionModel, err := product.GetProductCollectionModel()
@@ -163,7 +230,6 @@ func initSalesHistory() error {
 
 	return nil
 }
-
 
 func SaveSalesData(data map[string]int) error {
 
@@ -351,4 +417,122 @@ func GetDayForTimestamp(timestamp int64, byHour bool) string {
 	mapIndex := fmt.Sprintf("%v", int32(timeGroup.Unix()))
 
 	return mapIndex
+}
+
+func GetTodayVisitorsData() error {
+	year := time.Now().Year()
+	month := time.Now().Month()
+	day := time.Now().Day()
+	today := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+
+	if visitorsInfoToday.Day == today {
+		return nil
+	} else {
+		year := time.Now().AddDate(0, 0, -1).Year()
+		month := time.Now().AddDate(0, 0, -1).Month()
+		day := time.Now().AddDate(0, 0, -1).Day()
+		yesterday := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+		if visitorsInfoToday.Day == yesterday {
+			SaveVisitorData()
+			visitorsInfoYesterday = visitorsInfoToday
+		}
+		visitorInfoCollection, err := db.GetCollection(COLLECTION_NAME_VISITORS)
+		if err == nil {
+			visitorInfoCollection.AddFilter("day", "=", today)
+			dbRecord, _ := visitorInfoCollection.Load()
+
+			if len(dbRecord) > 0 {
+				visitorsInfoToday.Id = utils.InterfaceToString(dbRecord[0]["_id"])
+				visitorsInfoToday.Day = utils.InterfaceToTime(dbRecord[0]["day"])
+				visitorsInfoToday.Visitors = utils.InterfaceToInt(dbRecord[0]["visitors"])
+				visitorsInfoToday.Cart = utils.InterfaceToInt(dbRecord[0]["cart"])
+				visitorsInfoToday.Checkout = utils.InterfaceToInt(dbRecord[0]["checkout"])
+				visitorsInfoToday.Sales = utils.InterfaceToInt(dbRecord[0]["sales"])
+				visitorsInfoToday.Details = RtsDecodeDetails(utils.InterfaceToString(dbRecord[0]["details"]))
+
+				return nil
+			}
+		}
+	}
+
+	visitorsInfoToday = new(dbVisitorRow)
+	visitorsInfoToday.Id = ""
+	visitorsInfoToday.Day = today
+	visitorsInfoToday.Details = make(map[string]*VisitorDetail)
+
+	return nil
+}
+
+func GetYesterdayVisitorsData() error {
+	year := time.Now().AddDate(0, 0, -1).Year()
+	month := time.Now().AddDate(0, 0, -1).Month()
+	day := time.Now().AddDate(0, 0, -1).Day()
+	yesterday := time.Date(year, month, day, 0, 0, 0, 0, time.Local)
+
+	if visitorsInfoYesterday.Day == yesterday {
+		return nil
+	} else {
+
+		visitorInfoCollection, err := db.GetCollection(COLLECTION_NAME_VISITORS)
+		if err == nil {
+			visitorInfoCollection.AddFilter("day", "=", yesterday)
+			dbRecord, _ := visitorInfoCollection.Load()
+
+			if len(dbRecord) > 0 {
+				visitorsInfoYesterday.Id = utils.InterfaceToString(dbRecord[0]["_id"])
+				visitorsInfoYesterday.Day = utils.InterfaceToTime(dbRecord[0]["day"])
+				visitorsInfoYesterday.Visitors = utils.InterfaceToInt(dbRecord[0]["visitors"])
+				visitorsInfoYesterday.Cart = utils.InterfaceToInt(dbRecord[0]["cart"])
+				visitorsInfoYesterday.Checkout = utils.InterfaceToInt(dbRecord[0]["checkout"])
+				visitorsInfoYesterday.Sales = utils.InterfaceToInt(dbRecord[0]["sales"])
+				visitorsInfoYesterday.Details = RtsDecodeDetails(utils.InterfaceToString(dbRecord[0]["details"]))
+
+				return nil
+			}
+		}
+	}
+
+	visitorsInfoYesterday = new(dbVisitorRow)
+	visitorsInfoYesterday.Id = ""
+	visitorsInfoYesterday.Day = yesterday
+	visitorsInfoYesterday.Details = make(map[string]*VisitorDetail)
+
+	return nil
+}
+
+func SaveVisitorData() error {
+	visitorInfoCollection, err := db.GetCollection(COLLECTION_NAME_VISITORS)
+	if err == nil {
+		visitorInfoRow := make(map[string]interface{})
+		if "" != visitorsInfoToday.Id {
+			visitorInfoRow["_id"] = visitorsInfoToday.Id
+		}
+
+		visitorInfoRow["day"] = visitorsInfoToday.Day
+		visitorInfoRow["visitors"] = visitorsInfoToday.Visitors
+		visitorInfoRow["cart"] = visitorsInfoToday.Cart
+		visitorInfoRow["checkout"] = visitorsInfoToday.Checkout
+		visitorInfoRow["sales"] = visitorsInfoToday.Sales
+		visitorInfoRow["details"] = RtsEncodeDetails(visitorsInfoToday.Details)
+
+		_, err = visitorInfoCollection.Save(visitorInfoRow)
+		if err != nil {
+			return env.ErrorDispatch(err)
+		}
+	}
+
+	return nil
+}
+
+func RtsEncodeDetails(details map[string]*VisitorDetail) string {
+	jsonString, _ := json.Marshal(details)
+
+	return string(jsonString)
+}
+
+func RtsDecodeDetails(detailsString string) map[string]*VisitorDetail {
+	var details map[string]*VisitorDetail
+	_ = json.Unmarshal([]byte(detailsString), &details)
+
+	return details
 }

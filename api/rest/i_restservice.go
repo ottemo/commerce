@@ -105,11 +105,6 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 		// starting session for request
 		session, err := session.StartSession(req, resp)
 
-		eventData := make(map[string]interface{})
-		eventData["referer"] = req.Header.Get("X-Referer")
-		eventData["sessionId"] = session.GetId()
-		env.Event("api.referer", eventData)
-
 		if err != nil {
 			log.Println("Session init fail: " + err.Error())
 		}
@@ -127,6 +122,15 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 		if err != nil {
 			log.Printf("REST error: %s - %s\n", req.RequestURI, err.Error())
 		}
+
+		eventData := make(map[string]interface{})
+		eventData["sessionId"] = session.GetId()
+		env.Event("api.visitorOnlineAction", eventData)
+
+		eventData = make(map[string]interface{})
+		eventData["referer"] = req.Header.Get("X-Referer")
+		eventData["sessionId"] = session.GetId()
+		env.Event("api.regVisitorAsOnlineHandler", eventData)
 
 		// result conversion before output
 		redirectLocation := ""

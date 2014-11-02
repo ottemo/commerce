@@ -1,23 +1,11 @@
 package rts
 
+import "time"
+
 /**
  * referrers = {
- * 		'url_1': {
- * 			'Data': {
- *				'1970-01-01': {sessionID_1: 1, sessionID_2: 1, .., sessionID_N: 1}
- *				'1970-01-02': {sessionID_1: 1, sessionID_2: 1, .., sessionID_N: 1}
- *				'1970-01-03': {sessionID_1: 1, sessionID_2: 1, .., sessionID_N: 1}
- *			},
- *			'Count': N
- * 		},
- * 		'url_2': {
- * 			'Data': {
- *				'1970-01-01': {sessionID_1: 1, sessionID_2: 1, .., sessionID_N: 1}
- *				'1970-01-02': {sessionID_1: 1, sessionID_2: 1, .., sessionID_N: 1}
- *				'1970-01-03': {sessionID_1: 1, sessionID_2: 1, .., sessionID_N: 1}
- *			},
- *			'Count': N
- * 		},
+ * 		'url_1': N,
+ * 		'url_2': N
  * }
  *
  * visits = {
@@ -67,54 +55,82 @@ package rts
  *			},
  *		},
  * }
-
-  // INIT TABLE_1
- * select _id from products
- 	for date = "2014-01-01" to NOW()
- 		DELETE from t1 where date=date
-	   	for (_id)
-			 select qty from order_items where order_id IN (select _id from orders where created_at > "date") and product_id = "_id"
-				SUM(qty)
-
-			 insert (SUM,DATE,PRODUCT_ID) in t1
-	   	}
-    }
-
- * select _id from orders where created_at = ""
- *  100   2014-10-10 1 +1
-
- * _id;date;productId;count (rts_sales_history as t1)
-
- * 		select count from t1 where productId="x"
- *     		SUM(count) -> t2
- * _id;productId;count;range      (rts_sales as t2)
- * 1  ; xxxxxxxx;  12 ; 2014-01-01:
- * 1  ; xxxxxxxx;  12 ; 12/31/88:10/29/14
+ *
+ * type OnlineReferer struct {
+ * 		type int
+ * 		time int
+ * }
+ *
+ * OnlineSessions map[string]OnlineReferer
+ * OnlineDirect int
+ * OnlineSite int
+ * OnlineSearch int
+ *
+ *
  */
 
 const (
 	COLLECTION_NAME_SALES_HISTORY = "rts_sales_history"
-	COLLECTION_NAME_SALES = "rts_sales"
+	COLLECTION_NAME_SALES         = "rts_sales"
+	COLLECTION_NAME_VISITORS      = "rts_visitors"
+
+	REFERRER_TYPE_DIRECT = 0
+	REFERRER_TYPE_SITE   = 1
+	REFERRER_TYPE_SEARCH = 2
+
+	VISITOR_ADD_TO_CART = 1
+	VISITOR_CHECKOUT    = 2
+	VISITOR_SALES       = 3
+
+	VISITOR_ONLINE_SECONDS  = 10
+
 )
 
 var (
-	referrers   = make(map[string]*ReferrerData)
-	visits      = Visits{Data: make(map[string]map[string]int32)}
-	conversions = make(map[string]map[string]int)
-	sales       = Sales{}
-	salesDetail = make(map[string]*SalesDetailData)
-	topSellers  = new (TopSellers)
-)
+	referrers             = make(map[string]int)
+	visitorsInfoToday     = new(dbVisitorRow)
+	visitorsInfoYesterday = new(dbVisitorRow)
+	sales                 = Sales{}
+	salesDetail           = make(map[string]*SalesDetailData)
+	topSellers            = new(TopSellers)
 
-type ReferrerData struct {
-	Data  map[string]map[string]bool
-	Count int
-}
+	OnlineSessions    = make(map[string]*OnlineReferer)
+	OnlineDirect      = 0
+	OnlineSite        = 0
+	OnlineSearch      = 0
+	OnlineSessionsMax = 0
+	OnlineDirectMax   = 0
+	OnlineSiteMax     = 0
+	OnlineSearchMax   = 0
+
+	searchEngines = []string{"www.daum.net", "www.google.com", "www.eniro.se", "www.naver.com", "www.yahoo.com",
+		"www.msn.com", "www.bing.com", "www.aol.com", "www.aol.com", "www.lycos.com", "www.ask.com", "www.altavista.com",
+		"search.netscape.com", "www.cnn.com", "www.about.com", "www.mamma.com", "www.alltheweb.com", "www.voila.fr",
+		"search.virgilio.it", "www.bing.com", "www.baidu.com", "www.alice.com", "www.yandex.com", "www.najdi.org.mk",
+		"www.aol.com", "www.mamma.com", "www.seznam.cz", "www.search.com", "www.wp.pl", "online.onetcenter.org",
+		"www.szukacz.pl", "www.yam.com", "www.pchome.com", "www.kvasir.no", "sesam.no", "www.ozu.es", "www.terra.com",
+		"www.mynet.com", "www.ekolay.net", "www.rambler.ru"}
+)
 
 type Visits struct {
 	Data      map[string]map[string]int32
 	Yesterday string
 	Today     string
+}
+
+type VisitorDetail struct {
+	Time     time.Time
+	Checkout int
+}
+
+type dbVisitorRow struct {
+	Id       string
+	Day      time.Time
+	Visitors int
+	Cart     int
+	Checkout int
+	Sales    int
+	Details  map[string]*VisitorDetail
 }
 
 type Sales struct {
@@ -136,6 +152,11 @@ type TopSellers struct {
 
 type SellerInfo struct {
 	Name  string
-	Image  string
+	Image string
 	Count int
+}
+
+type OnlineReferer struct {
+	referrerType int
+	time         time.Time
 }
