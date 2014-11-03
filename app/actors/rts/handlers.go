@@ -9,11 +9,11 @@ import (
 
 func referrerHandler(event string, data map[string]interface{}) bool {
 
-	if "api.referer" != event || "" == utils.InterfaceToString(data["referer"]) {
+	if "api.referrer" != event || "" == utils.InterfaceToString(data["referrer"]) {
 		return true
 	}
 
-	referrer, err := GetReferrer(utils.InterfaceToString(data["referer"]))
+	referrer, err := GetReferrer(utils.InterfaceToString(data["referrer"]))
 	if err != nil {
 		return true
 	}
@@ -28,6 +28,7 @@ func visitsHandler(event string, data map[string]interface{}) bool {
 	if "api.visits" != event {
 		return true
 	}
+
 	err := GetTodayVisitorsData()
 	if err != nil {
 		return true
@@ -172,11 +173,12 @@ func regVisitorAsOnlineHandler(event string, data map[string]interface{}) bool {
 
 	referrerType := REFERRER_TYPE_DIRECT
 
-	if "" != utils.InterfaceToString(data["referer"]) {
-		referrer, err := GetReferrer(utils.InterfaceToString(data["referer"]))
+	if "" != utils.InterfaceToString(data["referrer"]) {
+		referrer, err := GetReferrer(utils.InterfaceToString(data["referrer"]))
 		if err != nil {
 			return true
 		}
+
 		isSearchEngine := false
 		for index := 0; index < len(searchEngines); index += 1 {
 			if strings.Contains(referrer, searchEngines[index]) {
@@ -192,7 +194,7 @@ func regVisitorAsOnlineHandler(event string, data map[string]interface{}) bool {
 	}
 
 	if _, ok := OnlineSessions[sessionId]; !ok {
-		OnlineSessions[sessionId] = &OnlineReferer{}
+		OnlineSessions[sessionId] = &OnlineReferrer{}
 		IncreaseOnline(referrerType)
 		if len(OnlineSessions) > OnlineSessionsMax {
 			OnlineSessionsMax = len(OnlineSessions)

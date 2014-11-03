@@ -94,7 +94,7 @@ var (
 	salesDetail           = make(map[string]*SalesDetailData)
 	topSellers            = new(TopSellers)
 
-	OnlineSessions    = make(map[string]*OnlineReferer)
+	OnlineSessions    = make(map[string]*OnlineReferrer)
 	OnlineDirect      = 0
 	OnlineSite        = 0
 	OnlineSearch      = 0
@@ -156,7 +156,7 @@ type SellerInfo struct {
 	Count int
 }
 
-type OnlineReferer struct {
+type OnlineReferrer struct {
 	referrerType int
 	time         time.Time
 }

@@ -10,6 +10,7 @@ import (
 	"github.com/ottemo/foundation/utils"
 	"io"
 	"time"
+	"net/http"
 )
 
 func setupAPI() error {
@@ -73,9 +74,14 @@ func restRegisterVisit(params *api.T_APIHandlerParams) (interface{}, error) {
 	env.Event("api.visits", eventData)
 
 	eventData = make(map[string]interface{})
-	eventData["referer"] = params.Request.Header.Get("X-Referer")
+	xReferrer := utils.InterfaceToString(params.Request.Header.Get("X-Referer"))
+
+	eventData["referrer"] = xReferrer
 	eventData["sessionId"] = session.GetId()
-	env.Event("api.referer", eventData)
+
+	http.SetCookie(params.ResponseWriter, &http.Cookie{Name: "X_Referrer", Value: xReferrer, Path: "/"})
+
+	env.Event("api.referrer", eventData)
 	env.Event("api.regVisitorAsOnlineHandler", eventData)
 
 	return nil, nil
@@ -139,11 +145,13 @@ func restGetVisitsDetails(params *api.T_APIHandlerParams) (interface{}, error) {
 		visitorInfoCollection.AddSort("day", false)
 		dbRecord, _ := visitorInfoCollection.Load()
 		dbResult := make(map[string]int)
-		for _, item := range dbRecord {
-			timestamp := fmt.Sprintf("%v", int32(utils.InterfaceToTime(item["day"]).Unix()))
-			dbResult[timestamp] = utils.InterfaceToInt(item["visitors"])
-		}
 		if delta.Hours() > 48 {
+			if len(dbRecord) > 0 {
+				for _, item := range dbRecord {
+					timestamp := fmt.Sprintf("%v", int32(utils.InterfaceToTime(item["day"]).Unix()))
+					dbResult[timestamp] = utils.InterfaceToInt(item["visitors"])
+				}
+			}
 			// group by days
 			for date := fromDate; int32(date.Unix()) < int32(toDate.Unix()); date = date.AddDate(0, 0, 1) {
 				timestamp := fmt.Sprintf("%v", int32(date.Unix()))
@@ -151,6 +159,13 @@ func restGetVisitsDetails(params *api.T_APIHandlerParams) (interface{}, error) {
 			}
 
 		} else {
+			if len(dbRecord) > 0 {
+				details := RtsDecodeDetails(utils.InterfaceToString(dbRecord[0]["details"]))
+				for _, item := range details {
+					timestamp := fmt.Sprintf("%v", int32(utils.InterfaceToTime(item.Time).Unix()))
+					dbResult[timestamp] += 1
+				}
+			}
 			//	group by hours
 			for date := fromDate; int32(date.Unix()) < int32(toDate.Unix()); date = date.AddDate(0, 0, 1) {
 
@@ -310,36 +325,58 @@ func restGetVisitsRealtime(params *api.T_APIHandlerParams) (interface{}, error) 
 	ratio := float64(0)
 
 	result["Online"] = len(OnlineSessions)
-	if OnlineSessionsMax == 0 {
-		ratio = float64(0)
+	if OnlineSessionsMax == 0 || len(OnlineSessions) == 0 {
+		ratio = float64(1)
 	} else {
-		ratio = float64(len(OnlineSessions))/float64(OnlineSessionsMax)-float64(1)
+		ratio = float64(len(OnlineSessions))/float64(OnlineSessionsMax)
 	}
 	result["OnlineRatio"] = utils.Round(ratio, 0.5, 2)
 
 	result["Direct"] = OnlineDirect
-	if OnlineDirectMax == 0 {
+	if OnlineDirectMax == 0 || OnlineDirect == 0 {
 		ratio = float64(0)
 	} else {
-		ratio = float64(OnlineDirect)/float64(OnlineDirectMax)-float64(1)
+		ratio = float64(OnlineDirect)/float64(OnlineDirectMax)
 	}
 	result["DirectRatio"] = utils.Round(ratio, 0.5, 2)
 
 	result["Search"] = OnlineSearch
-	if OnlineSearchMax == 0 {
+	if OnlineSearchMax == 0 || OnlineSearch == 0 {
 		ratio = float64(0)
 	} else {
-		ratio = float64(OnlineSearch)/float64(OnlineSearchMax)-float64(1)
+		ratio = float64(OnlineSearch)/float64(OnlineSearchMax)
 	}
 	result["SearchRatio"] = utils.Round(ratio, 0.5, 2)
 
 	result["Site"] = OnlineSite
-	if OnlineSiteMax == 0 {
+	if OnlineSiteMax == 0 || OnlineSite == 0 {
 		ratio = float64(0)
 	} else {
-		ratio = float64(OnlineSite)/float64(OnlineSiteMax)-float64(1)
+		ratio = float64(OnlineSite)/float64(OnlineSiteMax)
 	}
 	result["SiteRatio"] = utils.Round(ratio, 0.5, 2)
 
 	return result, nil
 }
+
+//"6CMAbByF0NXLo3SYnhKewcVU3QvTBIV0":{"Time":"2014-11-03T14:00:00+02:00","Checkout":0},
+//"8q8prRhwX867xA2O815wwfkbA3O7UmYu":{"Time":"2014-11-03T14:00:00+02:00","Checkout":0},
+//"E5LJgFNDfRnAzK01xS2rZCKJGGo8kIef":{"Time":"2014-11-03T15:00:00+02:00","Checkout":0},
+//"IigFNY9wBLdREeuk9RiLomZKeTeFLrEj":{"Time":"2014-11-03T13:00:00+02:00","Checkout":0},
+//"JzMTe8gUKmNTs7cqyTaJPUTKgmAYqCdn":{"Time":"2014-11-03T15:00:00+02:00","Checkout":0},
+//"P4jSIKvyAy8AuE5jM6xVPZuKgnKm6nhW":{"Time":"2014-11-03T12:00:00+02:00","Checkout":0},
+//"QYkn0SOp7OSoHjdOk9nGr8Kf3ZIexQLG":{"Time":"2014-11-03T14:00:00+02:00","Checkout":0},
+//"S6JWtufTE3CJ9pSqWmRaOz6ZDZCKZ5gn":{"Time":"2014-11-03T13:00:00+02:00","Checkout":0},
+//"XRGjloh5WCfBdk3sRHWTOelvN9mRSHSa":{"Time":"2014-11-03T15:00:00+02:00","Checkout":0},
+//"XpOl2skeLC2cpKwrf0IvVZ6VfKyg2UH7":{"Time":"2014-11-03T13:00:00+02:00","Checkout":0},
+//"ZGpzT2YBIGxLv8EISknOpWSr9F0OofFG":{"Time":"2014-11-03T14:00:00+02:00","Checkout":3},
+//"aHcAyXOu5sdQcSt14820GktSKbRoI5BT":{"Time":"2014-11-03T14:00:00+02:00","Checkout":0},
+//"axqKlgPDPDcJVWrA1VvCxWarzIqvECSs":{"Time":"2014-11-03T13:00:00+02:00","Checkout":0},
+//"bGXau8aXIxoy54hUSDCqHhywsBBe9VCn":{"Time":"2014-11-03T14:00:00+02:00","Checkout":0},
+//"bsALDa1sidVlTbaBarax6TuCFl73gNtJ":{"Time":"2014-11-03T14:00:00+02:00","Checkout":0},
+//"caI4sH7w3Ucs2zFoQ28V0TkuIGVecjN0":{"Time":"2014-11-03T13:00:00+02:00","Checkout":0},
+//"eOXZFY8DmFQuBCsLM95z2uZYvB1q7ToC":{"Time":"2014-11-03T13:00:00+02:00","Checkout":0},
+//"hiT0ZSS5FDOYPf7k7YPPHo8N3RFNJBYK":{"Time":"2014-11-03T13:00:00+02:00","Checkout":0},
+//"j7qZjO9QFQKUo1oWX0puYaQYVBh8DWSH":{"Time":"2014-11-03T15:00:00+02:00","Checkout":0},
+//"sqQzO5w9D6ABnAFixZYIBlf0qrgmUPUK":{"Time":"2014-11-03T12:00:00+02:00","Checkout":0},
+//"xnOua06f3j9atnJa8BVDGEWdEMpaiFtk":{"Time":"2014-11-03T14:00:00+02:00","Checkout":0}}

@@ -118,19 +118,24 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 		apiParams.ResponseWriter = resp
 		apiParams.Session = session
 
-		result, err := handler(apiParams)
-		if err != nil {
-			log.Printf("REST error: %s - %s\n", req.RequestURI, err.Error())
-		}
-
 		eventData := make(map[string]interface{})
 		eventData["sessionId"] = session.GetId()
 		env.Event("api.visitorOnlineAction", eventData)
 
 		eventData = make(map[string]interface{})
-		eventData["referer"] = req.Header.Get("X-Referer")
+		cookieReferrer, err := req.Cookie("X_Referrer")
+		if err != nil {
+			eventData["referrer"] = ""
+		} else {
+			eventData["referrer"] = cookieReferrer.Value
+		}
 		eventData["sessionId"] = session.GetId()
 		env.Event("api.regVisitorAsOnlineHandler", eventData)
+
+		result, err := handler(apiParams)
+		if err != nil {
+			log.Printf("REST error: %s - %s\n", req.RequestURI, err.Error())
+		}
 
 		// result conversion before output
 		redirectLocation := ""
