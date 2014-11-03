@@ -48,6 +48,8 @@ type I_Checkout interface {
 	CheckoutSuccess(checkoutOrder order.I_Order, session api.I_Session) error
 	SendOrderConfirmationMail() error
 
+	Submit() (interface{}, error)
+
 	models.I_Model
 }
 
