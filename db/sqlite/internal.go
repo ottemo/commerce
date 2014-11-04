@@ -7,6 +7,7 @@ import (
 	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
+	"time"
 )
 
 // exec routines
@@ -66,6 +67,9 @@ func sqlError(SQL string, err error) error {
 func convertValueForSQL(value interface{}) string {
 
 	switch value.(type) {
+	case *SQLiteCollection:
+		return value.(*SQLiteCollection).getSelectSQL()
+
 	case bool:
 		if value.(bool) {
 			return "1"
@@ -88,6 +92,9 @@ func convertValueForSQL(value interface{}) string {
 
 	case []string, []int, []int64, []int32, []float64, []bool:
 		return convertValueForSQL(utils.InterfaceToArray(value))
+
+	case time.Time:
+		return convertValueForSQL(value.(time.Time).Unix())
 
 	case []interface{}:
 		result := ""

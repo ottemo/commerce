@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/ottemo/foundation/api"
-	"github.com/ottemo/foundation/app/models/cart"
 	"github.com/ottemo/foundation/app/models/checkout"
 	"github.com/ottemo/foundation/app/models/order"
 	"github.com/ottemo/foundation/app/models/visitor"
@@ -264,6 +263,11 @@ func restCheckoutSetBillingAddress(params *api.T_APIHandlerParams) (interface{},
 
 // WEB REST API function to set payment method
 func restCheckoutSetPaymentMethod(params *api.T_APIHandlerParams) (interface{}, error) {
+
+	eventData := make(map[string]interface{})
+	eventData["sessionId"] = params.Session.GetId()
+	env.Event("api.reachedCheckout", eventData)
+
 	currentCheckout, err := checkout.GetCurrentCheckout(params)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
@@ -484,9 +488,9 @@ func restSubmit(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	checkoutOrder.Set("status", "pending")
 
-	err = checkoutOrder.Save()
+	err = currentCheckout.CheckoutSuccess(checkoutOrder, params.Session)
 	if err != nil {
-		return nil, env.ErrorDispatch(err)
+		return nil, err
 	}
 
 	if currentCheckout, ok := currentCheckout.(*DefaultCheckout); ok {
@@ -495,14 +499,6 @@ func restSubmit(params *api.T_APIHandlerParams) (interface{}, error) {
 			return nil, env.ErrorDispatch(err)
 		}
 	}
-
-	// cleanup checkout information
-	//-----------------------------
-	currentCart.Deactivate()
-	currentCart.Save()
-
-	params.Session.Set(cart.SESSION_KEY_CURRENT_CART, nil)
-	params.Session.Set(checkout.SESSION_KEY_CURRENT_CHECKOUT, nil)
 
 	return checkoutOrder.ToHashMap(), nil
 }

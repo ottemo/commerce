@@ -104,6 +104,7 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 
 		// starting session for request
 		session, err := session.StartSession(req, resp)
+
 		if err != nil {
 			log.Println("Session init fail: " + err.Error())
 		}
@@ -116,6 +117,20 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 		apiParams.RequestContent = content
 		apiParams.ResponseWriter = resp
 		apiParams.Session = session
+
+		eventData := make(map[string]interface{})
+		eventData["sessionId"] = session.GetId()
+		env.Event("api.visitorOnlineAction", eventData)
+
+		eventData = make(map[string]interface{})
+		cookieReferrer, err := req.Cookie("X_Referrer")
+		if err != nil {
+			eventData["referrer"] = ""
+		} else {
+			eventData["referrer"] = cookieReferrer.Value
+		}
+		eventData["sessionId"] = session.GetId()
+		env.Event("api.regVisitorAsOnlineHandler", eventData)
 
 		result, err := handler(apiParams)
 		if err != nil {
@@ -186,7 +201,7 @@ func (it DefaultRestService) ServeHTTP(responseWriter http.ResponseWriter, reque
 	responseWriter.Header().Set("Access-Control-Allow-Origin", request.Header.Get("Origin"))
 	responseWriter.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE")
 	responseWriter.Header().Set("Access-Control-Allow-Credentials", "true")
-	responseWriter.Header().Set("Access-Control-Allow-Headers", "Content-Type, Cookie, Content-Length, Accept-Encoding, X-CSRF-Token")
+	responseWriter.Header().Set("Access-Control-Allow-Headers", "Content-Type, Cookie, X-Referer, Content-Length, Accept-Encoding, X-CSRF-Token")
 
 	if request.Method == "GET" || request.Method == "POST" || request.Method == "PUT" || request.Method == "DELETE" {
 

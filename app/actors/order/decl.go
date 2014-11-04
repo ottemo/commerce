@@ -82,3 +82,8 @@ type DefaultOrderCollection struct {
 	listCollection     db.I_DBCollection
 	listExtraAtributes []string
 }
+
+type DefaultOrderItemCollection struct {
+	listCollection     db.I_DBCollection
+	listExtraAtributes []string
+}

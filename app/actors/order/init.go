@@ -20,6 +20,11 @@ func init() {
 	var _ order.I_OrderCollection = orderCollectionInstance
 	models.RegisterModel(order.MODEL_NAME_ORDER_COLLECTION, orderCollectionInstance)
 
+	orderItemCollectionInstance := new(DefaultOrderItemCollection)
+	var _ order.I_OrderItemCollection = orderItemCollectionInstance
+	models.RegisterModel(order.MODEL_NAME_ORDER_ITEM_COLLECTION, orderItemCollectionInstance)
+
+
 	db.RegisterOnDatabaseStart(setupDB)
 	env.RegisterOnConfigStart(setupConfig)
 
@@ -61,7 +66,7 @@ func setupDB() error {
 		collection.AddColumn("updated_at", "datetime", false)
 
 		collection.AddColumn("description", "text", false)
-		collection.AddColumn("payment_info", "json", false)
+		collection.AddColumn("payment_info", "text", false)
 
 		collection, err = dbEngine.GetCollection(COLLECTION_NAME_ORDER_ITEMS)
 		if err != nil {

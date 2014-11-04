@@ -8,6 +8,8 @@ import (
 const (
 	MODEL_NAME_ORDER            = "Order"
 	MODEL_NAME_ORDER_COLLECTION = "OrderCollection"
+
+	MODEL_NAME_ORDER_ITEM_COLLECTION = "OrderItemCollection"
 )
 
 type I_OrderItem interface {
@@ -62,5 +64,9 @@ type I_Order interface {
 type I_OrderCollection interface {
 	ListOrders() []I_Order
 
+	models.I_Collection
+}
+
+type I_OrderItemCollection interface {
 	models.I_Collection
 }

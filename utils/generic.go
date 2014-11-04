@@ -323,6 +323,8 @@ func IsZeroTime(value time.Time) bool {
 // converts interface{} to time.Time
 func InterfaceToTime(value interface{}) time.Time {
 	switch typedValue := value.(type) {
+	case int64:
+		return time.Unix(value.(int64), 0)
 	case time.Time:
 		return typedValue
 	case string:
