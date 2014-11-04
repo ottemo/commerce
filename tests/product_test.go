@@ -171,18 +171,18 @@ func BenchmarkProductCntLoad(b *testing.B) {
 			b.Error(err)
 		}
 
-		productsCount, err := productCollection.GetDBCollection().Count()
+		_, err = productCollection.GetDBCollection().Count()
 		if err != nil {
 			b.Error(err)
 		}
 		//productsCount := 100
 
-		err = productCollection.ListLimit(rand.Intn(productsCount), 1)
-		if err != nil {
-			b.Error(err)
-		}
-
-		productCollection.ListProducts()
+//		err = productCollection.ListLimit(rand.Intn(productsCount), 1)
+//		if err != nil {
+//			b.Error(err)
+//		}
+//
+//		productCollection.ListProducts()
 	}
 }
 
