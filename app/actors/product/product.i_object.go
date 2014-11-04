@@ -5,6 +5,7 @@ import (
 	"github.com/ottemo/foundation/app/models/product"
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
+
 	"strings"
 )
 
@@ -29,6 +30,8 @@ func (it *DefaultProduct) Get(attribute string) interface{} {
 		return it.Weight
 	case "options":
 		return it.Options
+	case "related_pids":
+		return it.GetRelatedProductIds()
 	}
 
 	return it.CustomAttributes.Get(attribute)
@@ -57,6 +60,40 @@ func (it *DefaultProduct) Set(attribute string, value interface{}) error {
 		it.Weight = utils.InterfaceToFloat64(value)
 	case "options":
 		it.Options = utils.InterfaceToMap(value)
+	case "related_pids":
+		it.RelatedProductIds = make([]string, 0)
+		switch typedValue := value.(type) {
+
+		case []interface{}:
+
+			for _, listItem := range typedValue {
+				productId, ok := listItem.(string)
+				// excludes myself
+				if(it.id == productId){
+					continue
+				}
+
+				if ok {
+					productModel, err := product.LoadProductById(productId)
+					if err != nil {
+						return env.ErrorDispatch(err)
+					}
+
+					it.RelatedProductIds = append(it.RelatedProductIds, productModel.GetId())
+				}
+			}
+
+		case []product.I_Product:
+
+			it.RelatedProductIds = make([]string, 0)
+			for _, productItem := range typedValue {
+				it.RelatedProductIds = append(it.RelatedProductIds, productItem.GetId())
+			}
+
+		default:
+			return env.ErrorNew("unsupported 'related_pids' value")
+		}
+
 	default:
 		err := it.CustomAttributes.Set(attribute, value)
 		if err != nil {
@@ -93,6 +130,8 @@ func (it *DefaultProduct) ToHashMap() map[string]interface{} {
 	result["price"] = it.Price
 	result["weight"] = it.Weight
 	result["options"] = it.Options
+
+	result["related_pids"] = it.Get("related_pids")
 
 	return result
 }
@@ -186,7 +225,7 @@ func (it *DefaultProduct) GetAttributesInfo() []models.T_AttributeInfo {
 			IsRequired: true,
 			IsStatic:   true,
 			Label:      "Price",
-			Group:      "Prices",
+			Group:      "General",
 			Editors:    "price",
 			Options:    "",
 			Default:    "",
@@ -199,7 +238,7 @@ func (it *DefaultProduct) GetAttributesInfo() []models.T_AttributeInfo {
 			IsRequired: false,
 			IsStatic:   true,
 			Label:      "Weight",
-			Group:      "Measures",
+			Group:      "General",
 			Editors:    "numeric",
 			Options:    "",
 			Default:    "",
@@ -214,6 +253,19 @@ func (it *DefaultProduct) GetAttributesInfo() []models.T_AttributeInfo {
 			Label:      "Options",
 			Group:      "Custom",
 			Editors:    "product_options",
+			Options:    "",
+			Default:    "",
+		},
+		models.T_AttributeInfo{
+			Model:      product.MODEL_NAME_PRODUCT,
+			Collection: COLLECTION_NAME_PRODUCT,
+			Attribute:  "related_pids",
+			Type:       "id",
+			IsRequired: false,
+			IsStatic:   true,
+			Label:      "Related Products",
+			Group:      "General",
+			Editors:    "product_selector",
 			Options:    "",
 			Default:    "",
 		},

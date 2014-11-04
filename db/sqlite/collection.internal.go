@@ -31,6 +31,10 @@ func (it *SQLiteCollection) makeSQLFilterString(ColumnName string, Operator stri
 	case "LIKE":
 		if typedValue, ok := Value.(string); ok && !strings.Contains(typedValue, "%") {
 			Value = "'%" + typedValue + "%'"
+		} else {
+			newValue := strings.Trim(Value.(string), "'")
+			newValue = strings.Trim(newValue, "\"")
+			Value = "'" + newValue + "'"
 		}
 
 	case "IN":
@@ -48,7 +52,6 @@ func (it *SQLiteCollection) makeSQLFilterString(ColumnName string, Operator stri
 	default:
 		Value = convertValueForSQL(Value)
 	}
-
 	return "`" + ColumnName + "` " + Operator + " " + utils.InterfaceToString(Value), nil
 }
 

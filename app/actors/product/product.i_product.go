@@ -6,6 +6,7 @@ import (
 	"github.com/ottemo/foundation/utils"
 	"sort"
 	"strings"
+	"github.com/ottemo/foundation/app/models/product"
 )
 
 func (it *DefaultProduct) GetSku() string  { return it.Sku }
@@ -147,4 +148,34 @@ func (it *DefaultProduct) ApplyOptions(options map[string]interface{}) error {
 	it.Price = utils.RoundPrice(it.Price)
 
 	return nil
+}
+
+func (it *DefaultProduct) GetRelatedProductIds() []string {
+	result := make([]string, 0)
+
+	for _, productId := range it.RelatedProductIds {
+		productModel, err := product.LoadProductById(productId)
+		if err == nil {
+			result = append(result, productModel.GetId())
+		}
+	}
+
+	return result
+}
+
+func (it *DefaultProduct) GetRelatedProducts() []product.I_Product {
+	result := make([]product.I_Product, 0)
+
+	for _, productId := range it.RelatedProductIds {
+		if productId == "" {
+			continue
+		}
+
+		productModel, err := product.LoadProductById(productId)
+		if err == nil {
+			result = append(result, productModel)
+		}
+	}
+
+	return result
 }
