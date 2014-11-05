@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"errors"
 	"math"
 	"strconv"
 	"strings"
@@ -179,9 +180,18 @@ func InterfaceToBool(value interface{}) bool {
 	case bool:
 		return typedValue
 	case string:
+		typedValue = strings.TrimSpace(typedValue)
 		if boolValue, err := strconv.ParseBool(typedValue); err == nil {
 			return boolValue
 		} else {
+			typedValue = strings.ToLower(typedValue)
+			if IsAmongStr(typedValue, "1", "ok", "on", "yes", "y", "x", "+") {
+				return true
+			}
+			if intValue, err := strconv.Atoi(typedValue); err == nil && intValue > 0 {
+				return true
+			}
+
 			return false
 		}
 	case int:
@@ -428,4 +438,82 @@ func SplitQuotedStringBy(text string, separators ...rune) []string {
 	}
 
 	return strings.FieldsFunc(text, operator)
+}
+
+// converts string coded value to type
+func StringToType(value string, valueType string) (interface{}, error) {
+	valueType = strings.ToLower(valueType)
+
+	switch {
+	case strings.HasPrefix(valueType, "[]"):
+		array := strings.Split(value, ",")
+		arrayType := strings.TrimPrefix(valueType, "[]")
+
+		result := make([]interface{}, 0)
+		for _, arrayValue := range array {
+			arrayValue = strings.TrimSpace(arrayValue)
+
+			if arrayValue, err := StringToType(arrayValue, arrayType); err == nil {
+				result = append(result, arrayValue)
+			} else {
+				return nil, err
+			}
+		}
+		return result, nil
+
+	case IsAmongStr(valueType, "b", "bool", "boolean"):
+		return InterfaceToBool(value), nil
+
+	case IsAmongStr(valueType, "i", "int", "integer"):
+		return strconv.Atoi(value)
+
+	case IsAmongStr(valueType, "f", "d", "flt", "dbl", "float", "double", "decimal"):
+		return strconv.ParseFloat(value, 64)
+
+	case IsAmongStr(valueType, "str", "string"):
+		return value, nil
+
+	case IsAmongStr(valueType, "time", "date", "datetime"):
+		return InterfaceToTime(value), nil
+
+	case IsAmongStr(valueType, "json"):
+		return DecodeJsonToStringKeyMap(value)
+	}
+
+	return nil, errors.New("unknown value type " + valueType)
+}
+
+// converts string to Interface{} which can be float, int, bool, string, or json as map[string]value
+func StringToInterface(value string) interface{} {
+
+	trimmedValue := strings.TrimSpace(value)
+
+	if result, err := strconv.ParseFloat(trimmedValue, 64); err == nil {
+		return result
+	}
+	if result, err := strconv.Atoi(trimmedValue); err == nil {
+		return result
+	}
+	if result, err := strconv.ParseBool(trimmedValue); err == nil {
+		return result
+	}
+	if strings.HasPrefix(trimmedValue, "[") && strings.HasSuffix(trimmedValue, "]") {
+		result := make([]interface{}, 0)
+		trimmedValue = strings.TrimPrefix(trimmedValue, "[")
+		trimmedValue = strings.TrimSuffix(trimmedValue, "]")
+		for _, value := range SplitQuotedStringBy(trimmedValue, ',') {
+			result = append(result, StringToInterface(value))
+		}
+		return result
+	}
+	if strings.HasPrefix(trimmedValue, "{") && strings.HasSuffix(trimmedValue, "}") {
+		if result, err := DecodeJsonToStringKeyMap(trimmedValue); err == nil {
+			return result
+		}
+	}
+	if result := InterfaceToTime(trimmedValue); result != time.Unix(0, 0) {
+		return result
+	}
+
+	return trimmedValue
 }

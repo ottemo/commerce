@@ -328,18 +328,30 @@ func CSVToMap(csvReader *csv.Reader, processorFunc func(item map[string]interfac
 
 				if idx == lastPathIdx { // we are at end of key path (i.e. on x for key like a.b.c.d.x)
 
+					// trying to convert string value to supposed type
+					var typedValue interface{} = nil
+
+					if columnType := csvColumnType[columnIdx]; columnType != "" {
+						if result, err := utils.StringToType(value, columnType); err == nil {
+							typedValue = result
+						}
+					} else {
+						typedValue = utils.StringToInterface(value)
+					}
+
 					currentKeyValue, present := currentPathMap[key]
 					if present && (isArrayColumn || isMaybeArrayColumn) {
 						if currentValueAsArray, ok := currentKeyValue.([]interface{}); ok {
-							currentPathMap[key] = append(currentValueAsArray, value)
+							currentPathMap[key] = append(currentValueAsArray, typedValue)
 						} else {
-							currentPathMap[key] = []interface{}{currentKeyValue, value}
+							currentPathMap[key] = []interface{}{currentKeyValue, typedValue}
 						}
 					} else {
+
 						if isArrayColumn {
-							currentPathMap[key] = []interface{}{value}
+							currentPathMap[key] = []interface{}{typedValue}
 						} else {
-							currentPathMap[key] = value
+							currentPathMap[key] = typedValue
 						}
 					}
 
