@@ -300,7 +300,13 @@ func InterfaceToInt(value interface{}) int {
 	case float64:
 		return int(typedValue)
 	case string:
-		intValue, _ := strconv.ParseInt(typedValue, 10, 64)
+		intValue, err := strconv.ParseInt(typedValue, 10, 64)
+		if err != nil {
+			floatValue, err := strconv.ParseFloat(typedValue, 64)
+			if err == nil {
+				return int(floatValue)
+			}
+		}
 		return int(intValue)
 	default:
 		return 0
@@ -446,6 +452,7 @@ func StringToType(value string, valueType string) (interface{}, error) {
 
 	switch {
 	case strings.HasPrefix(valueType, "[]"):
+		value = strings.Trim(value, "[] \t\n")
 		array := strings.Split(value, ",")
 		arrayType := strings.TrimPrefix(valueType, "[]")
 
@@ -465,10 +472,10 @@ func StringToType(value string, valueType string) (interface{}, error) {
 		return InterfaceToBool(value), nil
 
 	case IsAmongStr(valueType, "i", "int", "integer"):
-		return strconv.Atoi(value)
+		return InterfaceToInt(value), nil
 
 	case IsAmongStr(valueType, "f", "d", "flt", "dbl", "float", "double", "decimal"):
-		return strconv.ParseFloat(value, 64)
+		return InterfaceToFloat64(value), nil
 
 	case IsAmongStr(valueType, "str", "string"):
 		return value, nil
