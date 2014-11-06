@@ -29,27 +29,27 @@ import (
 // #1 PayPalExpress
 //------------------
 
-// returns payment method name
+// GetName returns the payment method name
 func (it *PayPalExpress) GetName() string {
 	return utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_TITLE))
 }
 
-// returns payment method code
+// GetCode returns the payment method code
 func (it *PayPalExpress) GetCode() string {
 	return PAYMENT_CODE
 }
 
-// returns type of payment method
+// GetType returns the type of payment method
 func (it *PayPalExpress) GetType() string {
 	return checkout.PAYMENT_TYPE_REMOTE
 }
 
-// checks for method applicability
+// IsAllowed checks for method applicability
 func (it *PayPalExpress) IsAllowed(checkoutInstance checkout.I_Checkout) bool {
 	return utils.InterfaceToBool(env.ConfigGetValue(CONFIG_PATH_ENABLED))
 }
 
-// makes payment method authorize operation
+// Authorize executes the payment method authorize operation
 func (it *PayPalExpress) Authorize(orderInstance order.I_Order, paymentInfo map[string]interface{}) (interface{}, error) {
 
 	// getting order information
@@ -71,8 +71,8 @@ func (it *PayPalExpress) Authorize(orderInstance order.I_Order, paymentInfo map[
 	description := "Purchase%20for%20%24" + fmt.Sprintf("%.2f", grandTotal)
 	custom := orderInstance.GetId()
 
-	cancelUrl := app.GetFoundationUrl("paypal/cancel")
-	returnUrl := app.GetFoundationUrl("paypal/success")
+	cancelURL := app.GetFoundationUrl("paypal/cancel")
+	returnURL := app.GetFoundationUrl("paypal/success")
 
 	// making NVP request
 	//-------------------
@@ -88,8 +88,8 @@ func (it *PayPalExpress) Authorize(orderInstance order.I_Order, paymentInfo map[
 		"&PAYMENTREQUEST_0_DESC=" + description +
 		"&PAYMENTREQUEST_0_CUSTOM=" + custom +
 		"&PAYMENTREQUEST_0_CURRENCYCODE=USD" +
-		"&cancelUrl=" + cancelUrl +
-		"&returnUrl=" + returnUrl
+		"&cancelURL=" + cancelURL +
+		"&returnURL=" + returnURL
 
 	//	println(requestParams)
 
@@ -126,10 +126,10 @@ func (it *PayPalExpress) Authorize(orderInstance order.I_Order, paymentInfo map[
 	waitingTokens[responseValues.Get("TOKEN")] = utils.InterfaceToString(paymentInfo["sessionId"])
 	waitingTokensMutex.Unlock()
 
-	env.Log("paypal.log", env.LOG_PREFIX_INFO, "NEW TRANSACTION: " +
-				"Visitor ID - " + utils.InterfaceToString(orderInstance.Get("visitor_id")) + ", " +
-				"Order ID - " + utils.InterfaceToString(orderInstance.GetId()) + ", " +
-				"TOKEN - " + utils.InterfaceToString(responseValues.Get("TOKEN")))
+	env.Log("paypal.log", env.LOG_PREFIX_INFO, "NEW TRANSACTION: "+
+		"Visitor ID - "+utils.InterfaceToString(orderInstance.Get("visitor_id"))+", "+
+		"Order ID - "+utils.InterfaceToString(orderInstance.GetId())+", "+
+		"TOKEN - "+utils.InterfaceToString(responseValues.Get("TOKEN")))
 
 	// redirecting user to PayPal server for following checkout
 	//---------------------------------------------------------
@@ -140,17 +140,17 @@ func (it *PayPalExpress) Authorize(orderInstance order.I_Order, paymentInfo map[
 	}, nil
 }
 
-// makes payment method capture operation
+// Capture executes the payment method capture operation
 func (it *PayPalExpress) Capture(orderInstance order.I_Order, paymentInfo map[string]interface{}) (interface{}, error) {
 	return nil, env.ErrorNew("Not implemented")
 }
 
-// makes payment method refund operation
+// Refund will return funds to the visitor for the given order. :: Not Implemented Yet
 func (it *PayPalExpress) Refund(orderInstance order.I_Order, paymentInfo map[string]interface{}) (interface{}, error) {
 	return nil, env.ErrorNew("Not implemented")
 }
 
-// makes payment method void operation
+// Void will void the givien order :: Not Implemented YET
 func (it *PayPalExpress) Void(orderInstance order.I_Order, paymentInfo map[string]interface{}) (interface{}, error) {
 	return nil, env.ErrorNew("Not implemented")
 }

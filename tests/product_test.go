@@ -177,12 +177,12 @@ func BenchmarkProductCntLoad(b *testing.B) {
 		}
 		//productsCount := 100
 
-//		err = productCollection.ListLimit(rand.Intn(productsCount), 1)
-//		if err != nil {
-//			b.Error(err)
-//		}
-//
-//		productCollection.ListProducts()
+		//		err = productCollection.ListLimit(rand.Intn(productsCount), 1)
+		//		if err != nil {
+		//			b.Error(err)
+		//		}
+		//
+		//		productCollection.ListProducts()
 	}
 }
 
@@ -210,8 +210,8 @@ func BenchmarkProductLoad(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		randomId := utils.InterfaceToString(productIds[rand.Intn(count)]["_id"])
-		product.LoadProductById(randomId)
+		randomID := utils.InterfaceToString(productIds[rand.Intn(count)]["_id"])
+		product.LoadProductById(randomID)
 	}
 }
 

@@ -3,18 +3,19 @@ package rts
 import (
 	"crypto/md5"
 	"fmt"
+	"io"
+	"net/http"
+	"time"
+
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/app/models/product"
 	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
-	"io"
-	"time"
-	"net/http"
 )
 
 func setupAPI() error {
-	var err error = nil
+	var err error
 
 	// 1. DefaultRtsAPI
 	//----------------------
@@ -90,7 +91,7 @@ func restRegisterVisit(params *api.T_APIHandlerParams) (interface{}, error) {
 func restGetReferrers(params *api.T_APIHandlerParams) (interface{}, error) {
 	result := make(map[string]int)
 
-	for url, _ := range referrers {
+	for url := range referrers {
 		result[utils.InterfaceToString(url)] = referrers[utils.InterfaceToString(url)]
 	}
 
@@ -115,7 +116,7 @@ func restGetVisits(params *api.T_APIHandlerParams) (interface{}, error) {
 	countYesterday := visitorsInfoYesterday.Visitors
 	countToday := visitorsInfoToday.Visitors
 	if countYesterday != 0 {
-		ratio := float64(countToday) / float64(countYesterday) - float64(1)
+		ratio := float64(countToday)/float64(countYesterday) - float64(1)
 		result["ratio"] = utils.Round(ratio, 0.5, 2)
 	}
 
@@ -125,20 +126,20 @@ func restGetVisits(params *api.T_APIHandlerParams) (interface{}, error) {
 func restGetVisitsDetails(params *api.T_APIHandlerParams) (interface{}, error) {
 	result := make(map[string]int)
 
-	fromDate_tmp, present := params.RequestURLParams["from"]
+	fromDatetmp, present := params.RequestURLParams["from"]
 	if !present {
-		fromDate_tmp = time.Now().Format("2006-01-02")
+		fromDatetmp = time.Now().Format("2006-01-02")
 	}
-	fromDate, _ := time.Parse("2006-01-02", fromDate_tmp)
+	fromDate, _ := time.Parse("2006-01-02", fromDatetmp)
 
-	toDate_tmp, present := params.RequestURLParams["to"]
+	toDatetmp, present := params.RequestURLParams["to"]
 	if !present {
-		toDate_tmp = time.Now().AddDate(0, 0, -1).Format("2006-01-02")
+		toDatetmp = time.Now().AddDate(0, 0, -1).Format("2006-01-02")
 	}
-	toDate, _ := time.Parse("2006-01-02", toDate_tmp)
+	toDate, _ := time.Parse("2006-01-02", toDatetmp)
 
 	delta := toDate.Sub(fromDate)
-	visitorInfoCollection, err := db.GetCollection(COLLECTION_NAME_VISITORS)
+	visitorInfoCollection, err := db.GetCollection(CollectionNameVisitors)
 	if err == nil {
 		visitorInfoCollection.AddFilter("day", ">=", fromDate)
 		visitorInfoCollection.AddFilter("day", "<", toDate)
@@ -163,7 +164,7 @@ func restGetVisitsDetails(params *api.T_APIHandlerParams) (interface{}, error) {
 				details := RtsDecodeDetails(utils.InterfaceToString(dbRecord[0]["details"]))
 				for _, item := range details {
 					timestamp := fmt.Sprintf("%v", int32(utils.InterfaceToTime(item.Time).Unix()))
-					dbResult[timestamp] += 1
+					dbResult[timestamp]++
 				}
 			}
 			//	group by hours
@@ -173,7 +174,7 @@ func restGetVisitsDetails(params *api.T_APIHandlerParams) (interface{}, error) {
 				year := time.Unix(int64(timestamp), 0).Year()
 				month := time.Unix(int64(timestamp), 0).Month()
 				day := time.Unix(int64(timestamp), 0).Day()
-				for hour := 0; hour < 24; hour += 1 {
+				for hour := 0; hour < 24; hour++ {
 					timeGroup := time.Date(year, month, day, hour, 0, 0, 0, time.Local)
 					if timeGroup.Unix() > time.Now().Unix() {
 						break
@@ -231,21 +232,21 @@ func restGetSalesDetails(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
-	fromDate_tmp, present := params.RequestURLParams["from"]
+	fromDatetmp, present := params.RequestURLParams["from"]
 	if !present {
-		fromDate_tmp = time.Now().Format("2006-01-02")
+		fromDatetmp = time.Now().Format("2006-01-02")
 	}
-	fromDate, _ := time.Parse("2006-01-02", fromDate_tmp)
+	fromDate, _ := time.Parse("2006-01-02", fromDatetmp)
 	// check request params
 	//---------------------
-	toDate_tmp, present := params.RequestURLParams["to"]
+	toDatetmp, present := params.RequestURLParams["to"]
 	if !present {
-		toDate_tmp = time.Now().AddDate(0, 0, -1).Format("2006-01-02")
+		toDatetmp = time.Now().AddDate(0, 0, -1).Format("2006-01-02")
 	}
-	toDate, _ := time.Parse("2006-01-02", toDate_tmp)
+	toDate, _ := time.Parse("2006-01-02", toDatetmp)
 
 	h := md5.New()
-	io.WriteString(h, fromDate_tmp+"/"+toDate_tmp)
+	io.WriteString(h, fromDatetmp+"/"+toDatetmp)
 	periodHash := fmt.Sprintf("%x", h.Sum(nil))
 
 	if _, ok := salesDetail[periodHash]; !ok {
@@ -277,7 +278,7 @@ func restGetSalesDetails(params *api.T_APIHandlerParams) (interface{}, error) {
 func restGetTopSellers(params *api.T_APIHandlerParams) (interface{}, error) {
 	result := make(map[string]*SellerInfo)
 
-	salesCollection, err := db.GetCollection(COLLECTION_NAME_SALES)
+	salesCollection, err := db.GetCollection(CollectionNameSales)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -292,29 +293,29 @@ func restGetTopSellers(params *api.T_APIHandlerParams) (interface{}, error) {
 	}
 
 	for _, item := range items {
-		productId := utils.InterfaceToString(item["product_id"])
-		result[productId] = &SellerInfo{}
-		if _, ok := topSellers.Data[productId]; !ok {
+		productID := utils.InterfaceToString(item["product_id"])
+		result[productID] = &SellerInfo{}
+		if _, ok := topSellers.Data[productID]; !ok {
 
-			product, err := product.LoadProductById(productId)
+			product, err := product.LoadProductById(productID)
 			if err != nil {
 				return nil, env.ErrorDispatch(err)
 			}
 
-			productModel.SetId(productId)
+			productModel.SetId(productID)
 			mediaPath, err := productModel.GetMediaPath("image")
 			if err != nil {
 				return result, env.ErrorDispatch(err)
 			}
 
 			if product.GetDefaultImage() != "" {
-				result[productId].Image = mediaPath+product.GetDefaultImage()
+				result[productID].Image = mediaPath + product.GetDefaultImage()
 			}
 
-			result[productId].Name = product.GetName()
+			result[productID].Name = product.GetName()
 		}
 
-		result[productId].Count = utils.InterfaceToInt(item["count"])
+		result[productID].Count = utils.InterfaceToInt(item["count"])
 	}
 
 	return result, nil
@@ -328,7 +329,7 @@ func restGetVisitsRealtime(params *api.T_APIHandlerParams) (interface{}, error) 
 	if OnlineSessionsMax == 0 || len(OnlineSessions) == 0 {
 		ratio = float64(1)
 	} else {
-		ratio = float64(len(OnlineSessions))/float64(OnlineSessionsMax)
+		ratio = float64(len(OnlineSessions)) / float64(OnlineSessionsMax)
 	}
 	result["OnlineRatio"] = utils.Round(ratio, 0.5, 2)
 
@@ -336,7 +337,7 @@ func restGetVisitsRealtime(params *api.T_APIHandlerParams) (interface{}, error) 
 	if OnlineDirectMax == 0 || OnlineDirect == 0 {
 		ratio = float64(0)
 	} else {
-		ratio = float64(OnlineDirect)/float64(OnlineDirectMax)
+		ratio = float64(OnlineDirect) / float64(OnlineDirectMax)
 	}
 	result["DirectRatio"] = utils.Round(ratio, 0.5, 2)
 
@@ -344,7 +345,7 @@ func restGetVisitsRealtime(params *api.T_APIHandlerParams) (interface{}, error) 
 	if OnlineSearchMax == 0 || OnlineSearch == 0 {
 		ratio = float64(0)
 	} else {
-		ratio = float64(OnlineSearch)/float64(OnlineSearchMax)
+		ratio = float64(OnlineSearch) / float64(OnlineSearchMax)
 	}
 	result["SearchRatio"] = utils.Round(ratio, 0.5, 2)
 
@@ -352,7 +353,7 @@ func restGetVisitsRealtime(params *api.T_APIHandlerParams) (interface{}, error) 
 	if OnlineSiteMax == 0 || OnlineSite == 0 {
 		ratio = float64(0)
 	} else {
-		ratio = float64(OnlineSite)/float64(OnlineSiteMax)
+		ratio = float64(OnlineSite) / float64(OnlineSiteMax)
 	}
 	result["SiteRatio"] = utils.Round(ratio, 0.5, 2)
 
