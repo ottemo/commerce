@@ -30,17 +30,12 @@ type I_Object interface {
 }
 
 type I_Listable interface {
-	List() ([]T_ListItem, error)
-
-	ListAddExtraAttribute(attribute string) error
-
-	ListFilterAdd(attribute string, operator string, value interface{}) error
-	ListFilterReset() error
-
-	ListLimit(offset int, limit int) error
+	GetCollection() I_Collection
 }
 
 type I_CustomAttributes interface {
+	GetCustomAttributeCollectionName() string
+
 	AddNewAttribute(newAttribute T_AttributeInfo) error
 	RemoveAttribute(attributeName string) error
 }
@@ -57,5 +52,13 @@ type I_Media interface {
 
 type I_Collection interface {
 	GetDBCollection() db.I_DBCollection
-	I_Listable
+
+	List() ([]T_ListItem, error)
+
+	ListAddExtraAttribute(attribute string) error
+
+	ListFilterAdd(attribute string, operator string, value interface{}) error
+	ListFilterReset() error
+
+	ListLimit(offset int, limit int) error
 }

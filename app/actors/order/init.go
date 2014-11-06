@@ -24,7 +24,6 @@ func init() {
 	var _ order.I_OrderItemCollection = orderItemCollectionInstance
 	models.RegisterModel(order.MODEL_NAME_ORDER_ITEM_COLLECTION, orderItemCollectionInstance)
 
-
 	db.RegisterOnDatabaseStart(setupDB)
 	env.RegisterOnConfigStart(setupConfig)
 

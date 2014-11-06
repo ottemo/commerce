@@ -1,11 +1,12 @@
 package rts
 
 import (
+	"time"
+
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/app"
 	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/env"
-	"time"
 )
 
 // module entry point before app start
@@ -15,15 +16,15 @@ func init() {
 	app.OnAppStart(initListners)
 	app.OnAppStart(initSalesHistory)
 
-	seconds := time.Millisecond * VISITOR_ONLINE_SECONDS * 1000
+	seconds := time.Millisecond * VisitorOnlineSeconds * 1000
 	ticker := time.NewTicker(seconds)
 	go func() {
 		for _ = range ticker.C {
-			for sessionId, _ := range OnlineSessions {
-				delta := time.Now().Sub(OnlineSessions[sessionId].time)
-				if float64(VISITOR_ONLINE_SECONDS) < delta.Seconds() {
-					DecreaseOnline(OnlineSessions[sessionId].referrerType)
-					delete(OnlineSessions, sessionId)
+			for sessionID := range OnlineSessions {
+				delta := time.Now().Sub(OnlineSessions[sessionID].time)
+				if float64(VisitorOnlineSeconds) < delta.Seconds() {
+					DecreaseOnline(OnlineSessions[sessionID].referrerType)
+					delete(OnlineSessions, sessionID)
 				}
 			}
 		}
@@ -48,7 +49,7 @@ func initListners() error {
 // DB preparations for current model implementation
 func setupDB() error {
 
-	collection, err := db.GetCollection(COLLECTION_NAME_SALES_HISTORY)
+	collection, err := db.GetCollection(CollectionNameSalesHistory)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -57,7 +58,7 @@ func setupDB() error {
 	collection.AddColumn("created_at", "datetime", false)
 	collection.AddColumn("count", "int", false)
 
-	collection, err = db.GetCollection(COLLECTION_NAME_SALES)
+	collection, err = db.GetCollection(CollectionNameSales)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -66,7 +67,7 @@ func setupDB() error {
 	collection.AddColumn("count", "int", false)
 	collection.AddColumn("range", "varchar(21)", false)
 
-	collection, err = db.GetCollection(COLLECTION_NAME_VISITORS)
+	collection, err = db.GetCollection(CollectionNameVisitors)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}

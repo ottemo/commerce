@@ -30,8 +30,8 @@ func setupConfig() error {
 	}
 
 	config.RegisterItem(env.T_ConfigItem{
-		Path:        checkout.CONFIG_PATH_CONFIRMATION_EMAIL,
-		Value:       `Dear {{.Visitor.last_name}} {{.Visitor.first_name}}
+		Path: checkout.CONFIG_PATH_CONFIRMATION_EMAIL,
+		Value: `Dear {{.Visitor.last_name}} {{.Visitor.first_name}}
 <br />
 <br />
 Thank for your order.

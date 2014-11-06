@@ -2,27 +2,39 @@ package product
 
 import (
 	"fmt"
-	"github.com/ottemo/foundation/env"
-	"github.com/ottemo/foundation/utils"
 	"sort"
 	"strings"
+
 	"github.com/ottemo/foundation/app/models/product"
+	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/foundation/utils"
 )
 
-func (it *DefaultProduct) GetSku() string  { return it.Sku }
+// GetSku will return requested sku for the given product
+func (it *DefaultProduct) GetSku() string { return it.Sku }
+
+// GetName will return the name of the given product
 func (it *DefaultProduct) GetName() string { return it.Name }
 
+// GetShortDescription will return the short description of the requested product
 func (it *DefaultProduct) GetShortDescription() string { return it.ShortDescription }
-func (it *DefaultProduct) GetDescription() string      { return it.Description }
 
+// GetDescription will return the long description of the requested product
+func (it *DefaultProduct) GetDescription() string { return it.Description }
+
+// GetDefaultImage will return the imaged identified as defult for the given product
 func (it *DefaultProduct) GetDefaultImage() string { return it.DefaultImage }
 
-func (it *DefaultProduct) GetPrice() float64  { return it.Price }
+// GetPrice will return the price as a float64 for the given product
+func (it *DefaultProduct) GetPrice() float64 { return it.Price }
+
+// GetWeight will return the weight for the given product
 func (it *DefaultProduct) GetWeight() float64 { return it.Weight }
 
+// GetOptions will return the products otions as a map[string]interface{}
 func (it *DefaultProduct) GetOptions() map[string]interface{} { return it.Options }
 
-// internal usage function to update order item fields according to options
+// ApplyOptions is an internal usage function to update order item fields according to options
 func (it *DefaultProduct) ApplyOptions(options map[string]interface{}) error {
 	// taking item specified options and product options
 	productOptions := it.GetOptions()
@@ -31,8 +43,10 @@ func (it *DefaultProduct) ApplyOptions(options map[string]interface{}) error {
 	startPrice := it.GetPrice()
 
 	// sorting applicable product attributes according to "order" field
-	optionsApplyOrder := make([]string, 0)
-	for itemOptionName, _ := range options {
+	// optionsApplyOrder := make([]string, 0)
+	var optionsApplyOrder []string
+
+	for itemOptionName := range options {
 
 		// looking only for options that customer customer set for item
 		if productOption, present := productOptions[itemOptionName]; present {
@@ -91,7 +105,8 @@ func (it *DefaultProduct) ApplyOptions(options map[string]interface{}) error {
 
 						// option user set can be single on multi-value
 						// making it uniform
-						itemOptionValueSet := make([]string, 0)
+						// itemOptionValueSet := make([]string, 0)
+						var itemOptionValueSet []string
 						switch typedOptionValue := itemOptionValue.(type) {
 						case string:
 							itemOptionValueSet = append(itemOptionValueSet, typedOptionValue)
@@ -121,7 +136,7 @@ func (it *DefaultProduct) ApplyOptions(options map[string]interface{}) error {
 						}
 
 						// cleaning option values were not used by customer
-						for productOptionValueName, _ := range productOptionValues {
+						for productOptionValueName := range productOptionValues {
 							if !utils.IsInArray(productOptionValueName, itemOptionValueSet) {
 								delete(productOptionValues, productOptionValueName)
 							}
@@ -150,11 +165,13 @@ func (it *DefaultProduct) ApplyOptions(options map[string]interface{}) error {
 	return nil
 }
 
+// GetRelatedProductIds will return the related product IDs
 func (it *DefaultProduct) GetRelatedProductIds() []string {
-	result := make([]string, 0)
+	// result := make([]string, 0)
+	var result []string
 
-	for _, productId := range it.RelatedProductIds {
-		productModel, err := product.LoadProductById(productId)
+	for _, productID := range it.RelatedProductIds {
+		productModel, err := product.LoadProductById(productID)
 		if err == nil {
 			result = append(result, productModel.GetId())
 		}
@@ -163,15 +180,17 @@ func (it *DefaultProduct) GetRelatedProductIds() []string {
 	return result
 }
 
+// GetRelatedProducts will return an array of related products
 func (it *DefaultProduct) GetRelatedProducts() []product.I_Product {
-	result := make([]product.I_Product, 0)
+	// result := make([]product.I_Product, 0)
+	var result []product.I_Product
 
-	for _, productId := range it.RelatedProductIds {
-		if productId == "" {
+	for _, productID := range it.RelatedProductIds {
+		if productID == "" {
 			continue
 		}
 
-		productModel, err := product.LoadProductById(productId)
+		productModel, err := product.LoadProductById(productID)
 		if err == nil {
 			result = append(result, productModel)
 		}

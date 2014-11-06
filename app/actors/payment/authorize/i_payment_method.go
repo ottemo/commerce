@@ -9,8 +9,8 @@ import (
 	"encoding/hex"
 	"math/rand"
 
-	"github.com/ottemo/foundation/app"
 	"github.com/ottemo/foundation/api"
+	"github.com/ottemo/foundation/app"
 	"github.com/ottemo/foundation/env"
 
 	"github.com/ottemo/foundation/utils"
@@ -19,27 +19,27 @@ import (
 	"github.com/ottemo/foundation/app/models/order"
 )
 
-// returns payment method name
+// GetName returns the payment method name
 func (it *AuthorizeNetDPM) GetName() string {
 	return utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_DPM_TITLE))
 }
 
-// returns payment method code
+// GetCode returns the payment method code
 func (it *AuthorizeNetDPM) GetCode() string {
 	return PAYMENT_CODE_DPM
 }
 
-// returns type of payment method
+// GetType returns the type of payment method
 func (it *AuthorizeNetDPM) GetType() string {
 	return checkout.PAYMENT_TYPE_POST_CC
 }
 
-// checks for method applicability
+// IsAllowed checks for method applicability
 func (it *AuthorizeNetDPM) IsAllowed(checkoutInstance checkout.I_Checkout) bool {
 	return utils.InterfaceToBool(env.ConfigGetValue(CONFIG_PATH_DPM_ENABLED))
 }
 
-// makes payment method authorize operation
+// Authorize executes the payment method authorization
 func (it *AuthorizeNetDPM) Authorize(orderInstance order.I_Order, paymentInfo map[string]interface{}) (interface{}, error) {
 
 	// crypting fingerprint
@@ -61,7 +61,7 @@ func (it *AuthorizeNetDPM) Authorize(orderInstance order.I_Order, paymentInfo ma
 	//---------------------------
 	formValues := map[string]string{
 		"x_relay_response": utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_DPM_CHECKOUT)),
-		"x_relay_url": utils.InterfaceToString(env.ConfigGetValue(app.CONFIG_PATH_FOUNDATION_URL)) + "authorizenet/relay",
+		"x_relay_url":      utils.InterfaceToString(env.ConfigGetValue(app.CONFIG_PATH_FOUNDATION_URL)) + "authorizenet/relay",
 
 		"x_test_request": utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_DPM_TEST)),
 
@@ -97,10 +97,10 @@ func (it *AuthorizeNetDPM) Authorize(orderInstance order.I_Order, paymentInfo ma
 		"x_ship_to_zip":        shippingAddress.GetZipCode(),
 		"x_ship_to_country":    shippingAddress.GetCountry(),
 
-		"x_exp_date": "$CC_MONTH/$CC_YEAR",
-		"x_card_num": "$CC_NUM",
+		"x_exp_date":         "$CC_MONTH/$CC_YEAR",
+		"x_card_num":         "$CC_NUM",
 		"x_duplicate_window": "30",
-		"x_session": utils.InterfaceToString(paymentInfo["sessionId"]),
+		"x_session":          utils.InterfaceToString(paymentInfo["sessionId"]),
 	}
 
 	// generating post form
@@ -114,24 +114,24 @@ func (it *AuthorizeNetDPM) Authorize(orderInstance order.I_Order, paymentInfo ma
 	htmlText += "<input type='submit' value='Submit' />"
 	htmlText += "</form>"
 
-	env.Log("authorizenet.log", env.LOG_PREFIX_INFO, "NEW TRANSACTION: " +
-				"Visitor ID - " + utils.InterfaceToString(orderInstance.Get("visitor_id")) + ", " +
-				"Order ID - " + utils.InterfaceToString(orderInstance.GetId()))
+	env.Log("authorizenet.log", env.LOG_PREFIX_INFO, "NEW TRANSACTION: "+
+		"Visitor ID - "+utils.InterfaceToString(orderInstance.Get("visitor_id"))+", "+
+		"Order ID - "+utils.InterfaceToString(orderInstance.GetId()))
 
 	return api.T_RestRedirect{Result: htmlText, Location: utils.InterfaceToString(env.ConfigGetValue(app.CONFIG_PATH_FOUNDATION_URL)) + "authorizenet/relay"}, nil
 }
 
-// makes payment method capture operation
+// Capture will secure the funds once an order has been fulfilled :: Not Implemented Yet
 func (it *AuthorizeNetDPM) Capture(orderInstance order.I_Order, paymentInfo map[string]interface{}) (interface{}, error) {
 	return nil, env.ErrorNew("Not implemented")
 }
 
-// makes payment method refund operation
+// Refund will return funds on the given order :: Not Implemented Yet
 func (it *AuthorizeNetDPM) Refund(orderInstance order.I_Order, paymentInfo map[string]interface{}) (interface{}, error) {
 	return nil, env.ErrorNew("Not implemented")
 }
 
-// makes payment method void operation
+// Void will mark the order and capture as void
 func (it *AuthorizeNetDPM) Void(orderInstance order.I_Order, paymentInfo map[string]interface{}) (interface{}, error) {
 	return nil, env.ErrorNew("Not implemented")
 }

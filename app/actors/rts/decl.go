@@ -69,21 +69,18 @@ import "time"
  *
  */
 
+// Set of constants for Collections, Visitors and Referrors in statistic collecion
 const (
-	COLLECTION_NAME_SALES_HISTORY = "rts_sales_history"
-	COLLECTION_NAME_SALES         = "rts_sales"
-	COLLECTION_NAME_VISITORS      = "rts_visitors"
-
-	REFERRER_TYPE_DIRECT = 0
-	REFERRER_TYPE_SITE   = 1
-	REFERRER_TYPE_SEARCH = 2
-
-	VISITOR_ADD_TO_CART = 1
-	VISITOR_CHECKOUT    = 2
-	VISITOR_SALES       = 3
-
-	VISITOR_ONLINE_SECONDS  = 10
-
+	CollectionNameSalesHistory = "rts_sales_history"
+	CollectionNameSales        = "rts_sales"
+	CollectionNameVisitors     = "rts_visitors"
+	ReferrerTypeDirect         = 0
+	ReferrerTypeSite           = 1
+	ReferrerTypeSearch         = 2
+	VisitorAddToCart           = 1
+	VisitorCheckout            = 2
+	VisitorSales               = 3
+	VisitorOnlineSeconds       = 10
 )
 
 var (
@@ -94,14 +91,22 @@ var (
 	salesDetail           = make(map[string]*SalesDetailData)
 	topSellers            = new(TopSellers)
 
-	OnlineSessions    = make(map[string]*OnlineReferrer)
-	OnlineDirect      = 0
-	OnlineSite        = 0
-	OnlineSearch      = 0
+	// OnlineSessions is a map[string]* for storing session data
+	OnlineSessions = make(map[string]*OnlineReferrer)
+	// OnlineDirect indicates a user did not use a referring site
+	OnlineDirect = 0
+	// OnlineSite indicates a referring site
+	OnlineSite = 0
+	// OnlineSearch indicates the visitor came from a search engine
+	OnlineSearch = 0
+	// OnlineSessionsMax is the maximum number of visitor sessions recorded
 	OnlineSessionsMax = 0
-	OnlineDirectMax   = 0
-	OnlineSiteMax     = 0
-	OnlineSearchMax   = 0
+	// OnlineDirectMax is the maximum number of visitors who did not use referring sites
+	OnlineDirectMax = 0
+	// OnlineSiteMax is the maximum number of visitors who came to the site
+	OnlineSiteMax = 0
+	// OnlineSearchMax is the maximum number of visitors who were referred by search engines
+	OnlineSearchMax = 0
 
 	searchEngines = []string{"www.daum.net", "www.google.com", "www.eniro.se", "www.naver.com", "www.yahoo.com",
 		"www.msn.com", "www.bing.com", "www.aol.com", "www.aol.com", "www.lycos.com", "www.ask.com", "www.altavista.com",

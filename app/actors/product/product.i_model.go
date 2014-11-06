@@ -20,7 +20,7 @@ func (it *DefaultProduct) GetImplementationName() string {
 // returns new instance of model implementation object
 func (it *DefaultProduct) New() (models.I_Model, error) {
 
-	customAttributes, err := new(attributes.CustomAttributes).Init(product.MODEL_NAME_PRODUCT)
+	customAttributes, err := new(attributes.CustomAttributes).Init(product.MODEL_NAME_PRODUCT, COLLECTION_NAME_PRODUCT)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}

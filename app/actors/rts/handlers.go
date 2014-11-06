@@ -1,10 +1,11 @@
 package rts
 
 import (
-	"github.com/ottemo/foundation/db"
-	"github.com/ottemo/foundation/utils"
 	"strings"
 	"time"
+
+	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/foundation/utils"
 )
 
 func referrerHandler(event string, data map[string]interface{}) bool {
@@ -18,7 +19,7 @@ func referrerHandler(event string, data map[string]interface{}) bool {
 		return true
 	}
 
-	referrers[referrer] += 1
+	referrers[referrer]++
 
 	return true
 }
@@ -33,7 +34,7 @@ func visitsHandler(event string, data map[string]interface{}) bool {
 	if err != nil {
 		return true
 	}
-	sessionId := utils.InterfaceToString(data["sessionId"])
+	sessionID := utils.InterfaceToString(data["sessionID"])
 
 	year := time.Now().Year()
 	month := time.Now().Month()
@@ -41,12 +42,12 @@ func visitsHandler(event string, data map[string]interface{}) bool {
 	hour := time.Now().Hour()
 	today := time.Date(year, month, day, hour, 0, 0, 0, time.Local)
 
-	if _, ok := visitorsInfoToday.Details[sessionId]; !ok {
-		visitorsInfoToday.Details[sessionId] = &VisitorDetail{Time: today}
-		visitorsInfoToday.Visitors += 1
+	if _, ok := visitorsInfoToday.Details[sessionID]; !ok {
+		visitorsInfoToday.Details[sessionID] = &VisitorDetail{Time: today}
+		visitorsInfoToday.Visitors++
 	}
 
-	visitorsInfoToday.Details[sessionId] = &VisitorDetail{Time: today}
+	visitorsInfoToday.Details[sessionID] = &VisitorDetail{Time: today}
 	_ = SaveVisitorData()
 
 	return true
@@ -62,11 +63,11 @@ func addToCartHandler(event string, data map[string]interface{}) bool {
 	if err != nil {
 		return true
 	}
-	sessionId := utils.InterfaceToString(data["sessionId"])
+	sessionID := utils.InterfaceToString(data["sessionID"])
 
-	if 0 == visitorsInfoToday.Details[sessionId].Checkout {
-		visitorsInfoToday.Details[sessionId].Checkout = VISITOR_ADD_TO_CART
-		visitorsInfoToday.Cart += 1
+	if 0 == visitorsInfoToday.Details[sessionID].Checkout {
+		visitorsInfoToday.Details[sessionID].Checkout = VisitorAddToCart
+		visitorsInfoToday.Cart++
 	}
 
 	_ = SaveVisitorData()
@@ -84,11 +85,11 @@ func reachedCheckoutHandler(event string, data map[string]interface{}) bool {
 	if err != nil {
 		return true
 	}
-	sessionId := utils.InterfaceToString(data["sessionId"])
+	sessionID := utils.InterfaceToString(data["sessionID"])
 
-	if VISITOR_CHECKOUT > visitorsInfoToday.Details[sessionId].Checkout {
-		visitorsInfoToday.Details[sessionId].Checkout = VISITOR_CHECKOUT
-		visitorsInfoToday.Checkout += 1
+	if VisitorCheckout > visitorsInfoToday.Details[sessionID].Checkout {
+		visitorsInfoToday.Details[sessionID].Checkout = VisitorCheckout
+		visitorsInfoToday.Checkout++
 	}
 
 	_ = SaveVisitorData()
@@ -106,11 +107,11 @@ func purchasedHandler(event string, data map[string]interface{}) bool {
 	if err != nil {
 		return true
 	}
-	sessionId := utils.InterfaceToString(data["sessionId"])
+	sessionID := utils.InterfaceToString(data["sessionID"])
 
-	if VISITOR_SALES > visitorsInfoToday.Details[sessionId].Checkout {
-		visitorsInfoToday.Details[sessionId].Checkout = VISITOR_SALES
-		visitorsInfoToday.Sales += 1
+	if VisitorSales > visitorsInfoToday.Details[sessionID].Checkout {
+		visitorsInfoToday.Details[sessionID].Checkout = VisitorSales
+		visitorsInfoToday.Sales++
 	}
 
 	_ = SaveVisitorData()
@@ -125,22 +126,22 @@ func salesHandler(event string, data map[string]interface{}) bool {
 	}
 	salesData := make(map[string]int)
 
-	salesHistoryCollection, err := db.GetCollection(COLLECTION_NAME_SALES_HISTORY)
+	salesHistoryCollection, err := db.GetCollection(CollectionNameSalesHistory)
 	if err != nil {
 		return true
 	}
 
-	for productId, count := range data {
+	for productID, count := range data {
 		year := time.Now().Year()
 		month := time.Now().Month()
 		day := time.Now().Day()
 		date := time.Date(year, month, day, 0, 0, 0, 0, time.Local)
 		salesHistoryRow := make(map[string]interface{})
-		salesData[productId] = utils.InterfaceToInt(count)
+		salesData[productID] = utils.InterfaceToInt(count)
 
 		salesHistoryCollection.ClearFilters()
 		salesHistoryCollection.AddFilter("created_at", "=", date)
-		salesHistoryCollection.AddFilter("product_id", "=", productId)
+		salesHistoryCollection.AddFilter("product_id", "=", productID)
 		dbSaleRow, _ := salesHistoryCollection.Load()
 
 		newCount := utils.InterfaceToInt(count)
@@ -151,7 +152,7 @@ func salesHandler(event string, data map[string]interface{}) bool {
 		}
 
 		// Add history row
-		salesHistoryRow["product_id"] = productId
+		salesHistoryRow["product_id"] = productID
 		salesHistoryRow["created_at"] = date
 		salesHistoryRow["count"] = newCount
 		_, err = salesHistoryCollection.Save(salesHistoryRow)
@@ -169,9 +170,9 @@ func regVisitorAsOnlineHandler(event string, data map[string]interface{}) bool {
 	if "api.regVisitorAsOnlineHandler" != event {
 		return true
 	}
-	sessionId := utils.InterfaceToString(data["sessionId"])
+	sessionID := utils.InterfaceToString(data["sessionID"])
 
-	referrerType := REFERRER_TYPE_DIRECT
+	referrerType := ReferrerTypeDirect
 
 	if "" != utils.InterfaceToString(data["referrer"]) {
 		referrer, err := GetReferrer(utils.InterfaceToString(data["referrer"]))
@@ -180,35 +181,34 @@ func regVisitorAsOnlineHandler(event string, data map[string]interface{}) bool {
 		}
 
 		isSearchEngine := false
-		for index := 0; index < len(searchEngines); index += 1 {
+		for index := 0; index < len(searchEngines); index++ {
 			if strings.Contains(referrer, searchEngines[index]) {
 				isSearchEngine = true
 			}
 		}
 
 		if isSearchEngine {
-			referrerType = REFERRER_TYPE_SEARCH
+			referrerType = ReferrerTypeSearch
 		} else {
-			referrerType = REFERRER_TYPE_SITE
+			referrerType = ReferrerTypeSite
 		}
 	}
 
-	if _, ok := OnlineSessions[sessionId]; !ok {
-		OnlineSessions[sessionId] = &OnlineReferrer{}
+	if _, ok := OnlineSessions[sessionID]; !ok {
+		OnlineSessions[sessionID] = &OnlineReferrer{}
 		IncreaseOnline(referrerType)
 		if len(OnlineSessions) > OnlineSessionsMax {
 			OnlineSessionsMax = len(OnlineSessions)
 		}
 	} else {
-		if OnlineSessions[sessionId].referrerType != referrerType {
-			DecreaseOnline(OnlineSessions[sessionId].referrerType)
+		if OnlineSessions[sessionID].referrerType != referrerType {
+			DecreaseOnline(OnlineSessions[sessionID].referrerType)
 			IncreaseOnline(referrerType)
 		}
 	}
 
-
-	OnlineSessions[sessionId].time = time.Now()
-	OnlineSessions[sessionId].referrerType = referrerType
+	OnlineSessions[sessionID].time = time.Now()
+	OnlineSessions[sessionID].referrerType = referrerType
 
 	return true
 }
@@ -217,9 +217,9 @@ func visitorOnlineActionHandler(event string, data map[string]interface{}) bool 
 	if "api.visitorOnlineAction" != event {
 		return true
 	}
-	sessionId := utils.InterfaceToString(data["sessionId"])
-	if _, ok := OnlineSessions[sessionId]; ok {
-		OnlineSessions[sessionId].time = time.Now()
+	sessionID := utils.InterfaceToString(data["sessionID"])
+	if _, ok := OnlineSessions[sessionID]; ok {
+		OnlineSessions[sessionID].time = time.Now()
 	}
 
 	return true

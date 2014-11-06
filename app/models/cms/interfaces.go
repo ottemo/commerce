@@ -33,6 +33,7 @@ type I_CMSPage interface {
 	models.I_Model
 	models.I_Object
 	models.I_Storable
+	models.I_Listable
 }
 
 type I_CMSPageCollection interface {
@@ -51,6 +52,7 @@ type I_CMSBlock interface {
 	models.I_Model
 	models.I_Object
 	models.I_Storable
+	models.I_Listable
 }
 
 type I_CMSBlockCollection interface {

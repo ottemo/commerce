@@ -1,9 +1,9 @@
 package product
 
 import (
+	"math/rand"
 	"mime"
 	"strings"
-	"math/rand"
 
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/env"
@@ -15,7 +15,7 @@ import (
 
 func setupAPI() error {
 
-	var err error = nil
+	var err error
 
 	// 1. DefaultProduct API
 	//----------------------
@@ -49,27 +49,27 @@ func setupAPI() error {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("product", "GET", "media/get/:productId/:mediaType/:mediaName", restMediaGet)
+	err = api.GetRestService().RegisterAPI("product", "GET", "media/get/:productID/:mediaType/:mediaName", restMediaGet)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("product", "GET", "media/list/:productId/:mediaType", restMediaList)
+	err = api.GetRestService().RegisterAPI("product", "GET", "media/list/:productID/:mediaType", restMediaList)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("product", "GET", "media/path/:productId/:mediaType", restMediaPath)
+	err = api.GetRestService().RegisterAPI("product", "GET", "media/path/:productID/:mediaType", restMediaPath)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("product", "POST", "media/add/:productId/:mediaType/:mediaName", restMediaAdd)
+	err = api.GetRestService().RegisterAPI("product", "POST", "media/add/:productID/:mediaType/:mediaName", restMediaAdd)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("product", "DELETE", "media/remove/:productId/:mediaType/:mediaName", restMediaRemove)
+	err = api.GetRestService().RegisterAPI("product", "DELETE", "media/remove/:productID/:mediaType/:mediaName", restMediaRemove)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("product", "POST", "related/:productId", restRelatedList)
+	err = api.GetRestService().RegisterAPI("product", "POST", "related/:productID", restRelatedList)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -221,14 +221,14 @@ func restGetProduct(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
-	productId, isSpecifiedId := params.RequestURLParams["id"]
-	if !isSpecifiedId {
+	productID, isSpecifiedID := params.RequestURLParams["id"]
+	if !isSpecifiedID {
 		return nil, env.ErrorNew("product id was not specified")
 	}
 
 	// load product operation
 	//-----------------------
-	productModel, err := product.LoadProductById(productId)
+	productModel, err := product.LoadProductById(productID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -285,8 +285,8 @@ func restDeleteProduct(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//--------------------
-	productId, isSpecifiedId := params.RequestURLParams["id"]
-	if !isSpecifiedId {
+	productID, isSpecifiedID := params.RequestURLParams["id"]
+	if !isSpecifiedID {
 		return nil, env.ErrorNew("product id was not specified")
 	}
 
@@ -297,7 +297,7 @@ func restDeleteProduct(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// delete operation
 	//-----------------
-	productModel, err := product.GetProductModelAndSetId(productId)
+	productModel, err := product.GetProductModelAndSetId(productID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -317,8 +317,8 @@ func restUpdateProduct(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
-	productId, isSpecifiedId := params.RequestURLParams["id"]
-	if !isSpecifiedId {
+	productID, isSpecifiedID := params.RequestURLParams["id"]
+	if !isSpecifiedID {
 		return nil, env.ErrorNew("product id was not specified")
 	}
 
@@ -334,7 +334,7 @@ func restUpdateProduct(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// update operations
 	//------------------
-	productModel, err := product.LoadProductById(productId)
+	productModel, err := product.LoadProductById(productID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -360,8 +360,8 @@ func restMediaPath(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
-	productId, isIdSpecified := params.RequestURLParams["productId"]
-	if !isIdSpecified {
+	productID, isIDSpecified := params.RequestURLParams["productID"]
+	if !isIDSpecified {
 		return nil, env.ErrorNew("product id was not specified")
 	}
 
@@ -372,7 +372,7 @@ func restMediaPath(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// list media operation
 	//---------------------
-	productModel, err := product.GetProductModelAndSetId(productId)
+	productModel, err := product.GetProductModelAndSetId(productID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -391,8 +391,8 @@ func restMediaList(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
-	productId, isIdSpecified := params.RequestURLParams["productId"]
-	if !isIdSpecified {
+	productID, isIDSpecified := params.RequestURLParams["productID"]
+	if !isIDSpecified {
 		return nil, env.ErrorNew("product id was not specified")
 	}
 
@@ -403,7 +403,7 @@ func restMediaList(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// list media operation
 	//---------------------
-	productModel, err := product.GetProductModelAndSetId(productId)
+	productModel, err := product.GetProductModelAndSetId(productID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -423,8 +423,8 @@ func restMediaAdd(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
-	productId, isIdSpecified := params.RequestURLParams["productId"]
-	if !isIdSpecified {
+	productID, isIDSpecified := params.RequestURLParams["productID"]
+	if !isIDSpecified {
 		return nil, env.ErrorNew("product id was not specified")
 	}
 
@@ -458,7 +458,7 @@ func restMediaAdd(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// add media operation
 	//--------------------
-	productModel, err := product.GetProductModelAndSetId(productId)
+	productModel, err := product.GetProductModelAndSetId(productID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -477,8 +477,8 @@ func restMediaRemove(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
-	productId, isIdSpecified := params.RequestURLParams["productId"]
-	if !isIdSpecified {
+	productID, isIDSpecified := params.RequestURLParams["productID"]
+	if !isIDSpecified {
 		return nil, env.ErrorNew("product id was not specified")
 	}
 
@@ -499,7 +499,7 @@ func restMediaRemove(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// list media operation
 	//---------------------
-	productModel, err := product.GetProductModelAndSetId(productId)
+	productModel, err := product.GetProductModelAndSetId(productID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -518,8 +518,8 @@ func restMediaGet(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
-	productId, isIdSpecified := params.RequestURLParams["productId"]
-	if !isIdSpecified {
+	productID, isIDSpecified := params.RequestURLParams["productID"]
+	if !isIDSpecified {
 		return nil, env.ErrorNew("product id was not specified")
 	}
 
@@ -537,7 +537,7 @@ func restMediaGet(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// list media operation
 	//---------------------
-	productModel, err := product.GetProductModelAndSetId(productId)
+	productModel, err := product.GetProductModelAndSetId(productID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -551,7 +551,7 @@ func restMediaGet(params *api.T_APIHandlerParams) (interface{}, error) {
 
 // WEB REST API function used to obtain product list we have in database
 //   - only [_id, sku, name] attributes returns by default
-func  restListProducts(params *api.T_APIHandlerParams) (interface{}, error) {
+func restListProducts(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -591,8 +591,8 @@ func restRelatedList(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
-	productId, isSpecifiedId := params.RequestURLParams["productId"]
-	if !isSpecifiedId {
+	productID, isSpecifiedID := params.RequestURLParams["productID"]
+	if !isSpecifiedID {
 		return nil, env.ErrorNew("product id was not specified")
 	}
 
@@ -601,26 +601,29 @@ func restRelatedList(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	count := 5;
+	count := 5
 	if utils.InterfaceToInt(reqData["count"]) > 0 {
 		count = utils.InterfaceToInt(reqData["count"])
 	}
 
 	// load product operation
 	//-----------------------
-	productModel, err := product.LoadProductById(productId)
+	productModel, err := product.LoadProductById(productID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	result := make([]models.T_ListItem, 0)
+	// result := make([]models.T_ListItem, 0)
+	var result []models.T_ListItem
+
 	relatedPids := utils.InterfaceToArray(productModel.Get("related_pids"))
 
 	if len(relatedPids) > count {
-		indexes := make([]int,0)
+		// indexes := make([]int, 0)
+		var indexes []int
 		for len(indexes) < count {
 
-			new := rand.Intn(len(relatedPids));
+			new := rand.Intn(len(relatedPids))
 
 			inArray := false
 			for _, b := range indexes {
@@ -633,8 +636,8 @@ func restRelatedList(params *api.T_APIHandlerParams) (interface{}, error) {
 			}
 		}
 		for _, index := range indexes {
-			if productId := utils.InterfaceToString(relatedPids[index]); productId != "" {
-				if productModel, err := product.LoadProductById(productId); err == nil {
+			if productID := utils.InterfaceToString(relatedPids[index]); productID != "" {
+				if productModel, err := product.LoadProductById(productID); err == nil {
 					if err == nil {
 						resultItem := new(models.T_ListItem)
 
@@ -666,12 +669,12 @@ func restRelatedList(params *api.T_APIHandlerParams) (interface{}, error) {
 			}
 		}
 	} else {
-		for _, productId := range relatedPids {
-			if productId == "" {
+		for _, productID := range relatedPids {
+			if productID == "" {
 				continue
 			}
 
-			productModel, err := product.LoadProductById(utils.InterfaceToString(productId))
+			productModel, err := product.LoadProductById(utils.InterfaceToString(productID))
 			if err == nil {
 				resultItem := new(models.T_ListItem)
 

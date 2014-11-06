@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-// returns object attribute value or nil
+// Get returns an object attribute value or nil
 func (it *DefaultProduct) Get(attribute string) interface{} {
 	switch strings.ToLower(attribute) {
 	case "_id", "id":
@@ -37,7 +37,7 @@ func (it *DefaultProduct) Get(attribute string) interface{} {
 	return it.CustomAttributes.Get(attribute)
 }
 
-// sets attribute value to object or returns error
+// Set will apply the given attribute value to the product or return an error
 func (it *DefaultProduct) Set(attribute string, value interface{}) error {
 	lowerCaseAttribute := strings.ToLower(attribute)
 
@@ -67,14 +67,14 @@ func (it *DefaultProduct) Set(attribute string, value interface{}) error {
 		case []interface{}:
 
 			for _, listItem := range typedValue {
-				productId, ok := listItem.(string)
+				productID, ok := listItem.(string)
 				// excludes myself
-				if(it.id == productId){
+				if it.id == productID {
 					continue
 				}
 
 				if ok {
-					productModel, err := product.LoadProductById(productId)
+					productModel, err := product.LoadProductById(productID)
 					if err != nil {
 						return env.ErrorDispatch(err)
 					}
@@ -104,7 +104,7 @@ func (it *DefaultProduct) Set(attribute string, value interface{}) error {
 	return nil
 }
 
-// fills object attributes from map[string]interface{}
+// FromHashMap will populate object attributes from map[string]interface{}
 func (it *DefaultProduct) FromHashMap(input map[string]interface{}) error {
 	for attribute, value := range input {
 		if err := it.Set(attribute, value); err != nil {
@@ -114,7 +114,7 @@ func (it *DefaultProduct) FromHashMap(input map[string]interface{}) error {
 	return nil
 }
 
-// represents object as map[string]interface{}
+// ToHashMap will return a map[string]interface{}
 func (it *DefaultProduct) ToHashMap() map[string]interface{} {
 	result := it.CustomAttributes.ToHashMap()
 
@@ -136,7 +136,7 @@ func (it *DefaultProduct) ToHashMap() map[string]interface{} {
 	return result
 }
 
-// returns information about object attributes
+// GetAttributesInfo will return the requested object attributes
 func (it *DefaultProduct) GetAttributesInfo() []models.T_AttributeInfo {
 	result := []models.T_AttributeInfo{
 		models.T_AttributeInfo{

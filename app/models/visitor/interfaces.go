@@ -49,7 +49,7 @@ type I_Visitor interface {
 	models.I_Model
 	models.I_Object
 	models.I_Storable
-
+	models.I_Listable
 	models.I_CustomAttributes
 }
 
