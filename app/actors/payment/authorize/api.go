@@ -11,17 +11,18 @@ import (
 	"github.com/ottemo/foundation/utils"
 )
 
+// constants for transaction state
 const (
-	TRANSACTION_APPROVED         = "1"
-	TRANSACTION_DECLINED         = "2"
-	TRANSACTION_ERROR            = "3"
-	TRANSACTION_WAITING_REVIEWED = "4"
+	TransactionApproved      = "1"
+	TransactionDeclined      = "2"
+	TransactionError         = "3"
+	TransactionWaitingReview = "4"
 )
 
 // startup API registration
 func setupAPI() error {
 
-	var err error = nil
+	var err error
 
 	err = api.GetRestService().RegisterAPI("authorizenet", "POST", "receipt", restReceipt)
 	if err != nil {
@@ -57,7 +58,7 @@ func restReceipt(params *api.T_APIHandlerParams) (interface{}, error) {
 	checkoutOrder := currentCheckout.GetOrder()
 
 	switch status {
-	case TRANSACTION_APPROVED:
+	case TransactionApproved:
 		{
 			currentCart := currentCheckout.GetCart()
 			if currentCart == nil {
@@ -90,17 +91,17 @@ func restReceipt(params *api.T_APIHandlerParams) (interface{}, error) {
 				return api.T_RestRedirect{Location: app.GetStorefrontUrl("account/order/" + checkoutOrder.GetId()), DoRedirect: true}, nil
 			}
 		}
-	case TRANSACTION_DECLINED:
-	case TRANSACTION_WAITING_REVIEWED:
+	case TransactionDeclined:
+	case TransactionWaitingReview:
 	default:
 		{
 			if checkoutOrder != nil {
-				env.Log("authorizenet.log", env.LOG_PREFIX_ERROR, "TRANSACTION NOT APPROVED: " +
-							"VisitorId - "+utils.InterfaceToString(checkoutOrder.Get("visitor_id"))+", " +
-							"OrderId - "+checkoutOrder.GetId()+", " +
-							"Card  - "+utils.InterfaceToString(postData["x_card_type"])+" "+utils.InterfaceToString(postData["x_account_number"])+", " +
-							"Total - "+utils.InterfaceToString(postData["x_amount"])+", " +
-							"Transaction ID - "+utils.InterfaceToString(postData["x_trans_id"]))
+				env.Log("authorizenet.log", env.LOG_PREFIX_ERROR, "TRANSACTION NOT APPROVED: "+
+					"VisitorId - "+utils.InterfaceToString(checkoutOrder.Get("visitor_id"))+", "+
+					"OrderId - "+checkoutOrder.GetId()+", "+
+					"Card  - "+utils.InterfaceToString(postData["x_card_type"])+" "+utils.InterfaceToString(postData["x_account_number"])+", "+
+					"Total - "+utils.InterfaceToString(postData["x_amount"])+", "+
+					"Transaction ID - "+utils.InterfaceToString(postData["x_trans_id"]))
 			}
 
 			return []byte(`<html>
@@ -120,12 +121,12 @@ func restReceipt(params *api.T_APIHandlerParams) (interface{}, error) {
 		}
 	}
 	if checkoutOrder != nil {
-		env.Log("authorizenet.log", env.LOG_PREFIX_ERROR, "TRANSACTION NOT APPROVED: (can't process authorize.net response) " +
-					"VisitorId - "+utils.InterfaceToString(checkoutOrder.Get("visitor_id"))+", " +
-					"OrderId - "+checkoutOrder.GetId()+", " +
-					"Card  - "+utils.InterfaceToString(postData["x_card_type"])+" "+utils.InterfaceToString(postData["x_account_number"])+", " +
-					"Total - "+utils.InterfaceToString(postData["x_amount"])+", " +
-					"Transaction ID - "+utils.InterfaceToString(postData["x_trans_id"]))
+		env.Log("authorizenet.log", env.LOG_PREFIX_ERROR, "TRANSACTION NOT APPROVED: (can't process authorize.net response) "+
+			"VisitorId - "+utils.InterfaceToString(checkoutOrder.Get("visitor_id"))+", "+
+			"OrderId - "+checkoutOrder.GetId()+", "+
+			"Card  - "+utils.InterfaceToString(postData["x_card_type"])+" "+utils.InterfaceToString(postData["x_account_number"])+", "+
+			"Total - "+utils.InterfaceToString(postData["x_amount"])+", "+
+			"Transaction ID - "+utils.InterfaceToString(postData["x_trans_id"]))
 	}
 	return nil, errors.New("can't process authorize.net response")
 }
@@ -151,7 +152,7 @@ func restRelay(params *api.T_APIHandlerParams) (interface{}, error) {
 	checkoutOrder := currentCheckout.GetOrder()
 
 	switch status {
-	case TRANSACTION_APPROVED:
+	case TransactionApproved:
 		{
 			currentCart := currentCheckout.GetCart()
 			if currentCart == nil {
@@ -210,8 +211,8 @@ func restRelay(params *api.T_APIHandlerParams) (interface{}, error) {
 				</html>`), nil
 			}
 		}
-	case TRANSACTION_DECLINED:
-	case TRANSACTION_WAITING_REVIEWED:
+	case TransactionDeclined:
+	case TransactionWaitingReview:
 	default:
 		{
 			if checkoutOrder != nil {
@@ -239,12 +240,12 @@ func restRelay(params *api.T_APIHandlerParams) (interface{}, error) {
 		}
 	}
 	if checkoutOrder != nil {
-		env.Log("authorizenet.log", env.LOG_PREFIX_ERROR, "TRANSACTION NOT APPROVED: (can't process authorize.net response) " +
-					"VisitorId - "+utils.InterfaceToString(checkoutOrder.Get("visitor_id"))+", " +
-					"OrderId - "+checkoutOrder.GetId()+", " +
-					"Card  - "+utils.InterfaceToString(postData["x_card_type"])+" "+utils.InterfaceToString(postData["x_account_number"])+", " +
-					"Total - "+utils.InterfaceToString(postData["x_amount"])+", " +
-					"Transaction ID - "+utils.InterfaceToString(postData["x_trans_id"]))
+		env.Log("authorizenet.log", env.LOG_PREFIX_ERROR, "TRANSACTION NOT APPROVED: (can't process authorize.net response) "+
+			"VisitorId - "+utils.InterfaceToString(checkoutOrder.Get("visitor_id"))+", "+
+			"OrderId - "+checkoutOrder.GetId()+", "+
+			"Card  - "+utils.InterfaceToString(postData["x_card_type"])+" "+utils.InterfaceToString(postData["x_account_number"])+", "+
+			"Total - "+utils.InterfaceToString(postData["x_amount"])+", "+
+			"Transaction ID - "+utils.InterfaceToString(postData["x_trans_id"]))
 	}
 
 	return nil, errors.New("can't process authorize.net response")

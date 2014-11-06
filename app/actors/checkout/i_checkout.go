@@ -62,7 +62,7 @@ func (it *DefaultCheckout) SetShippingMethod(shippingMethod checkout.I_ShippingM
 	return nil
 }
 
-// return checkout shipping method
+// GetShippingMethod returns a checkout shipping method
 func (it *DefaultCheckout) GetShippingMethod() checkout.I_ShippingMehod {
 	if shippingMethods := checkout.GetRegisteredShippingMethods(); shippingMethods != nil {
 		for _, shippingMethod := range shippingMethods {
@@ -80,7 +80,7 @@ func (it *DefaultCheckout) SetShippingRate(shippingRate checkout.T_ShippingRate)
 	return nil
 }
 
-// returns checkout shipping rate
+// GetShippingRate returns a checkout shipping rate
 func (it *DefaultCheckout) GetShippingRate() *checkout.T_ShippingRate {
 	return &it.ShippingRate
 }
@@ -91,7 +91,7 @@ func (it *DefaultCheckout) SetCart(checkoutCart cart.I_Cart) error {
 	return nil
 }
 
-// GetCart return checkout cart
+// GetCart returns a shopping cart
 func (it *DefaultCheckout) GetCart() cart.I_Cart {
 	cartInstance, _ := cart.LoadCartById(it.CartId)
 	return cartInstance
@@ -235,7 +235,7 @@ func (it *DefaultCheckout) GetOrder() order.I_Order {
 	return nil
 }
 
-// Submits checkout collected information and makes order
+// Submit creates the order with provided information
 func (it *DefaultCheckout) Submit() (interface{}, error) {
 
 	if it.GetBillingAddress() == nil {

@@ -18,12 +18,12 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
-// returns implementation name of our REST API service
+// GetName returns implementation name of our REST API service
 func (it *DefaultRestService) GetName() string {
 	return "httprouter"
 }
 
-// modules should call this function in order to provide own REST API functionality
+// RegisterAPI is available for modules to call in order to provide their own REST API functionality
 func (it *DefaultRestService) RegisterAPI(service string, method string, uri string, handler api.F_APIHandler) error {
 
 	// httprouter needs other type of handler that we using
@@ -45,7 +45,7 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 		}
 
 		// request content conversion (if possible)
-		var content interface{} = nil
+		var content interface{}
 
 		contentType := req.Header.Get("Content-Type")
 		switch {
@@ -90,7 +90,7 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 			content = newContent
 
 		default:
-			var body []byte = nil
+			var body []byte
 
 			if req.ContentLength > 0 {
 				body = make([]byte, req.ContentLength)
@@ -207,14 +207,14 @@ func (it DefaultRestService) ServeHTTP(responseWriter http.ResponseWriter, reque
 
 		// default output format
 		responseWriter.Header().Set("Content-Type", "application/json")
-		
+
 		request.URL.Path = strings.Replace(request.URL.Path, "/foundation", "", -1)
-		
+
 		it.Router.ServeHTTP(responseWriter, request)
 	}
 }
 
-// REST server startup function - makes it to "ListenAndServe"
+// Run is the REST server startup function, analogous to "ListenAndServe"
 func (it *DefaultRestService) Run() error {
 	log.Println("REST API Service [HTTPRouter] starting to listen on " + it.ListenOn)
 	log.Fatal(http.ListenAndServe(it.ListenOn, it))
