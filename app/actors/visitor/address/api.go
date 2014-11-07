@@ -43,6 +43,10 @@ func setupAPI() error {
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
+	err = api.GetRestService().RegisterAPI("visitor/address", "POST", "list/:visitorId", restListVisitorAddress)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
 	err = api.GetRestService().RegisterAPI("visitor/address", "GET", "load/:id", restGetVisitorAddress)
 	if err != nil {
 		return env.ErrorDispatch(err)
@@ -153,7 +157,7 @@ func restDeleteVisitorAddress(params *api.T_APIHandlerParams) (interface{}, erro
 		return nil, env.ErrorNew("visitor address id was not specified")
 	}
 
-	visitorAddressModel, err := visitor.GetVisitorAddressModelAndSetId(addressId)
+	visitorAddressModel, err := visitor.LoadVisitorAddressById(addressId)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
