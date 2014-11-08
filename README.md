@@ -35,6 +35,29 @@ Below is a mini quickstart if you are new to git-flow and can't wait to jump int
 ### Delete the local branch
     $ git branch -d <FEATURE-BRANCH>
 
+### How start with Vagrantfile
+Clone ottemo/foundation github repo (current bug with ottemo.ini)
+
+    vagrant up
+    vagrant ssh
+    sudo su -
+    export GOPATH=/opt/go
+    cd $GOPATH/src/github.com/ottemo/foundation/
+    go run main.go
+
+Start the container
+
+    docker run -d -p 3000:3000 -t ottemo/foundation
+
+### How to run ottemo/foundation docker container
+Pull latest image from docker hub
+
+    docker pull ottemo/foundation
+
+Start the container and access locally (will not work until bug with prompt for media.fsmedia.folder is fixed)
+
+    docker run -d -p 3000:3000 -t ottemo/foundation
+
 
 ## License
 
