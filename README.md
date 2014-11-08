@@ -50,7 +50,7 @@ Pull latest image from docker hub
 
     docker pull ottemo/foundation
 
-Start the container and access locally (will not work until bug with prompt for media.fsmedia.folder is fixed)
+Start the container and access locally (currently set to use sqlite in the container - development use only)
 
     docker run -d -p 3000:3000 -t ottemo/foundation
 
