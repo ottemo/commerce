@@ -45,10 +45,6 @@ Clone ottemo/foundation github repo (current bug with ottemo.ini)
     cd $GOPATH/src/github.com/ottemo/foundation/
     go run main.go
 
-Start the container
-
-    docker run -d -p 3000:3000 -t ottemo/foundation
-
 ### How to run ottemo/foundation docker container
 Pull latest image from docker hub
 
