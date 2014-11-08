@@ -9,6 +9,7 @@ _test
 tags
 .idea
 tmp
+.vagrant
 
 # Architecture specific extensions/prefixes
 *.[568vq]
