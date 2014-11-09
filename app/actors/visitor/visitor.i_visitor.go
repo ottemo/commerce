@@ -121,7 +121,7 @@ func (it *DefaultVisitor) Invalidate() error {
 
 	linkHref := app.GetFoundationUrl("visitor/validate/" + it.ValidateKey)
 
-	err = app.SendMail(it.GetEmail(), "e-mail validation", "please follow the link to validate your e-mail: "+linkHref)
+	err = app.SendMail(it.GetEmail(), "e-mail validation", "please follow the link to validate your e-mail: <a href=\""+linkHref+"\">"+linkHref+"</a>")
 
 	return env.ErrorDispatch(err)
 }
