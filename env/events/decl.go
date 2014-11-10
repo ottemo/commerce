@@ -5,5 +5,5 @@ import (
 )
 
 type DefaultEventBus struct {
-	listeners []env.F_EventListener
+	listeners map[string][]env.F_EventListener
 }

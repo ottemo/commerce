@@ -90,9 +90,9 @@ func ErrorNew(message string) error {
 }
 
 // registers listener for event bus
-func EventRegisterListener(listener F_EventListener) {
+func EventRegisterListener(event string, listener F_EventListener) {
 	if eventBus := GetEventBus(); eventBus != nil {
-		eventBus.RegisterListener(listener)
+		eventBus.RegisterListener(event, listener)
 	}
 }
 

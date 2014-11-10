@@ -10,8 +10,8 @@ const (
 )
 
 type I_EventBus interface {
-	RegisterListener(F_EventListener)
-	New(string, map[string]interface{})
+	RegisterListener(event string, listener F_EventListener)
+	New(event string, eventData map[string]interface{})
 }
 
 type I_ErrorBus interface {
