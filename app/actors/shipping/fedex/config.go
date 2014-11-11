@@ -202,6 +202,21 @@ func setupConfig() error {
 		if err != nil {
 			return env.ErrorDispatch(err)
 		}
+
+		config.RegisterItem(env.T_ConfigItem{
+			Path:        CONFIG_PATH_DEBUG_LOG,
+			Value:       false,
+			Type:        "bool",
+			Editor:      "boolean",
+			Options:     nil,
+			Label:       "Debug log",
+			Description: "enables/disables shipping method debug log",
+			Image:       "",
+		}, func(value interface{}) (interface{}, error) { return utils.InterfaceToBool(value), nil })
+
+		if err != nil {
+			return env.ErrorDispatch(err)
+		}
 	}
 
 	return nil

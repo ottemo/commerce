@@ -29,12 +29,14 @@ func (it *FedEx) GetRates(checkoutObject checkout.I_Checkout) []checkout.T_Shipp
 
 	result := make([]checkout.T_ShippingRate, 0)
 
+	useDebugLog := utils.InterfaceToBool(env.ConfigGetValue(CONFIG_PATH_DEBUG_LOG))
+
 	templateValues := map[string]interface{}{
 		"key":         utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_KEY)),
 		"password":    utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_PASSWORD)),
 		"number":      utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_NUMBER)),
 		"meter":       utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_METER)),
-		"origin":      utils.InterfaceToString(env.ConfigGetValue(checkout.CONFIG_PATH_PAYMENT_ORIGIN_ZIP)),
+		"origin":      utils.InterfaceToString(env.ConfigGetValue(checkout.CONFIG_PATH_SHIPPING_ORIGIN_ZIP)),
 		"dropoff":     utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_DROPOFF)),
 		"packaging":   utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_PACKAGING)),
 		"destination": nil,
@@ -143,7 +145,9 @@ func (it *FedEx) GetRates(checkoutObject checkout.I_Checkout) []checkout.T_Shipp
 	parsedTemplate, _ := template.New("fedex").Parse(requestTemplate)
 	parsedTemplate.Execute(&body, templateValues)
 
-	// println( string(body.Bytes()) )
+	if useDebugLog {
+		env.Log("fedex.log", "REQUEST", string(body.Bytes()))
+	}
 
 	url := utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_GATEWAY)) + "/rate"
 	request, err := http.NewRequest("POST", url, &body)
@@ -167,6 +171,10 @@ func (it *FedEx) GetRates(checkoutObject checkout.I_Checkout) []checkout.T_Shipp
 	if err != nil {
 		env.ErrorDispatch(err)
 		return result
+	}
+
+	if useDebugLog {
+		env.Log("fedex.log", "RESPONSE", string(responseData))
 	}
 
 	// parsing xml response to rates

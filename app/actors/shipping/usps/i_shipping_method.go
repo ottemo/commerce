@@ -37,6 +37,8 @@ func (it *USPS) GetRates(checkoutObject checkout.I_Checkout) []checkout.T_Shippi
 
 	result := make([]checkout.T_ShippingRate, 0)
 
+	useDebugLog := utils.InterfaceToBool(env.ConfigGetValue(CONFIG_PATH_DEBUG_LOG))
+
 	templateValues := make(map[string]interface{})
 
 	templateValues["userid"] = utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_USER))       // "133OTTEM1795",
@@ -128,7 +130,9 @@ func (it *USPS) GetRates(checkoutObject checkout.I_Checkout) []checkout.T_Shippi
 	parsedTemplate, _ := template.New("usps").Parse(requestTemplate)
 	parsedTemplate.Execute(&buff, templateValues)
 
-	// println(buff.String())
+	if useDebugLog {
+		env.Log("usps.log", "REQUEST", buff.String())
+	}
 
 	query := HTTP_ENDPOINT + "?API=RateV4&XML=" + url.QueryEscape(buff.String())
 	response, err := http.Get(query)
@@ -150,7 +154,9 @@ func (it *USPS) GetRates(checkoutObject checkout.I_Checkout) []checkout.T_Shippi
 		}
 	}
 
-	// println(string(responseData))
+	if useDebugLog {
+		env.Log("usps.log", "RESPONSE", string(responseData))
+	}
 
 	root, err := xmlpath.Parse(bytes.NewReader(responseData))
 	if err != nil {

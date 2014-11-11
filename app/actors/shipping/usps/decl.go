@@ -18,6 +18,7 @@ const (
 	CONFIG_PATH_DEFAULT_DIMENSIONS = "shipping.usps.default_dimensions"
 	CONFIG_PATH_DEFAULT_WEIGHT     = "shipping.usps.default_weight"
 	CONFIG_PATH_ALLOWED_METHODS    = "shipping.usps.allowed_methods"
+	CONFIG_PATH_DEBUG_LOG          = "shipping.usps.debug_log"
 )
 
 type USPS struct{}
