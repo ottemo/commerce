@@ -69,7 +69,7 @@ import "time"
  *
  */
 
-// Set of constants for Collections, Visitors and Referrors in statistic collecion
+// Set of constants for Collections, Visitors and Referrers in statistic collection
 const (
 	CollectionNameSalesHistory = "rts_sales_history"
 	CollectionNameSales        = "rts_sales"

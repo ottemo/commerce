@@ -34,14 +34,15 @@ func init() {
 // DB preparations for current model implementation
 func initListners() error {
 
-	env.EventRegisterListener("", referrerHandler)
-	env.EventRegisterListener("", visitsHandler)
-	env.EventRegisterListener("", addToCartHandler)
-	env.EventRegisterListener("", reachedCheckoutHandler)
-	env.EventRegisterListener("", purchasedHandler)
-	env.EventRegisterListener("", salesHandler)
-	env.EventRegisterListener("", regVisitorAsOnlineHandler)
-	env.EventRegisterListener("", visitorOnlineActionHandler)
+	env.EventRegisterListener("api.rts.visit", referrerHandler)
+	env.EventRegisterListener("api.rts.visit", visitsHandler)
+	env.EventRegisterListener("api.cart.addToCart", addToCartHandler)
+	env.EventRegisterListener("api.checkout.setPayment", reachedCheckoutHandler)
+	env.EventRegisterListener("checkout.success", purchasedHandler)
+	env.EventRegisterListener("checkout.success", salesHandler)
+	env.EventRegisterListener("api.rts.visit", registerVisitorAsOnlineHandler)
+	env.EventRegisterListener("api.request", registerVisitorAsOnlineHandler)
+	env.EventRegisterListener("api.request", visitorOnlineActionHandler)
 
 	return nil
 }

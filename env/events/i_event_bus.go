@@ -19,9 +19,13 @@ func (it *DefaultEventBus) New(event string, args map[string]interface{}) {
 
 	// loop over top level events
 	// (i.e. "api.checkout.success" event will notify following listeners: "", "api", "api.checkout", "api.checkout.success")
+	lastChar := len(event) - 1
 	for charIdx, char := range event {
-		if charIdx == 0 || char == '.' {
-			levelEvent := event[0:charIdx]
+		if charIdx == 0 || charIdx == lastChar || char == '.' {
+			levelEvent := event
+			if charIdx != lastChar {
+				levelEvent = event[0:charIdx]
+			}
 
 			// processing listeners withing level if present
 			if listeners, present := it.listeners[levelEvent]; present {
@@ -36,4 +40,5 @@ func (it *DefaultEventBus) New(event string, args map[string]interface{}) {
 			}
 		}
 	}
+
 }

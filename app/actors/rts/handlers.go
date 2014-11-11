@@ -6,16 +6,26 @@ import (
 
 	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/utils"
+	"github.com/ottemo/foundation/app"
+	"github.com/ottemo/foundation/api"
+	"github.com/ottemo/foundation/app/models/cart"
 )
 
 func referrerHandler(event string, data map[string]interface{}) bool {
 
-	if "api.referrer" != event || "" == utils.InterfaceToString(data["referrer"]) {
+	params := data["apiParams"].(*api.T_APIHandlerParams)
+	xReferrer := utils.InterfaceToString(params.Request.Header.Get("X-Referer"))
+	if  "" == xReferrer {
 		return true
 	}
 
-	referrer, err := GetReferrer(utils.InterfaceToString(data["referrer"]))
+	referrer, err := GetReferrer(xReferrer)
 	if err != nil {
+		return true
+	}
+
+	// exclude himself("storefront")
+	if strings.Contains(app.GetStorefrontUrl(""), referrer) {
 		return true
 	}
 
@@ -26,15 +36,12 @@ func referrerHandler(event string, data map[string]interface{}) bool {
 
 func visitsHandler(event string, data map[string]interface{}) bool {
 
-	if "api.visits" != event {
-		return true
-	}
-
 	err := GetTodayVisitorsData()
 	if err != nil {
 		return true
 	}
-	sessionID := utils.InterfaceToString(data["sessionID"])
+	session := data["session"].(api.I_Session)
+	sessionID := session.GetId()
 
 	year := time.Now().Year()
 	month := time.Now().Month()
@@ -45,9 +52,10 @@ func visitsHandler(event string, data map[string]interface{}) bool {
 	if _, ok := visitorsInfoToday.Details[sessionID]; !ok {
 		visitorsInfoToday.Details[sessionID] = &VisitorDetail{Time: today}
 		visitorsInfoToday.Visitors++
+	} else {
+		visitorsInfoToday.Details[sessionID].Time = today
 	}
 
-	visitorsInfoToday.Details[sessionID] = &VisitorDetail{Time: today}
 	_ = SaveVisitorData()
 
 	return true
@@ -55,15 +63,16 @@ func visitsHandler(event string, data map[string]interface{}) bool {
 
 func addToCartHandler(event string, data map[string]interface{}) bool {
 
-	if "api.addToCart" != event {
-		return true
-	}
-
 	err := GetTodayVisitorsData()
 	if err != nil {
 		return true
 	}
-	sessionID := utils.InterfaceToString(data["sessionID"])
+	session := data["session"].(api.I_Session)
+	sessionID := session.GetId()
+
+	if _, ok := visitorsInfoToday.Details[sessionID]; !ok {
+		visitorsInfoToday.Details[sessionID] = &VisitorDetail{}
+	}
 
 	if 0 == visitorsInfoToday.Details[sessionID].Checkout {
 		visitorsInfoToday.Details[sessionID].Checkout = VisitorAddToCart
@@ -77,15 +86,16 @@ func addToCartHandler(event string, data map[string]interface{}) bool {
 
 func reachedCheckoutHandler(event string, data map[string]interface{}) bool {
 
-	if "api.reachedCheckout" != event {
-		return true
-	}
-
 	err := GetTodayVisitorsData()
 	if err != nil {
 		return true
 	}
-	sessionID := utils.InterfaceToString(data["sessionID"])
+	session := data["session"].(api.I_Session)
+	sessionID := session.GetId()
+
+	if _, ok := visitorsInfoToday.Details[sessionID]; !ok {
+		visitorsInfoToday.Details[sessionID] = &VisitorDetail{}
+	}
 
 	if VisitorCheckout > visitorsInfoToday.Details[sessionID].Checkout {
 		visitorsInfoToday.Details[sessionID].Checkout = VisitorCheckout
@@ -99,15 +109,16 @@ func reachedCheckoutHandler(event string, data map[string]interface{}) bool {
 
 func purchasedHandler(event string, data map[string]interface{}) bool {
 
-	if "api.purchased" != event {
-		return true
-	}
-
 	err := GetTodayVisitorsData()
 	if err != nil {
 		return true
 	}
-	sessionID := utils.InterfaceToString(data["sessionID"])
+	session := data["session"].(api.I_Session)
+	sessionID := session.GetId()
+
+	if _, ok := visitorsInfoToday.Details[sessionID]; !ok {
+		visitorsInfoToday.Details[sessionID] = &VisitorDetail{}
+	}
 
 	if VisitorSales > visitorsInfoToday.Details[sessionID].Checkout {
 		visitorsInfoToday.Details[sessionID].Checkout = VisitorSales
@@ -121,9 +132,17 @@ func purchasedHandler(event string, data map[string]interface{}) bool {
 
 func salesHandler(event string, data map[string]interface{}) bool {
 
-	if "api.sales" != event || len(data) == 0 {
+	cart := data["cart"].(cart.I_Cart)
+	products := cart.GetItems()
+	productsData := make(map[string]interface{})
+	for i := range products {
+		productsData[products[i].GetProductId()] = products[i].GetQty()
+	}
+
+	if len(productsData) == 0 {
 		return true
 	}
+
 	salesData := make(map[string]int)
 
 	salesHistoryCollection, err := db.GetCollection(CollectionNameSalesHistory)
@@ -131,7 +150,7 @@ func salesHandler(event string, data map[string]interface{}) bool {
 		return true
 	}
 
-	for productID, count := range data {
+	for productID, count := range productsData {
 		year := time.Now().Year()
 		month := time.Now().Month()
 		day := time.Now().Day()
@@ -166,16 +185,24 @@ func salesHandler(event string, data map[string]interface{}) bool {
 	return true
 }
 
-func regVisitorAsOnlineHandler(event string, data map[string]interface{}) bool {
-	if "api.regVisitorAsOnlineHandler" != event {
-		return true
-	}
-	sessionID := utils.InterfaceToString(data["sessionID"])
+func registerVisitorAsOnlineHandler(event string, data map[string]interface{}) bool {
+
+	session := data["session"].(api.I_Session)
+	sessionID := session.GetId()
 
 	referrerType := ReferrerTypeDirect
+	referrer := ""
+	if "api.rts.visit" == event {
+		params := data["apiParams"].(*api.T_APIHandlerParams)
+		i_referrer := params.Request.Header.Get("X-Referer"); // api.rts.visit
+		referrer = utils.InterfaceToString(i_referrer);
+	}
+	if "api.request" == event {
+		referrer = utils.InterfaceToString(data["referrer"]); //api.request
+	}
 
-	if "" != utils.InterfaceToString(data["referrer"]) {
-		referrer, err := GetReferrer(utils.InterfaceToString(data["referrer"]))
+	if "" != referrer {
+		referrer, err := GetReferrer(referrer)
 		if err != nil {
 			return true
 		}
@@ -214,10 +241,9 @@ func regVisitorAsOnlineHandler(event string, data map[string]interface{}) bool {
 }
 
 func visitorOnlineActionHandler(event string, data map[string]interface{}) bool {
-	if "api.visitorOnlineAction" != event {
-		return true
-	}
-	sessionID := utils.InterfaceToString(data["sessionID"])
+
+	session := data["session"].(api.I_Session)
+	sessionID := session.GetId()
 	if _, ok := OnlineSessions[sessionID]; ok {
 		OnlineSessions[sessionID].time = time.Now()
 	}
