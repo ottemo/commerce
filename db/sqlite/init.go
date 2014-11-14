@@ -7,9 +7,10 @@ import (
 )
 
 var (
-	dbEngine *SQLite
+	dbEngine *SQLite // instance of database engine (one per application)
 )
 
+// module entry point
 func init() {
 	dbEngine = new(SQLite)
 	dbEngine.attributeTypes = make(map[string]map[string]string)
@@ -20,6 +21,7 @@ func init() {
 	db.RegisterDBEngine(dbEngine)
 }
 
+// db engine startup routines
 func (it *SQLite) Startup() error {
 
 	it.attributeTypes = make(map[string]map[string]string)

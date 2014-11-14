@@ -7,9 +7,11 @@ import (
 )
 
 const (
+	// database collection name to store config values
 	CONFIG_COLLECTION_NAME = "config"
 )
 
+// module entry point
 func init() {
 	instance := &DefaultConfig{
 		configValues:     make(map[string]interface{}),
@@ -24,9 +26,8 @@ func init() {
 	env.RegisterConfig(instance)
 }
 
-// DB preparations for current model implementation
+// service pre-initialization stuff
 func setupDB() error {
-
 	collection, err := db.GetCollection(CONFIG_COLLECTION_NAME)
 	if err != nil {
 		return env.ErrorDispatch(err)

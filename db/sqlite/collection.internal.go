@@ -161,6 +161,7 @@ func (it *SQLiteCollection) updateFilterGroup(groupName string, columnName strin
 	return nil
 }
 
+// generates new UUID for _id column
 func (it *SQLiteCollection) makeUUID(id string) string {
 
 	if len(id) != 24 {

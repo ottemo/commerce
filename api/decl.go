@@ -1,3 +1,6 @@
+// Package contain interfaces for API endpoint services.
+//
+// Currently only "I_RestService" endpoint interface supported.
 package api
 
 import (
@@ -5,9 +8,10 @@ import (
 )
 
 var (
-	SESSION_KEY_ADMIN_RIGHTS = "adminRights"
+	SESSION_KEY_ADMIN_RIGHTS = "adminRights" // session key used to flag that user have admin rights
 )
 
+// structure to hold API request related information
 type T_APIHandlerParams struct {
 	ResponseWriter   http.ResponseWriter
 	Request          *http.Request
@@ -17,6 +21,7 @@ type T_APIHandlerParams struct {
 	Session          I_Session
 }
 
+// structure you should return in API handler function if redirect needed
 type T_RestRedirect struct {
 	Result   interface{}
 	Location string
@@ -24,4 +29,5 @@ type T_RestRedirect struct {
 	DoRedirect bool
 }
 
+// API handler callback function type
 type F_APIHandler func(params *T_APIHandlerParams) (interface{}, error)

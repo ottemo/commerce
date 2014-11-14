@@ -1,3 +1,4 @@
+// Package "session" is a default implementation for "I_Session" interface.
 package session
 
 import (
@@ -12,16 +13,16 @@ import (
 )
 
 const (
-	ALPHANUMERIC = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890"
+	ALPHANUMERIC = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890" // sessionID allowed symbols
 
-	SESSION_COOKIE_NAME = "OTTEMOSESSION"
+	SESSION_COOKIE_NAME = "OTTEMOSESSION" // cookie name which should contain sessionID
 )
 
 var (
-	Sessions      = make(map[string]*Session)
-	sessionsMutex sync.RWMutex
+	Sessions      = make(map[string]*Session) // active session set
+	sessionsMutex sync.RWMutex                // syncronization on Sessions variable modification
 
-	gcRate int64 = 10
+	gcRate int64 = 10 // garbage collection rate
 )
 
 // returns session object for request or creates new one

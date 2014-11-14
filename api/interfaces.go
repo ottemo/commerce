@@ -4,6 +4,7 @@ import (
 	"net/http"
 )
 
+// interface for accessing private storage assigned to particular API request
 type I_Session interface {
 	GetId() string
 
@@ -13,6 +14,7 @@ type I_Session interface {
 	Close() error
 }
 
+// interface to interact with RESTFul API service
 type I_RestService interface {
 	GetName() string
 

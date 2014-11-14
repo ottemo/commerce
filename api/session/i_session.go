@@ -4,6 +4,7 @@ import (
 	"time"
 )
 
+// implementer class
 type Session struct {
 	id string
 
@@ -12,12 +13,12 @@ type Session struct {
 	time time.Time
 }
 
-// returns currens session id
+// returns current session id
 func (it *Session) GetId() string {
 	return it.id
 }
 
-// returns session value by key
+// returns session value by a given key or nil - if not set
 func (it *Session) Get(key string) interface{} {
 	if value, ok := it.values[key]; ok == true {
 		return value

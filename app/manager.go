@@ -8,14 +8,17 @@ import (
 )
 
 var (
+	// application status indicators to flag that system already in progress or done on kind of routine
 	initFlag  bool
 	startFlag bool
 	endFlag   bool
 
+	// synchronize locks to prevent simultaneous processing
 	initMutex  sync.RWMutex
 	startMutex sync.RWMutex
 	endMutex   sync.RWMutex
 
+	// registered callbacks for application events
 	callbacksOnAppInit  = []func() error{}
 	callbacksOnAppStart = []func() error{}
 	callbacksOnAppEnd   = []func() error{}

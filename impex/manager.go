@@ -5,7 +5,7 @@ import (
 )
 
 // registers new command to import/export system
-func RegisterImportCommand(commandName string, command ImpexImportCmd) error {
+func RegisterImportCommand(commandName string, command I_ImpexImportCmd) error {
 	if _, present := importCmd[commandName]; present {
 		return env.ErrorNew(commandName + " already registered in impex")
 	}

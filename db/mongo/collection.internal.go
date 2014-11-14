@@ -11,6 +11,7 @@ import (
 	"labix.org/v2/mgo/bson"
 )
 
+// converts value from GO representation to DB before usage in queries
 func (it *MongoDBCollection) convertValueToType(columnType string, value interface{}) interface{} {
 
 	switch typedValue := value.(type) {

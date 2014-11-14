@@ -1,3 +1,4 @@
+// Package is a SQLite implementation of "I_DBEngine" and "I_Collection" interfaces.
 package sqlite
 
 import (
@@ -8,18 +9,19 @@ import (
 )
 
 const (
-	UUID_ID = true
+	UUID_ID   = true  // flag which indicates to use UUID "_id" column type instead of default integer
+	DEBUG_SQL = false // flag which indicates to perform log on each SQL operation
 
-	DEBUG_SQL = false
+	FILTER_GROUP_STATIC  = "static"  // name for static filter, ref. to AddStaticFilter(...)
+	FILTER_GROUP_DEFAULT = "default" // name for default filter, ref. to by AddFilter(...)
 
-	FILTER_GROUP_STATIC  = "static"
-	FILTER_GROUP_DEFAULT = "default"
-
-	COLLECTION_NAME_COLUMN_INFO = "collection_column_info"
+	COLLECTION_NAME_COLUMN_INFO = "collection_column_info" // table name to hold Ottemo types of columns
 )
 
+// regex expression used to check names used within SQL queries
 var SQL_NAME_VALIDATOR = regexp.MustCompile("^[A-Za-z_][A-Za-z0-9_]*$")
 
+// structure to hold information of named collection filter
 type T_DBFilterGroup struct {
 	Name         string
 	FilterValues []string
@@ -27,6 +29,7 @@ type T_DBFilterGroup struct {
 	OrSequence   bool
 }
 
+// I_DBCollection implementer class
 type SQLiteCollection struct {
 	Name string
 
@@ -37,6 +40,7 @@ type SQLiteCollection struct {
 	Limit string
 }
 
+// I_DBEngine implementer class
 type SQLite struct {
 	connection      *sqlite3.Conn
 	connectionMutex sync.RWMutex

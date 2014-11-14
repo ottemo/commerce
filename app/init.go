@@ -5,7 +5,7 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
-// module entry point before app start
+// module entry point
 func init() {
 	env.RegisterOnConfigStart(setupConfig)
 	api.RegisterOnRestServiceStart(setupAPI)

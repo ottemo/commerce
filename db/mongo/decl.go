@@ -1,3 +1,4 @@
+// Package is a MongoDB implementation of "I_DBEngine" and "I_Collection" interfaces.
 package mongo
 
 import (
@@ -8,19 +9,20 @@ import (
 )
 
 var (
-	attributeTypes      = make(map[string]map[string]string)
-	attributeTypesMutex sync.RWMutex
+	attributeTypes      = make(map[string]map[string]string) // cached values of collection attribute types
+	attributeTypesMutex sync.RWMutex                         // syncronization for attributeTypes modification
 )
 
 const (
-	MONGO_DEBUG = false
+	MONGO_DEBUG = false // flag which indicates to perform log on each operation
 
-	FILTER_GROUP_STATIC  = "static"
-	FILTER_GROUP_DEFAULT = "default"
+	FILTER_GROUP_STATIC  = "static"  // name for static filter, ref. to AddStaticFilter(...)
+	FILTER_GROUP_DEFAULT = "default" // name for default filter, ref. to by AddFilter(...)
 
-	COLLECTION_NAME_COLUMN_INFO = "collection_column_info"
+	COLLECTION_NAME_COLUMN_INFO = "collection_column_info" // collection name to hold Ottemo types of attributes
 )
 
+// structure to hold information of named collection filter
 type T_DBFilterGroup struct {
 	Name         string
 	FilterValues []bson.D
@@ -28,6 +30,7 @@ type T_DBFilterGroup struct {
 	OrSequence   bool
 }
 
+// I_DBCollection implementer class
 type MongoDBCollection struct {
 	database   *mgo.Database
 	collection *mgo.Collection
@@ -47,6 +50,7 @@ type MongoDBCollection struct {
 	Offset int
 }
 
+// I_DBEngine implementer class
 type MongoDB struct {
 	database *mgo.Database
 	session  *mgo.Session

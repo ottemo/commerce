@@ -12,6 +12,7 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
+// setups package related API endpoint routines
 func setupAPI() error {
 
 	var err error = nil
@@ -92,6 +93,7 @@ func restImpexExportModel(params *api.T_APIHandlerParams) (interface{}, error) {
 	return nil, nil
 }
 
+// WEB REST API used process scv file in impex format
 func restImpexImport(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	filesProcessed := 0
@@ -173,7 +175,7 @@ func restImpexImportModel(params *api.T_APIHandlerParams) (interface{}, error) {
 	return nil, env.ErrorNew("not implemented")
 }
 
-// WEB REST API
+// WEB REST API to test import csv file
 func restImpexTstImport(params *api.T_APIHandlerParams) (interface{}, error) {
 	csvFile, err := os.OpenFile("test.csv", os.O_RDONLY, 0666)
 	defer csvFile.Close()
@@ -194,7 +196,7 @@ func restImpexTstImport(params *api.T_APIHandlerParams) (interface{}, error) {
 	return result, err
 }
 
-// WEB REST API
+// WEB REST API to test export
 func restImpexTstExport(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	params.ResponseWriter.Header().Set("Content-Type", "application/csv")

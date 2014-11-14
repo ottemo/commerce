@@ -7,6 +7,7 @@ import (
 	"github.com/ottemo/foundation/utils"
 )
 
+// setups package related API endpoint routines
 func setupAPI() error {
 
 	var err error = nil

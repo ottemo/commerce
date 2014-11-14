@@ -1,6 +1,8 @@
+// Package contain interfaces to access media storage services.
 package media
 
-type IMediaStorage interface {
+// interface to media storage service
+type I_MediaStorage interface {
 	GetName() string
 
 	Load(model string, objId string, mediaType string, mediaName string) ([]byte, error)

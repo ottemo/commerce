@@ -1,3 +1,4 @@
+// Package implements import/export service for Ottemo system.
 package impex
 
 import (
@@ -5,8 +6,8 @@ import (
 )
 
 var (
-	IMPEX_LOG = true
-	DEBUG_LOG = false
+	IMPEX_LOG = true  // flag indicates to make log of values going to be processed
+	DEBUG_LOG = false // flag indicates to have extra log information
 
 	/*
 	 *	column format: [flags]path [memorize] [type] [convertors]
@@ -36,10 +37,6 @@ var (
 	 */
 	CSV_COLUMN_REGEXP = regexp.MustCompile(`^\s*([~^?])?((?:@?\w+\.)*@?\w+)(\s+(?:=|>)\s*\w+)?(?:\s+<([^>]+)>)?\s*(.*)$`)
 
-	importCmd = make(map[string]ImpexImportCmd)
+	// set of service import commands
+	importCmd = make(map[string]I_ImpexImportCmd)
 )
-
-type ImpexImportCmd interface {
-	Init(args []string, exchange map[string]interface{}) error
-	Process(itemData map[string]interface{}, input interface{}, exchange map[string]interface{}) (interface{}, error)
-}

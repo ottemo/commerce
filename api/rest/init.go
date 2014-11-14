@@ -10,7 +10,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-// package self registration function
+// module entry point
 func init() {
 	instance := new(DefaultRestService)
 

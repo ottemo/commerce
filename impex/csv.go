@@ -458,7 +458,7 @@ func ImportCSV(csvReader *csv.Reader) error {
 		// looking for required commands and preparing them to process
 		//-------------------------------------------------------------
 		exchangeDict := make(map[string]interface{})
-		commandsChain := make([]ImpexImportCmd, 0)
+		commandsChain := make([]I_ImpexImportCmd, 0)
 
 		for _, command := range utils.SplitQuotedStringBy(commandLine, '|') {
 			command = strings.TrimSpace(command)

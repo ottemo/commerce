@@ -1,6 +1,8 @@
+// Package contain interfaces to access database services.
 package db
 
 const (
+	// set of types database service should implement storage of
 	DB_BASETYPE_ID       = "id"
 	DB_BASETYPE_BOOLEAN  = "bool"
 	DB_BASETYPE_VARCHAR  = "varchar"
@@ -13,6 +15,7 @@ const (
 	DB_BASETYPE_JSON     = "json"
 )
 
+// interface to access database engine
 type I_DBEngine interface {
 	GetName() string
 
@@ -23,6 +26,7 @@ type I_DBEngine interface {
 	RawQuery(query string) (map[string]interface{}, error)
 }
 
+// interface to access particular table/collection of database
 type I_DBCollection interface {
 	Load() ([]map[string]interface{}, error)
 	LoadById(id string) (map[string]interface{}, error)

@@ -23,7 +23,7 @@ const (
 	DEFAULT_INI_FILE  = "ottemo.ini"
 )
 
-// module entry point before app start
+// module entry point
 func init() {
 	instance := new(DefaultIniConfig)
 	var _ env.I_IniConfig = instance
