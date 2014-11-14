@@ -45,8 +45,8 @@ type I_Visitor interface {
 	Validate(key string) error
 
 	LoadByEmail(email string) error
-	LoadByFacebookId(facebookId string) error
-	LoadByGoogleId(googleId string) error
+	LoadByFacebookId(facebookID string) error
+	LoadByGoogleId(googleID string) error
 
 	models.I_Model
 	models.I_Object
