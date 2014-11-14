@@ -6,7 +6,7 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
-// retrieves current I_VisitorAddressCollection model implementation
+// GetVisitorAddressCollectionModel retrieves current I_VisitorAddressCollection model implementation
 func GetVisitorAddressCollectionModel() (I_VisitorAddressCollection, error) {
 	model, err := models.GetModel(MODEL_NAME_VISITOR_ADDRESS_COLLECTION)
 	if err != nil {
@@ -21,7 +21,7 @@ func GetVisitorAddressCollectionModel() (I_VisitorAddressCollection, error) {
 	return visitorAddressCollectionModel, nil
 }
 
-// retrieves current I_VisitorAddress model implementation
+// GetVisitorAddressModel retrieves current I_VisitorAddress model implementation
 func GetVisitorAddressModel() (I_VisitorAddress, error) {
 	model, err := models.GetModel(MODEL_NAME_VISITOR_ADDRESS)
 	if err != nil {
@@ -36,7 +36,7 @@ func GetVisitorAddressModel() (I_VisitorAddress, error) {
 	return visitorAddressModel, nil
 }
 
-// retrieves current I_VisitorCollection model implementation
+// GetVisitorCollectionModel retrieves current I_VisitorCollection model implementation
 func GetVisitorCollectionModel() (I_VisitorCollection, error) {
 	model, err := models.GetModel(MODEL_NAME_VISITOR_COLLECTION)
 	if err != nil {
@@ -51,7 +51,7 @@ func GetVisitorCollectionModel() (I_VisitorCollection, error) {
 	return visitorCollectionModel, nil
 }
 
-// retrieves current I_Visitor model implementation
+// GetVisitorModel retrieves current I_Visitor model implementation
 func GetVisitorModel() (I_Visitor, error) {
 	model, err := models.GetModel(MODEL_NAME_VISITOR)
 	if err != nil {
@@ -66,7 +66,7 @@ func GetVisitorModel() (I_Visitor, error) {
 	return visitorModel, nil
 }
 
-// retrieves current I_VisitorAddress model implementation and sets its ID to some value
+// GetVisitorAddressModelAndSetId retrieves current I_VisitorAddress model implementation and sets its ID to some value
 func GetVisitorAddressModelAndSetId(visitorAddressId string) (I_VisitorAddress, error) {
 
 	visitorAddressModel, err := GetVisitorAddressModel()
