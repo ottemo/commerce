@@ -7,17 +7,17 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
-// returns model name
+// GetModelName returns model name for the Visitor
 func (it *DefaultVisitor) GetModelName() string {
 	return visitor.MODEL_NAME_VISITOR
 }
 
-// returns model implementation name
+// GetImplementationName returns model implementation name for the Visitor
 func (it *DefaultVisitor) GetImplementationName() string {
 	return "Default" + visitor.MODEL_NAME_VISITOR
 }
 
-// returns new instance of model implementation object
+// New returns new instance of model implementation object for the Visitor
 func (it *DefaultVisitor) New() (models.I_Model, error) {
 
 	customAttributes, err := new(attributes.CustomAttributes).Init(visitor.MODEL_NAME_VISITOR, COLLECTION_NAME_VISITOR)

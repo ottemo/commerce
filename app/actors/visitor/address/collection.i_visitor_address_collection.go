@@ -5,14 +5,14 @@ import (
 	"github.com/ottemo/foundation/db"
 )
 
-// returns database collection
+// GetDBCollection returns the database collection of the Visitor Address
 func (it *DefaultVisitorAddressCollection) GetDBCollection() db.I_DBCollection {
 	return it.listCollection
 }
 
-// returns list of visitor model items
+// ListVisitorsAddresses returns list of visitor model items for the Visitor Address
 func (it *DefaultVisitorAddressCollection) ListVisitorsAddresses() []visitor.I_VisitorAddress {
-	result := make([]visitor.I_VisitorAddress, 0)
+	var result []visitor.I_VisitorAddress
 
 	dbRecords, err := it.listCollection.Load()
 	if err != nil {

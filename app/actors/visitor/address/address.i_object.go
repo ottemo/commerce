@@ -8,6 +8,7 @@ import (
 	"strings"
 )
 
+// Get will return the requested attribute when provided a string representation of the attribute
 func (it *DefaultVisitorAddress) Get(attribute string) interface{} {
 	switch strings.ToLower(attribute) {
 	case "_id", "id":
@@ -39,6 +40,7 @@ func (it *DefaultVisitorAddress) Get(attribute string) interface{} {
 	return nil
 }
 
+// Set will set a Visitor Address attribute and requiring a name and a value
 func (it *DefaultVisitorAddress) Set(attribute string, value interface{}) error {
 	switch strings.ToLower(attribute) {
 	case "_id", "id":
@@ -80,6 +82,7 @@ func (it *DefaultVisitorAddress) Set(attribute string, value interface{}) error 
 	return nil
 }
 
+// FromHashMap will take a map[string]interface and apply the attribute values to the Visitor Address
 func (it *DefaultVisitorAddress) FromHashMap(input map[string]interface{}) error {
 
 	for attribute, value := range input {
@@ -91,6 +94,7 @@ func (it *DefaultVisitorAddress) FromHashMap(input map[string]interface{}) error
 	return nil
 }
 
+// ToHashMap will return a set of Visitor Address attributes in a map[string]interface
 func (it *DefaultVisitorAddress) ToHashMap() map[string]interface{} {
 
 	result := make(map[string]interface{})
@@ -117,6 +121,7 @@ func (it *DefaultVisitorAddress) ToHashMap() map[string]interface{} {
 	return result
 }
 
+// GetAttributesInfo will return a set of Vistor Address attributes in []models.T_AttributeInfo
 func (it *DefaultVisitorAddress) GetAttributesInfo() []models.T_AttributeInfo {
 	info := []models.T_AttributeInfo{
 		models.T_AttributeInfo{
