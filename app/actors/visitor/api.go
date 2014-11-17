@@ -1,12 +1,11 @@
 package visitor
 
 import (
-	"net/http"
-
-	"io/ioutil"
-
 	"encoding/json"
+	"io/ioutil"
+	"net/http"
 	"strings"
+	"time"
 
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/app"
@@ -152,6 +151,7 @@ func restCreateVisitor(params *api.T_APIHandlerParams) (interface{}, error) {
 			return nil, env.ErrorDispatch(err)
 		}
 	}
+	visitorModel.Set("created_at", time.Now())
 
 	err = visitorModel.Save()
 	if err != nil {
@@ -478,6 +478,8 @@ func restRegister(params *api.T_APIHandlerParams) (interface{}, error) {
 		}
 	}
 
+	visitorModel.Set("created_at", time.Now())
+
 	err = visitorModel.Save()
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
@@ -711,6 +713,7 @@ func restLoginFacebook(params *api.T_APIHandlerParams) (interface{}, error) {
 			visitorModel.Set("first_name", jsonMap["first_name"])
 			visitorModel.Set("last_name", jsonMap["last_name"])
 			visitorModel.Set("facebook_id", jsonMap["id"])
+			visitorModel.Set("created_at", time.Now())
 
 			err := visitorModel.Save()
 			if err != nil {
@@ -819,6 +822,7 @@ func restLoginGoogle(params *api.T_APIHandlerParams) (interface{}, error) {
 			visitorModel.Set("first_name", jsonMap["given_name"])
 			visitorModel.Set("last_name", jsonMap["family_name"])
 			visitorModel.Set("google_id", jsonMap["id"])
+			visitorModel.Set("created_at", time.Now())
 
 			err := visitorModel.Save()
 			if err != nil {

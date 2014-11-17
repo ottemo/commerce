@@ -264,7 +264,7 @@ func (it *DefaultVisitor) LoadByGoogleId(googleID string) error {
 	}
 
 	if len(rows) == 0 {
-		return env.ErrorNew("visitor was not found")
+		return env.ErrorNew("visitor not found")
 	}
 
 	if len(rows) > 1 {
@@ -294,7 +294,7 @@ func (it *DefaultVisitor) LoadByFacebookId(facebookID string) error {
 	}
 
 	if len(rows) == 0 {
-		return env.ErrorNew("visitor was not found")
+		return env.ErrorNew("visitor not found")
 	}
 
 	if len(rows) > 1 {
@@ -324,7 +324,7 @@ func (it *DefaultVisitor) LoadByEmail(email string) error {
 	}
 
 	if len(rows) == 0 {
-		return env.ErrorNew("visitor was not found")
+		return env.ErrorNew("visitor not found")
 	}
 
 	if len(rows) > 1 {

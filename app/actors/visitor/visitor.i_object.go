@@ -99,23 +99,31 @@ func (it *DefaultVisitor) Set(attribute string, value interface{}) error {
 
 	// address detailed information was specified
 	case "billing_address", "shipping_address":
-		switch value := value.(type) {
+		switch typedValue := value.(type) {
 
 		// we have already have structure
 		case visitor.I_VisitorAddress:
 			if attribute == "billing_address" {
-				it.BillingAddress = value
+				it.BillingAddress = typedValue
 			} else {
-				it.ShippingAddress = value
+				it.ShippingAddress = typedValue
 			}
 
 		// we have sub-map, supposedly I_VisitorAddress capable
 		case map[string]interface{}:
-			addressModel, err := visitor.GetVisitorAddressModel()
+			var addressModel visitor.I_VisitorAddress = nil
+			var err error = nil
 
-			err = addressModel.FromHashMap(value)
-			if err != nil {
-				return env.ErrorDispatch(err)
+			if len(typedValue) != 0 {
+				addressModel, err = visitor.GetVisitorAddressModel()
+				if err != nil {
+					return env.ErrorDispatch(err)
+				}
+
+				err = addressModel.FromHashMap(typedValue)
+				if err != nil {
+					return env.ErrorDispatch(err)
+				}
 			}
 
 			if attribute == "billing_address" {

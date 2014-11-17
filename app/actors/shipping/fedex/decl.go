@@ -63,6 +63,8 @@ const (
 	CONFIG_PATH_ALLOWED_METHODS = "shipping.fedex.allowed_methods"
 	CONFIG_PATH_PACKAGING       = "shipping.fedex.packaging"
 	CONFIG_PATH_DROPOFF         = "shipping.fedex.dropoff"
+
+	CONFIG_PATH_DEBUG_LOG = "shipping.fedex.debug_log"
 )
 
 type FedEx struct{}

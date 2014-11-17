@@ -56,7 +56,7 @@ func (it *DefaultVisitorAddressCollection) ListAddExtraAttribute(attribute strin
 	if utils.IsAmongStr(attribute, "_id", "id", "visitor_id", "visitorId", "fname", "first_name", "lname", "last_name",
 		"address_line1", "address_line2", "company", "country", "city", "state", "phone", "zip", "zip_code") {
 
-		if utils.IsInListStr(attribute, it.listExtraAtributes) {
+		if !utils.IsInListStr(attribute, it.listExtraAtributes) {
 			it.listExtraAtributes = append(it.listExtraAtributes, attribute)
 		} else {
 			return env.ErrorNew("attribute already in list")

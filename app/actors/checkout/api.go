@@ -260,10 +260,6 @@ func restCheckoutSetBillingAddress(params *api.T_APIHandlerParams) (interface{},
 // WEB REST API function to set payment method
 func restCheckoutSetPaymentMethod(params *api.T_APIHandlerParams) (interface{}, error) {
 
-	eventData := make(map[string]interface{})
-	eventData["sessionId"] = params.Session.GetId()
-	env.Event("api.reachedCheckout", eventData)
-
 	currentCheckout, err := checkout.GetCurrentCheckout(params)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
@@ -285,6 +281,9 @@ func restCheckoutSetPaymentMethod(params *api.T_APIHandlerParams) (interface{}, 
 				for key, value := range contentValues {
 					currentCheckout.SetInfo(key, value)
 				}
+
+				eventData := map[string]interface{}{"session": params.Session, "paymentMethod": paymentMethod, "checkout": currentCheckout}
+				env.Event("api.checkout.setPayment", eventData)
 
 				return "ok", nil
 			} else {

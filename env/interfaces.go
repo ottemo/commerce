@@ -10,8 +10,8 @@ const (
 )
 
 type I_EventBus interface {
-	RegisterListener(F_EventListener)
-	New(string, map[string]interface{})
+	RegisterListener(event string, listener F_EventListener)
+	New(event string, eventData map[string]interface{})
 }
 
 type I_ErrorBus interface {
@@ -60,6 +60,15 @@ type I_Config interface {
 
 	Load() error
 	Reload() error
+}
+
+type I_OttemoError interface {
+	ErrorFull() string
+	ErrorLevel() int
+	ErrorCode() string
+	ErrorStack() string
+
+	error
 }
 
 type F_ConfigValueValidator func(interface{}) (interface{}, error)
