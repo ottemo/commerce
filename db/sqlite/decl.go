@@ -1,4 +1,5 @@
-// Package is a SQLite implementation of "I_DBEngine" and "I_Collection" interfaces.
+// Package sqlite is a "SQLite" implementation of interfaces declared in
+// "github.com/ottemo/foundation/db" package
 package sqlite
 
 import (

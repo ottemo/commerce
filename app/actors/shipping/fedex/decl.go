@@ -1,5 +1,8 @@
+// Package fedex is a "FedEx" implementation of shipping method interface declared in
+// "github.com/ottemo/foundation/app/models/checkout" package
 package fedex
 
+// Package global variables
 var (
 	SHIPPING_METHODS = map[string]string{
 		"EUROPE_FIRST_INTERNATIONAL_PRIORITY": "Europe First Priority",
@@ -44,6 +47,7 @@ var (
 	}
 )
 
+// Package global constants
 const (
 	SHIPPING_CODE = "fedex"
 	SHIPPING_NAME = "fedex"
@@ -67,4 +71,5 @@ const (
 	CONFIG_PATH_DEBUG_LOG = "shipping.fedex.debug_log"
 )
 
+// FedEx is a implementer of I_ShippingMethod for "FedEx" shipping method
 type FedEx struct{}

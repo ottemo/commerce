@@ -1,3 +1,4 @@
+// Package cms is just a grouping container for sub-packages auto init
 package cms
 
 import (

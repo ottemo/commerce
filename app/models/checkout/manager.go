@@ -8,7 +8,7 @@ import (
 //------------------
 
 var (
-	ShippingMethods = make([]I_ShippingMehod, 0)
+	ShippingMethods = make([]I_ShippingMethod, 0)
 	PaymentMethods  = make([]I_PaymentMethod, 0)
 
 	Taxes     = make([]I_Tax, 0)
@@ -19,7 +19,7 @@ var (
 //------------------
 
 // register new shipping method to system
-func RegisterShippingMethod(shippingMethod I_ShippingMehod) error {
+func RegisterShippingMethod(shippingMethod I_ShippingMethod) error {
 	for _, registeredMethod := range ShippingMethods {
 		if registeredMethod == shippingMethod {
 			return env.ErrorNew("shipping method already registered")
@@ -71,7 +71,7 @@ func RegisterDiscount(discount I_Discount) error {
 }
 
 // returns list of registered shipping methods
-func GetRegisteredShippingMethods() []I_ShippingMehod {
+func GetRegisteredShippingMethods() []I_ShippingMethod {
 	return ShippingMethods
 }
 

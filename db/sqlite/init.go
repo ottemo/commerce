@@ -10,7 +10,7 @@ var (
 	dbEngine *SQLite // instance of database engine (one per application)
 )
 
-// module entry point
+// init makes package self-initialization routine
 func init() {
 	dbEngine = new(SQLite)
 	dbEngine.attributeTypes = make(map[string]map[string]string)

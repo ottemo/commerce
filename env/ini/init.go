@@ -23,7 +23,7 @@ const (
 	DEFAULT_INI_FILE  = "ottemo.ini"
 )
 
-// module entry point
+// init makes package self-initialization routine
 func init() {
 	instance := new(DefaultIniConfig)
 	var _ env.I_IniConfig = instance

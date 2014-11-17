@@ -6,7 +6,7 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
-// module entry point before app start
+// init makes package self-initialization routine before app start
 func init() {
 	db.RegisterOnDatabaseStart(setupDB)
 	api.RegisterOnRestServiceStart(setupAPI)

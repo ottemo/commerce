@@ -8,7 +8,7 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
-// module entry point before app start
+// init makes package self-initialization routine
 func init() {
 	categoryInstance := new(DefaultCategory)
 	var _ category.I_Category = categoryInstance
@@ -22,7 +22,7 @@ func init() {
 	api.RegisterOnRestServiceStart(setupAPI)
 }
 
-// DB preparations for current model implementation
+// setupDB prepares system database for package usage
 func (it *DefaultCategory) setupDB() error {
 	collection, err := db.GetCollection(COLLECTION_NAME_CATEGORY)
 	if err != nil {

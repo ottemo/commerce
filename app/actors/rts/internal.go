@@ -38,19 +38,19 @@ func GetReferrer(url string) (string, error) {
 // IncreaseOnline is a method to increase the provided counter by 1
 func IncreaseOnline(typeCounter int) {
 	switch typeCounter {
-	case ReferrerTypeDirect:
+	case ConstReferrerTypeDirect:
 		OnlineDirect++
 		if OnlineDirect > OnlineDirectMax {
 			OnlineDirectMax = OnlineDirect
 		}
 		break
-	case ReferrerTypeSearch:
+	case ConstReferrerTypeSearch:
 		OnlineSearch++
 		if OnlineSearch > OnlineSearchMax {
 			OnlineSearchMax = OnlineSearch
 		}
 		break
-	case ReferrerTypeSite:
+	case ConstReferrerTypeSite:
 		OnlineSite++
 		if OnlineSite > OnlineSiteMax {
 			OnlineSiteMax = OnlineSite
@@ -62,18 +62,18 @@ func IncreaseOnline(typeCounter int) {
 // DecreaseOnline is a method to decrease the provided counter by 1
 func DecreaseOnline(typeCounter int) {
 	switch typeCounter {
-	case ReferrerTypeDirect:
+	case ConstReferrerTypeDirect:
 		if OnlineDirect != 0 {
 			OnlineDirect--
 		}
 		break
-	case ReferrerTypeSearch:
+	case ConstReferrerTypeSearch:
 		if OnlineSearch != 0 {
 			OnlineSearch--
 		}
 
 		break
-	case ReferrerTypeSite:
+	case ConstReferrerTypeSite:
 		if OnlineSite != 0 {
 			OnlineSite--
 		}
@@ -96,7 +96,7 @@ func GetProducts() ([]map[string]interface{}, error) {
 func GetDateFrom() (time.Time, error) {
 	result := time.Now()
 
-	salesHistoryCollection, err := db.GetCollection(CollectionNameSalesHistory)
+	salesHistoryCollection, err := db.GetCollection(ConstCollectionNameRTSSalesHistory)
 	if err == nil {
 		salesHistoryCollection.SetResultColumns("created_at")
 		salesHistoryCollection.AddSort("created_at", true)
@@ -176,7 +176,7 @@ func GetOrderItems(date time.Time, productID string) ([]map[string]interface{}, 
 
 // DeleteExistingRowHistory will remove the row entry for the given productID
 func DeleteExistingRowHistory(date time.Time, productID string) error {
-	salesHistoryCollection, err := db.GetCollection(CollectionNameSalesHistory)
+	salesHistoryCollection, err := db.GetCollection(ConstCollectionNameRTSSalesHistory)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -205,7 +205,7 @@ func initSalesHistory() error {
 		return nil
 	}
 
-	salesHistoryCollection, err := db.GetCollection(CollectionNameSalesHistory)
+	salesHistoryCollection, err := db.GetCollection(ConstCollectionNameRTSSalesHistory)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -246,7 +246,7 @@ func SaveSalesData(data map[string]int) error {
 		return nil
 	}
 
-	salesCollection, err := db.GetCollection(CollectionNameSales)
+	salesCollection, err := db.GetCollection(ConstCollectionNameRTSSales)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -449,7 +449,7 @@ func GetTodayVisitorsData() error {
 		SaveVisitorData()
 		visitorsInfoYesterday = visitorsInfoToday
 	}
-	visitorInfoCollection, err := db.GetCollection(CollectionNameVisitors)
+	visitorInfoCollection, err := db.GetCollection(ConstCollectionNameRTSVisitors)
 	if err == nil {
 		visitorInfoCollection.AddFilter("day", "=", today)
 		dbRecord, _ := visitorInfoCollection.Load()
@@ -486,7 +486,7 @@ func GetYesterdayVisitorsData() error {
 		return nil
 	}
 
-	visitorInfoCollection, err := db.GetCollection(CollectionNameVisitors)
+	visitorInfoCollection, err := db.GetCollection(ConstCollectionNameRTSVisitors)
 	if err == nil {
 		visitorInfoCollection.AddFilter("day", "=", yesterday)
 		dbRecord, _ := visitorInfoCollection.Load()
@@ -514,7 +514,7 @@ func GetYesterdayVisitorsData() error {
 
 // SaveVisitorData will persist the Visitor data to the database
 func SaveVisitorData() error {
-	visitorInfoCollection, err := db.GetCollection(CollectionNameVisitors)
+	visitorInfoCollection, err := db.GetCollection(ConstCollectionNameRTSVisitors)
 	if err == nil {
 		visitorInfoRow := make(map[string]interface{})
 		if "" != visitorsInfoToday.Id {

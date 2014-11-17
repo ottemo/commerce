@@ -8,7 +8,7 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
-// module entry point before app start
+// init makes package self-initialization routine
 func init() {
 	cmsBlockInstance := new(DefaultCMSBlock)
 	var _ cms.I_CMSBlock = cmsBlockInstance
@@ -22,7 +22,7 @@ func init() {
 	api.RegisterOnRestServiceStart(setupAPI)
 }
 
-// DB preparations for current model implementation
+// setupDB prepares system database for package usage
 func setupDB() error {
 	collection, err := db.GetCollection(CMS_BLOCK_COLLECTION_NAME)
 	if err != nil {

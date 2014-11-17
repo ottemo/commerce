@@ -14,6 +14,7 @@ import (
 	"github.com/ottemo/foundation/utils"
 )
 
+// setupAPI setups package related API endpoint routines
 func setupAPI() error {
 	var err error
 
@@ -129,7 +130,7 @@ func restGetVisitsDetails(params *api.T_APIHandlerParams) (interface{}, error) {
 	toDate, _ := time.Parse("2006-01-02", toDatetmp)
 
 	delta := toDate.Sub(fromDate)
-	visitorInfoCollection, err := db.GetCollection(CollectionNameVisitors)
+	visitorInfoCollection, err := db.GetCollection(ConstCollectionNameRTSVisitors)
 	if err == nil {
 		visitorInfoCollection.AddFilter("day", ">=", fromDate)
 		visitorInfoCollection.AddFilter("day", "<", toDate)
@@ -268,7 +269,7 @@ func restGetSalesDetails(params *api.T_APIHandlerParams) (interface{}, error) {
 func restGetTopSellers(params *api.T_APIHandlerParams) (interface{}, error) {
 	result := make(map[string]*SellerInfo)
 
-	salesCollection, err := db.GetCollection(CollectionNameSales)
+	salesCollection, err := db.GetCollection(ConstCollectionNameRTSSales)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}

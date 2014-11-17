@@ -1,6 +1,15 @@
+// Package authorize is a Authorize.Net implementation of payment method interface declared in
+// "github.com/ottemo/foundation/app/models/checkout" package
 package authorize
 
+// Package global constants
 const (
+	// constants for transaction state
+	ConstTransactionApproved      = "1"
+	ConstTransactionDeclined      = "2"
+	ConstTransactionError         = "3"
+	ConstTransactionWaitingReview = "4"
+
 	PAYMENT_CODE_DPM = "authorizeNetDPM"
 	PAYMENT_NAME_DPM = "Authorize.Net (Direct Post)"
 
@@ -22,4 +31,5 @@ const (
 	CONFIG_PATH_DPM_CHECKOUT = "payment.authorizeNetDPM.checkout"
 )
 
+// AuthorizeNetDPM is a implementer of I_PaymentMethod for a Authorize.Net Direct Post method
 type AuthorizeNetDPM struct{}

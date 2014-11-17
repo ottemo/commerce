@@ -1,4 +1,4 @@
-// Package contain interfaces for API endpoint services.
+// Package api is a set of interfaces representing API endpoint services
 //
 // Currently only "I_RestService" endpoint interface supported.
 package api

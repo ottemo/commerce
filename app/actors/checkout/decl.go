@@ -1,11 +1,12 @@
+// Package checkout is a default implementation of interfaces declared in
+// "github.com/ottemo/foundation/app/models/checkout" package
 package checkout
 
 import (
 	"github.com/ottemo/foundation/app/models/checkout"
 )
 
-const ()
-
+// DefaultCheckout is a default implementer of I_Checkout
 type DefaultCheckout struct {
 	CartId    string
 	VisitorId string

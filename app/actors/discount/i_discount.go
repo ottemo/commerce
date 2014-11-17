@@ -8,14 +8,17 @@ import (
 	"github.com/ottemo/foundation/utils"
 )
 
+// GetName returns name of current discount implementation
 func (it *DefaultDiscount) GetName() string {
 	return "CouponDiscount"
 }
 
+// GetCode returns code of current discount implementation
 func (it *DefaultDiscount) GetCode() string {
 	return "coupon_discount"
 }
 
+// CalculateDiscount calculates and returns a set of discounts applied to given checkout
 func (it *DefaultDiscount) CalculateDiscount(checkoutInstance checkout.I_Checkout) []checkout.T_Discount {
 
 	result := make([]checkout.T_Discount, 0)

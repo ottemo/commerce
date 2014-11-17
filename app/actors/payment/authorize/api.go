@@ -11,15 +11,7 @@ import (
 	"github.com/ottemo/foundation/utils"
 )
 
-// constants for transaction state
-const (
-	TransactionApproved      = "1"
-	TransactionDeclined      = "2"
-	TransactionError         = "3"
-	TransactionWaitingReview = "4"
-)
-
-// startup API registration
+// setupAPI setups package related API endpoint routines
 func setupAPI() error {
 
 	var err error
@@ -58,7 +50,7 @@ func restReceipt(params *api.T_APIHandlerParams) (interface{}, error) {
 	checkoutOrder := currentCheckout.GetOrder()
 
 	switch status {
-	case TransactionApproved:
+	case ConstTransactionApproved:
 		{
 			currentCart := currentCheckout.GetCart()
 			if currentCart == nil {
@@ -91,8 +83,8 @@ func restReceipt(params *api.T_APIHandlerParams) (interface{}, error) {
 				return api.T_RestRedirect{Location: app.GetStorefrontUrl("account/order/" + checkoutOrder.GetId()), DoRedirect: true}, nil
 			}
 		}
-	case TransactionDeclined:
-	case TransactionWaitingReview:
+	case ConstTransactionDeclined:
+	case ConstTransactionWaitingReview:
 	default:
 		{
 			if checkoutOrder != nil {
@@ -152,7 +144,7 @@ func restRelay(params *api.T_APIHandlerParams) (interface{}, error) {
 	checkoutOrder := currentCheckout.GetOrder()
 
 	switch status {
-	case TransactionApproved:
+	case ConstTransactionApproved:
 		{
 			currentCart := currentCheckout.GetCart()
 			if currentCart == nil {
@@ -211,8 +203,8 @@ func restRelay(params *api.T_APIHandlerParams) (interface{}, error) {
 				</html>`), nil
 			}
 		}
-	case TransactionDeclined:
-	case TransactionWaitingReview:
+	case ConstTransactionDeclined:
+	case ConstTransactionWaitingReview:
 	default:
 		{
 			if checkoutOrder != nil {

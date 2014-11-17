@@ -4,7 +4,7 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
-// module entry point
+// init makes package self-initialization routine
 func init() {
 	instance := &DefaultErrorBus{listeners: make([]env.F_ErrorListener, 0)}
 	var _ env.I_ErrorBus = instance

@@ -6,13 +6,13 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
-// module entry point before app start
+// init makes package self-initialization routine
 func init() {
 	api.RegisterOnRestServiceStart(setupAPI)
 	db.RegisterOnDatabaseStart(setupDB)
 }
 
-// DB preparations for current model implementation
+// setupDB prepares system database for package usage
 func setupDB() error {
 
 	if collection, err := db.GetCollection(COLLECTION_NAME_URL_REWRITES); err == nil {

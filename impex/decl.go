@@ -1,4 +1,4 @@
-// Package implements import/export service for Ottemo system.
+// Package impex implements import/export service for Ottemo system.
 package impex
 
 import (

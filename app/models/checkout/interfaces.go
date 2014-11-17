@@ -22,8 +22,8 @@ type I_Checkout interface {
 	SetInfo(key string, value interface{}) error
 	GetInfo(key string) interface{}
 
-	SetShippingMethod(shippingMethod I_ShippingMehod) error
-	GetShippingMethod() I_ShippingMehod
+	SetShippingMethod(shippingMethod I_ShippingMethod) error
+	GetShippingMethod() I_ShippingMethod
 
 	SetShippingRate(shippingRate T_ShippingRate) error
 	GetShippingRate() *T_ShippingRate
@@ -53,7 +53,7 @@ type I_Checkout interface {
 	models.I_Model
 }
 
-type I_ShippingMehod interface {
+type I_ShippingMethod interface {
 	GetName() string
 	GetCode() string
 

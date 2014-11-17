@@ -1,4 +1,4 @@
-// Package contain interfaces to access database services.
+// Package db is a set of interfaces to access database services
 package db
 
 const (

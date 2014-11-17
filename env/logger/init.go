@@ -5,7 +5,7 @@ import (
 	"os"
 )
 
-// module entry point
+// init makes package self-initialization routine
 func init() {
 	instance := new(DefaultLogger)
 	var _ env.I_Logger = instance

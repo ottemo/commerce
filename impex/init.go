@@ -4,7 +4,7 @@ import (
 	"github.com/ottemo/foundation/api"
 )
 
-// module entry point
+// init makes package self-initialization routine
 func init() {
 	api.RegisterOnRestServiceStart(setupAPI)
 

@@ -1,3 +1,5 @@
+// Package product is a implementation of interfaces declared in
+// "github.com/ottemo/foundation/app/models/product" package
 package product
 
 import (
@@ -5,10 +7,12 @@ import (
 	"github.com/ottemo/foundation/db"
 )
 
+// Package global constants
 const (
 	COLLECTION_NAME_PRODUCT = "product"
 )
 
+// DefaultProduct is a default implementer of I_Product
 type DefaultProduct struct {
 	id string
 
@@ -31,6 +35,7 @@ type DefaultProduct struct {
 	*attributes.CustomAttributes
 }
 
+// DefaultProductCollection is a default implementer of I_Product
 type DefaultProductCollection struct {
 	listCollection     db.I_DBCollection
 	listExtraAtributes []string

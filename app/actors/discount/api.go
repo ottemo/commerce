@@ -11,7 +11,7 @@ import (
 	"github.com/ottemo/foundation/utils"
 )
 
-// initializes API for discount
+// setupAPI setups package related API endpoint routines
 func setupAPI() error {
 	var err error = nil
 

@@ -57,13 +57,13 @@ func (it *DefaultCheckout) GetPaymentMethod() checkout.I_PaymentMethod {
 }
 
 // SetShippingMethod sets payment method for checkout
-func (it *DefaultCheckout) SetShippingMethod(shippingMethod checkout.I_ShippingMehod) error {
+func (it *DefaultCheckout) SetShippingMethod(shippingMethod checkout.I_ShippingMethod) error {
 	it.ShippingMethodCode = shippingMethod.GetCode()
 	return nil
 }
 
 // GetShippingMethod returns a checkout shipping method
-func (it *DefaultCheckout) GetShippingMethod() checkout.I_ShippingMehod {
+func (it *DefaultCheckout) GetShippingMethod() checkout.I_ShippingMethod {
 	if shippingMethods := checkout.GetRegisteredShippingMethods(); shippingMethods != nil {
 		for _, shippingMethod := range shippingMethods {
 			if shippingMethod.GetCode() == it.ShippingMethodCode {
@@ -181,7 +181,7 @@ func (it *DefaultCheckout) GetDiscounts() (float64, []checkout.T_Discount) {
 	return amount, it.Discounts
 }
 
-// GetGrandTotal return grand total for current checkout: [cart subtotal] + [shipping rate] + [taxes] - [discounts]
+// GetGrandTotal returns grand total for current checkout: [cart subtotal] + [shipping rate] + [taxes] - [discounts]
 func (it *DefaultCheckout) GetGrandTotal() float64 {
 	var amount float64
 

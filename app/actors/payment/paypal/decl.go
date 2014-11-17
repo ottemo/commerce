@@ -1,9 +1,12 @@
+// Package paypal is a PayPal implementation of payment method interface declared in
+// "github.com/ottemo/foundation/app/models/checkout" package
 package paypal
 
 import (
 	"sync"
 )
 
+// Package global constants
 const (
 	PAYMENT_CODE = "paypal_express"
 	PAYMENT_NAME = "PayPal Express"
@@ -26,11 +29,14 @@ const (
 	CONFIG_PATH_ACTION    = "payment.paypal.action"
 )
 
+// Package global variables
 var (
 	waitingTokens      = make(map[string]interface{})
 	waitingTokensMutex sync.RWMutex
 )
 
+// PayPalExpress is a implementer of I_PaymentMethod for a PayPal Express method
 type PayPalExpress struct{}
 
+// PayPalExpress is a implementer of I_PaymentMethod for a PayPal REST method (currently not working)
 type PayPalRest struct{}

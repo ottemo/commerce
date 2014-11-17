@@ -17,7 +17,7 @@ import (
 	"github.com/ottemo/foundation/utils"
 )
 
-// startup API registration
+// setupAPI setups package related API endpoint routines
 func setupAPI() error {
 
 	var err error
@@ -111,6 +111,7 @@ func Completes(orderInstance order.I_Order, token string, payerID string) (map[s
 	return urlGETParams, nil
 }
 
+// WEB REST API function to process PayPal receipt result
 func restSuccess(params *api.T_APIHandlerParams) (interface{}, error) {
 	reqData := params.RequestGETParams
 	sessionID := waitingTokens[reqData["token"]]
@@ -175,7 +176,7 @@ func restSuccess(params *api.T_APIHandlerParams) (interface{}, error) {
 	return nil, errors.New("Checkout not exist")
 }
 
-// WEB REST API function to process Paypal.com cancel result
+// WEB REST API function to process PayPal decline result
 func restCancel(params *api.T_APIHandlerParams) (interface{}, error) {
 	reqData := params.RequestGETParams
 	sessionID := waitingTokens[reqData["token"]]

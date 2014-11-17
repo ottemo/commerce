@@ -1,3 +1,4 @@
+// Package rts implements Real Time Statistics calculations module
 package rts
 
 import "time"
@@ -69,44 +70,40 @@ import "time"
  *
  */
 
-// Set of constants for Collections, Visitors and Referrers in statistic collection
+// Package global constants
 const (
-	CollectionNameSalesHistory = "rts_sales_history"
-	CollectionNameSales        = "rts_sales"
-	CollectionNameVisitors     = "rts_visitors"
-	ReferrerTypeDirect         = 0
-	ReferrerTypeSite           = 1
-	ReferrerTypeSearch         = 2
-	VisitorAddToCart           = 1
-	VisitorCheckout            = 2
-	VisitorSales               = 3
-	VisitorOnlineSeconds       = 10
+	ConstCollectionNameRTSSalesHistory = "rts_sales_history"
+	ConstCollectionNameRTSSales        = "rts_sales"
+	ConstCollectionNameRTSVisitors     = "rts_visitors"
+
+	ConstReferrerTypeDirect = 0
+	ConstReferrerTypeSite   = 1
+	ConstReferrerTypeSearch = 2
+
+	ConstVisitorAddToCart     = 1
+	ConstVisitorCheckout      = 2
+	ConstVisitorSales         = 3
+	ConstVisitorOnlineSeconds = 10
 )
 
+// Package global variables
 var (
 	referrers             = make(map[string]int)
 	visitorsInfoToday     = new(dbVisitorRow)
 	visitorsInfoYesterday = new(dbVisitorRow)
-	sales                 = Sales{}
-	salesDetail           = make(map[string]*SalesDetailData)
-	topSellers            = new(TopSellers)
 
-	// OnlineSessions is a map[string]* for storing session data
-	OnlineSessions = make(map[string]*OnlineReferrer)
-	// OnlineDirect indicates a user did not use a referring site
-	OnlineDirect = 0
-	// OnlineSite indicates a referring site
-	OnlineSite = 0
-	// OnlineSearch indicates the visitor came from a search engine
-	OnlineSearch = 0
-	// OnlineSessionsMax is the maximum number of visitor sessions recorded
+	sales       = Sales{}
+	salesDetail = make(map[string]*SalesDetailData)
+	topSellers  = new(TopSellers)
+
+	OnlineSessions    = make(map[string]*OnlineReferrer)
+	OnlineDirect      = 0
+	OnlineSite        = 0
+	OnlineSearch      = 0
 	OnlineSessionsMax = 0
-	// OnlineDirectMax is the maximum number of visitors who did not use referring sites
-	OnlineDirectMax = 0
-	// OnlineSiteMax is the maximum number of visitors who came to the site
-	OnlineSiteMax = 0
-	// OnlineSearchMax is the maximum number of visitors who were referred by search engines
-	OnlineSearchMax = 0
+	OnlineDirectMax   = 0
+	OnlineSiteMax     = 0
+	OnlineSearchMax   = 0
 
 	searchEngines = []string{"www.daum.net", "www.google.com", "www.eniro.se", "www.naver.com", "www.yahoo.com",
 		"www.msn.com", "www.bing.com", "www.aol.com", "www.aol.com", "www.lycos.com", "www.ask.com", "www.altavista.com",

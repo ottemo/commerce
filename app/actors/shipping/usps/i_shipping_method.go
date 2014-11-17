@@ -21,18 +21,22 @@ import (
 	"strings"
 )
 
+// GetName returns name of shipping method
 func (it *USPS) GetName() string {
 	return SHIPPING_NAME
 }
 
+// GetCode returns code of shipping method
 func (it *USPS) GetCode() string {
 	return SHIPPING_CODE
 }
 
+// IsAllowed checks for method applicability
 func (it *USPS) IsAllowed(checkout checkout.I_Checkout) bool {
 	return utils.InterfaceToBool(env.ConfigGetValue(CONFIG_PATH_ENABLED))
 }
 
+// GetRates returns rates allowed by shipping method for a given checkout
 func (it *USPS) GetRates(checkoutObject checkout.I_Checkout) []checkout.T_ShippingRate {
 
 	result := make([]checkout.T_ShippingRate, 0)

@@ -5,6 +5,7 @@ import (
 	"github.com/ottemo/foundation/utils"
 )
 
+// setupConfig setups package configuration values for a system
 func setupConfig() error {
 	config := env.GetConfig()
 

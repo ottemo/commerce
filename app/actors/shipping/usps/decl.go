@@ -1,5 +1,8 @@
+// Package usps is a "USPS" implementation of shipping method interface declared in
+// "github.com/ottemo/foundation/app/models/checkout" package
 package usps
 
+// Package global constants
 const (
 	SHIPPING_CODE = "usps"
 	SHIPPING_NAME = "USPS"
@@ -21,4 +24,5 @@ const (
 	CONFIG_PATH_DEBUG_LOG          = "shipping.usps.debug_log"
 )
 
+// USPS is a implementer of I_ShippingMethod for a "USPS" shipping method
 type USPS struct{}

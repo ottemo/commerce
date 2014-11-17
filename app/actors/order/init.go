@@ -9,7 +9,7 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
-// module entry point before app start
+// init makes package self-initialization routine
 func init() {
 	orderInstance := new(DefaultOrder)
 	var _ order.I_Order = orderInstance
@@ -31,7 +31,7 @@ func init() {
 	// api.RegisterOnRestServiceStart(setupAPI)
 }
 
-// DB preparations for current model implementation
+// setupDB prepares system database for package usage
 func setupDB() error {
 
 	if dbEngine := db.GetDBEngine(); dbEngine != nil {

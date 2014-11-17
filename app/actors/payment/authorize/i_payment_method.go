@@ -19,17 +19,17 @@ import (
 	"github.com/ottemo/foundation/app/models/order"
 )
 
-// GetName returns the payment method name
+// GetName returns payment method name
 func (it *AuthorizeNetDPM) GetName() string {
 	return utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_DPM_TITLE))
 }
 
-// GetCode returns the payment method code
+// GetCode returns payment method code
 func (it *AuthorizeNetDPM) GetCode() string {
 	return PAYMENT_CODE_DPM
 }
 
-// GetType returns the type of payment method
+// GetType returns type of payment method
 func (it *AuthorizeNetDPM) GetType() string {
 	return checkout.PAYMENT_TYPE_POST_CC
 }
@@ -39,7 +39,7 @@ func (it *AuthorizeNetDPM) IsAllowed(checkoutInstance checkout.I_Checkout) bool 
 	return utils.InterfaceToBool(env.ConfigGetValue(CONFIG_PATH_DPM_ENABLED))
 }
 
-// Authorize executes the payment method authorization
+// Authorize makes payment method authorize operation
 func (it *AuthorizeNetDPM) Authorize(orderInstance order.I_Order, paymentInfo map[string]interface{}) (interface{}, error) {
 
 	// crypting fingerprint
@@ -121,7 +121,7 @@ func (it *AuthorizeNetDPM) Authorize(orderInstance order.I_Order, paymentInfo ma
 	return api.T_RestRedirect{Result: htmlText, Location: utils.InterfaceToString(env.ConfigGetValue(app.CONFIG_PATH_FOUNDATION_URL)) + "authorizenet/relay"}, nil
 }
 
-// Capture will secure the funds once an order has been fulfilled :: Not Implemented Yet
+// Capture makes payment method capture operation
 func (it *AuthorizeNetDPM) Capture(orderInstance order.I_Order, paymentInfo map[string]interface{}) (interface{}, error) {
 	return nil, env.ErrorNew("Not implemented")
 }

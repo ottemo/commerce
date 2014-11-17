@@ -75,7 +75,7 @@ func addToCartHandler(event string, data map[string]interface{}) bool {
 	}
 
 	if 0 == visitorsInfoToday.Details[sessionID].Checkout {
-		visitorsInfoToday.Details[sessionID].Checkout = VisitorAddToCart
+		visitorsInfoToday.Details[sessionID].Checkout = ConstVisitorAddToCart
 		visitorsInfoToday.Cart++
 	}
 
@@ -97,8 +97,8 @@ func reachedCheckoutHandler(event string, data map[string]interface{}) bool {
 		visitorsInfoToday.Details[sessionID] = &VisitorDetail{}
 	}
 
-	if VisitorCheckout > visitorsInfoToday.Details[sessionID].Checkout {
-		visitorsInfoToday.Details[sessionID].Checkout = VisitorCheckout
+	if ConstVisitorCheckout > visitorsInfoToday.Details[sessionID].Checkout {
+		visitorsInfoToday.Details[sessionID].Checkout = ConstVisitorCheckout
 		visitorsInfoToday.Checkout++
 	}
 
@@ -120,8 +120,8 @@ func purchasedHandler(event string, data map[string]interface{}) bool {
 		visitorsInfoToday.Details[sessionID] = &VisitorDetail{}
 	}
 
-	if VisitorSales > visitorsInfoToday.Details[sessionID].Checkout {
-		visitorsInfoToday.Details[sessionID].Checkout = VisitorSales
+	if ConstVisitorSales > visitorsInfoToday.Details[sessionID].Checkout {
+		visitorsInfoToday.Details[sessionID].Checkout = ConstVisitorSales
 		visitorsInfoToday.Sales++
 	}
 
@@ -145,7 +145,7 @@ func salesHandler(event string, data map[string]interface{}) bool {
 
 	salesData := make(map[string]int)
 
-	salesHistoryCollection, err := db.GetCollection(CollectionNameSalesHistory)
+	salesHistoryCollection, err := db.GetCollection(ConstCollectionNameRTSSalesHistory)
 	if err != nil {
 		return true
 	}
@@ -190,7 +190,7 @@ func registerVisitorAsOnlineHandler(event string, data map[string]interface{}) b
 	session := data["session"].(api.I_Session)
 	sessionID := session.GetId()
 
-	referrerType := ReferrerTypeDirect
+	referrerType := ConstReferrerTypeDirect
 	referrer := ""
 	if "api.rts.visit" == event {
 		params := data["apiParams"].(*api.T_APIHandlerParams)
@@ -215,9 +215,9 @@ func registerVisitorAsOnlineHandler(event string, data map[string]interface{}) b
 		}
 
 		if isSearchEngine {
-			referrerType = ReferrerTypeSearch
+			referrerType = ConstReferrerTypeSearch
 		} else {
-			referrerType = ReferrerTypeSite
+			referrerType = ConstReferrerTypeSite
 		}
 	}
 

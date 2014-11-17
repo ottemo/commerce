@@ -1,14 +1,18 @@
+// Package cart is a default implementation of interfaces declared in
+// "github.com/ottemo/foundation/app/models/cart" package
 package cart
 
 import (
 	"github.com/ottemo/foundation/app/models/cart"
 )
 
+// Package global constants
 const (
 	CART_COLLECTION_NAME       = "cart"
 	CART_ITEMS_COLLECTION_NAME = "cart_items"
 )
 
+// DefaultCart is a default implementer of I_Cart
 type DefaultCart struct {
 	id string
 
@@ -25,6 +29,7 @@ type DefaultCart struct {
 	maxIdx int
 }
 
+// DefaultCart is a default implementer of I_Cart
 type DefaultCartItem struct {
 	id string
 

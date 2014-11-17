@@ -1,3 +1,4 @@
+// Package visitor is a default implementation of models/visitor package visitor related interfaces
 package visitor
 
 import (
@@ -7,14 +8,14 @@ import (
 	"time"
 )
 
-// Defined constants for the Visitor object
+// Package global constants
 const (
 	COLLECTION_NAME_VISITOR = "visitor"
 
 	EMAIL_VALIDATE_EXPIRE = 60 * 60 * 24
 )
 
-// DefaultVisitor is a struct representing the default Visitor object
+// DefaultVisitor is a default implementer of I_Visitor
 type DefaultVisitor struct {
 	id string
 
@@ -39,7 +40,7 @@ type DefaultVisitor struct {
 	*attributes.CustomAttributes
 }
 
-// DefaultVisitorCollection is the struct holding the Visitor Collection information
+// DefaultVisitorCollection is a default implementer of I_VisitorCollection
 type DefaultVisitorCollection struct {
 	listCollection     db.I_DBCollection
 	listExtraAtributes []string

@@ -8,7 +8,7 @@ import (
 	"github.com/ottemo/foundation/media"
 )
 
-// module entry point
+// init makes package self-initialization routine
 func init() {
 	instance := new(FilesystemMediaStorage)
 	if err := media.RegisterMediaStorage(instance); err == nil {

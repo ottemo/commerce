@@ -1,4 +1,4 @@
-// Package contain interfaces to access environment services.
+// Package env is a set of interfaces to access environment services
 package env
 
 const (

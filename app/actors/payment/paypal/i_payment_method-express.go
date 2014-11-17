@@ -17,24 +17,12 @@ import (
 	"github.com/ottemo/foundation/app/models/order"
 )
 
-/*
- * I_PaymentMethod implementation for:
- *
- *   #1 PayPalExpress
- *   #2 PayPalREST
- *
- */
-
-//------------------
-// #1 PayPalExpress
-//------------------
-
-// GetName returns the payment method name
+// GetName returns payment method name
 func (it *PayPalExpress) GetName() string {
 	return utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_TITLE))
 }
 
-// GetCode returns the payment method code
+// GetCode returns payment method code
 func (it *PayPalExpress) GetCode() string {
 	return PAYMENT_CODE
 }
@@ -49,7 +37,7 @@ func (it *PayPalExpress) IsAllowed(checkoutInstance checkout.I_Checkout) bool {
 	return utils.InterfaceToBool(env.ConfigGetValue(CONFIG_PATH_ENABLED))
 }
 
-// Authorize executes the payment method authorize operation
+// Authorize makes payment method authorize operation
 func (it *PayPalExpress) Authorize(orderInstance order.I_Order, paymentInfo map[string]interface{}) (interface{}, error) {
 
 	// getting order information
@@ -140,17 +128,17 @@ func (it *PayPalExpress) Authorize(orderInstance order.I_Order, paymentInfo map[
 	}, nil
 }
 
-// Capture executes the payment method capture operation
+// Capture payment method capture operation
 func (it *PayPalExpress) Capture(orderInstance order.I_Order, paymentInfo map[string]interface{}) (interface{}, error) {
 	return nil, env.ErrorNew("Not implemented")
 }
 
-// Refund will return funds to the visitor for the given order. :: Not Implemented Yet
+// Refund makes payment method refund operation
 func (it *PayPalExpress) Refund(orderInstance order.I_Order, paymentInfo map[string]interface{}) (interface{}, error) {
 	return nil, env.ErrorNew("Not implemented")
 }
 
-// Void will void the givien order :: Not Implemented YET
+// Void makes payment method void operation
 func (it *PayPalExpress) Void(orderInstance order.I_Order, paymentInfo map[string]interface{}) (interface{}, error) {
 	return nil, env.ErrorNew("Not implemented")
 }

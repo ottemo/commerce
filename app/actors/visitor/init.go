@@ -8,7 +8,7 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
-// package self initializer
+// init makes package self-initialization routine
 func init() {
 	visitorInstance := new(DefaultVisitor)
 	var _ visitor.I_Visitor = visitorInstance

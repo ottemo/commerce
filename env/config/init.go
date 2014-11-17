@@ -11,7 +11,7 @@ const (
 	CONFIG_COLLECTION_NAME = "config"
 )
 
-// module entry point
+// init makes package self-initialization routine
 func init() {
 	instance := &DefaultConfig{
 		configValues:     make(map[string]interface{}),

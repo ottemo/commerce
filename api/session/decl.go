@@ -1,4 +1,4 @@
-// Package "session" is a default implementation for "I_Session" interface.
+// Package session is a default implementation of I_Session declared in "github.com/ottemo/foundation/api" package
 package session
 
 import (

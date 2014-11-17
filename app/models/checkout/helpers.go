@@ -24,7 +24,7 @@ func GetCheckoutModel() (I_Checkout, error) {
 }
 
 // retrieves shipping method for given unique code or nil if no shipping method with such code
-func GetShippingMethodByCode(code string) I_ShippingMehod {
+func GetShippingMethodByCode(code string) I_ShippingMethod {
 
 	for _, shippingMethod := range ShippingMethods {
 		if shippingMethod.GetCode() == code {

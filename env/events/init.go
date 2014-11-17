@@ -4,7 +4,7 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
-// module entry point
+// init makes package self-initialization routine
 func init() {
 	instance := new(DefaultEventBus)
 	instance.listeners = make(map[string][]env.F_EventListener)

@@ -8,7 +8,7 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
-// module entry point before app start
+// init makes package self-initialization routine before app start
 func init() {
 	visitorAddressInstance := new(DefaultVisitorAddress)
 	var _ visitor.I_VisitorAddress = visitorAddressInstance

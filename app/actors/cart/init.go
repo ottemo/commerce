@@ -10,7 +10,7 @@ import (
 	"github.com/ottemo/foundation/app/models/cart"
 )
 
-// module entry point before app start
+// init makes package self-initialization routine
 func init() {
 	instance := new(DefaultCart)
 
@@ -31,7 +31,7 @@ func init() {
 	api.RegisterOnRestServiceStart(setupAPI)
 }
 
-// DB preparations for current model implementation
+// setupDB prepares system database for package usage
 func (it *DefaultCart) setupDB() error {
 
 	if dbEngine := db.GetDBEngine(); dbEngine != nil {

@@ -1,4 +1,5 @@
-// Package is a MongoDB implementation of "I_DBEngine" and "I_Collection" interfaces.
+// Package mongo is a "MongoDB" implementation of interfaces declared in
+// "github.com/ottemo/foundation/db" package
 package mongo
 
 import (

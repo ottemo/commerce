@@ -13,18 +13,22 @@ import (
 	"github.com/ottemo/foundation/utils"
 )
 
+// GetName returns name of shipping method
 func (it *FedEx) GetName() string {
 	return SHIPPING_NAME
 }
 
+// GetCode returns code of shipping method
 func (it *FedEx) GetCode() string {
 	return SHIPPING_CODE
 }
 
+// IsAllowed checks for method applicability
 func (it *FedEx) IsAllowed(checkout checkout.I_Checkout) bool {
 	return true
 }
 
+// GetRates returns rates allowed by shipping method for a given checkout
 func (it *FedEx) GetRates(checkoutObject checkout.I_Checkout) []checkout.T_ShippingRate {
 
 	result := make([]checkout.T_ShippingRate, 0)
