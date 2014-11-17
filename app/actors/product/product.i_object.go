@@ -70,8 +70,9 @@ func (it *DefaultProduct) Set(attribute string, value interface{}) error {
 			}
 
 		case []interface{}:
+
 			for _, listItem := range typedValue {
-				if productID, ok := listItem.(string); ok && productID != "" && it.id == productID {
+				if productID, ok := listItem.(string); ok && productID != "" && it.id != productID {
 					// checking product existance
 					productModel, err := product.LoadProductById(productID)
 					if err != nil {
