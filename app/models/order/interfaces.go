@@ -1,3 +1,4 @@
+// Package order represents abstraction of business layer purchase order object
 package order
 
 import (
@@ -5,6 +6,7 @@ import (
 	"github.com/ottemo/foundation/app/models/visitor"
 )
 
+// Package global constants
 const (
 	MODEL_NAME_ORDER            = "Order"
 	MODEL_NAME_ORDER_COLLECTION = "OrderCollection"
@@ -12,6 +14,7 @@ const (
 	MODEL_NAME_ORDER_ITEM_COLLECTION = "OrderItemCollection"
 )
 
+// I_OrderItem represents interface to access business layer implementation of purchase order item object
 type I_OrderItem interface {
 	GetId() string
 	SetId(newId string) error
@@ -30,6 +33,7 @@ type I_OrderItem interface {
 	models.I_Object
 }
 
+// I_Order represents interface to access business layer implementation of purchase order object
 type I_Order interface {
 	GetItems() []I_OrderItem
 
@@ -62,12 +66,14 @@ type I_Order interface {
 	models.I_Listable
 }
 
+// I_OrderCollection represents interface to access business layer implementation of purchase order collection
 type I_OrderCollection interface {
 	ListOrders() []I_Order
 
 	models.I_Collection
 }
 
+// I_OrderItemCollection represents interface to access business layer implementation of purchase order item collection
 type I_OrderItemCollection interface {
 	models.I_Collection
 }

@@ -1,4 +1,5 @@
-// Package "events" is a default implementation for "I_EventBus" interface.
+// Package events is a default implementation of I_EventBus declared in
+// "github.com/ottemo/foundation/env" package
 package events
 
 import (

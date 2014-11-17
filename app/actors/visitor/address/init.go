@@ -8,7 +8,7 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
-// init makes package self-initialization routine before app start
+// init makes package self-initialization routine
 func init() {
 	visitorAddressInstance := new(DefaultVisitorAddress)
 	var _ visitor.I_VisitorAddress = visitorAddressInstance
@@ -22,7 +22,7 @@ func init() {
 	api.RegisterOnRestServiceStart(setupAPI)
 }
 
-// DB preparations for current model implementation
+// setupDB prepares system database for package usage
 func setupDB() error {
 	collection, err := db.GetCollection(COLLECTION_NAME_VISITOR_ADDRESS)
 	if err != nil {

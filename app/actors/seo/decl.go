@@ -1,4 +1,4 @@
-// Package seo implements a set of API intended to have SEO optimizations on existing objects
+// Package seo implements a set of API intended to provide SEO optimizations
 package seo
 
 // Package global constants

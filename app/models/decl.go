@@ -1,5 +1,6 @@
 package models
 
+// T_AttributeInfo represents type to hold business layer object information within collection
 type T_ListItem struct {
 	Id    string
 	Name  string
@@ -9,6 +10,7 @@ type T_ListItem struct {
 	Extra map[string]interface{}
 }
 
+// T_AttributeInfo represents type to hold business layer object attribute information
 type T_AttributeInfo struct {
 	Model      string
 	Collection string
@@ -25,6 +27,7 @@ type T_AttributeInfo struct {
 	IsLayered  bool
 }
 
+// Package global variables
 var (
 	declaredModels = map[string]I_Model{}
 

@@ -26,7 +26,7 @@ func GetCheckoutModel() (I_Checkout, error) {
 // retrieves shipping method for given unique code or nil if no shipping method with such code
 func GetShippingMethodByCode(code string) I_ShippingMethod {
 
-	for _, shippingMethod := range ShippingMethods {
+	for _, shippingMethod := range registeredShippingMethods {
 		if shippingMethod.GetCode() == code {
 			return shippingMethod
 		}
@@ -38,7 +38,7 @@ func GetShippingMethodByCode(code string) I_ShippingMethod {
 // retrieves payment method for given unique code or nil if no payment method with such code
 func GetPaymentMethodByCode(code string) I_PaymentMethod {
 
-	for _, paymentMethod := range PaymentMethods {
+	for _, paymentMethod := range registeredPaymentMethods {
 		if paymentMethod.GetCode() == code {
 			return paymentMethod
 		}

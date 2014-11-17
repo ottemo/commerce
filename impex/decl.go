@@ -1,10 +1,11 @@
-// Package impex implements import/export service for Ottemo system.
+// Package impex is a implementation of import/export service
 package impex
 
 import (
 	"regexp"
 )
 
+// Package global variables
 var (
 	IMPEX_LOG = true  // flag indicates to make log of values going to be processed
 	DEBUG_LOG = false // flag indicates to have extra log information

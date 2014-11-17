@@ -7,7 +7,7 @@ import (
 	"labix.org/v2/mgo"
 )
 
-// package self initializer
+// init makes package self-initialization routine
 func init() {
 	instance := new(MongoDB)
 
@@ -15,7 +15,7 @@ func init() {
 	db.RegisterDBEngine(instance)
 }
 
-// mongo DB engine startup, opens connections to database
+// Startup is a database engine startup routines
 func (it *MongoDB) Startup() error {
 
 	var DBUri = "mongodb://localhost:27017/ottemo"
@@ -57,8 +57,8 @@ func (it *MongoDB) Startup() error {
 	return nil
 }
 
-// debug logger mgo.log_Logger implementation
+// Output is a implementation of mgo.log_Logger interface
 func (it *MongoDB) Output(calldepth int, s string) error {
-	println(s)
+	env.Log("mongo.log", "DEBUG", s)
 	return nil
 }

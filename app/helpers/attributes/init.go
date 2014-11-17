@@ -5,12 +5,12 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
-// package self initializer
+// init makes package self-initialization routine
 func init() {
 	db.RegisterOnDatabaseStart(SetupDB)
 }
 
-// setups database tables for model usage
+// setupDB prepares system database for package usage
 func SetupDB() error {
 
 	if collection, err := db.GetCollection("custom_attributes"); err == nil {

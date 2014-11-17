@@ -11,18 +11,6 @@ import (
 	goini "github.com/vaughan0/go-ini"
 )
 
-const (
-	CMD_ARG_STORE_ALL_FLAG = "--iniStoreAll"
-	CMD_ARG_SECTION_NAME   = "--iniSection="
-	CMD_ARG_TEST_FLAG      = "--test"
-
-	ENVIRONMENT_INI_FILE    = "OTTEMO_INI"
-	ENVIRONMENT_INI_SECTION = "OTTEMO_MODE"
-
-	TEST_SECTION_NAME = "test"
-	DEFAULT_INI_FILE  = "ottemo.ini"
-)
-
 // init makes package self-initialization routine
 func init() {
 	instance := new(DefaultIniConfig)

@@ -1,4 +1,4 @@
-// Package contain interfaces to access media storage services.
+// Package media represents interfaces to access media storage services
 package media
 
 // interface to media storage service

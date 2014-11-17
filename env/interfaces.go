@@ -1,4 +1,4 @@
-// Package env is a set of interfaces to access environment services
+// Package env is a set of interfaces to access system environment services
 package env
 
 const (

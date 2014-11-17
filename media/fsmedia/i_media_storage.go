@@ -7,17 +7,17 @@ import (
 	"os"
 )
 
-// retrieve media storage name
+// GetName returns media storage name
 func (it *FilesystemMediaStorage) GetName() string {
 	return "FilesystemMediaStorage"
 }
 
-// returns path you can use to access media file (if possible for storage of course)
+// GetMediaPath returns path you can use to access media file (if possible for storage of course)
 func (it *FilesystemMediaStorage) GetMediaPath(model string, objId string, mediaType string) (string, error) {
 	return mediaType + "/" + model + "/" + objId + "/", nil
 }
 
-// retrieve contents of media entity for model object
+// Load retrieves contents of media entity for given model object
 func (it *FilesystemMediaStorage) Load(model string, objId string, mediaType string, mediaName string) ([]byte, error) {
 	mediaPath, err := it.GetMediaPath(model, objId, mediaType)
 	if err != nil {
@@ -29,7 +29,7 @@ func (it *FilesystemMediaStorage) Load(model string, objId string, mediaType str
 	return ioutil.ReadFile(mediaFilePath)
 }
 
-// add media entity for model object
+// Save adds media entity for model object
 func (it *FilesystemMediaStorage) Save(model string, objId string, mediaType string, mediaName string, mediaData []byte) error {
 	mediaPath, err := it.GetMediaPath(model, objId, mediaType)
 	if err != nil {
@@ -69,7 +69,7 @@ func (it *FilesystemMediaStorage) Save(model string, objId string, mediaType str
 	return nil
 }
 
-// remove media entity for model object
+// Remove removes media entity for model object
 func (it *FilesystemMediaStorage) Remove(model string, objId string, mediaType string, mediaName string) error {
 	mediaPath, err := it.GetMediaPath(model, objId, mediaType)
 	if err != nil {
@@ -104,7 +104,7 @@ func (it *FilesystemMediaStorage) Remove(model string, objId string, mediaType s
 	return err
 }
 
-// get list of given type media entities for model object
+// ListMedia returns list of given type media entities for a given model object
 func (it *FilesystemMediaStorage) ListMedia(model string, objId string, mediaType string) ([]string, error) {
 	result := make([]string, 0)
 

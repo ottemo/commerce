@@ -1,5 +1,6 @@
 package checkout
 
+// Package global constants
 const (
 	CHECKOUT_MODEL_NAME = "Checkout"
 

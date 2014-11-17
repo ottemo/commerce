@@ -1,5 +1,7 @@
+// Package objectref intended to unify and simplify a way of model instance changes tracking (currently not implemented)
 package objectref
 
+// DBObjectRef is a object state tracking helper and implementer of I_Object and I_Storable
 type DBObjectRef struct {
 	id string
 
@@ -10,26 +12,22 @@ type DBObjectRef struct {
 	currData map[string]interface{}
 }
 
-func (it *DBObjectRef) GetId() string {
-	return it.id
-}
-
-func (it *DBObjectRef) SetId(id string) {
-	it.id = id
-}
-
+// marks object instance as loaded from DB
 func (it *DBObjectRef) MarkAsLoaded() {
 	it.loaded = true
 }
 
+// marks object instance as modified
 func (it *DBObjectRef) MarkAsModified() {
 	it.modified = true
 }
 
+// returns value of modification flag
 func (it *DBObjectRef) IsModified() bool {
 	return it.modified
 }
 
+// returns value of load from DB flag
 func (it *DBObjectRef) IsLoaded() bool {
 	return it.loaded
 }

@@ -7,6 +7,7 @@ import (
 	"sync"
 )
 
+// Package global variables
 var (
 	// application status indicators to flag that system already in progress or done on kind of routine
 	initFlag  bool

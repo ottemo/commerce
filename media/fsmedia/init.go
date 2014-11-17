@@ -19,7 +19,7 @@ func init() {
 	}
 }
 
-// callback event if setup was done
+// setupCheckDone performs callback event if setup was done
 func (it *FilesystemMediaStorage) setupCheckDone() {
 
 	// so, we are not sure on events sequence order
@@ -28,7 +28,7 @@ func (it *FilesystemMediaStorage) setupCheckDone() {
 	}
 }
 
-// initialization based on ini config
+// setupOnIniConfig is a initialization based on ini config service
 func (it *FilesystemMediaStorage) setupOnIniConfig() error {
 
 	var storageFolder = MEDIA_DEFAULT_FOLDER
@@ -55,7 +55,7 @@ func (it *FilesystemMediaStorage) setupOnIniConfig() error {
 	return nil
 }
 
-// initialization based on config values
+// setupOnDatabase is a initialization based on config service
 func (it *FilesystemMediaStorage) setupOnDatabase() error {
 
 	dbEngine := db.GetDBEngine()

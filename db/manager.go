@@ -4,6 +4,7 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
+// Package global variables
 var (
 	currentDBEngine          I_DBEngine = nil              // currently registered database service in system
 	callbacksOnDatabaseStart            = []func() error{} // set of callback function on database service start

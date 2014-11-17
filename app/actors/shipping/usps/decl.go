@@ -1,4 +1,4 @@
-// Package usps is a "USPS" implementation of shipping method interface declared in
+// Package usps is a USPS implementation of shipping method interface declared in
 // "github.com/ottemo/foundation/app/models/checkout" package
 package usps
 

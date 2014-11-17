@@ -1,3 +1,4 @@
+// Package cart represents abstraction of business layer category object
 package category
 
 import (
@@ -5,11 +6,13 @@ import (
 	"github.com/ottemo/foundation/app/models/product"
 )
 
+// Package global constants
 const (
 	MODEL_NAME_CATEGORY            = "Category"
 	MODEL_NAME_CATEGORY_COLLECTION = "CategoryCollection"
 )
 
+// I_Category represents interface to access business layer implementation of category object
 type I_Category interface {
 	GetName() string
 
@@ -28,6 +31,7 @@ type I_Category interface {
 	models.I_Listable
 }
 
+// I_CategoryCollection represents interface to access business layer implementation of category collection
 type I_CategoryCollection interface {
 	ListCategories() []I_Category
 

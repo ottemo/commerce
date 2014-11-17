@@ -1,4 +1,4 @@
-// Package mongo is a "MongoDB" implementation of interfaces declared in
+// Package mongo is a MongoDB implementation of interfaces declared in
 // "github.com/ottemo/foundation/db" package
 package mongo
 
@@ -9,11 +9,13 @@ import (
 	"labix.org/v2/mgo/bson"
 )
 
+// Package global variables
 var (
 	attributeTypes      = make(map[string]map[string]string) // cached values of collection attribute types
 	attributeTypesMutex sync.RWMutex                         // syncronization for attributeTypes modification
 )
 
+// Package global constants
 const (
 	MONGO_DEBUG = false // flag which indicates to perform log on each operation
 
@@ -23,7 +25,7 @@ const (
 	COLLECTION_NAME_COLUMN_INFO = "collection_column_info" // collection name to hold Ottemo types of attributes
 )
 
-// structure to hold information of named collection filter
+// T_DBFilterGroup is a structure to hold information of named collection filter
 type T_DBFilterGroup struct {
 	Name         string
 	FilterValues []bson.D
@@ -31,7 +33,7 @@ type T_DBFilterGroup struct {
 	OrSequence   bool
 }
 
-// I_DBCollection implementer class
+// MongoDBCollection is a implementer of I_DBCollection
 type MongoDBCollection struct {
 	database   *mgo.Database
 	collection *mgo.Collection
@@ -51,7 +53,7 @@ type MongoDBCollection struct {
 	Offset int
 }
 
-// I_DBEngine implementer class
+// MongoDB is a implementer of I_DBEngine
 type MongoDB struct {
 	database *mgo.Database
 	session  *mgo.Session

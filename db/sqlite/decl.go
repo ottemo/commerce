@@ -1,4 +1,4 @@
-// Package sqlite is a "SQLite" implementation of interfaces declared in
+// Package sqlite is a SQLite implementation of interfaces declared in
 // "github.com/ottemo/foundation/db" package
 package sqlite
 
@@ -9,6 +9,7 @@ import (
 	"github.com/mxk/go-sqlite/sqlite3"
 )
 
+// Package global constants
 const (
 	UUID_ID   = true  // flag which indicates to use UUID "_id" column type instead of default integer
 	DEBUG_SQL = false // flag which indicates to perform log on each SQL operation
@@ -19,8 +20,14 @@ const (
 	COLLECTION_NAME_COLUMN_INFO = "collection_column_info" // table name to hold Ottemo types of columns
 )
 
-// regex expression used to check names used within SQL queries
-var SQL_NAME_VALIDATOR = regexp.MustCompile("^[A-Za-z_][A-Za-z0-9_]*$")
+// Package global variables
+var (
+	// instance of database engine (one per application)
+	dbEngine *SQLite
+
+	// regex expression used to check names used within SQL queries
+	SQL_NAME_VALIDATOR = regexp.MustCompile("^[A-Za-z_][A-Za-z0-9_]*$")
+)
 
 // structure to hold information of named collection filter
 type T_DBFilterGroup struct {

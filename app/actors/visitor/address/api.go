@@ -8,7 +8,7 @@ import (
 	"github.com/ottemo/foundation/app/models/visitor"
 )
 
-// REST API registration function
+// setupAPI setups package related API endpoint routines
 func setupAPI() error {
 	err := api.GetRestService().RegisterAPI("visitor/address", "POST", "create", restCreateVisitorAddress)
 	if err != nil {

@@ -1,3 +1,4 @@
+// Package utils represents a set of repeatable routines used across lot of packages
 package utils
 
 import (

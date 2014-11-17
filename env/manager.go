@@ -4,6 +4,7 @@ import (
 	"errors"
 )
 
+// Package global variables
 var (
 	// variables to hold currently registered services
 	registeredConfig    I_Config

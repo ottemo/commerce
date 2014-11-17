@@ -4,88 +4,83 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
-// Package variables
-//------------------
-
+// Package global variables
 var (
-	ShippingMethods = make([]I_ShippingMethod, 0)
-	PaymentMethods  = make([]I_PaymentMethod, 0)
+	registeredShippingMethods = make([]I_ShippingMethod, 0)
+	registeredPaymentMethods  = make([]I_PaymentMethod, 0)
 
-	Taxes     = make([]I_Tax, 0)
-	Discounts = make([]I_Discount, 0)
+	registeredTaxes     = make([]I_Tax, 0)
+	registeredDiscounts = make([]I_Discount, 0)
 )
-
-// Managing routines
-//------------------
 
 // register new shipping method to system
 func RegisterShippingMethod(shippingMethod I_ShippingMethod) error {
-	for _, registeredMethod := range ShippingMethods {
+	for _, registeredMethod := range registeredShippingMethods {
 		if registeredMethod == shippingMethod {
 			return env.ErrorNew("shipping method already registered")
 		}
 	}
 
-	ShippingMethods = append(ShippingMethods, shippingMethod)
+	registeredShippingMethods = append(registeredShippingMethods, shippingMethod)
 
 	return nil
 }
 
 // register new payment method to system
 func RegisterPaymentMethod(paymentMethod I_PaymentMethod) error {
-	for _, registeredMethod := range PaymentMethods {
+	for _, registeredMethod := range registeredPaymentMethods {
 		if registeredMethod == paymentMethod {
 			return env.ErrorNew("payment method already registered")
 		}
 	}
 
-	PaymentMethods = append(PaymentMethods, paymentMethod)
+	registeredPaymentMethods = append(registeredPaymentMethods, paymentMethod)
 
 	return nil
 }
 
 // register new tax calculator in system
 func RegisterTax(tax I_Tax) error {
-	for _, registeredTax := range Taxes {
+	for _, registeredTax := range registeredTaxes {
 		if registeredTax == tax {
 			return env.ErrorNew("tax already registered")
 		}
 	}
 
-	Taxes = append(Taxes, tax)
+	registeredTaxes = append(registeredTaxes, tax)
 
 	return nil
 }
 
 // register new discount calculator in system
 func RegisterDiscount(discount I_Discount) error {
-	for _, registeredDiscount := range Discounts {
+	for _, registeredDiscount := range registeredDiscounts {
 		if registeredDiscount == discount {
 			return env.ErrorNew("discount already registered")
 		}
 	}
 
-	Discounts = append(Discounts, discount)
+	registeredDiscounts = append(registeredDiscounts, discount)
 
 	return nil
 }
 
 // returns list of registered shipping methods
 func GetRegisteredShippingMethods() []I_ShippingMethod {
-	return ShippingMethods
+	return registeredShippingMethods
 }
 
 // returns list of registered payment methods
 func GetRegisteredPaymentMethods() []I_PaymentMethod {
-	return PaymentMethods
+	return registeredPaymentMethods
 }
 
 // returns list of registered tax calculators
 func GetRegisteredTaxes() []I_Tax {
-	return Taxes
+	return registeredTaxes
 }
 
 // returns list of registered tax calculators
 func GetRegisteredDiscounts() []I_Discount {
-	return Discounts
+	return registeredDiscounts
 }

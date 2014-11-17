@@ -1,3 +1,4 @@
+// Package cart represents abstraction of business layer cart object
 package cart
 
 import (
@@ -7,11 +8,13 @@ import (
 	"github.com/ottemo/foundation/app/models/visitor"
 )
 
+// Package global constants
 const (
 	CART_MODEL_NAME          = "Cart"
 	SESSION_KEY_CURRENT_CART = "cart_id"
 )
 
+// I_CartItem represents interface to access business layer implementation of cart item object
 type I_CartItem interface {
 	GetId() string
 	SetId(newId string) error
@@ -31,6 +34,7 @@ type I_CartItem interface {
 	GetCart() I_Cart
 }
 
+// I_Cart represents interface to access business layer implementation of cart object
 type I_Cart interface {
 	AddItem(productId string, qty int, options map[string]interface{}) (I_CartItem, error)
 

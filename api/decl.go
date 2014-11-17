@@ -1,12 +1,13 @@
-// Package api is a set of interfaces representing API endpoint services
+// Package api is a set of interfaces representing API endpoint services.
 //
-// Currently only "I_RestService" endpoint interface supported.
+// (currently only "I_RestService" endpoint interface supported)
 package api
 
 import (
 	"net/http"
 )
 
+// Package global constants
 var (
 	SESSION_KEY_ADMIN_RIGHTS = "adminRights" // session key used to flag that user have admin rights
 )

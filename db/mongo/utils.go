@@ -7,7 +7,7 @@ import (
 	"labix.org/v2/mgo/bson"
 )
 
-// recursive func that converts map[string]interface{} to bson.D
+// ConvertMapToDoc is a recursive function that converts map[string]interface{} to bson.D
 // so map keys order is static and alphabetically sorted
 func ConvertMapToDoc(inputMap map[string]interface{}) bson.D {
 	result := make(bson.D, len(inputMap))
@@ -34,7 +34,7 @@ func ConvertMapToDoc(inputMap map[string]interface{}) bson.D {
 	return result
 }
 
-// function converts bson.D to readable form, mostly used for debug
+// converts bson.D to readable form, mostly used for debug
 func BsonDToString(input bson.D) string {
 	result := ""
 

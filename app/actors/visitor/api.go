@@ -16,7 +16,7 @@ import (
 	"github.com/ottemo/foundation/utils"
 )
 
-// REST API registration function
+// setupAPI setups package related API endpoint routines
 func setupAPI() error {
 
 	// Dashboard API

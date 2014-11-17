@@ -4,6 +4,7 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
+// Package global variables
 var (
 	currentMediaStorage          I_MediaStorage = nil              // currently registered media storage service in system
 	callbacksOnMediaStorageStart                = []func() error{} // set of callback function on media storage service start

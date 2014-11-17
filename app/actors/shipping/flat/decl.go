@@ -1,4 +1,4 @@
-// Package flat is a "Flat Rate" implementation of shipping method interface declared in
+// Package flat is a Flat Rate implementation of shipping method interface declared in
 // "github.com/ottemo/foundation/app/models/checkout" package
 package flat
 

@@ -1,9 +1,11 @@
+// Package cms represents abstraction of business layer cms page and cms block objects
 package cms
 
 import (
 	"github.com/ottemo/foundation/app/models"
 )
 
+// Package global constants
 const (
 	MODEL_NAME_CMS_PAGE             = "CMSPage"
 	MODEL_NAME_CMS_PAGE_COLLECTION  = "CMSPageCollection"
@@ -11,6 +13,7 @@ const (
 	MODEL_NAME_CMS_BLOCK_COLLECTION = "CMSBlockCollection"
 )
 
+// I_CMSPage represents interface to access business layer implementation of cms page object
 type I_CMSPage interface {
 	GetURL() string
 	SetURL(string) error
@@ -36,12 +39,14 @@ type I_CMSPage interface {
 	models.I_Listable
 }
 
+// I_CMSPageCollection represents interface to access business layer implementation of cms page collection
 type I_CMSPageCollection interface {
 	ListCMSPages() []I_CMSPage
 
 	models.I_Collection
 }
 
+// I_CMSBlock represents interface to access business layer implementation of cms block object
 type I_CMSBlock interface {
 	GetIdentifier() string
 	SetIdentifier(string) error
@@ -55,6 +60,7 @@ type I_CMSBlock interface {
 	models.I_Listable
 }
 
+// I_CMSBlockCollection represents interface to access business layer implementation of cms block collection
 type I_CMSBlockCollection interface {
 	ListCMSBlocks() []I_CMSBlock
 

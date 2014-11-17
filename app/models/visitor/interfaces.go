@@ -1,3 +1,4 @@
+// Package visitor represents abstraction of business layer visitor object
 package visitor
 
 import (
@@ -5,7 +6,7 @@ import (
 	"time"
 )
 
-// Model Constants for Visitor and related collections
+// Package global constants
 const (
 	MODEL_NAME_VISITOR                    = "Visitor"
 	MODEL_NAME_VISITOR_COLLECTION         = "VisitorCollection"
@@ -15,7 +16,7 @@ const (
 	SESSION_KEY_VISITOR_ID = "visitor_id"
 )
 
-// I_Visitor is the primary interface for working with Visitors
+// I_Visitor represents interface to access business layer implementation of visitor object
 type I_Visitor interface {
 	GetEmail() string
 	GetFacebookId() string
@@ -55,14 +56,14 @@ type I_Visitor interface {
 	models.I_CustomAttributes
 }
 
-// I_VisitorCollection is the holds the model for Visitor collections
+// I_VisitorCollection represents interface to access business layer implementation of visitor collection
 type I_VisitorCollection interface {
 	ListVisitors() []I_Visitor
 
 	models.I_Collection
 }
 
-// I_VisitorAddress is the Visitor address interface
+// I_VisitorAddress represents interface to access business layer implementation of visitor address object
 type I_VisitorAddress interface {
 	GetVisitorId() string
 
@@ -87,7 +88,7 @@ type I_VisitorAddress interface {
 	models.I_Storable
 }
 
-// I_VisitorAddressCollection holds the Visitor address collection
+// I_VisitorAddressCollection represents interface to access business layer implementation of visitor address collection
 type I_VisitorAddressCollection interface {
 	ListVisitorsAddresses() []I_VisitorAddress
 

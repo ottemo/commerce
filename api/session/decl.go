@@ -1,4 +1,5 @@
-// Package session is a default implementation of I_Session declared in "github.com/ottemo/foundation/api" package
+// Package session is a default implementation of I_Session
+// declared in "github.com/ottemo/foundation/api" package
 package session
 
 import (
@@ -12,12 +13,14 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
+// Package global constants
 const (
 	ALPHANUMERIC = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890" // sessionID allowed symbols
 
 	SESSION_COOKIE_NAME = "OTTEMOSESSION" // cookie name which should contain sessionID
 )
 
+// Package global variables
 var (
 	Sessions      = make(map[string]*Session) // active session set
 	sessionsMutex sync.RWMutex                // syncronization on Sessions variable modification

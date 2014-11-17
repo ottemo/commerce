@@ -14,7 +14,7 @@ func init() {
 	env.RegisterOnConfigIniStart(startup)
 }
 
-// service pre-initialization stuff
+// startup is a service pre-initialization stuff
 func startup() error {
 	if _, err := os.Stat(baseDirectory); !os.IsExist(err) {
 		err := os.MkdirAll(baseDirectory, os.ModePerm)

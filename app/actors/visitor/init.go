@@ -22,7 +22,7 @@ func init() {
 	api.RegisterOnRestServiceStart(setupAPI)
 }
 
-// setups database tables for model usage
+// setupDB prepares system database for package usage
 func setupDB() error {
 
 	collection, err := db.GetCollection(COLLECTION_NAME_VISITOR)

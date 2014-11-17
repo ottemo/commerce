@@ -47,7 +47,7 @@ func (it *DefaultCheckout) SetPaymentMethod(paymentMethod checkout.I_PaymentMeth
 // GetPaymentMethod returns checkout payment method
 func (it *DefaultCheckout) GetPaymentMethod() checkout.I_PaymentMethod {
 	if paymentMethods := checkout.GetRegisteredPaymentMethods(); paymentMethods != nil {
-		for _, paymentMethod := range checkout.PaymentMethods {
+		for _, paymentMethod := range paymentMethods {
 			if paymentMethod.GetCode() == it.PaymentMethodCode {
 				return paymentMethod
 			}

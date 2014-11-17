@@ -26,7 +26,7 @@ func init() {
 	env.RegisterConfig(instance)
 }
 
-// service pre-initialization stuff
+// setupDB prepares system database for package usage
 func setupDB() error {
 	collection, err := db.GetCollection(CONFIG_COLLECTION_NAME)
 	if err != nil {

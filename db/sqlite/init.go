@@ -6,10 +6,6 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
-var (
-	dbEngine *SQLite // instance of database engine (one per application)
-)
-
 // init makes package self-initialization routine
 func init() {
 	dbEngine = new(SQLite)
@@ -21,7 +17,7 @@ func init() {
 	db.RegisterDBEngine(dbEngine)
 }
 
-// db engine startup routines
+// Startup is a database engine startup routines
 func (it *SQLite) Startup() error {
 
 	it.attributeTypes = make(map[string]map[string]string)

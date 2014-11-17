@@ -1,4 +1,4 @@
-// Package fedex is a "FedEx" implementation of shipping method interface declared in
+// Package fedex is a FedEx implementation of shipping method interface declared in
 // "github.com/ottemo/foundation/app/models/checkout" package
 package fedex
 

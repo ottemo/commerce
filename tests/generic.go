@@ -1,3 +1,4 @@
+// Package tests represents a set of tests intended to benchmark application
 package tests
 
 import (
@@ -49,6 +50,7 @@ import (
 	_ "github.com/ottemo/foundation/app/actors/shipping/fedex"
 )
 
+// Package global variables
 var (
 	startAppFlag  bool
 	startAppMutex sync.RWMutex
