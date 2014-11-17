@@ -4,18 +4,18 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ottemo/foundation/api"
+	"github.com/ottemo/foundation/app"
+	"github.com/ottemo/foundation/app/models/cart"
 	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/utils"
-	"github.com/ottemo/foundation/app"
-	"github.com/ottemo/foundation/api"
-	"github.com/ottemo/foundation/app/models/cart"
 )
 
 func referrerHandler(event string, data map[string]interface{}) bool {
 
 	params := data["apiParams"].(*api.T_APIHandlerParams)
 	xReferrer := utils.InterfaceToString(params.Request.Header.Get("X-Referer"))
-	if  "" == xReferrer {
+	if "" == xReferrer {
 		return true
 	}
 
@@ -194,11 +194,11 @@ func registerVisitorAsOnlineHandler(event string, data map[string]interface{}) b
 	referrer := ""
 	if "api.rts.visit" == event {
 		params := data["apiParams"].(*api.T_APIHandlerParams)
-		i_referrer := params.Request.Header.Get("X-Referer"); // api.rts.visit
-		referrer = utils.InterfaceToString(i_referrer);
+		i_referrer := params.Request.Header.Get("X-Referer") // api.rts.visit
+		referrer = utils.InterfaceToString(i_referrer)
 	}
 	if "api.request" == event {
-		referrer = utils.InterfaceToString(data["referrer"]); //api.request
+		referrer = utils.InterfaceToString(data["referrer"]) //api.request
 	}
 
 	if "" != referrer {

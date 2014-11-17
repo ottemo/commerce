@@ -327,7 +327,7 @@ func GetTotalSales(fromDate time.Time, toDate time.Time) error {
 
 	ratio := float64(1)
 	if 0 != yesterday {
-		ratio = float64(today)/float64(yesterday)-float64(1)
+		ratio = float64(today)/float64(yesterday) - float64(1)
 	}
 
 	sales.ratio = ratio
