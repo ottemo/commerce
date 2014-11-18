@@ -74,6 +74,10 @@ func setupAPI() error {
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
+	err = api.GetRestService().RegisterAPI("visitor", "GET", "invalidate/:email", restInvalidate)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
 	err = api.GetRestService().RegisterAPI("visitor", "GET", "forgot-password/:email", restForgotPassword)
 	if err != nil {
 		return env.ErrorDispatch(err)
@@ -495,8 +499,7 @@ func restRegister(params *api.T_APIHandlerParams) (interface{}, error) {
 
 // WEB REST API used to validate e-mail address by key sent after registration
 func restValidate(params *api.T_APIHandlerParams) (interface{}, error) {
-	// check request params
-	//---------------------
+
 	validationKey, isKeySpecified := params.RequestURLParams["key"]
 	if !isKeySpecified {
 		return nil, env.ErrorNew("validation key was not specified")
@@ -512,7 +515,37 @@ func restValidate(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	return api.T_RestRedirect{Location: app.GetStorefrontUrl("login"), DoRedirect: true}, nil
+	return api.T_RestRedirect{Result: "ok", Location: app.GetStorefrontUrl("login")}, nil
+}
+
+// WEB REST API used to invalidate customer e-mail
+func restInvalidate(params *api.T_APIHandlerParams) (interface{}, error) {
+
+	visitorModel, err := visitor.GetVisitorModel()
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	visitorEmail := params.RequestURLParams["email"]
+
+	err = visitorModel.LoadByEmail(visitorEmail)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	// checking rights
+	if err := api.ValidateAdminRights(params); err != nil {
+		if visitorModel.IsValidated() {
+			return nil, env.ErrorDispatch(err)
+		}
+	}
+
+	err = visitorModel.Invalidate()
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	return "ok", nil
 }
 
 // WEB REST API used to sent new password to customer e-mail
@@ -523,7 +556,9 @@ func restForgotPassword(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	err = visitorModel.LoadByEmail(params.RequestURLParams["email"])
+	visitorEmail := params.RequestURLParams["email"]
+
+	err = visitorModel.LoadByEmail(visitorEmail)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -533,7 +568,7 @@ func restForgotPassword(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	return api.T_RestRedirect{Result: "ok", Location: app.GetStorefrontUrl("login")}, nil
+	return "ok", nil
 }
 
 // WEB REST API function used to obtain visitor information
@@ -622,7 +657,7 @@ func restLogin(params *api.T_APIHandlerParams) (interface{}, error) {
 	if visitorModel.IsValidated() {
 		params.Session.Set(visitor.SESSION_KEY_VISITOR_ID, visitorModel.GetId())
 	} else {
-		return nil, env.ErrorNew("visitor is not validated")
+		return nil, env.ErrorNew("visitor is not validated, please check " + visitorModel.GetEmail() + " for a verify link we sent you")
 	}
 
 	if visitorModel.IsAdmin() {
