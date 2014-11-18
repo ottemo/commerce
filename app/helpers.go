@@ -55,9 +55,9 @@ To: {{.To}}
 Subject: {{.Subject}}
 Content-Type: text/html
 
-{{.Body}}
+<p>{{.Body}}</p>
 
-{{.Signature}}`
+<p>{{.Signature}}</p>`
 
 	emailTemplate := template.New("emailTemplate")
 	emailTemplate, err := emailTemplate.Parse(emailTemplateBody)

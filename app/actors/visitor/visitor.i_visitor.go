@@ -105,7 +105,7 @@ func (it *DefaultVisitor) IsValidated() bool {
 func (it *DefaultVisitor) Invalidate() error {
 
 	if it.GetEmail() == "" {
-		return env.ErrorNew("email is not specified")
+		return env.ErrorNew("email was not specified")
 	}
 
 	data, err := time.Now().MarshalBinary()
@@ -119,9 +119,9 @@ func (it *DefaultVisitor) Invalidate() error {
 		return env.ErrorDispatch(err)
 	}
 
-	linkHref := app.GetFoundationUrl("visitor/validate/" + it.ValidateKey)
+	linkHref := app.GetStorefrontUrl("login?validate=" + it.ValidateKey)
 
-	err = app.SendMail(it.GetEmail(), "e-mail validation", "please follow the link to validate your e-mail: <a href=\""+linkHref+"\">"+linkHref+"</a>")
+	err = app.SendMail(it.GetEmail(), "e-mail validation", "Please follow the link to validate your e-mail: <a href=\""+linkHref+"\">"+linkHref+"</a>")
 
 	return env.ErrorDispatch(err)
 }
@@ -145,6 +145,10 @@ func (it *DefaultVisitor) Validate(key string) error {
 	records, err := collection.Load()
 	if err != nil {
 		return env.ErrorDispatch(err)
+	}
+
+	if len(records) == 0 {
+		return env.ErrorNew("wrong validation key")
 	}
 
 	for _, record := range records {
@@ -188,7 +192,7 @@ func (it *DefaultVisitor) Validate(key string) error {
 				return env.ErrorDispatch(err)
 			}
 
-			return env.ErrorNew("validation period expired, new validation URL was sent")
+			return env.ErrorNew("validation key expired, new validation link was sent to visitor e-mail")
 		}
 	}
 
