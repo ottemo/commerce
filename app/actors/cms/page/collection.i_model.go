@@ -9,17 +9,17 @@ import (
 
 // returns model name
 func (it *DefaultCMSPageCollection) GetModelName() string {
-	return cms.MODEL_NAME_CMS_PAGE_COLLECTION
+	return cms.ConstModelNameCMSPageCollection
 }
 
 // returns model implementation name
 func (it *DefaultCMSPageCollection) GetImplementationName() string {
-	return "Default" + cms.MODEL_NAME_CMS_PAGE_COLLECTION
+	return "Default" + cms.ConstModelNameCMSPageCollection
 }
 
 // returns new instance of model implementation object
-func (it *DefaultCMSPageCollection) New() (models.I_Model, error) {
-	dbCollection, err := db.GetCollection(CMS_PAGE_COLLECTION_NAME)
+func (it *DefaultCMSPageCollection) New() (models.InterfaceModel, error) {
+	dbCollection, err := db.GetCollection(ConstCmsPageCollectionName)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}

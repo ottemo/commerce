@@ -36,7 +36,7 @@ func setupAPI() error {
 }
 
 // Completes will finalizie the PayPal transaction when provided an Order, Token and Payer ID.
-func Completes(orderInstance order.I_Order, token string, payerID string) (map[string]string, error) {
+func Completes(orderInstance order.InterfaceOrder, token string, payerID string) (map[string]string, error) {
 
 	// getting order information
 	//--------------------------
@@ -45,10 +45,10 @@ func Completes(orderInstance order.I_Order, token string, payerID string) (map[s
 
 	// getting request param values
 	//-----------------------------
-	user := utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_USER))
-	password := utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_PASS))
-	signature := utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_SIGNATURE))
-	action := utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_ACTION))
+	user := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathUser))
+	password := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathPass))
+	signature := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathSignature))
+	action := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathAction))
 
 	amount := fmt.Sprintf("%.2f", grandTotal)
 	shippingAmount := fmt.Sprintf("%.2f", shippingPrice)
@@ -74,7 +74,7 @@ func Completes(orderInstance order.I_Order, token string, payerID string) (map[s
 		"&PAYERID=" + payerID +
 		"&TOKEN=" + token
 
-	nvpGateway := utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_NVP))
+	nvpGateway := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathNVP))
 
 	request, err := http.NewRequest("GET", nvpGateway+"?"+requestParams, nil)
 	if err != nil {
@@ -112,7 +112,7 @@ func Completes(orderInstance order.I_Order, token string, payerID string) (map[s
 }
 
 // WEB REST API function to process PayPal receipt result
-func restSuccess(params *api.T_APIHandlerParams) (interface{}, error) {
+func restSuccess(params *api.StructAPIHandlerParams) (interface{}, error) {
 	reqData := params.RequestGETParams
 	sessionID := waitingTokens[reqData["token"]]
 
@@ -141,7 +141,7 @@ func restSuccess(params *api.T_APIHandlerParams) (interface{}, error) {
 
 		completeData, err := Completes(checkoutOrder, reqData["token"], reqData["PayerID"])
 		if err != nil {
-			env.Log("paypal.log", env.LOG_PREFIX_INFO, "TRANSACTION NOT COMPLETED: "+
+			env.Log("paypal.log", env.ConstLogPrefixInfo, "TRANSACTION NOT COMPLETED: "+
 				"VisitorId - "+utils.InterfaceToString(checkoutOrder.Get("visitor_id"))+", "+
 				"OrderId - "+checkoutOrder.GetId()+", "+
 				"TOKEN - : "+completeData["TOKEN"])
@@ -165,19 +165,19 @@ func restSuccess(params *api.T_APIHandlerParams) (interface{}, error) {
 			return nil, err
 		}
 
-		env.Log("paypal.log", env.LOG_PREFIX_INFO, "TRANSACTION COMPLETED: "+
+		env.Log("paypal.log", env.ConstLogPrefixInfo, "TRANSACTION COMPLETED: "+
 			"VisitorId - "+utils.InterfaceToString(checkoutOrder.Get("visitor_id"))+", "+
 			"OrderId - "+checkoutOrder.GetId()+", "+
 			"TOKEN - : "+completeData["TOKEN"])
 
-		return api.T_RestRedirect{Location: app.GetStorefrontUrl("account/order/" + checkoutOrder.GetId()), DoRedirect: true}, nil
+		return api.StructRestRedirect{Location: app.GetStorefrontUrl("account/order/" + checkoutOrder.GetId()), DoRedirect: true}, nil
 	}
 
 	return nil, errors.New("Checkout not exist")
 }
 
 // WEB REST API function to process PayPal decline result
-func restCancel(params *api.T_APIHandlerParams) (interface{}, error) {
+func restCancel(params *api.StructAPIHandlerParams) (interface{}, error) {
 	reqData := params.RequestGETParams
 	sessionID := waitingTokens[reqData["token"]]
 
@@ -198,10 +198,10 @@ func restCancel(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	checkoutOrder := currentCheckout.GetOrder()
 
-	env.Log("paypal.log", env.LOG_PREFIX_INFO, "CANCELED: "+
+	env.Log("paypal.log", env.ConstLogPrefixInfo, "CANCELED: "+
 		"VisitorId - "+utils.InterfaceToString(checkoutOrder.Get("visitor_id"))+", "+
 		"OrderId - "+checkoutOrder.GetId()+", "+
 		"TOKEN - : "+reqData["token"])
 
-	return api.T_RestRedirect{Location: app.GetStorefrontUrl("checkout"), DoRedirect: true}, nil
+	return api.StructRestRedirect{Location: app.GetStorefrontUrl("checkout"), DoRedirect: true}, nil
 }

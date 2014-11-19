@@ -116,8 +116,8 @@ func GetDBType(ColumnType string) (string, error) {
 	switch {
 	case strings.HasPrefix(ColumnType, "[]"):
 		return "TEXT", nil
-	case ColumnType == db.DB_BASETYPE_ID:
-		if UUID_ID {
+	case ColumnType == db.ConstDBBasetypeID:
+		if ConstUseUUIDids {
 			return "TEXT", nil
 		} else {
 			return "INTEGER", nil

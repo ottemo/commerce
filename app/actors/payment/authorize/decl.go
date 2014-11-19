@@ -10,26 +10,26 @@ const (
 	ConstTransactionError         = "3"
 	ConstTransactionWaitingReview = "4"
 
-	PAYMENT_CODE_DPM = "authorizeNetDPM"
-	PAYMENT_NAME_DPM = "Authorize.Net (Direct Post)"
+	ConstPaymentCodeDPM = "authorizeNetDPM"
+	ConstPaymentNameDPM = "Authorize.Net (Direct Post)"
 
-	DPM_ACTION_AUTHORIZE_ONLY        = "AUTH_ONLY"
-	DPM_ACTION_AUTHORIZE_AND_CAPTURE = "AUTH_CAPTURE"
+	ConstDPMActionAuthorizeOnly       = "AUTH_ONLY"
+	ConstDPMActionAuthorizeAndCapture = "AUTH_CAPTURE"
 
-	CONFIG_PATH_DPM_GROUP = "payment.authorizeNetDPM"
+	ConstConfigPathDPMGroup = "payment.authorizeNetDPM"
 
-	CONFIG_PATH_DPM_ENABLED = "payment.authorizeNetDPM.enabled"
-	CONFIG_PATH_DPM_ACTION  = "payment.authorizeNetDPM.action"
-	CONFIG_PATH_DPM_TITLE   = "payment.authorizeNetDPM.title"
+	ConstConfigPathDPMEnabled = "payment.authorizeNetDPM.enabled"
+	ConstConfigPathDPMAction  = "payment.authorizeNetDPM.action"
+	ConstConfigPathDPMTitle   = "payment.authorizeNetDPM.title"
 
-	CONFIG_PATH_DPM_LOGIN   = "payment.authorizeNetDPM.login"
-	CONFIG_PATH_DPM_KEY     = "payment.authorizeNetDPM.key"
-	CONFIG_PATH_DPM_GATEWAY = "payment.authorizeNetDPM.gateway"
+	ConstConfigPathDPMLogin   = "payment.authorizeNetDPM.login"
+	ConstConfigPathDPMKey     = "payment.authorizeNetDPM.key"
+	ConstConfigPathDPMGateway = "payment.authorizeNetDPM.gateway"
 
-	CONFIG_PATH_DPM_TEST     = "payment.authorizeNetDPM.test"
-	CONFIG_PATH_DPM_DEBUG    = "payment.authorizeNetDPM.debug"
-	CONFIG_PATH_DPM_CHECKOUT = "payment.authorizeNetDPM.checkout"
+	ConstConfigPathDPMTest     = "payment.authorizeNetDPM.test"
+	ConstConfigPathDPMDebug    = "payment.authorizeNetDPM.debug"
+	ConstConfigPathDPMCheckout = "payment.authorizeNetDPM.checkout"
 )
 
-// AuthorizeNetDPM is a implementer of I_PaymentMethod for a Authorize.Net Direct Post method
+// AuthorizeNetDPM is a implementer of InterfacePaymentMethod for a Authorize.Net Direct Post method
 type AuthorizeNetDPM struct{}

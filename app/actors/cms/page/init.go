@@ -11,12 +11,12 @@ import (
 // init makes package self-initialization routine
 func init() {
 	cmsPageInstance := new(DefaultCMSPage)
-	var _ cms.I_CMSPage = cmsPageInstance
-	models.RegisterModel(cms.MODEL_NAME_CMS_PAGE, cmsPageInstance)
+	var _ cms.InterfaceCMSPage = cmsPageInstance
+	models.RegisterModel(cms.ConstModelNameCMSPage, cmsPageInstance)
 
 	cmsPageCollectionInstance := new(DefaultCMSPageCollection)
-	var _ cms.I_CMSPageCollection = cmsPageCollectionInstance
-	models.RegisterModel(cms.MODEL_NAME_CMS_PAGE_COLLECTION, cmsPageCollectionInstance)
+	var _ cms.InterfaceCMSPageCollection = cmsPageCollectionInstance
+	models.RegisterModel(cms.ConstModelNameCMSPageCollection, cmsPageCollectionInstance)
 
 	db.RegisterOnDatabaseStart(setupDB)
 	api.RegisterOnRestServiceStart(setupAPI)
@@ -24,7 +24,7 @@ func init() {
 
 // setupDB prepares system database for package usage
 func setupDB() error {
-	collection, err := db.GetCollection(CMS_PAGE_COLLECTION_NAME)
+	collection, err := db.GetCollection(ConstCmsPageCollectionName)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}

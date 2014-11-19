@@ -18,7 +18,7 @@ func (it *DefaultCheckout) SendOrderConfirmationMail() error {
 		return env.ErrorNew("given checkout order does not exists")
 	}
 
-	confirmationEmail := utils.InterfaceToString(env.ConfigGetValue(checkout.CONFIG_PATH_CONFIRMATION_EMAIL))
+	confirmationEmail := utils.InterfaceToString(env.ConfigGetValue(checkout.ConstConfigPathConfirmationEmail))
 	if confirmationEmail != "" {
 		email := utils.InterfaceToString(checkoutOrder.Get("customer_email"))
 		if email == "" {
@@ -44,7 +44,7 @@ func (it *DefaultCheckout) SendOrderConfirmationMail() error {
 }
 
 // CheckoutSuccess will save the order and clear the shopping in the session.
-func (it *DefaultCheckout) CheckoutSuccess(checkoutOrder order.I_Order, session api.I_Session) error {
+func (it *DefaultCheckout) CheckoutSuccess(checkoutOrder order.InterfaceOrder, session api.InterfaceSession) error {
 
 	if checkoutOrder == nil || session == nil {
 		return env.ErrorNew("Order or session is null")
@@ -62,8 +62,8 @@ func (it *DefaultCheckout) CheckoutSuccess(checkoutOrder order.I_Order, session 
 	currentCart.Deactivate()
 	currentCart.Save()
 
-	session.Set(cart.SESSION_KEY_CURRENT_CART, nil)
-	session.Set(checkout.SESSION_KEY_CURRENT_CHECKOUT, nil)
+	session.Set(cart.ConstSessionKeyCurrentCart, nil)
+	session.Set(checkout.ConstSessionKeyCurrentCheckout, nil)
 
 	eventData := map[string]interface{}{"checkout": it, "order": checkoutOrder, "session": session, "cart": currentCart}
 	env.Event("checkout.success", eventData)

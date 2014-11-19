@@ -6,8 +6,8 @@ import (
 
 // Package global variables
 var (
-	currentRestService          I_RestService = nil              // currently registered RESTFul service in system
-	callbacksOnRestServiceStart               = []func() error{} // set of callback function on RESTFul service start
+	currentRestService          InterfaceRestService = nil              // currently registered RESTFul service in system
+	callbacksOnRestServiceStart                      = []func() error{} // set of callback function on RESTFul service start
 )
 
 // registers new callback on RESTFul service start
@@ -27,7 +27,7 @@ func OnRestServiceStart() error {
 
 // registers RESTFul service in the system
 //   - will cause error if there are couple candidates for that role
-func RegisterRestService(newService I_RestService) error {
+func RegisterRestService(newService InterfaceRestService) error {
 	if currentRestService == nil {
 		currentRestService = newService
 	} else {
@@ -37,6 +37,6 @@ func RegisterRestService(newService I_RestService) error {
 }
 
 // returns currently used RESTFul service implementation
-func GetRestService() I_RestService {
+func GetRestService() InterfaceRestService {
 	return currentRestService
 }

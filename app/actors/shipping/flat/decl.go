@@ -4,16 +4,16 @@ package flat
 
 // Package global constants
 const (
-	SHIPPING_CODE = "flat_rate"
-	SHIPPING_NAME = "FlatRate"
+	ConstShippingCode = "flat_rate"
+	ConstShippingName = "FlatRate"
 
-	CONFIG_PATH_GROUP = "shipping.flat_rate"
+	ConstConfigPathGroup = "shipping.flat_rate"
 
-	CONFIG_PATH_ENABLED = "shipping.flat_rate.enabled"
-	CONFIG_PATH_AMOUNT  = "shipping.flat_rate.amount"
-	CONFIG_PATH_NAME    = "shipping.flat_rate.name"
-	CONFIG_PATH_DAYS    = "shipping.flat_rate.days"
+	ConstConfigPathEnabled = "shipping.flat_rate.enabled"
+	ConstConfigPathAmount  = "shipping.flat_rate.amount"
+	ConstConfigPathName    = "shipping.flat_rate.name"
+	ConstConfigPathDays    = "shipping.flat_rate.days"
 )
 
-// FlatRateShipping is a implementer of I_ShippingMethod for a "Flat Rate" shipping method
+// FlatRateShipping is a implementer of InterfaceShippingMethod for a "Flat Rate" shipping method
 type FlatRateShipping struct{}

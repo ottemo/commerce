@@ -134,10 +134,10 @@ func (it *SQLiteCollection) getSQLFilters() string {
 }
 
 // returns filter group, creates new one if not exists
-func (it *SQLiteCollection) getFilterGroup(groupName string) *T_DBFilterGroup {
+func (it *SQLiteCollection) getFilterGroup(groupName string) *StructDBFilterGroup {
 	filterGroup, present := it.FilterGroups[groupName]
 	if !present {
-		filterGroup = &T_DBFilterGroup{Name: groupName, FilterValues: make([]string, 0)}
+		filterGroup = &StructDBFilterGroup{Name: groupName, FilterValues: make([]string, 0)}
 		it.FilterGroups[groupName] = filterGroup
 	}
 	return filterGroup

@@ -11,12 +11,12 @@ import (
 // init makes package self-initialization routine
 func init() {
 	productInstance := new(DefaultProduct)
-	var _ product.I_Product = productInstance
-	models.RegisterModel(product.MODEL_NAME_PRODUCT, productInstance)
+	var _ product.InterfaceProduct = productInstance
+	models.RegisterModel(product.ConstModelNameProduct, productInstance)
 
 	collectionInstance := new(DefaultProductCollection)
-	var _ product.I_ProductCollection = collectionInstance
-	models.RegisterModel(product.MODEL_NAME_PRODUCT_COLLECTION, collectionInstance)
+	var _ product.InterfaceProductCollection = collectionInstance
+	models.RegisterModel(product.ConstModelNameProductCollection, collectionInstance)
 
 	db.RegisterOnDatabaseStart(setupDB)
 	api.RegisterOnRestServiceStart(setupAPI)
@@ -24,7 +24,7 @@ func init() {
 
 // setupDB prepares system database for package usage
 func setupDB() error {
-	collection, err := db.GetCollection(COLLECTION_NAME_PRODUCT)
+	collection, err := db.GetCollection(ConstCollectionNameProduct)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}

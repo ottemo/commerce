@@ -40,8 +40,8 @@ func TestProductsOperations(tst *testing.T) {
 	}
 
 	// adding new attribute to system
-	err = productModel.AddNewAttribute(models.T_AttributeInfo{
-		Model:      product.MODEL_NAME_PRODUCT,
+	err = productModel.AddNewAttribute(models.StructAttributeInfo{
+		Model:      product.ConstModelNameProduct,
 		Collection: "product", // TODO: Custom attribute helper should set this by self
 		Attribute:  "test",
 		Type:       "text",

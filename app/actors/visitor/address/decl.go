@@ -7,13 +7,13 @@ import (
 
 // Package global constants
 const (
-	COLLECTION_NAME_VISITOR_ADDRESS = "visitor_address"
+	ConstCollectionNameVisitorAddress = "visitor_address"
 )
 
-// DefaultVisitorAddress is a default implementer of I_VisitorAddress
+// DefaultVisitorAddress is a default implementer of InterfaceVisitorAddress
 type DefaultVisitorAddress struct {
-	id         string
-	visitor_id string
+	id        string
+	visitorID string
 
 	FirstName string
 	LastName  string
@@ -31,8 +31,8 @@ type DefaultVisitorAddress struct {
 	ZipCode string
 }
 
-// DefaultVisitorAddressCollection is a default implementer of I_VisitorAddressCollection
+// DefaultVisitorAddressCollection is a default implementer of InterfaceVisitorAddressCollection
 type DefaultVisitorAddressCollection struct {
-	listCollection     db.I_DBCollection
+	listCollection     db.InterfaceDBCollection
 	listExtraAtributes []string
 }

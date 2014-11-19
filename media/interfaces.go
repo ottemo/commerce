@@ -2,7 +2,7 @@
 package media
 
 // interface to media storage service
-type I_MediaStorage interface {
+type InterfaceMediaStorage interface {
 	GetName() string
 
 	Load(model string, objId string, mediaType string, mediaName string) ([]byte, error)

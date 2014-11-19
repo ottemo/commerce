@@ -7,15 +7,15 @@ import (
 
 // returns model name
 func (it *DefaultCategory) GetModelName() string {
-	return category.MODEL_NAME_CATEGORY
+	return category.ConstModelNameCategory
 }
 
 // returns model implementation name
 func (it *DefaultCategory) GetImplementationName() string {
-	return "Default" + category.MODEL_NAME_CATEGORY
+	return "Default" + category.ConstModelNameCategory
 }
 
 // returns new instance of model implementation object
-func (it *DefaultCategory) New() (models.I_Model, error) {
+func (it *DefaultCategory) New() (models.InterfaceModel, error) {
 	return &DefaultCategory{ProductIds: make([]string, 0)}, nil
 }

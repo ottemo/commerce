@@ -197,10 +197,10 @@ func (it *DefaultOrder) ToHashMap() map[string]interface{} {
 }
 
 // describes attributes of Order model
-func (it *DefaultOrder) GetAttributesInfo() []models.T_AttributeInfo {
+func (it *DefaultOrder) GetAttributesInfo() []models.StructAttributeInfo {
 
-	info := []models.T_AttributeInfo{
-		models.T_AttributeInfo{
+	info := []models.StructAttributeInfo{
+		models.StructAttributeInfo{
 			Model:      "Order",
 			Collection: "Order",
 			Attribute:  "_id",
@@ -213,7 +213,7 @@ func (it *DefaultOrder) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
+		models.StructAttributeInfo{
 			Model:      "Order",
 			Collection: "Order",
 			Attribute:  "increment_id",
@@ -226,7 +226,7 @@ func (it *DefaultOrder) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
+		models.StructAttributeInfo{
 			Model:      "Order",
 			Collection: "Order",
 			Attribute:  "status",
@@ -239,7 +239,7 @@ func (it *DefaultOrder) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "pending,canceled,complete",
 			Default:    "pending",
 		},
-		models.T_AttributeInfo{
+		models.StructAttributeInfo{
 			Model:      "Order",
 			Collection: "Order",
 			Attribute:  "visitor_id",
@@ -252,7 +252,7 @@ func (it *DefaultOrder) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "model: visitor",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
+		models.StructAttributeInfo{
 			Model:      "Order",
 			Collection: "Order",
 			Attribute:  "customer_email",
@@ -265,7 +265,7 @@ func (it *DefaultOrder) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
+		models.StructAttributeInfo{
 			Model:      "Order",
 			Collection: "Order",
 			Attribute:  "customer_name",
@@ -278,7 +278,7 @@ func (it *DefaultOrder) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
+		models.StructAttributeInfo{
 			Model:      "Order",
 			Collection: "Order",
 			Attribute:  "shipping_address",
@@ -291,7 +291,7 @@ func (it *DefaultOrder) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
+		models.StructAttributeInfo{
 			Model:      "Order",
 			Collection: "Order",
 			Attribute:  "billing_address",
@@ -304,7 +304,7 @@ func (it *DefaultOrder) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
+		models.StructAttributeInfo{
 			Model:      "Order",
 			Collection: "Order",
 			Attribute:  "payment_method",
@@ -317,7 +317,7 @@ func (it *DefaultOrder) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "model: payments",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
+		models.StructAttributeInfo{
 			Model:      "Order",
 			Collection: "Order",
 			Attribute:  "shipping_method",
@@ -330,7 +330,7 @@ func (it *DefaultOrder) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "model: shipping",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
+		models.StructAttributeInfo{
 			Model:      "Order",
 			Collection: "Order",
 			Attribute:  "subtotal",
@@ -343,7 +343,7 @@ func (it *DefaultOrder) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
+		models.StructAttributeInfo{
 			Model:      "Order",
 			Collection: "Order",
 			Attribute:  "discount",
@@ -356,7 +356,7 @@ func (it *DefaultOrder) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
+		models.StructAttributeInfo{
 			Model:      "Order",
 			Collection: "Order",
 			Attribute:  "tax_amount",
@@ -369,7 +369,7 @@ func (it *DefaultOrder) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
+		models.StructAttributeInfo{
 			Model:      "Order",
 			Collection: "Order",
 			Attribute:  "shipping_amount",
@@ -382,7 +382,7 @@ func (it *DefaultOrder) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
+		models.StructAttributeInfo{
 			Model:      "Order",
 			Collection: "Order",
 			Attribute:  "grand_total",
@@ -395,7 +395,7 @@ func (it *DefaultOrder) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
+		models.StructAttributeInfo{
 			Model:      "Order",
 			Collection: "Order",
 			Attribute:  "created_at",
@@ -408,7 +408,7 @@ func (it *DefaultOrder) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
+		models.StructAttributeInfo{
 			Model:      "Order",
 			Collection: "Order",
 			Attribute:  "updated_at",
@@ -421,7 +421,7 @@ func (it *DefaultOrder) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
+		models.StructAttributeInfo{
 			Model:      "Order",
 			Collection: "Order",
 			Attribute:  "description",

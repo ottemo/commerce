@@ -12,17 +12,17 @@ import (
 // init makes package self-initialization routine
 func init() {
 	orderInstance := new(DefaultOrder)
-	var _ order.I_Order = orderInstance
-	var _ order.I_OrderItem = new(DefaultOrderItem)
-	models.RegisterModel(order.MODEL_NAME_ORDER, orderInstance)
+	var _ order.InterfaceOrder = orderInstance
+	var _ order.InterfaceOrderItem = new(DefaultOrderItem)
+	models.RegisterModel(order.ConstModelNameOrder, orderInstance)
 
 	orderCollectionInstance := new(DefaultOrderCollection)
-	var _ order.I_OrderCollection = orderCollectionInstance
-	models.RegisterModel(order.MODEL_NAME_ORDER_COLLECTION, orderCollectionInstance)
+	var _ order.InterfaceOrderCollection = orderCollectionInstance
+	models.RegisterModel(order.ConstModelNameOrderCollection, orderCollectionInstance)
 
 	orderItemCollectionInstance := new(DefaultOrderItemCollection)
-	var _ order.I_OrderItemCollection = orderItemCollectionInstance
-	models.RegisterModel(order.MODEL_NAME_ORDER_ITEM_COLLECTION, orderItemCollectionInstance)
+	var _ order.InterfaceOrderItemCollection = orderItemCollectionInstance
+	models.RegisterModel(order.ConstModelNameOrderItemCollection, orderItemCollectionInstance)
 
 	db.RegisterOnDatabaseStart(setupDB)
 	env.RegisterOnConfigStart(setupConfig)
@@ -35,7 +35,7 @@ func init() {
 func setupDB() error {
 
 	if dbEngine := db.GetDBEngine(); dbEngine != nil {
-		collection, err := dbEngine.GetCollection(COLLECTION_NAME_ORDER)
+		collection, err := dbEngine.GetCollection(ConstCollectionNameOrder)
 		if err != nil {
 			return env.ErrorDispatch(err)
 		}
@@ -67,7 +67,7 @@ func setupDB() error {
 		collection.AddColumn("description", "text", false)
 		collection.AddColumn("payment_info", "text", false)
 
-		collection, err = dbEngine.GetCollection(COLLECTION_NAME_ORDER_ITEMS)
+		collection, err = dbEngine.GetCollection(ConstCollectionNameOrderItems)
 		if err != nil {
 			return env.ErrorDispatch(err)
 		}

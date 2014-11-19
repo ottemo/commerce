@@ -5,7 +5,7 @@ import (
 )
 
 // interface for accessing private storage assigned to particular API request
-type I_Session interface {
+type InterfaceSession interface {
 	GetId() string
 
 	Get(key string) interface{}
@@ -15,11 +15,11 @@ type I_Session interface {
 }
 
 // interface to interact with RESTFul API service
-type I_RestService interface {
+type InterfaceRestService interface {
 	GetName() string
 
 	Run() error
-	RegisterAPI(service string, method string, uri string, handler F_APIHandler) error
+	RegisterAPI(service string, method string, uri string, handler FuncAPIHandler) error
 
 	http.Handler
 }

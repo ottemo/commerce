@@ -12,10 +12,10 @@ func setupConfig() error {
 		return env.ErrorNew("can't obtain config")
 	}
 
-	err := config.RegisterItem(env.T_ConfigItem{
-		Path:        CONFIG_PATH_GROUP,
+	err := config.RegisterItem(env.StructConfigItem{
+		Path:        ConstConfigPathGroup,
 		Value:       nil,
-		Type:        env.CONFIG_ITEM_GROUP_TYPE,
+		Type:        env.ConstConfigItemGroupType,
 		Editor:      "",
 		Options:     nil,
 		Label:       "Check / Money Order",
@@ -27,8 +27,8 @@ func setupConfig() error {
 		return env.ErrorDispatch(err)
 	}
 
-	err = config.RegisterItem(env.T_ConfigItem{
-		Path:        CONFIG_PATH_ENABLED,
+	err = config.RegisterItem(env.StructConfigItem{
+		Path:        ConstConfigPathEnabled,
 		Value:       false,
 		Type:        "bool",
 		Editor:      "boolean",
@@ -42,8 +42,8 @@ func setupConfig() error {
 		return env.ErrorDispatch(err)
 	}
 
-	err = config.RegisterItem(env.T_ConfigItem{
-		Path:        CONFIG_PATH_TITLE,
+	err = config.RegisterItem(env.StructConfigItem{
+		Path:        ConstConfigPathTitle,
 		Value:       "Check/Money Order",
 		Type:        "string",
 		Editor:      "line_text",

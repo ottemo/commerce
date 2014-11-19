@@ -58,7 +58,7 @@ func setupAPI() error {
 // WEB REST API used to create new visitor address
 //   - visitor address attributes must be included in POST form
 //   - visitor id required
-func restCreateVisitorAddress(params *api.T_APIHandlerParams) (interface{}, error) {
+func restCreateVisitorAddress(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -103,7 +103,7 @@ func restCreateVisitorAddress(params *api.T_APIHandlerParams) (interface{}, erro
 // WEB REST API used to update existing visitor address
 //   - visitor address id must be specified in request URI
 //   - visitor address attributes must be included in POST form
-func restUpdateVisitorAddress(params *api.T_APIHandlerParams) (interface{}, error) {
+func restUpdateVisitorAddress(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -148,7 +148,7 @@ func restUpdateVisitorAddress(params *api.T_APIHandlerParams) (interface{}, erro
 
 // WEB REST API used to delete visitor address
 //   - visitor address attributes must be included in POST form
-func restDeleteVisitorAddress(params *api.T_APIHandlerParams) (interface{}, error) {
+func restDeleteVisitorAddress(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//--------------------
@@ -179,7 +179,7 @@ func restDeleteVisitorAddress(params *api.T_APIHandlerParams) (interface{}, erro
 }
 
 // WEB REST API function used to obtain visitor address attributes information
-func restListVisitorAddressAttributes(params *api.T_APIHandlerParams) (interface{}, error) {
+func restListVisitorAddressAttributes(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check rights
 	if err := api.ValidateAdminRights(params); err != nil {
@@ -196,7 +196,7 @@ func restListVisitorAddressAttributes(params *api.T_APIHandlerParams) (interface
 }
 
 // WEB REST API function used to obtain visitors addresses count in model collection
-func restCountVisitorAddresses(params *api.T_APIHandlerParams) (interface{}, error) {
+func restCountVisitorAddresses(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check rights
 	if err := api.ValidateAdminRights(params); err != nil {
@@ -217,7 +217,7 @@ func restCountVisitorAddresses(params *api.T_APIHandlerParams) (interface{}, err
 
 // WEB REST API function used to obtain visitor addresses list
 //   - visitor id must be specified in request URI
-func restListVisitorAddress(params *api.T_APIHandlerParams) (interface{}, error) {
+func restListVisitorAddress(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -277,7 +277,7 @@ func restListVisitorAddress(params *api.T_APIHandlerParams) (interface{}, error)
 
 // WEB REST API used to get visitor address object
 //   - visitor address id must be specified in request URI
-func restGetVisitorAddress(params *api.T_APIHandlerParams) (interface{}, error) {
+func restGetVisitorAddress(params *api.StructAPIHandlerParams) (interface{}, error) {
 	visitorAddressID, isSpecifiedID := params.RequestURLParams["id"]
 	if !isSpecifiedID {
 		return nil, env.ErrorNew("visitor 'id' was not specified")

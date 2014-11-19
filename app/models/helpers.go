@@ -5,15 +5,15 @@ import (
 )
 
 // retrieves current model implementation and sets its ID to some value
-func GetModelAndSetId(modelName string, modelId string) (I_Storable, error) {
+func GetModelAndSetId(modelName string, modelId string) (InterfaceStorable, error) {
 	someModel, err := GetModel(modelName)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	storableModel, ok := someModel.(I_Storable)
+	storableModel, ok := someModel.(InterfaceStorable)
 	if !ok {
-		return nil, env.ErrorNew("model is not I_Storable capable")
+		return nil, env.ErrorNew("model is not InterfaceStorable capable")
 	}
 
 	err = storableModel.SetId(modelId)
@@ -25,16 +25,16 @@ func GetModelAndSetId(modelName string, modelId string) (I_Storable, error) {
 }
 
 // loads model data in current implementation
-func LoadModelById(modelName string, modelId string) (I_Storable, error) {
+func LoadModelById(modelName string, modelId string) (InterfaceStorable, error) {
 
 	someModel, err := GetModel(modelName)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	storableModel, ok := someModel.(I_Storable)
+	storableModel, ok := someModel.(InterfaceStorable)
 	if !ok {
-		return nil, env.ErrorNew("model is not I_Storable capable")
+		return nil, env.ErrorNew("model is not InterfaceStorable capable")
 	}
 
 	err = storableModel.Load(modelId)

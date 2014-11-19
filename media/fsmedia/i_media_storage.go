@@ -56,7 +56,7 @@ func (it *FilesystemMediaStorage) Save(model string, objId string, mediaType str
 		return env.ErrorNew("Can't get database engine")
 	}
 
-	collection, err := dbEngine.GetCollection(MEDIA_DB_COLLECTION)
+	collection, err := dbEngine.GetCollection(ConstMediaDBCollection)
 	if err != nil {
 		return err
 	}
@@ -90,7 +90,7 @@ func (it *FilesystemMediaStorage) Remove(model string, objId string, mediaType s
 		return env.ErrorNew("Can't get database engine")
 	}
 
-	collection, err := dbEngine.GetCollection(MEDIA_DB_COLLECTION)
+	collection, err := dbEngine.GetCollection(ConstMediaDBCollection)
 	if err != nil {
 		return err
 	}
@@ -113,7 +113,7 @@ func (it *FilesystemMediaStorage) ListMedia(model string, objId string, mediaTyp
 		return result, env.ErrorNew("Can't get database engine")
 	}
 
-	collection, err := dbEngine.GetCollection(MEDIA_DB_COLLECTION)
+	collection, err := dbEngine.GetCollection(ConstMediaDBCollection)
 	if err != nil {
 		return result, err
 	}

@@ -4,31 +4,31 @@ package db
 // Package global constants
 const (
 	// set of types database service should implement storage of
-	DB_BASETYPE_ID       = "id"
-	DB_BASETYPE_BOOLEAN  = "bool"
-	DB_BASETYPE_VARCHAR  = "varchar"
-	DB_BASETYPE_TEXT     = "text"
-	DB_BASETYPE_INTEGER  = "int"
-	DB_BASETYPE_DECIMAL  = "decimal"
-	DB_BASETYPE_MONEY    = "money"
-	DB_BASETYPE_FLOAT    = "float"
-	DB_BASETYPE_DATETIME = "datetime"
-	DB_BASETYPE_JSON     = "json"
+	ConstDBBasetypeID       = "id"
+	ConstDBBasetypeBoolean  = "bool"
+	ConstDBBasetypeVarchar  = "varchar"
+	ConstDBBasetypeText     = "text"
+	ConstDBBasetypeInteger  = "int"
+	ConstDBBasetypeDecimal  = "decimal"
+	ConstDBBasetypeMoney    = "money"
+	ConstDBBasetypeFloat    = "float"
+	ConstDBBasetypeDatetime = "datetime"
+	ConstDBBasetypeJSON     = "json"
 )
 
-// I_DBEngine represents interface to access database engine
-type I_DBEngine interface {
+// InterfaceDBEngine represents interface to access database engine
+type InterfaceDBEngine interface {
 	GetName() string
 
 	CreateCollection(Name string) error
-	GetCollection(Name string) (I_DBCollection, error)
+	GetCollection(Name string) (InterfaceDBCollection, error)
 	HasCollection(Name string) bool
 
 	RawQuery(query string) (map[string]interface{}, error)
 }
 
-// I_DBCollection interface to access particular table/collection of database
-type I_DBCollection interface {
+// InterfaceDBCollection interface to access particular table/collection of database
+type InterfaceDBCollection interface {
 	Load() ([]map[string]interface{}, error)
 	LoadById(id string) (map[string]interface{}, error)
 

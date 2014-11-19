@@ -30,7 +30,7 @@ func setupAPI() error {
 }
 
 // WEB REST API function to process Authorize.Net receipt result
-func restReceipt(params *api.T_APIHandlerParams) (interface{}, error) {
+func restReceipt(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	postData := params.RequestContent.(map[string]interface{})
 
@@ -73,14 +73,14 @@ func restReceipt(params *api.T_APIHandlerParams) (interface{}, error) {
 					return nil, err
 				}
 
-				env.Log("authorizenet.log", env.LOG_PREFIX_INFO, "TRANSACTION APPROVED: "+
+				env.Log("authorizenet.log", env.ConstLogPrefixInfo, "TRANSACTION APPROVED: "+
 					"VisitorId - "+utils.InterfaceToString(checkoutOrder.Get("visitor_id"))+", "+
 					"OrderId - "+checkoutOrder.GetId()+", "+
 					"Card  - "+utils.InterfaceToString(postData["x_card_type"])+" "+utils.InterfaceToString(postData["x_account_number"])+", "+
 					"Total - "+utils.InterfaceToString(postData["x_amount"])+", "+
 					"Transaction ID - "+utils.InterfaceToString(postData["x_trans_id"]))
 
-				return api.T_RestRedirect{Location: app.GetStorefrontUrl("account/order/" + checkoutOrder.GetId()), DoRedirect: true}, nil
+				return api.StructRestRedirect{Location: app.GetStorefrontUrl("account/order/" + checkoutOrder.GetId()), DoRedirect: true}, nil
 			}
 		}
 	case ConstTransactionDeclined:
@@ -88,7 +88,7 @@ func restReceipt(params *api.T_APIHandlerParams) (interface{}, error) {
 	default:
 		{
 			if checkoutOrder != nil {
-				env.Log("authorizenet.log", env.LOG_PREFIX_ERROR, "TRANSACTION NOT APPROVED: "+
+				env.Log("authorizenet.log", env.ConstLogPrefixError, "TRANSACTION NOT APPROVED: "+
 					"VisitorId - "+utils.InterfaceToString(checkoutOrder.Get("visitor_id"))+", "+
 					"OrderId - "+checkoutOrder.GetId()+", "+
 					"Card  - "+utils.InterfaceToString(postData["x_card_type"])+" "+utils.InterfaceToString(postData["x_account_number"])+", "+
@@ -113,7 +113,7 @@ func restReceipt(params *api.T_APIHandlerParams) (interface{}, error) {
 		}
 	}
 	if checkoutOrder != nil {
-		env.Log("authorizenet.log", env.LOG_PREFIX_ERROR, "TRANSACTION NOT APPROVED: (can't process authorize.net response) "+
+		env.Log("authorizenet.log", env.ConstLogPrefixError, "TRANSACTION NOT APPROVED: (can't process authorize.net response) "+
 			"VisitorId - "+utils.InterfaceToString(checkoutOrder.Get("visitor_id"))+", "+
 			"OrderId - "+checkoutOrder.GetId()+", "+
 			"Card  - "+utils.InterfaceToString(postData["x_card_type"])+" "+utils.InterfaceToString(postData["x_account_number"])+", "+
@@ -124,7 +124,7 @@ func restReceipt(params *api.T_APIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API function to process Authorize.Net relay result
-func restRelay(params *api.T_APIHandlerParams) (interface{}, error) {
+func restRelay(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	postData := params.RequestContent.(map[string]interface{})
 
@@ -169,7 +169,7 @@ func restRelay(params *api.T_APIHandlerParams) (interface{}, error) {
 
 				params.ResponseWriter.Header().Set("Content-Type", "text/plain")
 
-				env.Log("authorizenet.log", env.LOG_PREFIX_INFO, "TRANSACTION APPROVED: "+
+				env.Log("authorizenet.log", env.ConstLogPrefixInfo, "TRANSACTION APPROVED: "+
 					"VisitorId - "+utils.InterfaceToString(checkoutOrder.Get("visitor_id"))+", "+
 					"OrderId - "+checkoutOrder.GetId()+", "+
 					"Card  - "+utils.InterfaceToString(postData["x_card_type"])+" "+utils.InterfaceToString(postData["x_account_number"])+", "+
@@ -208,7 +208,7 @@ func restRelay(params *api.T_APIHandlerParams) (interface{}, error) {
 	default:
 		{
 			if checkoutOrder != nil {
-				env.Log("authorizenet.log", env.LOG_PREFIX_ERROR, "TRANSACTION NOT APPROVED: "+
+				env.Log("authorizenet.log", env.ConstLogPrefixError, "TRANSACTION NOT APPROVED: "+
 					"VisitorId - "+utils.InterfaceToString(checkoutOrder.Get("visitor_id"))+", "+
 					"OrderId - "+checkoutOrder.GetId()+", "+
 					"Card  - "+utils.InterfaceToString(postData["x_card_type"])+" "+utils.InterfaceToString(postData["x_account_number"])+", "+
@@ -232,7 +232,7 @@ func restRelay(params *api.T_APIHandlerParams) (interface{}, error) {
 		}
 	}
 	if checkoutOrder != nil {
-		env.Log("authorizenet.log", env.LOG_PREFIX_ERROR, "TRANSACTION NOT APPROVED: (can't process authorize.net response) "+
+		env.Log("authorizenet.log", env.ConstLogPrefixError, "TRANSACTION NOT APPROVED: (can't process authorize.net response) "+
 			"VisitorId - "+utils.InterfaceToString(checkoutOrder.Get("visitor_id"))+", "+
 			"OrderId - "+checkoutOrder.GetId()+", "+
 			"Card  - "+utils.InterfaceToString(postData["x_card_type"])+" "+utils.InterfaceToString(postData["x_account_number"])+", "+

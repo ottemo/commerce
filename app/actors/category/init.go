@@ -11,12 +11,12 @@ import (
 // init makes package self-initialization routine
 func init() {
 	categoryInstance := new(DefaultCategory)
-	var _ category.I_Category = categoryInstance
-	models.RegisterModel(category.MODEL_NAME_CATEGORY, categoryInstance)
+	var _ category.InterfaceCategory = categoryInstance
+	models.RegisterModel(category.ConstModelNameCategory, categoryInstance)
 
 	categoryCollectionInstance := new(DefaultCategoryCollection)
-	var _ category.I_CategoryCollection = categoryCollectionInstance
-	models.RegisterModel(category.MODEL_NAME_CATEGORY_COLLECTION, categoryCollectionInstance)
+	var _ category.InterfaceCategoryCollection = categoryCollectionInstance
+	models.RegisterModel(category.ConstModelNameCategoryCollection, categoryCollectionInstance)
 
 	db.RegisterOnDatabaseStart(categoryInstance.setupDB)
 	api.RegisterOnRestServiceStart(setupAPI)
@@ -24,7 +24,7 @@ func init() {
 
 // setupDB prepares system database for package usage
 func (it *DefaultCategory) setupDB() error {
-	collection, err := db.GetCollection(COLLECTION_NAME_CATEGORY)
+	collection, err := db.GetCollection(ConstCollectionNameCategory)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -33,7 +33,7 @@ func (it *DefaultCategory) setupDB() error {
 	collection.AddColumn("path", "text", true)
 	collection.AddColumn("name", "text", true)
 
-	collection, err = db.GetCollection(COLLECTION_NAME_CATEGORY_PRODUCT_JUNCTION)
+	collection, err = db.GetCollection(ConstCollectionNameCategoryProductJunction)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}

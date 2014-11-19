@@ -8,23 +8,23 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
-// retrieves current I_Checkout model implementation
-func GetCheckoutModel() (I_Checkout, error) {
-	model, err := models.GetModel(CHECKOUT_MODEL_NAME)
+// retrieves current InterfaceCheckout model implementation
+func GetCheckoutModel() (InterfaceCheckout, error) {
+	model, err := models.GetModel(ConstCheckoutModelName)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	checkoutModel, ok := model.(I_Checkout)
+	checkoutModel, ok := model.(InterfaceCheckout)
 	if !ok {
-		return nil, env.ErrorNew("model " + model.GetImplementationName() + " is not 'I_Checkout' capable")
+		return nil, env.ErrorNew("model " + model.GetImplementationName() + " is not 'InterfaceCheckout' capable")
 	}
 
 	return checkoutModel, nil
 }
 
 // retrieves shipping method for given unique code or nil if no shipping method with such code
-func GetShippingMethodByCode(code string) I_ShippingMethod {
+func GetShippingMethodByCode(code string) InterfaceShippingMethod {
 
 	for _, shippingMethod := range registeredShippingMethods {
 		if shippingMethod.GetCode() == code {
@@ -36,7 +36,7 @@ func GetShippingMethodByCode(code string) I_ShippingMethod {
 }
 
 // retrieves payment method for given unique code or nil if no payment method with such code
-func GetPaymentMethodByCode(code string) I_PaymentMethod {
+func GetPaymentMethodByCode(code string) InterfacePaymentMethod {
 
 	for _, paymentMethod := range registeredPaymentMethods {
 		if paymentMethod.GetCode() == code {
@@ -48,13 +48,13 @@ func GetPaymentMethodByCode(code string) I_PaymentMethod {
 }
 
 // returns checkout for current session or creates new one
-func GetCurrentCheckout(params *api.T_APIHandlerParams) (I_Checkout, error) {
-	sessionObject := params.Session.Get(SESSION_KEY_CURRENT_CHECKOUT)
+func GetCurrentCheckout(params *api.StructAPIHandlerParams) (InterfaceCheckout, error) {
+	sessionObject := params.Session.Get(ConstSessionKeyCurrentCheckout)
 
-	var checkoutInstance I_Checkout = nil
+	var checkoutInstance InterfaceCheckout = nil
 
 	// trying to get checkout object from session, otherwise creating new one
-	if sessionCheckout, ok := sessionObject.(I_Checkout); ok {
+	if sessionCheckout, ok := sessionObject.(InterfaceCheckout); ok {
 		checkoutInstance = sessionCheckout
 
 	} else {
@@ -66,7 +66,7 @@ func GetCurrentCheckout(params *api.T_APIHandlerParams) (I_Checkout, error) {
 		}
 
 		// storing checkout object to session
-		params.Session.Set(SESSION_KEY_CURRENT_CHECKOUT, newCheckoutInstance)
+		params.Session.Set(ConstSessionKeyCurrentCheckout, newCheckoutInstance)
 
 		//setting session
 		newCheckoutInstance.SetSession(params.Session)

@@ -50,7 +50,7 @@ func setupAPI() error {
 }
 
 // WEB REST API function to get order available attributes information
-func restOrderAttributes(params *api.T_APIHandlerParams) (interface{}, error) {
+func restOrderAttributes(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	orderModel, err := order.GetOrderModel()
 	if err != nil {
@@ -61,7 +61,7 @@ func restOrderAttributes(params *api.T_APIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API function used to obtain orders list
-func restOrderList(params *api.T_APIHandlerParams) (interface{}, error) {
+func restOrderList(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -107,7 +107,7 @@ func restOrderList(params *api.T_APIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API function used to obtain orders count in model collection
-func restOrderCount(params *api.T_APIHandlerParams) (interface{}, error) {
+func restOrderCount(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check rights
 	if err := api.ValidateAdminRights(params); err != nil {
@@ -127,7 +127,7 @@ func restOrderCount(params *api.T_APIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API function to get order information
-func restOrderGet(params *api.T_APIHandlerParams) (interface{}, error) {
+func restOrderGet(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -155,7 +155,7 @@ func restOrderGet(params *api.T_APIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API for update existing order in system
-func restOrderUpdate(params *api.T_APIHandlerParams) (interface{}, error) {
+func restOrderUpdate(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -192,7 +192,7 @@ func restOrderUpdate(params *api.T_APIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API used to delete order from system
-func restOrderDelete(params *api.T_APIHandlerParams) (interface{}, error) {
+func restOrderDelete(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------

@@ -15,7 +15,7 @@ import (
 func (it *SQLiteCollection) LoadById(id string) (map[string]interface{}, error) {
 	var result map[string]interface{} = nil
 
-	if !UUID_ID {
+	if !ConstUseUUIDids {
 		it.AddFilter("_id", "=", id)
 	} else {
 		if idValue, err := strconv.ParseInt(id, 10, 64); err == nil {
@@ -49,8 +49,8 @@ func (it *SQLiteCollection) Load() ([]map[string]interface{}, error) {
 func (it *SQLiteCollection) Iterate(iteratorFunc func(record map[string]interface{}) bool) error {
 
 	SQL := it.getSelectSQL()
-	if DEBUG_SQL {
-		env.Log("sqlite", env.LOG_PREFIX_INFO, SQL)
+	if ConstDebugSQL {
+		env.Log("sqlite", env.ConstLogPrefixInfo, SQL)
 	}
 
 	stmt, err := connectionQuery(SQL)
@@ -85,8 +85,8 @@ func (it *SQLiteCollection) Distinct(columnName string) ([]interface{}, error) {
 	it.SetResultColumns(columnName)
 
 	SQL := "SELECT DISTINCT " + it.getSQLResultColumns() + " FROM " + it.Name + it.getSQLFilters() + it.getSQLOrder() + it.Limit
-	if DEBUG_SQL {
-		env.Log("sqlite", env.LOG_PREFIX_INFO, SQL)
+	if ConstDebugSQL {
+		env.Log("sqlite", env.ConstLogPrefixInfo, SQL)
 	}
 
 	it.ResultColumns = prevResultColumns
@@ -134,8 +134,8 @@ func (it *SQLiteCollection) Count() (int, error) {
 
 	SQL := "SELECT COUNT(*) AS cnt FROM " + it.Name + sqlLoadFilter
 
-	if DEBUG_SQL {
-		env.Log("sqlite", env.LOG_PREFIX_INFO, SQL)
+	if ConstDebugSQL {
+		env.Log("sqlite", env.ConstLogPrefixInfo, SQL)
 	}
 
 	stmt, err := connectionQuery(SQL)
@@ -167,7 +167,7 @@ func (it *SQLiteCollection) Save(item map[string]interface{}) (string, error) {
 	}
 
 	// we should make new _id column if it was not set
-	if UUID_ID {
+	if ConstUseUUIDids {
 		if idValue, present := item["_id"]; !present || idValue == nil {
 			item["_id"] = it.makeUUID("")
 		} else {
@@ -216,11 +216,11 @@ func (it *SQLiteCollection) Save(item map[string]interface{}) (string, error) {
 		" (" + strings.Join(columns, ",") + ") VALUES" +
 		" (" + strings.Join(args, ",") + ")"
 
-	if DEBUG_SQL {
-		env.Log("sqlite", env.LOG_PREFIX_INFO, SQL)
+	if ConstDebugSQL {
+		env.Log("sqlite", env.ConstLogPrefixInfo, SQL)
 	}
 
-	if !UUID_ID {
+	if !ConstUseUUIDids {
 		newIdInt64, err := connectionExecWLastInsertId(SQL, values...)
 		if err != nil {
 			return "", sqlError(SQL, err)
@@ -246,8 +246,8 @@ func (it *SQLiteCollection) Delete() (int, error) {
 
 	SQL := "DELETE FROM " + it.Name + sqlDeleteFilter
 
-	if DEBUG_SQL {
-		env.Log("sqlite", env.LOG_PREFIX_INFO, SQL)
+	if ConstDebugSQL {
+		env.Log("sqlite", env.ConstLogPrefixInfo, SQL)
 	}
 
 	affected, err := connectionExecWAffected(SQL)
@@ -259,8 +259,8 @@ func (it *SQLiteCollection) Delete() (int, error) {
 func (it *SQLiteCollection) DeleteById(id string) error {
 	SQL := "DELETE FROM " + it.Name + " WHERE _id = " + convertValueForSQL(id)
 
-	if DEBUG_SQL {
-		env.Log("sqlite", env.LOG_PREFIX_INFO, SQL)
+	if ConstDebugSQL {
+		env.Log("sqlite", env.ConstLogPrefixInfo, SQL)
 	}
 
 	return connectionExec(SQL)
@@ -302,7 +302,7 @@ func (it *SQLiteCollection) AddGroupFilter(groupName string, columnName string, 
 // adds selection filter that will not be cleared by ClearFilters() function
 func (it *SQLiteCollection) AddStaticFilter(columnName string, operator string, value interface{}) error {
 
-	err := it.updateFilterGroup(FILTER_GROUP_STATIC, columnName, operator, value)
+	err := it.updateFilterGroup(ConstFilterGroupStatic, columnName, operator, value)
 	if err != nil {
 		return err
 	}
@@ -313,7 +313,7 @@ func (it *SQLiteCollection) AddStaticFilter(columnName string, operator string, 
 // adds selection filter to current collection(table) object
 func (it *SQLiteCollection) AddFilter(ColumnName string, Operator string, Value interface{}) error {
 
-	err := it.updateFilterGroup(FILTER_GROUP_DEFAULT, ColumnName, Operator, Value)
+	err := it.updateFilterGroup(ConstFilterGroupDefault, ColumnName, Operator, Value)
 	if err != nil {
 		return err
 	}
@@ -324,7 +324,7 @@ func (it *SQLiteCollection) AddFilter(ColumnName string, Operator string, Value 
 // removes all filters that were set for current collection, except static
 func (it *SQLiteCollection) ClearFilters() error {
 	for filterGroup, _ := range it.FilterGroups {
-		if filterGroup != FILTER_GROUP_STATIC {
+		if filterGroup != ConstFilterGroupStatic {
 			delete(it.FilterGroups, filterGroup)
 		}
 	}
@@ -382,14 +382,14 @@ func (it *SQLiteCollection) ListColumns() map[string]string {
 
 	result := make(map[string]string)
 
-	if UUID_ID {
+	if ConstUseUUIDids {
 		result["_id"] = "int"
 	} else {
 		result["_id"] = "varchar"
 	}
 
 	// updating column into collection
-	SQL := "SELECT column, type FROM " + COLLECTION_NAME_COLUMN_INFO + " WHERE collection = '" + it.Name + "'"
+	SQL := "SELECT column, type FROM " + ConstCollectionNameColumnInfo + " WHERE collection = '" + it.Name + "'"
 	stmt, err := connectionQuery(SQL)
 	defer closeStatement(stmt)
 
@@ -451,7 +451,7 @@ func (it *SQLiteCollection) HasColumn(columnName string) bool {
 func (it *SQLiteCollection) AddColumn(columnName string, columnType string, indexed bool) error {
 
 	// checking column name
-	if !SQL_NAME_VALIDATOR.MatchString(columnName) {
+	if !ConstSQLNameValidator.MatchString(columnName) {
 		return env.ErrorNew("not valid column name for DB engine: " + columnName)
 	}
 
@@ -473,8 +473,8 @@ func (it *SQLiteCollection) AddColumn(columnName string, columnType string, inde
 
 	SQL := "ALTER TABLE " + it.Name + " ADD COLUMN \"" + columnName + "\" " + ColumnType
 
-	if DEBUG_SQL {
-		env.Log("sqlite", env.LOG_PREFIX_INFO, SQL)
+	if ConstDebugSQL {
+		env.Log("sqlite", env.ConstLogPrefixInfo, SQL)
 	}
 
 	err = connectionExec(SQL)
@@ -484,7 +484,7 @@ func (it *SQLiteCollection) AddColumn(columnName string, columnType string, inde
 
 	// updating collection info table
 	//--------------------------------
-	SQL = "INSERT INTO " + COLLECTION_NAME_COLUMN_INFO + "(collection, column, type, indexed) VALUES (" +
+	SQL = "INSERT INTO " + ConstCollectionNameColumnInfo + "(collection, column, type, indexed) VALUES (" +
 		"'" + it.Name + "', " +
 		"'" + columnName + "', " +
 		"'" + columnType + "', "
@@ -494,8 +494,8 @@ func (it *SQLiteCollection) AddColumn(columnName string, columnType string, inde
 		SQL += "0)"
 	}
 
-	if DEBUG_SQL {
-		env.Log("sqlite", env.LOG_PREFIX_INFO, SQL)
+	if ConstDebugSQL {
+		env.Log("sqlite", env.ConstLogPrefixInfo, SQL)
 	}
 
 	err = connectionExec(SQL)
@@ -540,7 +540,7 @@ func (it *SQLiteCollection) RemoveColumn(columnName string) error {
 	}
 	closeStatement(stmt)
 
-	SQL = "DELETE FROM " + COLLECTION_NAME_COLUMN_INFO + " WHERE collection='" + it.Name + "' AND column='" + columnName + "'"
+	SQL = "DELETE FROM " + ConstCollectionNameColumnInfo + " WHERE collection='" + it.Name + "' AND column='" + columnName + "'"
 	if err := connectionExec(SQL); err != nil {
 		return sqlError(SQL, err)
 	}

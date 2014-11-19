@@ -6,8 +6,8 @@ import (
 
 // Package global variables
 var (
-	currentMediaStorage          I_MediaStorage = nil              // currently registered media storage service in system
-	callbacksOnMediaStorageStart                = []func() error{} // set of callback function on media storage service start
+	currentMediaStorage          InterfaceMediaStorage = nil              // currently registered media storage service in system
+	callbacksOnMediaStorageStart                       = []func() error{} // set of callback function on media storage service start
 )
 
 // registers new callback on media storage service start
@@ -27,7 +27,7 @@ func OnMediaStorageStart() error {
 
 // registers media storage service in the system
 //   - will cause error if there are couple candidates for that role
-func RegisterMediaStorage(newEngine I_MediaStorage) error {
+func RegisterMediaStorage(newEngine InterfaceMediaStorage) error {
 	if currentMediaStorage == nil {
 		currentMediaStorage = newEngine
 	} else {
@@ -37,7 +37,7 @@ func RegisterMediaStorage(newEngine I_MediaStorage) error {
 }
 
 // returns currently used media storage service implementation
-func GetMediaStorage() (I_MediaStorage, error) {
+func GetMediaStorage() (InterfaceMediaStorage, error) {
 	if currentMediaStorage != nil {
 		return currentMediaStorage, nil
 	} else {

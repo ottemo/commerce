@@ -23,7 +23,7 @@ func (it *DefaultOrder) SetId(NewId string) error {
 func (it *DefaultOrder) Load(Id string) error {
 
 	// loading order
-	orderCollection, err := db.GetCollection(COLLECTION_NAME_ORDER)
+	orderCollection, err := db.GetCollection(ConstCollectionNameOrder)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -38,11 +38,11 @@ func (it *DefaultOrder) Load(Id string) error {
 		it.Set(attribute, value)
 	}
 
-	it.Items = make(map[int]order.I_OrderItem)
+	it.Items = make(map[int]order.InterfaceOrderItem)
 	it.maxIdx = 0
 
 	// loading order items
-	orderItemsCollection, err := db.GetCollection(COLLECTION_NAME_ORDER_ITEMS)
+	orderItemsCollection, err := db.GetCollection(ConstCollectionNameOrderItems)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -73,7 +73,7 @@ func (it *DefaultOrder) Delete() error {
 	}
 
 	// deleting order items
-	orderItemsCollection, err := db.GetCollection(COLLECTION_NAME_ORDER_ITEMS)
+	orderItemsCollection, err := db.GetCollection(ConstCollectionNameOrderItems)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -89,7 +89,7 @@ func (it *DefaultOrder) Delete() error {
 	}
 
 	// deleting order
-	orderCollection, err := db.GetCollection(COLLECTION_NAME_ORDER)
+	orderCollection, err := db.GetCollection(ConstCollectionNameOrder)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -101,12 +101,12 @@ func (it *DefaultOrder) Delete() error {
 // stores current order in DB
 func (it *DefaultOrder) Save() error {
 
-	orderCollection, err := db.GetCollection(COLLECTION_NAME_ORDER)
+	orderCollection, err := db.GetCollection(ConstCollectionNameOrder)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	orderItemsCollection, err := db.GetCollection(COLLECTION_NAME_ORDER_ITEMS)
+	orderItemsCollection, err := db.GetCollection(ConstCollectionNameOrderItems)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}

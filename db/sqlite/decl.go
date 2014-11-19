@@ -11,13 +11,13 @@ import (
 
 // Package global constants
 const (
-	UUID_ID   = true  // flag which indicates to use UUID "_id" column type instead of default integer
-	DEBUG_SQL = false // flag which indicates to perform log on each SQL operation
+	ConstUseUUIDids = true  // flag which indicates to use UUID "_id" column type instead of default integer
+	ConstDebugSQL   = false // flag which indicates to perform log on each SQL operation
 
-	FILTER_GROUP_STATIC  = "static"  // name for static filter, ref. to AddStaticFilter(...)
-	FILTER_GROUP_DEFAULT = "default" // name for default filter, ref. to by AddFilter(...)
+	ConstFilterGroupStatic  = "static"  // name for static filter, ref. to AddStaticFilter(...)
+	ConstFilterGroupDefault = "default" // name for default filter, ref. to by AddFilter(...)
 
-	COLLECTION_NAME_COLUMN_INFO = "collection_column_info" // table name to hold Ottemo types of columns
+	ConstCollectionNameColumnInfo = "collection_column_info" // table name to hold Ottemo types of columns
 )
 
 // Package global variables
@@ -26,29 +26,29 @@ var (
 	dbEngine *SQLite
 
 	// regex expression used to check names used within SQL queries
-	SQL_NAME_VALIDATOR = regexp.MustCompile("^[A-Za-z_][A-Za-z0-9_]*$")
+	ConstSQLNameValidator = regexp.MustCompile("^[A-Za-z_][A-Za-z0-9_]*$")
 )
 
 // structure to hold information of named collection filter
-type T_DBFilterGroup struct {
+type StructDBFilterGroup struct {
 	Name         string
 	FilterValues []string
 	ParentGroup  string
 	OrSequence   bool
 }
 
-// I_DBCollection implementer class
+// InterfaceDBCollection implementer class
 type SQLiteCollection struct {
 	Name string
 
 	ResultColumns []string
-	FilterGroups  map[string]*T_DBFilterGroup
+	FilterGroups  map[string]*StructDBFilterGroup
 	Order         []string
 
 	Limit string
 }
 
-// I_DBEngine implementer class
+// InterfaceDBEngine implementer class
 type SQLite struct {
 	connection      *sqlite3.Conn
 	connectionMutex sync.RWMutex

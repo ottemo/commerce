@@ -7,15 +7,15 @@ import (
 
 // GetModelName returns the Visitor Address Model
 func (it *DefaultVisitorAddress) GetModelName() string {
-	return visitor.MODEL_NAME_VISITOR_ADDRESS
+	return visitor.ConstModelNameVisitorAddress
 }
 
 // GetImplementationName returns the Implementation name
 func (it *DefaultVisitorAddress) GetImplementationName() string {
-	return "Default" + visitor.MODEL_NAME_VISITOR_ADDRESS
+	return "Default" + visitor.ConstModelNameVisitorAddress
 }
 
 // New creates a new Visitor Address interface
-func (it *DefaultVisitorAddress) New() (models.I_Model, error) {
+func (it *DefaultVisitorAddress) New() (models.InterfaceModel, error) {
 	return &DefaultVisitorAddress{}, nil
 }

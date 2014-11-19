@@ -141,10 +141,10 @@ func (it *DefaultOrderItem) ToHashMap() map[string]interface{} {
 }
 
 // describes attributes of OrderItem model
-func (it *DefaultOrderItem) GetAttributesInfo() []models.T_AttributeInfo {
+func (it *DefaultOrderItem) GetAttributesInfo() []models.StructAttributeInfo {
 
-	info := []models.T_AttributeInfo{
-		models.T_AttributeInfo{
+	info := []models.StructAttributeInfo{
+		models.StructAttributeInfo{
 			Model:      "OrderItem",
 			Collection: "OrderItem",
 			Attribute:  "_id",
@@ -157,7 +157,7 @@ func (it *DefaultOrderItem) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
+		models.StructAttributeInfo{
 			Model:      "OrderItem",
 			Collection: "OrderItem",
 			Attribute:  "idx",
@@ -170,7 +170,7 @@ func (it *DefaultOrderItem) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
+		models.StructAttributeInfo{
 			Model:      "OrderItem",
 			Collection: "OrderItem",
 			Attribute:  "order_id",
@@ -183,7 +183,7 @@ func (it *DefaultOrderItem) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
+		models.StructAttributeInfo{
 			Model:      "OrderItem",
 			Collection: "OrderItem",
 			Attribute:  "product_id",
@@ -196,7 +196,7 @@ func (it *DefaultOrderItem) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
+		models.StructAttributeInfo{
 			Model:      "OrderItem",
 			Collection: "OrderItem",
 			Attribute:  "qty",
@@ -209,7 +209,7 @@ func (it *DefaultOrderItem) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
+		models.StructAttributeInfo{
 			Model:      "OrderItem",
 			Collection: "OrderItem",
 			Attribute:  "name",
@@ -222,7 +222,7 @@ func (it *DefaultOrderItem) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
+		models.StructAttributeInfo{
 			Model:      "OrderItem",
 			Collection: "OrderItem",
 			Attribute:  "sku",
@@ -235,7 +235,7 @@ func (it *DefaultOrderItem) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
+		models.StructAttributeInfo{
 			Model:      "OrderItem",
 			Collection: "OrderItem",
 			Attribute:  "short_description",
@@ -248,7 +248,7 @@ func (it *DefaultOrderItem) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
+		models.StructAttributeInfo{
 			Model:      "OrderItem",
 			Collection: "OrderItem",
 			Attribute:  "options",
@@ -261,7 +261,7 @@ func (it *DefaultOrderItem) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
+		models.StructAttributeInfo{
 			Model:      "OrderItem",
 			Collection: "OrderItem",
 			Attribute:  "price",
@@ -274,7 +274,7 @@ func (it *DefaultOrderItem) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
+		models.StructAttributeInfo{
 			Model:      "OrderItem",
 			Collection: "OrderItem",
 			Attribute:  "weight",

@@ -1,4 +1,4 @@
-// Package session is a default implementation of I_Session
+// Package session is a default implementation of InterfaceSession
 // declared in "github.com/ottemo/foundation/api" package
 package session
 
@@ -17,7 +17,7 @@ import (
 const (
 	ALPHANUMERIC = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890" // sessionID allowed symbols
 
-	SESSION_COOKIE_NAME = "OTTEMOSESSION" // cookie name which should contain sessionID
+	ConstSessionCookieName = "OTTEMOSESSION" // cookie name which should contain sessionID
 )
 
 // Package global variables
@@ -32,7 +32,7 @@ var (
 func StartSession(request *http.Request, responseWriter http.ResponseWriter) (*Session, error) {
 
 	// check session-cookie
-	cookie, err := request.Cookie(SESSION_COOKIE_NAME)
+	cookie, err := request.Cookie(ConstSessionCookieName)
 	if err == nil {
 		// looking for cookie-based session
 		sessionId := cookie.Value
@@ -52,7 +52,7 @@ func StartSession(request *http.Request, responseWriter http.ResponseWriter) (*S
 	}
 
 	// storing session id to cookie
-	cookie = &http.Cookie{Name: SESSION_COOKIE_NAME, Value: result.GetId(), Path: "/"}
+	cookie = &http.Cookie{Name: ConstSessionCookieName, Value: result.GetId(), Path: "/"}
 	http.SetCookie(responseWriter, cookie)
 
 	return result, nil

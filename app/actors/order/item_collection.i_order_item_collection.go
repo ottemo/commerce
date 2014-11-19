@@ -5,6 +5,6 @@ import (
 )
 
 // returns database collection
-func (it *DefaultOrderItemCollection) GetDBCollection() db.I_DBCollection {
+func (it *DefaultOrderItemCollection) GetDBCollection() db.InterfaceDBCollection {
 	return it.listCollection
 }

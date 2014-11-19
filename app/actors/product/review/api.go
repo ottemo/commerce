@@ -41,14 +41,14 @@ func setupAPI() error {
 }
 
 // WEB REST API function used to get list of reviews for particular product
-func restReviewList(params *api.T_APIHandlerParams) (interface{}, error) {
+func restReviewList(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	productObject, err := product.LoadProductById(params.RequestURLParams["pid"])
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	collection, err := db.GetCollection(REVIEW_COLLECTION_NAME)
+	collection, err := db.GetCollection(ConstReviewCollectionName)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -65,7 +65,7 @@ func restReviewList(params *api.T_APIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API function used to add new review for a product
-func restReviewAdd(params *api.T_APIHandlerParams) (interface{}, error) {
+func restReviewAdd(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	visitorObject, err := visitor.GetCurrentVisitor(params)
 	if err != nil {
@@ -77,7 +77,7 @@ func restReviewAdd(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	reviewCollection, err := db.GetCollection(REVIEW_COLLECTION_NAME)
+	reviewCollection, err := db.GetCollection(ConstReviewCollectionName)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -107,7 +107,7 @@ func restReviewAdd(params *api.T_APIHandlerParams) (interface{}, error) {
 
 		ratingValue = starsNum
 
-		ratingCollection, err := db.GetCollection(RATING_COLLECTION_NAME)
+		ratingCollection, err := db.GetCollection(ConstRatingCollectionName)
 		if err != nil {
 			return nil, env.ErrorDispatch(err)
 		}
@@ -162,7 +162,7 @@ func restReviewAdd(params *api.T_APIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API function used to remove review for a product
-func restReviewRemove(params *api.T_APIHandlerParams) (interface{}, error) {
+func restReviewRemove(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	reviewId := params.RequestURLParams["reviewId"]
 
@@ -171,7 +171,7 @@ func restReviewRemove(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	collection, err := db.GetCollection(REVIEW_COLLECTION_NAME)
+	collection, err := db.GetCollection(ConstReviewCollectionName)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -195,7 +195,7 @@ func restReviewRemove(params *api.T_APIHandlerParams) (interface{}, error) {
 		reviewRating := utils.InterfaceToInt(reviewRecord["rating"])
 
 		if reviewRating > 0 {
-			ratingCollection, err := db.GetCollection(RATING_COLLECTION_NAME)
+			ratingCollection, err := db.GetCollection(ConstRatingCollectionName)
 			if err != nil {
 				return nil, env.ErrorDispatch(err)
 			}
@@ -226,14 +226,14 @@ func restReviewRemove(params *api.T_APIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API function used to get product rating info
-func restRatingInfo(params *api.T_APIHandlerParams) (interface{}, error) {
+func restRatingInfo(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	productObject, err := product.LoadProductById(params.RequestURLParams["pid"])
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	ratingCollection, err := db.GetCollection(RATING_COLLECTION_NAME)
+	ratingCollection, err := db.GetCollection(ConstRatingCollectionName)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}

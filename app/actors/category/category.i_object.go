@@ -86,7 +86,7 @@ func (it *DefaultCategory) Set(attribute string, value interface{}) error {
 				if err != nil {
 					return env.ErrorDispatch(err)
 				}
-				categoryModel, ok := model.(category.I_Category)
+				categoryModel, ok := model.(category.InterfaceCategory)
 				if !ok {
 					return env.ErrorNew("unsupported category model " + model.GetImplementationName())
 				}
@@ -117,7 +117,7 @@ func (it *DefaultCategory) Set(attribute string, value interface{}) error {
 
 	case "parent":
 		switch value := value.(type) {
-		case category.I_Category:
+		case category.InterfaceCategory:
 			it.Parent = value
 		case string:
 			it.Set("parent_id", value)
@@ -143,7 +143,7 @@ func (it *DefaultCategory) Set(attribute string, value interface{}) error {
 				}
 			}
 
-		case []product.I_Product:
+		case []product.InterfaceProduct:
 			it.ProductIds = make([]string, 0)
 			for _, productItem := range typedValue {
 				it.ProductIds = append(it.ProductIds, productItem.GetId())
@@ -181,10 +181,10 @@ func (it *DefaultCategory) ToHashMap() map[string]interface{} {
 	return result
 }
 
-func (it *DefaultCategory) GetAttributesInfo() []models.T_AttributeInfo {
+func (it *DefaultCategory) GetAttributesInfo() []models.StructAttributeInfo {
 
-	info := []models.T_AttributeInfo{
-		models.T_AttributeInfo{
+	info := []models.StructAttributeInfo{
+		models.StructAttributeInfo{
 			Model:      "Category",
 			Collection: "Category",
 			Attribute:  "_id",
@@ -197,7 +197,7 @@ func (it *DefaultCategory) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
+		models.StructAttributeInfo{
 			Model:      "Category",
 			Collection: "Category",
 			Attribute:  "name",
@@ -210,7 +210,7 @@ func (it *DefaultCategory) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
+		models.StructAttributeInfo{
 			Model:      "Category",
 			Collection: "Category",
 			Attribute:  "parent_id",
@@ -223,7 +223,7 @@ func (it *DefaultCategory) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
+		models.StructAttributeInfo{
 			Model:      "Category",
 			Collection: "Category",
 			Attribute:  "products",

@@ -90,7 +90,7 @@ func setupAPI() error {
 
 // WEB REST API function used to obtain category list we have in database
 //   - parent categories and categorys will not be present in list
-func restListCategories(params *api.T_APIHandlerParams) (interface{}, error) {
+func restListCategories(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -131,7 +131,7 @@ func restListCategories(params *api.T_APIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API function used to obtain categories count in model collection
-func restCountCategories(params *api.T_APIHandlerParams) (interface{}, error) {
+func restCountCategories(params *api.StructAPIHandlerParams) (interface{}, error) {
 	categoryCollectionModel, err := category.GetCategoryCollectionModel()
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
@@ -147,7 +147,7 @@ func restCountCategories(params *api.T_APIHandlerParams) (interface{}, error) {
 // WEB REST API used to create new category
 //   - category attributes must be included in POST form
 //   - name attribute required
-func restCreateCategory(params *api.T_APIHandlerParams) (interface{}, error) {
+func restCreateCategory(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -188,7 +188,7 @@ func restCreateCategory(params *api.T_APIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API used to delete category
-func restDeleteCategory(params *api.T_APIHandlerParams) (interface{}, error) {
+func restDeleteCategory(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//--------------------
@@ -220,7 +220,7 @@ func restDeleteCategory(params *api.T_APIHandlerParams) (interface{}, error) {
 // WEB REST API used to update existing category
 //   - category id must be specified in request URI
 //   - category attributes must be included in POST form
-func restUpdateCategory(params *api.T_APIHandlerParams) (interface{}, error) {
+func restUpdateCategory(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -262,7 +262,7 @@ func restUpdateCategory(params *api.T_APIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API function used to obtain category attributes information
-func restListCategoryAttributes(params *api.T_APIHandlerParams) (interface{}, error) {
+func restListCategoryAttributes(params *api.StructAPIHandlerParams) (interface{}, error) {
 	categoryModel, err := category.GetCategoryModel()
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
@@ -275,7 +275,7 @@ func restListCategoryAttributes(params *api.T_APIHandlerParams) (interface{}, er
 
 // WEB REST API function used to obtain layered navigation options for products in category
 //   - category id must be specified in request URI
-func restListCategoryLayers(params *api.T_APIHandlerParams) (interface{}, error) {
+func restListCategoryLayers(params *api.StructAPIHandlerParams) (interface{}, error) {
 	categoryId := params.RequestURLParams["id"]
 
 	categoryModel, err := category.LoadCategoryById(categoryId)
@@ -308,7 +308,7 @@ func restListCategoryLayers(params *api.T_APIHandlerParams) (interface{}, error)
 
 // WEB REST API function used to list product in category
 //   - category id must be specified in request URI
-func restListCategoryProducts(params *api.T_APIHandlerParams) (interface{}, error) {
+func restListCategoryProducts(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -347,7 +347,7 @@ func restListCategoryProducts(params *api.T_APIHandlerParams) (interface{}, erro
 
 // WEB REST API function used to add product in category
 //   - category and product ids must be specified in request URI
-func restAddCategoryProduct(params *api.T_APIHandlerParams) (interface{}, error) {
+func restAddCategoryProduct(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -382,7 +382,7 @@ func restAddCategoryProduct(params *api.T_APIHandlerParams) (interface{}, error)
 
 // WEB REST API function used to remove product from category
 //   - category and product ids must be specified in request URI
-func restRemoveCategoryProduct(params *api.T_APIHandlerParams) (interface{}, error) {
+func restRemoveCategoryProduct(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -417,7 +417,7 @@ func restRemoveCategoryProduct(params *api.T_APIHandlerParams) (interface{}, err
 
 // WEB REST API function used to obtain all product attributes
 //   - product id must be specified in request URI "http://[site:port]/product/get/:id"
-func restGetCategory(params *api.T_APIHandlerParams) (interface{}, error) {
+func restGetCategory(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -438,7 +438,7 @@ func restGetCategory(params *api.T_APIHandlerParams) (interface{}, error) {
 
 // WEB REST API function used to list product in category
 //   - category id must be specified in request URI
-func restCategoryProductsCount(params *api.T_APIHandlerParams) (interface{}, error) {
+func restCategoryProductsCount(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	categoryId, isSpecifiedId := params.RequestURLParams["categoryId"]
 	if !isSpecifiedId {
@@ -463,11 +463,11 @@ func restCategoryProductsCount(params *api.T_APIHandlerParams) (interface{}, err
 }
 
 // WEB REST API function used to categories menu
-func restGetCategoriesTree(params *api.T_APIHandlerParams) (interface{}, error) {
+func restGetCategoriesTree(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	var result = make([]map[string]interface{}, 0)
 
-	collection, err := db.GetCollection(COLLECTION_NAME_CATEGORY)
+	collection, err := db.GetCollection(ConstCollectionNameCategory)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}

@@ -68,7 +68,7 @@ func setupAPI() error {
 	return nil
 }
 
-func restRegisterVisit(params *api.T_APIHandlerParams) (interface{}, error) {
+func restRegisterVisit(params *api.StructAPIHandlerParams) (interface{}, error) {
 	xReferrer := utils.InterfaceToString(params.Request.Header.Get("X-Referer"))
 
 	http.SetCookie(params.ResponseWriter, &http.Cookie{Name: "X_Referrer", Value: xReferrer, Path: "/"})
@@ -79,7 +79,7 @@ func restRegisterVisit(params *api.T_APIHandlerParams) (interface{}, error) {
 	return nil, nil
 }
 
-func restGetReferrers(params *api.T_APIHandlerParams) (interface{}, error) {
+func restGetReferrers(params *api.StructAPIHandlerParams) (interface{}, error) {
 	result := make(map[string]int)
 
 	for url := range referrers {
@@ -89,7 +89,7 @@ func restGetReferrers(params *api.T_APIHandlerParams) (interface{}, error) {
 	return result, nil
 }
 
-func restGetVisits(params *api.T_APIHandlerParams) (interface{}, error) {
+func restGetVisits(params *api.StructAPIHandlerParams) (interface{}, error) {
 	result := make(map[string]interface{})
 
 	err := GetTodayVisitorsData()
@@ -114,7 +114,7 @@ func restGetVisits(params *api.T_APIHandlerParams) (interface{}, error) {
 	return result, nil
 }
 
-func restGetVisitsDetails(params *api.T_APIHandlerParams) (interface{}, error) {
+func restGetVisitsDetails(params *api.StructAPIHandlerParams) (interface{}, error) {
 	result := make(map[string]int)
 
 	fromDatetmp, present := params.RequestURLParams["from"]
@@ -180,7 +180,7 @@ func restGetVisitsDetails(params *api.T_APIHandlerParams) (interface{}, error) {
 	return result, nil
 }
 
-func restGetConversions(params *api.T_APIHandlerParams) (interface{}, error) {
+func restGetConversions(params *api.StructAPIHandlerParams) (interface{}, error) {
 	result := make(map[string]interface{})
 
 	result["totalVisitors"] = visitorsInfoToday.Visitors
@@ -191,7 +191,7 @@ func restGetConversions(params *api.T_APIHandlerParams) (interface{}, error) {
 	return result, nil
 }
 
-func restGetSales(params *api.T_APIHandlerParams) (interface{}, error) {
+func restGetSales(params *api.StructAPIHandlerParams) (interface{}, error) {
 	result := make(map[string]interface{})
 
 	currDate, _ := time.Parse("2006-01-02", time.Now().Format("2006-01-02"))
@@ -218,7 +218,7 @@ func restGetSales(params *api.T_APIHandlerParams) (interface{}, error) {
 	return result, nil
 }
 
-func restGetSalesDetails(params *api.T_APIHandlerParams) (interface{}, error) {
+func restGetSalesDetails(params *api.StructAPIHandlerParams) (interface{}, error) {
 	result := make(map[string]int)
 
 	// check request params
@@ -266,7 +266,7 @@ func restGetSalesDetails(params *api.T_APIHandlerParams) (interface{}, error) {
 	return result, nil
 }
 
-func restGetTopSellers(params *api.T_APIHandlerParams) (interface{}, error) {
+func restGetTopSellers(params *api.StructAPIHandlerParams) (interface{}, error) {
 	result := make(map[string]*SellerInfo)
 
 	salesCollection, err := db.GetCollection(ConstCollectionNameRTSSales)
@@ -312,7 +312,7 @@ func restGetTopSellers(params *api.T_APIHandlerParams) (interface{}, error) {
 	return result, nil
 }
 
-func restGetVisitsRealtime(params *api.T_APIHandlerParams) (interface{}, error) {
+func restGetVisitsRealtime(params *api.StructAPIHandlerParams) (interface{}, error) {
 	result := make(map[string]interface{})
 	ratio := float64(0)
 

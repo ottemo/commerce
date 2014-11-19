@@ -10,12 +10,12 @@ import (
 
 // Package global constants
 const (
-	COLLECTION_NAME_VISITOR = "visitor"
+	ConstCollectionNameVisitor = "visitor"
 
-	EMAIL_VALIDATE_EXPIRE = 60 * 60 * 24
+	ConstEmailValidateExpire = 60 * 60 * 24
 )
 
-// DefaultVisitor is a default implementer of I_Visitor
+// DefaultVisitor is a default implementer of InterfaceVisitor
 type DefaultVisitor struct {
 	id string
 
@@ -26,8 +26,8 @@ type DefaultVisitor struct {
 	FirstName string
 	LastName  string
 
-	BillingAddress  visitor.I_VisitorAddress
-	ShippingAddress visitor.I_VisitorAddress
+	BillingAddress  visitor.InterfaceVisitorAddress
+	ShippingAddress visitor.InterfaceVisitorAddress
 
 	Password    string
 	ValidateKey string
@@ -40,8 +40,8 @@ type DefaultVisitor struct {
 	*attributes.CustomAttributes
 }
 
-// DefaultVisitorCollection is a default implementer of I_VisitorCollection
+// DefaultVisitorCollection is a default implementer of InterfaceVisitorCollection
 type DefaultVisitorCollection struct {
-	listCollection     db.I_DBCollection
+	listCollection     db.InterfaceDBCollection
 	listExtraAtributes []string
 }

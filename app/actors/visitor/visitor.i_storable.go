@@ -20,7 +20,7 @@ func (it *DefaultVisitor) SetId(NewID string) error {
 // Load will retrieve the Visitor information from database
 func (it *DefaultVisitor) Load(ID string) error {
 
-	collection, err := db.GetCollection(COLLECTION_NAME_VISITOR)
+	collection, err := db.GetCollection(ConstCollectionNameVisitor)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -41,11 +41,11 @@ func (it *DefaultVisitor) Load(ID string) error {
 // Delete removes current Visitor from the database
 func (it *DefaultVisitor) Delete() error {
 
-	collection, err := db.GetCollection(COLLECTION_NAME_VISITOR)
+	collection, err := db.GetCollection(ConstCollectionNameVisitor)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	addressCollection, err := db.GetCollection(address.COLLECTION_NAME_VISITOR_ADDRESS)
+	addressCollection, err := db.GetCollection(address.ConstCollectionNameVisitorAddress)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -66,7 +66,7 @@ func (it *DefaultVisitor) Delete() error {
 // Save stores current Visitor to the database
 func (it *DefaultVisitor) Save() error {
 
-	collection, err := db.GetCollection(COLLECTION_NAME_VISITOR)
+	collection, err := db.GetCollection(ConstCollectionNameVisitor)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}

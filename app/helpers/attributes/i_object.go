@@ -22,8 +22,8 @@ func (it *CustomAttributes) Set(attribute string, value interface{}) error {
 }
 
 // represents object as map[string]interface{}
-func (it *CustomAttributes) GetAttributesInfo() []models.T_AttributeInfo {
-	info := make([]models.T_AttributeInfo, 0)
+func (it *CustomAttributes) GetAttributesInfo() []models.StructAttributeInfo {
+	info := make([]models.StructAttributeInfo, 0)
 	for _, attribute := range it.attributes {
 		info = append(info, attribute)
 	}

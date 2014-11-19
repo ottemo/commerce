@@ -17,23 +17,23 @@ var (
 
 // Package global constants
 const (
-	MONGO_DEBUG = false // flag which indicates to perform log on each operation
+	ConstMongoDebug = false // flag which indicates to perform log on each operation
 
-	FILTER_GROUP_STATIC  = "static"  // name for static filter, ref. to AddStaticFilter(...)
-	FILTER_GROUP_DEFAULT = "default" // name for default filter, ref. to by AddFilter(...)
+	ConstFilterGroupStatic  = "static"  // name for static filter, ref. to AddStaticFilter(...)
+	ConstFilterGroupDefault = "default" // name for default filter, ref. to by AddFilter(...)
 
-	COLLECTION_NAME_COLUMN_INFO = "collection_column_info" // collection name to hold Ottemo types of attributes
+	ConstCollectionNameColumnInfo = "collection_column_info" // collection name to hold Ottemo types of attributes
 )
 
-// T_DBFilterGroup is a structure to hold information of named collection filter
-type T_DBFilterGroup struct {
+// StructDBFilterGroup is a structure to hold information of named collection filter
+type StructDBFilterGroup struct {
 	Name         string
 	FilterValues []bson.D
 	ParentGroup  string
 	OrSequence   bool
 }
 
-// MongoDBCollection is a implementer of I_DBCollection
+// MongoDBCollection is a implementer of InterfaceDBCollection
 type MongoDBCollection struct {
 	database   *mgo.Database
 	collection *mgo.Collection
@@ -43,7 +43,7 @@ type MongoDBCollection struct {
 
 	Name string
 
-	FilterGroups map[string]*T_DBFilterGroup
+	FilterGroups map[string]*StructDBFilterGroup
 
 	Sort []string
 
@@ -53,7 +53,7 @@ type MongoDBCollection struct {
 	Offset int
 }
 
-// MongoDB is a implementer of I_DBEngine
+// MongoDB is a implementer of InterfaceDBEngine
 type MongoDB struct {
 	database *mgo.Database
 	session  *mgo.Session

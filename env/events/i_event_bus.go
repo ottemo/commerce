@@ -6,11 +6,11 @@ import (
 
 // adds listener to event handling stack
 //   - event listening is patch based, "" - global listener on any event, "api.product" - will listen for app events starts with api.product.[...])
-func (it *DefaultEventBus) RegisterListener(event string, listener env.F_EventListener) {
+func (it *DefaultEventBus) RegisterListener(event string, listener env.FuncEventListener) {
 	if value, present := it.listeners[event]; present {
 		it.listeners[event] = append(value, listener)
 	} else {
-		it.listeners[event] = []env.F_EventListener{listener}
+		it.listeners[event] = []env.FuncEventListener{listener}
 	}
 }
 

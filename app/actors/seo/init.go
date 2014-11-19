@@ -15,7 +15,7 @@ func init() {
 // setupDB prepares system database for package usage
 func setupDB() error {
 
-	if collection, err := db.GetCollection(COLLECTION_NAME_URL_REWRITES); err == nil {
+	if collection, err := db.GetCollection(ConstCollectionNameURLRewrites); err == nil {
 		collection.AddColumn("url", "varchar(255)", true)
 		collection.AddColumn("type", "varchar(255)", true)
 		collection.AddColumn("rewrite", "varchar(255)", false)

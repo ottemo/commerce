@@ -78,12 +78,12 @@ func (it *DefaultCMSBlock) ToHashMap() map[string]interface{} {
 }
 
 // returns information about object attributes
-func (it *DefaultCMSBlock) GetAttributesInfo() []models.T_AttributeInfo {
+func (it *DefaultCMSBlock) GetAttributesInfo() []models.StructAttributeInfo {
 
-	info := []models.T_AttributeInfo{
-		models.T_AttributeInfo{
-			Model:      cms.MODEL_NAME_CMS_BLOCK,
-			Collection: CMS_BLOCK_COLLECTION_NAME,
+	info := []models.StructAttributeInfo{
+		models.StructAttributeInfo{
+			Model:      cms.ConstModelNameCMSBlock,
+			Collection: ConstCmsBlockCollectionName,
 			Attribute:  "_id",
 			Type:       "id",
 			IsRequired: false,
@@ -94,9 +94,9 @@ func (it *DefaultCMSBlock) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
-			Model:      cms.MODEL_NAME_CMS_BLOCK,
-			Collection: CMS_BLOCK_COLLECTION_NAME,
+		models.StructAttributeInfo{
+			Model:      cms.ConstModelNameCMSBlock,
+			Collection: ConstCmsBlockCollectionName,
 			Attribute:  "identifier",
 			Type:       "varchar(255)",
 			IsRequired: true,
@@ -107,9 +107,9 @@ func (it *DefaultCMSBlock) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
-			Model:      cms.MODEL_NAME_CMS_BLOCK,
-			Collection: CMS_BLOCK_COLLECTION_NAME,
+		models.StructAttributeInfo{
+			Model:      cms.ConstModelNameCMSBlock,
+			Collection: ConstCmsBlockCollectionName,
 			Attribute:  "content",
 			Type:       "text",
 			IsRequired: false,
@@ -120,9 +120,9 @@ func (it *DefaultCMSBlock) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
-			Model:      cms.MODEL_NAME_CMS_BLOCK,
-			Collection: CMS_BLOCK_COLLECTION_NAME,
+		models.StructAttributeInfo{
+			Model:      cms.ConstModelNameCMSBlock,
+			Collection: ConstCmsBlockCollectionName,
 			Attribute:  "created_at",
 			Type:       "datetime",
 			IsRequired: true,
@@ -133,9 +133,9 @@ func (it *DefaultCMSBlock) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
-			Model:      cms.MODEL_NAME_CMS_BLOCK,
-			Collection: CMS_BLOCK_COLLECTION_NAME,
+		models.StructAttributeInfo{
+			Model:      cms.ConstModelNameCMSBlock,
+			Collection: ConstCmsBlockCollectionName,
 			Attribute:  "updated_at",
 			Type:       "datetime",
 			IsRequired: true,

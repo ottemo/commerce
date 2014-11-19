@@ -11,37 +11,37 @@ import (
 	"github.com/ottemo/foundation/utils"
 )
 
-// ImpexImportCmdAttributeAdd is a implementer of I_ImpexImportCmd
+// ImpexImportCmdAttributeAdd is a implementer of InterfaceImpexImportCmd
 //  - command allows to create custom attributes on model
 type ImpexImportCmdAttributeAdd struct {
-	model     models.I_Model
-	attribute models.T_AttributeInfo
+	model     models.InterfaceModel
+	attribute models.StructAttributeInfo
 }
 
-// ImpexImportCmdInsert is a implementer of I_ImpexImportCmd
+// ImpexImportCmdInsert is a implementer of InterfaceImpexImportCmd
 //  - command allows to upload data in system through model item abstraction
 type ImpexImportCmdInsert struct {
-	model      models.I_Model
+	model      models.InterfaceModel
 	attributes map[string]bool
 	skipErrors bool
 }
 
-// ImpexImportCmdUpdate is a implementer of I_ImpexImportCmd
+// ImpexImportCmdUpdate is a implementer of InterfaceImpexImportCmd
 //  - command allows to update model item data in system
 type ImpexImportCmdUpdate struct {
-	model      models.I_Model
+	model      models.InterfaceModel
 	attributes map[string]bool
 	idKey      string
 }
 
-// ImpexImportCmdDelete is a implementer of I_ImpexImportCmd
+// ImpexImportCmdDelete is a implementer of InterfaceImpexImportCmd
 //  - command allows to delete model items from the system
 type ImpexImportCmdDelete struct {
-	model models.I_Model
+	model models.InterfaceModel
 	idKey string
 }
 
-// ImpexImportCmdMedia is a implementer of I_ImpexImportCmd
+// ImpexImportCmdMedia is a implementer of InterfaceImpexImportCmd
 //  - command allows to assign media content to models item
 type ImpexImportCmdMedia struct {
 	mediaField string
@@ -49,7 +49,7 @@ type ImpexImportCmdMedia struct {
 	mediaName  string
 }
 
-// ImpexImportCmdStore is a implementer of I_ImpexImportCmd
+// ImpexImportCmdStore is a implementer of InterfaceImpexImportCmd
 //  - command allows temporary load/store previous command results during import process
 type ImpexImportCmdStore struct {
 	storeObjectAs string
@@ -59,8 +59,8 @@ type ImpexImportCmdStore struct {
 	prefixKey string
 }
 
-// CheckModelImplements checks that model support I_Object and I_Storable interfaces
-func CheckModelImplements(modelName string, neededInterfaces []string) (models.I_Model, error) {
+// CheckModelImplements checks that model support InterfaceObject and InterfaceStorable interfaces
+func CheckModelImplements(modelName string, neededInterfaces []string) (models.InterfaceModel, error) {
 	cmdModel, err := models.GetModel(modelName)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
@@ -69,18 +69,18 @@ func CheckModelImplements(modelName string, neededInterfaces []string) (models.I
 	for _, interfaceName := range neededInterfaces {
 		ok := true
 		switch interfaceName {
-		case "I_Storable":
-			_, ok = cmdModel.(models.I_Storable)
-		case "I_Object":
-			_, ok = cmdModel.(models.I_Object)
-		case "I_Listable":
-			_, ok = cmdModel.(models.I_Listable)
-		case "I_Collection":
-			_, ok = cmdModel.(models.I_Collection)
-		case "I_CustomAttributes":
-			_, ok = cmdModel.(models.I_CustomAttributes)
-		case "I_Media":
-			_, ok = cmdModel.(models.I_Media)
+		case "InterfaceStorable":
+			_, ok = cmdModel.(models.InterfaceStorable)
+		case "InterfaceObject":
+			_, ok = cmdModel.(models.InterfaceObject)
+		case "InterfaceListable":
+			_, ok = cmdModel.(models.InterfaceListable)
+		case "InterfaceCollection":
+			_, ok = cmdModel.(models.InterfaceCollection)
+		case "InterfaceCustomAttributes":
+			_, ok = cmdModel.(models.InterfaceCustomAttributes)
+		case "InterfaceMedia":
+			_, ok = cmdModel.(models.InterfaceMedia)
 		}
 
 		if !ok {
@@ -116,8 +116,8 @@ func ArgsGetAsNamed(args []string, includeIndexes bool) map[string]string {
 }
 
 // ArgsFindWorkingModel looks for model mention among command attributes
-func ArgsFindWorkingModel(args []string, neededInterfaces []string) (models.I_Model, error) {
-	var result models.I_Model = nil
+func ArgsFindWorkingModel(args []string, neededInterfaces []string) (models.InterfaceModel, error) {
+	var result models.InterfaceModel = nil
 	var err error = nil
 
 	namedArgs := ArgsGetAsNamed(args, true)
@@ -169,7 +169,7 @@ func ArgsFindWorkingAttributes(args []string) map[string]bool {
 // Init is a INSERT command initialization routine
 func (it *ImpexImportCmdInsert) Init(args []string, exchange map[string]interface{}) error {
 
-	workingModel, err := ArgsFindWorkingModel(args, []string{"I_Storable", "I_Object"})
+	workingModel, err := ArgsFindWorkingModel(args, []string{"InterfaceStorable", "InterfaceObject"})
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -198,8 +198,8 @@ func (it *ImpexImportCmdInsert) Process(itemData map[string]interface{}, input i
 		return nil, env.ErrorDispatch(err)
 	}
 
-	modelAsObject := cmdModel.(models.I_Object)
-	modelAsStorable := cmdModel.(models.I_Storable)
+	modelAsObject := cmdModel.(models.InterfaceObject)
+	modelAsStorable := cmdModel.(models.InterfaceStorable)
 
 	// filling model attributes
 	//--------------------------
@@ -228,7 +228,7 @@ func (it *ImpexImportCmdInsert) Process(itemData map[string]interface{}, input i
 
 // Init is a UPDATE command initialization routines
 func (it *ImpexImportCmdUpdate) Init(args []string, exchange map[string]interface{}) error {
-	workingModel, err := ArgsFindWorkingModel(args, []string{"I_Storable", "I_Object"})
+	workingModel, err := ArgsFindWorkingModel(args, []string{"InterfaceStorable", "InterfaceObject"})
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -258,8 +258,8 @@ func (it *ImpexImportCmdUpdate) Process(itemData map[string]interface{}, input i
 		return nil, env.ErrorDispatch(err)
 	}
 
-	modelAsObject := cmdModel.(models.I_Object)
-	modelAsStorable := cmdModel.(models.I_Storable)
+	modelAsObject := cmdModel.(models.InterfaceObject)
+	modelAsStorable := cmdModel.(models.InterfaceStorable)
 
 	if modelId, present := itemData[it.idKey]; present {
 
@@ -295,7 +295,7 @@ func (it *ImpexImportCmdUpdate) Process(itemData map[string]interface{}, input i
 
 // Init is a DELETE command initialization routines
 func (it *ImpexImportCmdDelete) Init(args []string, exchange map[string]interface{}) error {
-	workingModel, err := ArgsFindWorkingModel(args, []string{"I_Storable"})
+	workingModel, err := ArgsFindWorkingModel(args, []string{"InterfaceStorable"})
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -323,7 +323,7 @@ func (it *ImpexImportCmdDelete) Process(itemData map[string]interface{}, input i
 		return nil, env.ErrorDispatch(err)
 	}
 
-	modelAsStorable := cmdModel.(models.I_Storable)
+	modelAsStorable := cmdModel.(models.InterfaceStorable)
 
 	if modelId, present := itemData[it.idKey]; present {
 
@@ -419,9 +419,9 @@ func (it *ImpexImportCmdMedia) Init(args []string, exchange map[string]interface
 
 // Process is a MEDIA command processor
 func (it *ImpexImportCmdMedia) Process(itemData map[string]interface{}, input interface{}, exchange map[string]interface{}) (interface{}, error) {
-	inputAsMedia, ok := input.(models.I_Media)
+	inputAsMedia, ok := input.(models.InterfaceMedia)
 	if !ok {
-		return nil, env.ErrorNew("object not implements I_Media interface")
+		return nil, env.ErrorNew("object not implements InterfaceMedia interface")
 	}
 
 	// checking for media field in itemData
@@ -526,7 +526,7 @@ func (it *ImpexImportCmdMedia) Process(itemData map[string]interface{}, input in
 			if mediaName == "" {
 				mediaName = "media"
 
-				if object, ok := inputAsMedia.(models.I_Object); ok {
+				if object, ok := inputAsMedia.(models.InterfaceObject); ok {
 					if objectId := utils.InterfaceToString(object.Get("_id")); objectId != "" {
 						mediaName += "_" + objectId
 					}
@@ -547,11 +547,11 @@ func (it *ImpexImportCmdMedia) Process(itemData map[string]interface{}, input in
 // Init is a ATTRIBUTE_ADD command initialization routines
 func (it *ImpexImportCmdAttributeAdd) Init(args []string, exchange map[string]interface{}) error {
 
-	workingModel, err := ArgsFindWorkingModel(args, []string{"I_CustomAttributes"})
+	workingModel, err := ArgsFindWorkingModel(args, []string{"InterfaceCustomAttributes"})
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	modelAsCustomAttributesInterface := workingModel.(models.I_CustomAttributes)
+	modelAsCustomAttributesInterface := workingModel.(models.InterfaceCustomAttributes)
 
 	attributeName := ""
 
@@ -567,7 +567,7 @@ func (it *ImpexImportCmdAttributeAdd) Init(args []string, exchange map[string]in
 		return env.ErrorNew("attribute name was not specified, untill impex attribute add")
 	}
 
-	attribute := models.T_AttributeInfo{
+	attribute := models.StructAttributeInfo{
 		Model:      workingModel.GetModelName(),
 		Collection: modelAsCustomAttributesInterface.GetCustomAttributeCollectionName(),
 		Attribute:  attributeName,
@@ -614,7 +614,7 @@ func (it *ImpexImportCmdAttributeAdd) Init(args []string, exchange map[string]in
 
 // Process is a ATTRIBUTE_ADD command processor
 func (it *ImpexImportCmdAttributeAdd) Process(itemData map[string]interface{}, input interface{}, exchange map[string]interface{}) (interface{}, error) {
-	modelAsCustomAttributesInterface := it.model.(models.I_CustomAttributes)
+	modelAsCustomAttributesInterface := it.model.(models.InterfaceCustomAttributes)
 	err := modelAsCustomAttributesInterface.AddNewAttribute(it.attribute)
 	if err != nil {
 		env.ErrorDispatch(err)

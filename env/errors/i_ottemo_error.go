@@ -29,7 +29,7 @@ func (it *OttemoError) ErrorCode() string {
 }
 
 // returns error functions call stack for error
-//   Note: COLLECT_STACK constant should be set to true, otherwise, stack information will be blank
+//   Note: ConstCollectStack constant should be set to true, otherwise, stack information will be blank
 func (it *OttemoError) ErrorStack() string {
 	return it.Stack
 }

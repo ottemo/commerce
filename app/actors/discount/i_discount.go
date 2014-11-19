@@ -19,20 +19,20 @@ func (it *DefaultDiscount) GetCode() string {
 }
 
 // CalculateDiscount calculates and returns a set of discounts applied to given checkout
-func (it *DefaultDiscount) CalculateDiscount(checkoutInstance checkout.I_Checkout) []checkout.T_Discount {
+func (it *DefaultDiscount) CalculateDiscount(checkoutInstance checkout.InterfaceCheckout) []checkout.StructDiscount {
 
-	result := make([]checkout.T_Discount, 0)
+	result := make([]checkout.StructDiscount, 0)
 
 	// checking session for applied coupon codes
 	if currentSession := checkoutInstance.GetSession(); currentSession != nil {
-		if appliedCodes, ok := currentSession.Get(SESSION_KEY_APPLIED_DISCOUNT_CODES).([]string); ok && len(appliedCodes) > 0 {
+		if appliedCodes, ok := currentSession.Get(ConstSessionKeyAppliedDiscountCodes).([]string); ok && len(appliedCodes) > 0 {
 
 			// getting order information will use in calculations
 			discountableAmount := checkoutInstance.GetGrandTotal()
 			grandTotalAmount := checkoutInstance.GetGrandTotal()
 
 			// loading information about applied discounts
-			collection, err := db.GetCollection(COLLECTION_NAME_COUPON_DISCOUNTS)
+			collection, err := db.GetCollection(ConstCollectionNameCouponDiscounts)
 			if err != nil {
 				return result
 			}
@@ -83,7 +83,7 @@ func (it *DefaultDiscount) CalculateDiscount(checkoutInstance checkout.I_Checkou
 							discountableAmount = 0
 						}
 
-						result = append(result, checkout.T_Discount{
+						result = append(result, checkout.StructDiscount{
 							Name:   utils.InterfaceToString(discountCoupon["name"]),
 							Code:   utils.InterfaceToString(discountCoupon["code"]),
 							Amount: discountAmount,
@@ -97,7 +97,7 @@ func (it *DefaultDiscount) CalculateDiscount(checkoutInstance checkout.I_Checkou
 								newAppliedCodes = append(newAppliedCodes, value)
 							}
 						}
-						currentSession.Set(SESSION_KEY_APPLIED_DISCOUNT_CODES, newAppliedCodes)
+						currentSession.Set(ConstSessionKeyAppliedDiscountCodes, newAppliedCodes)
 					}
 				}
 			}

@@ -47,7 +47,7 @@ func (it *DefaultCartItem) GetProductId() string {
 }
 
 // returns product instance which cart item represents
-func (it *DefaultCartItem) GetProduct() product.I_Product {
+func (it *DefaultCartItem) GetProduct() product.InterfaceProduct {
 	if it.ProductId != "" {
 		product, err := product.LoadProductById(it.ProductId)
 		if err == nil {
@@ -102,6 +102,6 @@ func (it *DefaultCartItem) SetOption(optionName string, optionValue interface{})
 }
 
 // returns cart that item belongs to
-func (it *DefaultCartItem) GetCart() cart.I_Cart {
+func (it *DefaultCartItem) GetCart() cart.InterfaceCart {
 	return it.Cart
 }

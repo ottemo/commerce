@@ -50,7 +50,7 @@ func setupAPI() error {
 }
 
 // WEB REST API function to get CMS page available attributes information
-func restCMSPageAttributes(params *api.T_APIHandlerParams) (interface{}, error) {
+func restCMSPageAttributes(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	cmsPage, err := cms.GetCMSPageModel()
 	if err != nil {
@@ -61,7 +61,7 @@ func restCMSPageAttributes(params *api.T_APIHandlerParams) (interface{}, error) 
 }
 
 // WEB REST API function used to obtain CMS pages list
-func restCMSPageList(params *api.T_APIHandlerParams) (interface{}, error) {
+func restCMSPageList(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -102,7 +102,7 @@ func restCMSPageList(params *api.T_APIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API function used to obtain CMS pages count in model collection
-func restCMSPageCount(params *api.T_APIHandlerParams) (interface{}, error) {
+func restCMSPageCount(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	cmsPageCollectionModel, err := cms.GetCMSBlockCollectionModel()
 	if err != nil {
@@ -117,7 +117,7 @@ func restCMSPageCount(params *api.T_APIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API function to get CMS page information
-func restCMSPageGet(params *api.T_APIHandlerParams) (interface{}, error) {
+func restCMSPageGet(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -138,7 +138,7 @@ func restCMSPageGet(params *api.T_APIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API for adding new CMS page in system
-func restCMSPageAdd(params *api.T_APIHandlerParams) (interface{}, error) {
+func restCMSPageAdd(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -170,7 +170,7 @@ func restCMSPageAdd(params *api.T_APIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API for update existing CMS page in system
-func restCMSPageUpdate(params *api.T_APIHandlerParams) (interface{}, error) {
+func restCMSPageUpdate(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -207,7 +207,7 @@ func restCMSPageUpdate(params *api.T_APIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API used to delete CMS page from system
-func restCMSPageDelete(params *api.T_APIHandlerParams) (interface{}, error) {
+func restCMSPageDelete(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------

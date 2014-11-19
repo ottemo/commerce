@@ -8,8 +8,8 @@ import (
 )
 
 // enumerates items of model type
-func (it *DefaultCategoryCollection) List() ([]models.T_ListItem, error) {
-	result := make([]models.T_ListItem, 0)
+func (it *DefaultCategoryCollection) List() ([]models.StructListItem, error) {
+	result := make([]models.StructListItem, 0)
 
 	// loading data from DB
 	//---------------------
@@ -18,7 +18,7 @@ func (it *DefaultCategoryCollection) List() ([]models.T_ListItem, error) {
 		return result, env.ErrorDispatch(err)
 	}
 
-	// converting db record to T_ListItem
+	// converting db record to StructListItem
 	//-----------------------------------
 	for _, dbItemData := range dbItems {
 		categoryModel, err := category.GetCategoryModel()
@@ -28,7 +28,7 @@ func (it *DefaultCategoryCollection) List() ([]models.T_ListItem, error) {
 		categoryModel.FromHashMap(dbItemData)
 
 		// retrieving minimal data needed for list
-		resultItem := new(models.T_ListItem)
+		resultItem := new(models.StructListItem)
 
 		resultItem.Id = categoryModel.GetId()
 		resultItem.Name = categoryModel.GetName()

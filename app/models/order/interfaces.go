@@ -8,14 +8,14 @@ import (
 
 // Package global constants
 const (
-	MODEL_NAME_ORDER            = "Order"
-	MODEL_NAME_ORDER_COLLECTION = "OrderCollection"
+	ConstModelNameOrder           = "Order"
+	ConstModelNameOrderCollection = "OrderCollection"
 
-	MODEL_NAME_ORDER_ITEM_COLLECTION = "OrderItemCollection"
+	ConstModelNameOrderItemCollection = "OrderItemCollection"
 )
 
-// I_OrderItem represents interface to access business layer implementation of purchase order item object
-type I_OrderItem interface {
+// InterfaceOrderItem represents interface to access business layer implementation of purchase order item object
+type InterfaceOrderItem interface {
 	GetId() string
 	SetId(newId string) error
 
@@ -30,14 +30,14 @@ type I_OrderItem interface {
 
 	GetOptions() map[string]interface{}
 
-	models.I_Object
+	models.InterfaceObject
 }
 
-// I_Order represents interface to access business layer implementation of purchase order object
-type I_Order interface {
-	GetItems() []I_OrderItem
+// InterfaceOrder represents interface to access business layer implementation of purchase order object
+type InterfaceOrder interface {
+	GetItems() []InterfaceOrderItem
 
-	AddItem(productId string, qty int, productOptions map[string]interface{}) (I_OrderItem, error)
+	AddItem(productId string, qty int, productOptions map[string]interface{}) (InterfaceOrderItem, error)
 	RemoveItem(itemIdx int) error
 
 	CalculateTotals() error
@@ -54,26 +54,26 @@ type I_Order interface {
 	GetTaxAmount() float64
 	GetShippingAmount() float64
 
-	GetShippingAddress() visitor.I_VisitorAddress
-	GetBillingAddress() visitor.I_VisitorAddress
+	GetShippingAddress() visitor.InterfaceVisitorAddress
+	GetBillingAddress() visitor.InterfaceVisitorAddress
 
 	GetShippingMethod() string
 	GetPaymentMethod() string
 
-	models.I_Model
-	models.I_Object
-	models.I_Storable
-	models.I_Listable
+	models.InterfaceModel
+	models.InterfaceObject
+	models.InterfaceStorable
+	models.InterfaceListable
 }
 
-// I_OrderCollection represents interface to access business layer implementation of purchase order collection
-type I_OrderCollection interface {
-	ListOrders() []I_Order
+// InterfaceOrderCollection represents interface to access business layer implementation of purchase order collection
+type InterfaceOrderCollection interface {
+	ListOrders() []InterfaceOrder
 
-	models.I_Collection
+	models.InterfaceCollection
 }
 
-// I_OrderItemCollection represents interface to access business layer implementation of purchase order item collection
-type I_OrderItemCollection interface {
-	models.I_Collection
+// InterfaceOrderItemCollection represents interface to access business layer implementation of purchase order item collection
+type InterfaceOrderItemCollection interface {
+	models.InterfaceCollection
 }

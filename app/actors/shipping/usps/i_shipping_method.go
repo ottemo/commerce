@@ -23,30 +23,30 @@ import (
 
 // GetName returns name of shipping method
 func (it *USPS) GetName() string {
-	return SHIPPING_NAME
+	return ConstShippingName
 }
 
 // GetCode returns code of shipping method
 func (it *USPS) GetCode() string {
-	return SHIPPING_CODE
+	return ConstShippingCode
 }
 
 // IsAllowed checks for method applicability
-func (it *USPS) IsAllowed(checkout checkout.I_Checkout) bool {
-	return utils.InterfaceToBool(env.ConfigGetValue(CONFIG_PATH_ENABLED))
+func (it *USPS) IsAllowed(checkout checkout.InterfaceCheckout) bool {
+	return utils.InterfaceToBool(env.ConfigGetValue(ConstConfigPathEnabled))
 }
 
 // GetRates returns rates allowed by shipping method for a given checkout
-func (it *USPS) GetRates(checkoutObject checkout.I_Checkout) []checkout.T_ShippingRate {
+func (it *USPS) GetRates(checkoutObject checkout.InterfaceCheckout) []checkout.StructShippingRate {
 
-	result := make([]checkout.T_ShippingRate, 0)
+	result := make([]checkout.StructShippingRate, 0)
 
-	useDebugLog := utils.InterfaceToBool(env.ConfigGetValue(CONFIG_PATH_DEBUG_LOG))
+	useDebugLog := utils.InterfaceToBool(env.ConfigGetValue(ConstConfigPathDebugLog))
 
 	templateValues := make(map[string]interface{})
 
-	templateValues["userid"] = utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_USER))       // "133OTTEM1795",
-	templateValues["origin"] = utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_ORIGIN_ZIP)) // "44106",
+	templateValues["userid"] = utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathUser))      // "133OTTEM1795",
+	templateValues["origin"] = utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathOriginZip)) // "44106",
 
 	if templateValues["userid"] == "" || templateValues["origin"] == "" {
 		return nil
@@ -67,7 +67,7 @@ func (it *USPS) GetRates(checkoutObject checkout.I_Checkout) []checkout.T_Shippi
 			return result
 		}
 
-		defaultWeight := utils.InterfaceToFloat64(env.ConfigGetValue(CONFIG_PATH_DEFAULT_WEIGHT))
+		defaultWeight := utils.InterfaceToFloat64(env.ConfigGetValue(ConstConfigPathDefaultWeight))
 
 		for _, cartItem := range cartItems {
 			cartProduct := cartItem.GetProduct()
@@ -86,15 +86,15 @@ func (it *USPS) GetRates(checkoutObject checkout.I_Checkout) []checkout.T_Shippi
 	templateValues["pounds"] = pounds
 	templateValues["ounces"] = ounces
 
-	templateValues["container"] = utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_CONTAINER))
-	templateValues["size"] = utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_SIZE))
+	templateValues["container"] = utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathContainer))
+	templateValues["size"] = utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathSize))
 
 	templateValues["width"] = 0.1
 	templateValues["height"] = 0.1
 	templateValues["length"] = 0.1
 	templateValues["girth"] = 0.1
 
-	dimensions := strings.Split(utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_DEFAULT_DIMENSIONS)), "x")
+	dimensions := strings.Split(utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathDefaultDimensions)), "x")
 	for idx, dimensionValue := range dimensions {
 		dimensionValue = strings.Trim(dimensionValue, " ")
 		switch idx {
@@ -138,7 +138,7 @@ func (it *USPS) GetRates(checkoutObject checkout.I_Checkout) []checkout.T_Shippi
 		env.Log("usps.log", "REQUEST", buff.String())
 	}
 
-	query := HTTP_ENDPOINT + "?API=RateV4&XML=" + url.QueryEscape(buff.String())
+	query := ConstHTTPEndpoint + "?API=RateV4&XML=" + url.QueryEscape(buff.String())
 	response, err := http.Get(query)
 	if err != nil {
 		return result
@@ -167,7 +167,7 @@ func (it *USPS) GetRates(checkoutObject checkout.I_Checkout) []checkout.T_Shippi
 		return result
 	}
 
-	allowedMethodsArray := utils.InterfaceToArray(env.ConfigGetValue(CONFIG_PATH_ALLOWED_METHODS))
+	allowedMethodsArray := utils.InterfaceToArray(env.ConfigGetValue(ConstConfigPathAllowedMethods))
 
 	postage, _ := xmlpath.Compile("//Postage")
 	service, _ := xmlpath.Compile("./MailService")
@@ -197,13 +197,13 @@ func (it *USPS) GetRates(checkoutObject checkout.I_Checkout) []checkout.T_Shippi
 		if len(allowedMethodsArray) == 0 || utils.IsInArray(stringCode, allowedMethodsArray) {
 
 			rateName := html.UnescapeString(stringService)
-			if REMOVE_RATE_NAME_TAGS {
+			if ConstRemoveRateNameTags {
 				rateName = regexTags.ReplaceAllString(rateName, "")
 
 			}
 
 			result = append(result,
-				checkout.T_ShippingRate{
+				checkout.StructShippingRate{
 					Code:  stringCode,
 					Name:  rateName,
 					Price: utils.InterfaceToFloat64(stringRate),

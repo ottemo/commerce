@@ -6,13 +6,13 @@ import (
 )
 
 // returns database collection
-func (it *DefaultProductCollection) GetDBCollection() db.I_DBCollection {
+func (it *DefaultProductCollection) GetDBCollection() db.InterfaceDBCollection {
 	return it.listCollection
 }
 
 // returns array of products in model instance form
-func (it *DefaultProductCollection) ListProducts() []product.I_Product {
-	result := make([]product.I_Product, 0)
+func (it *DefaultProductCollection) ListProducts() []product.InterfaceProduct {
+	result := make([]product.InterfaceProduct, 0)
 
 	dbRecords, err := it.listCollection.Load()
 	if err != nil {

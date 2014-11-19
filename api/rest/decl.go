@@ -1,4 +1,4 @@
-// Package rest is a default implementation of I_RestService
+// Package rest is a default implementation of InterfaceRestService
 // declared in "github.com/ottemo/foundation/api" package
 package rest
 
@@ -6,7 +6,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-// I_RestService implementer class
+// InterfaceRestService implementer class
 type DefaultRestService struct {
 	ListenOn string
 	Router   *httprouter.Router

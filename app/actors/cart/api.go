@@ -34,7 +34,7 @@ func setupAPI() error {
 
 // WEB REST API function to get cart information
 //   - parent categories and categorys will not be present in list
-func restCartInfo(params *api.T_APIHandlerParams) (interface{}, error) {
+func restCartInfo(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	currentCart, err := cart.GetCurrentCart(params)
 	if err != nil {
@@ -87,7 +87,7 @@ func restCartInfo(params *api.T_APIHandlerParams) (interface{}, error) {
 // WEB REST API for adding new item into cart
 //   - "pid" (product id) should be specified
 //   - "qty" and "options" are optional params
-func restCartAdd(params *api.T_APIHandlerParams) (interface{}, error) {
+func restCartAdd(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -151,7 +151,7 @@ func restCartAdd(params *api.T_APIHandlerParams) (interface{}, error) {
 
 // WEB REST API used to update cart item qty
 //   - "itemIdx" and "qty" should be specified in request URI
-func restCartUpdate(params *api.T_APIHandlerParams) (interface{}, error) {
+func restCartUpdate(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -201,7 +201,7 @@ func restCartUpdate(params *api.T_APIHandlerParams) (interface{}, error) {
 
 // WEB REST API used to delete cart item from cart
 //   - "itemIdx" should be specified in request URI
-func restCartDelete(params *api.T_APIHandlerParams) (interface{}, error) {
+func restCartDelete(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	_, present := params.RequestURLParams["itemIdx"]
 	if !present {

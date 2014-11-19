@@ -6,13 +6,13 @@ import (
 )
 
 // returns database collection
-func (it *DefaultCMSBlockCollection) GetDBCollection() db.I_DBCollection {
+func (it *DefaultCMSBlockCollection) GetDBCollection() db.InterfaceDBCollection {
 	return it.listCollection
 }
 
 // returns list of cms block model items
-func (it *DefaultCMSBlockCollection) ListCMSBlocks() []cms.I_CMSBlock {
-	result := make([]cms.I_CMSBlock, 0)
+func (it *DefaultCMSBlockCollection) ListCMSBlocks() []cms.InterfaceCMSBlock {
+	result := make([]cms.InterfaceCMSBlock, 0)
 
 	dbRecords, err := it.listCollection.Load()
 	if err != nil {

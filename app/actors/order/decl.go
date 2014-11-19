@@ -18,15 +18,15 @@ var (
 
 // Package global constants
 const (
-	COLLECTION_NAME_ORDER       = "orders"
-	COLLECTION_NAME_ORDER_ITEMS = "order_items"
+	ConstCollectionNameOrder      = "orders"
+	ConstCollectionNameOrderItems = "order_items"
 
-	INCREMENT_ID_FORMAT = "%0.10d"
+	ConstIncrementIDFormat = "%0.10d"
 
-	CONFIG_PATH_LAST_INCREMENT_ID = "internal.order.increment_id"
+	ConstConfigPathLastIncrementID = "internal.order.increment_id"
 )
 
-// DefaultOrderItem is a default implementer of I_OrderItem
+// DefaultOrderItem is a default implementer of InterfaceOrderItem
 type DefaultOrderItem struct {
 	id  string
 	idx int
@@ -48,7 +48,7 @@ type DefaultOrderItem struct {
 	Weight float64
 }
 
-// DefaultOrder is a default implementer of I_Order
+// DefaultOrder is a default implementer of InterfaceOrder
 type DefaultOrder struct {
 	id string
 
@@ -79,19 +79,19 @@ type DefaultOrder struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 
-	Items map[int]order.I_OrderItem
+	Items map[int]order.InterfaceOrderItem
 
 	maxIdx int
 }
 
-// DefaultOrderItemCollection is a default implementer of I_OrderCollection
+// DefaultOrderItemCollection is a default implementer of InterfaceOrderCollection
 type DefaultOrderCollection struct {
-	listCollection     db.I_DBCollection
+	listCollection     db.InterfaceDBCollection
 	listExtraAtributes []string
 }
 
-// DefaultOrderItemCollection is a default implementer of I_OrderItemCollection
+// DefaultOrderItemCollection is a default implementer of InterfaceOrderItemCollection
 type DefaultOrderItemCollection struct {
-	listCollection     db.I_DBCollection
+	listCollection     db.InterfaceDBCollection
 	listExtraAtributes []string
 }

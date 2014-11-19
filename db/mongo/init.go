@@ -41,7 +41,7 @@ func (it *MongoDB) Startup() error {
 	it.DBName = DBName
 	it.collections = map[string]bool{}
 
-	if MONGO_DEBUG {
+	if ConstMongoDebug {
 		mgo.SetDebug(true)
 		mgo.SetLogger(it)
 	}

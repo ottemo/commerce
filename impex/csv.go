@@ -163,7 +163,7 @@ func CSVToMap(csvReader *csv.Reader, processorFunc func(item map[string]interfac
 	allColumnsBlankFlag := true
 	// extracting column header parts
 	for idx, column := range csvColumns {
-		regexpGroups := CSV_COLUMN_REGEXP.FindStringSubmatch(column)
+		regexpGroups := ConstCSVColumnRegexp.FindStringSubmatch(column)
 
 		if len(regexpGroups) == 0 { // un-recognized column header
 			if strings.TrimSpace(column) != "" { // unless it is blank, considering as path
@@ -451,14 +451,14 @@ func ImportCSV(csvReader *csv.Reader) error {
 		commandLine = csvLine + " " + commandLine
 		commandLine = strings.TrimSpace(commandLine)
 
-		if IMPEX_LOG || DEBUG_LOG {
-			env.Log("impex.log", env.LOG_PREFIX_DEBUG, fmt.Sprintf("Command line: %s", commandLine))
+		if ConstImpexLog || ConstDebugLog {
+			env.Log("impex.log", env.ConstLogPrefixDebug, fmt.Sprintf("Command line: %s", commandLine))
 		}
 
 		// looking for required commands and preparing them to process
 		//-------------------------------------------------------------
 		exchangeDict := make(map[string]interface{})
-		commandsChain := make([]I_ImpexImportCmd, 0)
+		commandsChain := make([]InterfaceImpexImportCmd, 0)
 
 		for _, command := range utils.SplitQuotedStringBy(commandLine, '|') {
 			command = strings.TrimSpace(command)
@@ -484,29 +484,29 @@ func ImportCSV(csvReader *csv.Reader) error {
 		// making csv data processor based on received commands
 		//------------------------------------------------------
 		dataProcessor := func(itemData map[string]interface{}) bool {
-			if IMPEX_LOG || DEBUG_LOG {
-				env.Log("impex.log", env.LOG_PREFIX_DEBUG, fmt.Sprintf("Processing: %s", utils.EncodeToJsonString(itemData)))
+			if ConstImpexLog || ConstDebugLog {
+				env.Log("impex.log", env.ConstLogPrefixDebug, fmt.Sprintf("Processing: %s", utils.EncodeToJsonString(itemData)))
 			}
 
 			var input interface{} = nil
 			for _, command := range commandsChain {
-				if DEBUG_LOG {
-					env.Log("impex.log", env.LOG_PREFIX_DEBUG, fmt.Sprintf("Command: %T", command))
-					env.Log("impex.log", env.LOG_PREFIX_DEBUG, fmt.Sprintf("Input: %#v", input))
-					env.Log("impex.log", env.LOG_PREFIX_DEBUG, fmt.Sprintf("itemData: %s", utils.EncodeToJsonString(itemData)))
-					env.Log("impex.log", env.LOG_PREFIX_DEBUG, fmt.Sprintf("Exchange: %s", utils.EncodeToJsonString(exchangeDict)))
+				if ConstDebugLog {
+					env.Log("impex.log", env.ConstLogPrefixDebug, fmt.Sprintf("Command: %T", command))
+					env.Log("impex.log", env.ConstLogPrefixDebug, fmt.Sprintf("Input: %#v", input))
+					env.Log("impex.log", env.ConstLogPrefixDebug, fmt.Sprintf("itemData: %s", utils.EncodeToJsonString(itemData)))
+					env.Log("impex.log", env.ConstLogPrefixDebug, fmt.Sprintf("Exchange: %s", utils.EncodeToJsonString(exchangeDict)))
 				}
 
 				input, err = command.Process(itemData, input, exchangeDict)
 				if err != nil {
-					if IMPEX_LOG || DEBUG_LOG {
-						env.Log("impex.log", env.LOG_PREFIX_DEBUG, fmt.Sprintf("Error: %s", err.Error()))
+					if ConstImpexLog || ConstDebugLog {
+						env.Log("impex.log", env.ConstLogPrefixDebug, fmt.Sprintf("Error: %s", err.Error()))
 					}
 					env.ErrorDispatch(err)
 					return true
 				}
-				if IMPEX_LOG || DEBUG_LOG {
-					env.Log("impex.log", env.LOG_PREFIX_DEBUG, "Finished ok")
+				if ConstImpexLog || ConstDebugLog {
+					env.Log("impex.log", env.ConstLogPrefixDebug, "Finished ok")
 				}
 			}
 			return true

@@ -14,7 +14,7 @@ import (
 // init makes package self-initialization routine
 func init() {
 	instance := new(DefaultIniConfig)
-	var _ env.I_IniConfig = instance
+	var _ env.InterfaceIniConfig = instance
 
 	instance.iniFileValues = make(map[string]map[string]string)
 	instance.keysToStore = make(map[string]bool)
@@ -94,31 +94,31 @@ func (it *DefaultIniConfig) appEndEvent() error {
 func (it *DefaultIniConfig) appInitEvent() error {
 
 	// checking for environment variable for ini location
-	iniFilePath := os.Getenv(ENVIRONMENT_INI_FILE)
+	iniFilePath := os.Getenv(ConstEnvironmentIniFile)
 	if iniFilePath == "" {
-		iniFilePath = DEFAULT_INI_FILE
+		iniFilePath = ConstDefaultIniFile
 	}
 	it.iniFilePath = iniFilePath
 
-	it.currentSection = INI_GLOBAL_SECTION
-	it.iniFileValues[INI_GLOBAL_SECTION] = make(map[string]string)
+	it.currentSection = ConstIniGlobalSection
+	it.iniFileValues[ConstIniGlobalSection] = make(map[string]string)
 
-	if envSectionName := os.Getenv(ENVIRONMENT_INI_SECTION); envSectionName != "" {
+	if envSectionName := os.Getenv(ConstEnvironmentIniSection); envSectionName != "" {
 		it.currentSection = envSectionName
 	}
 
 	// checking command line args for additional parameters
 	for _, arg := range os.Args {
-		if arg == CMD_ARG_STORE_ALL_FLAG {
+		if arg == ConstCmdArgStoreAllFlag {
 			it.storeAll = true
 		}
 
-		if arg == CMD_ARG_TEST_FLAG {
-			it.currentSection = TEST_SECTION_NAME
+		if arg == ConstCmdArgTestFlag {
+			it.currentSection = ConstTestSectionName
 		}
 
-		if strings.HasPrefix(arg, CMD_ARG_SECTION_NAME) {
-			argValue := strings.TrimPrefix(arg, CMD_ARG_SECTION_NAME)
+		if strings.HasPrefix(arg, ConstCmdArgSectionName) {
+			argValue := strings.TrimPrefix(arg, ConstCmdArgSectionName)
 			it.currentSection = argValue
 		}
 	}

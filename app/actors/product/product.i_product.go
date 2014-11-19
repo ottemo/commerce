@@ -181,9 +181,9 @@ func (it *DefaultProduct) GetRelatedProductIds() []string {
 }
 
 // GetRelatedProducts will return an array of related products
-func (it *DefaultProduct) GetRelatedProducts() []product.I_Product {
-	// result := make([]product.I_Product, 0)
-	var result []product.I_Product
+func (it *DefaultProduct) GetRelatedProducts() []product.InterfaceProduct {
+	// result := make([]product.InterfaceProduct, 0)
+	var result []product.InterfaceProduct
 
 	for _, productID := range it.RelatedProductIds {
 		if productID == "" {

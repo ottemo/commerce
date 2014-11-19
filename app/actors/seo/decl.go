@@ -3,8 +3,8 @@ package seo
 
 // Package global constants
 const (
-	COLLECTION_NAME_URL_REWRITES = "url_rewrites"
+	ConstCollectionNameURLRewrites = "url_rewrites"
 
-	SITEMAP_FILE_PATH  = "sitemap.xml"
-	SITEMAP_EXPIRE_SEC = 60 * 60 * 24
+	ConstSitemapFilePath  = "sitemap.xml"
+	ConstSitemapExpireSec = 60 * 60 * 24
 )

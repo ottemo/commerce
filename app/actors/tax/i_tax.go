@@ -17,9 +17,9 @@ func (it *DefaultTax) GetCode() string {
 }
 
 // processRecords processes records from database collection
-func processRecords(name string, records []map[string]interface{}, result []checkout.T_TaxRate) []checkout.T_TaxRate {
+func processRecords(name string, records []map[string]interface{}, result []checkout.StructTaxRate) []checkout.StructTaxRate {
 	for _, record := range records {
-		taxRate := checkout.T_TaxRate{
+		taxRate := checkout.StructTaxRate{
 			Name:   name,
 			Code:   utils.InterfaceToString(record["code"]),
 			Amount: utils.InterfaceToFloat64(record["rate"]),
@@ -32,8 +32,8 @@ func processRecords(name string, records []map[string]interface{}, result []chec
 }
 
 // CalculateTax calculates a taxes for a given checkout
-func (it *DefaultTax) CalculateTax(currentCheckout checkout.I_Checkout) []checkout.T_TaxRate {
-	result := make([]checkout.T_TaxRate, 0)
+func (it *DefaultTax) CalculateTax(currentCheckout checkout.InterfaceCheckout) []checkout.StructTaxRate {
+	result := make([]checkout.StructTaxRate, 0)
 
 	if shippingAddress := currentCheckout.GetShippingAddress(); shippingAddress != nil {
 		state := shippingAddress.GetState()

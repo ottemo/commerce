@@ -18,7 +18,7 @@ func (it *DefaultCategory) SetId(NewId string) error {
 func (it *DefaultCategory) Load(Id string) error {
 
 	// loading category
-	categoryCollection, err := db.GetCollection(COLLECTION_NAME_CATEGORY)
+	categoryCollection, err := db.GetCollection(ConstCollectionNameCategory)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -36,7 +36,7 @@ func (it *DefaultCategory) Load(Id string) error {
 	it.updatePath()
 
 	// loading category product ids
-	junctionCollection, err := db.GetCollection(COLLECTION_NAME_CATEGORY_PRODUCT_JUNCTION)
+	junctionCollection, err := db.GetCollection(ConstCollectionNameCategoryProductJunction)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -56,7 +56,7 @@ func (it *DefaultCategory) Load(Id string) error {
 
 func (it *DefaultCategory) Delete() error {
 	//deleting category products join
-	junctionCollection, err := db.GetCollection(COLLECTION_NAME_CATEGORY_PRODUCT_JUNCTION)
+	junctionCollection, err := db.GetCollection(ConstCollectionNameCategoryProductJunction)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -72,7 +72,7 @@ func (it *DefaultCategory) Delete() error {
 	}
 
 	// deleting category
-	categoryCollection, err := db.GetCollection(COLLECTION_NAME_CATEGORY)
+	categoryCollection, err := db.GetCollection(ConstCollectionNameCategory)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -91,7 +91,7 @@ func (it *DefaultCategory) Save() error {
 
 	delete(storingValues, "products")
 
-	categoryCollection, err := db.GetCollection(COLLECTION_NAME_CATEGORY)
+	categoryCollection, err := db.GetCollection(ConstCollectionNameCategory)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -108,7 +108,7 @@ func (it *DefaultCategory) Save() error {
 	}
 
 	// saving category products assignment
-	junctionCollection, err := db.GetCollection(COLLECTION_NAME_CATEGORY_PRODUCT_JUNCTION)
+	junctionCollection, err := db.GetCollection(ConstCollectionNameCategoryProductJunction)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}

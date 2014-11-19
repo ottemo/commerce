@@ -21,34 +21,34 @@ import (
 
 // GetName returns payment method name
 func (it *AuthorizeNetDPM) GetName() string {
-	return utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_DPM_TITLE))
+	return utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathDPMTitle))
 }
 
 // GetCode returns payment method code
 func (it *AuthorizeNetDPM) GetCode() string {
-	return PAYMENT_CODE_DPM
+	return ConstPaymentCodeDPM
 }
 
 // GetType returns type of payment method
 func (it *AuthorizeNetDPM) GetType() string {
-	return checkout.PAYMENT_TYPE_POST_CC
+	return checkout.ConstPaymentTypePostCC
 }
 
 // IsAllowed checks for method applicability
-func (it *AuthorizeNetDPM) IsAllowed(checkoutInstance checkout.I_Checkout) bool {
-	return utils.InterfaceToBool(env.ConfigGetValue(CONFIG_PATH_DPM_ENABLED))
+func (it *AuthorizeNetDPM) IsAllowed(checkoutInstance checkout.InterfaceCheckout) bool {
+	return utils.InterfaceToBool(env.ConfigGetValue(ConstConfigPathDPMEnabled))
 }
 
 // Authorize makes payment method authorize operation
-func (it *AuthorizeNetDPM) Authorize(orderInstance order.I_Order, paymentInfo map[string]interface{}) (interface{}, error) {
+func (it *AuthorizeNetDPM) Authorize(orderInstance order.InterfaceOrder, paymentInfo map[string]interface{}) (interface{}, error) {
 
 	// crypting fingerprint
 	//---------------------
-	loginID := utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_DPM_LOGIN))
+	loginID := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathDPMLogin))
 	sequence := fmt.Sprintf("%d", rand.Intn(999)+1)
 	timeStamp := fmt.Sprintf("%d", time.Now().Unix())
 	amount := fmt.Sprintf("%0.0f", orderInstance.GetGrandTotal())
-	transactionKey := []byte(utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_DPM_KEY)))
+	transactionKey := []byte(utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathDPMKey)))
 
 	hmacEncoder := hmac.New(md5.New, transactionKey)
 	hmacEncoder.Write([]byte(loginID + "^" + sequence + "^" + timeStamp + "^" + amount + "^USD"))
@@ -60,10 +60,10 @@ func (it *AuthorizeNetDPM) Authorize(orderInstance order.I_Order, paymentInfo ma
 	// preparing post form values
 	//---------------------------
 	formValues := map[string]string{
-		"x_relay_response": utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_DPM_CHECKOUT)),
-		"x_relay_url":      utils.InterfaceToString(env.ConfigGetValue(app.CONFIG_PATH_FOUNDATION_URL)) + "authorizenet/relay",
+		"x_relay_response": utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathDPMCheckout)),
+		"x_relay_url":      utils.InterfaceToString(env.ConfigGetValue(app.ConstConfigPathFoundationURL)) + "authorizenet/relay",
 
-		"x_test_request": utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_DPM_TEST)),
+		"x_test_request": utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathDPMTest)),
 
 		"x_fp_sequence":  sequence,
 		"x_fp_timestamp": timeStamp,
@@ -72,7 +72,7 @@ func (it *AuthorizeNetDPM) Authorize(orderInstance order.I_Order, paymentInfo ma
 		"x_amount": amount,
 
 		"x_login":         loginID,
-		"x_type":          utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_DPM_ACTION)),
+		"x_type":          utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathDPMAction)),
 		"x_method":        "CC",
 		"x_currency_code": "USD",
 
@@ -105,7 +105,7 @@ func (it *AuthorizeNetDPM) Authorize(orderInstance order.I_Order, paymentInfo ma
 
 	// generating post form
 	//---------------------
-	gateway := utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_DPM_GATEWAY))
+	gateway := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathDPMGateway))
 
 	htmlText := "<form method='post' action='" + gateway + "'>"
 	for key, value := range formValues {
@@ -114,24 +114,24 @@ func (it *AuthorizeNetDPM) Authorize(orderInstance order.I_Order, paymentInfo ma
 	htmlText += "<input type='submit' value='Submit' />"
 	htmlText += "</form>"
 
-	env.Log("authorizenet.log", env.LOG_PREFIX_INFO, "NEW TRANSACTION: "+
+	env.Log("authorizenet.log", env.ConstLogPrefixInfo, "NEW TRANSACTION: "+
 		"Visitor ID - "+utils.InterfaceToString(orderInstance.Get("visitor_id"))+", "+
 		"Order ID - "+utils.InterfaceToString(orderInstance.GetId()))
 
-	return api.T_RestRedirect{Result: htmlText, Location: utils.InterfaceToString(env.ConfigGetValue(app.CONFIG_PATH_FOUNDATION_URL)) + "authorizenet/relay"}, nil
+	return api.StructRestRedirect{Result: htmlText, Location: utils.InterfaceToString(env.ConfigGetValue(app.ConstConfigPathFoundationURL)) + "authorizenet/relay"}, nil
 }
 
 // Capture makes payment method capture operation
-func (it *AuthorizeNetDPM) Capture(orderInstance order.I_Order, paymentInfo map[string]interface{}) (interface{}, error) {
+func (it *AuthorizeNetDPM) Capture(orderInstance order.InterfaceOrder, paymentInfo map[string]interface{}) (interface{}, error) {
 	return nil, env.ErrorNew("Not implemented")
 }
 
 // Refund will return funds on the given order :: Not Implemented Yet
-func (it *AuthorizeNetDPM) Refund(orderInstance order.I_Order, paymentInfo map[string]interface{}) (interface{}, error) {
+func (it *AuthorizeNetDPM) Refund(orderInstance order.InterfaceOrder, paymentInfo map[string]interface{}) (interface{}, error) {
 	return nil, env.ErrorNew("Not implemented")
 }
 
 // Void will mark the order and capture as void
-func (it *AuthorizeNetDPM) Void(orderInstance order.I_Order, paymentInfo map[string]interface{}) (interface{}, error) {
+func (it *AuthorizeNetDPM) Void(orderInstance order.InterfaceOrder, paymentInfo map[string]interface{}) (interface{}, error) {
 	return nil, env.ErrorNew("Not implemented")
 }

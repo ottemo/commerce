@@ -9,17 +9,17 @@ import (
 
 // returns model name
 func (it *DefaultOrderCollection) GetModelName() string {
-	return order.MODEL_NAME_ORDER_COLLECTION
+	return order.ConstModelNameOrderCollection
 }
 
 // returns model implementation name
 func (it *DefaultOrderCollection) GetImplementationName() string {
-	return "Default" + order.MODEL_NAME_ORDER_COLLECTION
+	return "Default" + order.ConstModelNameOrderCollection
 }
 
 // returns new instance of model implementation object
-func (it *DefaultOrderCollection) New() (models.I_Model, error) {
-	dbCollection, err := db.GetCollection(COLLECTION_NAME_ORDER)
+func (it *DefaultOrderCollection) New() (models.InterfaceModel, error) {
+	dbCollection, err := db.GetCollection(ConstCollectionNameOrder)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}

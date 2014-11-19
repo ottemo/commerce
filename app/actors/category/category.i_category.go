@@ -16,7 +16,7 @@ func (it *DefaultCategory) GetProductIds() []string {
 	return it.ProductIds
 }
 
-func (it *DefaultCategory) GetProductsCollection() product.I_ProductCollection {
+func (it *DefaultCategory) GetProductsCollection() product.InterfaceProductCollection {
 	productCollection, err := product.GetProductCollectionModel()
 	if err != nil {
 		return nil
@@ -30,8 +30,8 @@ func (it *DefaultCategory) GetProductsCollection() product.I_ProductCollection {
 	return productCollection
 }
 
-func (it *DefaultCategory) GetProducts() []product.I_Product {
-	result := make([]product.I_Product, 0)
+func (it *DefaultCategory) GetProducts() []product.InterfaceProduct {
+	result := make([]product.InterfaceProduct, 0)
 
 	for _, productId := range it.ProductIds {
 		productModel, err := product.LoadProductById(productId)
@@ -43,7 +43,7 @@ func (it *DefaultCategory) GetProducts() []product.I_Product {
 	return result
 }
 
-func (it *DefaultCategory) GetParent() category.I_Category {
+func (it *DefaultCategory) GetParent() category.InterfaceCategory {
 	return it.Parent
 }
 
@@ -54,7 +54,7 @@ func (it *DefaultCategory) AddProduct(productId string) error {
 		return env.ErrorNew("Can't obtain DBEngine")
 	}
 
-	collection, err := dbEngine.GetCollection(COLLECTION_NAME_CATEGORY_PRODUCT_JUNCTION)
+	collection, err := dbEngine.GetCollection(ConstCollectionNameCategoryProductJunction)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -93,7 +93,7 @@ func (it *DefaultCategory) RemoveProduct(productId string) error {
 		return env.ErrorNew("Can't obtain DBEngine")
 	}
 
-	collection, err := dbEngine.GetCollection(COLLECTION_NAME_CATEGORY_PRODUCT_JUNCTION)
+	collection, err := dbEngine.GetCollection(ConstCollectionNameCategoryProductJunction)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}

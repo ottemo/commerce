@@ -24,7 +24,7 @@ func (it *DefaultRestService) GetName() string {
 }
 
 // RegisterAPI is available for modules to call in order to provide their own REST API functionality
-func (it *DefaultRestService) RegisterAPI(service string, method string, uri string, handler api.F_APIHandler) error {
+func (it *DefaultRestService) RegisterAPI(service string, method string, uri string, handler api.FuncAPIHandler) error {
 
 	// httprouter needs other type of handler that we using
 	wrappedHandler := func(resp http.ResponseWriter, req *http.Request, params httprouter.Params) {
@@ -110,7 +110,7 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 		}
 
 		// module handler callback
-		apiParams := new(api.T_APIHandlerParams)
+		apiParams := new(api.StructAPIHandlerParams)
 		apiParams.Request = req
 		apiParams.RequestURLParams = mappedParams
 		apiParams.RequestGETParams = urlGETParams
@@ -138,7 +138,7 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 
 		// result conversion before output
 		redirectLocation := ""
-		if redirect, ok := result.(api.T_RestRedirect); ok {
+		if redirect, ok := result.(api.StructRestRedirect); ok {
 			if redirect.DoRedirect {
 				resp.Header().Add("Location", redirect.Location)
 				resp.WriteHeader(301)

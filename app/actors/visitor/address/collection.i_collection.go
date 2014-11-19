@@ -9,8 +9,8 @@ import (
 )
 
 // List enumerates items of VisitorAddress model type
-func (it *DefaultVisitorAddressCollection) List() ([]models.T_ListItem, error) {
-	var result []models.T_ListItem
+func (it *DefaultVisitorAddressCollection) List() ([]models.StructListItem, error) {
+	var result []models.StructListItem
 
 	dbRecords, err := it.listCollection.Load()
 	if err != nil {
@@ -25,7 +25,7 @@ func (it *DefaultVisitorAddressCollection) List() ([]models.T_ListItem, error) {
 		visitorAddressModel.FromHashMap(dbRecordData)
 
 		// retrieving minimal data needed for list
-		resultItem := new(models.T_ListItem)
+		resultItem := new(models.StructListItem)
 
 		resultItem.Id = visitorAddressModel.GetId()
 		resultItem.Name = visitorAddressModel.GetZipCode() + " " + visitorAddressModel.GetState() + ", " +

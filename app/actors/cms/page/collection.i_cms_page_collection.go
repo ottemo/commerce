@@ -6,13 +6,13 @@ import (
 )
 
 // returns database collection
-func (it *DefaultCMSPageCollection) GetDBCollection() db.I_DBCollection {
+func (it *DefaultCMSPageCollection) GetDBCollection() db.InterfaceDBCollection {
 	return it.listCollection
 }
 
 // returns list of cms page model items
-func (it *DefaultCMSPageCollection) ListCMSPages() []cms.I_CMSPage {
-	result := make([]cms.I_CMSPage, 0)
+func (it *DefaultCMSPageCollection) ListCMSPages() []cms.InterfaceCMSPage {
+	result := make([]cms.InterfaceCMSPage, 0)
 
 	dbRecords, err := it.listCollection.Load()
 	if err != nil {

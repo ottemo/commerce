@@ -21,11 +21,11 @@ func (it *DefaultConfig) ListPathes() []string {
 }
 
 // registers new config value in system
-func (it *DefaultConfig) RegisterItem(Item env.T_ConfigItem, Validator env.F_ConfigValueValidator) error {
+func (it *DefaultConfig) RegisterItem(Item env.StructConfigItem, Validator env.FuncConfigValueValidator) error {
 
 	if _, present := it.configValues[Item.Path]; !present {
 
-		collection, err := db.GetCollection(CONFIG_COLLECTION_NAME)
+		collection, err := db.GetCollection(ConstConfigCollectionName)
 		if err != nil {
 			return env.ErrorDispatch(err)
 		}
@@ -61,7 +61,7 @@ func (it *DefaultConfig) UnregisterItem(Path string) error {
 
 	if _, present := it.configValues[Path]; present {
 
-		collection, err := db.GetCollection(CONFIG_COLLECTION_NAME)
+		collection, err := db.GetCollection(ConstConfigCollectionName)
 		if err != nil {
 			return env.ErrorDispatch(err)
 		}
@@ -111,7 +111,7 @@ func (it *DefaultConfig) SetValue(Path string, Value interface{}) error {
 
 		// updating value in DB
 		//---------------------
-		collection, err := db.GetCollection(CONFIG_COLLECTION_NAME)
+		collection, err := db.GetCollection(ConstConfigCollectionName)
 		if err != nil {
 			return env.ErrorDispatch(err)
 		}
@@ -146,17 +146,17 @@ func (it *DefaultConfig) SetValue(Path string, Value interface{}) error {
 	return nil
 }
 
-// returns information about config items with type [CONFIG_ITEM_GROUP_TYPE]
-func (it *DefaultConfig) GetGroupItems() []env.T_ConfigItem {
+// returns information about config items with type [ConstConfigItemGroupType]
+func (it *DefaultConfig) GetGroupItems() []env.StructConfigItem {
 
-	result := make([]env.T_ConfigItem, 0)
+	result := make([]env.StructConfigItem, 0)
 
-	collection, err := db.GetCollection(CONFIG_COLLECTION_NAME)
+	collection, err := db.GetCollection(ConstConfigCollectionName)
 	if err != nil {
 		return result
 	}
 
-	err = collection.AddFilter("type", "=", env.CONFIG_ITEM_GROUP_TYPE)
+	err = collection.AddFilter("type", "=", env.ConstConfigItemGroupType)
 	if err != nil {
 		return result
 	}
@@ -168,7 +168,7 @@ func (it *DefaultConfig) GetGroupItems() []env.T_ConfigItem {
 
 	for _, record := range records {
 
-		configItem := env.T_ConfigItem{
+		configItem := env.StructConfigItem{
 			Path:  utils.InterfaceToString(record["path"]),
 			Value: record["value"],
 
@@ -192,10 +192,10 @@ func (it *DefaultConfig) GetGroupItems() []env.T_ConfigItem {
 
 // returns information about config items with given path
 // 	- use '*' to list sub-items (like "paypal.*" or "paypal*" if group item also needed)
-func (it *DefaultConfig) GetItemsInfo(Path string) []env.T_ConfigItem {
-	result := make([]env.T_ConfigItem, 0)
+func (it *DefaultConfig) GetItemsInfo(Path string) []env.StructConfigItem {
+	result := make([]env.StructConfigItem, 0)
 
-	collection, err := db.GetCollection(CONFIG_COLLECTION_NAME)
+	collection, err := db.GetCollection(ConstConfigCollectionName)
 	if err != nil {
 		return result
 	}
@@ -212,7 +212,7 @@ func (it *DefaultConfig) GetItemsInfo(Path string) []env.T_ConfigItem {
 
 	for _, record := range records {
 
-		configItem := env.T_ConfigItem{
+		configItem := env.StructConfigItem{
 			Path:  utils.InterfaceToString(record["path"]),
 			Value: record["value"],
 
@@ -256,7 +256,7 @@ func (it *DefaultConfig) Reload() error {
 	it.configValues = make(map[string]interface{})
 	it.configTypes = make(map[string]string)
 
-	collection, err := db.GetCollection(CONFIG_COLLECTION_NAME)
+	collection, err := db.GetCollection(ConstConfigCollectionName)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}

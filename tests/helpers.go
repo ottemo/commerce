@@ -18,7 +18,7 @@ import (
 )
 
 // returns visitor object with randomly filled data
-func GetRandomVisitor() (visitor.I_Visitor, error) {
+func GetRandomVisitor() (visitor.InterfaceVisitor, error) {
 	randomVisitor, err := visitor.GetVisitorModel()
 	if err != nil {
 		return nil, err
@@ -61,7 +61,7 @@ func GetRandomVisitor() (visitor.I_Visitor, error) {
 }
 
 // returns new checkout object with assigned new session, and cart to it
-func GetNewCheckout(checkoutVisitor visitor.I_Visitor) (checkout.I_Checkout, error) {
+func GetNewCheckout(checkoutVisitor visitor.InterfaceVisitor) (checkout.InterfaceCheckout, error) {
 	newSession, err := session.NewSession()
 	if err != nil {
 		return nil, err
@@ -100,7 +100,7 @@ func GetNewCheckout(checkoutVisitor visitor.I_Visitor) (checkout.I_Checkout, err
 }
 
 // adding n count products to checkout cart
-func AddRandomProductsToCart(currentCheckout checkout.I_Checkout, n int) error {
+func AddRandomProductsToCart(currentCheckout checkout.InterfaceCheckout, n int) error {
 	if n <= 0 {
 		return nil
 	}
@@ -161,7 +161,7 @@ func AddRandomProductsToCart(currentCheckout checkout.I_Checkout, n int) error {
 }
 
 // sets shipping and billing addresses for checkout object
-func RandomizeShippingAndBillingAddresses(currentCheckout checkout.I_Checkout) error {
+func RandomizeShippingAndBillingAddresses(currentCheckout checkout.InterfaceCheckout) error {
 	currentVisitor := currentCheckout.GetVisitor()
 	if currentVisitor == nil {
 		return errors.New("visitor for checkout is not set")
@@ -222,7 +222,7 @@ func RandomizeShippingAndBillingAddresses(currentCheckout checkout.I_Checkout) e
 }
 
 // sets check money order payment method and flat rate shipping method to checkout
-func UpdateShippingAndPaymentMethods(currentCheckout checkout.I_Checkout) error {
+func UpdateShippingAndPaymentMethods(currentCheckout checkout.InterfaceCheckout) error {
 	found := false
 	for _, shippingMethod := range checkout.GetRegisteredShippingMethods() {
 		if shippingMethod.GetCode() == "flat_rate" {

@@ -10,12 +10,12 @@ import (
 
 // Package global constants
 const (
-	CART_MODEL_NAME          = "Cart"
-	SESSION_KEY_CURRENT_CART = "cart_id"
+	ConstCartModelName         = "Cart"
+	ConstSessionKeyCurrentCart = "cart_id"
 )
 
-// I_CartItem represents interface to access business layer implementation of cart item object
-type I_CartItem interface {
+// InterfaceCartItem represents interface to access business layer implementation of cart item object
+type InterfaceCartItem interface {
 	GetId() string
 	SetId(newId string) error
 
@@ -23,7 +23,7 @@ type I_CartItem interface {
 	SetIdx(newIdx int) error
 
 	GetProductId() string
-	GetProduct() product.I_Product
+	GetProduct() product.InterfaceProduct
 
 	GetQty() int
 	SetQty(qty int) error
@@ -31,24 +31,24 @@ type I_CartItem interface {
 	GetOptions() map[string]interface{}
 	SetOption(optionName string, optionValue interface{}) error
 
-	GetCart() I_Cart
+	GetCart() InterfaceCart
 }
 
-// I_Cart represents interface to access business layer implementation of cart object
-type I_Cart interface {
-	AddItem(productId string, qty int, options map[string]interface{}) (I_CartItem, error)
+// InterfaceCart represents interface to access business layer implementation of cart object
+type InterfaceCart interface {
+	AddItem(productId string, qty int, options map[string]interface{}) (InterfaceCartItem, error)
 
 	RemoveItem(itemIdx int) error
 
 	SetQty(itemIdx int, qty int) error
 
-	GetItems() []I_CartItem
+	GetItems() []InterfaceCartItem
 	GetSubtotal() float64
 
 	GetVisitorId() string
 	SetVisitorId(string) error
 
-	GetVisitor() visitor.I_Visitor
+	GetVisitor() visitor.InterfaceVisitor
 
 	Activate() error
 	Deactivate() error
@@ -60,6 +60,6 @@ type I_Cart interface {
 	SetCartInfo(infoAttribute string, infoValue interface{}) error
 	GetCartInfo() map[string]interface{}
 
-	models.I_Model
-	models.I_Storable
+	models.InterfaceModel
+	models.InterfaceStorable
 }

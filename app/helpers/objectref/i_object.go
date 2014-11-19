@@ -59,14 +59,14 @@ func (it *DBObjectRef) ToHashMap() map[string]interface{} {
 
 // returns stub information about current object attributes
 //   - if you using this helper you should rewrite this function in your class
-func (it *DBObjectRef) GetAttributesInfo() []models.T_AttributeInfo {
+func (it *DBObjectRef) GetAttributesInfo() []models.StructAttributeInfo {
 
-	result := []models.T_AttributeInfo{}
+	result := []models.StructAttributeInfo{}
 
 	if it.currData != nil {
 		for attribute, _ := range it.currData {
 			result = append(result,
-				models.T_AttributeInfo{
+				models.StructAttributeInfo{
 					Model:      "",
 					Collection: "",
 					Attribute:  attribute,

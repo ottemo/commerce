@@ -6,10 +6,10 @@ import (
 
 // init makes package self-initialization routine
 func init() {
-	instance := &DefaultErrorBus{listeners: make([]env.F_ErrorListener, 0)}
-	var _ env.I_ErrorBus = instance
+	instance := &DefaultErrorBus{listeners: make([]env.FuncErrorListener, 0)}
+	var _ env.InterfaceErrorBus = instance
 
-	var _ env.I_OttemoError = new(OttemoError)
+	var _ env.InterfaceOttemoError = new(OttemoError)
 
 	env.RegisterErrorBus(instance)
 }

@@ -9,8 +9,8 @@ import (
 func setupConfig() error {
 	config := env.GetConfig()
 
-	config.RegisterItem(env.T_ConfigItem{
-		Path:        CONFIG_PATH_LAST_INCREMENT_ID,
+	config.RegisterItem(env.StructConfigItem{
+		Path:        ConstConfigPathLastIncrementID,
 		Value:       0,
 		Type:        "int",
 		Editor:      "integer",
@@ -23,7 +23,7 @@ func setupConfig() error {
 			return utils.InterfaceToInt(value), nil
 		})
 
-	lastIncrementId = utils.InterfaceToInt(config.GetValue(CONFIG_PATH_LAST_INCREMENT_ID))
+	lastIncrementId = utils.InterfaceToInt(config.GetValue(ConstConfigPathLastIncrementID))
 
 	return nil
 }

@@ -13,7 +13,7 @@ import (
 func parseErrorMessage(message string) *OttemoError {
 	resultError := new(OttemoError)
 
-	reResult := MSG_REGEXP.FindStringSubmatch(message)
+	reResult := ConstMsgRegexp.FindStringSubmatch(message)
 
 	if level, err := strconv.ParseInt(reResult[1], 10, 64); err == nil {
 		resultError.Level = int(level)
@@ -29,7 +29,7 @@ func parseErrorMessage(message string) *OttemoError {
 	}
 
 	// primitive stack trace
-	if COLLECT_STACK {
+	if ConstCollectStack {
 		cutStopFlag := false
 		skip := 0
 		_, file, line, ok := runtime.Caller(skip)
@@ -72,7 +72,7 @@ func (it *DefaultErrorBus) GetErrorMessage(err error) string {
 }
 
 // registers error listener
-func (it *DefaultErrorBus) RegisterListener(listener env.F_ErrorListener) {
+func (it *DefaultErrorBus) RegisterListener(listener env.FuncErrorListener) {
 	it.listeners = append(it.listeners, listener)
 }
 

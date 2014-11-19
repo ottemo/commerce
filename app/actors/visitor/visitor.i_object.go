@@ -77,7 +77,7 @@ func (it *DefaultVisitor) Set(attribute string, value interface{}) error {
 	case "billing_address_id", "shipping_address_id":
 		value := utils.InterfaceToString(value)
 
-		var address visitor.I_VisitorAddress
+		var address visitor.InterfaceVisitorAddress
 		var err error
 
 		if value != "" {
@@ -102,16 +102,16 @@ func (it *DefaultVisitor) Set(attribute string, value interface{}) error {
 		switch typedValue := value.(type) {
 
 		// we have already have structure
-		case visitor.I_VisitorAddress:
+		case visitor.InterfaceVisitorAddress:
 			if attribute == "billing_address" {
 				it.BillingAddress = typedValue
 			} else {
 				it.ShippingAddress = typedValue
 			}
 
-		// we have sub-map, supposedly I_VisitorAddress capable
+		// we have sub-map, supposedly InterfaceVisitorAddress capable
 		case map[string]interface{}:
-			var addressModel visitor.I_VisitorAddress = nil
+			var addressModel visitor.InterfaceVisitorAddress = nil
 			var err error = nil
 
 			if len(typedValue) != 0 {
@@ -190,12 +190,12 @@ func (it *DefaultVisitor) ToHashMap() map[string]interface{} {
 }
 
 // GetAttributesInfo returns the Visitor attributes information in an array
-func (it *DefaultVisitor) GetAttributesInfo() []models.T_AttributeInfo {
+func (it *DefaultVisitor) GetAttributesInfo() []models.StructAttributeInfo {
 
-	result := []models.T_AttributeInfo{
-		models.T_AttributeInfo{
-			Model:      visitor.MODEL_NAME_VISITOR,
-			Collection: COLLECTION_NAME_VISITOR,
+	result := []models.StructAttributeInfo{
+		models.StructAttributeInfo{
+			Model:      visitor.ConstModelNameVisitor,
+			Collection: ConstCollectionNameVisitor,
 			Attribute:  "_id",
 			Type:       "id",
 			IsRequired: false,
@@ -206,9 +206,9 @@ func (it *DefaultVisitor) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
-			Model:      visitor.MODEL_NAME_VISITOR,
-			Collection: COLLECTION_NAME_VISITOR,
+		models.StructAttributeInfo{
+			Model:      visitor.ConstModelNameVisitor,
+			Collection: ConstCollectionNameVisitor,
 			Attribute:  "email",
 			Type:       "text",
 			IsRequired: true,
@@ -219,9 +219,9 @@ func (it *DefaultVisitor) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
-			Model:      visitor.MODEL_NAME_VISITOR,
-			Collection: COLLECTION_NAME_VISITOR,
+		models.StructAttributeInfo{
+			Model:      visitor.ConstModelNameVisitor,
+			Collection: ConstCollectionNameVisitor,
 			Attribute:  "first_name",
 			Type:       "text",
 			IsRequired: true,
@@ -232,9 +232,9 @@ func (it *DefaultVisitor) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
-			Model:      visitor.MODEL_NAME_VISITOR,
-			Collection: COLLECTION_NAME_VISITOR,
+		models.StructAttributeInfo{
+			Model:      visitor.ConstModelNameVisitor,
+			Collection: ConstCollectionNameVisitor,
 			Attribute:  "last_name",
 			Type:       "text",
 			IsRequired: true,
@@ -245,9 +245,9 @@ func (it *DefaultVisitor) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
-			Model:      visitor.MODEL_NAME_VISITOR,
-			Collection: COLLECTION_NAME_VISITOR,
+		models.StructAttributeInfo{
+			Model:      visitor.ConstModelNameVisitor,
+			Collection: ConstCollectionNameVisitor,
 			Attribute:  "password",
 			Type:       "text",
 			IsRequired: false,
@@ -258,9 +258,9 @@ func (it *DefaultVisitor) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
-			Model:      visitor.MODEL_NAME_VISITOR,
-			Collection: COLLECTION_NAME_VISITOR,
+		models.StructAttributeInfo{
+			Model:      visitor.ConstModelNameVisitor,
+			Collection: ConstCollectionNameVisitor,
 			Attribute:  "billing_address_id",
 			Type:       "text",
 			IsRequired: false,
@@ -271,9 +271,9 @@ func (it *DefaultVisitor) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "model=VisitorAddress",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
-			Model:      visitor.MODEL_NAME_VISITOR,
-			Collection: COLLECTION_NAME_VISITOR,
+		models.StructAttributeInfo{
+			Model:      visitor.ConstModelNameVisitor,
+			Collection: ConstCollectionNameVisitor,
 			Attribute:  "shipping_address_id",
 			Type:       "text",
 			IsRequired: false,
@@ -284,9 +284,9 @@ func (it *DefaultVisitor) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "model:VisitorAddress",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
-			Model:      visitor.MODEL_NAME_VISITOR,
-			Collection: COLLECTION_NAME_VISITOR,
+		models.StructAttributeInfo{
+			Model:      visitor.ConstModelNameVisitor,
+			Collection: ConstCollectionNameVisitor,
 			Attribute:  "birthday",
 			Type:       "datetime",
 			IsRequired: false,
@@ -297,9 +297,9 @@ func (it *DefaultVisitor) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
-			Model:      visitor.MODEL_NAME_VISITOR,
-			Collection: COLLECTION_NAME_VISITOR,
+		models.StructAttributeInfo{
+			Model:      visitor.ConstModelNameVisitor,
+			Collection: ConstCollectionNameVisitor,
 			Attribute:  "created_at",
 			Type:       "datetime",
 			IsRequired: false,
@@ -310,9 +310,9 @@ func (it *DefaultVisitor) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
-			Model:      visitor.MODEL_NAME_VISITOR,
-			Collection: COLLECTION_NAME_VISITOR,
+		models.StructAttributeInfo{
+			Model:      visitor.ConstModelNameVisitor,
+			Collection: ConstCollectionNameVisitor,
 			Attribute:  "is_admin",
 			Type:       "bool",
 			IsRequired: true,

@@ -26,14 +26,14 @@ func (it *PayPalRest) GetCode() string {
 }
 
 func (it *PayPalRest) GetType() string {
-	return checkout.PAYMENT_TYPE_CREDIT_CARD
+	return checkout.ConstPaymentTypeCreditCard
 }
 
-func (it *PayPalRest) IsAllowed(checkoutInstance checkout.I_Checkout) bool {
+func (it *PayPalRest) IsAllowed(checkoutInstance checkout.InterfaceCheckout) bool {
 	return true
 }
 
-func (it *PayPalRest) Authorize(checkoutInstance checkout.I_Checkout) error {
+func (it *PayPalRest) Authorize(checkoutInstance checkout.InterfaceCheckout) error {
 
 	ccInfo := utils.InterfaceToMap(checkoutInstance.GetInfo("cc"))
 	if !utils.StrKeysInMap(ccInfo, "type", "number", "expire_month", "expire_year", "cvv") {
@@ -160,20 +160,20 @@ func (it *PayPalRest) Authorize(checkoutInstance checkout.I_Checkout) error {
 	return nil
 }
 
-func (it *PayPalRest) Capture(checkoutInstance checkout.I_Checkout) error {
+func (it *PayPalRest) Capture(checkoutInstance checkout.InterfaceCheckout) error {
 	return nil
 }
 
-func (it *PayPalRest) Refund(checkoutInstance checkout.I_Checkout) error {
+func (it *PayPalRest) Refund(checkoutInstance checkout.InterfaceCheckout) error {
 	return nil
 }
 
-func (it *PayPalRest) Void(checkoutInstance checkout.I_Checkout) error {
+func (it *PayPalRest) Void(checkoutInstance checkout.InterfaceCheckout) error {
 	return nil
 }
 
 // returns application access token needed for all other requests
-func (it *PayPalRest) GetAccessToken(checkoutInstance checkout.I_Checkout) (string, error) {
+func (it *PayPalRest) GetAccessToken(checkoutInstance checkout.InterfaceCheckout) (string, error) {
 
 	body := "grant_type=client_credentials"
 

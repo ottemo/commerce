@@ -21,11 +21,11 @@ func (it *CustomAttributes) Init(model string, collection string) (*CustomAttrib
 		it.attributes = globalCustomAttributes[model]
 	} else {
 
-		it.attributes = make(map[string]models.T_AttributeInfo)
+		it.attributes = make(map[string]models.StructAttributeInfo)
 
 		// retrieving information from DB
 		//-------------------------------
-		customAttributesCollection, err := db.GetCollection(COLLECTION_NAME_CUSTOM_ATTRIBUTES)
+		customAttributesCollection, err := db.GetCollection(ConstCollectionNameCustomAttributes)
 		if err != nil {
 			return it, env.ErrorNew("Can't get collection 'custom_attributes': " + err.Error())
 		}
@@ -40,7 +40,7 @@ func (it *CustomAttributes) Init(model string, collection string) (*CustomAttrib
 		// filling attribute info structure
 		//---------------------------------
 		for _, row := range dbValues {
-			attribute := models.T_AttributeInfo{}
+			attribute := models.StructAttributeInfo{}
 
 			for key, value := range row {
 				switch key {
@@ -91,9 +91,9 @@ func (it *CustomAttributes) RemoveAttribute(attributeName string) error {
 		return env.ErrorNew("There is no attribute '" + attributeName + "' for model '" + it.model + "'")
 	}
 
-	customAttributesCollection, err := db.GetCollection(COLLECTION_NAME_CUSTOM_ATTRIBUTES)
+	customAttributesCollection, err := db.GetCollection(ConstCollectionNameCustomAttributes)
 	if err != nil {
-		return env.ErrorNew("Can't get collection '" + COLLECTION_NAME_CUSTOM_ATTRIBUTES + "': " + err.Error())
+		return env.ErrorNew("Can't get collection '" + ConstCollectionNameCustomAttributes + "': " + err.Error())
 	}
 
 	modelCollection, err := db.GetCollection(customAttribute.Collection)
@@ -121,16 +121,16 @@ func (it *CustomAttributes) RemoveAttribute(attributeName string) error {
 }
 
 // extends collection with new custom attribute
-func (it *CustomAttributes) AddNewAttribute(newAttribute models.T_AttributeInfo) error {
+func (it *CustomAttributes) AddNewAttribute(newAttribute models.StructAttributeInfo) error {
 
 	if _, present := it.attributes[newAttribute.Attribute]; present {
 		return env.ErrorNew("There is already atribute '" + newAttribute.Attribute + "' for model '" + it.model + "'")
 	}
 
 	// getting collection where custom attribute information stores
-	customAttribuesCollection, err := db.GetCollection(COLLECTION_NAME_CUSTOM_ATTRIBUTES)
+	customAttribuesCollection, err := db.GetCollection(ConstCollectionNameCustomAttributes)
 	if err != nil {
-		return env.ErrorNew("Can't get collection '" + COLLECTION_NAME_CUSTOM_ATTRIBUTES + "': " + err.Error())
+		return env.ErrorNew("Can't get collection '" + ConstCollectionNameCustomAttributes + "': " + err.Error())
 	}
 
 	// getting collection where attribute supposed to be

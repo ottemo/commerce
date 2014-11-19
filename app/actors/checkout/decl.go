@@ -6,7 +6,7 @@ import (
 	"github.com/ottemo/foundation/app/models/checkout"
 )
 
-// DefaultCheckout is a default implementer of I_Checkout
+// DefaultCheckout is a default implementer of InterfaceCheckout
 type DefaultCheckout struct {
 	CartId    string
 	VisitorId string
@@ -20,10 +20,10 @@ type DefaultCheckout struct {
 	PaymentMethodCode  string
 	ShippingMethodCode string
 
-	ShippingRate checkout.T_ShippingRate
+	ShippingRate checkout.StructShippingRate
 
-	Taxes     []checkout.T_TaxRate
-	Discounts []checkout.T_Discount
+	Taxes     []checkout.StructTaxRate
+	Discounts []checkout.StructDiscount
 
 	Info map[string]interface{}
 

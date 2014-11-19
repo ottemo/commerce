@@ -6,8 +6,8 @@ import (
 
 // Package global variables
 var (
-	currentDBEngine          I_DBEngine = nil              // currently registered database service in system
-	callbacksOnDatabaseStart            = []func() error{} // set of callback function on database service start
+	currentDBEngine          InterfaceDBEngine = nil              // currently registered database service in system
+	callbacksOnDatabaseStart                   = []func() error{} // set of callback function on database service start
 )
 
 // registers new callback on database service start
@@ -27,7 +27,7 @@ func OnDatabaseStart() error {
 
 // registers database service in the system
 //   - will cause error if there are couple candidates for that role
-func RegisterDBEngine(newEngine I_DBEngine) error {
+func RegisterDBEngine(newEngine InterfaceDBEngine) error {
 	if currentDBEngine == nil {
 		currentDBEngine = newEngine
 	} else {
@@ -37,6 +37,6 @@ func RegisterDBEngine(newEngine I_DBEngine) error {
 }
 
 // returns currently used database service implementation
-func GetDBEngine() I_DBEngine {
+func GetDBEngine() InterfaceDBEngine {
 	return currentDBEngine
 }

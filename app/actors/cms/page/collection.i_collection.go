@@ -8,8 +8,8 @@ import (
 )
 
 // enumerates items of CMS page model
-func (it *DefaultCMSPageCollection) List() ([]models.T_ListItem, error) {
-	result := make([]models.T_ListItem, 0)
+func (it *DefaultCMSPageCollection) List() ([]models.StructListItem, error) {
+	result := make([]models.StructListItem, 0)
 
 	dbRecords, err := it.listCollection.Load()
 	if err != nil {
@@ -24,7 +24,7 @@ func (it *DefaultCMSPageCollection) List() ([]models.T_ListItem, error) {
 		cmsPageModel.FromHashMap(dbRecordData)
 
 		// retrieving minimal data needed for list
-		resultItem := new(models.T_ListItem)
+		resultItem := new(models.StructListItem)
 
 		resultItem.Id = cmsPageModel.GetId()
 		resultItem.Name = cmsPageModel.GetIdentifier()

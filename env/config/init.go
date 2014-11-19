@@ -8,7 +8,7 @@ import (
 
 const (
 	// database collection name to store config values
-	CONFIG_COLLECTION_NAME = "config"
+	ConstConfigCollectionName = "config"
 )
 
 // init makes package self-initialization routine
@@ -16,7 +16,7 @@ func init() {
 	instance := &DefaultConfig{
 		configValues:     make(map[string]interface{}),
 		configTypes:      make(map[string]string),
-		configValidators: make(map[string]env.F_ConfigValueValidator)}
+		configValidators: make(map[string]env.FuncConfigValueValidator)}
 
 	db.RegisterOnDatabaseStart(setupDB)
 	db.RegisterOnDatabaseStart(instance.Load)
@@ -28,7 +28,7 @@ func init() {
 
 // setupDB prepares system database for package usage
 func setupDB() error {
-	collection, err := db.GetCollection(CONFIG_COLLECTION_NAME)
+	collection, err := db.GetCollection(ConstConfigCollectionName)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}

@@ -50,7 +50,7 @@ func setupAPI() error {
 }
 
 // WEB REST API function to get CMS block available attributes information
-func restCMSBlockAttributes(params *api.T_APIHandlerParams) (interface{}, error) {
+func restCMSBlockAttributes(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	cmsBlock, err := cms.GetCMSBlockModel()
 	if err != nil {
@@ -61,7 +61,7 @@ func restCMSBlockAttributes(params *api.T_APIHandlerParams) (interface{}, error)
 }
 
 // WEB REST API function used to obtain CMS blocks list
-func restCMSBlockList(params *api.T_APIHandlerParams) (interface{}, error) {
+func restCMSBlockList(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -102,7 +102,7 @@ func restCMSBlockList(params *api.T_APIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API function used to obtain CMS blocks count in model collection
-func restCMSBlockCount(params *api.T_APIHandlerParams) (interface{}, error) {
+func restCMSBlockCount(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	cmsBlockCollectionModel, err := cms.GetCMSBlockCollectionModel()
 	if err != nil {
@@ -117,7 +117,7 @@ func restCMSBlockCount(params *api.T_APIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API function to get CMS block information
-func restCMSBlockGet(params *api.T_APIHandlerParams) (interface{}, error) {
+func restCMSBlockGet(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -138,7 +138,7 @@ func restCMSBlockGet(params *api.T_APIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API for adding new CMS block in system
-func restCMSBlockAdd(params *api.T_APIHandlerParams) (interface{}, error) {
+func restCMSBlockAdd(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -170,7 +170,7 @@ func restCMSBlockAdd(params *api.T_APIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API for update existing CMS block in system
-func restCMSBlockUpdate(params *api.T_APIHandlerParams) (interface{}, error) {
+func restCMSBlockUpdate(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -207,7 +207,7 @@ func restCMSBlockUpdate(params *api.T_APIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API used to delete CMS block from system
-func restCMSBlockDelete(params *api.T_APIHandlerParams) (interface{}, error) {
+func restCMSBlockDelete(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------

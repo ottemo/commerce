@@ -8,10 +8,10 @@ import (
 // setupConfig setups package configuration values for a system
 func setupConfig() error {
 	if config := env.GetConfig(); config != nil {
-		err := config.RegisterItem(env.T_ConfigItem{
-			Path:        CONFIG_PATH_GROUP,
+		err := config.RegisterItem(env.StructConfigItem{
+			Path:        ConstConfigPathGroup,
 			Value:       nil,
-			Type:        env.CONFIG_ITEM_GROUP_TYPE,
+			Type:        env.ConstConfigItemGroupType,
 			Editor:      "",
 			Options:     nil,
 			Label:       "USPS",
@@ -23,8 +23,8 @@ func setupConfig() error {
 			return env.ErrorDispatch(err)
 		}
 
-		config.RegisterItem(env.T_ConfigItem{
-			Path:        CONFIG_PATH_ENABLED,
+		config.RegisterItem(env.StructConfigItem{
+			Path:        ConstConfigPathEnabled,
 			Value:       false,
 			Type:        "bool",
 			Editor:      "boolean",
@@ -38,8 +38,8 @@ func setupConfig() error {
 			return env.ErrorDispatch(err)
 		}
 
-		config.RegisterItem(env.T_ConfigItem{
-			Path:        CONFIG_PATH_USER,
+		config.RegisterItem(env.StructConfigItem{
+			Path:        ConstConfigPathUser,
 			Value:       nil,
 			Type:        "text",
 			Editor:      "line_editor",
@@ -53,8 +53,8 @@ func setupConfig() error {
 			return env.ErrorDispatch(err)
 		}
 
-		config.RegisterItem(env.T_ConfigItem{
-			Path:        CONFIG_PATH_ORIGIN_ZIP,
+		config.RegisterItem(env.StructConfigItem{
+			Path:        ConstConfigPathOriginZip,
 			Value:       nil,
 			Type:        "text",
 			Editor:      "line_editor",
@@ -68,8 +68,8 @@ func setupConfig() error {
 			return env.ErrorDispatch(err)
 		}
 
-		config.RegisterItem(env.T_ConfigItem{
-			Path:        CONFIG_PATH_CONTAINER,
+		config.RegisterItem(env.StructConfigItem{
+			Path:        ConstConfigPathContainer,
 			Value:       "VARIABLE",
 			Type:        "string",
 			Editor:      "select",
@@ -83,8 +83,8 @@ func setupConfig() error {
 			return env.ErrorDispatch(err)
 		}
 
-		config.RegisterItem(env.T_ConfigItem{
-			Path:        CONFIG_PATH_SIZE,
+		config.RegisterItem(env.StructConfigItem{
+			Path:        ConstConfigPathSize,
 			Value:       "REGULAR",
 			Type:        "string",
 			Editor:      "select",
@@ -98,8 +98,8 @@ func setupConfig() error {
 			return env.ErrorDispatch(err)
 		}
 
-		config.RegisterItem(env.T_ConfigItem{
-			Path:        CONFIG_PATH_DEFAULT_DIMENSIONS,
+		config.RegisterItem(env.StructConfigItem{
+			Path:        ConstConfigPathDefaultDimensions,
 			Value:       "1.0 x 1.0 x 1.0 x 1.0",
 			Type:        "string",
 			Editor:      "dimensions",
@@ -113,8 +113,8 @@ func setupConfig() error {
 			return env.ErrorDispatch(err)
 		}
 
-		config.RegisterItem(env.T_ConfigItem{
-			Path:        CONFIG_PATH_DEFAULT_WEIGHT,
+		config.RegisterItem(env.StructConfigItem{
+			Path:        ConstConfigPathDefaultWeight,
 			Value:       0.1,
 			Type:        "decimal",
 			Editor:      "decimal",
@@ -128,8 +128,8 @@ func setupConfig() error {
 			return env.ErrorDispatch(err)
 		}
 
-		config.RegisterItem(env.T_ConfigItem{
-			Path:        CONFIG_PATH_ALLOWED_METHODS,
+		config.RegisterItem(env.StructConfigItem{
+			Path:        ConstConfigPathAllowedMethods,
 			Value:       "",
 			Type:        "string",
 			Editor:      "multi_select",
@@ -143,8 +143,8 @@ func setupConfig() error {
 			return env.ErrorDispatch(err)
 		}
 
-		config.RegisterItem(env.T_ConfigItem{
-			Path:        CONFIG_PATH_DEBUG_LOG,
+		config.RegisterItem(env.StructConfigItem{
+			Path:        ConstConfigPathDebugLog,
 			Value:       false,
 			Type:        "bool",
 			Editor:      "boolean",

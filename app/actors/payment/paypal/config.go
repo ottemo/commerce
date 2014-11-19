@@ -12,10 +12,10 @@ func setupConfig() error {
 		return env.ErrorNew("can't obtain config")
 	}
 
-	err := config.RegisterItem(env.T_ConfigItem{
-		Path:        CONFIG_PATH_GROUP,
+	err := config.RegisterItem(env.StructConfigItem{
+		Path:        ConstConfigPathGroup,
 		Value:       nil,
-		Type:        env.CONFIG_ITEM_GROUP_TYPE,
+		Type:        env.ConstConfigItemGroupType,
 		Editor:      "",
 		Options:     nil,
 		Label:       "PayPal (Express)",
@@ -27,8 +27,8 @@ func setupConfig() error {
 		return env.ErrorDispatch(err)
 	}
 
-	err = config.RegisterItem(env.T_ConfigItem{
-		Path:        CONFIG_PATH_ENABLED,
+	err = config.RegisterItem(env.StructConfigItem{
+		Path:        ConstConfigPathEnabled,
 		Value:       false,
 		Type:        "bool",
 		Editor:      "boolean",
@@ -42,8 +42,8 @@ func setupConfig() error {
 		return env.ErrorDispatch(err)
 	}
 
-	err = config.RegisterItem(env.T_ConfigItem{
-		Path:        CONFIG_PATH_TITLE,
+	err = config.RegisterItem(env.StructConfigItem{
+		Path:        ConstConfigPathTitle,
 		Value:       "PayPal",
 		Type:        "string",
 		Editor:      "line_text",
@@ -63,8 +63,8 @@ func setupConfig() error {
 		return env.ErrorDispatch(err)
 	}
 
-	err = config.RegisterItem(env.T_ConfigItem{
-		Path:        CONFIG_PATH_NVP,
+	err = config.RegisterItem(env.StructConfigItem{
+		Path:        ConstConfigPathNVP,
 		Value:       "https://api-3t.sandbox.paypal.com/nvp",
 		Type:        "string",
 		Editor:      "line_text",
@@ -78,8 +78,8 @@ func setupConfig() error {
 		return env.ErrorDispatch(err)
 	}
 
-	err = config.RegisterItem(env.T_ConfigItem{
-		Path:        CONFIG_PATH_GATEWAY,
+	err = config.RegisterItem(env.StructConfigItem{
+		Path:        ConstConfigPathGateway,
 		Value:       "https://www.sandbox.paypal.com/webscr?cmd=_express-checkout",
 		Type:        "string",
 		Editor:      "line_text",
@@ -93,8 +93,8 @@ func setupConfig() error {
 		return env.ErrorDispatch(err)
 	}
 
-	err = config.RegisterItem(env.T_ConfigItem{
-		Path:        CONFIG_PATH_USER,
+	err = config.RegisterItem(env.StructConfigItem{
+		Path:        ConstConfigPathUser,
 		Value:       "",
 		Type:        "string",
 		Editor:      "line_text",
@@ -108,8 +108,8 @@ func setupConfig() error {
 		return env.ErrorDispatch(err)
 	}
 
-	err = config.RegisterItem(env.T_ConfigItem{
-		Path:        CONFIG_PATH_PASS,
+	err = config.RegisterItem(env.StructConfigItem{
+		Path:        ConstConfigPathPass,
 		Value:       "",
 		Type:        "string",
 		Editor:      "password",
@@ -123,8 +123,8 @@ func setupConfig() error {
 		return env.ErrorDispatch(err)
 	}
 
-	err = config.RegisterItem(env.T_ConfigItem{
-		Path:        CONFIG_PATH_SIGNATURE,
+	err = config.RegisterItem(env.StructConfigItem{
+		Path:        ConstConfigPathSignature,
 		Value:       "",
 		Type:        "string",
 		Editor:      "line_text",
@@ -138,12 +138,12 @@ func setupConfig() error {
 		return env.ErrorDispatch(err)
 	}
 
-	err = config.RegisterItem(env.T_ConfigItem{
-		Path:        CONFIG_PATH_ACTION,
+	err = config.RegisterItem(env.StructConfigItem{
+		Path:        ConstConfigPathAction,
 		Value:       "",
 		Type:        "string",
 		Editor:      "select",
-		Options:     map[string]string{PAYMENT_ACTION_SALE: "Sale", PAYMENT_ACTION_AUTHORIZATION: "Authorization"},
+		Options:     map[string]string{ConstPaymentActionSale: "Sale", ConstPaymentActionAuthorization: "Authorization"},
 		Label:       "Signature",
 		Description: "PayPal signature",
 		Image:       "",

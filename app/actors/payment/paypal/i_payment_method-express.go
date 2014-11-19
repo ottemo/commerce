@@ -19,26 +19,26 @@ import (
 
 // GetName returns payment method name
 func (it *PayPalExpress) GetName() string {
-	return utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_TITLE))
+	return utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathTitle))
 }
 
 // GetCode returns payment method code
 func (it *PayPalExpress) GetCode() string {
-	return PAYMENT_CODE
+	return ConstPaymentCode
 }
 
 // GetType returns the type of payment method
 func (it *PayPalExpress) GetType() string {
-	return checkout.PAYMENT_TYPE_REMOTE
+	return checkout.ConstPaymentTypeRemote
 }
 
 // IsAllowed checks for method applicability
-func (it *PayPalExpress) IsAllowed(checkoutInstance checkout.I_Checkout) bool {
-	return utils.InterfaceToBool(env.ConfigGetValue(CONFIG_PATH_ENABLED))
+func (it *PayPalExpress) IsAllowed(checkoutInstance checkout.InterfaceCheckout) bool {
+	return utils.InterfaceToBool(env.ConfigGetValue(ConstConfigPathEnabled))
 }
 
 // Authorize makes payment method authorize operation
-func (it *PayPalExpress) Authorize(orderInstance order.I_Order, paymentInfo map[string]interface{}) (interface{}, error) {
+func (it *PayPalExpress) Authorize(orderInstance order.InterfaceOrder, paymentInfo map[string]interface{}) (interface{}, error) {
 
 	// getting order information
 	//--------------------------
@@ -47,10 +47,10 @@ func (it *PayPalExpress) Authorize(orderInstance order.I_Order, paymentInfo map[
 
 	// getting request param values
 	//-----------------------------
-	user := utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_USER))
-	password := utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_PASS))
-	signature := utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_SIGNATURE))
-	action := utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_ACTION))
+	user := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathUser))
+	password := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathPass))
+	signature := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathSignature))
+	action := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathAction))
 
 	amount := fmt.Sprintf("%.2f", grandTotal)
 	shippingAmount := fmt.Sprintf("%.2f", shippingPrice)
@@ -81,7 +81,7 @@ func (it *PayPalExpress) Authorize(orderInstance order.I_Order, paymentInfo map[
 
 	//	println(requestParams)
 
-	nvpGateway := utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_NVP))
+	nvpGateway := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathNVP))
 
 	request, err := http.NewRequest("GET", nvpGateway+"?"+requestParams, nil)
 	if err != nil {
@@ -114,31 +114,31 @@ func (it *PayPalExpress) Authorize(orderInstance order.I_Order, paymentInfo map[
 	waitingTokens[responseValues.Get("TOKEN")] = utils.InterfaceToString(paymentInfo["sessionId"])
 	waitingTokensMutex.Unlock()
 
-	env.Log("paypal.log", env.LOG_PREFIX_INFO, "NEW TRANSACTION: "+
+	env.Log("paypal.log", env.ConstLogPrefixInfo, "NEW TRANSACTION: "+
 		"Visitor ID - "+utils.InterfaceToString(orderInstance.Get("visitor_id"))+", "+
 		"Order ID - "+utils.InterfaceToString(orderInstance.GetId())+", "+
 		"TOKEN - "+utils.InterfaceToString(responseValues.Get("TOKEN")))
 
 	// redirecting user to PayPal server for following checkout
 	//---------------------------------------------------------
-	redirectGateway := utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_GATEWAY)) + "&token=" + responseValues.Get("TOKEN")
-	return api.T_RestRedirect{
+	redirectGateway := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathGateway)) + "&token=" + responseValues.Get("TOKEN")
+	return api.StructRestRedirect{
 		Result:   "redirect",
 		Location: redirectGateway,
 	}, nil
 }
 
 // Capture payment method capture operation
-func (it *PayPalExpress) Capture(orderInstance order.I_Order, paymentInfo map[string]interface{}) (interface{}, error) {
+func (it *PayPalExpress) Capture(orderInstance order.InterfaceOrder, paymentInfo map[string]interface{}) (interface{}, error) {
 	return nil, env.ErrorNew("Not implemented")
 }
 
 // Refund makes payment method refund operation
-func (it *PayPalExpress) Refund(orderInstance order.I_Order, paymentInfo map[string]interface{}) (interface{}, error) {
+func (it *PayPalExpress) Refund(orderInstance order.InterfaceOrder, paymentInfo map[string]interface{}) (interface{}, error) {
 	return nil, env.ErrorNew("Not implemented")
 }
 
 // Void makes payment method void operation
-func (it *PayPalExpress) Void(orderInstance order.I_Order, paymentInfo map[string]interface{}) (interface{}, error) {
+func (it *PayPalExpress) Void(orderInstance order.InterfaceOrder, paymentInfo map[string]interface{}) (interface{}, error) {
 	return nil, env.ErrorNew("Not implemented")
 }

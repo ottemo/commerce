@@ -8,10 +8,10 @@ import (
 // setupConfig setups package configuration values for a system
 func setupConfig() error {
 	if config := env.GetConfig(); config != nil {
-		err := config.RegisterItem(env.T_ConfigItem{
-			Path:        CONFIG_PATH_GROUP,
+		err := config.RegisterItem(env.StructConfigItem{
+			Path:        ConstConfigPathGroup,
 			Value:       nil,
-			Type:        env.CONFIG_ITEM_GROUP_TYPE,
+			Type:        env.ConstConfigItemGroupType,
 			Editor:      "",
 			Options:     nil,
 			Label:       "FedEx",
@@ -23,8 +23,8 @@ func setupConfig() error {
 			return env.ErrorDispatch(err)
 		}
 
-		config.RegisterItem(env.T_ConfigItem{
-			Path:        CONFIG_PATH_ENABLED,
+		config.RegisterItem(env.StructConfigItem{
+			Path:        ConstConfigPathEnabled,
 			Value:       false,
 			Type:        "bool",
 			Editor:      "boolean",
@@ -38,8 +38,8 @@ func setupConfig() error {
 			return env.ErrorDispatch(err)
 		}
 
-		config.RegisterItem(env.T_ConfigItem{
-			Path:        CONFIG_PATH_TITLE,
+		config.RegisterItem(env.StructConfigItem{
+			Path:        ConstConfigPathTitle,
 			Value:       "Federal Express",
 			Type:        "string",
 			Editor:      "line_text",
@@ -55,8 +55,8 @@ func setupConfig() error {
 			}
 		})
 
-		config.RegisterItem(env.T_ConfigItem{
-			Path:        CONFIG_PATH_GATEWAY,
+		config.RegisterItem(env.StructConfigItem{
+			Path:        ConstConfigPathGateway,
 			Value:       "https://wsbeta.fedex.com:443/web-services",
 			Type:        "string",
 			Editor:      "line_text",
@@ -70,8 +70,8 @@ func setupConfig() error {
 			return env.ErrorDispatch(err)
 		}
 
-		config.RegisterItem(env.T_ConfigItem{
-			Path:        CONFIG_PATH_KEY,
+		config.RegisterItem(env.StructConfigItem{
+			Path:        ConstConfigPathKey,
 			Value:       "",
 			Type:        "string",
 			Editor:      "line_text",
@@ -85,8 +85,8 @@ func setupConfig() error {
 			return env.ErrorDispatch(err)
 		}
 
-		config.RegisterItem(env.T_ConfigItem{
-			Path:        CONFIG_PATH_PASSWORD,
+		config.RegisterItem(env.StructConfigItem{
+			Path:        ConstConfigPathPassword,
 			Value:       "",
 			Type:        "string",
 			Editor:      "password",
@@ -100,8 +100,8 @@ func setupConfig() error {
 			return env.ErrorDispatch(err)
 		}
 
-		config.RegisterItem(env.T_ConfigItem{
-			Path:        CONFIG_PATH_NUMBER,
+		config.RegisterItem(env.StructConfigItem{
+			Path:        ConstConfigPathNumber,
 			Value:       "",
 			Type:        "string",
 			Editor:      "line_text",
@@ -115,8 +115,8 @@ func setupConfig() error {
 			return env.ErrorDispatch(err)
 		}
 
-		config.RegisterItem(env.T_ConfigItem{
-			Path:        CONFIG_PATH_METER,
+		config.RegisterItem(env.StructConfigItem{
+			Path:        ConstConfigPathMeter,
 			Value:       "",
 			Type:        "string",
 			Editor:      "line_text",
@@ -130,8 +130,8 @@ func setupConfig() error {
 			return env.ErrorDispatch(err)
 		}
 
-		config.RegisterItem(env.T_ConfigItem{
-			Path:        CONFIG_PATH_DEFAULT_WEIGHT,
+		config.RegisterItem(env.StructConfigItem{
+			Path:        ConstConfigPathDefaultWeight,
 			Value:       0.1,
 			Type:        "decimal",
 			Editor:      "decimal",
@@ -145,12 +145,12 @@ func setupConfig() error {
 			return env.ErrorDispatch(err)
 		}
 
-		config.RegisterItem(env.T_ConfigItem{
-			Path:        CONFIG_PATH_ALLOWED_METHODS,
+		config.RegisterItem(env.StructConfigItem{
+			Path:        ConstConfigPathAllowedMethods,
 			Value:       "",
 			Type:        "string",
 			Editor:      "multi_select",
-			Options:     SHIPPING_METHODS,
+			Options:     ConstShippingMethods,
 			Label:       "Allowed methods",
 			Description: "To customer will be proposed only allowed methods",
 			Image:       "",
@@ -160,18 +160,18 @@ func setupConfig() error {
 			return env.ErrorDispatch(err)
 		}
 
-		config.RegisterItem(env.T_ConfigItem{
-			Path:        CONFIG_PATH_DROPOFF,
+		config.RegisterItem(env.StructConfigItem{
+			Path:        ConstConfigPathDropoff,
 			Value:       "REGULAR_PICKUP",
 			Type:        "string",
 			Editor:      "select",
-			Options:     SHIPPING_DROPOFF,
+			Options:     ConstShippingDropoff,
 			Label:       "Dropoff",
 			Description: "dropoff method",
 			Image:       "",
 		}, func(value interface{}) (interface{}, error) {
 			stringValue := utils.InterfaceToString(value)
-			if _, present := SHIPPING_DROPOFF[stringValue]; !present {
+			if _, present := ConstShippingDropoff[stringValue]; !present {
 				return nil, env.ErrorNew("wrong value")
 			} else {
 				return value, nil
@@ -182,18 +182,18 @@ func setupConfig() error {
 			return env.ErrorDispatch(err)
 		}
 
-		config.RegisterItem(env.T_ConfigItem{
-			Path:        CONFIG_PATH_PACKAGING,
+		config.RegisterItem(env.StructConfigItem{
+			Path:        ConstConfigPathPackaging,
 			Value:       "FEDEX_PAK",
 			Type:        "string",
 			Editor:      "select",
-			Options:     SHIPPING_PACKAGING,
+			Options:     ConstShippingPackaging,
 			Label:       "Packing",
 			Description: "packing method",
 			Image:       "",
 		}, func(value interface{}) (interface{}, error) {
 			stringValue := utils.InterfaceToString(value)
-			if _, present := SHIPPING_PACKAGING[stringValue]; !present {
+			if _, present := ConstShippingPackaging[stringValue]; !present {
 				return nil, env.ErrorNew("wrong value")
 			} else {
 				return value, nil
@@ -204,8 +204,8 @@ func setupConfig() error {
 			return env.ErrorDispatch(err)
 		}
 
-		config.RegisterItem(env.T_ConfigItem{
-			Path:        CONFIG_PATH_DEBUG_LOG,
+		config.RegisterItem(env.StructConfigItem{
+			Path:        ConstConfigPathDebugLog,
 			Value:       false,
 			Type:        "bool",
 			Editor:      "boolean",

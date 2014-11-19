@@ -14,8 +14,8 @@ import (
 )
 
 // returns order items for current order
-func (it *DefaultOrder) GetItems() []order.I_OrderItem {
-	result := make([]order.I_OrderItem, 0)
+func (it *DefaultOrder) GetItems() []order.InterfaceOrderItem {
+	result := make([]order.InterfaceOrderItem, 0)
 
 	keys := make([]int, 0)
 	for key, _ := range it.Items {
@@ -33,7 +33,7 @@ func (it *DefaultOrder) GetItems() []order.I_OrderItem {
 }
 
 // adds line item to current order, or returns error
-func (it *DefaultOrder) AddItem(productId string, qty int, productOptions map[string]interface{}) (order.I_OrderItem, error) {
+func (it *DefaultOrder) AddItem(productId string, qty int, productOptions map[string]interface{}) (order.InterfaceOrderItem, error) {
 
 	productModel, err := product.LoadProductById(productId)
 	if err != nil {
@@ -104,7 +104,7 @@ func (it *DefaultOrder) RemoveItem(itemIdx int) error {
 			return env.ErrorNew("can't get DB engine")
 		}
 
-		orderItemsCollection, err := dbEngine.GetCollection(COLLECTION_NAME_ORDER_ITEMS)
+		orderItemsCollection, err := dbEngine.GetCollection(ConstCollectionNameOrderItems)
 		if err != nil {
 			return env.ErrorDispatch(err)
 		}
@@ -127,9 +127,9 @@ func (it *DefaultOrder) NewIncrementId() error {
 	lastIncrementIdMutex.Lock()
 
 	lastIncrementId += 1
-	it.IncrementId = fmt.Sprintf(INCREMENT_ID_FORMAT, lastIncrementId)
+	it.IncrementId = fmt.Sprintf(ConstIncrementIDFormat, lastIncrementId)
 
-	env.GetConfig().SetValue(CONFIG_PATH_LAST_INCREMENT_ID, lastIncrementId)
+	env.GetConfig().SetValue(ConstConfigPathLastIncrementID, lastIncrementId)
 
 	lastIncrementIdMutex.Unlock()
 
@@ -198,7 +198,7 @@ func (it *DefaultOrder) GetPaymentMethod() string {
 }
 
 // returns shipping address for order
-func (it *DefaultOrder) GetShippingAddress() visitor.I_VisitorAddress {
+func (it *DefaultOrder) GetShippingAddress() visitor.InterfaceVisitorAddress {
 	addressModel, _ := visitor.GetVisitorAddressModel()
 	addressModel.FromHashMap(it.ShippingAddress)
 
@@ -206,7 +206,7 @@ func (it *DefaultOrder) GetShippingAddress() visitor.I_VisitorAddress {
 }
 
 // returns billing address for order
-func (it *DefaultOrder) GetBillingAddress() visitor.I_VisitorAddress {
+func (it *DefaultOrder) GetBillingAddress() visitor.InterfaceVisitorAddress {
 	addressModel, _ := visitor.GetVisitorAddressModel()
 	addressModel.FromHashMap(it.BillingAddress)
 

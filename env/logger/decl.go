@@ -1,4 +1,4 @@
-// Package logger is a default implementation of I_Logger declared in
+// Package logger is a default implementation of InterfaceLogger declared in
 // "github.com/ottemo/foundation/env" package
 package logger
 
@@ -9,5 +9,5 @@ var (
 	defaultErrorsFile = "errors.log" // filename for errors log
 )
 
-// I_Logger implementer class
+// InterfaceLogger implementer class
 type DefaultLogger struct{}

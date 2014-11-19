@@ -5,7 +5,7 @@ import (
 )
 
 // registers new model to system
-func RegisterModel(ModelName string, Model I_Model) error {
+func RegisterModel(ModelName string, Model InterfaceModel) error {
 	if _, present := declaredModels[ModelName]; present {
 		return env.ErrorNew("model with name '" + ModelName + "' already registered")
 	} else {
@@ -25,7 +25,7 @@ func UnRegisterModel(ModelName string) error {
 }
 
 // returns registered in system model
-func GetModel(ModelName string) (I_Model, error) {
+func GetModel(ModelName string) (InterfaceModel, error) {
 	if model, present := declaredModels[ModelName]; present {
 		return model.New()
 	} else {
@@ -34,6 +34,6 @@ func GetModel(ModelName string) (I_Model, error) {
 }
 
 // returns all currently registered in system models
-func GetDeclaredModels() map[string]I_Model {
+func GetDeclaredModels() map[string]InterfaceModel {
 	return declaredModels
 }

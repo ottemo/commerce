@@ -10,107 +10,107 @@ import (
 	"github.com/ottemo/foundation/app/models/visitor"
 )
 
-// I_Checkout represents interface to access business layer implementation of checkout object
-type I_Checkout interface {
-	SetShippingAddress(address visitor.I_VisitorAddress) error
-	GetShippingAddress() visitor.I_VisitorAddress
+// InterfaceCheckout represents interface to access business layer implementation of checkout object
+type InterfaceCheckout interface {
+	SetShippingAddress(address visitor.InterfaceVisitorAddress) error
+	GetShippingAddress() visitor.InterfaceVisitorAddress
 
-	SetBillingAddress(address visitor.I_VisitorAddress) error
-	GetBillingAddress() visitor.I_VisitorAddress
+	SetBillingAddress(address visitor.InterfaceVisitorAddress) error
+	GetBillingAddress() visitor.InterfaceVisitorAddress
 
-	SetPaymentMethod(paymentMethod I_PaymentMethod) error
-	GetPaymentMethod() I_PaymentMethod
+	SetPaymentMethod(paymentMethod InterfacePaymentMethod) error
+	GetPaymentMethod() InterfacePaymentMethod
 
 	SetInfo(key string, value interface{}) error
 	GetInfo(key string) interface{}
 
-	SetShippingMethod(shippingMethod I_ShippingMethod) error
-	GetShippingMethod() I_ShippingMethod
+	SetShippingMethod(shippingMethod InterfaceShippingMethod) error
+	GetShippingMethod() InterfaceShippingMethod
 
-	SetShippingRate(shippingRate T_ShippingRate) error
-	GetShippingRate() *T_ShippingRate
+	SetShippingRate(shippingRate StructShippingRate) error
+	GetShippingRate() *StructShippingRate
 
-	GetTaxes() (float64, []T_TaxRate)
-	GetDiscounts() (float64, []T_Discount)
+	GetTaxes() (float64, []StructTaxRate)
+	GetDiscounts() (float64, []StructDiscount)
 
 	GetGrandTotal() float64
 
-	SetCart(checkoutCart cart.I_Cart) error
-	GetCart() cart.I_Cart
+	SetCart(checkoutCart cart.InterfaceCart) error
+	GetCart() cart.InterfaceCart
 
-	SetVisitor(checkoutVisitor visitor.I_Visitor) error
-	GetVisitor() visitor.I_Visitor
+	SetVisitor(checkoutVisitor visitor.InterfaceVisitor) error
+	GetVisitor() visitor.InterfaceVisitor
 
-	SetSession(api.I_Session) error
-	GetSession() api.I_Session
+	SetSession(api.InterfaceSession) error
+	GetSession() api.InterfaceSession
 
-	SetOrder(checkoutOrder order.I_Order) error
-	GetOrder() order.I_Order
+	SetOrder(checkoutOrder order.InterfaceOrder) error
+	GetOrder() order.InterfaceOrder
 
-	CheckoutSuccess(checkoutOrder order.I_Order, session api.I_Session) error
+	CheckoutSuccess(checkoutOrder order.InterfaceOrder, session api.InterfaceSession) error
 	SendOrderConfirmationMail() error
 
 	Submit() (interface{}, error)
 
-	models.I_Model
+	models.InterfaceModel
 }
 
-// I_ShippingMethod represents interface to access business layer implementation of checkout shipping method
-type I_ShippingMethod interface {
+// InterfaceShippingMethod represents interface to access business layer implementation of checkout shipping method
+type InterfaceShippingMethod interface {
 	GetName() string
 	GetCode() string
 
-	IsAllowed(checkoutInstance I_Checkout) bool
+	IsAllowed(checkoutInstance InterfaceCheckout) bool
 
-	GetRates(checkoutInstance I_Checkout) []T_ShippingRate
+	GetRates(checkoutInstance InterfaceCheckout) []StructShippingRate
 }
 
-// I_ShippingMethod represents interface to access business layer implementation of checkout payment method
-type I_PaymentMethod interface {
+// InterfaceShippingMethod represents interface to access business layer implementation of checkout payment method
+type InterfacePaymentMethod interface {
 	GetName() string
 	GetCode() string
 	GetType() string
 
-	IsAllowed(checkoutInstance I_Checkout) bool
+	IsAllowed(checkoutInstance InterfaceCheckout) bool
 
-	Authorize(orderInstance order.I_Order, paymentInfo map[string]interface{}) (interface{}, error)
-	Capture(orderInstance order.I_Order, paymentInfo map[string]interface{}) (interface{}, error)
-	Refund(orderInstance order.I_Order, paymentInfo map[string]interface{}) (interface{}, error)
-	Void(orderInstance order.I_Order, paymentInfo map[string]interface{}) (interface{}, error)
+	Authorize(orderInstance order.InterfaceOrder, paymentInfo map[string]interface{}) (interface{}, error)
+	Capture(orderInstance order.InterfaceOrder, paymentInfo map[string]interface{}) (interface{}, error)
+	Refund(orderInstance order.InterfaceOrder, paymentInfo map[string]interface{}) (interface{}, error)
+	Void(orderInstance order.InterfaceOrder, paymentInfo map[string]interface{}) (interface{}, error)
 }
 
-// I_Tax represents interface to access business layer implementation of checkout tax system
-type I_Tax interface {
+// InterfaceTax represents interface to access business layer implementation of checkout tax system
+type InterfaceTax interface {
 	GetName() string
 	GetCode() string
 
-	CalculateTax(checkoutInstance I_Checkout) []T_TaxRate
+	CalculateTax(checkoutInstance InterfaceCheckout) []StructTaxRate
 }
 
-// I_Discount represents interface to access business layer implementation of checkout discount system
-type I_Discount interface {
+// InterfaceDiscount represents interface to access business layer implementation of checkout discount system
+type InterfaceDiscount interface {
 	GetName() string
 	GetCode() string
 
-	CalculateDiscount(checkoutInstance I_Checkout) []T_Discount
+	CalculateDiscount(checkoutInstance InterfaceCheckout) []StructDiscount
 }
 
-// T_ShippingRate represents type to hold shipping rate information generated by implementation of I_ShippingMethod
-type T_ShippingRate struct {
+// StructShippingRate represents type to hold shipping rate information generated by implementation of InterfaceShippingMethod
+type StructShippingRate struct {
 	Name  string
 	Code  string
 	Price float64
 }
 
-// T_TaxRate represents type to hold tax rate information generated by implementation of I_Tax
-type T_TaxRate struct {
+// StructTaxRate represents type to hold tax rate information generated by implementation of InterfaceTax
+type StructTaxRate struct {
 	Name   string
 	Code   string
 	Amount float64
 }
 
-// T_Discount represents type to hold discount information generated by implementation of I_Discount
-type T_Discount struct {
+// StructDiscount represents type to hold discount information generated by implementation of InterfaceDiscount
+type StructDiscount struct {
 	Name   string
 	Code   string
 	Amount float64

@@ -143,7 +143,7 @@ func (it *MongoDBCollection) AddGroupFilter(GroupName string, ColumnName string,
 
 // adds selection filter that will not be cleared by ClearFilters() function
 func (it *MongoDBCollection) AddStaticFilter(ColumnName string, Operator string, Value interface{}) error {
-	err := it.updateFilterGroup(FILTER_GROUP_STATIC, ColumnName, Operator, Value)
+	err := it.updateFilterGroup(ConstFilterGroupStatic, ColumnName, Operator, Value)
 	if err != nil {
 		return err
 	}
@@ -152,7 +152,7 @@ func (it *MongoDBCollection) AddStaticFilter(ColumnName string, Operator string,
 
 // adds selection filter to current collection object
 func (it *MongoDBCollection) AddFilter(ColumnName string, Operator string, Value interface{}) error {
-	err := it.updateFilterGroup(FILTER_GROUP_DEFAULT, ColumnName, Operator, Value)
+	err := it.updateFilterGroup(ConstFilterGroupDefault, ColumnName, Operator, Value)
 	if err != nil {
 		return err
 	}
@@ -162,7 +162,7 @@ func (it *MongoDBCollection) AddFilter(ColumnName string, Operator string, Value
 // removes all filters that were set for current collection
 func (it *MongoDBCollection) ClearFilters() error {
 	for filterGroup, _ := range it.FilterGroups {
-		if filterGroup != FILTER_GROUP_STATIC {
+		if filterGroup != ConstFilterGroupStatic {
 			delete(it.FilterGroups, filterGroup)
 		}
 	}
@@ -212,7 +212,7 @@ func (it *MongoDBCollection) ListColumns() map[string]string {
 
 	result := map[string]string{}
 
-	infoCollection := it.database.C(COLLECTION_NAME_COLUMN_INFO)
+	infoCollection := it.database.C(ConstCollectionNameColumnInfo)
 	selector := map[string]string{"collection": it.Name}
 	iter := infoCollection.Find(selector).Iter()
 
@@ -279,7 +279,7 @@ func (it *MongoDBCollection) HasColumn(ColumnName string) bool {
 // adds new attribute to current collection
 func (it *MongoDBCollection) AddColumn(ColumnName string, ColumnType string, indexed bool) error {
 
-	infoCollection := it.database.C(COLLECTION_NAME_COLUMN_INFO)
+	infoCollection := it.database.C(ConstCollectionNameColumnInfo)
 
 	selector := map[string]interface{}{"collection": it.Name, "column": ColumnName}
 	data := map[string]interface{}{"collection": it.Name, "column": ColumnName, "type": ColumnType, "indexed": indexed}
@@ -294,7 +294,7 @@ func (it *MongoDBCollection) AddColumn(ColumnName string, ColumnType string, ind
 //   and, update all objects of current collection to exclude attribute
 func (it *MongoDBCollection) RemoveColumn(ColumnName string) error {
 
-	infoCollection := it.database.C(COLLECTION_NAME_COLUMN_INFO)
+	infoCollection := it.database.C(ConstCollectionNameColumnInfo)
 	removeSelector := map[string]string{"collection": it.Name, "column": ColumnName}
 
 	err := infoCollection.Remove(removeSelector)

@@ -1,6 +1,6 @@
 // Package api is a set of interfaces representing API endpoint services.
 //
-// (currently only "I_RestService" endpoint interface supported)
+// (currently only "InterfaceRestService" endpoint interface supported)
 package api
 
 import (
@@ -9,21 +9,21 @@ import (
 
 // Package global constants
 var (
-	SESSION_KEY_ADMIN_RIGHTS = "adminRights" // session key used to flag that user have admin rights
+	ConstSessionKeyAdminRights = "adminRights" // session key used to flag that user have admin rights
 )
 
 // structure to hold API request related information
-type T_APIHandlerParams struct {
+type StructAPIHandlerParams struct {
 	ResponseWriter   http.ResponseWriter
 	Request          *http.Request
 	RequestGETParams map[string]string
 	RequestURLParams map[string]string
 	RequestContent   interface{}
-	Session          I_Session
+	Session          InterfaceSession
 }
 
 // structure you should return in API handler function if redirect needed
-type T_RestRedirect struct {
+type StructRestRedirect struct {
 	Result   interface{}
 	Location string
 
@@ -31,4 +31,4 @@ type T_RestRedirect struct {
 }
 
 // API handler callback function type
-type F_APIHandler func(params *T_APIHandlerParams) (interface{}, error)
+type FuncAPIHandler func(params *StructAPIHandlerParams) (interface{}, error)

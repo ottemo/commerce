@@ -21,7 +21,7 @@ func (it *DefaultCMSPage) SetId(newId string) error {
 
 // loads cms block information from DB
 func (it *DefaultCMSPage) Load(id string) error {
-	collection, err := db.GetCollection(CMS_PAGE_COLLECTION_NAME)
+	collection, err := db.GetCollection(ConstCmsPageCollectionName)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -50,7 +50,7 @@ func (it *DefaultCMSPage) Load(id string) error {
 
 // removes current cms block from DB
 func (it *DefaultCMSPage) Delete() error {
-	collection, err := db.GetCollection(CMS_PAGE_COLLECTION_NAME)
+	collection, err := db.GetCollection(ConstCmsPageCollectionName)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -65,7 +65,7 @@ func (it *DefaultCMSPage) Delete() error {
 
 // stores current cms block to DB
 func (it *DefaultCMSPage) Save() error {
-	collection, err := db.GetCollection(CMS_PAGE_COLLECTION_NAME)
+	collection, err := db.GetCollection(ConstCmsPageCollectionName)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}

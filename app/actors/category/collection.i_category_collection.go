@@ -6,13 +6,13 @@ import (
 )
 
 // returns database collection
-func (it *DefaultCategoryCollection) GetDBCollection() db.I_DBCollection {
+func (it *DefaultCategoryCollection) GetDBCollection() db.InterfaceDBCollection {
 	return it.listCollection
 }
 
 // returns list of category model items
-func (it *DefaultCategoryCollection) ListCategories() []category.I_Category {
-	result := make([]category.I_Category, 0)
+func (it *DefaultCategoryCollection) ListCategories() []category.InterfaceCategory {
+	result := make([]category.InterfaceCategory, 0)
 
 	dbRecords, err := it.listCollection.Load()
 	if err != nil {

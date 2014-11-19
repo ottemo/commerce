@@ -8,32 +8,32 @@ import (
 
 // Package global constants
 const (
-	MODEL_NAME_CATEGORY            = "Category"
-	MODEL_NAME_CATEGORY_COLLECTION = "CategoryCollection"
+	ConstModelNameCategory           = "Category"
+	ConstModelNameCategoryCollection = "CategoryCollection"
 )
 
-// I_Category represents interface to access business layer implementation of category object
-type I_Category interface {
+// InterfaceCategory represents interface to access business layer implementation of category object
+type InterfaceCategory interface {
 	GetName() string
 
-	GetParent() I_Category
+	GetParent() InterfaceCategory
 
 	GetProductIds() []string
-	GetProductsCollection() product.I_ProductCollection
-	GetProducts() []product.I_Product
+	GetProductsCollection() product.InterfaceProductCollection
+	GetProducts() []product.InterfaceProduct
 
 	AddProduct(productId string) error
 	RemoveProduct(productId string) error
 
-	models.I_Model
-	models.I_Object
-	models.I_Storable
-	models.I_Listable
+	models.InterfaceModel
+	models.InterfaceObject
+	models.InterfaceStorable
+	models.InterfaceListable
 }
 
-// I_CategoryCollection represents interface to access business layer implementation of category collection
-type I_CategoryCollection interface {
-	ListCategories() []I_Category
+// InterfaceCategoryCollection represents interface to access business layer implementation of category collection
+type InterfaceCategoryCollection interface {
+	ListCategories() []InterfaceCategory
 
-	models.I_Collection
+	models.InterfaceCollection
 }

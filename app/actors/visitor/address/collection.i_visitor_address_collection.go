@@ -6,13 +6,13 @@ import (
 )
 
 // GetDBCollection returns the database collection of the Visitor Address
-func (it *DefaultVisitorAddressCollection) GetDBCollection() db.I_DBCollection {
+func (it *DefaultVisitorAddressCollection) GetDBCollection() db.InterfaceDBCollection {
 	return it.listCollection
 }
 
 // ListVisitorsAddresses returns list of visitor model items for the Visitor Address
-func (it *DefaultVisitorAddressCollection) ListVisitorsAddresses() []visitor.I_VisitorAddress {
-	var result []visitor.I_VisitorAddress
+func (it *DefaultVisitorAddressCollection) ListVisitorsAddresses() []visitor.InterfaceVisitorAddress {
+	var result []visitor.InterfaceVisitorAddress
 
 	dbRecords, err := it.listCollection.Load()
 	if err != nil {

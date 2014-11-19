@@ -24,7 +24,7 @@ func (it *DefaultCart) Load(Id string) error {
 	if dbEngine := db.GetDBEngine(); dbEngine != nil {
 
 		// loading category
-		cartCollection, err := dbEngine.GetCollection(CART_COLLECTION_NAME)
+		cartCollection, err := dbEngine.GetCollection(ConstCartCollectionName)
 		if err != nil {
 			return env.ErrorDispatch(err)
 		}
@@ -39,11 +39,11 @@ func (it *DefaultCart) Load(Id string) error {
 		it.Active = utils.InterfaceToBool(values["active"])
 		it.VisitorId = utils.InterfaceToString(values["visitor_id"])
 		it.Info, _ = utils.DecodeJsonToStringKeyMap(values["info"])
-		it.Items = make(map[int]cart.I_CartItem)
+		it.Items = make(map[int]cart.InterfaceCartItem)
 		it.maxIdx = 0
 
 		// loading cart items
-		cartItemsCollection, err := dbEngine.GetCollection(CART_ITEMS_COLLECTION_NAME)
+		cartItemsCollection, err := dbEngine.GetCollection(ConstCartItemsCollectionName)
 		if err != nil {
 			return env.ErrorDispatch(err)
 		}
@@ -97,7 +97,7 @@ func (it *DefaultCart) Delete() error {
 	}
 
 	// deleting cart items
-	cartItemsCollection, err := dbEngine.GetCollection(CART_ITEMS_COLLECTION_NAME)
+	cartItemsCollection, err := dbEngine.GetCollection(ConstCartItemsCollectionName)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -113,7 +113,7 @@ func (it *DefaultCart) Delete() error {
 	}
 
 	// deleting cart
-	cartCollection, err := dbEngine.GetCollection(CART_COLLECTION_NAME)
+	cartCollection, err := dbEngine.GetCollection(ConstCartCollectionName)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -130,12 +130,12 @@ func (it *DefaultCart) Save() error {
 		return env.ErrorNew("can't get DbEngine")
 	}
 
-	cartCollection, err := dbEngine.GetCollection(CART_COLLECTION_NAME)
+	cartCollection, err := dbEngine.GetCollection(ConstCartCollectionName)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	cartItemsCollection, err := dbEngine.GetCollection(CART_ITEMS_COLLECTION_NAME)
+	cartItemsCollection, err := dbEngine.GetCollection(ConstCartItemsCollectionName)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}

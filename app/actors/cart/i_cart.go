@@ -112,7 +112,7 @@ func (it *DefaultCart) checkOptions(productOptions map[string]interface{}, cartI
 
 // adds item to the current cart
 //   - returns added item or nil if error happened
-func (it *DefaultCart) AddItem(productId string, qty int, options map[string]interface{}) (cart.I_CartItem, error) {
+func (it *DefaultCart) AddItem(productId string, qty int, options map[string]interface{}) (cart.InterfaceCartItem, error) {
 
 	//checking qty
 	if qty <= 0 {
@@ -165,7 +165,7 @@ func (it *DefaultCart) RemoveItem(itemIdx int) error {
 			return env.ErrorNew("can't get DB engine")
 		}
 
-		cartItemsCollection, err := dbEngine.GetCollection(CART_ITEMS_COLLECTION_NAME)
+		cartItemsCollection, err := dbEngine.GetCollection(ConstCartItemsCollectionName)
 		if err != nil {
 			return env.ErrorDispatch(err)
 		}
@@ -219,9 +219,9 @@ func (it *DefaultCart) GetSubtotal() float64 {
 }
 
 // enumerates current cart items sorted by item idx
-func (it *DefaultCart) GetItems() []cart.I_CartItem {
+func (it *DefaultCart) GetItems() []cart.InterfaceCartItem {
 
-	result := make([]cart.I_CartItem, 0)
+	result := make([]cart.InterfaceCartItem, 0)
 
 	keys := make([]int, 0)
 	for key, _ := range it.Items {
@@ -249,7 +249,7 @@ func (it *DefaultCart) SetVisitorId(visitorId string) error {
 }
 
 // returns visitor model represents owner or current cart or nil if visitor was not set to cart
-func (it *DefaultCart) GetVisitor() visitor.I_Visitor {
+func (it *DefaultCart) GetVisitor() visitor.InterfaceVisitor {
 	visitor, _ := visitor.LoadVisitorById(it.VisitorId)
 	return visitor
 }
@@ -277,7 +277,7 @@ func (it *DefaultCart) MakeCartForVisitor(visitorId string) error {
 		return env.ErrorNew("can't get DB Engine")
 	}
 
-	cartCollection, err := dbEngine.GetCollection(CART_COLLECTION_NAME)
+	cartCollection, err := dbEngine.GetCollection(ConstCartCollectionName)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}

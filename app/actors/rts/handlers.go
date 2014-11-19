@@ -13,7 +13,7 @@ import (
 
 func referrerHandler(event string, data map[string]interface{}) bool {
 
-	params := data["apiParams"].(*api.T_APIHandlerParams)
+	params := data["apiParams"].(*api.StructAPIHandlerParams)
 	xReferrer := utils.InterfaceToString(params.Request.Header.Get("X-Referer"))
 	if "" == xReferrer {
 		return true
@@ -40,7 +40,7 @@ func visitsHandler(event string, data map[string]interface{}) bool {
 	if err != nil {
 		return true
 	}
-	session := data["session"].(api.I_Session)
+	session := data["session"].(api.InterfaceSession)
 	sessionID := session.GetId()
 
 	year := time.Now().Year()
@@ -67,7 +67,7 @@ func addToCartHandler(event string, data map[string]interface{}) bool {
 	if err != nil {
 		return true
 	}
-	session := data["session"].(api.I_Session)
+	session := data["session"].(api.InterfaceSession)
 	sessionID := session.GetId()
 
 	if _, ok := visitorsInfoToday.Details[sessionID]; !ok {
@@ -90,7 +90,7 @@ func reachedCheckoutHandler(event string, data map[string]interface{}) bool {
 	if err != nil {
 		return true
 	}
-	session := data["session"].(api.I_Session)
+	session := data["session"].(api.InterfaceSession)
 	sessionID := session.GetId()
 
 	if _, ok := visitorsInfoToday.Details[sessionID]; !ok {
@@ -113,7 +113,7 @@ func purchasedHandler(event string, data map[string]interface{}) bool {
 	if err != nil {
 		return true
 	}
-	session := data["session"].(api.I_Session)
+	session := data["session"].(api.InterfaceSession)
 	sessionID := session.GetId()
 
 	if _, ok := visitorsInfoToday.Details[sessionID]; !ok {
@@ -132,7 +132,7 @@ func purchasedHandler(event string, data map[string]interface{}) bool {
 
 func salesHandler(event string, data map[string]interface{}) bool {
 
-	cart := data["cart"].(cart.I_Cart)
+	cart := data["cart"].(cart.InterfaceCart)
 	products := cart.GetItems()
 	productsData := make(map[string]interface{})
 	for i := range products {
@@ -187,15 +187,15 @@ func salesHandler(event string, data map[string]interface{}) bool {
 
 func registerVisitorAsOnlineHandler(event string, data map[string]interface{}) bool {
 
-	session := data["session"].(api.I_Session)
+	session := data["session"].(api.InterfaceSession)
 	sessionID := session.GetId()
 
 	referrerType := ConstReferrerTypeDirect
 	referrer := ""
 	if "api.rts.visit" == event {
-		params := data["apiParams"].(*api.T_APIHandlerParams)
-		i_referrer := params.Request.Header.Get("X-Referer") // api.rts.visit
-		referrer = utils.InterfaceToString(i_referrer)
+		params := data["apiParams"].(*api.StructAPIHandlerParams)
+		xRreferrer := params.Request.Header.Get("X-Referer") // api.rts.visit
+		referrer = utils.InterfaceToString(xRreferrer)
 	}
 	if "api.request" == event {
 		referrer = utils.InterfaceToString(data["referrer"]) //api.request
@@ -242,7 +242,7 @@ func registerVisitorAsOnlineHandler(event string, data map[string]interface{}) b
 
 func visitorOnlineActionHandler(event string, data map[string]interface{}) bool {
 
-	session := data["session"].(api.I_Session)
+	session := data["session"].(api.InterfaceSession)
 	sessionID := session.GetId()
 	if _, ok := OnlineSessions[sessionID]; ok {
 		OnlineSessions[sessionID].time = time.Now()

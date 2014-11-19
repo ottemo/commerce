@@ -8,8 +8,8 @@ import (
 )
 
 // enumerates items of CMS block model
-func (it *DefaultCMSBlockCollection) List() ([]models.T_ListItem, error) {
-	result := make([]models.T_ListItem, 0)
+func (it *DefaultCMSBlockCollection) List() ([]models.StructListItem, error) {
+	result := make([]models.StructListItem, 0)
 
 	dbRecords, err := it.listCollection.Load()
 	if err != nil {
@@ -24,7 +24,7 @@ func (it *DefaultCMSBlockCollection) List() ([]models.T_ListItem, error) {
 		cmsBlockModel.FromHashMap(dbRecordData)
 
 		// retrieving minimal data needed for list
-		resultItem := new(models.T_ListItem)
+		resultItem := new(models.StructListItem)
 
 		resultItem.Id = cmsBlockModel.GetId()
 		resultItem.Name = cmsBlockModel.GetIdentifier()

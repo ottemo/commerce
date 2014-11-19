@@ -58,7 +58,7 @@ var (
 
 // switches ini config to use value from test section instead of general
 func SwitchToTestIniSection() error {
-	os.Setenv(ini.ENVIRONMENT_INI_SECTION, ini.TEST_SECTION_NAME)
+	os.Setenv(ini.ConstEnvironmentIniSection, ini.ConstTestSectionName)
 
 	return nil
 }
@@ -103,26 +103,26 @@ func CheckTestIniDefaults() error {
 
 	// checking default test mode values
 	iniConfig := env.GetIniConfig()
-	iniConfig.SetWorkingSection(ini.TEST_SECTION_NAME)
+	iniConfig.SetWorkingSection(ini.ConstTestSectionName)
 
 	changesMade := false
 
 	// checking sqlite
-	if iniConfig.GetSectionValue(ini.TEST_SECTION_NAME, "db.sqlite3.uri", "") == "" {
+	if iniConfig.GetSectionValue(ini.ConstTestSectionName, "db.sqlite3.uri", "") == "" {
 		iniConfig.SetValue("db.sqlite3.uri", "ottemo_test.db")
 
 		changesMade = true
 	}
 
 	// checking mongodb
-	if iniConfig.GetSectionValue(ini.TEST_SECTION_NAME, "mongodb.uri", "") == "" {
+	if iniConfig.GetSectionValue(ini.ConstTestSectionName, "mongodb.uri", "") == "" {
 		uriValue := strings.Trim(iniConfig.GetValue("mongodb.uri", "mongodb://localhost:27017/ottemo"), "/") + "_test"
 		iniConfig.SetValue("mongodb.uri", uriValue)
 
 		changesMade = true
 	}
 
-	if iniConfig.GetSectionValue(ini.TEST_SECTION_NAME, "mongodb.db", "") == "" {
+	if iniConfig.GetSectionValue(ini.ConstTestSectionName, "mongodb.db", "") == "" {
 		dbValue := iniConfig.GetValue("mongodb.db", "ottemo") + "_test"
 		iniConfig.SetValue("mongodb.db", dbValue)
 
@@ -143,7 +143,7 @@ func CheckTestIniDefaults() error {
 	}
 
 	envConfig := env.GetConfig()
-	envConfig.SetValue(app.CONFIG_PATH_MAIL_PORT, nil)
+	envConfig.SetValue(app.ConstConfigPathMailPort, nil)
 
 	return nil
 }

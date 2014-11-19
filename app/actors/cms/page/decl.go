@@ -9,10 +9,10 @@ import (
 
 // Package global constants
 const (
-	CMS_PAGE_COLLECTION_NAME = "cms_page"
+	ConstCmsPageCollectionName = "cms_page"
 )
 
-// DefaultCMSPage is a default implementer of I_CMSPage
+// DefaultCMSPage is a default implementer of InterfaceCMSPage
 type DefaultCMSPage struct {
 	id string
 
@@ -30,8 +30,8 @@ type DefaultCMSPage struct {
 	UpdatedAt time.Time
 }
 
-// DefaultCMSPageCollection is a default implementer of I_CMSPageCollection
+// DefaultCMSPageCollection is a default implementer of InterfaceCMSPageCollection
 type DefaultCMSPageCollection struct {
-	listCollection     db.I_DBCollection
+	listCollection     db.InterfaceDBCollection
 	listExtraAtributes []string
 }

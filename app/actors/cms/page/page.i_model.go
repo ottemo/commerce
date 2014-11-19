@@ -7,7 +7,7 @@ import (
 
 // returns model name
 func (it *DefaultCMSPage) GetModelName() string {
-	return cms.MODEL_NAME_CMS_PAGE
+	return cms.ConstModelNameCMSPage
 }
 
 // returns model implementation name
@@ -16,6 +16,6 @@ func (it *DefaultCMSPage) GetImplementationName() string {
 }
 
 // returns new instance of model implementation object
-func (it *DefaultCMSPage) New() (models.I_Model, error) {
+func (it *DefaultCMSPage) New() (models.InterfaceModel, error) {
 	return &DefaultCMSPage{}, nil
 }

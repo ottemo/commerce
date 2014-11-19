@@ -12,10 +12,10 @@ func setupConfig() error {
 		return env.ErrorNew("can't obtain config")
 	}
 
-	err := config.RegisterItem(env.T_ConfigItem{
-		Path:        CONFIG_PATH_GROUP,
+	err := config.RegisterItem(env.StructConfigItem{
+		Path:        ConstConfigPathGroup,
 		Value:       nil,
-		Type:        env.CONFIG_ITEM_GROUP_TYPE,
+		Type:        env.ConstConfigItemGroupType,
 		Editor:      "",
 		Options:     nil,
 		Label:       "General",
@@ -27,10 +27,10 @@ func setupConfig() error {
 		return env.ErrorDispatch(err)
 	}
 
-	err = config.RegisterItem(env.T_ConfigItem{
-		Path:        CONFIG_PATH_APP_GROUP,
+	err = config.RegisterItem(env.StructConfigItem{
+		Path:        ConstConfigPathAppGroup,
 		Value:       nil,
-		Type:        env.CONFIG_ITEM_GROUP_TYPE,
+		Type:        env.ConstConfigItemGroupType,
 		Editor:      "",
 		Options:     nil,
 		Label:       "Application",
@@ -42,8 +42,8 @@ func setupConfig() error {
 		return env.ErrorDispatch(err)
 	}
 
-	err = config.RegisterItem(env.T_ConfigItem{
-		Path:        CONFIG_PATH_STOREFRONT_URL,
+	err = config.RegisterItem(env.StructConfigItem{
+		Path:        ConstConfigPathStorefrontURL,
 		Value:       "http://localhost:8080/",
 		Type:        "varchar(255)",
 		Editor:      "text",
@@ -57,8 +57,8 @@ func setupConfig() error {
 		return env.ErrorDispatch(err)
 	}
 
-	err = config.RegisterItem(env.T_ConfigItem{
-		Path:        CONFIG_PATH_DASHBOARD_URL,
+	err = config.RegisterItem(env.StructConfigItem{
+		Path:        ConstConfigPathDashboardURL,
 		Value:       "http://localhost:9000/",
 		Type:        "varchar(255)",
 		Editor:      "text",
@@ -72,8 +72,8 @@ func setupConfig() error {
 		return env.ErrorDispatch(err)
 	}
 
-	err = config.RegisterItem(env.T_ConfigItem{
-		Path:        CONFIG_PATH_FOUNDATION_URL,
+	err = config.RegisterItem(env.StructConfigItem{
+		Path:        ConstConfigPathFoundationURL,
 		Value:       "http://localhost:3000/",
 		Type:        "varchar(255)",
 		Editor:      "text",
@@ -87,10 +87,10 @@ func setupConfig() error {
 		return env.ErrorDispatch(err)
 	}
 
-	err = config.RegisterItem(env.T_ConfigItem{
-		Path:        CONFIG_PATH_STORE_GROUP,
+	err = config.RegisterItem(env.StructConfigItem{
+		Path:        ConstConfigPathStoreGroup,
 		Value:       nil,
-		Type:        env.CONFIG_ITEM_GROUP_TYPE,
+		Type:        env.ConstConfigItemGroupType,
 		Editor:      "",
 		Options:     nil,
 		Label:       "Store",
@@ -102,8 +102,8 @@ func setupConfig() error {
 		return env.ErrorDispatch(err)
 	}
 
-	err = config.RegisterItem(env.T_ConfigItem{
-		Path:        CONFIG_PATH_STORE_NAME,
+	err = config.RegisterItem(env.StructConfigItem{
+		Path:        ConstConfigPathStoreName,
 		Value:       "Ottemo store",
 		Type:        "varchar(255)",
 		Editor:      "text",
@@ -117,8 +117,8 @@ func setupConfig() error {
 		return env.ErrorDispatch(err)
 	}
 
-	err = config.RegisterItem(env.T_ConfigItem{
-		Path:        CONFIG_PATH_STORE_EMAIL,
+	err = config.RegisterItem(env.StructConfigItem{
+		Path:        ConstConfigPathStoreEmail,
 		Value:       "store@ottemo.io",
 		Type:        "varchar(255)",
 		Editor:      "text",
@@ -132,8 +132,8 @@ func setupConfig() error {
 		return env.ErrorDispatch(err)
 	}
 
-	err = config.RegisterItem(env.T_ConfigItem{
-		Path:        CONFIG_PATH_STORE_ROOT_LOGIN,
+	err = config.RegisterItem(env.StructConfigItem{
+		Path:        ConstConfigPathStoreRootLogin,
 		Value:       "admin",
 		Type:        "varchar(255)",
 		Editor:      "text",
@@ -147,8 +147,8 @@ func setupConfig() error {
 		return env.ErrorDispatch(err)
 	}
 
-	err = config.RegisterItem(env.T_ConfigItem{
-		Path:        CONFIG_PATH_STORE_ROOT_PASSWORD,
+	err = config.RegisterItem(env.StructConfigItem{
+		Path:        ConstConfigPathStoreRootPassword,
 		Value:       "admin",
 		Type:        "varchar(255)",
 		Editor:      "password",
@@ -162,12 +162,12 @@ func setupConfig() error {
 		return env.ErrorDispatch(err)
 	}
 
-	err = config.RegisterItem(env.T_ConfigItem{
-		Path:        CONFIG_PATH_STORE_COUNTRY,
+	err = config.RegisterItem(env.StructConfigItem{
+		Path:        ConstConfigPathStoreCountry,
 		Value:       "US",
 		Type:        "string",
 		Editor:      "select",
-		Options:     models.COUNTRIES_LIST,
+		Options:     models.ConstCountriesList,
 		Label:       "Country",
 		Description: "store location country",
 		Image:       "",
@@ -177,12 +177,12 @@ func setupConfig() error {
 		return env.ErrorDispatch(err)
 	}
 
-	err = config.RegisterItem(env.T_ConfigItem{
-		Path:        CONFIG_PATH_STORE_STATE,
+	err = config.RegisterItem(env.StructConfigItem{
+		Path:        ConstConfigPathStoreState,
 		Value:       "",
 		Type:        "string",
 		Editor:      "select",
-		Options:     models.STATES_LIST,
+		Options:     models.ConstStatesList,
 		Label:       "State",
 		Description: "store location state",
 		Image:       "",
@@ -192,8 +192,8 @@ func setupConfig() error {
 		return env.ErrorDispatch(err)
 	}
 
-	err = config.RegisterItem(env.T_ConfigItem{
-		Path:        CONFIG_PATH_STORE_CITY,
+	err = config.RegisterItem(env.StructConfigItem{
+		Path:        ConstConfigPathStoreCity,
 		Value:       "",
 		Type:        "string",
 		Editor:      "line_text",
@@ -207,8 +207,8 @@ func setupConfig() error {
 		return env.ErrorDispatch(err)
 	}
 
-	err = config.RegisterItem(env.T_ConfigItem{
-		Path:        CONFIG_PATH_STORE_ADDRESSLINE1,
+	err = config.RegisterItem(env.StructConfigItem{
+		Path:        ConstConfigPathStoreAddressline1,
 		Value:       "",
 		Type:        "string",
 		Editor:      "line_text",
@@ -222,8 +222,8 @@ func setupConfig() error {
 		return env.ErrorDispatch(err)
 	}
 
-	err = config.RegisterItem(env.T_ConfigItem{
-		Path:        CONFIG_PATH_STORE_ADDRESSLINE2,
+	err = config.RegisterItem(env.StructConfigItem{
+		Path:        ConstConfigPathStoreAddressline2,
 		Value:       "",
 		Type:        "string",
 		Editor:      "line_text",
@@ -237,8 +237,8 @@ func setupConfig() error {
 		return env.ErrorDispatch(err)
 	}
 
-	err = config.RegisterItem(env.T_ConfigItem{
-		Path:        CONFIG_PATH_STORE_ZIP,
+	err = config.RegisterItem(env.StructConfigItem{
+		Path:        ConstConfigPathStoreZip,
 		Value:       "",
 		Type:        "string",
 		Editor:      "line_text",
@@ -252,10 +252,10 @@ func setupConfig() error {
 		return env.ErrorDispatch(err)
 	}
 
-	err = config.RegisterItem(env.T_ConfigItem{
-		Path:        CONFIG_PATH_MAIL_GROUP,
+	err = config.RegisterItem(env.StructConfigItem{
+		Path:        ConstConfigPathMailGroup,
 		Value:       nil,
-		Type:        env.CONFIG_ITEM_GROUP_TYPE,
+		Type:        env.ConstConfigItemGroupType,
 		Editor:      "",
 		Options:     nil,
 		Label:       "Mail",
@@ -267,8 +267,8 @@ func setupConfig() error {
 		return env.ErrorDispatch(err)
 	}
 
-	err = config.RegisterItem(env.T_ConfigItem{
-		Path:        CONFIG_PATH_MAIL_SERVER,
+	err = config.RegisterItem(env.StructConfigItem{
+		Path:        ConstConfigPathMailServer,
 		Value:       nil,
 		Type:        "varchar(255)",
 		Editor:      "text",
@@ -282,8 +282,8 @@ func setupConfig() error {
 		return env.ErrorDispatch(err)
 	}
 
-	err = config.RegisterItem(env.T_ConfigItem{
-		Path:        CONFIG_PATH_MAIL_PORT,
+	err = config.RegisterItem(env.StructConfigItem{
+		Path:        ConstConfigPathMailPort,
 		Value:       587,
 		Type:        "int",
 		Editor:      "integer",
@@ -297,8 +297,8 @@ func setupConfig() error {
 		return env.ErrorDispatch(err)
 	}
 
-	err = config.RegisterItem(env.T_ConfigItem{
-		Path:        CONFIG_PATH_MAIL_USER,
+	err = config.RegisterItem(env.StructConfigItem{
+		Path:        ConstConfigPathMailUser,
 		Value:       nil,
 		Type:        "varchar(100)",
 		Editor:      "text",
@@ -312,8 +312,8 @@ func setupConfig() error {
 		return env.ErrorDispatch(err)
 	}
 
-	err = config.RegisterItem(env.T_ConfigItem{
-		Path:        CONFIG_PATH_MAIL_PASSWORD,
+	err = config.RegisterItem(env.StructConfigItem{
+		Path:        ConstConfigPathMailPassword,
 		Value:       nil,
 		Type:        "varchar(100)",
 		Editor:      "password",
@@ -327,8 +327,8 @@ func setupConfig() error {
 		return env.ErrorDispatch(err)
 	}
 
-	err = config.RegisterItem(env.T_ConfigItem{
-		Path:        CONFIG_PATH_MAIL_FROM,
+	err = config.RegisterItem(env.StructConfigItem{
+		Path:        ConstConfigPathMailFrom,
 		Value:       nil,
 		Type:        "varchar(100)",
 		Editor:      "text",
@@ -342,8 +342,8 @@ func setupConfig() error {
 		return env.ErrorDispatch(err)
 	}
 
-	err = config.RegisterItem(env.T_ConfigItem{
-		Path:        CONFIG_PATH_MAIL_SIGNATURE,
+	err = config.RegisterItem(env.StructConfigItem{
+		Path:        ConstConfigPathMailSignature,
 		Value:       "Sincerely, Ottemo",
 		Type:        "text",
 		Editor:      "multiline_text",

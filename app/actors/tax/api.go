@@ -28,7 +28,7 @@ func setupAPI() error {
 }
 
 // WEB REST API function to download current tax rates in CSV format
-func restTaxCSVDownload(params *api.T_APIHandlerParams) (interface{}, error) {
+func restTaxCSVDownload(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check rights
 	if err := api.ValidateAdminRights(params); err != nil {
@@ -73,7 +73,7 @@ func restTaxCSVDownload(params *api.T_APIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API function to upload tax rates into CSV
-func restTaxCSVUpload(params *api.T_APIHandlerParams) (interface{}, error) {
+func restTaxCSVUpload(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check rights
 	if err := api.ValidateAdminRights(params); err != nil {

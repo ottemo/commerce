@@ -6,9 +6,9 @@ import (
 )
 
 // returns collection of current instance type
-func (it *DefaultProduct) GetCollection() models.I_Collection {
-	model, _ := models.GetModel(product.MODEL_NAME_PRODUCT_COLLECTION)
-	if result, ok := model.(product.I_ProductCollection); ok {
+func (it *DefaultProduct) GetCollection() models.InterfaceCollection {
+	model, _ := models.GetModel(product.ConstModelNameProductCollection)
+	if result, ok := model.(product.InterfaceProductCollection); ok {
 		return result
 	}
 

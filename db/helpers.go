@@ -7,7 +7,7 @@ import (
 )
 
 // returns database collection or error otherwise
-func GetCollection(CollectionName string) (I_DBCollection, error) {
+func GetCollection(CollectionName string) (InterfaceDBCollection, error) {
 	dbEngine := GetDBEngine()
 	if dbEngine == nil {
 		return nil, env.ErrorNew("Can't get DBEngine")
@@ -38,26 +38,26 @@ func ConvertTypeFromDbToGo(value interface{}, valueType string) interface{} {
 		}
 		return result
 
-	case strings.HasPrefix(valueType, DB_BASETYPE_BOOLEAN):
+	case strings.HasPrefix(valueType, ConstDBBasetypeBoolean):
 		return utils.InterfaceToBool(value)
 
-	case strings.HasPrefix(valueType, DB_BASETYPE_INTEGER):
+	case strings.HasPrefix(valueType, ConstDBBasetypeInteger):
 		return utils.InterfaceToInt(value)
 
-	case strings.HasPrefix(valueType, DB_BASETYPE_DECIMAL),
-		strings.HasPrefix(valueType, DB_BASETYPE_FLOAT),
-		strings.HasPrefix(valueType, DB_BASETYPE_MONEY):
+	case strings.HasPrefix(valueType, ConstDBBasetypeDecimal),
+		strings.HasPrefix(valueType, ConstDBBasetypeFloat),
+		strings.HasPrefix(valueType, ConstDBBasetypeMoney):
 
 		return utils.InterfaceToFloat64(value)
 
-	case valueType == DB_BASETYPE_DATETIME:
+	case valueType == ConstDBBasetypeDatetime:
 		return utils.InterfaceToTime(value)
 
-	case valueType == DB_BASETYPE_JSON:
+	case valueType == ConstDBBasetypeJSON:
 		result, _ := utils.DecodeJsonToStringKeyMap(value)
 		return result
 
-	case strings.HasPrefix(valueType, DB_BASETYPE_VARCHAR), valueType == DB_BASETYPE_TEXT, valueType == DB_BASETYPE_ID:
+	case strings.HasPrefix(valueType, ConstDBBasetypeVarchar), valueType == ConstDBBasetypeText, valueType == ConstDBBasetypeID:
 		return utils.InterfaceToString(value)
 
 	}

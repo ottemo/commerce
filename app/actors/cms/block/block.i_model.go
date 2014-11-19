@@ -7,7 +7,7 @@ import (
 
 // returns model name
 func (it *DefaultCMSBlock) GetModelName() string {
-	return cms.MODEL_NAME_CMS_BLOCK
+	return cms.ConstModelNameCMSBlock
 }
 
 // returns model implementation name
@@ -16,6 +16,6 @@ func (it *DefaultCMSBlock) GetImplementationName() string {
 }
 
 // returns new instance of model implementation object
-func (it *DefaultCMSBlock) New() (models.I_Model, error) {
+func (it *DefaultCMSBlock) New() (models.InterfaceModel, error) {
 	return &DefaultCMSBlock{}, nil
 }

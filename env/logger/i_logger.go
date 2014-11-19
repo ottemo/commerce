@@ -25,16 +25,16 @@ func (it *DefaultLogger) Log(storage string, prefix string, msg string) {
 
 // makes error log
 func (it *DefaultLogger) LogError(err error) {
-	if ottemoErr, ok := err.(env.I_OttemoError); ok {
-		it.Log(defaultErrorsFile, env.LOG_PREFIX_ERROR, ottemoErr.ErrorFull())
+	if ottemoErr, ok := err.(env.InterfaceOttemoError); ok {
+		it.Log(defaultErrorsFile, env.ConstLogPrefixError, ottemoErr.ErrorFull())
 	} else {
-		it.Log(defaultErrorsFile, env.LOG_PREFIX_ERROR, err.Error())
+		it.Log(defaultErrorsFile, env.ConstLogPrefixError, err.Error())
 	}
 }
 
 // log message to separate file
 func (it *DefaultLogger) LogToStorage(storage string, msg string) {
-	it.Log(storage, env.LOG_PREFIX_INFO, msg)
+	it.Log(storage, env.ConstLogPrefixInfo, msg)
 }
 
 // log message with prefix specification
@@ -44,5 +44,5 @@ func (it *DefaultLogger) LogWithPrefix(prefix string, msg string) {
 
 // simplified logging function
 func (it *DefaultLogger) LogMessage(msg string) {
-	it.Log(defaultLogFile, env.LOG_PREFIX_INFO, msg)
+	it.Log(defaultLogFile, env.ConstLogPrefixInfo, msg)
 }

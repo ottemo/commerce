@@ -9,17 +9,17 @@ import (
 
 // returns model name
 func (it *DefaultCategoryCollection) GetModelName() string {
-	return category.MODEL_NAME_CATEGORY
+	return category.ConstModelNameCategory
 }
 
 // returns model implementation name
 func (it *DefaultCategoryCollection) GetImplementationName() string {
-	return "Default" + category.MODEL_NAME_CATEGORY
+	return "Default" + category.ConstModelNameCategory
 }
 
 // returns new instance of model implementation object
-func (it *DefaultCategoryCollection) New() (models.I_Model, error) {
-	dbCollection, err := db.GetCollection(COLLECTION_NAME_CATEGORY)
+func (it *DefaultCategoryCollection) New() (models.InterfaceModel, error) {
+	dbCollection, err := db.GetCollection(ConstCollectionNameCategory)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}

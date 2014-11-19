@@ -48,22 +48,22 @@ func setupAPI() error {
 	return nil
 }
 
-// WEB REST API to get value information about config items with type [CONFIG_ITEM_GROUP_TYPE]
-func restConfigGroups(params *api.T_APIHandlerParams) (interface{}, error) {
+// WEB REST API to get value information about config items with type [ConstConfigItemGroupType]
+func restConfigGroups(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	config := env.GetConfig()
 	return config.GetGroupItems(), nil
 }
 
-// WEB REST API to get value information about config items with type [CONFIG_ITEM_GROUP_TYPE]
-func restConfigList(params *api.T_APIHandlerParams) (interface{}, error) {
+// WEB REST API to get value information about config items with type [ConstConfigItemGroupType]
+func restConfigList(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	config := env.GetConfig()
 	return config.ListPathes(), nil
 }
 
 // WEB REST API to get value information about item(s) matching path
-func restConfigInfo(params *api.T_APIHandlerParams) (interface{}, error) {
+func restConfigInfo(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	config := env.GetConfig()
 	return config.GetItemsInfo(params.RequestURLParams["path"]), nil
@@ -71,7 +71,7 @@ func restConfigInfo(params *api.T_APIHandlerParams) (interface{}, error) {
 
 // WEB REST API used to get value of particular item in config
 //   - path should be without any wildcard
-func restConfigGet(params *api.T_APIHandlerParams) (interface{}, error) {
+func restConfigGet(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	config := env.GetConfig()
 	return config.GetValue(params.RequestURLParams["path"]), nil
@@ -79,7 +79,7 @@ func restConfigGet(params *api.T_APIHandlerParams) (interface{}, error) {
 
 // WEB REST API used to set value of particular item in config
 //   - path should be without any wildcard
-func restConfigSet(params *api.T_APIHandlerParams) (interface{}, error) {
+func restConfigSet(params *api.StructAPIHandlerParams) (interface{}, error) {
 	config := env.GetConfig()
 
 	var setValue interface{} = nil
@@ -103,7 +103,7 @@ func restConfigSet(params *api.T_APIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API used to add new config Item to a config system
-func restConfigRegister(params *api.T_APIHandlerParams) (interface{}, error) {
+func restConfigRegister(params *api.StructAPIHandlerParams) (interface{}, error) {
 	inputData, err := api.GetRequestContentAsMap(params)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
@@ -111,7 +111,7 @@ func restConfigRegister(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	config := env.GetConfig()
 
-	configItem := env.T_ConfigItem{
+	configItem := env.StructConfigItem{
 		Path:  utils.InterfaceToString(utils.GetFirstMapValue(inputData, "path", "Path")),
 		Value: utils.GetFirstMapValue(inputData, "value"),
 
@@ -132,7 +132,7 @@ func restConfigRegister(params *api.T_APIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API used to remove config item from system
-func restConfigUnRegister(params *api.T_APIHandlerParams) (interface{}, error) {
+func restConfigUnRegister(params *api.StructAPIHandlerParams) (interface{}, error) {
 	config := env.GetConfig()
 
 	err := config.UnregisterItem(params.RequestURLParams["path"])
@@ -144,7 +144,7 @@ func restConfigUnRegister(params *api.T_APIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API used to re-load config from DB
-func restConfigReload(params *api.T_APIHandlerParams) (interface{}, error) {
+func restConfigReload(params *api.StructAPIHandlerParams) (interface{}, error) {
 	config := env.GetConfig()
 
 	err := config.Reload()

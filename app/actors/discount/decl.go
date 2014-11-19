@@ -4,9 +4,9 @@ package discount
 
 // Package global constants
 const (
-	SESSION_KEY_APPLIED_DISCOUNT_CODES = "applied_discount_codes"
-	COLLECTION_NAME_COUPON_DISCOUNTS   = "coupon_discounts"
+	ConstSessionKeyAppliedDiscountCodes = "applied_discount_codes"
+	ConstCollectionNameCouponDiscounts  = "coupon_discounts"
 )
 
-// DefaultDiscount is a default implementer of I_Discount
+// DefaultDiscount is a default implementer of InterfaceDiscount
 type DefaultDiscount struct{}

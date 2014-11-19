@@ -9,26 +9,26 @@ import (
 
 // GetName returns name of shipping method
 func (it *FlatRateShipping) GetName() string {
-	return utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_NAME))
+	return utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathName))
 }
 
 // GetCode returns code of shipping method
 func (it *FlatRateShipping) GetCode() string {
-	return SHIPPING_CODE
+	return ConstShippingCode
 }
 
 // IsAllowed checks for method applicability
-func (it *FlatRateShipping) IsAllowed(checkout checkout.I_Checkout) bool {
-	return utils.InterfaceToBool(env.ConfigGetValue(CONFIG_PATH_ENABLED))
+func (it *FlatRateShipping) IsAllowed(checkout checkout.InterfaceCheckout) bool {
+	return utils.InterfaceToBool(env.ConfigGetValue(ConstConfigPathEnabled))
 }
 
 // GetRates returns rates allowed by shipping method for a given checkout
-func (it *FlatRateShipping) GetRates(checkoutObject checkout.I_Checkout) []checkout.T_ShippingRate {
+func (it *FlatRateShipping) GetRates(checkoutObject checkout.InterfaceCheckout) []checkout.StructShippingRate {
 
-	return []checkout.T_ShippingRate{
-		checkout.T_ShippingRate{
+	return []checkout.StructShippingRate{
+		checkout.StructShippingRate{
 			Code:  "default",
-			Name:  utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_NAME)),
-			Price: utils.InterfaceToFloat64(env.ConfigGetValue(CONFIG_PATH_AMOUNT)),
+			Name:  utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathName)),
+			Price: utils.InterfaceToFloat64(env.ConfigGetValue(ConstConfigPathAmount)),
 		}}
 }

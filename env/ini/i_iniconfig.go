@@ -11,7 +11,7 @@ func (it *DefaultIniConfig) ListItems() []string {
 	flatMap := make(map[string]bool)
 
 	// collection values from global and current section
-	for _, sectionName := range []string{it.currentSection, INI_GLOBAL_SECTION} {
+	for _, sectionName := range []string{it.currentSection, ConstIniGlobalSection} {
 		if sectionValues, present := it.iniFileValues[sectionName]; present {
 			for itemName, _ := range sectionValues {
 				flatMap[itemName] = true
@@ -32,7 +32,7 @@ func (it *DefaultIniConfig) ListItems() []string {
 func (it *DefaultIniConfig) GetValue(valueName string, defaultValue string) string {
 
 	// looking for value in current section and global section
-	for _, sectionName := range []string{it.currentSection, INI_GLOBAL_SECTION} {
+	for _, sectionName := range []string{it.currentSection, ConstIniGlobalSection} {
 		if sectionValues, present := it.iniFileValues[sectionName]; present {
 			if value, present := sectionValues[valueName]; present {
 				return value
@@ -43,8 +43,8 @@ func (it *DefaultIniConfig) GetValue(valueName string, defaultValue string) stri
 	}
 
 	// value was not found - using default
-	if strings.HasPrefix(defaultValue, ASK_FOR_VALUE_PREFIX) {
-		value := strings.TrimPrefix(defaultValue, ASK_FOR_VALUE_PREFIX)
+	if strings.HasPrefix(defaultValue, ConstAskForValuePrefix) {
+		value := strings.TrimPrefix(defaultValue, ConstAskForValuePrefix)
 
 		fmt.Printf("%s: ", valueName)
 		fmt.Scanf("%s", &value)
@@ -58,7 +58,7 @@ func (it *DefaultIniConfig) GetValue(valueName string, defaultValue string) stri
 
 		return value
 	} else {
-		it.iniFileValues[INI_GLOBAL_SECTION][valueName] = defaultValue
+		it.iniFileValues[ConstIniGlobalSection][valueName] = defaultValue
 
 		return defaultValue
 	}

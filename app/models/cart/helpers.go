@@ -8,23 +8,23 @@ import (
 	"github.com/ottemo/foundation/utils"
 )
 
-// retrieves current I_Cart model implementation
-func GetCartModel() (I_Cart, error) {
-	model, err := models.GetModel(CART_MODEL_NAME)
+// retrieves current InterfaceCart model implementation
+func GetCartModel() (InterfaceCart, error) {
+	model, err := models.GetModel(ConstCartModelName)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	cartModel, ok := model.(I_Cart)
+	cartModel, ok := model.(InterfaceCart)
 	if !ok {
-		return nil, env.ErrorNew("model " + model.GetImplementationName() + " is not 'I_Cart' capable")
+		return nil, env.ErrorNew("model " + model.GetImplementationName() + " is not 'InterfaceCart' capable")
 	}
 
 	return cartModel, nil
 }
 
-// retrieves current I_Cart model implementation and sets its ID to some value
-func GetCartModelAndSetId(cartId string) (I_Cart, error) {
+// retrieves current InterfaceCart model implementation and sets its ID to some value
+func GetCartModelAndSetId(cartId string) (InterfaceCart, error) {
 
 	cartModel, err := GetCartModel()
 	if err != nil {
@@ -39,8 +39,8 @@ func GetCartModelAndSetId(cartId string) (I_Cart, error) {
 	return cartModel, nil
 }
 
-// loads cart data into current I_Cart model implementation
-func LoadCartById(cartId string) (I_Cart, error) {
+// loads cart data into current InterfaceCart model implementation
+func LoadCartById(cartId string) (InterfaceCart, error) {
 
 	cartModel, err := GetCartModel()
 	if err != nil {
@@ -56,7 +56,7 @@ func LoadCartById(cartId string) (I_Cart, error) {
 }
 
 // loads cart for visitor or creates new one
-func GetCartForVisitor(visitorId string) (I_Cart, error) {
+func GetCartForVisitor(visitorId string) (InterfaceCart, error) {
 	cartModel, err := GetCartModel()
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
@@ -71,8 +71,8 @@ func GetCartForVisitor(visitorId string) (I_Cart, error) {
 }
 
 // returns cart for current session or creates new one
-func GetCurrentCart(params *api.T_APIHandlerParams) (I_Cart, error) {
-	sessionCartId := params.Session.Get(SESSION_KEY_CURRENT_CART)
+func GetCurrentCart(params *api.StructAPIHandlerParams) (InterfaceCart, error) {
+	sessionCartId := params.Session.Get(ConstSessionKeyCurrentCart)
 
 	if sessionCartId != nil && sessionCartId != "" {
 
@@ -87,14 +87,14 @@ func GetCurrentCart(params *api.T_APIHandlerParams) (I_Cart, error) {
 	} else {
 
 		// no cart id was in session, trying to get cart for visitor
-		visitorId := params.Session.Get(visitor.SESSION_KEY_VISITOR_ID)
+		visitorId := params.Session.Get(visitor.ConstSessionKeyVisitorID)
 		if visitorId != nil {
 			currentCart, err := GetCartForVisitor(utils.InterfaceToString(visitorId))
 			if err != nil {
 				return nil, env.ErrorDispatch(err)
 			}
 
-			params.Session.Set(SESSION_KEY_CURRENT_CART, currentCart.GetId())
+			params.Session.Set(ConstSessionKeyCurrentCart, currentCart.GetId())
 
 			return currentCart, nil
 		} else {

@@ -96,10 +96,10 @@ func (it *MongoDBCollection) getMongoOperator(columnName string, operator string
 }
 
 // returns filter group, creates new one if not exists
-func (it *MongoDBCollection) getFilterGroup(groupName string) *T_DBFilterGroup {
+func (it *MongoDBCollection) getFilterGroup(groupName string) *StructDBFilterGroup {
 	filterGroup, present := it.FilterGroups[groupName]
 	if !present {
-		filterGroup = &T_DBFilterGroup{Name: groupName, FilterValues: make([]bson.D, 0)}
+		filterGroup = &StructDBFilterGroup{Name: groupName, FilterValues: make([]bson.D, 0)}
 		it.FilterGroups[groupName] = filterGroup
 	}
 	return filterGroup
@@ -148,8 +148,8 @@ func (it *MongoDBCollection) makeSelector() bson.D {
 
 	// making recursive groups injects, based on Parent field
 	//-------------------------------------------------------
-	topLevelGroup := &T_DBFilterGroup{Name: "", FilterValues: make([]bson.D, 0)}
-	groupsStack := make([]*T_DBFilterGroup, 0)
+	topLevelGroup := &StructDBFilterGroup{Name: "", FilterValues: make([]bson.D, 0)}
+	groupsStack := make([]*StructDBFilterGroup, 0)
 	currentGroup := topLevelGroup
 
 	for {
@@ -181,7 +181,7 @@ func (it *MongoDBCollection) makeSelector() bson.D {
 		//----------------------------------------------------------------
 		if childFound == false {
 
-			// making document from T_DBFilterGroup before pop stack
+			// making document from StructDBFilterGroup before pop stack
 			joinOperator := "$and"
 			if currentGroup.OrSequence {
 				joinOperator = "$or"

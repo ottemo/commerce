@@ -7,8 +7,8 @@ import (
 
 // Package global variables
 var (
-	IMPEX_LOG = true  // flag indicates to make log of values going to be processed
-	DEBUG_LOG = false // flag indicates to have extra log information
+	ConstImpexLog = true  // flag indicates to make log of values going to be processed
+	ConstDebugLog = false // flag indicates to have extra log information
 
 	/*
 	 *	column format: [flags]path [memorize] [type] [convertors]
@@ -36,8 +36,8 @@ var (
 	 *	convertors - text template modifications you can apply to value before use it
 	 *		format: see (http://golang.org/pkg/text/template/)
 	 */
-	CSV_COLUMN_REGEXP = regexp.MustCompile(`^\s*([~^?])?((?:@?\w+\.)*@?\w+)(\s+(?:=|>)\s*\w+)?(?:\s+<([^>]+)>)?\s*(.*)$`)
+	ConstCSVColumnRegexp = regexp.MustCompile(`^\s*([~^?])?((?:@?\w+\.)*@?\w+)(\s+(?:=|>)\s*\w+)?(?:\s+<([^>]+)>)?\s*(.*)$`)
 
 	// set of service import commands
-	importCmd = make(map[string]I_ImpexImportCmd)
+	importCmd = make(map[string]InterfaceImpexImportCmd)
 )

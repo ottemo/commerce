@@ -67,7 +67,7 @@ func ErrorMessage(err error) string {
 }
 
 // registers listener for error bus
-func ErrorRegisterListener(listener F_ErrorListener) {
+func ErrorRegisterListener(listener FuncErrorListener) {
 	if errorBus := GetErrorBus(); errorBus != nil {
 		errorBus.RegisterListener(listener)
 	}
@@ -90,7 +90,7 @@ func ErrorNew(message string) error {
 }
 
 // registers listener for event bus
-func EventRegisterListener(event string, listener F_EventListener) {
+func EventRegisterListener(event string, listener FuncEventListener) {
 	if eventBus := GetEventBus(); eventBus != nil {
 		eventBus.RegisterListener(event, listener)
 	}

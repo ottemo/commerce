@@ -16,7 +16,7 @@ import (
 	"github.com/ottemo/foundation/utils"
 )
 
-// returns I_VisitorAddress model filled with values from DB or blank structure if no id found in DB
+// returns InterfaceVisitorAddress model filled with values from DB or blank structure if no id found in DB
 func (it *DefaultVisitor) passwdEncode(passwd string) string {
 	salt := ":"
 	if len(passwd) > 2 {
@@ -70,23 +70,23 @@ func (it *DefaultVisitor) GetCreatedAt() time.Time {
 }
 
 // GetShippingAddress returns the shipping address for the Visitor
-func (it *DefaultVisitor) GetShippingAddress() visitor.I_VisitorAddress {
+func (it *DefaultVisitor) GetShippingAddress() visitor.InterfaceVisitorAddress {
 	return it.ShippingAddress
 }
 
 // SetShippingAddress updates the shipping address for the Visitor
-func (it *DefaultVisitor) SetShippingAddress(address visitor.I_VisitorAddress) error {
+func (it *DefaultVisitor) SetShippingAddress(address visitor.InterfaceVisitorAddress) error {
 	it.ShippingAddress = address
 	return nil
 }
 
 // GetBillingAddress returns the billing address for the Visitor
-func (it *DefaultVisitor) GetBillingAddress() visitor.I_VisitorAddress {
+func (it *DefaultVisitor) GetBillingAddress() visitor.InterfaceVisitorAddress {
 	return it.BillingAddress
 }
 
 // SetBillingAddress updates the billing address for the Visitor
-func (it *DefaultVisitor) SetBillingAddress(address visitor.I_VisitorAddress) error {
+func (it *DefaultVisitor) SetBillingAddress(address visitor.InterfaceVisitorAddress) error {
 	it.BillingAddress = address
 	return nil
 }
@@ -132,7 +132,7 @@ func (it *DefaultVisitor) Validate(key string) error {
 	// looking for visitors with given validation key in DB and collecting ids
 	var visitorIDs []string
 
-	collection, err := db.GetCollection(COLLECTION_NAME_VISITOR)
+	collection, err := db.GetCollection(ConstCollectionNameVisitor)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -172,7 +172,7 @@ func (it *DefaultVisitor) Validate(key string) error {
 	stamp.UnmarshalBinary(data)
 	timeWas := stamp.Unix()
 
-	validationExpired := (timeNow - timeWas) > EMAIL_VALIDATE_EXPIRE
+	validationExpired := (timeNow - timeWas) > ConstEmailValidateExpire
 
 	// processing visitors for given validation key
 	for _, visitorID := range visitorIDs {
@@ -256,7 +256,7 @@ func (it *DefaultVisitor) GenerateNewPassword() error {
 // LoadByGoogleId loads the Visitor information from the database based on Google account ID
 func (it *DefaultVisitor) LoadByGoogleId(googleID string) error {
 
-	collection, err := db.GetCollection(COLLECTION_NAME_VISITOR)
+	collection, err := db.GetCollection(ConstCollectionNameVisitor)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -286,7 +286,7 @@ func (it *DefaultVisitor) LoadByGoogleId(googleID string) error {
 // LoadByFacebookId loads the Visitor information from the database based on Facebook account ID
 func (it *DefaultVisitor) LoadByFacebookId(facebookID string) error {
 
-	collection, err := db.GetCollection(COLLECTION_NAME_VISITOR)
+	collection, err := db.GetCollection(ConstCollectionNameVisitor)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -316,7 +316,7 @@ func (it *DefaultVisitor) LoadByFacebookId(facebookID string) error {
 // LoadByEmail loads the Visitor information from the database based on their email address, which must be unique
 func (it *DefaultVisitor) LoadByEmail(email string) error {
 
-	collection, err := db.GetCollection(COLLECTION_NAME_VISITOR)
+	collection, err := db.GetCollection(ConstCollectionNameVisitor)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}

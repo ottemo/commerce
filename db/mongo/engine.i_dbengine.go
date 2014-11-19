@@ -37,7 +37,7 @@ func (it *MongoDB) CreateCollection(CollectionName string) error {
 }
 
 // returns collection by name or creates new one
-func (it *MongoDB) GetCollection(CollectionName string) (db.I_DBCollection, error) {
+func (it *MongoDB) GetCollection(CollectionName string) (db.InterfaceDBCollection, error) {
 	CollectionName = strings.ToLower(CollectionName)
 
 	if _, present := it.collections[CollectionName]; !present {
@@ -51,7 +51,7 @@ func (it *MongoDB) GetCollection(CollectionName string) (db.I_DBCollection, erro
 
 	result := &MongoDBCollection{
 		Name:             CollectionName,
-		FilterGroups:     make(map[string]*T_DBFilterGroup),
+		FilterGroups:     make(map[string]*StructDBFilterGroup),
 		ResultAttributes: make([]string, 0),
 		database:         it.database,
 		collection:       mgoCollection,

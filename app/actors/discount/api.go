@@ -39,13 +39,13 @@ func setupAPI() error {
 }
 
 // WEB REST API function to apply discount code to current checkout
-func restDiscountApply(params *api.T_APIHandlerParams) (interface{}, error) {
+func restDiscountApply(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	couponCode := params.RequestURLParams["code"]
 
 	// getting applied coupons array for current session
 	appliedCoupons := make([]string, 0)
-	if sessionValue, ok := params.Session.Get(SESSION_KEY_APPLIED_DISCOUNT_CODES).([]string); ok {
+	if sessionValue, ok := params.Session.Get(ConstSessionKeyAppliedDiscountCodes).([]string); ok {
 		appliedCoupons = sessionValue
 	}
 
@@ -55,7 +55,7 @@ func restDiscountApply(params *api.T_APIHandlerParams) (interface{}, error) {
 	}
 
 	// loading coupon for specified code
-	collection, err := db.GetCollection(COLLECTION_NAME_COUPON_DISCOUNTS)
+	collection, err := db.GetCollection(ConstCollectionNameCouponDiscounts)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -97,7 +97,7 @@ func restDiscountApply(params *api.T_APIHandlerParams) (interface{}, error) {
 
 			// coupon is working - applying it
 			appliedCoupons = append(appliedCoupons, couponCode)
-			params.Session.Set(SESSION_KEY_APPLIED_DISCOUNT_CODES, appliedCoupons)
+			params.Session.Set(ConstSessionKeyAppliedDiscountCodes, appliedCoupons)
 
 		} else {
 			return nil, env.ErrorNew("coupon is not applicable")
@@ -111,26 +111,26 @@ func restDiscountApply(params *api.T_APIHandlerParams) (interface{}, error) {
 
 // WEB REST API function to neglect(un-apply) discount code to current checkout
 //   - use "*" as code to neglect all discounts
-func restDiscountNeglect(params *api.T_APIHandlerParams) (interface{}, error) {
+func restDiscountNeglect(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	couponCode := params.RequestURLParams["code"]
 
 	if couponCode == "*" {
-		params.Session.Set(SESSION_KEY_APPLIED_DISCOUNT_CODES, make([]string, 0))
+		params.Session.Set(ConstSessionKeyAppliedDiscountCodes, make([]string, 0))
 		return "ok", nil
 	}
 
-	if appliedCoupons, ok := params.Session.Get(SESSION_KEY_APPLIED_DISCOUNT_CODES).([]string); ok {
+	if appliedCoupons, ok := params.Session.Get(ConstSessionKeyAppliedDiscountCodes).([]string); ok {
 		newAppliedCoupons := make([]string, 0)
 		for _, value := range appliedCoupons {
 			if value != couponCode {
 				newAppliedCoupons = append(newAppliedCoupons, value)
 			}
 		}
-		params.Session.Set(SESSION_KEY_APPLIED_DISCOUNT_CODES, newAppliedCoupons)
+		params.Session.Set(ConstSessionKeyAppliedDiscountCodes, newAppliedCoupons)
 
 		// times used increase
-		collection, err := db.GetCollection(COLLECTION_NAME_COUPON_DISCOUNTS)
+		collection, err := db.GetCollection(ConstCollectionNameCouponDiscounts)
 		if err != nil {
 			return nil, env.ErrorDispatch(err)
 		}
@@ -159,7 +159,7 @@ func restDiscountNeglect(params *api.T_APIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API function to download current tax rates in CSV format
-func restDiscountCSVDownload(params *api.T_APIHandlerParams) (interface{}, error) {
+func restDiscountCSVDownload(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check rights
 	if err := api.ValidateAdminRights(params); err != nil {
@@ -176,7 +176,7 @@ func restDiscountCSVDownload(params *api.T_APIHandlerParams) (interface{}, error
 	csvWriter.Flush()
 
 	// loading records from DB and writing them in csv format
-	collection, err := db.GetCollection(COLLECTION_NAME_COUPON_DISCOUNTS)
+	collection, err := db.GetCollection(ConstCollectionNameCouponDiscounts)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -200,7 +200,7 @@ func restDiscountCSVDownload(params *api.T_APIHandlerParams) (interface{}, error
 }
 
 // WEB REST API function to upload tax rates into CSV
-func restDiscountCSVUpload(params *api.T_APIHandlerParams) (interface{}, error) {
+func restDiscountCSVUpload(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check rights
 	if err := api.ValidateAdminRights(params); err != nil {
@@ -215,7 +215,7 @@ func restDiscountCSVUpload(params *api.T_APIHandlerParams) (interface{}, error) 
 	csvReader := csv.NewReader(csvFile)
 	csvReader.Comma = ','
 
-	collection, err := db.GetCollection(COLLECTION_NAME_COUPON_DISCOUNTS)
+	collection, err := db.GetCollection(ConstCollectionNameCouponDiscounts)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}

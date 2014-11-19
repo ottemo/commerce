@@ -44,15 +44,15 @@ func setupAPI() error {
 }
 
 // WEB REST API used export specific model data from system
-func restImpexExportModel(params *api.T_APIHandlerParams) (interface{}, error) {
+func restImpexExportModel(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	model, err := models.GetModel(params.RequestURLParams["model"])
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	listable, isListable := model.(models.I_Listable)
-	object, isObject := model.(models.I_Object)
+	listable, isListable := model.(models.InterfaceListable)
+	object, isObject := model.(models.InterfaceObject)
 
 	if isListable && isObject {
 		collection := listable.GetCollection()
@@ -94,7 +94,7 @@ func restImpexExportModel(params *api.T_APIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API used process scv file in impex format
-func restImpexImport(params *api.T_APIHandlerParams) (interface{}, error) {
+func restImpexImport(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	filesProcessed := 0
 	for _, fileInfoArray := range params.Request.MultipartForm.File {
@@ -123,7 +123,7 @@ func restImpexImport(params *api.T_APIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API used import data to system
-func restImpexImportModel(params *api.T_APIHandlerParams) (interface{}, error) {
+func restImpexImportModel(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	modelName := params.RequestURLParams["model"]
 	model, err := models.GetModel(modelName)
@@ -131,13 +131,13 @@ func restImpexImportModel(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	object, isObject := model.(models.I_Object)
-	_, isStorable := model.(models.I_Storable)
+	object, isObject := model.(models.InterfaceObject)
+	_, isStorable := model.(models.InterfaceStorable)
 	if !isObject || !isStorable {
-		return nil, env.ErrorNew(modelName + " not implements I_Object or I_Storable interface")
+		return nil, env.ErrorNew(modelName + " not implements InterfaceObject or InterfaceStorable interface")
 	}
 
-	attributes := make(map[string]models.T_AttributeInfo)
+	attributes := make(map[string]models.StructAttributeInfo)
 	for _, attribute := range object.GetAttributesInfo() {
 		attributes[attribute.Attribute] = attribute
 	}
@@ -165,18 +165,18 @@ func restImpexImportModel(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	for csvRecord, err := csvReader.Read(); err == nil; csvRecord, err = csvReader.Read() {
 		model, _ = model.New()
-		object, _ = model.(models.I_Object)
+		object, _ = model.(models.InterfaceObject)
 		for idx, value := range csvRecord {
 			object.Set(csvColumns[idx], value)
 		}
-		object.(models.I_Storable).Save()
+		object.(models.InterfaceStorable).Save()
 	}
 
 	return nil, env.ErrorNew("not implemented")
 }
 
 // WEB REST API to test import csv file
-func restImpexTstImport(params *api.T_APIHandlerParams) (interface{}, error) {
+func restImpexTstImport(params *api.StructAPIHandlerParams) (interface{}, error) {
 	csvFile, err := os.OpenFile("test.csv", os.O_RDONLY, 0666)
 	defer csvFile.Close()
 	if err != nil {
@@ -197,7 +197,7 @@ func restImpexTstImport(params *api.T_APIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API to test export
-func restImpexTstExport(params *api.T_APIHandlerParams) (interface{}, error) {
+func restImpexTstExport(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	params.ResponseWriter.Header().Set("Content-Type", "application/csv")
 

@@ -3,6 +3,6 @@ package review
 
 // Package global constants
 const (
-	REVIEW_COLLECTION_NAME = "review"
-	RATING_COLLECTION_NAME = "rating"
+	ConstReviewCollectionName = "review"
+	ConstRatingCollectionName = "rating"
 )

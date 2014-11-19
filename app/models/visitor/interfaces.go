@@ -8,16 +8,16 @@ import (
 
 // Package global constants
 const (
-	MODEL_NAME_VISITOR                    = "Visitor"
-	MODEL_NAME_VISITOR_COLLECTION         = "VisitorCollection"
-	MODEL_NAME_VISITOR_ADDRESS            = "VisitorAddress"
-	MODEL_NAME_VISITOR_ADDRESS_COLLECTION = "VisitorAddressCollection"
+	ConstModelNameVisitor                  = "Visitor"
+	ConstModelNameVisitorCollection        = "VisitorCollection"
+	ConstModelNameVisitorAddress           = "VisitorAddress"
+	ConstModelNameVisitorAddressCollection = "VisitorAddressCollection"
 
-	SESSION_KEY_VISITOR_ID = "visitor_id"
+	ConstSessionKeyVisitorID = "visitor_id"
 )
 
-// I_Visitor represents interface to access business layer implementation of visitor object
-type I_Visitor interface {
+// InterfaceVisitor represents interface to access business layer implementation of visitor object
+type InterfaceVisitor interface {
 	GetEmail() string
 	GetFacebookId() string
 	GetGoogleId() string
@@ -29,11 +29,11 @@ type I_Visitor interface {
 	GetBirthday() time.Time
 	GetCreatedAt() time.Time
 
-	GetShippingAddress() I_VisitorAddress
-	GetBillingAddress() I_VisitorAddress
+	GetShippingAddress() InterfaceVisitorAddress
+	GetBillingAddress() InterfaceVisitorAddress
 
-	SetShippingAddress(address I_VisitorAddress) error
-	SetBillingAddress(address I_VisitorAddress) error
+	SetShippingAddress(address InterfaceVisitorAddress) error
+	SetBillingAddress(address InterfaceVisitorAddress) error
 
 	SetPassword(passwd string) error
 	CheckPassword(passwd string) bool
@@ -49,22 +49,22 @@ type I_Visitor interface {
 	LoadByFacebookId(facebookID string) error
 	LoadByGoogleId(googleID string) error
 
-	models.I_Model
-	models.I_Object
-	models.I_Storable
-	models.I_Listable
-	models.I_CustomAttributes
+	models.InterfaceModel
+	models.InterfaceObject
+	models.InterfaceStorable
+	models.InterfaceListable
+	models.InterfaceCustomAttributes
 }
 
-// I_VisitorCollection represents interface to access business layer implementation of visitor collection
-type I_VisitorCollection interface {
-	ListVisitors() []I_Visitor
+// InterfaceVisitorCollection represents interface to access business layer implementation of visitor collection
+type InterfaceVisitorCollection interface {
+	ListVisitors() []InterfaceVisitor
 
-	models.I_Collection
+	models.InterfaceCollection
 }
 
-// I_VisitorAddress represents interface to access business layer implementation of visitor address object
-type I_VisitorAddress interface {
+// InterfaceVisitorAddress represents interface to access business layer implementation of visitor address object
+type InterfaceVisitorAddress interface {
 	GetVisitorId() string
 
 	GetFirstName() string
@@ -83,14 +83,14 @@ type I_VisitorAddress interface {
 	GetPhone() string
 	GetZipCode() string
 
-	models.I_Model
-	models.I_Object
-	models.I_Storable
+	models.InterfaceModel
+	models.InterfaceObject
+	models.InterfaceStorable
 }
 
-// I_VisitorAddressCollection represents interface to access business layer implementation of visitor address collection
-type I_VisitorAddressCollection interface {
-	ListVisitorsAddresses() []I_VisitorAddress
+// InterfaceVisitorAddressCollection represents interface to access business layer implementation of visitor address collection
+type InterfaceVisitorAddressCollection interface {
+	ListVisitorsAddresses() []InterfaceVisitorAddress
 
-	models.I_Collection
+	models.InterfaceCollection
 }

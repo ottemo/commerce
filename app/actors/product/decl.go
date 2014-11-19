@@ -9,10 +9,10 @@ import (
 
 // Package global constants
 const (
-	COLLECTION_NAME_PRODUCT = "product"
+	ConstCollectionNameProduct = "product"
 )
 
-// DefaultProduct is a default implementer of I_Product
+// DefaultProduct is a default implementer of InterfaceProduct
 type DefaultProduct struct {
 	id string
 
@@ -35,8 +35,8 @@ type DefaultProduct struct {
 	*attributes.CustomAttributes
 }
 
-// DefaultProductCollection is a default implementer of I_Product
+// DefaultProductCollection is a default implementer of InterfaceProduct
 type DefaultProductCollection struct {
-	listCollection     db.I_DBCollection
+	listCollection     db.InterfaceDBCollection
 	listExtraAtributes []string
 }

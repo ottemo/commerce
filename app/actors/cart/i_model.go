@@ -7,7 +7,7 @@ import (
 
 // returns model name we have implementation for
 func (it *DefaultCart) GetModelName() string {
-	return cart.CART_MODEL_NAME
+	return cart.ConstCartModelName
 }
 
 // returns name of current model implementation
@@ -16,9 +16,9 @@ func (it *DefaultCart) GetImplementationName() string {
 }
 
 // makes new instance of model
-func (it *DefaultCart) New() (models.I_Model, error) {
+func (it *DefaultCart) New() (models.InterfaceModel, error) {
 	return &DefaultCart{
-		Items: make(map[int]cart.I_CartItem),
+		Items: make(map[int]cart.InterfaceCartItem),
 		Info:  make(map[string]interface{}),
 	}, nil
 }

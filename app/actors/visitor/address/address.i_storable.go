@@ -19,7 +19,7 @@ func (it *DefaultVisitorAddress) SetId(NewID string) error {
 // Load will take Visitor Address ID and retrieve it from the database
 func (it *DefaultVisitorAddress) Load(ID string) error {
 	if dbEngine := db.GetDBEngine(); dbEngine != nil {
-		if collection, err := dbEngine.GetCollection(COLLECTION_NAME_VISITOR_ADDRESS); err == nil {
+		if collection, err := dbEngine.GetCollection(ConstCollectionNameVisitorAddress); err == nil {
 
 			if values, err := collection.LoadById(ID); err == nil {
 				if err := it.FromHashMap(values); err != nil {
@@ -39,7 +39,7 @@ func (it *DefaultVisitorAddress) Load(ID string) error {
 // Delete will remove the Visitor Address from the database
 func (it *DefaultVisitorAddress) Delete() error {
 	if dbEngine := db.GetDBEngine(); dbEngine != nil {
-		if collection, err := dbEngine.GetCollection(COLLECTION_NAME_VISITOR_ADDRESS); err == nil {
+		if collection, err := dbEngine.GetCollection(ConstCollectionNameVisitorAddress); err == nil {
 			err := collection.DeleteById(it.GetId())
 			if err != nil {
 				return env.ErrorDispatch(err)
@@ -55,7 +55,7 @@ func (it *DefaultVisitorAddress) Delete() error {
 func (it *DefaultVisitorAddress) Save() error {
 
 	if dbEngine := db.GetDBEngine(); dbEngine != nil {
-		if collection, err := dbEngine.GetCollection(COLLECTION_NAME_VISITOR_ADDRESS); err == nil {
+		if collection, err := dbEngine.GetCollection(ConstCollectionNameVisitorAddress); err == nil {
 
 			//if it.ZipCode== "" {
 			//	return env.ErrorNew("Zip code for address - required")

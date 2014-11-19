@@ -12,30 +12,30 @@ import (
 
 // returns url related to dashboard server
 func GetDashboardUrl(path string) string {
-	baseUrl := utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_DASHBOARD_URL))
+	baseUrl := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathDashboardURL))
 	return strings.TrimRight(baseUrl, "#/") + "/#/" + path
 }
 
 // returns url related to storefront server
 func GetStorefrontUrl(path string) string {
-	baseUrl := utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_STOREFRONT_URL))
+	baseUrl := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathStorefrontURL))
 	return strings.TrimRight(baseUrl, "#/") + "/#/" + path
 }
 
 // returns url related to foundation server
 func GetFoundationUrl(path string) string {
-	baseUrl := utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_FOUNDATION_URL))
+	baseUrl := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathFoundationURL))
 	return strings.TrimRight(baseUrl, "/") + "/" + path
 }
 
 // sends mail via smtp server specified in config
 func SendMail(to string, subject string, body string) error {
 
-	userName := utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_MAIL_USER))
-	password := utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_MAIL_PASSWORD))
+	userName := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathMailUser))
+	password := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathMailPassword))
 
-	mailServer := utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_MAIL_SERVER))
-	mailPort := utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_MAIL_PORT))
+	mailServer := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathMailServer))
+	mailPort := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathMailPort))
 	if mailPort != "" && mailPort != "0" {
 		mailPort = ":" + mailPort
 	} else {
@@ -43,11 +43,11 @@ func SendMail(to string, subject string, body string) error {
 	}
 
 	context := map[string]interface{}{
-		"From":      utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_MAIL_FROM)),
+		"From":      utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathMailFrom)),
 		"To":        to,
 		"Subject":   subject,
 		"Body":      body,
-		"Signature": utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_MAIL_SIGNATURE)),
+		"Signature": utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathMailSignature)),
 	}
 
 	emailTemplateBody := `From: {{.From}}

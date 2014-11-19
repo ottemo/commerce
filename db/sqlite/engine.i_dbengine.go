@@ -34,7 +34,7 @@ func (it *SQLite) CreateCollection(collectionName string) error {
 	// collectionName = strings.ToLower(collectionName)
 
 	SQL := "CREATE TABLE " + collectionName + " (_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL)"
-	if UUID_ID {
+	if ConstUseUUIDids {
 		SQL = "CREATE TABLE " + collectionName + " (_id NCHAR(24) PRIMARY KEY NOT NULL)"
 	}
 
@@ -46,8 +46,8 @@ func (it *SQLite) CreateCollection(collectionName string) error {
 }
 
 // returns collection(table) by name or creates new one
-func (it *SQLite) GetCollection(collectionName string) (db.I_DBCollection, error) {
-	if !SQL_NAME_VALIDATOR.MatchString(collectionName) {
+func (it *SQLite) GetCollection(collectionName string) (db.InterfaceDBCollection, error) {
+	if !ConstSQLNameValidator.MatchString(collectionName) {
 		return nil, env.ErrorNew("not valid collection name for DB engine")
 	}
 
@@ -59,7 +59,7 @@ func (it *SQLite) GetCollection(collectionName string) (db.I_DBCollection, error
 
 	collection := &SQLiteCollection{
 		Name:          collectionName,
-		FilterGroups:  make(map[string]*T_DBFilterGroup),
+		FilterGroups:  make(map[string]*StructDBFilterGroup),
 		Order:         make([]string, 0),
 		ResultColumns: make([]string, 0),
 	}
@@ -88,7 +88,7 @@ func (it *SQLite) RawQuery(query string) (map[string]interface{}, error) {
 	for ; err == nil; err = stmt.Next() {
 		if err := stmt.Scan(row); err == nil {
 
-			if UUID_ID {
+			if ConstUseUUIDids {
 				if _, present := row["_id"]; present {
 					row["_id"] = strconv.FormatInt(row["_id"].(int64), 10)
 				}

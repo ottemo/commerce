@@ -31,7 +31,7 @@ func (it *FilesystemMediaStorage) setupCheckDone() {
 // setupOnIniConfig is a initialization based on ini config service
 func (it *FilesystemMediaStorage) setupOnIniConfig() error {
 
-	var storageFolder = MEDIA_DEFAULT_FOLDER
+	var storageFolder = ConstMediaDefaultFolder
 
 	if iniConfig := env.GetIniConfig(); iniConfig != nil {
 		if iniValue := iniConfig.GetValue("media.fsmedia.folder", "?"); iniValue != "" {
@@ -63,7 +63,7 @@ func (it *FilesystemMediaStorage) setupOnDatabase() error {
 		return env.ErrorNew("Can't get database engine")
 	}
 
-	collection, err := dbEngine.GetCollection(MEDIA_DB_COLLECTION)
+	collection, err := dbEngine.GetCollection(ConstMediaDBCollection)
 	if err != nil {
 		return err
 	}

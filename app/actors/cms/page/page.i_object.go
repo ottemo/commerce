@@ -97,12 +97,12 @@ func (it *DefaultCMSPage) ToHashMap() map[string]interface{} {
 }
 
 // returns information about object attributes
-func (it *DefaultCMSPage) GetAttributesInfo() []models.T_AttributeInfo {
+func (it *DefaultCMSPage) GetAttributesInfo() []models.StructAttributeInfo {
 
-	info := []models.T_AttributeInfo{
-		models.T_AttributeInfo{
-			Model:      cms.MODEL_NAME_CMS_PAGE,
-			Collection: CMS_PAGE_COLLECTION_NAME,
+	info := []models.StructAttributeInfo{
+		models.StructAttributeInfo{
+			Model:      cms.ConstModelNameCMSPage,
+			Collection: ConstCmsPageCollectionName,
 			Attribute:  "_id",
 			Type:       "id",
 			IsRequired: false,
@@ -113,9 +113,9 @@ func (it *DefaultCMSPage) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
-			Model:      cms.MODEL_NAME_CMS_PAGE,
-			Collection: CMS_PAGE_COLLECTION_NAME,
+		models.StructAttributeInfo{
+			Model:      cms.ConstModelNameCMSPage,
+			Collection: ConstCmsPageCollectionName,
 			Attribute:  "url",
 			Type:       "varchar(255)",
 			IsRequired: true,
@@ -126,9 +126,9 @@ func (it *DefaultCMSPage) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
-			Model:      cms.MODEL_NAME_CMS_PAGE,
-			Collection: CMS_PAGE_COLLECTION_NAME,
+		models.StructAttributeInfo{
+			Model:      cms.ConstModelNameCMSPage,
+			Collection: ConstCmsPageCollectionName,
 			Attribute:  "identifier",
 			Type:       "varchar(255)",
 			IsRequired: true,
@@ -139,9 +139,9 @@ func (it *DefaultCMSPage) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
-			Model:      cms.MODEL_NAME_CMS_PAGE,
-			Collection: CMS_PAGE_COLLECTION_NAME,
+		models.StructAttributeInfo{
+			Model:      cms.ConstModelNameCMSPage,
+			Collection: ConstCmsPageCollectionName,
 			Attribute:  "title",
 			Type:       "varchar(255)",
 			IsRequired: false,
@@ -152,9 +152,9 @@ func (it *DefaultCMSPage) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
-			Model:      cms.MODEL_NAME_CMS_PAGE,
-			Collection: CMS_PAGE_COLLECTION_NAME,
+		models.StructAttributeInfo{
+			Model:      cms.ConstModelNameCMSPage,
+			Collection: ConstCmsPageCollectionName,
 			Attribute:  "content",
 			Type:       "html",
 			IsRequired: false,
@@ -165,9 +165,9 @@ func (it *DefaultCMSPage) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
-			Model:      cms.MODEL_NAME_CMS_PAGE,
-			Collection: CMS_PAGE_COLLECTION_NAME,
+		models.StructAttributeInfo{
+			Model:      cms.ConstModelNameCMSPage,
+			Collection: ConstCmsPageCollectionName,
 			Attribute:  "meta_keywords",
 			Type:       "varchar(255)",
 			IsRequired: false,
@@ -178,9 +178,9 @@ func (it *DefaultCMSPage) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
-			Model:      cms.MODEL_NAME_CMS_PAGE,
-			Collection: CMS_PAGE_COLLECTION_NAME,
+		models.StructAttributeInfo{
+			Model:      cms.ConstModelNameCMSPage,
+			Collection: ConstCmsPageCollectionName,
 			Attribute:  "meta_description",
 			Type:       "text",
 			IsRequired: false,
@@ -191,9 +191,9 @@ func (it *DefaultCMSPage) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
-			Model:      cms.MODEL_NAME_CMS_PAGE,
-			Collection: CMS_PAGE_COLLECTION_NAME,
+		models.StructAttributeInfo{
+			Model:      cms.ConstModelNameCMSPage,
+			Collection: ConstCmsPageCollectionName,
 			Attribute:  "created_at",
 			Type:       "datetime",
 			IsRequired: true,
@@ -204,9 +204,9 @@ func (it *DefaultCMSPage) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
-			Model:      cms.MODEL_NAME_CMS_PAGE,
-			Collection: CMS_PAGE_COLLECTION_NAME,
+		models.StructAttributeInfo{
+			Model:      cms.ConstModelNameCMSPage,
+			Collection: ConstCmsPageCollectionName,
 			Attribute:  "updated_at",
 			Type:       "datetime",
 			IsRequired: true,

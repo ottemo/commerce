@@ -7,8 +7,8 @@ import (
 )
 
 // enumerates items of Product model type
-func (it *DefaultOrderItemCollection) List() ([]models.T_ListItem, error) {
-	result := make([]models.T_ListItem, 0)
+func (it *DefaultOrderItemCollection) List() ([]models.StructListItem, error) {
+	result := make([]models.StructListItem, 0)
 
 	dbRecords, err := it.listCollection.Load()
 	if err != nil {
@@ -23,7 +23,7 @@ func (it *DefaultOrderItemCollection) List() ([]models.T_ListItem, error) {
 			return result, env.ErrorDispatch(err)
 		}
 		// retrieving minimal data needed for list
-		resultItem := new(models.T_ListItem)
+		resultItem := new(models.StructListItem)
 
 		resultItem.Id = orderItemModel.GetId()
 		resultItem.Name = orderItemModel.GetName()

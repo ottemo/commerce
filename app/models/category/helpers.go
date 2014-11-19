@@ -5,38 +5,38 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
-// retrieves current I_CategoryCollection model implementation
-func GetCategoryCollectionModel() (I_CategoryCollection, error) {
-	model, err := models.GetModel(MODEL_NAME_CATEGORY_COLLECTION)
+// retrieves current InterfaceCategoryCollection model implementation
+func GetCategoryCollectionModel() (InterfaceCategoryCollection, error) {
+	model, err := models.GetModel(ConstModelNameCategoryCollection)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	categoryModel, ok := model.(I_CategoryCollection)
+	categoryModel, ok := model.(InterfaceCategoryCollection)
 	if !ok {
-		return nil, env.ErrorNew("model " + model.GetImplementationName() + " is not 'I_CategoryCollection' capable")
+		return nil, env.ErrorNew("model " + model.GetImplementationName() + " is not 'InterfaceCategoryCollection' capable")
 	}
 
 	return categoryModel, nil
 }
 
-// retrieves current I_Category model implementation
-func GetCategoryModel() (I_Category, error) {
-	model, err := models.GetModel(MODEL_NAME_CATEGORY)
+// retrieves current InterfaceCategory model implementation
+func GetCategoryModel() (InterfaceCategory, error) {
+	model, err := models.GetModel(ConstModelNameCategory)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	categoryModel, ok := model.(I_Category)
+	categoryModel, ok := model.(InterfaceCategory)
 	if !ok {
-		return nil, env.ErrorNew("model " + model.GetImplementationName() + " is not 'I_Category' capable")
+		return nil, env.ErrorNew("model " + model.GetImplementationName() + " is not 'InterfaceCategory' capable")
 	}
 
 	return categoryModel, nil
 }
 
-// retrieves current I_Category model implementation and sets its ID to some value
-func GetCategoryModelAndSetId(categoryId string) (I_Category, error) {
+// retrieves current InterfaceCategory model implementation and sets its ID to some value
+func GetCategoryModelAndSetId(categoryId string) (InterfaceCategory, error) {
 
 	categoryModel, err := GetCategoryModel()
 	if err != nil {
@@ -51,8 +51,8 @@ func GetCategoryModelAndSetId(categoryId string) (I_Category, error) {
 	return categoryModel, nil
 }
 
-// loads category data into current I_Category model implementation
-func LoadCategoryById(categoryId string) (I_Category, error) {
+// loads category data into current InterfaceCategory model implementation
+func LoadCategoryById(categoryId string) (InterfaceCategory, error) {
 
 	categoryModel, err := GetCategoryModel()
 	if err != nil {

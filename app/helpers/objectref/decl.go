@@ -1,7 +1,7 @@
 // Package objectref intended to unify and simplify a way of model instance changes tracking (currently not implemented)
 package objectref
 
-// DBObjectRef is a object state tracking helper and implementer of I_Object and I_Storable
+// DBObjectRef is a object state tracking helper and implementer of InterfaceObject and InterfaceStorable
 type DBObjectRef struct {
 	id string
 

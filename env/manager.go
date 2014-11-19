@@ -7,11 +7,11 @@ import (
 // Package global variables
 var (
 	// variables to hold currently registered services
-	registeredConfig    I_Config
-	registeredIniConfig I_IniConfig
-	registeredLogger    I_Logger
-	registeredErrorBus  I_ErrorBus
-	registeredEventBus  I_EventBus
+	registeredConfig    InterfaceConfig
+	registeredIniConfig InterfaceIniConfig
+	registeredLogger    InterfaceLogger
+	registeredErrorBus  InterfaceErrorBus
+	registeredEventBus  InterfaceEventBus
 
 	// variables to hold callback functions on configuration services startup
 	callbacksOnConfigStart    = []func() error{}
@@ -50,7 +50,7 @@ func OnConfigIniStart() error {
 
 // registers ini config service in the system
 //   - will cause error if there are couple candidates for that role
-func RegisterIniConfig(IniConfig I_IniConfig) error {
+func RegisterIniConfig(IniConfig InterfaceIniConfig) error {
 	if registeredIniConfig == nil {
 		registeredIniConfig = IniConfig
 	} else {
@@ -61,7 +61,7 @@ func RegisterIniConfig(IniConfig I_IniConfig) error {
 
 // registers config service in the system
 //   - will cause error if there are couple candidates for that role
-func RegisterConfig(Config I_Config) error {
+func RegisterConfig(Config InterfaceConfig) error {
 	if registeredConfig == nil {
 		registeredConfig = Config
 	} else {
@@ -72,7 +72,7 @@ func RegisterConfig(Config I_Config) error {
 
 // registers logging service in the system
 //   - will cause error if there are couple candidates for that role
-func RegisterLogger(logger I_Logger) error {
+func RegisterLogger(logger InterfaceLogger) error {
 	if registeredLogger == nil {
 		registeredLogger = logger
 	} else {
@@ -83,7 +83,7 @@ func RegisterLogger(logger I_Logger) error {
 
 // registers event processor in the system
 //   - will cause error if there are couple candidates for that role
-func RegisterEventBus(eventBus I_EventBus) error {
+func RegisterEventBus(eventBus InterfaceEventBus) error {
 	if registeredEventBus == nil {
 		registeredEventBus = eventBus
 	} else {
@@ -94,7 +94,7 @@ func RegisterEventBus(eventBus I_EventBus) error {
 
 // registers error processor in the system
 //   - will cause error if there are couple candidates for that role
-func RegisterErrorBus(errorBus I_ErrorBus) error {
+func RegisterErrorBus(errorBus InterfaceErrorBus) error {
 	if registeredErrorBus == nil {
 		registeredErrorBus = errorBus
 	} else {
@@ -104,27 +104,27 @@ func RegisterErrorBus(errorBus I_ErrorBus) error {
 }
 
 // returns currently used config service implementation
-func GetConfig() I_Config {
+func GetConfig() InterfaceConfig {
 	return registeredConfig
 }
 
 // returns currently used ini config service implementation
-func GetIniConfig() I_IniConfig {
+func GetIniConfig() InterfaceIniConfig {
 	return registeredIniConfig
 }
 
 // returns currently used logging service implementation
-func GetLogger() I_Logger {
+func GetLogger() InterfaceLogger {
 	return registeredLogger
 }
 
 // returns currently used error processor implementation
-func GetErrorBus() I_ErrorBus {
+func GetErrorBus() InterfaceErrorBus {
 	return registeredErrorBus
 }
 
 // returns currently used event processor implementation
-func GetEventBus() I_EventBus {
+func GetEventBus() InterfaceEventBus {
 	return registeredEventBus
 }
 

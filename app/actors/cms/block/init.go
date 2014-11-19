@@ -11,12 +11,12 @@ import (
 // init makes package self-initialization routine
 func init() {
 	cmsBlockInstance := new(DefaultCMSBlock)
-	var _ cms.I_CMSBlock = cmsBlockInstance
-	models.RegisterModel(cms.MODEL_NAME_CMS_BLOCK, cmsBlockInstance)
+	var _ cms.InterfaceCMSBlock = cmsBlockInstance
+	models.RegisterModel(cms.ConstModelNameCMSBlock, cmsBlockInstance)
 
 	cmsBlockCollectionInstance := new(DefaultCMSBlockCollection)
-	var _ cms.I_CMSBlockCollection = cmsBlockCollectionInstance
-	models.RegisterModel(cms.MODEL_NAME_CMS_BLOCK_COLLECTION, cmsBlockCollectionInstance)
+	var _ cms.InterfaceCMSBlockCollection = cmsBlockCollectionInstance
+	models.RegisterModel(cms.ConstModelNameCMSBlockCollection, cmsBlockCollectionInstance)
 
 	db.RegisterOnDatabaseStart(setupDB)
 	api.RegisterOnRestServiceStart(setupAPI)
@@ -24,7 +24,7 @@ func init() {
 
 // setupDB prepares system database for package usage
 func setupDB() error {
-	collection, err := db.GetCollection(CMS_BLOCK_COLLECTION_NAME)
+	collection, err := db.GetCollection(ConstCmsBlockCollectionName)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
