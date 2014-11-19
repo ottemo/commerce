@@ -9,14 +9,14 @@ import (
 
 // init makes package self-initialization routine
 func init() {
-	instance := new(MongoDB)
+	instance := new(DBEngine)
 
 	env.RegisterOnConfigIniStart(instance.Startup)
 	db.RegisterDBEngine(instance)
 }
 
 // Startup is a database engine startup routines
-func (it *MongoDB) Startup() error {
+func (it *DBEngine) Startup() error {
 
 	var DBUri = "mongodb://localhost:27017/ottemo"
 	var DBName = "ottemo"
@@ -33,7 +33,7 @@ func (it *MongoDB) Startup() error {
 
 	session, err := mgo.Dial(DBUri)
 	if err != nil {
-		return env.ErrorNew("Can't connect to MongoDB")
+		return env.ErrorNew("Can't connect to DBEngine")
 	}
 
 	it.session = session
@@ -58,7 +58,7 @@ func (it *MongoDB) Startup() error {
 }
 
 // Output is a implementation of mgo.log_Logger interface
-func (it *MongoDB) Output(calldepth int, s string) error {
+func (it *DBEngine) Output(calldepth int, s string) error {
 	env.Log("mongo.log", "DEBUG", s)
 	return nil
 }

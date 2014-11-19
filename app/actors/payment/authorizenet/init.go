@@ -1,4 +1,4 @@
-package authorize
+package authorizenet
 
 import (
 	"github.com/ottemo/foundation/api"
@@ -8,7 +8,7 @@ import (
 
 // init makes package self-initialization routine
 func init() {
-	checkout.RegisterPaymentMethod(new(AuthorizeNetDPM))
+	checkout.RegisterPaymentMethod(new(DirectPostMethod))
 	api.RegisterOnRestServiceStart(setupAPI)
 	env.RegisterOnConfigStart(setupConfig)
 }

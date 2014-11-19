@@ -9,12 +9,12 @@ import (
 )
 
 // returns current DB engine name
-func (it *SQLite) GetName() string {
+func (it *DBEngine) GetName() string {
 	return "Sqlite3"
 }
 
 // checks if collection(table) already exists
-func (it *SQLite) HasCollection(collectionName string) bool {
+func (it *DBEngine) HasCollection(collectionName string) bool {
 	// collectionName = strings.ToLower(collectionName)
 
 	SQL := "SELECT name FROM sqlite_master WHERE type='table' AND name='" + collectionName + "'"
@@ -30,7 +30,7 @@ func (it *SQLite) HasCollection(collectionName string) bool {
 }
 
 // creates cllection(table) by it's name
-func (it *SQLite) CreateCollection(collectionName string) error {
+func (it *DBEngine) CreateCollection(collectionName string) error {
 	// collectionName = strings.ToLower(collectionName)
 
 	SQL := "CREATE TABLE " + collectionName + " (_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL)"
@@ -46,7 +46,7 @@ func (it *SQLite) CreateCollection(collectionName string) error {
 }
 
 // returns collection(table) by name or creates new one
-func (it *SQLite) GetCollection(collectionName string) (db.InterfaceDBCollection, error) {
+func (it *DBEngine) GetCollection(collectionName string) (db.InterfaceDBCollection, error) {
 	if !ConstSQLNameValidator.MatchString(collectionName) {
 		return nil, env.ErrorNew("not valid collection name for DB engine")
 	}
@@ -57,7 +57,7 @@ func (it *SQLite) GetCollection(collectionName string) (db.InterfaceDBCollection
 		}
 	}
 
-	collection := &SQLiteCollection{
+	collection := &DBCollection{
 		Name:          collectionName,
 		FilterGroups:  make(map[string]*StructDBFilterGroup),
 		Order:         make([]string, 0),
@@ -72,7 +72,7 @@ func (it *SQLite) GetCollection(collectionName string) (db.InterfaceDBCollection
 }
 
 // returns collection(table) by name or creates new one
-func (it *SQLite) RawQuery(query string) (map[string]interface{}, error) {
+func (it *DBEngine) RawQuery(query string) (map[string]interface{}, error) {
 
 	result := make([]map[string]interface{}, 0, 10)
 

@@ -8,7 +8,7 @@ import (
 
 // init makes package self-initialization routine
 func init() {
-	checkout.RegisterPaymentMethod(new(PayPalExpress))
+	checkout.RegisterPaymentMethod(new(Express))
 	api.RegisterOnRestServiceStart(setupAPI)
 	env.RegisterOnConfigStart(setupConfig)
 }

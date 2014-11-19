@@ -23,7 +23,7 @@ const (
 // Package global variables
 var (
 	// instance of database engine (one per application)
-	dbEngine *SQLite
+	dbEngine *DBEngine
 
 	// regex expression used to check names used within SQL queries
 	ConstSQLNameValidator = regexp.MustCompile("^[A-Za-z_][A-Za-z0-9_]*$")
@@ -37,8 +37,8 @@ type StructDBFilterGroup struct {
 	OrSequence   bool
 }
 
-// InterfaceDBCollection implementer class
-type SQLiteCollection struct {
+// DBCollection is a InterfaceDBCollection implementer
+type DBCollection struct {
 	Name string
 
 	ResultColumns []string
@@ -48,8 +48,8 @@ type SQLiteCollection struct {
 	Limit string
 }
 
-// InterfaceDBEngine implementer class
-type SQLite struct {
+// DBEngine is a InterfaceDBEngine implementer
+type DBEngine struct {
 	connection      *sqlite3.Conn
 	connectionMutex sync.RWMutex
 

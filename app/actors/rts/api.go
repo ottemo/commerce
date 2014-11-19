@@ -152,7 +152,7 @@ func restGetVisitsDetails(params *api.StructAPIHandlerParams) (interface{}, erro
 
 		} else {
 			if len(dbRecord) > 0 {
-				details := RtsDecodeDetails(utils.InterfaceToString(dbRecord[0]["details"]))
+				details := DecodeDetails(utils.InterfaceToString(dbRecord[0]["details"]))
 				for _, item := range details {
 					timestamp := fmt.Sprintf("%v", int32(utils.InterfaceToTime(item.Time).Unix()))
 					dbResult[timestamp]++

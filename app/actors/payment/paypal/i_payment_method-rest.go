@@ -17,23 +17,23 @@ import (
 	"github.com/ottemo/foundation/utils"
 )
 
-func (it *PayPalRest) GetName() string {
+func (it *RestAPI) GetName() string {
 	return PAYMENT_NAME_REST
 }
 
-func (it *PayPalRest) GetCode() string {
+func (it *RestAPI) GetCode() string {
 	return PAYMENT_CODE_REST
 }
 
-func (it *PayPalRest) GetType() string {
+func (it *RestAPI) GetType() string {
 	return checkout.ConstPaymentTypeCreditCard
 }
 
-func (it *PayPalRest) IsAllowed(checkoutInstance checkout.InterfaceCheckout) bool {
+func (it *RestAPI) IsAllowed(checkoutInstance checkout.InterfaceCheckout) bool {
 	return true
 }
 
-func (it *PayPalRest) Authorize(checkoutInstance checkout.InterfaceCheckout) error {
+func (it *RestAPI) Authorize(checkoutInstance checkout.InterfaceCheckout) error {
 
 	ccInfo := utils.InterfaceToMap(checkoutInstance.GetInfo("cc"))
 	if !utils.StrKeysInMap(ccInfo, "type", "number", "expire_month", "expire_year", "cvv") {
@@ -160,20 +160,20 @@ func (it *PayPalRest) Authorize(checkoutInstance checkout.InterfaceCheckout) err
 	return nil
 }
 
-func (it *PayPalRest) Capture(checkoutInstance checkout.InterfaceCheckout) error {
+func (it *RestAPI) Capture(checkoutInstance checkout.InterfaceCheckout) error {
 	return nil
 }
 
-func (it *PayPalRest) Refund(checkoutInstance checkout.InterfaceCheckout) error {
+func (it *RestAPI) Refund(checkoutInstance checkout.InterfaceCheckout) error {
 	return nil
 }
 
-func (it *PayPalRest) Void(checkoutInstance checkout.InterfaceCheckout) error {
+func (it *RestAPI) Void(checkoutInstance checkout.InterfaceCheckout) error {
 	return nil
 }
 
 // returns application access token needed for all other requests
-func (it *PayPalRest) GetAccessToken(checkoutInstance checkout.InterfaceCheckout) (string, error) {
+func (it *RestAPI) GetAccessToken(checkoutInstance checkout.InterfaceCheckout) (string, error) {
 
 	body := "grant_type=client_credentials"
 

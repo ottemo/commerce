@@ -1,4 +1,4 @@
-package authorize
+package authorizenet
 
 import (
 	"fmt"
@@ -20,27 +20,27 @@ import (
 )
 
 // GetName returns payment method name
-func (it *AuthorizeNetDPM) GetName() string {
+func (it *DirectPostMethod) GetName() string {
 	return utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathDPMTitle))
 }
 
 // GetCode returns payment method code
-func (it *AuthorizeNetDPM) GetCode() string {
+func (it *DirectPostMethod) GetCode() string {
 	return ConstPaymentCodeDPM
 }
 
 // GetType returns type of payment method
-func (it *AuthorizeNetDPM) GetType() string {
+func (it *DirectPostMethod) GetType() string {
 	return checkout.ConstPaymentTypePostCC
 }
 
 // IsAllowed checks for method applicability
-func (it *AuthorizeNetDPM) IsAllowed(checkoutInstance checkout.InterfaceCheckout) bool {
+func (it *DirectPostMethod) IsAllowed(checkoutInstance checkout.InterfaceCheckout) bool {
 	return utils.InterfaceToBool(env.ConfigGetValue(ConstConfigPathDPMEnabled))
 }
 
 // Authorize makes payment method authorize operation
-func (it *AuthorizeNetDPM) Authorize(orderInstance order.InterfaceOrder, paymentInfo map[string]interface{}) (interface{}, error) {
+func (it *DirectPostMethod) Authorize(orderInstance order.InterfaceOrder, paymentInfo map[string]interface{}) (interface{}, error) {
 
 	// crypting fingerprint
 	//---------------------
@@ -122,16 +122,16 @@ func (it *AuthorizeNetDPM) Authorize(orderInstance order.InterfaceOrder, payment
 }
 
 // Capture makes payment method capture operation
-func (it *AuthorizeNetDPM) Capture(orderInstance order.InterfaceOrder, paymentInfo map[string]interface{}) (interface{}, error) {
+func (it *DirectPostMethod) Capture(orderInstance order.InterfaceOrder, paymentInfo map[string]interface{}) (interface{}, error) {
 	return nil, env.ErrorNew("Not implemented")
 }
 
 // Refund will return funds on the given order :: Not Implemented Yet
-func (it *AuthorizeNetDPM) Refund(orderInstance order.InterfaceOrder, paymentInfo map[string]interface{}) (interface{}, error) {
+func (it *DirectPostMethod) Refund(orderInstance order.InterfaceOrder, paymentInfo map[string]interface{}) (interface{}, error) {
 	return nil, env.ErrorNew("Not implemented")
 }
 
 // Void will mark the order and capture as void
-func (it *AuthorizeNetDPM) Void(orderInstance order.InterfaceOrder, paymentInfo map[string]interface{}) (interface{}, error) {
+func (it *DirectPostMethod) Void(orderInstance order.InterfaceOrder, paymentInfo map[string]interface{}) (interface{}, error) {
 	return nil, env.ErrorNew("Not implemented")
 }

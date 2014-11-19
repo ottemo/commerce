@@ -8,7 +8,7 @@ import (
 
 // init makes package self-initialization routine
 func init() {
-	dbEngine = new(SQLite)
+	dbEngine = new(DBEngine)
 	dbEngine.attributeTypes = make(map[string]map[string]string)
 
 	var _ db.InterfaceDBEngine = dbEngine
@@ -18,7 +18,7 @@ func init() {
 }
 
 // Startup is a database engine startup routines
-func (it *SQLite) Startup() error {
+func (it *DBEngine) Startup() error {
 
 	it.attributeTypes = make(map[string]map[string]string)
 

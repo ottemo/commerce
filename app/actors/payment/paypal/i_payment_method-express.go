@@ -18,27 +18,27 @@ import (
 )
 
 // GetName returns payment method name
-func (it *PayPalExpress) GetName() string {
+func (it *Express) GetName() string {
 	return utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathTitle))
 }
 
 // GetCode returns payment method code
-func (it *PayPalExpress) GetCode() string {
+func (it *Express) GetCode() string {
 	return ConstPaymentCode
 }
 
 // GetType returns the type of payment method
-func (it *PayPalExpress) GetType() string {
+func (it *Express) GetType() string {
 	return checkout.ConstPaymentTypeRemote
 }
 
 // IsAllowed checks for method applicability
-func (it *PayPalExpress) IsAllowed(checkoutInstance checkout.InterfaceCheckout) bool {
+func (it *Express) IsAllowed(checkoutInstance checkout.InterfaceCheckout) bool {
 	return utils.InterfaceToBool(env.ConfigGetValue(ConstConfigPathEnabled))
 }
 
 // Authorize makes payment method authorize operation
-func (it *PayPalExpress) Authorize(orderInstance order.InterfaceOrder, paymentInfo map[string]interface{}) (interface{}, error) {
+func (it *Express) Authorize(orderInstance order.InterfaceOrder, paymentInfo map[string]interface{}) (interface{}, error) {
 
 	// getting order information
 	//--------------------------
@@ -129,16 +129,16 @@ func (it *PayPalExpress) Authorize(orderInstance order.InterfaceOrder, paymentIn
 }
 
 // Capture payment method capture operation
-func (it *PayPalExpress) Capture(orderInstance order.InterfaceOrder, paymentInfo map[string]interface{}) (interface{}, error) {
+func (it *Express) Capture(orderInstance order.InterfaceOrder, paymentInfo map[string]interface{}) (interface{}, error) {
 	return nil, env.ErrorNew("Not implemented")
 }
 
 // Refund makes payment method refund operation
-func (it *PayPalExpress) Refund(orderInstance order.InterfaceOrder, paymentInfo map[string]interface{}) (interface{}, error) {
+func (it *Express) Refund(orderInstance order.InterfaceOrder, paymentInfo map[string]interface{}) (interface{}, error) {
 	return nil, env.ErrorNew("Not implemented")
 }
 
 // Void makes payment method void operation
-func (it *PayPalExpress) Void(orderInstance order.InterfaceOrder, paymentInfo map[string]interface{}) (interface{}, error) {
+func (it *Express) Void(orderInstance order.InterfaceOrder, paymentInfo map[string]interface{}) (interface{}, error) {
 	return nil, env.ErrorNew("Not implemented")
 }

@@ -1,4 +1,4 @@
-package flat
+package flatrate
 
 import (
 	"github.com/ottemo/foundation/env"

@@ -8,12 +8,12 @@ import (
 func init() {
 	api.RegisterOnRestServiceStart(setupAPI)
 
-	RegisterImportCommand("INSERT", new(ImpexImportCmdInsert))
-	RegisterImportCommand("UPDATE", new(ImpexImportCmdUpdate))
-	RegisterImportCommand("DELETE", new(ImpexImportCmdDelete))
+	RegisterImportCommand("INSERT", new(ImportCmdInsert))
+	RegisterImportCommand("UPDATE", new(ImportCmdUpdate))
+	RegisterImportCommand("DELETE", new(ImportCmdDelete))
 
-	RegisterImportCommand("STORE", new(ImpexImportCmdStore))
-	RegisterImportCommand("MEDIA", new(ImpexImportCmdMedia))
+	RegisterImportCommand("STORE", new(ImportCmdStore))
+	RegisterImportCommand("MEDIA", new(ImportCmdMedia))
 
-	RegisterImportCommand("ATTRIBUTE_ADD", new(ImpexImportCmdAttributeAdd))
+	RegisterImportCommand("ATTRIBUTE_ADD", new(ImportCmdAttributeAdd))
 }

@@ -461,7 +461,7 @@ func GetTodayVisitorsData() error {
 			visitorsInfoToday.Cart = utils.InterfaceToInt(dbRecord[0]["cart"])
 			visitorsInfoToday.Checkout = utils.InterfaceToInt(dbRecord[0]["checkout"])
 			visitorsInfoToday.Sales = utils.InterfaceToInt(dbRecord[0]["sales"])
-			visitorsInfoToday.Details = RtsDecodeDetails(utils.InterfaceToString(dbRecord[0]["details"]))
+			visitorsInfoToday.Details = DecodeDetails(utils.InterfaceToString(dbRecord[0]["details"]))
 
 			return nil
 		}
@@ -498,7 +498,7 @@ func GetYesterdayVisitorsData() error {
 			visitorsInfoYesterday.Cart = utils.InterfaceToInt(dbRecord[0]["cart"])
 			visitorsInfoYesterday.Checkout = utils.InterfaceToInt(dbRecord[0]["checkout"])
 			visitorsInfoYesterday.Sales = utils.InterfaceToInt(dbRecord[0]["sales"])
-			visitorsInfoYesterday.Details = RtsDecodeDetails(utils.InterfaceToString(dbRecord[0]["details"]))
+			visitorsInfoYesterday.Details = DecodeDetails(utils.InterfaceToString(dbRecord[0]["details"]))
 
 			return nil
 		}
@@ -526,7 +526,7 @@ func SaveVisitorData() error {
 		visitorInfoRow["cart"] = visitorsInfoToday.Cart
 		visitorInfoRow["checkout"] = visitorsInfoToday.Checkout
 		visitorInfoRow["sales"] = visitorsInfoToday.Sales
-		visitorInfoRow["details"] = RtsEncodeDetails(visitorsInfoToday.Details)
+		visitorInfoRow["details"] = EncodeDetails(visitorsInfoToday.Details)
 
 		_, err = visitorInfoCollection.Save(visitorInfoRow)
 		if err != nil {
@@ -537,15 +537,15 @@ func SaveVisitorData() error {
 	return nil
 }
 
-// RtsEncodeDetails returns the Visitor data in a string when provided a VisitorDetail map[string]*
-func RtsEncodeDetails(details map[string]*VisitorDetail) string {
+// EncodeDetails returns the Visitor data in a string when provided a VisitorDetail map[string]*
+func EncodeDetails(details map[string]*VisitorDetail) string {
 	jsonString, _ := json.Marshal(details)
 
 	return string(jsonString)
 }
 
-// RtsDecodeDetails returns the Visitor data in a VisitorDetail map[string]* when provieded an encoded string
-func RtsDecodeDetails(detailsString string) map[string]*VisitorDetail {
+// DecodeDetails returns the Visitor data in a VisitorDetail map[string]* when provieded an encoded string
+func DecodeDetails(detailsString string) map[string]*VisitorDetail {
 	var details map[string]*VisitorDetail
 	_ = json.Unmarshal([]byte(detailsString), &details)
 

@@ -1,4 +1,4 @@
-// Package mongo is a MongoDB implementation of interfaces declared in
+// Package mongo is a DBEngine implementation of interfaces declared in
 // "github.com/ottemo/foundation/db" package
 package mongo
 
@@ -33,12 +33,12 @@ type StructDBFilterGroup struct {
 	OrSequence   bool
 }
 
-// MongoDBCollection is a implementer of InterfaceDBCollection
-type MongoDBCollection struct {
+// DBCollection is a implementer of InterfaceDBCollection
+type DBCollection struct {
 	database   *mgo.Database
 	collection *mgo.Collection
 
-	subcollections []*MongoDBCollection
+	subcollections []*DBCollection
 	subresults     []*bson.Raw
 
 	Name string
@@ -53,8 +53,8 @@ type MongoDBCollection struct {
 	Offset int
 }
 
-// MongoDB is a implementer of InterfaceDBEngine
-type MongoDB struct {
+// DBEngine is a implementer of InterfaceDBEngine
+type DBEngine struct {
 	database *mgo.Database
 	session  *mgo.Session
 

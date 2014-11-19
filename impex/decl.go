@@ -2,6 +2,7 @@
 package impex
 
 import (
+	"github.com/ottemo/foundation/app/models"
 	"regexp"
 )
 
@@ -41,3 +42,51 @@ var (
 	// set of service import commands
 	importCmd = make(map[string]InterfaceImpexImportCmd)
 )
+
+// ImportCmdAttributeAdd is a implementer of InterfaceImpexImportCmd
+//  - command allows to create custom attributes on model
+type ImportCmdAttributeAdd struct {
+	model     models.InterfaceModel
+	attribute models.StructAttributeInfo
+}
+
+// ImportCmdInsert is a implementer of InterfaceImpexImportCmd
+//  - command allows to upload data in system through model item abstraction
+type ImportCmdInsert struct {
+	model      models.InterfaceModel
+	attributes map[string]bool
+	skipErrors bool
+}
+
+// ImportCmdUpdate is a implementer of InterfaceImpexImportCmd
+//  - command allows to update model item data in system
+type ImportCmdUpdate struct {
+	model      models.InterfaceModel
+	attributes map[string]bool
+	idKey      string
+}
+
+// ImportCmdDelete is a implementer of InterfaceImpexImportCmd
+//  - command allows to delete model items from the system
+type ImportCmdDelete struct {
+	model models.InterfaceModel
+	idKey string
+}
+
+// ImportCmdMedia is a implementer of InterfaceImpexImportCmd
+//  - command allows to assign media content to models item
+type ImportCmdMedia struct {
+	mediaField string
+	mediaType  string
+	mediaName  string
+}
+
+// ImportCmdStore is a implementer of InterfaceImpexImportCmd
+//  - command allows temporary load/store previous command results during import process
+type ImportCmdStore struct {
+	storeObjectAs string
+	storeValueAs  map[string]string
+
+	prefix    string
+	prefixKey string
+}

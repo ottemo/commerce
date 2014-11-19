@@ -1,4 +1,4 @@
-package flat
+package flatrate
 
 import (
 	"github.com/ottemo/foundation/app/models/checkout"
@@ -7,7 +7,7 @@ import (
 
 // init makes package self-initialization routine
 func init() {
-	instance := new(FlatRateShipping)
+	instance := new(ShippingMethod)
 
 	checkout.RegisterShippingMethod(instance)
 

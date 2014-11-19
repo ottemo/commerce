@@ -1,6 +1,6 @@
-// Package flat is a Flat Rate implementation of shipping method interface declared in
+// Package flatrate is a Flat Rate implementation of shipping method interface declared in
 // "github.com/ottemo/foundation/app/models/checkout" package
-package flat
+package flatrate
 
 // Package global constants
 const (
@@ -15,5 +15,5 @@ const (
 	ConstConfigPathDays    = "shipping.flat_rate.days"
 )
 
-// FlatRateShipping is a implementer of InterfaceShippingMethod for a "Flat Rate" shipping method
-type FlatRateShipping struct{}
+// ShippingMethod is a implementer of InterfaceShippingMethod for a "Flat Rate" shipping method
+type ShippingMethod struct{}

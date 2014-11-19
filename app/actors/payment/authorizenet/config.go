@@ -1,4 +1,4 @@
-package authorize
+package authorizenet
 
 import (
 	"github.com/ottemo/foundation/env"

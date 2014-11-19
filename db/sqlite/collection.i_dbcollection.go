@@ -12,7 +12,7 @@ import (
 )
 
 // loads record from DB by it's id
-func (it *SQLiteCollection) LoadByID(id string) (map[string]interface{}, error) {
+func (it *DBCollection) LoadByID(id string) (map[string]interface{}, error) {
 	var result map[string]interface{} = nil
 
 	if !ConstUseUUIDids {
@@ -34,7 +34,7 @@ func (it *SQLiteCollection) LoadByID(id string) (map[string]interface{}, error) 
 }
 
 // loads records from DB for current collection and filter if it set
-func (it *SQLiteCollection) Load() ([]map[string]interface{}, error) {
+func (it *DBCollection) Load() ([]map[string]interface{}, error) {
 	result := make([]map[string]interface{}, 0)
 
 	err := it.Iterate(func(row map[string]interface{}) bool {
@@ -46,7 +46,7 @@ func (it *SQLiteCollection) Load() ([]map[string]interface{}, error) {
 }
 
 // applies [iterator] function to each record, stops on return false
-func (it *SQLiteCollection) Iterate(iteratorFunc func(record map[string]interface{}) bool) error {
+func (it *DBCollection) Iterate(iteratorFunc func(record map[string]interface{}) bool) error {
 
 	SQL := it.getSelectSQL()
 	if ConstDebugSQL {
@@ -79,7 +79,7 @@ func (it *SQLiteCollection) Iterate(iteratorFunc func(record map[string]interfac
 }
 
 // returns distinct values of specified attribute
-func (it *SQLiteCollection) Distinct(columnName string) ([]interface{}, error) {
+func (it *DBCollection) Distinct(columnName string) ([]interface{}, error) {
 
 	prevResultColumns := it.ResultColumns
 	it.SetResultColumns(columnName)
@@ -129,7 +129,7 @@ func (it *SQLiteCollection) Distinct(columnName string) ([]interface{}, error) {
 }
 
 // returns count of rows matching current select statement
-func (it *SQLiteCollection) Count() (int, error) {
+func (it *DBCollection) Count() (int, error) {
 	sqlLoadFilter := it.getSQLFilters()
 
 	SQL := "SELECT COUNT(*) AS cnt FROM " + it.Name + sqlLoadFilter
@@ -159,7 +159,7 @@ func (it *SQLiteCollection) Count() (int, error) {
 }
 
 // stores record in DB for current collection
-func (it *SQLiteCollection) Save(item map[string]interface{}) (string, error) {
+func (it *DBCollection) Save(item map[string]interface{}) (string, error) {
 
 	// prevents saving of blank records
 	if len(item) == 0 {
@@ -241,7 +241,7 @@ func (it *SQLiteCollection) Save(item map[string]interface{}) (string, error) {
 
 // removes records that matches current select statement from DB
 //   - returns amount of affected rows
-func (it *SQLiteCollection) Delete() (int, error) {
+func (it *DBCollection) Delete() (int, error) {
 	sqlDeleteFilter := it.getSQLFilters()
 
 	SQL := "DELETE FROM " + it.Name + sqlDeleteFilter
@@ -256,7 +256,7 @@ func (it *SQLiteCollection) Delete() (int, error) {
 }
 
 // removes record from DB by is's id
-func (it *SQLiteCollection) DeleteByID(id string) error {
+func (it *DBCollection) DeleteByID(id string) error {
 	SQL := "DELETE FROM " + it.Name + " WHERE _id = " + convertValueForSQL(id)
 
 	if ConstDebugSQL {
@@ -267,7 +267,7 @@ func (it *SQLiteCollection) DeleteByID(id string) error {
 }
 
 // setups filter group params for collection
-func (it *SQLiteCollection) SetupFilterGroup(groupName string, orSequence bool, parentGroup string) error {
+func (it *DBCollection) SetupFilterGroup(groupName string, orSequence bool, parentGroup string) error {
 	if _, present := it.FilterGroups[parentGroup]; !present && parentGroup != "" {
 		return env.ErrorNew("invalid parent group")
 	}
@@ -280,7 +280,7 @@ func (it *SQLiteCollection) SetupFilterGroup(groupName string, orSequence bool, 
 }
 
 // removes filter group for collection
-func (it *SQLiteCollection) RemoveFilterGroup(groupName string) error {
+func (it *DBCollection) RemoveFilterGroup(groupName string) error {
 	if _, present := it.FilterGroups[groupName]; !present {
 		return env.ErrorNew("invalid group name")
 	}
@@ -290,7 +290,7 @@ func (it *SQLiteCollection) RemoveFilterGroup(groupName string) error {
 }
 
 // adds selection filter to specific filter group (all filter groups will be joined before db query)
-func (it *SQLiteCollection) AddGroupFilter(groupName string, columnName string, operator string, value interface{}) error {
+func (it *DBCollection) AddGroupFilter(groupName string, columnName string, operator string, value interface{}) error {
 	err := it.updateFilterGroup(groupName, columnName, operator, value)
 	if err != nil {
 		return err
@@ -300,7 +300,7 @@ func (it *SQLiteCollection) AddGroupFilter(groupName string, columnName string, 
 }
 
 // adds selection filter that will not be cleared by ClearFilters() function
-func (it *SQLiteCollection) AddStaticFilter(columnName string, operator string, value interface{}) error {
+func (it *DBCollection) AddStaticFilter(columnName string, operator string, value interface{}) error {
 
 	err := it.updateFilterGroup(ConstFilterGroupStatic, columnName, operator, value)
 	if err != nil {
@@ -311,7 +311,7 @@ func (it *SQLiteCollection) AddStaticFilter(columnName string, operator string, 
 }
 
 // adds selection filter to current collection(table) object
-func (it *SQLiteCollection) AddFilter(ColumnName string, Operator string, Value interface{}) error {
+func (it *DBCollection) AddFilter(ColumnName string, Operator string, Value interface{}) error {
 
 	err := it.updateFilterGroup(ConstFilterGroupDefault, ColumnName, Operator, Value)
 	if err != nil {
@@ -322,7 +322,7 @@ func (it *SQLiteCollection) AddFilter(ColumnName string, Operator string, Value 
 }
 
 // removes all filters that were set for current collection, except static
-func (it *SQLiteCollection) ClearFilters() error {
+func (it *DBCollection) ClearFilters() error {
 	for filterGroup, _ := range it.FilterGroups {
 		if filterGroup != ConstFilterGroupStatic {
 			delete(it.FilterGroups, filterGroup)
@@ -333,7 +333,7 @@ func (it *SQLiteCollection) ClearFilters() error {
 }
 
 // adds sorting for current collection
-func (it *SQLiteCollection) AddSort(ColumnName string, Desc bool) error {
+func (it *DBCollection) AddSort(ColumnName string, Desc bool) error {
 	if it.HasColumn(ColumnName) {
 		if Desc {
 			it.Order = append(it.Order, ColumnName+" DESC")
@@ -348,13 +348,13 @@ func (it *SQLiteCollection) AddSort(ColumnName string, Desc bool) error {
 }
 
 // removes any sorting that was set for current collection
-func (it *SQLiteCollection) ClearSort() error {
+func (it *DBCollection) ClearSort() error {
 	it.Order = make([]string, 0)
 	return nil
 }
 
 // limits column selection for Load() and LoadByID()function
-func (it *SQLiteCollection) SetResultColumns(columns ...string) error {
+func (it *DBCollection) SetResultColumns(columns ...string) error {
 	for _, columnName := range columns {
 		if !it.HasColumn(columnName) {
 			return env.ErrorNew("there is no column " + columnName + " found")
@@ -367,7 +367,7 @@ func (it *SQLiteCollection) SetResultColumns(columns ...string) error {
 }
 
 // results pagination
-func (it *SQLiteCollection) SetLimit(Offset int, Limit int) error {
+func (it *DBCollection) SetLimit(Offset int, Limit int) error {
 	if Limit == 0 {
 		it.Limit = ""
 	} else {
@@ -378,7 +378,7 @@ func (it *SQLiteCollection) SetLimit(Offset int, Limit int) error {
 }
 
 // returns attributes(columns) available for current collection(table)
-func (it *SQLiteCollection) ListColumns() map[string]string {
+func (it *DBCollection) ListColumns() map[string]string {
 
 	result := make(map[string]string)
 
@@ -418,7 +418,7 @@ func (it *SQLiteCollection) ListColumns() map[string]string {
 }
 
 // returns SQL like type of attribute in current collection, or if not present ""
-func (it *SQLiteCollection) GetColumnType(columnName string) string {
+func (it *DBCollection) GetColumnType(columnName string) string {
 	if columnName == "_id" {
 		return "string"
 	}
@@ -435,7 +435,7 @@ func (it *SQLiteCollection) GetColumnType(columnName string) string {
 }
 
 // check for attribute(column) presence in current collection
-func (it *SQLiteCollection) HasColumn(columnName string) bool {
+func (it *DBCollection) HasColumn(columnName string) bool {
 	// looking in cache first
 	_, present := dbEngine.attributeTypes[it.Name][columnName]
 	if !present {
@@ -448,7 +448,7 @@ func (it *SQLiteCollection) HasColumn(columnName string) bool {
 }
 
 // adds new attribute(column) to current collection(table)
-func (it *SQLiteCollection) AddColumn(columnName string, columnType string, indexed bool) error {
+func (it *DBCollection) AddColumn(columnName string, columnType string, indexed bool) error {
 
 	// checking column name
 	if !ConstSQLNameValidator.MatchString(columnName) {
@@ -510,7 +510,7 @@ func (it *SQLiteCollection) AddColumn(columnName string, columnType string, inde
 
 // removes attribute(column) to current collection(table)
 //   - sqlite do not have alter DROP COLUMN statements so it is hard task...
-func (it *SQLiteCollection) RemoveColumn(columnName string) error {
+func (it *DBCollection) RemoveColumn(columnName string) error {
 
 	// checking column in table
 	//-------------------------

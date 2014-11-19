@@ -12,7 +12,7 @@ import (
 )
 
 // converts value from GO representation to DB before usage in queries
-func (it *MongoDBCollection) convertValueToType(columnType string, value interface{}) interface{} {
+func (it *DBCollection) convertValueToType(columnType string, value interface{}) interface{} {
 
 	switch typedValue := value.(type) {
 	case string:
@@ -40,7 +40,7 @@ func (it *MongoDBCollection) convertValueToType(columnType string, value interfa
 }
 
 // converts known SQL filter operator to mongoDB one, also modifies value if needed
-func (it *MongoDBCollection) getMongoOperator(columnName string, operator string, value interface{}) (string, interface{}, error) {
+func (it *DBCollection) getMongoOperator(columnName string, operator string, value interface{}) (string, interface{}, error) {
 	operator = strings.ToLower(operator)
 
 	columnType := it.GetColumnType(columnName)
@@ -68,7 +68,7 @@ func (it *MongoDBCollection) getMongoOperator(columnName string, operator string
 		newOperator := "$" + operator
 
 		switch typedValue := value.(type) {
-		case *MongoDBCollection:
+		case *DBCollection:
 			refValue := new(bson.Raw)
 
 			if len(typedValue.ResultAttributes) != 1 {
@@ -76,7 +76,7 @@ func (it *MongoDBCollection) getMongoOperator(columnName string, operator string
 			}
 
 			if it.subcollections == nil {
-				it.subcollections = make([]*MongoDBCollection, 0)
+				it.subcollections = make([]*DBCollection, 0)
 			}
 
 			if it.subresults == nil {
@@ -96,7 +96,7 @@ func (it *MongoDBCollection) getMongoOperator(columnName string, operator string
 }
 
 // returns filter group, creates new one if not exists
-func (it *MongoDBCollection) getFilterGroup(groupName string) *StructDBFilterGroup {
+func (it *DBCollection) getFilterGroup(groupName string) *StructDBFilterGroup {
 	filterGroup, present := it.FilterGroups[groupName]
 	if !present {
 		filterGroup = &StructDBFilterGroup{Name: groupName, FilterValues: make([]bson.D, 0)}
@@ -106,7 +106,7 @@ func (it *MongoDBCollection) getFilterGroup(groupName string) *StructDBFilterGro
 }
 
 // adds filter(combination of [column, operator, value]) in named filter group
-func (it *MongoDBCollection) updateFilterGroup(groupName string, columnName string, operator string, value interface{}) error {
+func (it *DBCollection) updateFilterGroup(groupName string, columnName string, operator string, value interface{}) error {
 
 	/*if !it.HasColumn(columnName) {
 		return env.ErrorNew("not existing column " + columnName)
@@ -134,7 +134,7 @@ func (it *MongoDBCollection) updateFilterGroup(groupName string, columnName stri
 }
 
 // joins filters groups in one selector
-func (it *MongoDBCollection) makeSelector() bson.D {
+func (it *DBCollection) makeSelector() bson.D {
 
 	// making sorted array of filter groups
 	//-------------------------------------
@@ -210,7 +210,7 @@ func (it *MongoDBCollection) makeSelector() bson.D {
 }
 
 // returns bson.Query struct with applied Sort, Offset, Limit parameters, and executed subqueries
-func (it *MongoDBCollection) prepareQuery() *mgo.Query {
+func (it *DBCollection) prepareQuery() *mgo.Query {
 	query := it.collection.Find(it.makeSelector())
 
 	if len(it.Sort) > 0 {

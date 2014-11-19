@@ -35,8 +35,8 @@ var (
 	waitingTokensMutex sync.RWMutex
 )
 
-// PayPalExpress is a implementer of InterfacePaymentMethod for a PayPal Express method
-type PayPalExpress struct{}
+// Express is a implementer of InterfacePaymentMethod for a PayPal Express method
+type Express struct{}
 
-// PayPalExpress is a implementer of InterfacePaymentMethod for a PayPal REST method (currently not working)
-type PayPalRest struct{}
+// RestAPI is a implementer of InterfacePaymentMethod for a PayPal REST API method (currently not working)
+type RestAPI struct{}
