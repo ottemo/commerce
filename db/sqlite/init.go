@@ -23,7 +23,7 @@ func (it *DBEngine) Startup() error {
 	it.attributeTypes = make(map[string]map[string]string)
 
 	// opening connection
-	var uri string = "ottemo.db"
+	uri := "ottemo.db"
 
 	if iniConfig := env.GetIniConfig(); iniConfig != nil {
 		if iniValue := iniConfig.GetValue("db.sqlite3.uri", uri); iniValue != "" {

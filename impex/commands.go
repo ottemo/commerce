@@ -396,7 +396,7 @@ func (it *ImportCmdMedia) Process(itemData map[string]interface{}, input interfa
 
 		// adding found media value(s)
 		for _, mediaValue := range mediaArray {
-			var mediaContents []byte = []byte{}
+			mediaContents := []byte{}
 			var err error = nil
 
 			// looking for media type

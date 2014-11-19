@@ -103,7 +103,7 @@ func restCartAdd(params *api.StructAPIHandlerParams) (interface{}, error) {
 		return nil, env.ErrorNew("pid should be specified")
 	}
 
-	var qty int = 1
+	qty := 1
 	reqQty, present := params.RequestURLParams["qty"]
 	if present {
 		qty = utils.InterfaceToInt(reqQty)
