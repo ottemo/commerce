@@ -4,7 +4,7 @@ import (
 	"net/http"
 )
 
-// interface for accessing private storage assigned to particular API request
+// InterfaceSession is an interface to access private storage assigned to particular API request
 type InterfaceSession interface {
 	GetID() string
 
@@ -14,7 +14,7 @@ type InterfaceSession interface {
 	Close() error
 }
 
-// interface to interact with RESTFul API service
+// InterfaceRestService is an interface to interact with RESTFul API service
 type InterfaceRestService interface {
 	GetName() string
 

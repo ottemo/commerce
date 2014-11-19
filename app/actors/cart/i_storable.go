@@ -8,18 +8,18 @@ import (
 	"github.com/ottemo/foundation/utils"
 )
 
-// returns id of current cart
+// GetID returns id of current cart
 func (it *DefaultCart) GetID() string {
 	return it.id
 }
 
-// sets id for cart
+// SetID sets id for cart
 func (it *DefaultCart) SetID(NewID string) error {
 	it.id = NewID
 	return nil
 }
 
-// loads cart information from DB
+// Load loads cart information from DB
 func (it *DefaultCart) Load(ID string) error {
 	if dbEngine := db.GetDBEngine(); dbEngine != nil {
 
@@ -85,7 +85,7 @@ func (it *DefaultCart) Load(ID string) error {
 	return nil
 }
 
-// removes current cart from DB
+// Delete removes current cart from DB
 func (it *DefaultCart) Delete() error {
 	if it.GetID() == "" {
 		return env.ErrorNew("cart id is not set")
@@ -122,7 +122,7 @@ func (it *DefaultCart) Delete() error {
 	return env.ErrorDispatch(err)
 }
 
-// stores current cart in DB
+// Save stores current cart in DB
 func (it *DefaultCart) Save() error {
 
 	dbEngine := db.GetDBEngine()

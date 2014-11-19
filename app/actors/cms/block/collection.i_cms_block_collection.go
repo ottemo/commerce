@@ -5,12 +5,12 @@ import (
 	"github.com/ottemo/foundation/db"
 )
 
-// returns database collection
+// GetDBCollection returns database collection
 func (it *DefaultCMSBlockCollection) GetDBCollection() db.InterfaceDBCollection {
 	return it.listCollection
 }
 
-// returns list of cms block model items
+// ListCMSBlocks returns list of cms block model items
 func (it *DefaultCMSBlockCollection) ListCMSBlocks() []cms.InterfaceCMSBlock {
 	result := make([]cms.InterfaceCMSBlock, 0)
 

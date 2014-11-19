@@ -18,7 +18,7 @@ const (
 	ConstDefaultIniFile  = "ottemo.ini"
 )
 
-// InterfaceIniConfig implementer class
+// DefaultIniConfig is a default implementer of InterfaceIniConfig
 type DefaultIniConfig struct {
 	iniFilePath string
 

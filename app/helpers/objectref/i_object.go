@@ -5,7 +5,7 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
-// returns attribute value for current object or nil if no such attribute
+// Get returns attribute value for current object or nil if no such attribute
 func (it *DBObjectRef) Get(attribute string) interface{} {
 	var result interface{} = nil
 
@@ -16,7 +16,7 @@ func (it *DBObjectRef) Get(attribute string) interface{} {
 	return result
 }
 
-// sets attribute value for current object
+// Set sets attribute value for current object
 func (it *DBObjectRef) Set(attribute string, value interface{}) error {
 	if it.currData == nil {
 		it.currData = make(map[string]interface{})
@@ -27,7 +27,7 @@ func (it *DBObjectRef) Set(attribute string, value interface{}) error {
 	return nil
 }
 
-// fills attributes values based on provided map
+// FromHashMap fills attributes values based on provided map
 func (it *DBObjectRef) FromHashMap(input map[string]interface{}) error {
 
 	if it.currData == nil {
@@ -43,7 +43,7 @@ func (it *DBObjectRef) FromHashMap(input map[string]interface{}) error {
 	return nil
 }
 
-// returns attribute values that current object holds
+// ToHashMap returns attribute values that current object holds
 func (it *DBObjectRef) ToHashMap() map[string]interface{} {
 
 	result := make(map[string]interface{})
@@ -57,7 +57,7 @@ func (it *DBObjectRef) ToHashMap() map[string]interface{} {
 	return result
 }
 
-// returns stub information about current object attributes
+// GetAttributesInfo returns stub information about current object attributes
 //   - if you using this helper you should rewrite this function in your class
 func (it *DBObjectRef) GetAttributesInfo() []models.StructAttributeInfo {
 

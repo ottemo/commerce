@@ -7,17 +7,17 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
-// returns model name
+// GetModelName returns model name
 func (it *DefaultProduct) GetModelName() string {
 	return product.ConstModelNameProduct
 }
 
-// returns model implementation name
+// GetImplementationName returns model implementation name
 func (it *DefaultProduct) GetImplementationName() string {
 	return "Default" + product.ConstModelNameProduct
 }
 
-// returns new instance of model implementation object
+// New returns new instance of model implementation object
 func (it *DefaultProduct) New() (models.InterfaceModel, error) {
 
 	customAttributes, err := new(attributes.CustomAttributes).Init(product.ConstModelNameProduct, ConstCollectionNameProduct)

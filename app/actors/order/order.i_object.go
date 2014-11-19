@@ -8,7 +8,7 @@ import (
 	"github.com/ottemo/foundation/utils"
 )
 
-// returns attribute of Order or nil
+// Get returns attribute of Order or nil
 func (it *DefaultOrder) Get(attribute string) interface{} {
 	switch strings.ToLower(attribute) {
 	case "_id", "id":
@@ -75,7 +75,7 @@ func (it *DefaultOrder) Get(attribute string) interface{} {
 	return nil
 }
 
-// sets attribute to Order object, returns error on problems
+// Set sets attribute to Order object, returns error on problems
 func (it *DefaultOrder) Set(attribute string, value interface{}) error {
 	attribute = strings.ToLower(attribute)
 
@@ -147,7 +147,7 @@ func (it *DefaultOrder) Set(attribute string, value interface{}) error {
 	return nil
 }
 
-// fills Order attributes with values provided in input map
+// FromHashMap fills Order attributes with values provided in input map
 func (it *DefaultOrder) FromHashMap(input map[string]interface{}) error {
 
 	for attribute, value := range input {
@@ -159,7 +159,7 @@ func (it *DefaultOrder) FromHashMap(input map[string]interface{}) error {
 	return nil
 }
 
-// makes map from Order attribute values
+// ToHashMap makes map from Order attribute values
 func (it *DefaultOrder) ToHashMap() map[string]interface{} {
 
 	result := make(map[string]interface{})
@@ -196,7 +196,7 @@ func (it *DefaultOrder) ToHashMap() map[string]interface{} {
 	return result
 }
 
-// describes attributes of Order model
+// GetAttributesInfo describes attributes of Order model
 func (it *DefaultOrder) GetAttributesInfo() []models.StructAttributeInfo {
 
 	info := []models.StructAttributeInfo{

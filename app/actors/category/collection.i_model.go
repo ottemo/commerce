@@ -7,17 +7,17 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
-// returns model name
+// GetModelName returns model name
 func (it *DefaultCategoryCollection) GetModelName() string {
 	return category.ConstModelNameCategory
 }
 
-// returns model implementation name
+// GetImplementationName returns model implementation name
 func (it *DefaultCategoryCollection) GetImplementationName() string {
 	return "Default" + category.ConstModelNameCategory
 }
 
-// returns new instance of model implementation object
+// New returns new instance of model implementation object
 func (it *DefaultCategoryCollection) New() (models.InterfaceModel, error) {
 	dbCollection, err := db.GetCollection(ConstCollectionNameCategory)
 	if err != nil {

@@ -5,7 +5,7 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
-// retrieves current InterfaceProductCollection model implementation
+// GetProductCollectionModel retrieves current InterfaceProductCollection model implementation
 func GetProductCollectionModel() (InterfaceProductCollection, error) {
 	model, err := models.GetModel(ConstModelNameProductCollection)
 	if err != nil {
@@ -20,7 +20,7 @@ func GetProductCollectionModel() (InterfaceProductCollection, error) {
 	return productModel, nil
 }
 
-// retrieves current InterfaceProduct model implementation
+// GetProductModel retrieves current InterfaceProduct model implementation
 func GetProductModel() (InterfaceProduct, error) {
 	model, err := models.GetModel(ConstModelNameProduct)
 	if err != nil {
@@ -35,7 +35,7 @@ func GetProductModel() (InterfaceProduct, error) {
 	return productModel, nil
 }
 
-// retrieves current InterfaceProduct model implementation and sets its ID to some value
+// GetProductModelAndSetID retrieves current InterfaceProduct model implementation and sets its ID to some value
 func GetProductModelAndSetID(productID string) (InterfaceProduct, error) {
 
 	productModel, err := GetProductModel()
@@ -51,7 +51,7 @@ func GetProductModelAndSetID(productID string) (InterfaceProduct, error) {
 	return productModel, nil
 }
 
-// loads product data into current InterfaceProduct model implementation
+// LoadProductByID loads product data into current InterfaceProduct model implementation
 func LoadProductByID(productID string) (InterfaceProduct, error) {
 
 	productModel, err := GetProductModel()

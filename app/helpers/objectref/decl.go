@@ -12,22 +12,22 @@ type DBObjectRef struct {
 	currData map[string]interface{}
 }
 
-// marks object instance as loaded from DB
+// MarkAsLoaded marks object instance as loaded from DB
 func (it *DBObjectRef) MarkAsLoaded() {
 	it.loaded = true
 }
 
-// marks object instance as modified
+// MarkAsModified marks object instance as modified
 func (it *DBObjectRef) MarkAsModified() {
 	it.modified = true
 }
 
-// returns value of modification flag
+// IsModified returns value of modification flag
 func (it *DBObjectRef) IsModified() bool {
 	return it.modified
 }
 
-// returns value of load from DB flag
+// IsLoaded returns value of load from DB flag
 func (it *DBObjectRef) IsLoaded() bool {
 	return it.loaded
 }

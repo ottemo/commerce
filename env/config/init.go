@@ -6,11 +6,6 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
-const (
-	// database collection name to store config values
-	ConstConfigCollectionName = "config"
-)
-
 // init makes package self-initialization routine
 func init() {
 	instance := &DefaultConfig{
@@ -28,7 +23,7 @@ func init() {
 
 // setupDB prepares system database for package usage
 func setupDB() error {
-	collection, err := db.GetCollection(ConstConfigCollectionName)
+	collection, err := db.GetCollection(ConstCollectionNameConfig)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}

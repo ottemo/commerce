@@ -10,7 +10,7 @@ import (
 	"github.com/ottemo/foundation/utils"
 )
 
-// returns object attribute value or nil
+// Get returns object attribute value or nil
 func (it *DefaultCMSBlock) Get(attribute string) interface{} {
 	switch strings.ToLower(attribute) {
 	case "_id", "id":
@@ -28,7 +28,7 @@ func (it *DefaultCMSBlock) Get(attribute string) interface{} {
 	return nil
 }
 
-// sets attribute value to object or returns error
+// Set sets attribute value to object or returns error
 func (it *DefaultCMSBlock) Set(attribute string, value interface{}) error {
 	attribute = strings.ToLower(attribute)
 
@@ -50,7 +50,7 @@ func (it *DefaultCMSBlock) Set(attribute string, value interface{}) error {
 	return env.ErrorNew("unknown attribute '" + attribute + "'")
 }
 
-// represents object as map[string]interface{}
+// FromHashMap represents object as map[string]interface{}
 func (it *DefaultCMSBlock) FromHashMap(input map[string]interface{}) error {
 
 	for attribute, value := range input {
@@ -62,7 +62,7 @@ func (it *DefaultCMSBlock) FromHashMap(input map[string]interface{}) error {
 	return nil
 }
 
-// fills object attributes from map[string]interface{}
+// ToHashMap fills object attributes from map[string]interface{}
 func (it *DefaultCMSBlock) ToHashMap() map[string]interface{} {
 
 	result := make(map[string]interface{})
@@ -77,7 +77,7 @@ func (it *DefaultCMSBlock) ToHashMap() map[string]interface{} {
 	return result
 }
 
-// returns information about object attributes
+// GetAttributesInfo returns information about object attributes
 func (it *DefaultCMSBlock) GetAttributesInfo() []models.StructAttributeInfo {
 
 	info := []models.StructAttributeInfo{

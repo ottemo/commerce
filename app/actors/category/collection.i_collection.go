@@ -7,7 +7,7 @@ import (
 	"github.com/ottemo/foundation/utils"
 )
 
-// enumerates items of model type
+// List enumerates items of model type
 func (it *DefaultCategoryCollection) List() ([]models.StructListItem, error) {
 	result := make([]models.StructListItem, 0)
 
@@ -51,7 +51,7 @@ func (it *DefaultCategoryCollection) List() ([]models.StructListItem, error) {
 	return result, nil
 }
 
-// allows to obtain additional attributes from  List() function
+// ListAddExtraAttribute allows to obtain additional attributes from  List() function
 func (it *DefaultCategoryCollection) ListAddExtraAttribute(attribute string) error {
 
 	categoryModel, err := category.GetCategoryModel()
@@ -78,19 +78,19 @@ func (it *DefaultCategoryCollection) ListAddExtraAttribute(attribute string) err
 	return nil
 }
 
-// adds selection filter to List() function
+// ListFilterAdd adds selection filter to List() function
 func (it *DefaultCategoryCollection) ListFilterAdd(Attribute string, Operator string, Value interface{}) error {
 	it.listCollection.AddFilter(Attribute, Operator, Value.(string))
 	return nil
 }
 
-// clears presets made by ListFilterAdd() and ListAddExtraAttribute() functions
+// ListFilterReset clears presets made by ListFilterAdd() and ListAddExtraAttribute() functions
 func (it *DefaultCategoryCollection) ListFilterReset() error {
 	it.listCollection.ClearFilters()
 	return nil
 }
 
-// specifies selection paging
+// ListLimit specifies selection paging
 func (it *DefaultCategoryCollection) ListLimit(offset int, limit int) error {
 	return it.listCollection.SetLimit(offset, limit)
 }

@@ -5,7 +5,7 @@ import (
 	"github.com/ottemo/foundation/app/models/product"
 )
 
-// returns collection of current instance type
+// GetCollection returns collection of current instance type
 func (it *DefaultProduct) GetCollection() models.InterfaceCollection {
 	model, _ := models.GetModel(product.ConstModelNameProductCollection)
 	if result, ok := model.(product.InterfaceProductCollection); ok {

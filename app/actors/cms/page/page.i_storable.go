@@ -8,18 +8,18 @@ import (
 	"github.com/ottemo/foundation/utils"
 )
 
-// returns id for cms block
+// GetID returns id for cms block
 func (it *DefaultCMSPage) GetID() string {
 	return it.id
 }
 
-// sets id for cms block
+// SetID sets id for cms block
 func (it *DefaultCMSPage) SetID(newID string) error {
 	it.id = newID
 	return nil
 }
 
-// loads cms block information from DB
+// Load loads cms block information from DB
 func (it *DefaultCMSPage) Load(id string) error {
 	collection, err := db.GetCollection(ConstCmsPageCollectionName)
 	if err != nil {
@@ -48,7 +48,7 @@ func (it *DefaultCMSPage) Load(id string) error {
 	return nil
 }
 
-// removes current cms block from DB
+// Delete removes current cms block from DB
 func (it *DefaultCMSPage) Delete() error {
 	collection, err := db.GetCollection(ConstCmsPageCollectionName)
 	if err != nil {
@@ -63,7 +63,7 @@ func (it *DefaultCMSPage) Delete() error {
 	return env.ErrorDispatch(err)
 }
 
-// stores current cms block to DB
+// Save stores current cms block to DB
 func (it *DefaultCMSPage) Save() error {
 	collection, err := db.GetCollection(ConstCmsPageCollectionName)
 	if err != nil {

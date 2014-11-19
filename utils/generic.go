@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// checks if value is blank (zero value)
+// CheckIsBlank checks if value is blank (zero value)
 func CheckIsBlank(value interface{}) bool {
 	switch typedValue := value.(type) {
 	case string:
@@ -27,7 +27,7 @@ func CheckIsBlank(value interface{}) bool {
 	return false
 }
 
-// checks presence of non blank values for keys in map
+// KeysInMapAndNotBlank checks presence of non blank values for keys in map
 //   - first arg must be map
 //   - fallowing arguments are map keys you want to check
 func KeysInMapAndNotBlank(mapObject interface{}, keys ...interface{}) bool {
@@ -61,7 +61,7 @@ func KeysInMapAndNotBlank(mapObject interface{}, keys ...interface{}) bool {
 	return true
 }
 
-// returns map key value or nil if not found, will be returned first found key value
+// GetFirstMapValue returns map key value or nil if not found, will be returned first found key value
 func GetFirstMapValue(mapObject interface{}, keys ...string) interface{} {
 	switch typedMapObject := mapObject.(type) {
 	case map[string]interface{}:
@@ -81,7 +81,7 @@ func GetFirstMapValue(mapObject interface{}, keys ...string) interface{} {
 	return nil
 }
 
-// searches for item in array/slice, returns true if found
+// IsInArray searches for item in array/slice, returns true if found
 func IsInArray(searchValue interface{}, arrayObject interface{}) bool {
 	switch typedObject := arrayObject.(type) {
 	case []string:
@@ -108,7 +108,7 @@ func IsInArray(searchValue interface{}, arrayObject interface{}) bool {
 	return false
 }
 
-// searches for presence of 1-st arg string option among provided options since 2-nd argument
+// IsAmongStr searches for presence of 1-st arg string option among provided options since 2-nd argument
 func IsAmongStr(option string, searchOptions ...string) bool {
 	for _, listOption := range searchOptions {
 		if option == listOption {
@@ -118,7 +118,7 @@ func IsAmongStr(option string, searchOptions ...string) bool {
 	return false
 }
 
-// searches for a string in []string slice
+// IsInListStr searches for a string in []string slice
 func IsInListStr(searchItem string, searchList []string) bool {
 	for _, listItem := range searchList {
 		if listItem == searchItem {
@@ -128,7 +128,7 @@ func IsInListStr(searchItem string, searchList []string) bool {
 	return false
 }
 
-// checks presence of string keys in map
+// StrKeysInMap checks presence of string keys in map
 func StrKeysInMap(mapObject interface{}, keys ...string) bool {
 	switch typedMap := mapObject.(type) {
 	case map[string]interface{}: //, map[string]string:
@@ -143,7 +143,7 @@ func StrKeysInMap(mapObject interface{}, keys ...string) bool {
 	return true
 }
 
-// returns trimmed []string array of [separators] delimited values
+// Explode returns trimmed []string array of [separators] delimited values
 func Explode(value string, separators string) []string {
 	result := make([]string, 0)
 
@@ -158,7 +158,7 @@ func Explode(value string, separators string) []string {
 	return result
 }
 
-// checks if value is MD5
+// IsMD5 checks if value is MD5
 func IsMD5(value string) bool {
 	ok := false
 	if len(value) == 32 {
@@ -175,7 +175,7 @@ func IsMD5(value string) bool {
 	return ok
 }
 
-// converts interface{} to string
+// InterfaceToBool converts interface{} to string
 func InterfaceToBool(value interface{}) bool {
 	switch typedValue := value.(type) {
 	case bool:
@@ -206,7 +206,7 @@ func InterfaceToBool(value interface{}) bool {
 	}
 }
 
-// converts interface{} to map[string]interface{}
+// InterfaceToArray converts interface{} to map[string]interface{}
 func InterfaceToArray(value interface{}) []interface{} {
 	result := make([]interface{}, 0)
 
@@ -253,7 +253,7 @@ func InterfaceToArray(value interface{}) []interface{} {
 	return result
 }
 
-// converts interface{} to map[string]interface{}
+// InterfaceToMap converts interface{} to map[string]interface{}
 func InterfaceToMap(value interface{}) map[string]interface{} {
 	switch typedValue := value.(type) {
 	case map[string]interface{}:
@@ -269,7 +269,7 @@ func InterfaceToMap(value interface{}) map[string]interface{} {
 	return make(map[string]interface{})
 }
 
-// converts interface{} to string
+// InterfaceToString converts interface{} to string
 func InterfaceToString(value interface{}) string {
 	if value == nil {
 		return ""
@@ -291,7 +291,7 @@ func InterfaceToString(value interface{}) string {
 	}
 }
 
-// converts interface{} to integer
+// InterfaceToInt converts interface{} to integer
 func InterfaceToInt(value interface{}) int {
 	if value == nil {
 		return 0
@@ -322,7 +322,7 @@ func InterfaceToInt(value interface{}) int {
 	}
 }
 
-// converts interface{} to float64
+// InterfaceToFloat64 converts interface{} to float64
 func InterfaceToFloat64(value interface{}) float64 {
 	if value == nil {
 		return 0
@@ -343,13 +343,13 @@ func InterfaceToFloat64(value interface{}) float64 {
 	}
 }
 
-// checks time for zero value
+// IsZeroTime checks time for zero value
 func IsZeroTime(value time.Time) bool {
 	zeroTime := time.Unix(0, 0)
 	return value == zeroTime
 }
 
-// converts interface{} to time.Time
+// InterfaceToTime converts interface{} to time.Time
 func InterfaceToTime(value interface{}) time.Time {
 	switch typedValue := value.(type) {
 	case int64:
@@ -387,17 +387,17 @@ func InterfaceToTime(value interface{}) time.Time {
 	return time.Unix(0, 0)
 }
 
-// convert string to integer
+// StringToInteger converts string to integer
 func StringToInteger(value string) (int, error) {
 	return strconv.Atoi(value)
 }
 
-// convert string to float64
+// StringToFloat converts string to float64
 func StringToFloat(value string) (float64, error) {
 	return strconv.ParseFloat(value, 64)
 }
 
-// rounds value to given precision (roundOn=0.5 usual cases)
+// Round rounds value to given precision (roundOn=0.5 usual cases)
 func Round(val float64, roundOn float64, places int) float64 {
 
 	pow := math.Pow(10, float64(places))
@@ -414,13 +414,12 @@ func Round(val float64, roundOn float64, places int) float64 {
 	return round / pow
 }
 
-// function you should use to normalize price after calculations
-// (in future that function should have config options setup)
+// RoundPrice normalize price after calculations, so it rounds it to money precision
 func RoundPrice(price float64) float64 {
 	return Round(price, 0.5, 2)
 }
 
-// splits string by character(s) unless it in quotes
+// SplitQuotedStringBy splits string by character(s) unless it in quotes
 func SplitQuotedStringBy(text string, separators ...rune) []string {
 
 	lastQuote := rune(0)
@@ -459,7 +458,7 @@ func SplitQuotedStringBy(text string, separators ...rune) []string {
 	return strings.FieldsFunc(text, operator)
 }
 
-// converts string coded value to type
+// StringToType converts string coded value to type
 func StringToType(value string, valueType string) (interface{}, error) {
 	valueType = strings.ToLower(valueType)
 
@@ -503,7 +502,7 @@ func StringToType(value string, valueType string) (interface{}, error) {
 	return nil, errors.New("unknown value type " + valueType)
 }
 
-// converts string to Interface{} which can be float, int, bool, string, or json as map[string]value
+// StringToInterface converts string to Interface{} which can be float, int, bool, string, or json as map[string]value
 func StringToInterface(value string) interface{} {
 
 	trimmedValue := strings.TrimSpace(value)

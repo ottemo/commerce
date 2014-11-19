@@ -6,7 +6,12 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
-// InterfaceConfig implementer class
+// Package global constants
+const (
+	ConstCollectionNameConfig = "config"
+)
+
+// DefaultConfig is a default implementer of InterfaceConfig
 type DefaultConfig struct {
 	configValues     map[string]interface{}
 	configTypes      map[string]string

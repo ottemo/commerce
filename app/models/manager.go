@@ -4,7 +4,7 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
-// registers new model to system
+// RegisterModel registers new model to system
 func RegisterModel(ModelName string, Model InterfaceModel) error {
 	if _, present := declaredModels[ModelName]; present {
 		return env.ErrorNew("model with name '" + ModelName + "' already registered")
@@ -14,7 +14,7 @@ func RegisterModel(ModelName string, Model InterfaceModel) error {
 	return nil
 }
 
-// removes registered model from system
+// UnRegisterModel removes registered model from system
 func UnRegisterModel(ModelName string) error {
 	if _, present := declaredModels[ModelName]; present {
 		delete(declaredModels, ModelName)
@@ -24,7 +24,7 @@ func UnRegisterModel(ModelName string) error {
 	return nil
 }
 
-// returns registered in system model
+// GetModel returns registered in system model
 func GetModel(ModelName string) (InterfaceModel, error) {
 	if model, present := declaredModels[ModelName]; present {
 		return model.New()
@@ -33,7 +33,7 @@ func GetModel(ModelName string) (InterfaceModel, error) {
 	}
 }
 
-// returns all currently registered in system models
+// GetDeclaredModels returns all currently registered in system models
 func GetDeclaredModels() map[string]InterfaceModel {
 	return declaredModels
 }

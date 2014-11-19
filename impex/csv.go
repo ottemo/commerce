@@ -11,7 +11,7 @@ import (
 	"github.com/ottemo/foundation/utils"
 )
 
-// converts map[string]interface{} to csv data
+// MapToCSV converts map[string]interface{} to csv data
 func MapToCSV(input []map[string]interface{}, csvWriter *csv.Writer) error {
 
 	csvColumnHeaders := make(map[string]string)
@@ -142,7 +142,7 @@ func MapToCSV(input []map[string]interface{}, csvWriter *csv.Writer) error {
 	return nil
 }
 
-// converts csv data to map[string]interface{} and sends to processorFunc
+// CSVToMap converts csv data to map[string]interface{} and sends to processorFunc
 func CSVToMap(csvReader *csv.Reader, processorFunc func(item map[string]interface{}) bool) error {
 
 	// reading header/columns information
@@ -404,7 +404,7 @@ func CSVToMap(csvReader *csv.Reader, processorFunc func(item map[string]interfac
 	return nil
 }
 
-// imports csv data using command->data csv format
+// ImportCSV imports csv data using command->data csv format
 func ImportCSV(csvReader *csv.Reader) error {
 
 	// impex csv file should contain command preceding data

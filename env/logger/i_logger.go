@@ -8,7 +8,7 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
-// general logging function
+// Log is a general case logging function
 func (it *DefaultLogger) Log(storage string, prefix string, msg string) {
 	message := time.Now().Format(time.RFC3339) + ": " + msg + "\n"
 
@@ -23,7 +23,7 @@ func (it *DefaultLogger) Log(storage string, prefix string, msg string) {
 	logFile.Close()
 }
 
-// makes error log
+// LogError makes error log
 func (it *DefaultLogger) LogError(err error) {
 	if ottemoErr, ok := err.(env.InterfaceOttemoError); ok {
 		it.Log(defaultErrorsFile, env.ConstLogPrefixError, ottemoErr.ErrorFull())
@@ -32,17 +32,17 @@ func (it *DefaultLogger) LogError(err error) {
 	}
 }
 
-// log message to separate file
+// LogToStorage logs info type message to specific storage
 func (it *DefaultLogger) LogToStorage(storage string, msg string) {
 	it.Log(storage, env.ConstLogPrefixInfo, msg)
 }
 
-// log message with prefix specification
+// LogWithPrefix logs prefixed message to default storage
 func (it *DefaultLogger) LogWithPrefix(prefix string, msg string) {
 	it.Log(defaultLogFile, prefix, msg)
 }
 
-// simplified logging function
+// LogMessage logs info message to default storage
 func (it *DefaultLogger) LogMessage(msg string) {
 	it.Log(defaultLogFile, env.ConstLogPrefixInfo, msg)
 }

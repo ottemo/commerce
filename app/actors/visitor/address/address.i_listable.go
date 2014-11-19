@@ -5,7 +5,7 @@ import (
 	"github.com/ottemo/foundation/app/models/visitor"
 )
 
-// returns collection of current instance type
+// GetCollection returns collection of current instance type
 func (it *DefaultVisitorAddress) GetCollection() models.InterfaceCollection {
 	model, _ := models.GetModel(visitor.ConstModelNameVisitorAddressCollection)
 	if result, ok := model.(visitor.InterfaceVisitorAddressCollection); ok {

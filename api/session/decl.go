@@ -28,7 +28,7 @@ var (
 	gcRate int64 = 10 // garbage collection rate
 )
 
-// returns session object for request or creates new one
+// StartSession returns session object for request or creates new one
 func StartSession(request *http.Request, responseWriter http.ResponseWriter) (*Session, error) {
 
 	// check session-cookie
@@ -58,7 +58,7 @@ func StartSession(request *http.Request, responseWriter http.ResponseWriter) (*S
 	return result, nil
 }
 
-// returns session object for given id or nil
+// GetSessionByID returns session object for given id or nil
 func GetSessionByID(sessionID string) (*Session, error) {
 	if session, ok := Sessions[sessionID]; ok == true {
 		return session, nil
@@ -67,7 +67,7 @@ func GetSessionByID(sessionID string) (*Session, error) {
 	}
 }
 
-// initializes new session
+// NewSession initializes new session
 func NewSession() (*Session, error) {
 
 	// receiving new session id
@@ -106,7 +106,7 @@ func newSessionID() (string, error) {
 	return string(sessionID), nil
 }
 
-// removes expired sessions
+// Gc removes expired sessions
 func Gc() {
 	for id, session := range Sessions {
 		if time.Now().Sub(session.time).Seconds() > 3600 {

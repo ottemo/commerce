@@ -9,7 +9,7 @@ import (
 	"github.com/ottemo/foundation/utils"
 )
 
-// enumerates registered pathes for config
+// ListPathes enumerates registered pathes for config
 func (it *DefaultConfig) ListPathes() []string {
 	result := make([]string, 0)
 	for key, _ := range it.configValues {
@@ -20,12 +20,12 @@ func (it *DefaultConfig) ListPathes() []string {
 	return result
 }
 
-// registers new config value in system
+// RegisterItem registers new config value in system
 func (it *DefaultConfig) RegisterItem(Item env.StructConfigItem, Validator env.FuncConfigValueValidator) error {
 
 	if _, present := it.configValues[Item.Path]; !present {
 
-		collection, err := db.GetCollection(ConstConfigCollectionName)
+		collection, err := db.GetCollection(ConstCollectionNameConfig)
 		if err != nil {
 			return env.ErrorDispatch(err)
 		}
@@ -56,12 +56,12 @@ func (it *DefaultConfig) RegisterItem(Item env.StructConfigItem, Validator env.F
 	return nil
 }
 
-// removes config value from system
+// UnregisterItem removes config value from system
 func (it *DefaultConfig) UnregisterItem(Path string) error {
 
 	if _, present := it.configValues[Path]; present {
 
-		collection, err := db.GetCollection(ConstConfigCollectionName)
+		collection, err := db.GetCollection(ConstCollectionNameConfig)
 		if err != nil {
 			return env.ErrorDispatch(err)
 		}
@@ -82,7 +82,7 @@ func (it *DefaultConfig) UnregisterItem(Path string) error {
 	return nil
 }
 
-// returns value for config item of nil if not present
+// GetValue returns value for config item of nil if not present
 func (it *DefaultConfig) GetValue(Path string) interface{} {
 	if value, present := it.configValues[Path]; present {
 		return value
@@ -91,7 +91,7 @@ func (it *DefaultConfig) GetValue(Path string) interface{} {
 	}
 }
 
-// updates config item with new value, returns error if not possible
+// SetValue updates config item with new value, returns error if not possible
 func (it *DefaultConfig) SetValue(Path string, Value interface{}) error {
 	if _, present := it.configValues[Path]; present {
 
@@ -111,7 +111,7 @@ func (it *DefaultConfig) SetValue(Path string, Value interface{}) error {
 
 		// updating value in DB
 		//---------------------
-		collection, err := db.GetCollection(ConstConfigCollectionName)
+		collection, err := db.GetCollection(ConstCollectionNameConfig)
 		if err != nil {
 			return env.ErrorDispatch(err)
 		}
@@ -146,12 +146,12 @@ func (it *DefaultConfig) SetValue(Path string, Value interface{}) error {
 	return nil
 }
 
-// returns information about config items with type [ConstConfigItemGroupType]
+// GetGroupItems returns information about config items with type [ConstConfigItemGroupType]
 func (it *DefaultConfig) GetGroupItems() []env.StructConfigItem {
 
 	result := make([]env.StructConfigItem, 0)
 
-	collection, err := db.GetCollection(ConstConfigCollectionName)
+	collection, err := db.GetCollection(ConstCollectionNameConfig)
 	if err != nil {
 		return result
 	}
@@ -190,12 +190,12 @@ func (it *DefaultConfig) GetGroupItems() []env.StructConfigItem {
 	return result
 }
 
-// returns information about config items with given path
+// GetItemsInfo returns information about config items with given path
 // 	- use '*' to list sub-items (like "paypal.*" or "paypal*" if group item also needed)
 func (it *DefaultConfig) GetItemsInfo(Path string) []env.StructConfigItem {
 	result := make([]env.StructConfigItem, 0)
 
-	collection, err := db.GetCollection(ConstConfigCollectionName)
+	collection, err := db.GetCollection(ConstCollectionNameConfig)
 	if err != nil {
 		return result
 	}
@@ -234,7 +234,7 @@ func (it *DefaultConfig) GetItemsInfo(Path string) []env.StructConfigItem {
 	return result
 }
 
-// loads config data from DB on app startup
+// Load loads config data from DB on app startup
 //   - calls env.OnConfigStart() after
 func (it *DefaultConfig) Load() error {
 
@@ -251,12 +251,12 @@ func (it *DefaultConfig) Load() error {
 	return nil
 }
 
-// updates all config values from database
+// Reload updates all config values from database
 func (it *DefaultConfig) Reload() error {
 	it.configValues = make(map[string]interface{})
 	it.configTypes = make(map[string]string)
 
-	collection, err := db.GetCollection(ConstConfigCollectionName)
+	collection, err := db.GetCollection(ConstCollectionNameConfig)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}

@@ -7,17 +7,17 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
-// returns model name
+// GetModelName returns model name
 func (it *DefaultCMSPageCollection) GetModelName() string {
 	return cms.ConstModelNameCMSPageCollection
 }
 
-// returns model implementation name
+// GetImplementationName returns model implementation name
 func (it *DefaultCMSPageCollection) GetImplementationName() string {
 	return "Default" + cms.ConstModelNameCMSPageCollection
 }
 
-// returns new instance of model implementation object
+// New returns new instance of model implementation object
 func (it *DefaultCMSPageCollection) New() (models.InterfaceModel, error) {
 	dbCollection, err := db.GetCollection(ConstCmsPageCollectionName)
 	if err != nil {

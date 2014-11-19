@@ -1,4 +1,4 @@
-// Package cart represents abstraction of business layer category object
+// Package category represents abstraction of business layer category object
 package category
 
 import (

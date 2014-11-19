@@ -5,12 +5,12 @@ import (
 	"github.com/ottemo/foundation/db"
 )
 
-// returns database collection
+// GetDBCollection returns database collection
 func (it *DefaultProductCollection) GetDBCollection() db.InterfaceDBCollection {
 	return it.listCollection
 }
 
-// returns array of products in model instance form
+// ListProducts returns array of products in model instance form
 func (it *DefaultProductCollection) ListProducts() []product.InterfaceProduct {
 	result := make([]product.InterfaceProduct, 0)
 

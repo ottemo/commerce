@@ -4,7 +4,7 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
-// adds listener to event handling stack
+// RegisterListener adds listener to event handling stack
 //   - event listening is patch based, "" - global listener on any event, "api.product" - will listen for app events starts with api.product.[...])
 func (it *DefaultEventBus) RegisterListener(event string, listener env.FuncEventListener) {
 	if value, present := it.listeners[event]; present {
@@ -14,7 +14,7 @@ func (it *DefaultEventBus) RegisterListener(event string, listener env.FuncEvent
 	}
 }
 
-// generates new event, with following dispatching
+// New generates new event, with following dispatching
 func (it *DefaultEventBus) New(event string, args map[string]interface{}) {
 
 	// loop over top level events

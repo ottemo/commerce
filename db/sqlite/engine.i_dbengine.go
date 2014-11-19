@@ -8,12 +8,12 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
-// returns current DB engine name
+// GetName returns current DB engine name
 func (it *DBEngine) GetName() string {
 	return "Sqlite3"
 }
 
-// checks if collection(table) already exists
+// HasCollection checks if collection(table) already exists
 func (it *DBEngine) HasCollection(collectionName string) bool {
 	// collectionName = strings.ToLower(collectionName)
 
@@ -29,7 +29,7 @@ func (it *DBEngine) HasCollection(collectionName string) bool {
 	}
 }
 
-// creates cllection(table) by it's name
+// CreateCollection creates cllection(table) by it's name
 func (it *DBEngine) CreateCollection(collectionName string) error {
 	// collectionName = strings.ToLower(collectionName)
 
@@ -45,7 +45,7 @@ func (it *DBEngine) CreateCollection(collectionName string) error {
 	}
 }
 
-// returns collection(table) by name or creates new one
+// GetCollection returns collection(table) by name or creates new one
 func (it *DBEngine) GetCollection(collectionName string) (db.InterfaceDBCollection, error) {
 	if !ConstSQLNameValidator.MatchString(collectionName) {
 		return nil, env.ErrorNew("not valid collection name for DB engine")
@@ -71,7 +71,7 @@ func (it *DBEngine) GetCollection(collectionName string) (db.InterfaceDBCollecti
 	return collection, nil
 }
 
-// returns collection(table) by name or creates new one
+// RawQuery returns collection(table) by name or creates new one
 func (it *DBEngine) RawQuery(query string) (map[string]interface{}, error) {
 
 	result := make([]map[string]interface{}, 0, 10)

@@ -18,8 +18,6 @@ import (
 func setupAPI() error {
 	var err error
 
-	// 1. DefaultRtsAPI
-	//----------------------
 	err = api.GetRestService().RegisterAPI("rts", "GET", "visit", restRegisterVisit)
 	if err != nil {
 		return env.ErrorDispatch(err)

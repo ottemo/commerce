@@ -7,17 +7,17 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
-// returns model name
+// GetModelName returns model name
 func (it *DefaultOrderItemCollection) GetModelName() string {
 	return order.ConstModelNameOrderItemCollection
 }
 
-// returns model implementation name
+// GetImplementationName returns model implementation name
 func (it *DefaultOrderItemCollection) GetImplementationName() string {
 	return "Default" + order.ConstModelNameOrderItemCollection
 }
 
-// returns new instance of model implementation object
+// New returns new instance of model implementation object
 func (it *DefaultOrderItemCollection) New() (models.InterfaceModel, error) {
 	dbCollection, err := db.GetCollection(ConstCollectionNameOrderItems)
 	if err != nil {

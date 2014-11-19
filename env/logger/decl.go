@@ -9,5 +9,5 @@ var (
 	defaultErrorsFile = "errors.log" // filename for errors log
 )
 
-// InterfaceLogger implementer class
+// DefaultLogger is a default implementer of InterfaceLogger
 type DefaultLogger struct{}

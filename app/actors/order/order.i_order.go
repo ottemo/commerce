@@ -13,7 +13,7 @@ import (
 	"github.com/ottemo/foundation/app/models/visitor"
 )
 
-// returns order items for current order
+// GetItems returns order items for current order
 func (it *DefaultOrder) GetItems() []order.InterfaceOrderItem {
 	result := make([]order.InterfaceOrderItem, 0)
 
@@ -32,7 +32,7 @@ func (it *DefaultOrder) GetItems() []order.InterfaceOrderItem {
 
 }
 
-// adds line item to current order, or returns error
+// AddItem adds line item to current order, or returns error
 func (it *DefaultOrder) AddItem(productID string, qty int, productOptions map[string]interface{}) (order.InterfaceOrderItem, error) {
 
 	productModel, err := product.LoadProductByID(productID)
@@ -95,7 +95,7 @@ func (it *DefaultOrder) AddItem(productID string, qty int, productOptions map[st
 	return newOrderItem, nil
 }
 
-// removes line item from current order, or returns error
+// RemoveItem removes line item from current order, or returns error
 func (it *DefaultOrder) RemoveItem(itemIdx int) error {
 	if orderItem, present := it.Items[itemIdx]; present {
 
@@ -122,7 +122,7 @@ func (it *DefaultOrder) RemoveItem(itemIdx int) error {
 	}
 }
 
-// assigns new unique increment id to order
+// NewIncrementID assigns new unique increment id to order
 func (it *DefaultOrder) NewIncrementID() error {
 	lastIncrementIDMutex.Lock()
 
@@ -136,19 +136,19 @@ func (it *DefaultOrder) NewIncrementID() error {
 	return nil
 }
 
-// returns increment id of order
+// GetIncrementID returns increment id of order
 func (it *DefaultOrder) GetIncrementID() string {
 	return it.IncrementID
 }
 
-// sets increment id to order
+// SetIncrementID sets increment id to order
 func (it *DefaultOrder) SetIncrementID(incrementID string) error {
 	it.IncrementID = incrementID
 
 	return nil
 }
 
-// recalculates order Subtotal and GrandTotal
+// CalculateTotals recalculates order Subtotal and GrandTotal
 func (it *DefaultOrder) CalculateTotals() error {
 
 	var subtotal float64 = 0.0
@@ -162,42 +162,42 @@ func (it *DefaultOrder) CalculateTotals() error {
 	return nil
 }
 
-// returns subtotal of order
+// GetSubtotal returns subtotal of order
 func (it *DefaultOrder) GetSubtotal() float64 {
 	return it.Subtotal
 }
 
-// returns grand total of order
+// GetGrandTotal returns grand total of order
 func (it *DefaultOrder) GetGrandTotal() float64 {
 	return it.GrandTotal
 }
 
-// returns discount amount applied to order
+// GetDiscountAmount returns discount amount applied to order
 func (it *DefaultOrder) GetDiscountAmount() float64 {
 	return it.Discount
 }
 
-// returns tax amount applied to order
+// GetTaxAmount returns tax amount applied to order
 func (it *DefaultOrder) GetTaxAmount() float64 {
 	return it.TaxAmount
 }
 
-// returns order shipping cost
+// GetShippingAmount returns order shipping cost
 func (it *DefaultOrder) GetShippingAmount() float64 {
 	return it.ShippingAmount
 }
 
-// returns shipping method for order
+// GetShippingMethod returns shipping method for order
 func (it *DefaultOrder) GetShippingMethod() string {
 	return it.ShippingMethod
 }
 
-// returns payment method used for order
+// GetPaymentMethod returns payment method used for order
 func (it *DefaultOrder) GetPaymentMethod() string {
 	return it.PaymentMethod
 }
 
-// returns shipping address for order
+// GetShippingAddress returns shipping address for order
 func (it *DefaultOrder) GetShippingAddress() visitor.InterfaceVisitorAddress {
 	addressModel, _ := visitor.GetVisitorAddressModel()
 	addressModel.FromHashMap(it.ShippingAddress)
@@ -205,7 +205,7 @@ func (it *DefaultOrder) GetShippingAddress() visitor.InterfaceVisitorAddress {
 	return addressModel
 }
 
-// returns billing address for order
+// GetBillingAddress returns billing address for order
 func (it *DefaultOrder) GetBillingAddress() visitor.InterfaceVisitorAddress {
 	addressModel, _ := visitor.GetVisitorAddressModel()
 	addressModel.FromHashMap(it.BillingAddress)

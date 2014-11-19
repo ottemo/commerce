@@ -5,18 +5,18 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
-// returns current product id
+// GetID returns current product id
 func (it *DefaultProduct) GetID() string {
 	return it.id
 }
 
-// sets current product id
+// SetID sets current product id
 func (it *DefaultProduct) SetID(NewID string) error {
 	it.id = NewID
 	return nil
 }
 
-// loads product information from DB
+// Load loads product information from DB
 func (it *DefaultProduct) Load(loadID string) error {
 
 	collection, err := db.GetCollection(ConstCollectionNameProduct)
@@ -37,7 +37,7 @@ func (it *DefaultProduct) Load(loadID string) error {
 	return nil
 }
 
-// removes current product from DB
+// Delete removes current product from DB
 func (it *DefaultProduct) Delete() error {
 	collection, err := db.GetCollection(ConstCollectionNameProduct)
 	if err != nil {
@@ -52,7 +52,7 @@ func (it *DefaultProduct) Delete() error {
 	return nil
 }
 
-// stores current product to DB
+// Save stores current product to DB
 func (it *DefaultProduct) Save() error {
 	collection, err := db.GetCollection(ConstCollectionNameProduct)
 	if err != nil {

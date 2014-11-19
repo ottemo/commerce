@@ -114,17 +114,20 @@ var (
 		"www.mynet.com", "www.ekolay.net", "www.rambler.ru"}
 )
 
+// Visits - unknown purpose structure
 type Visits struct {
 	Data      map[string]map[string]int32
 	Yesterday string
 	Today     string
 }
 
+// VisitorDetail - unknown purpose structure
 type VisitorDetail struct {
 	Time     time.Time
 	Checkout int
 }
 
+// dbVisitorRow - unknown purpose structure
 type dbVisitorRow struct {
 	ID       string
 	Day      time.Time
@@ -135,6 +138,7 @@ type dbVisitorRow struct {
 	Details  map[string]*VisitorDetail
 }
 
+// Sales - unknown purpose structure
 type Sales struct {
 	lastUpdate int64
 	today      int
@@ -142,22 +146,26 @@ type Sales struct {
 	ratio      float64
 }
 
+// SalesDetailData - unknown purpose structure
 type SalesDetailData struct {
 	Data       map[string]int
 	lastUpdate int64
 }
 
+// TopSellers - unknown purpose structure
 type TopSellers struct {
 	Data       map[string]*SellerInfo
 	lastUpdate int64
 }
 
+// SellerInfo - unknown purpose structure
 type SellerInfo struct {
 	Name  string
 	Image string
 	Count int
 }
 
+// OnlineReferrer - unknown purpose structure
 type OnlineReferrer struct {
 	referrerType int
 	time         time.Time

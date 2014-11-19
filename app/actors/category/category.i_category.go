@@ -8,14 +8,17 @@ import (
 	"github.com/ottemo/foundation/app/models/product"
 )
 
+// GetName returns current category name
 func (it *DefaultCategory) GetName() string {
 	return it.Name
 }
 
+// GetProductIds returns product ids associated to category
 func (it *DefaultCategory) GetProductIds() []string {
 	return it.ProductIds
 }
 
+// GetProductsCollection returns category associated products collection instance
 func (it *DefaultCategory) GetProductsCollection() product.InterfaceProductCollection {
 	productCollection, err := product.GetProductCollectionModel()
 	if err != nil {
@@ -30,6 +33,7 @@ func (it *DefaultCategory) GetProductsCollection() product.InterfaceProductColle
 	return productCollection
 }
 
+// GetProducts returns a set of category associated products
 func (it *DefaultCategory) GetProducts() []product.InterfaceProduct {
 	result := make([]product.InterfaceProduct, 0)
 
@@ -43,10 +47,12 @@ func (it *DefaultCategory) GetProducts() []product.InterfaceProduct {
 	return result
 }
 
+// GetParent returns parent category of nil
 func (it *DefaultCategory) GetParent() category.InterfaceCategory {
 	return it.Parent
 }
 
+// AddProduct associates given product with category
 func (it *DefaultCategory) AddProduct(productID string) error {
 
 	dbEngine := db.GetDBEngine()
@@ -86,6 +92,7 @@ func (it *DefaultCategory) AddProduct(productID string) error {
 	return nil
 }
 
+// RemoveProduct un-associates given product with category
 func (it *DefaultCategory) RemoveProduct(productID string) error {
 
 	dbEngine := db.GetDBEngine()

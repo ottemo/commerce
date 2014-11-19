@@ -84,7 +84,7 @@ type DefaultOrder struct {
 	maxIdx int
 }
 
-// DefaultOrderItemCollection is a default implementer of InterfaceOrderCollection
+// DefaultOrderCollection is a default implementer of InterfaceOrderCollection
 type DefaultOrderCollection struct {
 	listCollection     db.InterfaceDBCollection
 	listExtraAtributes []string

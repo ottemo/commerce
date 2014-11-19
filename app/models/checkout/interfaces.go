@@ -65,7 +65,7 @@ type InterfaceShippingMethod interface {
 	GetRates(checkoutInstance InterfaceCheckout) []StructShippingRate
 }
 
-// InterfaceShippingMethod represents interface to access business layer implementation of checkout payment method
+// InterfacePaymentMethod represents interface to access business layer implementation of checkout payment method
 type InterfacePaymentMethod interface {
 	GetName() string
 	GetCode() string

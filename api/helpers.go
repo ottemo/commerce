@@ -10,13 +10,13 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
-// returns session instance by id or nil
+// GetSessionByID returns session instance by id or nil
 func GetSessionByID(sessionID string) InterfaceSession {
 	session, _ := session.GetSessionByID(sessionID)
 	return session
 }
 
-// returns true if admin rights allowed for current session
+// ValidateAdminRights returns true if admin rights allowed for current session
 func ValidateAdminRights(params *StructAPIHandlerParams) error {
 	if value := params.Session.Get(ConstSessionKeyAdminRights); value != nil {
 		if value.(bool) == true {
@@ -27,7 +27,7 @@ func ValidateAdminRights(params *StructAPIHandlerParams) error {
 	return env.ErrorNew("no admin rights")
 }
 
-// tries to represent HTTP request content in map[string]interface{} format
+// GetRequestContentAsMap tries to represent HTTP request content in map[string]interface{} format
 func GetRequestContentAsMap(params *StructAPIHandlerParams) (map[string]interface{}, error) {
 
 	result, ok := params.RequestContent.(map[string]interface{})
@@ -42,7 +42,7 @@ func GetRequestContentAsMap(params *StructAPIHandlerParams) (map[string]interfac
 	return result, nil
 }
 
-// modifies collection with applying filters from request URL
+// ApplyFilters modifies collection with applying filters from request URL
 func ApplyFilters(params *StructAPIHandlerParams, collection db.InterfaceDBCollection) error {
 
 	for attributeName, attributeValue := range params.RequestGETParams {
@@ -105,7 +105,7 @@ func ApplyFilters(params *StructAPIHandlerParams, collection db.InterfaceDBColle
 	return nil
 }
 
-// returns (offset, limit, error) values based on request string value
+// GetListLimit returns (offset, limit, error) values based on request string value
 //   "1,2" will return offset: 1, limit: 2, error: nil
 //   "2" will return offset: 0, limit: 2, error: nil
 //   "something wrong" will return offset: 0, limit: 0, error: [error msg]

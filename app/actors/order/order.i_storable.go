@@ -8,18 +8,18 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
-// returns id of current order
+// GetID returns id of current order
 func (it *DefaultOrder) GetID() string {
 	return it.id
 }
 
-// sets id for order
+// SetID sets id for order
 func (it *DefaultOrder) SetID(NewID string) error {
 	it.id = NewID
 	return nil
 }
 
-// loads order information from DB
+// Load loads order information from DB
 func (it *DefaultOrder) Load(ID string) error {
 
 	// loading order
@@ -66,7 +66,7 @@ func (it *DefaultOrder) Load(ID string) error {
 	return nil
 }
 
-// removes current order from DB
+// Delete removes current order from DB
 func (it *DefaultOrder) Delete() error {
 	if it.GetID() == "" {
 		return env.ErrorNew("order id is not set")
@@ -98,7 +98,7 @@ func (it *DefaultOrder) Delete() error {
 	return env.ErrorDispatch(err)
 }
 
-// stores current order in DB
+// Save stores current order in DB
 func (it *DefaultOrder) Save() error {
 
 	orderCollection, err := db.GetCollection(ConstCollectionNameOrder)

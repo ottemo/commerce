@@ -5,7 +5,7 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
-// retrieves current InterfaceCMSPageCollection model implementation
+// GetCMSPageCollectionModel retrieves current InterfaceCMSPageCollection model implementation
 func GetCMSPageCollectionModel() (InterfaceCMSPageCollection, error) {
 	model, err := models.GetModel(ConstModelNameCMSPageCollection)
 	if err != nil {
@@ -20,7 +20,7 @@ func GetCMSPageCollectionModel() (InterfaceCMSPageCollection, error) {
 	return cmsPageCollectionModel, nil
 }
 
-// retrieves current InterfaceCMSPage model implementation
+// GetCMSPageModel retrieves current InterfaceCMSPage model implementation
 func GetCMSPageModel() (InterfaceCMSPage, error) {
 	model, err := models.GetModel(ConstModelNameCMSPage)
 	if err != nil {
@@ -35,7 +35,7 @@ func GetCMSPageModel() (InterfaceCMSPage, error) {
 	return cmsPageModel, nil
 }
 
-// retrieves current InterfaceCMSPage model implementation and sets its ID to some value
+// GetCMSPageModelAndSetID retrieves current InterfaceCMSPage model implementation and sets its ID to some value
 func GetCMSPageModelAndSetID(cmsPageID string) (InterfaceCMSPage, error) {
 
 	cmsPageModel, err := GetCMSPageModel()
@@ -51,7 +51,7 @@ func GetCMSPageModelAndSetID(cmsPageID string) (InterfaceCMSPage, error) {
 	return cmsPageModel, nil
 }
 
-// loads cmsPage data into current InterfaceCMSPage model implementation
+// LoadCMSPageByID loads cmsPage data into current InterfaceCMSPage model implementation
 func LoadCMSPageByID(cmsPageID string) (InterfaceCMSPage, error) {
 
 	cmsPageModel, err := GetCMSPageModel()
@@ -67,7 +67,7 @@ func LoadCMSPageByID(cmsPageID string) (InterfaceCMSPage, error) {
 	return cmsPageModel, nil
 }
 
-// retrieves current InterfaceCMSBlockCollection model implementation
+// GetCMSBlockCollectionModel retrieves current InterfaceCMSBlockCollection model implementation
 func GetCMSBlockCollectionModel() (InterfaceCMSBlockCollection, error) {
 	model, err := models.GetModel(ConstModelNameCMSBlockCollection)
 	if err != nil {
@@ -85,7 +85,7 @@ func GetCMSBlockCollectionModel() (InterfaceCMSBlockCollection, error) {
 // CMS Block helpers
 //------------------
 
-// retrieves current InterfaceCMSBlock model implementation
+// GetCMSBlockModel retrieves current InterfaceCMSBlock model implementation
 func GetCMSBlockModel() (InterfaceCMSBlock, error) {
 	model, err := models.GetModel(ConstModelNameCMSBlock)
 	if err != nil {
@@ -100,7 +100,7 @@ func GetCMSBlockModel() (InterfaceCMSBlock, error) {
 	return csmBlockModel, nil
 }
 
-// retrieves current InterfaceCMSBlock model implementation and sets its ID to some value
+// GetCMSBlockModelAndSetID retrieves current InterfaceCMSBlock model implementation and sets its ID to some value
 func GetCMSBlockModelAndSetID(csmBlockID string) (InterfaceCMSBlock, error) {
 
 	csmBlockModel, err := GetCMSBlockModel()
@@ -116,7 +116,7 @@ func GetCMSBlockModelAndSetID(csmBlockID string) (InterfaceCMSBlock, error) {
 	return csmBlockModel, nil
 }
 
-// loads csmBlock data into current InterfaceCMSBlock model implementation
+// LoadCMSBlockByID loads csmBlock data into current InterfaceCMSBlock model implementation
 func LoadCMSBlockByID(csmBlockID string) (InterfaceCMSBlock, error) {
 
 	csmBlockModel, err := GetCMSBlockModel()

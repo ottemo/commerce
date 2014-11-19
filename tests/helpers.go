@@ -17,7 +17,7 @@ import (
 	"github.com/ottemo/foundation/app/models/visitor"
 )
 
-// returns visitor object with randomly filled data
+// GetRandomVisitor returns visitor object with randomly filled data
 func GetRandomVisitor() (visitor.InterfaceVisitor, error) {
 	randomVisitor, err := visitor.GetVisitorModel()
 	if err != nil {
@@ -60,7 +60,7 @@ func GetRandomVisitor() (visitor.InterfaceVisitor, error) {
 	return randomVisitor, nil
 }
 
-// returns new checkout object with assigned new session, and cart to it
+// GetNewCheckout returns new checkout object with assigned new session, and cart to it
 func GetNewCheckout(checkoutVisitor visitor.InterfaceVisitor) (checkout.InterfaceCheckout, error) {
 	newSession, err := session.NewSession()
 	if err != nil {
@@ -99,7 +99,7 @@ func GetNewCheckout(checkoutVisitor visitor.InterfaceVisitor) (checkout.Interfac
 	return newCheckout, nil
 }
 
-// adding n count products to checkout cart
+// AddRandomProductsToCart adds n count products to checkout cart
 func AddRandomProductsToCart(currentCheckout checkout.InterfaceCheckout, n int) error {
 	if n <= 0 {
 		return nil
@@ -160,7 +160,7 @@ func AddRandomProductsToCart(currentCheckout checkout.InterfaceCheckout, n int) 
 	return nil
 }
 
-// sets shipping and billing addresses for checkout object
+// RandomizeShippingAndBillingAddresses sets shipping and billing addresses for checkout object
 func RandomizeShippingAndBillingAddresses(currentCheckout checkout.InterfaceCheckout) error {
 	currentVisitor := currentCheckout.GetVisitor()
 	if currentVisitor == nil {
@@ -221,7 +221,7 @@ func RandomizeShippingAndBillingAddresses(currentCheckout checkout.InterfaceChec
 	return nil
 }
 
-// sets check money order payment method and flat rate shipping method to checkout
+// UpdateShippingAndPaymentMethods sets check money order payment method and flat rate shipping method to checkout
 func UpdateShippingAndPaymentMethods(currentCheckout checkout.InterfaceCheckout) error {
 	found := false
 	for _, shippingMethod := range checkout.GetRegisteredShippingMethods() {
@@ -250,7 +250,7 @@ func UpdateShippingAndPaymentMethods(currentCheckout checkout.InterfaceCheckout)
 	return nil
 }
 
-// routine to emulate full checkout process at once
+// FullCheckout is a routine to emulate full checkout process at once
 func FullCheckout() error {
 
 	currentVisitor, err := GetRandomVisitor()
@@ -286,7 +286,7 @@ func FullCheckout() error {
 	return nil
 }
 
-// function checks products count in DB and adds missing if needed
+// MakeSureProductsCount checks products count in DB and adds missing if needed
 func MakeSureProductsCount(countShouldBe int) error {
 
 	// getting database products count

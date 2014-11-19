@@ -4,7 +4,8 @@ import (
 	"time"
 )
 
-// implementer class
+// Session is a default implementer of InterfaceSession declared in
+// "github.com/ottemo/foundation/api" package
 type Session struct {
 	id string
 
@@ -13,12 +14,12 @@ type Session struct {
 	time time.Time
 }
 
-// returns current session id
+// GetID returns current session id
 func (it *Session) GetID() string {
 	return it.id
 }
 
-// returns session value by a given key or nil - if not set
+// Get returns session value by a given key or nil - if not set
 func (it *Session) Get(key string) interface{} {
 	if value, ok := it.values[key]; ok == true {
 		return value
@@ -26,12 +27,12 @@ func (it *Session) Get(key string) interface{} {
 	return nil
 }
 
-// assigns value to session key
+// Set assigns value to session key
 func (it *Session) Set(key string, value interface{}) {
 	it.values[key] = value
 }
 
-// clears session data
+// Close clears session data
 func (it *Session) Close() error {
 	sessionsMutex.Lock()
 

@@ -10,12 +10,12 @@ var (
 	callbacksOnDatabaseStart                   = []func() error{} // set of callback function on database service start
 )
 
-// registers new callback on database service start
+// RegisterOnDatabaseStart registers new callback on database service start
 func RegisterOnDatabaseStart(callback func() error) {
 	callbacksOnDatabaseStart = append(callbacksOnDatabaseStart, callback)
 }
 
-// fires database service start event (callback handling)
+// OnDatabaseStart fires database service start event (callback handling)
 func OnDatabaseStart() error {
 	for _, callback := range callbacksOnDatabaseStart {
 		if err := callback(); err != nil {
@@ -25,7 +25,7 @@ func OnDatabaseStart() error {
 	return nil
 }
 
-// registers database service in the system
+// RegisterDBEngine registers database service in the system
 //   - will cause error if there are couple candidates for that role
 func RegisterDBEngine(newEngine InterfaceDBEngine) error {
 	if currentDBEngine == nil {
@@ -36,7 +36,7 @@ func RegisterDBEngine(newEngine InterfaceDBEngine) error {
 	return nil
 }
 
-// returns currently used database service implementation
+// GetDBEngine returns currently used database service implementation
 func GetDBEngine() InterfaceDBEngine {
 	return currentDBEngine
 }

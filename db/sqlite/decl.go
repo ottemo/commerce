@@ -22,14 +22,14 @@ const (
 
 // Package global variables
 var (
-	// instance of database engine (one per application)
+	// dbEngine is an instance of database engine (one per application)
 	dbEngine *DBEngine
 
-	// regex expression used to check names used within SQL queries
+	// ConstSQLNameValidator is a regex expression used to check names used within SQL queries
 	ConstSQLNameValidator = regexp.MustCompile("^[A-Za-z_][A-Za-z0-9_]*$")
 )
 
-// structure to hold information of named collection filter
+// StructDBFilterGroup is a structure to hold information of named collection filter
 type StructDBFilterGroup struct {
 	Name         string
 	FilterValues []string

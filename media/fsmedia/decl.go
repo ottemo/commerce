@@ -8,7 +8,7 @@ const (
 	ConstMediaDefaultFolder = "./media/" // filesystem folder path to store media files in there
 )
 
-// InterfaceMediaStorage implementer class
+// FilesystemMediaStorage is a filesystem based implementer of InterfaceMediaStorage
 type FilesystemMediaStorage struct {
 	storageFolder string
 	setupWaitCnt  int

@@ -56,14 +56,14 @@ var (
 	startAppMutex sync.RWMutex
 )
 
-// switches ini config to use value from test section instead of general
+// SwitchToTestIniSection switches ini config to use value from test section instead of general
 func SwitchToTestIniSection() error {
 	os.Setenv(ini.ConstEnvironmentIniSection, ini.ConstTestSectionName)
 
 	return nil
 }
 
-// modifies current working directory to be same for all packages
+// UpdateWorkingDirectory modifies current working directory to be same for all packages
 func UpdateWorkingDirectory() error {
 
 	// was specified environment variable
@@ -92,7 +92,7 @@ func UpdateWorkingDirectory() error {
 	return nil
 }
 
-// prepares database to be used for tests
+// CheckTestIniDefaults prepares database to be used for tests
 func CheckTestIniDefaults() error {
 
 	// we need to init iniConfig before check
@@ -148,7 +148,7 @@ func CheckTestIniDefaults() error {
 	return nil
 }
 
-// you should use that function in your package GO tests to run application and init modules
+// StartAppInTestingMode starts application in "test mode" (you should use that function for your package tests)
 func StartAppInTestingMode() error {
 	startAppMutex.Lock()
 	defer startAppMutex.Unlock()

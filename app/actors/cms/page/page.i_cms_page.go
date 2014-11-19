@@ -1,66 +1,66 @@
 package page
 
-// returns page URL
+// GetURL returns page URL
 func (it *DefaultCMSPage) GetURL() string {
 	return it.URL
 }
 
-// returns page URL to be shown on
+// SetURL returns page URL to be shown on
 func (it *DefaultCMSPage) SetURL(newValue string) error {
 	it.URL = newValue
 	return nil
 }
 
-// returns page identifier
+// GetIdentifier returns page identifier
 func (it *DefaultCMSPage) GetIdentifier() string {
 	return it.Identifier
 }
 
-// sets page identifier value
+// SetIdentifier sets page identifier value
 func (it *DefaultCMSPage) SetIdentifier(newValue string) error {
 	it.Identifier = newValue
 	return nil
 }
 
-// returns page title
+// GetTitle returns page title
 func (it *DefaultCMSPage) GetTitle() string {
 	return it.Title
 }
 
-// sets page title value
+// SetTitle sets page title value
 func (it *DefaultCMSPage) SetTitle(newValue string) error {
 	it.Title = newValue
 	return nil
 }
 
-// returns page content
+// GetContent returns page content
 func (it *DefaultCMSPage) GetContent() string {
 	return it.Content
 }
 
-// sets page content value
+// SetContent sets page content value
 func (it *DefaultCMSPage) SetContent(newValue string) error {
 	it.Content = newValue
 	return nil
 }
 
-// returns page meta title
+// GetMetaKeywords returns page meta title
 func (it *DefaultCMSPage) GetMetaKeywords() string {
 	return it.MetaKeywords
 }
 
-// sets page meta title value
+// SetMetaKeywords sets page meta title value
 func (it *DefaultCMSPage) SetMetaKeywords(newValue string) error {
 	it.MetaKeywords = newValue
 	return nil
 }
 
-// returns page meta description
+// GetMetaDescription returns page meta description
 func (it *DefaultCMSPage) GetMetaDescription() string {
 	return it.MetaDescription
 }
 
-// sets page meta description value
+// SetMetaDescription sets page meta description value
 func (it *DefaultCMSPage) SetMetaDescription(newValue string) error {
 	it.MetaDescription = newValue
 	return nil

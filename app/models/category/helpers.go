@@ -5,7 +5,7 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
-// retrieves current InterfaceCategoryCollection model implementation
+// GetCategoryCollectionModel retrieves current InterfaceCategoryCollection model implementation
 func GetCategoryCollectionModel() (InterfaceCategoryCollection, error) {
 	model, err := models.GetModel(ConstModelNameCategoryCollection)
 	if err != nil {
@@ -20,7 +20,7 @@ func GetCategoryCollectionModel() (InterfaceCategoryCollection, error) {
 	return categoryModel, nil
 }
 
-// retrieves current InterfaceCategory model implementation
+// GetCategoryModel retrieves current InterfaceCategory model implementation
 func GetCategoryModel() (InterfaceCategory, error) {
 	model, err := models.GetModel(ConstModelNameCategory)
 	if err != nil {
@@ -35,7 +35,7 @@ func GetCategoryModel() (InterfaceCategory, error) {
 	return categoryModel, nil
 }
 
-// retrieves current InterfaceCategory model implementation and sets its ID to some value
+// GetCategoryModelAndSetID retrieves current InterfaceCategory model implementation and sets its ID to some value
 func GetCategoryModelAndSetID(categoryID string) (InterfaceCategory, error) {
 
 	categoryModel, err := GetCategoryModel()
@@ -51,7 +51,7 @@ func GetCategoryModelAndSetID(categoryID string) (InterfaceCategory, error) {
 	return categoryModel, nil
 }
 
-// loads category data into current InterfaceCategory model implementation
+// LoadCategoryByID loads category data into current InterfaceCategory model implementation
 func LoadCategoryByID(categoryID string) (InterfaceCategory, error) {
 
 	categoryModel, err := GetCategoryModel()

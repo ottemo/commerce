@@ -10,7 +10,7 @@ import (
 	"github.com/ottemo/foundation/app/models/order"
 )
 
-// returns attribute of OrderItem or nil
+// Get returns attribute of OrderItem or nil
 func (it *DefaultOrderItem) Get(attribute string) interface{} {
 
 	switch strings.ToLower(attribute) {
@@ -58,7 +58,7 @@ func (it *DefaultOrderItem) Get(attribute string) interface{} {
 	return nil
 }
 
-// sets attribute to OrderItem object, returns error on problems
+// Set sets attribute to OrderItem object, returns error on problems
 func (it *DefaultOrderItem) Set(attribute string, value interface{}) error {
 	attribute = strings.ToLower(attribute)
 
@@ -103,7 +103,7 @@ func (it *DefaultOrderItem) Set(attribute string, value interface{}) error {
 	return nil
 }
 
-// fills OrderItem attributes with values provided in input map
+// FromHashMap fills OrderItem attributes with values provided in input map
 func (it *DefaultOrderItem) FromHashMap(input map[string]interface{}) error {
 
 	for attribute, value := range input {
@@ -115,7 +115,7 @@ func (it *DefaultOrderItem) FromHashMap(input map[string]interface{}) error {
 	return nil
 }
 
-// makes map from OrderItem attribute values
+// ToHashMap makes map from OrderItem attribute values
 func (it *DefaultOrderItem) ToHashMap() map[string]interface{} {
 
 	result := make(map[string]interface{})
@@ -140,7 +140,7 @@ func (it *DefaultOrderItem) ToHashMap() map[string]interface{} {
 	return result
 }
 
-// describes attributes of OrderItem model
+// GetAttributesInfo describes attributes of OrderItem model
 func (it *DefaultOrderItem) GetAttributesInfo() []models.StructAttributeInfo {
 
 	info := []models.StructAttributeInfo{

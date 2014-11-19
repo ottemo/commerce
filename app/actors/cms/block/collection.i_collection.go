@@ -7,7 +7,7 @@ import (
 	"github.com/ottemo/foundation/utils"
 )
 
-// enumerates items of CMS block model
+// List enumerates items of CMS block model
 func (it *DefaultCMSBlockCollection) List() ([]models.StructListItem, error) {
 	result := make([]models.StructListItem, 0)
 
@@ -46,7 +46,7 @@ func (it *DefaultCMSBlockCollection) List() ([]models.StructListItem, error) {
 	return result, nil
 }
 
-// allows to obtain additional attributes from  List() function
+// ListAddExtraAttribute allows to obtain additional attributes from  List() function
 func (it *DefaultCMSBlockCollection) ListAddExtraAttribute(attribute string) error {
 
 	if utils.IsAmongStr(attribute, "_id", "id", "identifier", "content", "created_at", "updated_at") {
@@ -62,19 +62,19 @@ func (it *DefaultCMSBlockCollection) ListAddExtraAttribute(attribute string) err
 	return nil
 }
 
-// adds selection filter to List() function
+// ListFilterAdd adds selection filter to List() function
 func (it *DefaultCMSBlockCollection) ListFilterAdd(Attribute string, Operator string, Value interface{}) error {
 	it.listCollection.AddFilter(Attribute, Operator, Value.(string))
 	return nil
 }
 
-// clears presets made by ListFilterAdd() and ListAddExtraAttribute() functions
+// ListFilterReset clears presets made by ListFilterAdd() and ListAddExtraAttribute() functions
 func (it *DefaultCMSBlockCollection) ListFilterReset() error {
 	it.listCollection.ClearFilters()
 	return nil
 }
 
-// sets select pagination
+// ListLimit sets select pagination
 func (it *DefaultCMSBlockCollection) ListLimit(offset int, limit int) error {
 	return it.listCollection.SetLimit(offset, limit)
 }

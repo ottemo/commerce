@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// returns database collection or error otherwise
+// GetCollection returns database collection or error otherwise
 func GetCollection(CollectionName string) (InterfaceDBCollection, error) {
 	dbEngine := GetDBEngine()
 	if dbEngine == nil {
@@ -16,7 +16,7 @@ func GetCollection(CollectionName string) (InterfaceDBCollection, error) {
 	return dbEngine.GetCollection(CollectionName)
 }
 
-// returns object that represents GO side value for given valueType
+// ConvertTypeFromDbToGo returns object that represents GO side value for given valueType
 func ConvertTypeFromDbToGo(value interface{}, valueType string) interface{} {
 	switch {
 	case strings.HasPrefix(valueType, "[]"):

@@ -6,7 +6,8 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-// InterfaceRestService implementer class
+// DefaultRestService is a default implementer of InterfaceRestService declared in
+// "github.com/ottemo/foundation/api" package
 type DefaultRestService struct {
 	ListenOn string
 	Router   *httprouter.Router

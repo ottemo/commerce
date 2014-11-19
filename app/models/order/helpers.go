@@ -5,7 +5,7 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
-// retrieves current InterfaceOrderCollection model implementation
+// GetOrderCollectionModel retrieves current InterfaceOrderCollection model implementation
 func GetOrderCollectionModel() (InterfaceOrderCollection, error) {
 	model, err := models.GetModel(ConstModelNameOrderCollection)
 	if err != nil {
@@ -20,7 +20,7 @@ func GetOrderCollectionModel() (InterfaceOrderCollection, error) {
 	return orderCollectionModel, nil
 }
 
-// retrieves current InterfaceOrderCollection model implementation
+// GetOrderItemCollectionModel retrieves current InterfaceOrderCollection model implementation
 func GetOrderItemCollectionModel() (InterfaceOrderItemCollection, error) {
 	model, err := models.GetModel(ConstModelNameOrderItemCollection)
 	if err != nil {
@@ -35,7 +35,7 @@ func GetOrderItemCollectionModel() (InterfaceOrderItemCollection, error) {
 	return orderItemCollectionModel, nil
 }
 
-// retrieves current InterfaceOrder model implementation
+// GetOrderModel retrieves current InterfaceOrder model implementation
 func GetOrderModel() (InterfaceOrder, error) {
 	model, err := models.GetModel(ConstModelNameOrder)
 	if err != nil {
@@ -50,7 +50,7 @@ func GetOrderModel() (InterfaceOrder, error) {
 	return orderModel, nil
 }
 
-// retrieves current InterfaceOrder model implementation and sets its ID to some value
+// GetOrderModelAndSetID retrieves current InterfaceOrder model implementation and sets its ID to some value
 func GetOrderModelAndSetID(orderID string) (InterfaceOrder, error) {
 
 	orderModel, err := GetOrderModel()
@@ -66,7 +66,7 @@ func GetOrderModelAndSetID(orderID string) (InterfaceOrder, error) {
 	return orderModel, nil
 }
 
-// loads order data into current InterfaceOrder model implementation
+// LoadOrderByID loads order data into current InterfaceOrder model implementation
 func LoadOrderByID(orderID string) (InterfaceOrder, error) {
 
 	orderModel, err := GetOrderModel()

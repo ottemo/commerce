@@ -4,7 +4,7 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
-// retrieves current model implementation and sets its ID to some value
+// GetModelAndSetID retrieves current model implementation and sets its ID to some value
 func GetModelAndSetID(modelName string, modelID string) (InterfaceStorable, error) {
 	someModel, err := GetModel(modelName)
 	if err != nil {
@@ -24,7 +24,7 @@ func GetModelAndSetID(modelName string, modelID string) (InterfaceStorable, erro
 	return storableModel, nil
 }
 
-// loads model data in current implementation
+// LoadModelByID loads model data in current implementation
 func LoadModelByID(modelName string, modelID string) (InterfaceStorable, error) {
 
 	someModel, err := GetModel(modelName)

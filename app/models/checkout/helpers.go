@@ -8,7 +8,7 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
-// retrieves current InterfaceCheckout model implementation
+// GetCheckoutModel retrieves current InterfaceCheckout model implementation
 func GetCheckoutModel() (InterfaceCheckout, error) {
 	model, err := models.GetModel(ConstCheckoutModelName)
 	if err != nil {
@@ -23,7 +23,7 @@ func GetCheckoutModel() (InterfaceCheckout, error) {
 	return checkoutModel, nil
 }
 
-// retrieves shipping method for given unique code or nil if no shipping method with such code
+// GetShippingMethodByCode retrieves shipping method for given unique code or nil if no shipping method with such code
 func GetShippingMethodByCode(code string) InterfaceShippingMethod {
 
 	for _, shippingMethod := range registeredShippingMethods {
@@ -35,7 +35,7 @@ func GetShippingMethodByCode(code string) InterfaceShippingMethod {
 	return nil
 }
 
-// retrieves payment method for given unique code or nil if no payment method with such code
+// GetPaymentMethodByCode retrieves payment method for given unique code or nil if no payment method with such code
 func GetPaymentMethodByCode(code string) InterfacePaymentMethod {
 
 	for _, paymentMethod := range registeredPaymentMethods {
@@ -47,7 +47,7 @@ func GetPaymentMethodByCode(code string) InterfacePaymentMethod {
 	return nil
 }
 
-// returns checkout for current session or creates new one
+// GetCurrentCheckout returns checkout for current session or creates new one
 func GetCurrentCheckout(params *api.StructAPIHandlerParams) (InterfaceCheckout, error) {
 	sessionObject := params.Session.Get(ConstSessionKeyCurrentCheckout)
 

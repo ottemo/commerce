@@ -4,7 +4,7 @@ package authorizenet
 
 // Package global constants
 const (
-	// constants for transaction state
+	// ConstTransactionApproved constants for transaction state
 	ConstTransactionApproved      = "1"
 	ConstTransactionDeclined      = "2"
 	ConstTransactionError         = "3"

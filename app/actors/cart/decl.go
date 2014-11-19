@@ -29,7 +29,7 @@ type DefaultCart struct {
 	maxIdx int
 }
 
-// DefaultCart is a default implementer of InterfaceCart
+// DefaultCartItem is a default implementer of InterfaceCart
 type DefaultCartItem struct {
 	id string
 

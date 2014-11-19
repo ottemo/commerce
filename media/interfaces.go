@@ -1,7 +1,7 @@
 // Package media represents interfaces to access media storage services
 package media
 
-// interface to media storage service
+// InterfaceMediaStorage is an interface to access media storage service
 type InterfaceMediaStorage interface {
 	GetName() string
 

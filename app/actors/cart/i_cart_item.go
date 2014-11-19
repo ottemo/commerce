@@ -6,23 +6,23 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
-// returns id of cart item
+// GetID returns id of cart item
 func (it *DefaultCartItem) GetID() string {
 	return it.id
 }
 
-// sets id to cart item
+// SetID sets id to cart item
 func (it *DefaultCartItem) SetID(newID string) error {
 	it.id = newID
 	return nil
 }
 
-// returns index value for current cart item
+// GetIdx returns index value for current cart item
 func (it *DefaultCartItem) GetIdx() int {
 	return it.idx
 }
 
-// changes index value for current cart item if it is possible
+// SetIdx changes index value for current cart item if it is possible
 func (it *DefaultCartItem) SetIdx(newIdx int) error {
 
 	if newIdx < 0 {
@@ -41,12 +41,12 @@ func (it *DefaultCartItem) SetIdx(newIdx int) error {
 	return nil
 }
 
-// returns product id which cart item represents
+// GetProductID returns product id which cart item represents
 func (it *DefaultCartItem) GetProductID() string {
 	return it.ProductID
 }
 
-// returns product instance which cart item represents
+// GetProduct returns product instance which cart item represents
 func (it *DefaultCartItem) GetProduct() product.InterfaceProduct {
 	if it.ProductID != "" {
 		product, err := product.LoadProductByID(it.ProductID)
@@ -57,12 +57,12 @@ func (it *DefaultCartItem) GetProduct() product.InterfaceProduct {
 	return nil
 }
 
-// returns current cart item qty
+// GetQty returns current cart item qty
 func (it *DefaultCartItem) GetQty() int {
 	return it.Qty
 }
 
-// sets qty for current cart item
+// SetQty sets qty for current cart item
 func (it *DefaultCartItem) SetQty(qty int) error {
 	if qty > 0 {
 		it.Qty = qty
@@ -75,7 +75,7 @@ func (it *DefaultCartItem) SetQty(qty int) error {
 	return nil
 }
 
-// removes item from the cart
+// Remove removes item from the cart
 func (it *DefaultCartItem) Remove() error {
 
 	if it.Cart != nil {
@@ -85,12 +85,12 @@ func (it *DefaultCartItem) Remove() error {
 	}
 }
 
-// returns all item options or nil
+// GetOptions returns all item options or nil
 func (it *DefaultCartItem) GetOptions() map[string]interface{} {
 	return it.Options
 }
 
-// set option to cart item
+// SetOption sets an option to cart item
 func (it *DefaultCartItem) SetOption(optionName string, optionValue interface{}) error {
 	if it.Options == nil {
 		it.Options = make(map[string]interface{})
@@ -101,7 +101,7 @@ func (it *DefaultCartItem) SetOption(optionName string, optionValue interface{})
 	return nil
 }
 
-// returns cart that item belongs to
+// GetCart returns cart that item belongs to
 func (it *DefaultCartItem) GetCart() cart.InterfaceCart {
 	return it.Cart
 }

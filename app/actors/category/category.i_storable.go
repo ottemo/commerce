@@ -6,15 +6,18 @@ import (
 	"github.com/ottemo/foundation/utils"
 )
 
+// GetID returns database storage id of current object
 func (it *DefaultCategory) GetID() string {
 	return it.id
 }
 
+// SetID sets database storage id for current object
 func (it *DefaultCategory) SetID(NewID string) error {
 	it.id = NewID
 	return nil
 }
 
+// Load loads object information from database storage
 func (it *DefaultCategory) Load(ID string) error {
 
 	// loading category
@@ -54,6 +57,7 @@ func (it *DefaultCategory) Load(ID string) error {
 	return nil
 }
 
+// Delete removes current object from database storage
 func (it *DefaultCategory) Delete() error {
 	//deleting category products join
 	junctionCollection, err := db.GetCollection(ConstCollectionNameCategoryProductJunction)
@@ -85,6 +89,7 @@ func (it *DefaultCategory) Delete() error {
 	return nil
 }
 
+// Save stores current object to database storage
 func (it *DefaultCategory) Save() error {
 
 	storingValues := it.ToHashMap()

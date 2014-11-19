@@ -110,7 +110,7 @@ func (it *DefaultCart) checkOptions(productOptions map[string]interface{}, cartI
 	return nil
 }
 
-// adds item to the current cart
+// AddItem adds item to the current cart
 //   - returns added item or nil if error happened
 func (it *DefaultCart) AddItem(productID string, qty int, options map[string]interface{}) (cart.InterfaceCartItem, error) {
 
@@ -155,7 +155,7 @@ func (it *DefaultCart) AddItem(productID string, qty int, options map[string]int
 	return cartItem, nil
 }
 
-// removes item from cart
+// RemoveItem removes item from cart
 //   - you need to know index you can get from ListItems()
 func (it *DefaultCart) RemoveItem(itemIdx int) error {
 	if cartItem, present := it.Items[itemIdx]; present {
@@ -185,7 +185,7 @@ func (it *DefaultCart) RemoveItem(itemIdx int) error {
 	}
 }
 
-// sets new qty for particular item in cart
+// SetQty sets new qty for particular item in cart
 //   - you need to it's index, use ListItems() for that
 func (it *DefaultCart) SetQty(itemIdx int, qty int) error {
 	cartItem, present := it.Items[itemIdx]
@@ -203,7 +203,7 @@ func (it *DefaultCart) SetQty(itemIdx int, qty int) error {
 	}
 }
 
-// returns subtotal for cart items
+// GetSubtotal returns subtotal for cart items
 func (it *DefaultCart) GetSubtotal() float64 {
 
 	if it.Subtotal == 0 {
@@ -218,7 +218,7 @@ func (it *DefaultCart) GetSubtotal() float64 {
 	return it.Subtotal
 }
 
-// enumerates current cart items sorted by item idx
+// GetItems enumerates current cart items sorted by item idx
 func (it *DefaultCart) GetItems() []cart.InterfaceCartItem {
 
 	result := make([]cart.InterfaceCartItem, 0)
@@ -237,24 +237,24 @@ func (it *DefaultCart) GetItems() []cart.InterfaceCartItem {
 	return result
 }
 
-// returns visitor id this cart belongs to
+// GetVisitorID returns visitor id this cart belongs to
 func (it *DefaultCart) GetVisitorID() string {
 	return it.VisitorID
 }
 
-// sets new owner of cart
+// SetVisitorID sets new owner of cart
 func (it *DefaultCart) SetVisitorID(visitorID string) error {
 	it.VisitorID = visitorID
 	return nil
 }
 
-// returns visitor model represents owner or current cart or nil if visitor was not set to cart
+// GetVisitor returns visitor model represents owner or current cart or nil if visitor was not set to cart
 func (it *DefaultCart) GetVisitor() visitor.InterfaceVisitor {
 	visitor, _ := visitor.LoadVisitorByID(it.VisitorID)
 	return visitor
 }
 
-// assigns some information to current cart
+// SetCartInfo assigns some information to current cart
 func (it *DefaultCart) SetCartInfo(infoAttribute string, infoValue interface{}) error {
 	if it.Info == nil {
 		it.Info = make(map[string]interface{})
@@ -265,12 +265,12 @@ func (it *DefaultCart) SetCartInfo(infoAttribute string, infoValue interface{}) 
 	return nil
 }
 
-// returns current cart info assigned
+// GetCartInfo returns current cart info assigned
 func (it *DefaultCart) GetCartInfo() map[string]interface{} {
 	return it.Info
 }
 
-// loads cart information from DB for visitor
+// MakeCartForVisitor loads cart information from DB for visitor
 func (it *DefaultCart) MakeCartForVisitor(visitorID string) error {
 	dbEngine := db.GetDBEngine()
 	if dbEngine == nil {
@@ -310,21 +310,21 @@ func (it *DefaultCart) MakeCartForVisitor(visitorID string) error {
 	return nil
 }
 
-// makes cart active
+// Activate makes cart active
 //   - only one cart can be active for particular visitor
 func (it *DefaultCart) Activate() error {
 	it.Active = true
 	return nil
 }
 
-// makes cart un-active
+// Deactivate makes cart un-active
 //   - so new cart will be created on next request
 func (it *DefaultCart) Deactivate() error {
 	it.Active = false
 	return nil
 }
 
-// returns active flag status of cart
+// IsActive returns active flag status of cart
 func (it *DefaultCart) IsActive() bool {
 	return it.Active
 }

@@ -34,7 +34,7 @@ func ConvertMapToDoc(inputMap map[string]interface{}) bson.D {
 	return result
 }
 
-// converts bson.D to readable form, mostly used for debug
+// BsonDToString converts bson.D to readable form, mostly used for debug
 func BsonDToString(input bson.D) string {
 	result := ""
 

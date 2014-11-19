@@ -10,7 +10,7 @@ import (
 	"github.com/ottemo/foundation/utils"
 )
 
-// returns object attribute value or nil
+// Get returns object attribute value or nil
 func (it *DefaultCMSPage) Get(attribute string) interface{} {
 	switch strings.ToLower(attribute) {
 	case "_id", "id":
@@ -36,7 +36,7 @@ func (it *DefaultCMSPage) Get(attribute string) interface{} {
 	return nil
 }
 
-// sets attribute value to object or returns error
+// Set sets attribute value to object or returns error
 func (it *DefaultCMSPage) Set(attribute string, value interface{}) error {
 	attribute = strings.ToLower(attribute)
 
@@ -66,7 +66,7 @@ func (it *DefaultCMSPage) Set(attribute string, value interface{}) error {
 	return env.ErrorNew("unknown attribute '" + attribute + "'")
 }
 
-// fills object attributes from map[string]interface{}
+// FromHashMap fills object attributes from map[string]interface{}
 func (it *DefaultCMSPage) FromHashMap(input map[string]interface{}) error {
 
 	for attribute, value := range input {
@@ -78,7 +78,7 @@ func (it *DefaultCMSPage) FromHashMap(input map[string]interface{}) error {
 	return nil
 }
 
-// represents object as map[string]interface{}
+// ToHashMap represents object as map[string]interface{}
 func (it *DefaultCMSPage) ToHashMap() map[string]interface{} {
 
 	result := make(map[string]interface{})
@@ -96,7 +96,7 @@ func (it *DefaultCMSPage) ToHashMap() map[string]interface{} {
 	return result
 }
 
-// returns information about object attributes
+// GetAttributesInfo returns information about object attributes
 func (it *DefaultCMSPage) GetAttributesInfo() []models.StructAttributeInfo {
 
 	info := []models.StructAttributeInfo{

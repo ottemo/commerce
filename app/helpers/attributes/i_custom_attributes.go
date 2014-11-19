@@ -7,7 +7,7 @@ import (
 	"github.com/ottemo/foundation/utils"
 )
 
-// initializes helper before usage
+// Init initializes helper before usage
 func (it *CustomAttributes) Init(model string, collection string) (*CustomAttributes, error) {
 	it.model = model
 	it.collection = collection
@@ -83,7 +83,7 @@ func (it *CustomAttributes) Init(model string, collection string) (*CustomAttrib
 	return it, nil
 }
 
-// removes custom attribute from collection
+// RemoveAttribute removes custom attribute from collection
 func (it *CustomAttributes) RemoveAttribute(attributeName string) error {
 
 	customAttribute, present := it.attributes[attributeName]
@@ -120,7 +120,7 @@ func (it *CustomAttributes) RemoveAttribute(attributeName string) error {
 	return nil
 }
 
-// extends collection with new custom attribute
+// AddNewAttribute extends collection with new custom attribute
 func (it *CustomAttributes) AddNewAttribute(newAttribute models.StructAttributeInfo) error {
 
 	if _, present := it.attributes[newAttribute.Attribute]; present {
@@ -174,7 +174,7 @@ func (it *CustomAttributes) AddNewAttribute(newAttribute models.StructAttributeI
 	return env.ErrorDispatch(err)
 }
 
-// returns collection name you can use to fill CustomAttributes struct
+// GetCustomAttributeCollectionName returns collection name you can use to fill CustomAttributes struct
 func (it *CustomAttributes) GetCustomAttributeCollectionName() string {
 	return it.collection
 }

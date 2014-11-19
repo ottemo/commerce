@@ -110,7 +110,7 @@ func convertValueForSQL(value interface{}) string {
 	return convertValueForSQL(utils.InterfaceToString(value))
 }
 
-// returns type used inside sqlite for given general name
+// GetDBType returns type used inside sqlite for given general name
 func GetDBType(ColumnType string) (string, error) {
 	ColumnType = strings.ToLower(ColumnType)
 	switch {

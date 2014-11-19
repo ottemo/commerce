@@ -18,17 +18,17 @@ var (
 	callbacksOnConfigIniStart = []func() error{}
 )
 
-// registers new callback on configuration service start
+// RegisterOnConfigStart registers new callback on configuration service start
 func RegisterOnConfigStart(callback func() error) {
 	callbacksOnConfigStart = append(callbacksOnConfigStart, callback)
 }
 
-// registers new callback on ini configuration service start
+// RegisterOnConfigIniStart registers new callback on ini configuration service start
 func RegisterOnConfigIniStart(callback func() error) {
 	callbacksOnConfigIniStart = append(callbacksOnConfigIniStart, callback)
 }
 
-// fires config service start event (callback handling)
+// OnConfigStart fires config service start event (callback handling)
 func OnConfigStart() error {
 	for _, callback := range callbacksOnConfigStart {
 		if err := callback(); err != nil {
@@ -38,7 +38,7 @@ func OnConfigStart() error {
 	return nil
 }
 
-// fires ini config service start event (callback handling)
+// OnConfigIniStart fires ini config service start event (callback handling)
 func OnConfigIniStart() error {
 	for _, callback := range callbacksOnConfigIniStart {
 		if err := callback(); err != nil {
@@ -48,7 +48,7 @@ func OnConfigIniStart() error {
 	return nil
 }
 
-// registers ini config service in the system
+// RegisterIniConfig registers ini config service in the system
 //   - will cause error if there are couple candidates for that role
 func RegisterIniConfig(IniConfig InterfaceIniConfig) error {
 	if registeredIniConfig == nil {
@@ -59,7 +59,7 @@ func RegisterIniConfig(IniConfig InterfaceIniConfig) error {
 	return nil
 }
 
-// registers config service in the system
+// RegisterConfig registers config service in the system
 //   - will cause error if there are couple candidates for that role
 func RegisterConfig(Config InterfaceConfig) error {
 	if registeredConfig == nil {
@@ -70,7 +70,7 @@ func RegisterConfig(Config InterfaceConfig) error {
 	return nil
 }
 
-// registers logging service in the system
+// RegisterLogger registers logging service in the system
 //   - will cause error if there are couple candidates for that role
 func RegisterLogger(logger InterfaceLogger) error {
 	if registeredLogger == nil {
@@ -81,7 +81,7 @@ func RegisterLogger(logger InterfaceLogger) error {
 	return nil
 }
 
-// registers event processor in the system
+// RegisterEventBus registers event processor in the system
 //   - will cause error if there are couple candidates for that role
 func RegisterEventBus(eventBus InterfaceEventBus) error {
 	if registeredEventBus == nil {
@@ -92,7 +92,7 @@ func RegisterEventBus(eventBus InterfaceEventBus) error {
 	return nil
 }
 
-// registers error processor in the system
+// RegisterErrorBus registers error processor in the system
 //   - will cause error if there are couple candidates for that role
 func RegisterErrorBus(errorBus InterfaceErrorBus) error {
 	if registeredErrorBus == nil {
@@ -103,32 +103,32 @@ func RegisterErrorBus(errorBus InterfaceErrorBus) error {
 	return nil
 }
 
-// returns currently used config service implementation
+// GetConfig returns currently used config service implementation
 func GetConfig() InterfaceConfig {
 	return registeredConfig
 }
 
-// returns currently used ini config service implementation
+// GetIniConfig returns currently used ini config service implementation
 func GetIniConfig() InterfaceIniConfig {
 	return registeredIniConfig
 }
 
-// returns currently used logging service implementation
+// GetLogger returns currently used logging service implementation
 func GetLogger() InterfaceLogger {
 	return registeredLogger
 }
 
-// returns currently used error processor implementation
+// GetErrorBus returns currently used error processor implementation
 func GetErrorBus() InterfaceErrorBus {
 	return registeredErrorBus
 }
 
-// returns currently used event processor implementation
+// GetEventBus returns currently used event processor implementation
 func GetEventBus() InterfaceEventBus {
 	return registeredEventBus
 }
 
-// validator function to accept any value
+// ConfigEmptyValueValidator is a default validator function to accept any value
 func ConfigEmptyValueValidator(val interface{}) (interface{}, bool) {
 	return val, true
 }

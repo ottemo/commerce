@@ -9,11 +9,7 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
-//---------------------------------
-// IMPLEMENTATION SPECIFIC METHODS
-//---------------------------------
-
-// updates path attribute of model
+// updatePath is an internal function used to update "path" attribute of object
 func (it *DefaultCategory) updatePath() {
 	if it.GetID() == "" {
 		it.Path = ""
@@ -27,10 +23,7 @@ func (it *DefaultCategory) updatePath() {
 	}
 }
 
-//--------------------------
-// INTERFACE IMPLEMENTATION
-//--------------------------
-
+// Get returns object attribute value or nil
 func (it *DefaultCategory) Get(attribute string) interface{} {
 	switch strings.ToLower(attribute) {
 	case "_id", "id":
@@ -68,6 +61,7 @@ func (it *DefaultCategory) Get(attribute string) interface{} {
 	return nil
 }
 
+// Set sets attribute value to object or returns error
 func (it *DefaultCategory) Set(attribute string, value interface{}) error {
 	attribute = strings.ToLower(attribute)
 
@@ -156,6 +150,7 @@ func (it *DefaultCategory) Set(attribute string, value interface{}) error {
 	return nil
 }
 
+// FromHashMap fills object attributes from map[string]interface{}
 func (it *DefaultCategory) FromHashMap(input map[string]interface{}) error {
 
 	for attribute, value := range input {
@@ -167,6 +162,7 @@ func (it *DefaultCategory) FromHashMap(input map[string]interface{}) error {
 	return nil
 }
 
+// ToHashMap represents object as map[string]interface{}
 func (it *DefaultCategory) ToHashMap() map[string]interface{} {
 
 	result := make(map[string]interface{})
@@ -181,6 +177,7 @@ func (it *DefaultCategory) ToHashMap() map[string]interface{} {
 	return result
 }
 
+// GetAttributesInfo returns information about object attributes
 func (it *DefaultCategory) GetAttributesInfo() []models.StructAttributeInfo {
 
 	info := []models.StructAttributeInfo{

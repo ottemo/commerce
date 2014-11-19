@@ -5,7 +5,7 @@ import (
 	"github.com/ottemo/foundation/app/models/cms"
 )
 
-// returns collection of current instance type
+// GetCollection returns collection of current instance type
 func (it *DefaultCMSBlock) GetCollection() models.InterfaceCollection {
 	model, _ := models.GetModel(cms.ConstModelNameCMSBlockCollection)
 	if result, ok := model.(cms.InterfaceCMSBlockCollection); ok {

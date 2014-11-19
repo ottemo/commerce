@@ -6,7 +6,7 @@ import (
 	"sort"
 )
 
-// loads one record from DB by record _id
+// LoadByID loads one record from DB by record _id
 func (it *DBCollection) LoadByID(id string) (map[string]interface{}, error) {
 	result := make(map[string]interface{})
 
@@ -15,7 +15,7 @@ func (it *DBCollection) LoadByID(id string) (map[string]interface{}, error) {
 	return result, env.ErrorDispatch(err)
 }
 
-// loads records from DB for current collection and filter if it set
+// Load loads records from DB for current collection and filter if it set
 func (it *DBCollection) Load() ([]map[string]interface{}, error) {
 	result := make([]map[string]interface{}, 0)
 
@@ -24,7 +24,7 @@ func (it *DBCollection) Load() ([]map[string]interface{}, error) {
 	return result, env.ErrorDispatch(err)
 }
 
-// applies [iterator] function to each record, stops on return false
+// Iterate applies [iterator] function to each record, stops on return false
 func (it *DBCollection) Iterate(iteratorFunc func(record map[string]interface{}) bool) error {
 	record := make(map[string]interface{})
 
@@ -43,12 +43,12 @@ func (it *DBCollection) Iterate(iteratorFunc func(record map[string]interface{})
 	return nil
 }
 
-// returns count of rows matching current select statement
+// Count returns count of rows matching current select statement
 func (it *DBCollection) Count() (int, error) {
 	return it.collection.Find(it.makeSelector()).Count()
 }
 
-// returns distinct values of specified attribute
+// Distinct returns distinct values of specified attribute
 func (it *DBCollection) Distinct(columnName string) ([]interface{}, error) {
 	result := make([]interface{}, 0)
 
@@ -57,7 +57,7 @@ func (it *DBCollection) Distinct(columnName string) ([]interface{}, error) {
 	return result, env.ErrorDispatch(err)
 }
 
-// stores record in DB for current collection
+// Save stores record in DB for current collection
 func (it *DBCollection) Save(Item map[string]interface{}) (string, error) {
 
 	// id validation/updating
@@ -98,19 +98,19 @@ func (it *DBCollection) Save(Item map[string]interface{}) (string, error) {
 	return id, env.ErrorDispatch(err)
 }
 
-// removes records that matches current select statement from DB, returns amount of affected rows
+// Delete removes records that matches current select statement from DB, returns amount of affected rows
 func (it *DBCollection) Delete() (int, error) {
 	changeInfo, err := it.collection.RemoveAll(it.makeSelector())
 
 	return changeInfo.Removed, env.ErrorDispatch(err)
 }
 
-// removes record from DB by is's id
+// DeleteByID removes record from DB by is's id
 func (it *DBCollection) DeleteByID(id string) error {
 	return it.collection.RemoveId(id)
 }
 
-// setups filter group params for collection
+// SetupFilterGroup setups filter group params for collection
 func (it *DBCollection) SetupFilterGroup(groupName string, orSequence bool, parentGroup string) error {
 	if _, present := it.FilterGroups[parentGroup]; !present && parentGroup != "" {
 		return env.ErrorNew("invalid parent group")
@@ -123,7 +123,7 @@ func (it *DBCollection) SetupFilterGroup(groupName string, orSequence bool, pare
 	return nil
 }
 
-// removes filter group for collection
+// RemoveFilterGroup removes filter group for collection
 func (it *DBCollection) RemoveFilterGroup(GroupName string) error {
 	if _, present := it.FilterGroups[GroupName]; !present {
 		return env.ErrorNew("invalid group name")
@@ -132,7 +132,7 @@ func (it *DBCollection) RemoveFilterGroup(GroupName string) error {
 	return nil
 }
 
-// adds selection filter to specific filter group (all filter groups will be joined before db query)
+// AddGroupFilter adds selection filter to specific filter group (all filter groups will be joined before db query)
 func (it *DBCollection) AddGroupFilter(GroupName string, ColumnName string, Operator string, Value interface{}) error {
 	err := it.updateFilterGroup(GroupName, ColumnName, Operator, Value)
 	if err != nil {
@@ -141,7 +141,7 @@ func (it *DBCollection) AddGroupFilter(GroupName string, ColumnName string, Oper
 	return nil
 }
 
-// adds selection filter that will not be cleared by ClearFilters() function
+// AddStaticFilter adds selection filter that will not be cleared by ClearFilters() function
 func (it *DBCollection) AddStaticFilter(ColumnName string, Operator string, Value interface{}) error {
 	err := it.updateFilterGroup(ConstFilterGroupStatic, ColumnName, Operator, Value)
 	if err != nil {
@@ -150,7 +150,7 @@ func (it *DBCollection) AddStaticFilter(ColumnName string, Operator string, Valu
 	return nil
 }
 
-// adds selection filter to current collection object
+// AddFilter adds selection filter to current collection object
 func (it *DBCollection) AddFilter(ColumnName string, Operator string, Value interface{}) error {
 	err := it.updateFilterGroup(ConstFilterGroupDefault, ColumnName, Operator, Value)
 	if err != nil {
@@ -159,7 +159,7 @@ func (it *DBCollection) AddFilter(ColumnName string, Operator string, Value inte
 	return nil
 }
 
-// removes all filters that were set for current collection
+// ClearFilters removes all filters that were set for current collection
 func (it *DBCollection) ClearFilters() error {
 	for filterGroup, _ := range it.FilterGroups {
 		if filterGroup != ConstFilterGroupStatic {
@@ -169,7 +169,7 @@ func (it *DBCollection) ClearFilters() error {
 	return nil
 }
 
-// adds sorting for current collection
+// AddSort adds sorting for current collection
 func (it *DBCollection) AddSort(ColumnName string, Desc bool) error {
 	if Desc {
 		it.Sort = append(it.Sort, "-"+ColumnName)
@@ -179,13 +179,13 @@ func (it *DBCollection) AddSort(ColumnName string, Desc bool) error {
 	return nil
 }
 
-// removes any sorting that was set for current collection
+// ClearSort removes any sorting that was set for current collection
 func (it *DBCollection) ClearSort() error {
 	it.Sort = make([]string, 0)
 	return nil
 }
 
-// results pagination
+// SetLimit results pagination
 func (it *DBCollection) SetLimit(Offset int, Limit int) error {
 	it.Limit = Limit
 	it.Offset = Offset
@@ -193,7 +193,7 @@ func (it *DBCollection) SetLimit(Offset int, Limit int) error {
 	return nil
 }
 
-// limits column selection for Load() and LoadByID()function
+// SetResultColumns limits column selection for Load() and LoadByID()function
 func (it *DBCollection) SetResultColumns(columns ...string) error {
 	for _, columnName := range columns {
 		it.ResultAttributes = []string{}
@@ -207,7 +207,7 @@ func (it *DBCollection) SetResultColumns(columns ...string) error {
 	return nil
 }
 
-// returns attributes available for current collection
+// ListColumns returns attributes available for current collection
 func (it *DBCollection) ListColumns() map[string]string {
 
 	result := map[string]string{}
@@ -240,7 +240,7 @@ func (it *DBCollection) ListColumns() map[string]string {
 	return result
 }
 
-// returns SQL like type of attribute in current collection, or if not present ""
+// GetColumnType returns SQL like type of attribute in current collection, or if not present ""
 func (it *DBCollection) GetColumnType(ColumnName string) string {
 	// _id - has static type
 	if ColumnName == "_id" {
@@ -258,7 +258,7 @@ func (it *DBCollection) GetColumnType(ColumnName string) string {
 	return attributeType
 }
 
-// check for attribute presence in current collection
+// HasColumn checks attribute presence in current collection
 func (it *DBCollection) HasColumn(ColumnName string) bool {
 	// _id - always present
 	if ColumnName == "_id" {
@@ -276,7 +276,7 @@ func (it *DBCollection) HasColumn(ColumnName string) bool {
 	return present
 }
 
-// adds new attribute to current collection
+// AddColumn adds new attribute to current collection
 func (it *DBCollection) AddColumn(ColumnName string, ColumnType string, indexed bool) error {
 
 	infoCollection := it.database.C(ConstCollectionNameColumnInfo)
@@ -289,7 +289,7 @@ func (it *DBCollection) AddColumn(ColumnName string, ColumnType string, indexed 
 	return env.ErrorDispatch(err)
 }
 
-// removes attribute from current collection
+// RemoveColumn removes attribute from current collection
 //   - for MoongoDB it means update "collection_column_info" collection
 //   and, update all objects of current collection to exclude attribute
 func (it *DBCollection) RemoveColumn(ColumnName string) error {

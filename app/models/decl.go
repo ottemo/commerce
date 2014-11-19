@@ -1,6 +1,6 @@
 package models
 
-// StructAttributeInfo represents type to hold business layer object information within collection
+// StructListItem represents type to hold business layer object information within collection
 type StructListItem struct {
 	ID    string
 	Name  string

@@ -12,7 +12,7 @@ var (
 	ConstSessionKeyAdminRights = "adminRights" // session key used to flag that user have admin rights
 )
 
-// structure to hold API request related information
+// StructAPIHandlerParams is a structure to hold API request related information
 type StructAPIHandlerParams struct {
 	ResponseWriter   http.ResponseWriter
 	Request          *http.Request
@@ -22,7 +22,7 @@ type StructAPIHandlerParams struct {
 	Session          InterfaceSession
 }
 
-// structure you should return in API handler function if redirect needed
+// StructRestRedirect is a structure you should return in API handler function if redirect needed
 type StructRestRedirect struct {
 	Result   interface{}
 	Location string
@@ -30,5 +30,5 @@ type StructRestRedirect struct {
 	DoRedirect bool
 }
 
-// API handler callback function type
+// FuncAPIHandler is an API handler callback function
 type FuncAPIHandler func(params *StructAPIHandlerParams) (interface{}, error)

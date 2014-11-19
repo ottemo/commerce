@@ -8,7 +8,7 @@ import (
 	"github.com/ottemo/foundation/utils"
 )
 
-// retrieves current InterfaceCart model implementation
+// GetCartModel retrieves current InterfaceCart model implementation
 func GetCartModel() (InterfaceCart, error) {
 	model, err := models.GetModel(ConstCartModelName)
 	if err != nil {
@@ -23,7 +23,7 @@ func GetCartModel() (InterfaceCart, error) {
 	return cartModel, nil
 }
 
-// retrieves current InterfaceCart model implementation and sets its ID to some value
+// GetCartModelAndSetID retrieves current InterfaceCart model implementation and sets its ID to some value
 func GetCartModelAndSetID(cartID string) (InterfaceCart, error) {
 
 	cartModel, err := GetCartModel()
@@ -39,7 +39,7 @@ func GetCartModelAndSetID(cartID string) (InterfaceCart, error) {
 	return cartModel, nil
 }
 
-// loads cart data into current InterfaceCart model implementation
+// LoadCartByID loads cart data into current InterfaceCart model implementation
 func LoadCartByID(cartID string) (InterfaceCart, error) {
 
 	cartModel, err := GetCartModel()
@@ -55,7 +55,7 @@ func LoadCartByID(cartID string) (InterfaceCart, error) {
 	return cartModel, nil
 }
 
-// loads cart for visitor or creates new one
+// GetCartForVisitor loads cart for visitor or creates new one
 func GetCartForVisitor(visitorID string) (InterfaceCart, error) {
 	cartModel, err := GetCartModel()
 	if err != nil {
@@ -70,7 +70,7 @@ func GetCartForVisitor(visitorID string) (InterfaceCart, error) {
 	return cartModel, nil
 }
 
-// returns cart for current session or creates new one
+// GetCurrentCart returns cart for current session or creates new one
 func GetCurrentCart(params *api.StructAPIHandlerParams) (InterfaceCart, error) {
 	sessionCartID := params.Session.Get(ConstSessionKeyCurrentCart)
 

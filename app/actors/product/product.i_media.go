@@ -5,7 +5,7 @@ import (
 	"github.com/ottemo/foundation/media"
 )
 
-// adds new media assigned to product
+// AddMedia adds new media assigned to product
 func (it *DefaultProduct) AddMedia(mediaType string, mediaName string, content []byte) error {
 	productID := it.GetID()
 	if productID == "" {
@@ -20,7 +20,7 @@ func (it *DefaultProduct) AddMedia(mediaType string, mediaName string, content [
 	return mediaStorage.Save(it.GetModelName(), productID, mediaType, mediaName, content)
 }
 
-// removes media assigned to product
+// RemoveMedia removes media assigned to product
 func (it *DefaultProduct) RemoveMedia(mediaType string, mediaName string) error {
 	productID := it.GetID()
 	if productID == "" {
@@ -35,7 +35,7 @@ func (it *DefaultProduct) RemoveMedia(mediaType string, mediaName string) error 
 	return mediaStorage.Remove(it.GetModelName(), productID, mediaType, mediaName)
 }
 
-// lists media assigned to product
+// ListMedia lists media assigned to product
 func (it *DefaultProduct) ListMedia(mediaType string) ([]string, error) {
 	result := make([]string, 0)
 
@@ -52,7 +52,7 @@ func (it *DefaultProduct) ListMedia(mediaType string) ([]string, error) {
 	return mediaStorage.ListMedia(it.GetModelName(), productID, mediaType)
 }
 
-// returns content of media assigned to product
+// GetMedia returns content of media assigned to product
 func (it *DefaultProduct) GetMedia(mediaType string, mediaName string) ([]byte, error) {
 	productID := it.GetID()
 	if productID == "" {
@@ -67,7 +67,7 @@ func (it *DefaultProduct) GetMedia(mediaType string, mediaName string) ([]byte, 
 	return mediaStorage.Load(it.GetModelName(), productID, mediaType, mediaName)
 }
 
-// returns relative location of media assigned to product in media storage
+// GetMediaPath returns relative location of media assigned to product in media storage
 func (it *DefaultProduct) GetMediaPath(mediaType string) (string, error) {
 	productID := it.GetID()
 	if productID == "" {

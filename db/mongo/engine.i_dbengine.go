@@ -10,19 +10,19 @@ import (
 	"labix.org/v2/mgo/bson"
 )
 
-// returns current DB engine name
+// GetName returns current DB engine name
 func (it *DBEngine) GetName() string {
 	return "MongoDB"
 }
 
-// checks if collection already exists
+// HasCollection checks if collection already exists
 func (it *DBEngine) HasCollection(CollectionName string) bool {
 	CollectionName = strings.ToLower(CollectionName)
 
 	return true
 }
 
-// creates cllection by it's name
+// CreateCollection creates cllection by it's name
 func (it *DBEngine) CreateCollection(CollectionName string) error {
 	CollectionName = strings.ToLower(CollectionName)
 
@@ -36,7 +36,7 @@ func (it *DBEngine) CreateCollection(CollectionName string) error {
 	return env.ErrorDispatch(err)
 }
 
-// returns collection by name or creates new one
+// GetCollection returns collection by name or creates new one
 func (it *DBEngine) GetCollection(CollectionName string) (db.InterfaceDBCollection, error) {
 	CollectionName = strings.ToLower(CollectionName)
 
@@ -60,7 +60,7 @@ func (it *DBEngine) GetCollection(CollectionName string) (db.InterfaceDBCollecti
 	return result, nil
 }
 
-// executes raw query for DB engine.
+// RawQuery executes raw query for DB engine.
 //   This function makes eval commang on mongo db (http://docs.mongodb.org/manual/reference/command/eval/#dbcmd.eval)
 //   so if you are using "db.collection.find()" - it returns cursor object, do not forget to add ".toArray()", i.e.
 //   "db.collection.find().toArray()"

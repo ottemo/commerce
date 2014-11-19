@@ -5,12 +5,12 @@ import (
 	"github.com/ottemo/foundation/db"
 )
 
-// returns database collection
+// GetDBCollection returns database collection
 func (it *DefaultCategoryCollection) GetDBCollection() db.InterfaceDBCollection {
 	return it.listCollection
 }
 
-// returns list of category model items
+// ListCategories returns list of category model items
 func (it *DefaultCategoryCollection) ListCategories() []category.InterfaceCategory {
 	result := make([]category.InterfaceCategory, 0)
 

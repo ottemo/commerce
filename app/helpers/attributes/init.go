@@ -10,7 +10,7 @@ func init() {
 	db.RegisterOnDatabaseStart(SetupDB)
 }
 
-// setupDB prepares system database for package usage
+// SetupDB prepares system database for package usage
 func SetupDB() error {
 
 	if collection, err := db.GetCollection("custom_attributes"); err == nil {

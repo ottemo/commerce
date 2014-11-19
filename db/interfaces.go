@@ -3,7 +3,6 @@ package db
 
 // Package global constants
 const (
-	// set of types database service should implement storage of
 	ConstDBBasetypeID       = "id"
 	ConstDBBasetypeBoolean  = "bool"
 	ConstDBBasetypeVarchar  = "varchar"

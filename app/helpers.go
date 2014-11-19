@@ -10,25 +10,25 @@ import (
 	"github.com/ottemo/foundation/utils"
 )
 
-// returns url related to dashboard server
+// GetDashboardURL returns url related to dashboard server
 func GetDashboardURL(path string) string {
 	baseURL := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathDashboardURL))
 	return strings.TrimRight(baseURL, "#/") + "/#/" + path
 }
 
-// returns url related to storefront server
+// GetStorefrontURL returns url related to storefront server
 func GetStorefrontURL(path string) string {
 	baseURL := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathStorefrontURL))
 	return strings.TrimRight(baseURL, "#/") + "/#/" + path
 }
 
-// returns url related to foundation server
+// GetFoundationURL returns url related to foundation server
 func GetFoundationURL(path string) string {
 	baseURL := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathFoundationURL))
 	return strings.TrimRight(baseURL, "/") + "/" + path
 }
 
-// sends mail via smtp server specified in config
+// SendMail sends mail via smtp server specified in config
 func SendMail(to string, subject string, body string) error {
 
 	userName := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathMailUser))
