@@ -16,7 +16,7 @@ func ConvertMapToDoc(inputMap map[string]interface{}) bson.D {
 	//--------------------------------
 	sortedKeys := make([]string, len(inputMap))
 	var idx = 0
-	for key, _ := range inputMap {
+	for key := range inputMap {
 		sortedKeys[idx] = key
 		idx += 1
 	}

@@ -89,7 +89,7 @@ func MapToCSV(input []map[string]interface{}, csvWriter *csv.Writer) error {
 	}
 
 	sortedPaths := make([]string, 0, len(csvColumnHeaders))
-	for path, _ := range csvColumnHeaders {
+	for path := range csvColumnHeaders {
 		sortedPaths = append(sortedPaths, path)
 	}
 	sort.Strings(sortedPaths)

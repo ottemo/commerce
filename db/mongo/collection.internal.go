@@ -140,7 +140,7 @@ func (it *DBCollection) makeSelector() bson.D {
 	//-------------------------------------
 	sortedFilterGroupsNames := make([]string, len(it.FilterGroups))
 	idx := 0
-	for groupName, _ := range it.FilterGroups {
+	for groupName := range it.FilterGroups {
 		sortedFilterGroupsNames[idx] = groupName
 		idx += 1
 	}

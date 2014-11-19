@@ -323,7 +323,7 @@ func (it *DBCollection) AddFilter(ColumnName string, Operator string, Value inte
 
 // ClearFilters removes all filters that were set for current collection, except static
 func (it *DBCollection) ClearFilters() error {
-	for filterGroup, _ := range it.FilterGroups {
+	for filterGroup := range it.FilterGroups {
 		if filterGroup != ConstFilterGroupStatic {
 			delete(it.FilterGroups, filterGroup)
 		}

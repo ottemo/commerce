@@ -40,7 +40,7 @@ func (it *DefaultIniConfig) appEndEvent() error {
 
 		// making alphabetically sorted section names
 		sortedSections := make([]string, 0, len(it.iniFileValues))
-		for sectionName, _ := range it.iniFileValues {
+		for sectionName := range it.iniFileValues {
 			sortedSections = append(sortedSections, sectionName)
 		}
 		sort.Strings(sortedSections)
@@ -61,7 +61,7 @@ func (it *DefaultIniConfig) appEndEvent() error {
 
 			if it.storeAll {
 				storingValueNames = make([]string, 0, len(sectionValues))
-				for iniItem, _ := range sectionValues {
+				for iniItem := range sectionValues {
 					storingValueNames = append(storingValueNames, iniItem)
 				}
 			} else {
@@ -129,7 +129,7 @@ func (it *DefaultIniConfig) appInitEvent() error {
 		it.iniFileValues[sectionName] = sectionValue
 
 		// so all the keys we read from file should be stored back
-		for valueName, _ := range sectionValue {
+		for valueName := range sectionValue {
 			it.keysToStore[valueName] = true
 		}
 	}

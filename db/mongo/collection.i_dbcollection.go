@@ -78,7 +78,7 @@ func (it *DBCollection) Save(Item map[string]interface{}) (string, error) {
 	bsonDocument := make(bson.D, 0, len(Item))
 	keysList := make([]string, 0, len(Item))
 
-	for key, _ := range Item {
+	for key := range Item {
 		keysList = append(keysList, key)
 	}
 	sort.Strings(keysList)
@@ -161,7 +161,7 @@ func (it *DBCollection) AddFilter(ColumnName string, Operator string, Value inte
 
 // ClearFilters removes all filters that were set for current collection
 func (it *DBCollection) ClearFilters() error {
-	for filterGroup, _ := range it.FilterGroups {
+	for filterGroup := range it.FilterGroups {
 		if filterGroup != ConstFilterGroupStatic {
 			delete(it.FilterGroups, filterGroup)
 		}

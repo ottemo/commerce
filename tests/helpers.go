@@ -134,7 +134,7 @@ func AddRandomProductsToCart(currentCheckout checkout.InterfaceCheckout, n int) 
 
 					if optionValues, present := typedProductOption["options"]; present {
 						if typedOptionValues, ok := optionValues.(map[string]interface{}); ok {
-							for optionValueName, _ := range typedOptionValues {
+							for optionValueName := range typedOptionValues {
 								if rand.Intn(2) == 1 {
 									options[optionName] = optionValueName
 									break

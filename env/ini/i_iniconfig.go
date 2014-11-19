@@ -13,7 +13,7 @@ func (it *DefaultIniConfig) ListItems() []string {
 	// collection values from global and current section
 	for _, sectionName := range []string{it.currentSection, ConstIniGlobalSection} {
 		if sectionValues, present := it.iniFileValues[sectionName]; present {
-			for itemName, _ := range sectionValues {
+			for itemName := range sectionValues {
 				flatMap[itemName] = true
 			}
 		}
@@ -21,7 +21,7 @@ func (it *DefaultIniConfig) ListItems() []string {
 
 	// making array from collected items
 	result := make([]string, 0, len(flatMap))
-	for itemName, _ := range flatMap {
+	for itemName := range flatMap {
 		result = append(result, itemName)
 	}
 
@@ -80,7 +80,7 @@ func (it *DefaultIniConfig) GetSectionValue(sectionName string, valueName string
 // ListSections enumerates currently used ini sections
 func (it *DefaultIniConfig) ListSections() []string {
 	result := make([]string, 0, len(it.iniFileValues))
-	for sectionName, _ := range it.iniFileValues {
+	for sectionName := range it.iniFileValues {
 		result = append(result, sectionName)
 	}
 	return result
@@ -90,7 +90,7 @@ func (it *DefaultIniConfig) ListSections() []string {
 func (it *DefaultIniConfig) ListSectionItems(sectionName string) []string {
 	result := make([]string, 0)
 	if sectionValues, present := it.iniFileValues[sectionName]; present {
-		for valueName, _ := range sectionValues {
+		for valueName := range sectionValues {
 			result = append(result, valueName)
 		}
 	}

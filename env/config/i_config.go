@@ -12,7 +12,7 @@ import (
 // ListPathes enumerates registered pathes for config
 func (it *DefaultConfig) ListPathes() []string {
 	result := make([]string, 0)
-	for key, _ := range it.configValues {
+	for key := range it.configValues {
 		result = append(result, key)
 	}
 	sort.Strings(result)

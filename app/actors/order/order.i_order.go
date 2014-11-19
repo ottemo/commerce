@@ -18,7 +18,7 @@ func (it *DefaultOrder) GetItems() []order.InterfaceOrderItem {
 	result := make([]order.InterfaceOrderItem, 0)
 
 	keys := make([]int, 0)
-	for key, _ := range it.Items {
+	for key := range it.Items {
 		keys = append(keys, key)
 	}
 

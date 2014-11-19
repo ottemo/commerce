@@ -64,7 +64,7 @@ func (it *DBObjectRef) GetAttributesInfo() []models.StructAttributeInfo {
 	result := []models.StructAttributeInfo{}
 
 	if it.currData != nil {
-		for attribute, _ := range it.currData {
+		for attribute := range it.currData {
 			result = append(result,
 				models.StructAttributeInfo{
 					Model:      "",
