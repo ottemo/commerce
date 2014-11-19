@@ -485,7 +485,7 @@ func ImportCSV(csvReader *csv.Reader) error {
 		//------------------------------------------------------
 		dataProcessor := func(itemData map[string]interface{}) bool {
 			if ConstImpexLog || ConstDebugLog {
-				env.Log("impex.log", env.ConstLogPrefixDebug, fmt.Sprintf("Processing: %s", utils.EncodeToJsonString(itemData)))
+				env.Log("impex.log", env.ConstLogPrefixDebug, fmt.Sprintf("Processing: %s", utils.EncodeToJSONString(itemData)))
 			}
 
 			var input interface{} = nil
@@ -493,8 +493,8 @@ func ImportCSV(csvReader *csv.Reader) error {
 				if ConstDebugLog {
 					env.Log("impex.log", env.ConstLogPrefixDebug, fmt.Sprintf("Command: %T", command))
 					env.Log("impex.log", env.ConstLogPrefixDebug, fmt.Sprintf("Input: %#v", input))
-					env.Log("impex.log", env.ConstLogPrefixDebug, fmt.Sprintf("itemData: %s", utils.EncodeToJsonString(itemData)))
-					env.Log("impex.log", env.ConstLogPrefixDebug, fmt.Sprintf("Exchange: %s", utils.EncodeToJsonString(exchangeDict)))
+					env.Log("impex.log", env.ConstLogPrefixDebug, fmt.Sprintf("itemData: %s", utils.EncodeToJSONString(itemData)))
+					env.Log("impex.log", env.ConstLogPrefixDebug, fmt.Sprintf("Exchange: %s", utils.EncodeToJSONString(exchangeDict)))
 				}
 
 				input, err = command.Process(itemData, input, exchangeDict)

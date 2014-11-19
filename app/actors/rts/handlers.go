@@ -25,7 +25,7 @@ func referrerHandler(event string, data map[string]interface{}) bool {
 	}
 
 	// exclude himself("storefront")
-	if strings.Contains(app.GetStorefrontUrl(""), referrer) {
+	if strings.Contains(app.GetStorefrontURL(""), referrer) {
 		return true
 	}
 
@@ -41,7 +41,7 @@ func visitsHandler(event string, data map[string]interface{}) bool {
 		return true
 	}
 	session := data["session"].(api.InterfaceSession)
-	sessionID := session.GetId()
+	sessionID := session.GetID()
 
 	year := time.Now().Year()
 	month := time.Now().Month()
@@ -68,7 +68,7 @@ func addToCartHandler(event string, data map[string]interface{}) bool {
 		return true
 	}
 	session := data["session"].(api.InterfaceSession)
-	sessionID := session.GetId()
+	sessionID := session.GetID()
 
 	if _, ok := visitorsInfoToday.Details[sessionID]; !ok {
 		visitorsInfoToday.Details[sessionID] = &VisitorDetail{}
@@ -91,7 +91,7 @@ func reachedCheckoutHandler(event string, data map[string]interface{}) bool {
 		return true
 	}
 	session := data["session"].(api.InterfaceSession)
-	sessionID := session.GetId()
+	sessionID := session.GetID()
 
 	if _, ok := visitorsInfoToday.Details[sessionID]; !ok {
 		visitorsInfoToday.Details[sessionID] = &VisitorDetail{}
@@ -114,7 +114,7 @@ func purchasedHandler(event string, data map[string]interface{}) bool {
 		return true
 	}
 	session := data["session"].(api.InterfaceSession)
-	sessionID := session.GetId()
+	sessionID := session.GetID()
 
 	if _, ok := visitorsInfoToday.Details[sessionID]; !ok {
 		visitorsInfoToday.Details[sessionID] = &VisitorDetail{}
@@ -136,7 +136,7 @@ func salesHandler(event string, data map[string]interface{}) bool {
 	products := cart.GetItems()
 	productsData := make(map[string]interface{})
 	for i := range products {
-		productsData[products[i].GetProductId()] = products[i].GetQty()
+		productsData[products[i].GetProductID()] = products[i].GetQty()
 	}
 
 	if len(productsData) == 0 {
@@ -188,7 +188,7 @@ func salesHandler(event string, data map[string]interface{}) bool {
 func registerVisitorAsOnlineHandler(event string, data map[string]interface{}) bool {
 
 	session := data["session"].(api.InterfaceSession)
-	sessionID := session.GetId()
+	sessionID := session.GetID()
 
 	referrerType := ConstReferrerTypeDirect
 	referrer := ""
@@ -243,7 +243,7 @@ func registerVisitorAsOnlineHandler(event string, data map[string]interface{}) b
 func visitorOnlineActionHandler(event string, data map[string]interface{}) bool {
 
 	session := data["session"].(api.InterfaceSession)
-	sessionID := session.GetId()
+	sessionID := session.GetID()
 	if _, ok := OnlineSessions[sessionID]; ok {
 		OnlineSessions[sessionID].time = time.Now()
 	}

@@ -26,7 +26,7 @@ func (it *DefaultCMSBlockCollection) List() ([]models.StructListItem, error) {
 		// retrieving minimal data needed for list
 		resultItem := new(models.StructListItem)
 
-		resultItem.Id = cmsBlockModel.GetId()
+		resultItem.ID = cmsBlockModel.GetID()
 		resultItem.Name = cmsBlockModel.GetIdentifier()
 		resultItem.Image = ""
 		resultItem.Desc = ""

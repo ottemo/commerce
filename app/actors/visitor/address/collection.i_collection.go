@@ -27,7 +27,7 @@ func (it *DefaultVisitorAddressCollection) List() ([]models.StructListItem, erro
 		// retrieving minimal data needed for list
 		resultItem := new(models.StructListItem)
 
-		resultItem.Id = visitorAddressModel.GetId()
+		resultItem.ID = visitorAddressModel.GetID()
 		resultItem.Name = visitorAddressModel.GetZipCode() + " " + visitorAddressModel.GetState() + ", " +
 			visitorAddressModel.GetCity() + ", " + visitorAddressModel.GetAddress()
 		resultItem.Image = ""
@@ -53,7 +53,7 @@ func (it *DefaultVisitorAddressCollection) List() ([]models.StructListItem, erro
 // ListAddExtraAttribute allows to obtain additional attributes from  List() function
 func (it *DefaultVisitorAddressCollection) ListAddExtraAttribute(attribute string) error {
 
-	if utils.IsAmongStr(attribute, "_id", "id", "visitor_id", "visitorId", "fname", "first_name", "lname", "last_name",
+	if utils.IsAmongStr(attribute, "_id", "id", "visitor_id", "visitorID", "fname", "first_name", "lname", "last_name",
 		"address_line1", "address_line2", "company", "country", "city", "state", "phone", "zip", "zip_code") {
 
 		if !utils.IsInListStr(attribute, it.listExtraAtributes) {

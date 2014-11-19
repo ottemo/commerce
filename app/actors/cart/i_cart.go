@@ -112,7 +112,7 @@ func (it *DefaultCart) checkOptions(productOptions map[string]interface{}, cartI
 
 // adds item to the current cart
 //   - returns added item or nil if error happened
-func (it *DefaultCart) AddItem(productId string, qty int, options map[string]interface{}) (cart.InterfaceCartItem, error) {
+func (it *DefaultCart) AddItem(productID string, qty int, options map[string]interface{}) (cart.InterfaceCartItem, error) {
 
 	//checking qty
 	if qty <= 0 {
@@ -120,7 +120,7 @@ func (it *DefaultCart) AddItem(productId string, qty int, options map[string]int
 	}
 
 	// checking product existence
-	reqProduct, err := product.LoadProductById(productId)
+	reqProduct, err := product.LoadProductByID(productID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -133,7 +133,7 @@ func (it *DefaultCart) AddItem(productId string, qty int, options map[string]int
 	// preparing new cart item
 	cartItem := &DefaultCartItem{
 		idx:       it.maxIdx,
-		ProductId: reqProduct.GetId(),
+		ProductID: reqProduct.GetID(),
 		Qty:       qty,
 		Options:   options,
 		Cart:      it,
@@ -170,7 +170,7 @@ func (it *DefaultCart) RemoveItem(itemIdx int) error {
 			return env.ErrorDispatch(err)
 		}
 
-		err = cartItemsCollection.DeleteById(cartItem.GetId())
+		err = cartItemsCollection.DeleteByID(cartItem.GetID())
 		if err != nil {
 			return env.ErrorDispatch(err)
 		}
@@ -238,19 +238,19 @@ func (it *DefaultCart) GetItems() []cart.InterfaceCartItem {
 }
 
 // returns visitor id this cart belongs to
-func (it *DefaultCart) GetVisitorId() string {
-	return it.VisitorId
+func (it *DefaultCart) GetVisitorID() string {
+	return it.VisitorID
 }
 
 // sets new owner of cart
-func (it *DefaultCart) SetVisitorId(visitorId string) error {
-	it.VisitorId = visitorId
+func (it *DefaultCart) SetVisitorID(visitorID string) error {
+	it.VisitorID = visitorID
 	return nil
 }
 
 // returns visitor model represents owner or current cart or nil if visitor was not set to cart
 func (it *DefaultCart) GetVisitor() visitor.InterfaceVisitor {
-	visitor, _ := visitor.LoadVisitorById(it.VisitorId)
+	visitor, _ := visitor.LoadVisitorByID(it.VisitorID)
 	return visitor
 }
 
@@ -271,7 +271,7 @@ func (it *DefaultCart) GetCartInfo() map[string]interface{} {
 }
 
 // loads cart information from DB for visitor
-func (it *DefaultCart) MakeCartForVisitor(visitorId string) error {
+func (it *DefaultCart) MakeCartForVisitor(visitorID string) error {
 	dbEngine := db.GetDBEngine()
 	if dbEngine == nil {
 		return env.ErrorNew("can't get DB Engine")
@@ -282,7 +282,7 @@ func (it *DefaultCart) MakeCartForVisitor(visitorId string) error {
 		return env.ErrorDispatch(err)
 	}
 
-	cartCollection.AddFilter("visitor_id", "=", visitorId)
+	cartCollection.AddFilter("visitor_id", "=", visitorID)
 	cartCollection.AddFilter("active", "=", true)
 	rowsData, err := cartCollection.Load()
 	if err != nil {
@@ -295,7 +295,7 @@ func (it *DefaultCart) MakeCartForVisitor(visitorId string) error {
 			return env.ErrorDispatch(err)
 		}
 		newCart := newModel.(*DefaultCart)
-		newCart.SetVisitorId(visitorId)
+		newCart.SetVisitorID(visitorID)
 		newCart.Activate()
 		newCart.Save()
 

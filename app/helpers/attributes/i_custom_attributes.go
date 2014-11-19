@@ -155,7 +155,7 @@ func (it *CustomAttributes) AddNewAttribute(newAttribute models.StructAttributeI
 	hashMap["validators"] = newAttribute.Validators
 	hashMap["layered"] = newAttribute.IsLayered
 
-	newCustomAttributeId, err := customAttribuesCollection.Save(hashMap)
+	newCustomAttributeID, err := customAttribuesCollection.Save(hashMap)
 
 	if err != nil {
 		return env.ErrorNew("Can't insert attribute '" + newAttribute.Attribute + "' in collection '" + newAttribute.Collection + "': " + err.Error())
@@ -164,7 +164,7 @@ func (it *CustomAttributes) AddNewAttribute(newAttribute models.StructAttributeI
 	// inserting new attribute to supposed location
 	err = modelCollection.AddColumn(newAttribute.Attribute, newAttribute.Type, false)
 	if err != nil {
-		customAttribuesCollection.DeleteById(newCustomAttributeId)
+		customAttribuesCollection.DeleteByID(newCustomAttributeID)
 
 		return env.ErrorNew("Can't insert attribute '" + newAttribute.Attribute + "' in collection '" + newAttribute.Collection + "': " + err.Error())
 	}

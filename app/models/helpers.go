@@ -5,7 +5,7 @@ import (
 )
 
 // retrieves current model implementation and sets its ID to some value
-func GetModelAndSetId(modelName string, modelId string) (InterfaceStorable, error) {
+func GetModelAndSetID(modelName string, modelID string) (InterfaceStorable, error) {
 	someModel, err := GetModel(modelName)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
@@ -16,7 +16,7 @@ func GetModelAndSetId(modelName string, modelId string) (InterfaceStorable, erro
 		return nil, env.ErrorNew("model is not InterfaceStorable capable")
 	}
 
-	err = storableModel.SetId(modelId)
+	err = storableModel.SetID(modelID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -25,7 +25,7 @@ func GetModelAndSetId(modelName string, modelId string) (InterfaceStorable, erro
 }
 
 // loads model data in current implementation
-func LoadModelById(modelName string, modelId string) (InterfaceStorable, error) {
+func LoadModelByID(modelName string, modelID string) (InterfaceStorable, error) {
 
 	someModel, err := GetModel(modelName)
 	if err != nil {
@@ -37,7 +37,7 @@ func LoadModelById(modelName string, modelId string) (InterfaceStorable, error) 
 		return nil, env.ErrorNew("model is not InterfaceStorable capable")
 	}
 
-	err = storableModel.Load(modelId)
+	err = storableModel.Load(modelID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}

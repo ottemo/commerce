@@ -21,9 +21,9 @@ func (it *DefaultVisitor) Get(attribute string) interface{} {
 	case "lname", "last_name":
 		return it.LastName
 	case "billing_address_id":
-		return it.BillingAddress.GetId()
+		return it.BillingAddress.GetID()
 	case "shipping_address_id":
-		return it.ShippingAddress.GetId()
+		return it.ShippingAddress.GetID()
 	case "billing_address":
 		return it.BillingAddress
 	case "shipping_address":
@@ -31,9 +31,9 @@ func (it *DefaultVisitor) Get(attribute string) interface{} {
 	case "validate":
 		return it.ValidateKey
 	case "facebook_id":
-		return it.FacebookId
+		return it.FacebookID
 	case "google_id":
-		return it.GoogleId
+		return it.GoogleID
 	case "birthday":
 		return it.Birthday
 	case "is_admin":
@@ -63,9 +63,9 @@ func (it *DefaultVisitor) Set(attribute string, value interface{}) error {
 	case "validate":
 		it.ValidateKey = utils.InterfaceToString(value)
 	case "facebook_id":
-		it.FacebookId = utils.InterfaceToString(value)
+		it.FacebookID = utils.InterfaceToString(value)
 	case "google_id":
-		it.GoogleId = utils.InterfaceToString(value)
+		it.GoogleID = utils.InterfaceToString(value)
 	case "birthday":
 		it.Birthday = utils.InterfaceToTime(value)
 	case "is_admin":
@@ -81,13 +81,13 @@ func (it *DefaultVisitor) Set(attribute string, value interface{}) error {
 		var err error
 
 		if value != "" {
-			address, err = visitor.LoadVisitorAddressById(value)
+			address, err = visitor.LoadVisitorAddressByID(value)
 			if err != nil {
 				return env.ErrorDispatch(err)
 			}
 		}
 
-		if address == nil || address.GetId() != "" {
+		if address == nil || address.GetID() != "" {
 
 			if attribute == "billing_address_id" {
 				it.BillingAddress = address
@@ -175,8 +175,8 @@ func (it *DefaultVisitor) ToHashMap() map[string]interface{} {
 	result["billing_address"] = nil
 	result["shipping_address"] = nil
 
-	//result["billing_address_id"] = it.BillingAddressId
-	//result["shipping_address_id"] = it.ShippingAddressId
+	//result["billing_address_id"] = it.BillingAddressID
+	//result["shipping_address_id"] = it.ShippingAddressID
 
 	if it.BillingAddress != nil {
 		result["billing_address"] = it.BillingAddress.ToHashMap()

@@ -9,13 +9,13 @@ import (
 )
 
 // returns id for cms block
-func (it *DefaultCMSBlock) GetId() string {
+func (it *DefaultCMSBlock) GetID() string {
 	return it.id
 }
 
 // sets id for cms block
-func (it *DefaultCMSBlock) SetId(newId string) error {
-	it.id = newId
+func (it *DefaultCMSBlock) SetID(newID string) error {
+	it.id = newID
 	return nil
 }
 
@@ -26,12 +26,12 @@ func (it *DefaultCMSBlock) Load(id string) error {
 		return env.ErrorDispatch(err)
 	}
 
-	dbValues, err := collection.LoadById(id)
+	dbValues, err := collection.LoadByID(id)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	it.SetId(utils.InterfaceToString(dbValues["_id"]))
+	it.SetID(utils.InterfaceToString(dbValues["_id"]))
 
 	it.Content = utils.InterfaceToString(dbValues["content"])
 	it.Identifier = utils.InterfaceToString(dbValues["identifier"])
@@ -48,7 +48,7 @@ func (it *DefaultCMSBlock) Delete() error {
 		return env.ErrorDispatch(err)
 	}
 
-	err = collection.DeleteById(it.GetId())
+	err = collection.DeleteByID(it.GetID())
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -66,7 +66,7 @@ func (it *DefaultCMSBlock) Save() error {
 	// packing data before save
 	storingValues := make(map[string]interface{})
 
-	storingValues["_id"] = it.GetId()
+	storingValues["_id"] = it.GetID()
 
 	storingValues["identifier"] = it.GetIdentifier()
 	storingValues["content"] = it.GetContent()
@@ -78,11 +78,11 @@ func (it *DefaultCMSBlock) Save() error {
 	}
 	storingValues["updated_at"] = currentTime
 
-	newId, err := collection.Save(storingValues)
+	newID, err := collection.Save(storingValues)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	it.SetId(newId)
+	it.SetID(newID)
 
 	return nil
 }

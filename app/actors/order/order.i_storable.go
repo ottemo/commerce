@@ -9,18 +9,18 @@ import (
 )
 
 // returns id of current order
-func (it *DefaultOrder) GetId() string {
+func (it *DefaultOrder) GetID() string {
 	return it.id
 }
 
 // sets id for order
-func (it *DefaultOrder) SetId(NewId string) error {
-	it.id = NewId
+func (it *DefaultOrder) SetID(NewID string) error {
+	it.id = NewID
 	return nil
 }
 
 // loads order information from DB
-func (it *DefaultOrder) Load(Id string) error {
+func (it *DefaultOrder) Load(ID string) error {
 
 	// loading order
 	orderCollection, err := db.GetCollection(ConstCollectionNameOrder)
@@ -28,7 +28,7 @@ func (it *DefaultOrder) Load(Id string) error {
 		return env.ErrorDispatch(err)
 	}
 
-	values, err := orderCollection.LoadById(Id)
+	values, err := orderCollection.LoadByID(ID)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -47,7 +47,7 @@ func (it *DefaultOrder) Load(Id string) error {
 		return env.ErrorDispatch(err)
 	}
 
-	orderItemsCollection.AddFilter("order_id", "=", it.GetId())
+	orderItemsCollection.AddFilter("order_id", "=", it.GetID())
 	orderItems, err := orderItemsCollection.Load()
 	if err != nil {
 		return env.ErrorDispatch(err)
@@ -68,7 +68,7 @@ func (it *DefaultOrder) Load(Id string) error {
 
 // removes current order from DB
 func (it *DefaultOrder) Delete() error {
-	if it.GetId() == "" {
+	if it.GetID() == "" {
 		return env.ErrorNew("order id is not set")
 	}
 
@@ -78,7 +78,7 @@ func (it *DefaultOrder) Delete() error {
 		return env.ErrorDispatch(err)
 	}
 
-	err = orderItemsCollection.AddFilter("order_id", "=", it.GetId())
+	err = orderItemsCollection.AddFilter("order_id", "=", it.GetID())
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -93,7 +93,7 @@ func (it *DefaultOrder) Delete() error {
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = orderCollection.DeleteById(it.GetId())
+	err = orderCollection.DeleteByID(it.GetID())
 
 	return env.ErrorDispatch(err)
 }
@@ -116,22 +116,22 @@ func (it *DefaultOrder) Save() error {
 
 	it.UpdatedAt = time.Now()
 
-	newId, err := orderCollection.Save(orderStoringValues)
+	newID, err := orderCollection.Save(orderStoringValues)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	it.SetId(newId)
+	it.SetID(newID)
 
 	// storing order items
 	for _, orderItem := range it.GetItems() {
-		orderItem.Set("order_id", newId)
+		orderItem.Set("order_id", newID)
 		orderItemStoringValues := orderItem.ToHashMap()
 
-		newId, err := orderItemsCollection.Save(orderItemStoringValues)
+		newID, err := orderItemsCollection.Save(orderItemStoringValues)
 		if err != nil {
 			return env.ErrorDispatch(err)
 		}
-		orderItem.SetId(newId)
+		orderItem.SetID(newID)
 	}
 
 	return nil

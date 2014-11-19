@@ -16,8 +16,8 @@ const (
 
 // InterfaceOrderItem represents interface to access business layer implementation of purchase order item object
 type InterfaceOrderItem interface {
-	GetId() string
-	SetId(newId string) error
+	GetID() string
+	SetID(newID string) error
 
 	GetName() string
 	GetSku() string
@@ -37,15 +37,15 @@ type InterfaceOrderItem interface {
 type InterfaceOrder interface {
 	GetItems() []InterfaceOrderItem
 
-	AddItem(productId string, qty int, productOptions map[string]interface{}) (InterfaceOrderItem, error)
+	AddItem(productID string, qty int, productOptions map[string]interface{}) (InterfaceOrderItem, error)
 	RemoveItem(itemIdx int) error
 
 	CalculateTotals() error
 
-	NewIncrementId() error
+	NewIncrementID() error
 
-	GetIncrementId() string
-	SetIncrementId(incrementId string) error
+	GetIncrementID() string
+	SetIncrementID(incrementID string) error
 
 	GetSubtotal() float64
 	GetGrandTotal() float64

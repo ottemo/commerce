@@ -12,8 +12,8 @@ import (
 
 // Package global variables
 var (
-	lastIncrementId      int = 0
-	lastIncrementIdMutex sync.Mutex
+	lastIncrementID      int = 0
+	lastIncrementIDMutex sync.Mutex
 )
 
 // Package global constants
@@ -31,9 +31,9 @@ type DefaultOrderItem struct {
 	id  string
 	idx int
 
-	OrderId string
+	OrderID string
 
-	ProductId string
+	ProductID string
 
 	Qty int
 
@@ -52,11 +52,11 @@ type DefaultOrderItem struct {
 type DefaultOrder struct {
 	id string
 
-	IncrementId string
+	IncrementID string
 	Status      string
 
-	VisitorId string
-	CartId    string
+	VisitorID string
+	CartID    string
 
 	Description string
 	PaymentInfo map[string]interface{}

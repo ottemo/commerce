@@ -1,7 +1,7 @@
 package address
 
-// GetVisitorId returns the Visitor ID for the Visitor Address
-func (it *DefaultVisitorAddress) GetVisitorId() string { return it.visitorID }
+// GetVisitorID returns the Visitor ID for the Visitor Address
+func (it *DefaultVisitorAddress) GetVisitorID() string { return it.visitorID }
 
 // GetFirstName returns the First Name of the Visitor Address
 func (it *DefaultVisitorAddress) GetFirstName() string { return it.FirstName }

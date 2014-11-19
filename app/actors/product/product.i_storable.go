@@ -6,25 +6,25 @@ import (
 )
 
 // returns current product id
-func (it *DefaultProduct) GetId() string {
+func (it *DefaultProduct) GetID() string {
 	return it.id
 }
 
 // sets current product id
-func (it *DefaultProduct) SetId(NewId string) error {
-	it.id = NewId
+func (it *DefaultProduct) SetID(NewID string) error {
+	it.id = NewID
 	return nil
 }
 
 // loads product information from DB
-func (it *DefaultProduct) Load(loadId string) error {
+func (it *DefaultProduct) Load(loadID string) error {
 
 	collection, err := db.GetCollection(ConstCollectionNameProduct)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	dbRecord, err := collection.LoadById(loadId)
+	dbRecord, err := collection.LoadByID(loadID)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -44,7 +44,7 @@ func (it *DefaultProduct) Delete() error {
 		return env.ErrorDispatch(err)
 	}
 
-	err = collection.DeleteById(it.GetId())
+	err = collection.DeleteByID(it.GetID())
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -59,12 +59,12 @@ func (it *DefaultProduct) Save() error {
 		return env.ErrorDispatch(err)
 	}
 
-	newId, err := collection.Save(it.ToHashMap())
+	newID, err := collection.Save(it.ToHashMap())
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = it.SetId(newId)
+	err = it.SetID(newID)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}

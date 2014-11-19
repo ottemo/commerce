@@ -11,7 +11,7 @@ import (
 )
 
 // exec routines
-func connectionExecWLastInsertId(SQL string, args ...interface{}) (int64, error) {
+func connectionExecWLastInsertID(SQL string, args ...interface{}) (int64, error) {
 	dbEngine.connectionMutex.Lock()
 	defer dbEngine.connectionMutex.Unlock()
 
@@ -88,7 +88,7 @@ func convertValueForSQL(value interface{}) string {
 		return utils.InterfaceToString(value)
 
 	case map[string]interface{}, map[string]string:
-		return convertValueForSQL(utils.EncodeToJsonString(value))
+		return convertValueForSQL(utils.EncodeToJSONString(value))
 
 	case []string, []int, []int64, []int32, []float64, []bool:
 		return convertValueForSQL(utils.InterfaceToArray(value))

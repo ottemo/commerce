@@ -14,8 +14,8 @@ type InterfaceModel interface {
 
 // InterfaceStorable represents interface load/store business layer implementation object from database
 type InterfaceStorable interface {
-	GetId() string
-	SetId(string) error
+	GetID() string
+	SetID(string) error
 
 	Save() error
 	Load(id string) error

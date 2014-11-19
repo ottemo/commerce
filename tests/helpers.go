@@ -86,7 +86,7 @@ func GetNewCheckout(checkoutVisitor visitor.InterfaceVisitor) (checkout.Interfac
 		return nil, err
 	}
 
-	err = newCart.MakeCartForVisitor(checkoutVisitor.GetId())
+	err = newCart.MakeCartForVisitor(checkoutVisitor.GetID())
 	if err != nil {
 		return nil, err
 	}
@@ -147,7 +147,7 @@ func AddRandomProductsToCart(currentCheckout checkout.InterfaceCheckout, n int) 
 		}
 
 		//adding item to cart
-		_, err := currentCart.AddItem(productModel.GetId(), rand.Intn(3)+1, options)
+		_, err := currentCart.AddItem(productModel.GetID(), rand.Intn(3)+1, options)
 		if err != nil {
 			return err
 		}

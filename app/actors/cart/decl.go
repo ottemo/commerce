@@ -16,7 +16,7 @@ const (
 type DefaultCart struct {
 	id string
 
-	VisitorId string
+	VisitorID string
 
 	Info map[string]interface{}
 
@@ -35,7 +35,7 @@ type DefaultCartItem struct {
 
 	idx int
 
-	ProductId string
+	ProductID string
 
 	Qty int
 

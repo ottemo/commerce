@@ -13,7 +13,7 @@ func (it *DefaultVisitorAddress) Get(attribute string) interface{} {
 	switch strings.ToLower(attribute) {
 	case "_id", "id":
 		return it.id
-	case "visitor_id", "visitorId":
+	case "visitor_id", "visitorID":
 		return it.visitorID
 	case "fname", "first_name":
 		return it.FirstName
@@ -46,7 +46,7 @@ func (it *DefaultVisitorAddress) Set(attribute string, value interface{}) error 
 	case "_id", "id":
 		it.id = utils.InterfaceToString(value)
 
-	case "visitor_id", "visitorId":
+	case "visitor_id", "visitorID":
 		it.visitorID = utils.InterfaceToString(value)
 
 	case "fname", "first_name":
@@ -209,7 +209,7 @@ func (it *DefaultVisitorAddress) GetAttributesInfo() []models.StructAttributeInf
 			Label:      "Country",
 			Group:      "General",
 			Editors:    "select",
-			Options:    utils.EncodeToJsonString(models.ConstCountriesList),
+			Options:    utils.EncodeToJSONString(models.ConstCountriesList),
 			Default:    "",
 		},
 		models.StructAttributeInfo{
@@ -242,7 +242,7 @@ func (it *DefaultVisitorAddress) GetAttributesInfo() []models.StructAttributeInf
 			Label:      "State",
 			Group:      "General",
 			Editors:    "select",
-			Options:    utils.EncodeToJsonString(models.ConstStatesList),
+			Options:    utils.EncodeToJSONString(models.ConstStatesList),
 			Default:    "",
 		},
 		models.StructAttributeInfo{

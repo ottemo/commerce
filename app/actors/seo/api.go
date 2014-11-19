@@ -101,8 +101,8 @@ func restURLRewritesUpdate(params *api.StructAPIHandlerParams) (interface{}, err
 		return nil, env.ErrorDispatch(err)
 	}
 
-	urlRewriteId := params.RequestURLParams["id"]
-	record, err := collection.LoadById(urlRewriteId)
+	urlRewriteID := params.RequestURLParams["id"]
+	record, err := collection.LoadByID(urlRewriteID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -163,7 +163,7 @@ func restURLRewritesAdd(params *api.StructAPIHandlerParams) (interface{}, error)
 		return nil, env.ErrorNew("'url' and 'rewrite' params should be specified")
 	}
 
-	valueUrl := utils.InterfaceToString(postValues["url"])
+	valueURL := utils.InterfaceToString(postValues["url"])
 	valueRewrite := utils.InterfaceToString(postValues["rewrite"])
 
 	// looking for duplicated 'url'
@@ -173,19 +173,19 @@ func restURLRewritesAdd(params *api.StructAPIHandlerParams) (interface{}, error)
 		return nil, env.ErrorDispatch(err)
 	}
 
-	collection.AddFilter("url", "=", valueUrl)
+	collection.AddFilter("url", "=", valueURL)
 	recordsNumber, err := collection.Count()
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 	if recordsNumber > 0 {
-		return nil, env.ErrorNew("rewrite for url '" + valueUrl + "' already exists")
+		return nil, env.ErrorNew("rewrite for url '" + valueURL + "' already exists")
 	}
 
 	// making new record and storing it
 	//---------------------------------
 	newRecord := map[string]interface{}{
-		"url":              valueUrl,
+		"url":              valueURL,
 		"type":             "",
 		"rewrite":          valueRewrite,
 		"title":            nil,
@@ -200,12 +200,12 @@ func restURLRewritesAdd(params *api.StructAPIHandlerParams) (interface{}, error)
 		}
 	}
 
-	newId, err := collection.Save(newRecord)
+	newID, err := collection.Save(newRecord)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	newRecord["_id"] = newId
+	newRecord["_id"] = newID
 
 	return newRecord, nil
 }
@@ -222,7 +222,7 @@ func restURLRewritesDelete(params *api.StructAPIHandlerParams) (interface{}, err
 		return nil, env.ErrorDispatch(err)
 	}
 
-	err = collection.DeleteById(params.RequestURLParams["id"])
+	err = collection.DeleteByID(params.RequestURLParams["id"])
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -295,14 +295,14 @@ func restSitemapGenerate(params *api.StructAPIHandlerParams) (interface{}, error
 
 	// per database record iterator
 	iteratorFunc := func(record map[string]interface{}) bool {
-		pageUrl := ""
+		pageURL := ""
 		if pageType == "" {
-			pageUrl = baseURL + utils.InterfaceToString(record["url"])
+			pageURL = baseURL + utils.InterfaceToString(record["url"])
 		} else {
-			pageUrl = baseURL + pageType + "/" + utils.InterfaceToString(record["_id"])
+			pageURL = baseURL + pageType + "/" + utils.InterfaceToString(record["_id"])
 		}
 
-		writeLine([]byte("  <url><loc>" + pageUrl + "</loc></url>"))
+		writeLine([]byte("  <url><loc>" + pageURL + "</loc></url>"))
 
 		return true
 	}

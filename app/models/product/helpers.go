@@ -36,14 +36,14 @@ func GetProductModel() (InterfaceProduct, error) {
 }
 
 // retrieves current InterfaceProduct model implementation and sets its ID to some value
-func GetProductModelAndSetId(productId string) (InterfaceProduct, error) {
+func GetProductModelAndSetID(productID string) (InterfaceProduct, error) {
 
 	productModel, err := GetProductModel()
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	err = productModel.SetId(productId)
+	err = productModel.SetID(productID)
 	if err != nil {
 		return productModel, env.ErrorDispatch(err)
 	}
@@ -52,14 +52,14 @@ func GetProductModelAndSetId(productId string) (InterfaceProduct, error) {
 }
 
 // loads product data into current InterfaceProduct model implementation
-func LoadProductById(productId string) (InterfaceProduct, error) {
+func LoadProductByID(productID string) (InterfaceProduct, error) {
 
 	productModel, err := GetProductModel()
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	err = productModel.Load(productId)
+	err = productModel.Load(productID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}

@@ -3,12 +3,12 @@ package objectref
 import "github.com/ottemo/foundation/env"
 
 // returns current object id
-func (it *DBObjectRef) GetId() string {
+func (it *DBObjectRef) GetID() string {
 	return it.id
 }
 
 // sets new id to current object
-func (it *DBObjectRef) SetId(id string) {
+func (it *DBObjectRef) SetID(id string) {
 	it.id = id
 }
 

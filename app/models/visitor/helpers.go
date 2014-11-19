@@ -66,15 +66,15 @@ func GetVisitorModel() (InterfaceVisitor, error) {
 	return visitorModel, nil
 }
 
-// GetVisitorAddressModelAndSetId retrieves current InterfaceVisitorAddress model implementation and sets its ID to some value
-func GetVisitorAddressModelAndSetId(visitorAddressID string) (InterfaceVisitorAddress, error) {
+// GetVisitorAddressModelAndSetID retrieves current InterfaceVisitorAddress model implementation and sets its ID to some value
+func GetVisitorAddressModelAndSetID(visitorAddressID string) (InterfaceVisitorAddress, error) {
 
 	visitorAddressModel, err := GetVisitorAddressModel()
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	err = visitorAddressModel.SetId(visitorAddressID)
+	err = visitorAddressModel.SetID(visitorAddressID)
 	if err != nil {
 		return visitorAddressModel, env.ErrorDispatch(err)
 	}
@@ -82,15 +82,15 @@ func GetVisitorAddressModelAndSetId(visitorAddressID string) (InterfaceVisitorAd
 	return visitorAddressModel, nil
 }
 
-// GetVisitorModelAndSetId retrieves current InterfaceVisitor model implementation and sets its ID to some value
-func GetVisitorModelAndSetId(visitorID string) (InterfaceVisitor, error) {
+// GetVisitorModelAndSetID retrieves current InterfaceVisitor model implementation and sets its ID to some value
+func GetVisitorModelAndSetID(visitorID string) (InterfaceVisitor, error) {
 
 	visitorModel, err := GetVisitorModel()
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	err = visitorModel.SetId(visitorID)
+	err = visitorModel.SetID(visitorID)
 	if err != nil {
 		return visitorModel, env.ErrorDispatch(err)
 	}
@@ -98,8 +98,8 @@ func GetVisitorModelAndSetId(visitorID string) (InterfaceVisitor, error) {
 	return visitorModel, nil
 }
 
-// LoadVisitorAddressById loads visitor address data into current InterfaceVisitorAddress model implementation
-func LoadVisitorAddressById(visitorAddressID string) (InterfaceVisitorAddress, error) {
+// LoadVisitorAddressByID loads visitor address data into current InterfaceVisitorAddress model implementation
+func LoadVisitorAddressByID(visitorAddressID string) (InterfaceVisitorAddress, error) {
 
 	visitorAddressModel, err := GetVisitorAddressModel()
 	if err != nil {
@@ -114,8 +114,8 @@ func LoadVisitorAddressById(visitorAddressID string) (InterfaceVisitorAddress, e
 	return visitorAddressModel, nil
 }
 
-// LoadVisitorById loads visitor data into current InterfaceVisitor model implementation
-func LoadVisitorById(visitorID string) (InterfaceVisitor, error) {
+// LoadVisitorByID loads visitor data into current InterfaceVisitor model implementation
+func LoadVisitorByID(visitorID string) (InterfaceVisitor, error) {
 
 	visitorModel, err := GetVisitorModel()
 	if err != nil {
@@ -130,8 +130,8 @@ func LoadVisitorById(visitorID string) (InterfaceVisitor, error) {
 	return visitorModel, nil
 }
 
-// GetCurrentVisitorId returns visitor id for current session if registered or ""
-func GetCurrentVisitorId(params *api.StructAPIHandlerParams) string {
+// GetCurrentVisitorID returns visitor id for current session if registered or ""
+func GetCurrentVisitorID(params *api.StructAPIHandlerParams) string {
 	sessionVisitorID, ok := params.Session.Get(ConstSessionKeyVisitorID).(string)
 	if !ok {
 		return ""
@@ -147,7 +147,7 @@ func GetCurrentVisitor(params *api.StructAPIHandlerParams) (InterfaceVisitor, er
 		return nil, env.ErrorNew("not registered visitor")
 	}
 
-	visitorInstance, err := LoadVisitorById(sessionVisitorID)
+	visitorInstance, err := LoadVisitorByID(sessionVisitorID)
 
 	return visitorInstance, env.ErrorDispatch(err)
 }

@@ -51,14 +51,14 @@ func GetOrderModel() (InterfaceOrder, error) {
 }
 
 // retrieves current InterfaceOrder model implementation and sets its ID to some value
-func GetOrderModelAndSetId(orderId string) (InterfaceOrder, error) {
+func GetOrderModelAndSetID(orderID string) (InterfaceOrder, error) {
 
 	orderModel, err := GetOrderModel()
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	err = orderModel.SetId(orderId)
+	err = orderModel.SetID(orderID)
 	if err != nil {
 		return orderModel, env.ErrorDispatch(err)
 	}
@@ -67,14 +67,14 @@ func GetOrderModelAndSetId(orderId string) (InterfaceOrder, error) {
 }
 
 // loads order data into current InterfaceOrder model implementation
-func LoadOrderById(orderId string) (InterfaceOrder, error) {
+func LoadOrderByID(orderID string) (InterfaceOrder, error) {
 
 	orderModel, err := GetOrderModel()
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	err = orderModel.Load(orderId)
+	err = orderModel.Load(orderID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}

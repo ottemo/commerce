@@ -11,21 +11,21 @@ import (
 )
 
 // returns url related to dashboard server
-func GetDashboardUrl(path string) string {
-	baseUrl := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathDashboardURL))
-	return strings.TrimRight(baseUrl, "#/") + "/#/" + path
+func GetDashboardURL(path string) string {
+	baseURL := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathDashboardURL))
+	return strings.TrimRight(baseURL, "#/") + "/#/" + path
 }
 
 // returns url related to storefront server
-func GetStorefrontUrl(path string) string {
-	baseUrl := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathStorefrontURL))
-	return strings.TrimRight(baseUrl, "#/") + "/#/" + path
+func GetStorefrontURL(path string) string {
+	baseURL := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathStorefrontURL))
+	return strings.TrimRight(baseURL, "#/") + "/#/" + path
 }
 
 // returns url related to foundation server
-func GetFoundationUrl(path string) string {
-	baseUrl := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathFoundationURL))
-	return strings.TrimRight(baseUrl, "/") + "/" + path
+func GetFoundationURL(path string) string {
+	baseURL := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathFoundationURL))
+	return strings.TrimRight(baseURL, "/") + "/" + path
 }
 
 // sends mail via smtp server specified in config

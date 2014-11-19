@@ -60,7 +60,7 @@ func TestProductsOperations(tst *testing.T) {
 	}
 
 	// making data for test object
-	productData, err := utils.DecodeJsonToStringKeyMap(`{
+	productData, err := utils.DecodeJSONToStringKeyMap(`{
 		"sku": "test",
 		"name": "Test Product",
 		"short_description": "something short",
@@ -96,7 +96,7 @@ func TestProductsOperations(tst *testing.T) {
 	}
 
 	// loading just saved product
-	productModel, err = product.LoadProductById(productModel.GetId())
+	productModel, err = product.LoadProductByID(productModel.GetID())
 	if err != nil {
 		tst.Error(err)
 	}
@@ -211,7 +211,7 @@ func BenchmarkProductLoad(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		randomID := utils.InterfaceToString(productIds[rand.Intn(count)]["_id"])
-		product.LoadProductById(randomID)
+		product.LoadProductByID(randomID)
 	}
 }
 

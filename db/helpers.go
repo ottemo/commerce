@@ -54,7 +54,7 @@ func ConvertTypeFromDbToGo(value interface{}, valueType string) interface{} {
 		return utils.InterfaceToTime(value)
 
 	case valueType == ConstDBBasetypeJSON:
-		result, _ := utils.DecodeJsonToStringKeyMap(value)
+		result, _ := utils.DecodeJSONToStringKeyMap(value)
 		return result
 
 	case strings.HasPrefix(valueType, ConstDBBasetypeVarchar), valueType == ConstDBBasetypeText, valueType == ConstDBBasetypeID:

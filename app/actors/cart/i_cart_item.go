@@ -7,13 +7,13 @@ import (
 )
 
 // returns id of cart item
-func (it *DefaultCartItem) GetId() string {
+func (it *DefaultCartItem) GetID() string {
 	return it.id
 }
 
 // sets id to cart item
-func (it *DefaultCartItem) SetId(newId string) error {
-	it.id = newId
+func (it *DefaultCartItem) SetID(newID string) error {
+	it.id = newID
 	return nil
 }
 
@@ -42,14 +42,14 @@ func (it *DefaultCartItem) SetIdx(newIdx int) error {
 }
 
 // returns product id which cart item represents
-func (it *DefaultCartItem) GetProductId() string {
-	return it.ProductId
+func (it *DefaultCartItem) GetProductID() string {
+	return it.ProductID
 }
 
 // returns product instance which cart item represents
 func (it *DefaultCartItem) GetProduct() product.InterfaceProduct {
-	if it.ProductId != "" {
-		product, err := product.LoadProductById(it.ProductId)
+	if it.ProductID != "" {
+		product, err := product.LoadProductByID(it.ProductID)
 		if err == nil {
 			return product
 		}

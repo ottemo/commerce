@@ -1,13 +1,13 @@
 package order
 
 // returns order item unique id, or blank string
-func (it *DefaultOrderItem) GetId() string {
+func (it *DefaultOrderItem) GetID() string {
 	return it.id
 }
 
 // sets order item unique id
-func (it *DefaultOrderItem) SetId(newId string) error {
-	it.id = newId
+func (it *DefaultOrderItem) SetID(newID string) error {
+	it.id = newID
 	return nil
 }
 

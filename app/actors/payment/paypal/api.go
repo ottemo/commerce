@@ -55,7 +55,7 @@ func Completes(orderInstance order.InterfaceOrder, token string, payerID string)
 	itemAmount := fmt.Sprintf("%.2f", grandTotal-shippingPrice)
 
 	description := "Purchase%20for%20%24" + fmt.Sprintf("%.2f", grandTotal)
-	custom := orderInstance.GetId()
+	custom := orderInstance.GetID()
 
 	// making NVP request
 	//-------------------
@@ -120,7 +120,7 @@ func restSuccess(params *api.StructAPIHandlerParams) (interface{}, error) {
 	delete(waitingTokens, reqData["token"])
 	waitingTokensMutex.Unlock()
 
-	session, err := session.GetSessionById(utils.InterfaceToString(sessionID))
+	session, err := session.GetSessionByID(utils.InterfaceToString(sessionID))
 	if err != nil {
 		return nil, errors.New("Wrong session ID")
 	}
@@ -142,14 +142,14 @@ func restSuccess(params *api.StructAPIHandlerParams) (interface{}, error) {
 		completeData, err := Completes(checkoutOrder, reqData["token"], reqData["PayerID"])
 		if err != nil {
 			env.Log("paypal.log", env.ConstLogPrefixInfo, "TRANSACTION NOT COMPLETED: "+
-				"VisitorId - "+utils.InterfaceToString(checkoutOrder.Get("visitor_id"))+", "+
-				"OrderId - "+checkoutOrder.GetId()+", "+
+				"VisitorID - "+utils.InterfaceToString(checkoutOrder.Get("visitor_id"))+", "+
+				"OrderID - "+checkoutOrder.GetID()+", "+
 				"TOKEN - : "+completeData["TOKEN"])
 
 			return nil, errors.New("Transaction not confirmed")
 		}
 
-		checkoutOrder.NewIncrementId()
+		checkoutOrder.NewIncrementID()
 
 		checkoutOrder.Set("status", "pending_shipping")
 		checkoutOrder.Set("payment_info", completeData)
@@ -166,11 +166,11 @@ func restSuccess(params *api.StructAPIHandlerParams) (interface{}, error) {
 		}
 
 		env.Log("paypal.log", env.ConstLogPrefixInfo, "TRANSACTION COMPLETED: "+
-			"VisitorId - "+utils.InterfaceToString(checkoutOrder.Get("visitor_id"))+", "+
-			"OrderId - "+checkoutOrder.GetId()+", "+
+			"VisitorID - "+utils.InterfaceToString(checkoutOrder.Get("visitor_id"))+", "+
+			"OrderID - "+checkoutOrder.GetID()+", "+
 			"TOKEN - : "+completeData["TOKEN"])
 
-		return api.StructRestRedirect{Location: app.GetStorefrontUrl("account/order/" + checkoutOrder.GetId()), DoRedirect: true}, nil
+		return api.StructRestRedirect{Location: app.GetStorefrontURL("account/order/" + checkoutOrder.GetID()), DoRedirect: true}, nil
 	}
 
 	return nil, errors.New("Checkout not exist")
@@ -185,7 +185,7 @@ func restCancel(params *api.StructAPIHandlerParams) (interface{}, error) {
 	delete(waitingTokens, reqData["token"])
 	waitingTokensMutex.Unlock()
 
-	session, err := session.GetSessionById(utils.InterfaceToString(sessionID))
+	session, err := session.GetSessionByID(utils.InterfaceToString(sessionID))
 	if err != nil {
 		return nil, errors.New("Wrong session ID")
 	}
@@ -199,9 +199,9 @@ func restCancel(params *api.StructAPIHandlerParams) (interface{}, error) {
 	checkoutOrder := currentCheckout.GetOrder()
 
 	env.Log("paypal.log", env.ConstLogPrefixInfo, "CANCELED: "+
-		"VisitorId - "+utils.InterfaceToString(checkoutOrder.Get("visitor_id"))+", "+
-		"OrderId - "+checkoutOrder.GetId()+", "+
+		"VisitorID - "+utils.InterfaceToString(checkoutOrder.Get("visitor_id"))+", "+
+		"OrderID - "+checkoutOrder.GetID()+", "+
 		"TOKEN - : "+reqData["token"])
 
-	return api.StructRestRedirect{Location: app.GetStorefrontUrl("checkout"), DoRedirect: true}, nil
+	return api.StructRestRedirect{Location: app.GetStorefrontURL("checkout"), DoRedirect: true}, nil
 }

@@ -131,11 +131,11 @@ func restOrderGet(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
-	reqBlockId, present := params.RequestURLParams["id"]
+	reqBlockID, present := params.RequestURLParams["id"]
 	if !present {
 		return nil, env.ErrorNew("order id should be specified")
 	}
-	blockId := utils.InterfaceToString(reqBlockId)
+	blockID := utils.InterfaceToString(reqBlockID)
 
 	// check rights
 	if err := api.ValidateAdminRights(params); err != nil {
@@ -144,7 +144,7 @@ func restOrderGet(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// operation
 	//----------
-	orderModel, err := order.LoadOrderById(blockId)
+	orderModel, err := order.LoadOrderByID(blockID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -159,7 +159,7 @@ func restOrderUpdate(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
-	blockId, present := params.RequestURLParams["id"]
+	blockID, present := params.RequestURLParams["id"]
 	if !present {
 		return nil, env.ErrorNew("order id should be specified")
 	}
@@ -176,7 +176,7 @@ func restOrderUpdate(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// operation
 	//----------
-	orderModel, err := order.LoadOrderById(blockId)
+	orderModel, err := order.LoadOrderByID(blockID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -185,7 +185,7 @@ func restOrderUpdate(params *api.StructAPIHandlerParams) (interface{}, error) {
 		orderModel.Set(attribute, value)
 	}
 
-	orderModel.SetId(blockId)
+	orderModel.SetID(blockID)
 	orderModel.Save()
 
 	return orderModel.ToHashMap(), nil
@@ -196,7 +196,7 @@ func restOrderDelete(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
-	blockId, present := params.RequestURLParams["id"]
+	blockID, present := params.RequestURLParams["id"]
 	if !present {
 		return nil, env.ErrorNew("order id should be specified")
 	}
@@ -208,7 +208,7 @@ func restOrderDelete(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// operation
 	//----------
-	orderModel, err := order.GetOrderModelAndSetId(blockId)
+	orderModel, err := order.GetOrderModelAndSetID(blockID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}

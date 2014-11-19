@@ -16,7 +16,7 @@ func setupAPI() error {
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("cart", "POST", "add/:productId/:qty", restCartAdd)
+	err = api.GetRestService().RegisterAPI("cart", "POST", "add/:productID/:qty", restCartAdd)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -48,10 +48,10 @@ func restCartInfo(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 		item := make(map[string]interface{})
 
-		item["_id"] = cartItem.GetId()
+		item["_id"] = cartItem.GetID()
 		item["idx"] = cartItem.GetIdx()
 		item["qty"] = cartItem.GetQty()
-		item["pid"] = cartItem.GetProductId()
+		item["pid"] = cartItem.GetProductID()
 		item["options"] = cartItem.GetOptions()
 
 		if product := cartItem.GetProduct(); product != nil {
@@ -76,7 +76,7 @@ func restCartInfo(params *api.StructAPIHandlerParams) (interface{}, error) {
 	}
 
 	result := map[string]interface{}{
-		"visitor_id": currentCart.GetVisitorId(),
+		"visitor_id": currentCart.GetVisitorID(),
 		"cart_info":  currentCart.GetCartInfo(),
 		"items":      items,
 	}
@@ -97,7 +97,7 @@ func restCartAdd(params *api.StructAPIHandlerParams) (interface{}, error) {
 	}
 
 	var pid string = ""
-	reqPid, present := params.RequestURLParams["productId"]
+	reqPid, present := params.RequestURLParams["productID"]
 	pid = utils.InterfaceToString(reqPid)
 	if !present || pid == "" {
 		return nil, env.ErrorNew("pid should be specified")
@@ -127,9 +127,9 @@ func restCartAdd(params *api.StructAPIHandlerParams) (interface{}, error) {
 	addItemFlag := true
 	cartItems := currentCart.GetItems()
 	for _, item := range cartItems {
-		cartItemOptions := utils.EncodeToJsonString(item.GetOptions())
-		newItemOptions := utils.EncodeToJsonString(options)
-		if item.GetProductId() == pid && cartItemOptions == newItemOptions {
+		cartItemOptions := utils.EncodeToJSONString(item.GetOptions())
+		newItemOptions := utils.EncodeToJSONString(options)
+		if item.GetProductID() == pid && cartItemOptions == newItemOptions {
 			item.SetQty(item.GetQty() + qty)
 			addItemFlag = false
 		}

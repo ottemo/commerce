@@ -30,7 +30,7 @@ func (it *DefaultCategoryCollection) List() ([]models.StructListItem, error) {
 		// retrieving minimal data needed for list
 		resultItem := new(models.StructListItem)
 
-		resultItem.Id = categoryModel.GetId()
+		resultItem.ID = categoryModel.GetID()
 		resultItem.Name = categoryModel.GetName()
 		resultItem.Image = ""
 		resultItem.Desc = ""

@@ -27,7 +27,7 @@ func (it *DefaultVisitorCollection) List() ([]models.StructListItem, error) {
 		// retrieving minimal data needed for list
 		resultItem := new(models.StructListItem)
 
-		resultItem.Id = visitorModel.GetId()
+		resultItem.ID = visitorModel.GetID()
 		resultItem.Name = visitorModel.GetFullName()
 		resultItem.Image = ""
 		resultItem.Desc = ""

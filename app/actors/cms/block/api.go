@@ -121,15 +121,15 @@ func restCMSBlockGet(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
-	reqBlockId, present := params.RequestURLParams["id"]
+	reqBlockID, present := params.RequestURLParams["id"]
 	if !present {
 		return nil, env.ErrorNew("cms block id should be specified")
 	}
-	blockId := utils.InterfaceToString(reqBlockId)
+	blockID := utils.InterfaceToString(reqBlockID)
 
 	// operation
 	//----------
-	cmsBlock, err := cms.LoadCMSBlockById(blockId)
+	cmsBlock, err := cms.LoadCMSBlockByID(blockID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -163,7 +163,7 @@ func restCMSBlockAdd(params *api.StructAPIHandlerParams) (interface{}, error) {
 		cmsBlockModel.Set(attribute, value)
 	}
 
-	cmsBlockModel.SetId("")
+	cmsBlockModel.SetID("")
 	cmsBlockModel.Save()
 
 	return cmsBlockModel.ToHashMap(), nil
@@ -174,7 +174,7 @@ func restCMSBlockUpdate(params *api.StructAPIHandlerParams) (interface{}, error)
 
 	// check request params
 	//---------------------
-	blockId, present := params.RequestURLParams["id"]
+	blockID, present := params.RequestURLParams["id"]
 	if !present {
 		return nil, env.ErrorNew("cms block id should be specified")
 	}
@@ -191,7 +191,7 @@ func restCMSBlockUpdate(params *api.StructAPIHandlerParams) (interface{}, error)
 
 	// operation
 	//----------
-	cmsBlockModel, err := cms.LoadCMSBlockById(blockId)
+	cmsBlockModel, err := cms.LoadCMSBlockByID(blockID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -200,7 +200,7 @@ func restCMSBlockUpdate(params *api.StructAPIHandlerParams) (interface{}, error)
 		cmsBlockModel.Set(attribute, value)
 	}
 
-	cmsBlockModel.SetId(blockId)
+	cmsBlockModel.SetID(blockID)
 	cmsBlockModel.Save()
 
 	return cmsBlockModel.ToHashMap(), nil
@@ -211,7 +211,7 @@ func restCMSBlockDelete(params *api.StructAPIHandlerParams) (interface{}, error)
 
 	// check request params
 	//---------------------
-	blockId, present := params.RequestURLParams["id"]
+	blockID, present := params.RequestURLParams["id"]
 	if !present {
 		return nil, env.ErrorNew("cms block id should be specified")
 	}
@@ -223,7 +223,7 @@ func restCMSBlockDelete(params *api.StructAPIHandlerParams) (interface{}, error)
 
 	// operation
 	//----------
-	cmsBlockModel, err := cms.GetCMSBlockModelAndSetId(blockId)
+	cmsBlockModel, err := cms.GetCMSBlockModelAndSetID(blockID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}

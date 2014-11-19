@@ -19,8 +19,8 @@ const (
 // InterfaceVisitor represents interface to access business layer implementation of visitor object
 type InterfaceVisitor interface {
 	GetEmail() string
-	GetFacebookId() string
-	GetGoogleId() string
+	GetFacebookID() string
+	GetGoogleID() string
 
 	GetFullName() string
 	GetFirstName() string
@@ -46,8 +46,8 @@ type InterfaceVisitor interface {
 	Validate(key string) error
 
 	LoadByEmail(email string) error
-	LoadByFacebookId(facebookID string) error
-	LoadByGoogleId(googleID string) error
+	LoadByFacebookID(facebookID string) error
+	LoadByGoogleID(googleID string) error
 
 	models.InterfaceModel
 	models.InterfaceObject
@@ -65,7 +65,7 @@ type InterfaceVisitorCollection interface {
 
 // InterfaceVisitorAddress represents interface to access business layer implementation of visitor address object
 type InterfaceVisitorAddress interface {
-	GetVisitorId() string
+	GetVisitorID() string
 
 	GetFirstName() string
 	GetLastName() string

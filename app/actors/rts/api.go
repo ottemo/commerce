@@ -288,12 +288,12 @@ func restGetTopSellers(params *api.StructAPIHandlerParams) (interface{}, error) 
 		result[productID] = &SellerInfo{}
 		if _, ok := topSellers.Data[productID]; !ok {
 
-			product, err := product.LoadProductById(productID)
+			product, err := product.LoadProductByID(productID)
 			if err != nil {
 				return nil, env.ErrorDispatch(err)
 			}
 
-			productModel.SetId(productID)
+			productModel.SetID(productID)
 			mediaPath, err := productModel.GetMediaPath("image")
 			if err != nil {
 				return result, env.ErrorDispatch(err)

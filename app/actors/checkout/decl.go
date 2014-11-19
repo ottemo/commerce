@@ -8,14 +8,14 @@ import (
 
 // DefaultCheckout is a default implementer of InterfaceCheckout
 type DefaultCheckout struct {
-	CartId    string
-	VisitorId string
-	OrderId   string
+	CartID    string
+	VisitorID string
+	OrderID   string
 
-	SessionId string
+	SessionID string
 
-	ShippingAddressId string
-	BillingAddressId  string
+	ShippingAddressID string
+	BillingAddressID  string
 
 	PaymentMethodCode  string
 	ShippingMethodCode string

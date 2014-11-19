@@ -35,8 +35,8 @@ func StartSession(request *http.Request, responseWriter http.ResponseWriter) (*S
 	cookie, err := request.Cookie(ConstSessionCookieName)
 	if err == nil {
 		// looking for cookie-based session
-		sessionId := cookie.Value
-		if session, ok := Sessions[sessionId]; ok == true {
+		sessionID := cookie.Value
+		if session, ok := Sessions[sessionID]; ok == true {
 			return session, nil
 		}
 	} else {
@@ -52,15 +52,15 @@ func StartSession(request *http.Request, responseWriter http.ResponseWriter) (*S
 	}
 
 	// storing session id to cookie
-	cookie = &http.Cookie{Name: ConstSessionCookieName, Value: result.GetId(), Path: "/"}
+	cookie = &http.Cookie{Name: ConstSessionCookieName, Value: result.GetID(), Path: "/"}
 	http.SetCookie(responseWriter, cookie)
 
 	return result, nil
 }
 
 // returns session object for given id or nil
-func GetSessionById(sessionId string) (*Session, error) {
-	if session, ok := Sessions[sessionId]; ok == true {
+func GetSessionByID(sessionID string) (*Session, error) {
+	if session, ok := Sessions[sessionID]; ok == true {
 		return session, nil
 	} else {
 		return nil, env.ErrorNew("session not found")
@@ -71,15 +71,15 @@ func GetSessionById(sessionId string) (*Session, error) {
 func NewSession() (*Session, error) {
 
 	// receiving new session id
-	sessionId, err := newSessionId()
+	sessionID, err := newSessionID()
 	if err != nil {
 		return nil, err
 	}
 
 	// initializing session structure
-	sessionId = url.QueryEscape(sessionId)
-	Sessions[sessionId] = &Session{
-		id:     sessionId,
+	sessionID = url.QueryEscape(sessionID)
+	Sessions[sessionID] = &Session{
+		id:     sessionID,
 		values: make(map[string]interface{}),
 		time:   time.Now()}
 
@@ -89,21 +89,21 @@ func NewSession() (*Session, error) {
 		Gc()
 	}
 
-	return Sessions[sessionId], nil
+	return Sessions[sessionID], nil
 }
 
 // returns new session number
-func newSessionId() (string, error) {
-	sessionId := make([]byte, 32)
-	if _, err := rand.Read(sessionId); err != nil {
-		return "", env.ErrorNew("can't generate sessionId")
+func newSessionID() (string, error) {
+	sessionID := make([]byte, 32)
+	if _, err := rand.Read(sessionID); err != nil {
+		return "", env.ErrorNew("can't generate sessionID")
 	}
 
 	for i := 0; i < 32; i++ {
-		sessionId[i] = ALPHANUMERIC[sessionId[i]%62]
+		sessionID[i] = ALPHANUMERIC[sessionID[i]%62]
 	}
 
-	return string(sessionId), nil
+	return string(sessionID), nil
 }
 
 // removes expired sessions

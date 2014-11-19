@@ -30,12 +30,12 @@ type InterfaceDBEngine interface {
 // InterfaceDBCollection interface to access particular table/collection of database
 type InterfaceDBCollection interface {
 	Load() ([]map[string]interface{}, error)
-	LoadById(id string) (map[string]interface{}, error)
+	LoadByID(id string) (map[string]interface{}, error)
 
 	Save(map[string]interface{}) (string, error)
 
 	Delete() (int, error)
-	DeleteById(id string) error
+	DeleteByID(id string) error
 
 	Iterate(iteratorFunc func(record map[string]interface{}) bool) error
 

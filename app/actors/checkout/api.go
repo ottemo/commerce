@@ -177,16 +177,16 @@ func checkoutObtainAddress(params *api.StructAPIHandlerParams) (visitor.Interfac
 		return nil, env.ErrorDispatch(err)
 	}
 
-	if addressId, present := reqData["id"]; present {
+	if addressID, present := reqData["id"]; present {
 
 		// Address id was specified - trying to load
-		visitorAddress, err := visitor.LoadVisitorAddressById(utils.InterfaceToString(addressId))
+		visitorAddress, err := visitor.LoadVisitorAddressByID(utils.InterfaceToString(addressID))
 		if err != nil {
 			return nil, env.ErrorDispatch(err)
 		}
 
-		currentVisitorId := utils.InterfaceToString(params.Session.Get(visitor.ConstSessionKeyVisitorID))
-		if visitorAddress.GetVisitorId() != currentVisitorId {
+		currentVisitorID := utils.InterfaceToString(params.Session.Get(visitor.ConstSessionKeyVisitorID))
+		if visitorAddress.GetVisitorID() != currentVisitorID {
 			return nil, env.ErrorNew("wrong address id")
 		}
 
@@ -206,8 +206,8 @@ func checkoutObtainAddress(params *api.StructAPIHandlerParams) (visitor.Interfac
 			}
 		}
 
-		visitorId := utils.InterfaceToString(params.Session.Get(visitor.ConstSessionKeyVisitorID))
-		visitorAddressModel.Set("visitor_id", visitorId)
+		visitorID := utils.InterfaceToString(params.Session.Get(visitor.ConstSessionKeyVisitorID))
+		visitorAddressModel.Set("visitor_id", visitorID)
 
 		err = visitorAddressModel.Save()
 		if err != nil {

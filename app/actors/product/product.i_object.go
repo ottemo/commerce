@@ -66,7 +66,7 @@ func (it *DefaultProduct) Set(attribute string, value interface{}) error {
 		switch typedValue := value.(type) {
 		case []product.InterfaceProduct:
 			for _, productItem := range typedValue {
-				it.RelatedProductIds = append(it.RelatedProductIds, productItem.GetId())
+				it.RelatedProductIds = append(it.RelatedProductIds, productItem.GetID())
 			}
 
 		case []interface{}:
@@ -74,12 +74,12 @@ func (it *DefaultProduct) Set(attribute string, value interface{}) error {
 			for _, listItem := range typedValue {
 				if productID, ok := listItem.(string); ok && productID != "" && it.id != productID {
 					// checking product existance
-					productModel, err := product.LoadProductById(productID)
+					productModel, err := product.LoadProductByID(productID)
 					if err != nil {
 						return env.ErrorDispatch(err)
 					}
 
-					it.RelatedProductIds = append(it.RelatedProductIds, productModel.GetId())
+					it.RelatedProductIds = append(it.RelatedProductIds, productModel.GetID())
 				}
 			}
 

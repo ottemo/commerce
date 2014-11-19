@@ -6,16 +6,16 @@ import (
 	"github.com/ottemo/foundation/utils"
 )
 
-func (it *DefaultCategory) GetId() string {
+func (it *DefaultCategory) GetID() string {
 	return it.id
 }
 
-func (it *DefaultCategory) SetId(NewId string) error {
-	it.id = NewId
+func (it *DefaultCategory) SetID(NewID string) error {
+	it.id = NewID
 	return nil
 }
 
-func (it *DefaultCategory) Load(Id string) error {
+func (it *DefaultCategory) Load(ID string) error {
 
 	// loading category
 	categoryCollection, err := db.GetCollection(ConstCollectionNameCategory)
@@ -23,7 +23,7 @@ func (it *DefaultCategory) Load(Id string) error {
 		return env.ErrorDispatch(err)
 	}
 
-	dbRecord, err := categoryCollection.LoadById(Id)
+	dbRecord, err := categoryCollection.LoadByID(ID)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -41,7 +41,7 @@ func (it *DefaultCategory) Load(Id string) error {
 		return env.ErrorDispatch(err)
 	}
 
-	junctionCollection.AddFilter("category_id", "=", it.GetId())
+	junctionCollection.AddFilter("category_id", "=", it.GetID())
 	junctedProducts, err := junctionCollection.Load()
 	if err != nil {
 		return env.ErrorDispatch(err)
@@ -61,7 +61,7 @@ func (it *DefaultCategory) Delete() error {
 		return env.ErrorDispatch(err)
 	}
 
-	err = junctionCollection.AddFilter("category_id", "=", it.GetId())
+	err = junctionCollection.AddFilter("category_id", "=", it.GetID())
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -77,7 +77,7 @@ func (it *DefaultCategory) Delete() error {
 		return env.ErrorDispatch(err)
 	}
 
-	err = categoryCollection.DeleteById(it.GetId())
+	err = categoryCollection.DeleteByID(it.GetID())
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -97,9 +97,9 @@ func (it *DefaultCategory) Save() error {
 	}
 
 	// saving category
-	if newId, err := categoryCollection.Save(storingValues); err == nil {
-		if it.GetId() != newId {
-			it.SetId(newId)
+	if newID, err := categoryCollection.Save(storingValues); err == nil {
+		if it.GetID() != newID {
+			it.SetID(newID)
 			it.updatePath()
 			it.Save()
 		}
@@ -114,15 +114,15 @@ func (it *DefaultCategory) Save() error {
 	}
 
 	// deleting old assigned products
-	junctionCollection.AddFilter("category_id", "=", it.GetId())
+	junctionCollection.AddFilter("category_id", "=", it.GetID())
 	_, err = junctionCollection.Delete()
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
 	// adding new assignments
-	for _, categoryProductId := range it.ProductIds {
-		junctionCollection.Save(map[string]interface{}{"category_id": it.GetId(), "product_id": categoryProductId})
+	for _, categoryProductID := range it.ProductIds {
+		junctionCollection.Save(map[string]interface{}{"category_id": it.GetID(), "product_id": categoryProductID})
 	}
 
 	return nil

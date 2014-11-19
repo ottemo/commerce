@@ -229,7 +229,7 @@ func restGetProduct(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// load product operation
 	//-----------------------
-	productModel, err := product.LoadProductById(productID)
+	productModel, err := product.LoadProductByID(productID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -298,7 +298,7 @@ func restDeleteProduct(params *api.StructAPIHandlerParams) (interface{}, error) 
 
 	// delete operation
 	//-----------------
-	productModel, err := product.GetProductModelAndSetId(productID)
+	productModel, err := product.GetProductModelAndSetID(productID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -335,7 +335,7 @@ func restUpdateProduct(params *api.StructAPIHandlerParams) (interface{}, error) 
 
 	// update operations
 	//------------------
-	productModel, err := product.LoadProductById(productID)
+	productModel, err := product.LoadProductByID(productID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -373,7 +373,7 @@ func restMediaPath(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// list media operation
 	//---------------------
-	productModel, err := product.GetProductModelAndSetId(productID)
+	productModel, err := product.GetProductModelAndSetID(productID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -404,7 +404,7 @@ func restMediaList(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// list media operation
 	//---------------------
-	productModel, err := product.GetProductModelAndSetId(productID)
+	productModel, err := product.GetProductModelAndSetID(productID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -459,7 +459,7 @@ func restMediaAdd(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// add media operation
 	//--------------------
-	productModel, err := product.GetProductModelAndSetId(productID)
+	productModel, err := product.GetProductModelAndSetID(productID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -500,7 +500,7 @@ func restMediaRemove(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// list media operation
 	//---------------------
-	productModel, err := product.GetProductModelAndSetId(productID)
+	productModel, err := product.GetProductModelAndSetID(productID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -538,7 +538,7 @@ func restMediaGet(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// list media operation
 	//---------------------
-	productModel, err := product.GetProductModelAndSetId(productID)
+	productModel, err := product.GetProductModelAndSetID(productID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -609,7 +609,7 @@ func restRelatedList(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// load product operation
 	//-----------------------
-	productModel, err := product.LoadProductById(productID)
+	productModel, err := product.LoadProductByID(productID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -638,7 +638,7 @@ func restRelatedList(params *api.StructAPIHandlerParams) (interface{}, error) {
 		}
 		for _, index := range indexes {
 			if productID := utils.InterfaceToString(relatedPids[index]); productID != "" {
-				if productModel, err := product.LoadProductById(productID); err == nil {
+				if productModel, err := product.LoadProductByID(productID); err == nil {
 					if err == nil {
 						resultItem := new(models.StructListItem)
 
@@ -647,7 +647,7 @@ func restRelatedList(params *api.StructAPIHandlerParams) (interface{}, error) {
 							return result, env.ErrorDispatch(err)
 						}
 
-						resultItem.Id = productModel.GetId()
+						resultItem.ID = productModel.GetID()
 						resultItem.Name = "[" + productModel.GetSku() + "] " + productModel.GetName()
 						resultItem.Image = ""
 						resultItem.Desc = productModel.GetShortDescription()
@@ -675,7 +675,7 @@ func restRelatedList(params *api.StructAPIHandlerParams) (interface{}, error) {
 				continue
 			}
 
-			productModel, err := product.LoadProductById(utils.InterfaceToString(productID))
+			productModel, err := product.LoadProductByID(utils.InterfaceToString(productID))
 			if err == nil {
 				resultItem := new(models.StructListItem)
 
@@ -684,7 +684,7 @@ func restRelatedList(params *api.StructAPIHandlerParams) (interface{}, error) {
 					return result, env.ErrorDispatch(err)
 				}
 
-				resultItem.Id = productModel.GetId()
+				resultItem.ID = productModel.GetID()
 				resultItem.Name = "[" + productModel.GetSku() + "] " + productModel.GetName()
 				resultItem.Image = ""
 				resultItem.Desc = productModel.GetShortDescription()

@@ -31,8 +31,8 @@ func (it *DefaultOrderCollection) List() ([]models.StructListItem, error) {
 		// retrieving minimal data needed for list
 		resultItem := new(models.StructListItem)
 
-		resultItem.Id = orderModel.GetId()
-		resultItem.Name = orderModel.GetIncrementId()
+		resultItem.ID = orderModel.GetID()
+		resultItem.Name = orderModel.GetIncrementID()
 		resultItem.Image = ""
 		resultItem.Desc = utils.InterfaceToString(orderModel.Get("description"))
 

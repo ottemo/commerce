@@ -121,15 +121,15 @@ func restCMSPageGet(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
-	reqPageId, present := params.RequestURLParams["id"]
+	reqPageID, present := params.RequestURLParams["id"]
 	if !present {
 		return nil, env.ErrorNew("cms page id should be specified")
 	}
-	pageId := utils.InterfaceToString(reqPageId)
+	pageID := utils.InterfaceToString(reqPageID)
 
 	// operation
 	//----------
-	cmsPage, err := cms.LoadCMSPageById(pageId)
+	cmsPage, err := cms.LoadCMSPageByID(pageID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -163,7 +163,7 @@ func restCMSPageAdd(params *api.StructAPIHandlerParams) (interface{}, error) {
 		cmsPageModel.Set(attribute, value)
 	}
 
-	cmsPageModel.SetId("")
+	cmsPageModel.SetID("")
 	cmsPageModel.Save()
 
 	return cmsPageModel.ToHashMap(), nil
@@ -174,7 +174,7 @@ func restCMSPageUpdate(params *api.StructAPIHandlerParams) (interface{}, error) 
 
 	// check request params
 	//---------------------
-	pageId, present := params.RequestURLParams["id"]
+	pageID, present := params.RequestURLParams["id"]
 	if !present {
 		return nil, env.ErrorNew("cms page id should be specified")
 	}
@@ -191,7 +191,7 @@ func restCMSPageUpdate(params *api.StructAPIHandlerParams) (interface{}, error) 
 
 	// operation
 	//----------
-	cmsPageModel, err := cms.LoadCMSPageById(pageId)
+	cmsPageModel, err := cms.LoadCMSPageByID(pageID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -200,7 +200,7 @@ func restCMSPageUpdate(params *api.StructAPIHandlerParams) (interface{}, error) 
 		cmsPageModel.Set(attribute, value)
 	}
 
-	cmsPageModel.SetId(pageId)
+	cmsPageModel.SetID(pageID)
 	cmsPageModel.Save()
 
 	return cmsPageModel.ToHashMap(), nil
@@ -211,7 +211,7 @@ func restCMSPageDelete(params *api.StructAPIHandlerParams) (interface{}, error) 
 
 	// check request params
 	//---------------------
-	pageId, present := params.RequestURLParams["id"]
+	pageID, present := params.RequestURLParams["id"]
 	if !present {
 		return nil, env.ErrorNew("cms page id should be specified")
 	}
@@ -223,7 +223,7 @@ func restCMSPageDelete(params *api.StructAPIHandlerParams) (interface{}, error) 
 
 	// operation
 	//----------
-	cmsPageModel, err := cms.GetCMSPageModelAndSetId(pageId)
+	cmsPageModel, err := cms.GetCMSPageModelAndSetID(pageID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}

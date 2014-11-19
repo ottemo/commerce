@@ -126,7 +126,7 @@ type VisitorDetail struct {
 }
 
 type dbVisitorRow struct {
-	Id       string
+	ID       string
 	Day      time.Time
 	Visitors int
 	Cart     int

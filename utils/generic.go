@@ -235,7 +235,7 @@ func InterfaceToArray(value interface{}) []interface{} {
 		return typedValue
 
 	case string:
-		jsonArray, err := DecodeJsonToArray(typedValue)
+		jsonArray, err := DecodeJSONToArray(typedValue)
 		if err == nil {
 			return jsonArray
 		}
@@ -260,7 +260,7 @@ func InterfaceToMap(value interface{}) map[string]interface{} {
 		return typedValue
 
 	case string:
-		value, err := DecodeJsonToStringKeyMap(value)
+		value, err := DecodeJSONToStringKeyMap(value)
 		if err == nil {
 			return value
 		}
@@ -287,7 +287,7 @@ func InterfaceToString(value interface{}) string {
 	case string:
 		return value
 	default:
-		return EncodeToJsonString(value)
+		return EncodeToJSONString(value)
 	}
 }
 
@@ -497,7 +497,7 @@ func StringToType(value string, valueType string) (interface{}, error) {
 		return InterfaceToTime(value), nil
 
 	case IsAmongStr(valueType, "json"):
-		return DecodeJsonToStringKeyMap(value)
+		return DecodeJSONToStringKeyMap(value)
 	}
 
 	return nil, errors.New("unknown value type " + valueType)
@@ -527,7 +527,7 @@ func StringToInterface(value string) interface{} {
 		return result
 	}
 	if strings.HasPrefix(trimmedValue, "{") && strings.HasSuffix(trimmedValue, "}") {
-		if result, err := DecodeJsonToStringKeyMap(trimmedValue); err == nil {
+		if result, err := DecodeJSONToStringKeyMap(trimmedValue); err == nil {
 			return result
 		}
 	}

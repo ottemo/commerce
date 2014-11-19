@@ -14,7 +14,7 @@ type Session struct {
 }
 
 // returns current session id
-func (it *Session) GetId() string {
+func (it *Session) GetID() string {
 	return it.id
 }
 
@@ -35,7 +35,7 @@ func (it *Session) Set(key string, value interface{}) {
 func (it *Session) Close() error {
 	sessionsMutex.Lock()
 
-	delete(Sessions, it.GetId())
+	delete(Sessions, it.GetID())
 
 	sessionsMutex.Unlock()
 

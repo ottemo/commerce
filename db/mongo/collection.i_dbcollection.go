@@ -7,7 +7,7 @@ import (
 )
 
 // loads one record from DB by record _id
-func (it *MongoDBCollection) LoadById(id string) (map[string]interface{}, error) {
+func (it *MongoDBCollection) LoadByID(id string) (map[string]interface{}, error) {
 	result := make(map[string]interface{})
 
 	err := it.collection.FindId(id).One(&result)
@@ -106,7 +106,7 @@ func (it *MongoDBCollection) Delete() (int, error) {
 }
 
 // removes record from DB by is's id
-func (it *MongoDBCollection) DeleteById(id string) error {
+func (it *MongoDBCollection) DeleteByID(id string) error {
 	return it.collection.RemoveId(id)
 }
 
@@ -193,7 +193,7 @@ func (it *MongoDBCollection) SetLimit(Offset int, Limit int) error {
 	return nil
 }
 
-// limits column selection for Load() and LoadById()function
+// limits column selection for Load() and LoadByID()function
 func (it *MongoDBCollection) SetResultColumns(columns ...string) error {
 	for _, columnName := range columns {
 		it.ResultAttributes = []string{}

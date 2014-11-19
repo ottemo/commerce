@@ -16,13 +16,13 @@ const (
 
 // InterfaceCartItem represents interface to access business layer implementation of cart item object
 type InterfaceCartItem interface {
-	GetId() string
-	SetId(newId string) error
+	GetID() string
+	SetID(newID string) error
 
 	GetIdx() int
 	SetIdx(newIdx int) error
 
-	GetProductId() string
+	GetProductID() string
 	GetProduct() product.InterfaceProduct
 
 	GetQty() int
@@ -36,7 +36,7 @@ type InterfaceCartItem interface {
 
 // InterfaceCart represents interface to access business layer implementation of cart object
 type InterfaceCart interface {
-	AddItem(productId string, qty int, options map[string]interface{}) (InterfaceCartItem, error)
+	AddItem(productID string, qty int, options map[string]interface{}) (InterfaceCartItem, error)
 
 	RemoveItem(itemIdx int) error
 
@@ -45,8 +45,8 @@ type InterfaceCart interface {
 	GetItems() []InterfaceCartItem
 	GetSubtotal() float64
 
-	GetVisitorId() string
-	SetVisitorId(string) error
+	GetVisitorID() string
+	SetVisitorID(string) error
 
 	GetVisitor() visitor.InterfaceVisitor
 
@@ -55,7 +55,7 @@ type InterfaceCart interface {
 
 	IsActive() bool
 
-	MakeCartForVisitor(visitorId string) error
+	MakeCartForVisitor(visitorID string) error
 
 	SetCartInfo(infoAttribute string, infoValue interface{}) error
 	GetCartInfo() map[string]interface{}

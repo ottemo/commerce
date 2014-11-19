@@ -20,8 +20,8 @@ type DefaultVisitor struct {
 	id string
 
 	Email      string
-	FacebookId string
-	GoogleId   string
+	FacebookID string
+	GoogleID   string
 
 	FirstName string
 	LastName  string

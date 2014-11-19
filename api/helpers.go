@@ -11,8 +11,8 @@ import (
 )
 
 // returns session instance by id or nil
-func GetSessionById(sessionId string) InterfaceSession {
-	session, _ := session.GetSessionById(sessionId)
+func GetSessionByID(sessionID string) InterfaceSession {
+	session, _ := session.GetSessionByID(sessionID)
 	return session
 }
 

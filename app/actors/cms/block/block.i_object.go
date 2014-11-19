@@ -14,7 +14,7 @@ import (
 func (it *DefaultCMSBlock) Get(attribute string) interface{} {
 	switch strings.ToLower(attribute) {
 	case "_id", "id":
-		return it.GetId()
+		return it.GetID()
 	case "identifier":
 		return it.GetIdentifier()
 	case "content":
@@ -34,7 +34,7 @@ func (it *DefaultCMSBlock) Set(attribute string, value interface{}) error {
 
 	switch attribute {
 	case "_id", "id":
-		return it.SetId(utils.InterfaceToString(value))
+		return it.SetID(utils.InterfaceToString(value))
 	case "identifier":
 		return it.SetIdentifier(utils.InterfaceToString(value))
 	case "content":

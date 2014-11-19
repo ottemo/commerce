@@ -6,7 +6,7 @@ import (
 
 // interface for accessing private storage assigned to particular API request
 type InterfaceSession interface {
-	GetId() string
+	GetID() string
 
 	Get(key string) interface{}
 	Set(key string, value interface{})

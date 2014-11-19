@@ -133,8 +133,8 @@ func ArgsFindWorkingModel(args []string, neededInterfaces []string) (models.Inte
 	return nil, err
 }
 
-// ArgsFindIdKey looks for object identifier mention among command attributes
-func ArgsFindIdKey(args []string) string {
+// ArgsFindIDKey looks for object identifier mention among command attributes
+func ArgsFindIDKey(args []string) string {
 	namedArgs := ArgsGetAsNamed(args, false)
 	for _, checkingKey := range []string{"idKey", "id", "_id"} {
 		if argValue, present := namedArgs[checkingKey]; present {
@@ -235,7 +235,7 @@ func (it *ImpexImportCmdUpdate) Init(args []string, exchange map[string]interfac
 
 	it.model = workingModel
 	it.attributes = ArgsFindWorkingAttributes(args)
-	it.idKey = ArgsFindIdKey(args)
+	it.idKey = ArgsFindIDKey(args)
 
 	if it.model == nil {
 		return env.ErrorNew("INSERT command have no assigned model to work on")
@@ -261,11 +261,11 @@ func (it *ImpexImportCmdUpdate) Process(itemData map[string]interface{}, input i
 	modelAsObject := cmdModel.(models.InterfaceObject)
 	modelAsStorable := cmdModel.(models.InterfaceStorable)
 
-	if modelId, present := itemData[it.idKey]; present {
+	if modelID, present := itemData[it.idKey]; present {
 
 		// loading model by id
 		//---------------------
-		err = modelAsStorable.Load(utils.InterfaceToString(modelId))
+		err = modelAsStorable.Load(utils.InterfaceToString(modelID))
 		if err != nil {
 			return nil, env.ErrorDispatch(err)
 		}
@@ -301,7 +301,7 @@ func (it *ImpexImportCmdDelete) Init(args []string, exchange map[string]interfac
 	}
 
 	it.model = workingModel
-	it.idKey = ArgsFindIdKey(args)
+	it.idKey = ArgsFindIDKey(args)
 
 	if it.model == nil {
 		return env.ErrorNew("DELETE command have no assigned model to work on")
@@ -325,11 +325,11 @@ func (it *ImpexImportCmdDelete) Process(itemData map[string]interface{}, input i
 
 	modelAsStorable := cmdModel.(models.InterfaceStorable)
 
-	if modelId, present := itemData[it.idKey]; present {
+	if modelID, present := itemData[it.idKey]; present {
 
 		// setting id to model
 		//---------------------
-		err = modelAsStorable.SetId(utils.InterfaceToString(modelId))
+		err = modelAsStorable.SetID(utils.InterfaceToString(modelID))
 		if err != nil {
 			return nil, env.ErrorDispatch(err)
 		}
@@ -527,8 +527,8 @@ func (it *ImpexImportCmdMedia) Process(itemData map[string]interface{}, input in
 				mediaName = "media"
 
 				if object, ok := inputAsMedia.(models.InterfaceObject); ok {
-					if objectId := utils.InterfaceToString(object.Get("_id")); objectId != "" {
-						mediaName += "_" + objectId
+					if objectID := utils.InterfaceToString(object.Get("_id")); objectID != "" {
+						mediaName += "_" + objectID
 					}
 				}
 			}

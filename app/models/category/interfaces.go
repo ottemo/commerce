@@ -22,8 +22,8 @@ type InterfaceCategory interface {
 	GetProductsCollection() product.InterfaceProductCollection
 	GetProducts() []product.InterfaceProduct
 
-	AddProduct(productId string) error
-	RemoveProduct(productId string) error
+	AddProduct(productID string) error
+	RemoveProduct(productID string) error
 
 	models.InterfaceModel
 	models.InterfaceObject

@@ -23,7 +23,7 @@ func setupConfig() error {
 			return utils.InterfaceToInt(value), nil
 		})
 
-	lastIncrementId = utils.InterfaceToInt(config.GetValue(ConstConfigPathLastIncrementID))
+	lastIncrementID = utils.InterfaceToInt(config.GetValue(ConstConfigPathLastIncrementID))
 
 	return nil
 }

@@ -70,7 +70,7 @@ func (it *PayPalRest) Authorize(checkoutInstance checkout.InterfaceCheckout) err
 		"total":    fmt.Sprintf("%.2f", order.GetGrandTotal()),
 		"currency": "USD",
 
-		"description": "order id - " + order.GetId(),
+		"description": "order id - " + order.GetID(),
 	}
 
 	bodyTemplate := `{

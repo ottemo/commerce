@@ -33,9 +33,9 @@ func (it *DefaultOrder) GetItems() []order.InterfaceOrderItem {
 }
 
 // adds line item to current order, or returns error
-func (it *DefaultOrder) AddItem(productId string, qty int, productOptions map[string]interface{}) (order.InterfaceOrderItem, error) {
+func (it *DefaultOrder) AddItem(productID string, qty int, productOptions map[string]interface{}) (order.InterfaceOrderItem, error) {
 
-	productModel, err := product.LoadProductById(productId)
+	productModel, err := product.LoadProductByID(productID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -46,9 +46,9 @@ func (it *DefaultOrder) AddItem(productId string, qty int, productOptions map[st
 	}
 
 	newOrderItem := new(DefaultOrderItem)
-	newOrderItem.OrderId = it.GetId()
+	newOrderItem.OrderID = it.GetID()
 
-	err = newOrderItem.Set("product_id", productModel.GetId())
+	err = newOrderItem.Set("product_id", productModel.GetID())
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -109,7 +109,7 @@ func (it *DefaultOrder) RemoveItem(itemIdx int) error {
 			return env.ErrorDispatch(err)
 		}
 
-		err = orderItemsCollection.DeleteById(orderItem.GetId())
+		err = orderItemsCollection.DeleteByID(orderItem.GetID())
 		if err != nil {
 			return env.ErrorDispatch(err)
 		}
@@ -123,27 +123,27 @@ func (it *DefaultOrder) RemoveItem(itemIdx int) error {
 }
 
 // assigns new unique increment id to order
-func (it *DefaultOrder) NewIncrementId() error {
-	lastIncrementIdMutex.Lock()
+func (it *DefaultOrder) NewIncrementID() error {
+	lastIncrementIDMutex.Lock()
 
-	lastIncrementId += 1
-	it.IncrementId = fmt.Sprintf(ConstIncrementIDFormat, lastIncrementId)
+	lastIncrementID += 1
+	it.IncrementID = fmt.Sprintf(ConstIncrementIDFormat, lastIncrementID)
 
-	env.GetConfig().SetValue(ConstConfigPathLastIncrementID, lastIncrementId)
+	env.GetConfig().SetValue(ConstConfigPathLastIncrementID, lastIncrementID)
 
-	lastIncrementIdMutex.Unlock()
+	lastIncrementIDMutex.Unlock()
 
 	return nil
 }
 
 // returns increment id of order
-func (it *DefaultOrder) GetIncrementId() string {
-	return it.IncrementId
+func (it *DefaultOrder) GetIncrementID() string {
+	return it.IncrementID
 }
 
 // sets increment id to order
-func (it *DefaultOrder) SetIncrementId(incrementId string) error {
-	it.IncrementId = incrementId
+func (it *DefaultOrder) SetIncrementID(incrementID string) error {
+	it.IncrementID = incrementID
 
 	return nil
 }

@@ -36,14 +36,14 @@ func GetCategoryModel() (InterfaceCategory, error) {
 }
 
 // retrieves current InterfaceCategory model implementation and sets its ID to some value
-func GetCategoryModelAndSetId(categoryId string) (InterfaceCategory, error) {
+func GetCategoryModelAndSetID(categoryID string) (InterfaceCategory, error) {
 
 	categoryModel, err := GetCategoryModel()
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	err = categoryModel.SetId(categoryId)
+	err = categoryModel.SetID(categoryID)
 	if err != nil {
 		return categoryModel, env.ErrorDispatch(err)
 	}
@@ -52,14 +52,14 @@ func GetCategoryModelAndSetId(categoryId string) (InterfaceCategory, error) {
 }
 
 // loads category data into current InterfaceCategory model implementation
-func LoadCategoryById(categoryId string) (InterfaceCategory, error) {
+func LoadCategoryByID(categoryID string) (InterfaceCategory, error) {
 
 	categoryModel, err := GetCategoryModel()
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	err = categoryModel.Load(categoryId)
+	err = categoryModel.Load(categoryID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}

@@ -15,16 +15,16 @@ func (it *DefaultOrder) Get(attribute string) interface{} {
 		return it.id
 
 	case "increment_id":
-		return it.IncrementId
+		return it.IncrementID
 
 	case "status":
 		return it.Status
 
 	case "visitor_id":
-		return it.VisitorId
+		return it.VisitorID
 
 	case "cart_id":
-		return it.CartId
+		return it.CartID
 
 	case "shipping_address":
 		return it.ShippingAddress
@@ -81,19 +81,19 @@ func (it *DefaultOrder) Set(attribute string, value interface{}) error {
 
 	switch attribute {
 	case "_id", "id":
-		it.SetId(utils.InterfaceToString(value))
+		it.SetID(utils.InterfaceToString(value))
 
 	case "increment_id":
-		it.IncrementId = utils.InterfaceToString(value)
+		it.IncrementID = utils.InterfaceToString(value)
 
 	case "status":
 		it.Status = utils.InterfaceToString(value)
 
 	case "visitor_id":
-		it.VisitorId = utils.InterfaceToString(value)
+		it.VisitorID = utils.InterfaceToString(value)
 
 	case "cart_id":
-		it.CartId = utils.InterfaceToString(value)
+		it.CartID = utils.InterfaceToString(value)
 
 	case "customer_email":
 		it.CustomerEmail = utils.InterfaceToString(value)

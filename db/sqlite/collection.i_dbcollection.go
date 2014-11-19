@@ -12,7 +12,7 @@ import (
 )
 
 // loads record from DB by it's id
-func (it *SQLiteCollection) LoadById(id string) (map[string]interface{}, error) {
+func (it *SQLiteCollection) LoadByID(id string) (map[string]interface{}, error) {
 	var result map[string]interface{} = nil
 
 	if !ConstUseUUIDids {
@@ -221,14 +221,14 @@ func (it *SQLiteCollection) Save(item map[string]interface{}) (string, error) {
 	}
 
 	if !ConstUseUUIDids {
-		newIdInt64, err := connectionExecWLastInsertId(SQL, values...)
+		newIDInt64, err := connectionExecWLastInsertID(SQL, values...)
 		if err != nil {
 			return "", sqlError(SQL, err)
 		}
 
 		// auto-incremented _id back to string
-		newIdString := strconv.FormatInt(newIdInt64, 10)
-		item["_id"] = newIdString
+		newIDString := strconv.FormatInt(newIDInt64, 10)
+		item["_id"] = newIDString
 	} else {
 		err := connectionExec(SQL, values...)
 		if err != nil {
@@ -256,7 +256,7 @@ func (it *SQLiteCollection) Delete() (int, error) {
 }
 
 // removes record from DB by is's id
-func (it *SQLiteCollection) DeleteById(id string) error {
+func (it *SQLiteCollection) DeleteByID(id string) error {
 	SQL := "DELETE FROM " + it.Name + " WHERE _id = " + convertValueForSQL(id)
 
 	if ConstDebugSQL {
@@ -353,7 +353,7 @@ func (it *SQLiteCollection) ClearSort() error {
 	return nil
 }
 
-// limits column selection for Load() and LoadById()function
+// limits column selection for Load() and LoadByID()function
 func (it *SQLiteCollection) SetResultColumns(columns ...string) error {
 	for _, columnName := range columns {
 		if !it.HasColumn(columnName) {

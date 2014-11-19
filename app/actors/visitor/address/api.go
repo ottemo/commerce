@@ -39,11 +39,11 @@ func setupAPI() error {
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("visitor/address", "GET", "list/:visitorId", restListVisitorAddress)
+	err = api.GetRestService().RegisterAPI("visitor/address", "GET", "list/:visitorID", restListVisitorAddress)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("visitor/address", "POST", "list/:visitorId", restListVisitorAddress)
+	err = api.GetRestService().RegisterAPI("visitor/address", "POST", "list/:visitorID", restListVisitorAddress)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -73,7 +73,7 @@ func restCreateVisitorAddress(params *api.StructAPIHandlerParams) (interface{}, 
 
 	// check rights
 	if err := api.ValidateAdminRights(params); err != nil {
-		if reqData["visitor_id"] != visitor.GetCurrentVisitorId(params) {
+		if reqData["visitor_id"] != visitor.GetCurrentVisitorID(params) {
 			return nil, env.ErrorDispatch(err)
 		}
 	}
@@ -117,14 +117,14 @@ func restUpdateVisitorAddress(params *api.StructAPIHandlerParams) (interface{}, 
 		return nil, env.ErrorDispatch(err)
 	}
 
-	visitorAddressModel, err := visitor.LoadVisitorAddressById(addressID)
+	visitorAddressModel, err := visitor.LoadVisitorAddressByID(addressID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
 	// check rights
 	if err := api.ValidateAdminRights(params); err != nil {
-		if visitorAddressModel.GetVisitorId() != visitor.GetCurrentVisitorId(params) {
+		if visitorAddressModel.GetVisitorID() != visitor.GetCurrentVisitorID(params) {
 			return nil, env.ErrorDispatch(err)
 		}
 	}
@@ -157,14 +157,14 @@ func restDeleteVisitorAddress(params *api.StructAPIHandlerParams) (interface{}, 
 		return nil, env.ErrorNew("visitor address id was not specified")
 	}
 
-	visitorAddressModel, err := visitor.LoadVisitorAddressById(addressID)
+	visitorAddressModel, err := visitor.LoadVisitorAddressByID(addressID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
 	// check rights
 	if err := api.ValidateAdminRights(params); err != nil {
-		if visitorAddressModel.GetVisitorId() != visitor.GetCurrentVisitorId(params) {
+		if visitorAddressModel.GetVisitorID() != visitor.GetCurrentVisitorID(params) {
 			return nil, env.ErrorDispatch(err)
 		}
 	}
@@ -229,10 +229,10 @@ func restListVisitorAddress(params *api.StructAPIHandlerParams) (interface{}, er
 		reqData = make(map[string]interface{})
 	}
 
-	visitorID, isSpecifiedID := params.RequestURLParams["visitorId"]
+	visitorID, isSpecifiedID := params.RequestURLParams["visitorID"]
 	if !isSpecifiedID {
 
-		sessionVisitorID := visitor.GetCurrentVisitorId(params)
+		sessionVisitorID := visitor.GetCurrentVisitorID(params)
 		if sessionVisitorID == "" {
 			return nil, env.ErrorNew("you are not logined in")
 		}
@@ -241,7 +241,7 @@ func restListVisitorAddress(params *api.StructAPIHandlerParams) (interface{}, er
 
 	// check rights
 	if err := api.ValidateAdminRights(params); err != nil {
-		if visitorID != visitor.GetCurrentVisitorId(params) {
+		if visitorID != visitor.GetCurrentVisitorID(params) {
 			return nil, env.ErrorDispatch(err)
 		}
 	}
@@ -283,14 +283,14 @@ func restGetVisitorAddress(params *api.StructAPIHandlerParams) (interface{}, err
 		return nil, env.ErrorNew("visitor 'id' was not specified")
 	}
 
-	visitorAddressModel, err := visitor.LoadVisitorAddressById(visitorAddressID)
+	visitorAddressModel, err := visitor.LoadVisitorAddressByID(visitorAddressID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
 	// check rights
 	if err := api.ValidateAdminRights(params); err != nil {
-		if visitorAddressModel.GetVisitorId() != visitor.GetCurrentVisitorId(params) {
+		if visitorAddressModel.GetVisitorID() != visitor.GetCurrentVisitorID(params) {
 			return nil, env.ErrorDispatch(err)
 		}
 	}

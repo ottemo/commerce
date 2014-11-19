@@ -17,7 +17,7 @@ import (
 
 // GetReferrer returns a string when provided a URL
 func GetReferrer(url string) (string, error) {
-	excludeURLs := []string{app.GetFoundationUrl(""), app.GetDashboardUrl("")}
+	excludeURLs := []string{app.GetFoundationURL(""), app.GetDashboardURL("")}
 
 	r := regexp.MustCompile(`^(http|https):\/\/(.+)\/.*$`)
 	groups := r.FindStringSubmatch(url)
@@ -186,7 +186,7 @@ func DeleteExistingRowHistory(date time.Time, productID string) error {
 	salesHistoryCollection.AddFilter("created_at", "=", date)
 	dbSalesHist, _ := salesHistoryCollection.Load()
 	if len(dbSalesHist) > 0 {
-		err = salesHistoryCollection.DeleteById(utils.InterfaceToString(dbSalesHist[0]["_id"]))
+		err = salesHistoryCollection.DeleteByID(utils.InterfaceToString(dbSalesHist[0]["_id"]))
 		if err != nil {
 			return env.ErrorDispatch(err)
 		}
@@ -455,7 +455,7 @@ func GetTodayVisitorsData() error {
 		dbRecord, _ := visitorInfoCollection.Load()
 
 		if len(dbRecord) > 0 {
-			visitorsInfoToday.Id = utils.InterfaceToString(dbRecord[0]["_id"])
+			visitorsInfoToday.ID = utils.InterfaceToString(dbRecord[0]["_id"])
 			visitorsInfoToday.Day = utils.InterfaceToTime(dbRecord[0]["day"])
 			visitorsInfoToday.Visitors = utils.InterfaceToInt(dbRecord[0]["visitors"])
 			visitorsInfoToday.Cart = utils.InterfaceToInt(dbRecord[0]["cart"])
@@ -468,7 +468,7 @@ func GetTodayVisitorsData() error {
 	}
 
 	visitorsInfoToday = new(dbVisitorRow)
-	visitorsInfoToday.Id = ""
+	visitorsInfoToday.ID = ""
 	visitorsInfoToday.Day = today
 	visitorsInfoToday.Details = make(map[string]*VisitorDetail)
 
@@ -492,7 +492,7 @@ func GetYesterdayVisitorsData() error {
 		dbRecord, _ := visitorInfoCollection.Load()
 
 		if len(dbRecord) > 0 {
-			visitorsInfoYesterday.Id = utils.InterfaceToString(dbRecord[0]["_id"])
+			visitorsInfoYesterday.ID = utils.InterfaceToString(dbRecord[0]["_id"])
 			visitorsInfoYesterday.Day = utils.InterfaceToTime(dbRecord[0]["day"])
 			visitorsInfoYesterday.Visitors = utils.InterfaceToInt(dbRecord[0]["visitors"])
 			visitorsInfoYesterday.Cart = utils.InterfaceToInt(dbRecord[0]["cart"])
@@ -505,7 +505,7 @@ func GetYesterdayVisitorsData() error {
 	}
 
 	visitorsInfoYesterday = new(dbVisitorRow)
-	visitorsInfoYesterday.Id = ""
+	visitorsInfoYesterday.ID = ""
 	visitorsInfoYesterday.Day = yesterday
 	visitorsInfoYesterday.Details = make(map[string]*VisitorDetail)
 
@@ -517,8 +517,8 @@ func SaveVisitorData() error {
 	visitorInfoCollection, err := db.GetCollection(ConstCollectionNameRTSVisitors)
 	if err == nil {
 		visitorInfoRow := make(map[string]interface{})
-		if "" != visitorsInfoToday.Id {
-			visitorInfoRow["_id"] = visitorsInfoToday.Id
+		if "" != visitorsInfoToday.ID {
+			visitorInfoRow["_id"] = visitorsInfoToday.ID
 		}
 
 		visitorInfoRow["day"] = visitorsInfoToday.Day

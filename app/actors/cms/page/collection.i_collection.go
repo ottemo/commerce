@@ -26,7 +26,7 @@ func (it *DefaultCMSPageCollection) List() ([]models.StructListItem, error) {
 		// retrieving minimal data needed for list
 		resultItem := new(models.StructListItem)
 
-		resultItem.Id = cmsPageModel.GetId()
+		resultItem.ID = cmsPageModel.GetID()
 		resultItem.Name = cmsPageModel.GetIdentifier()
 		resultItem.Image = ""
 		resultItem.Desc = cmsPageModel.GetTitle()

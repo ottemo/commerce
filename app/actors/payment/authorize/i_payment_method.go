@@ -85,7 +85,7 @@ func (it *AuthorizeNetDPM) Authorize(orderInstance order.InterfaceOrder, payment
 		"x_zip":        billingAddress.GetZipCode(),
 		"x_country":    billingAddress.GetCountry(),
 		"x_phone":      billingAddress.GetPhone(),
-		"x_cust_id":    billingAddress.GetVisitorId(),
+		"x_cust_id":    billingAddress.GetVisitorID(),
 		"x_email":      utils.InterfaceToString(orderInstance.Get("customer_email")),
 
 		"x_ship_to_first_name": shippingAddress.GetFirstName(),
@@ -100,7 +100,7 @@ func (it *AuthorizeNetDPM) Authorize(orderInstance order.InterfaceOrder, payment
 		"x_exp_date":         "$CC_MONTH/$CC_YEAR",
 		"x_card_num":         "$CC_NUM",
 		"x_duplicate_window": "30",
-		"x_session":          utils.InterfaceToString(paymentInfo["sessionId"]),
+		"x_session":          utils.InterfaceToString(paymentInfo["sessionID"]),
 	}
 
 	// generating post form
@@ -116,7 +116,7 @@ func (it *AuthorizeNetDPM) Authorize(orderInstance order.InterfaceOrder, payment
 
 	env.Log("authorizenet.log", env.ConstLogPrefixInfo, "NEW TRANSACTION: "+
 		"Visitor ID - "+utils.InterfaceToString(orderInstance.Get("visitor_id"))+", "+
-		"Order ID - "+utils.InterfaceToString(orderInstance.GetId()))
+		"Order ID - "+utils.InterfaceToString(orderInstance.GetID()))
 
 	return api.StructRestRedirect{Result: htmlText, Location: utils.InterfaceToString(env.ConfigGetValue(app.ConstConfigPathFoundationURL)) + "authorizenet/relay"}, nil
 }

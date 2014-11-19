@@ -171,9 +171,9 @@ func (it *DefaultProduct) GetRelatedProductIds() []string {
 	var result []string
 
 	for _, productID := range it.RelatedProductIds {
-		productModel, err := product.LoadProductById(productID)
+		productModel, err := product.LoadProductByID(productID)
 		if err == nil {
-			result = append(result, productModel.GetId())
+			result = append(result, productModel.GetID())
 		}
 	}
 
@@ -190,7 +190,7 @@ func (it *DefaultProduct) GetRelatedProducts() []product.InterfaceProduct {
 			continue
 		}
 
-		productModel, err := product.LoadProductById(productID)
+		productModel, err := product.LoadProductByID(productID)
 		if err == nil {
 			result = append(result, productModel)
 		}

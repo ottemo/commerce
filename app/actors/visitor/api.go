@@ -189,7 +189,7 @@ func restUpdateVisitor(params *api.StructAPIHandlerParams) (interface{}, error) 
 	}
 
 	if err := api.ValidateAdminRights(params); err != nil {
-		if visitor.GetCurrentVisitorId(params) != visitorID {
+		if visitor.GetCurrentVisitorID(params) != visitorID {
 			return nil, env.ErrorDispatch(err)
 		}
 		if _, present := reqData["is_admin"]; present {
@@ -199,7 +199,7 @@ func restUpdateVisitor(params *api.StructAPIHandlerParams) (interface{}, error) 
 
 	// update operation
 	//-----------------
-	visitorModel, err := visitor.LoadVisitorById(visitorID)
+	visitorModel, err := visitor.LoadVisitorByID(visitorID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -236,7 +236,7 @@ func restDeleteVisitor(params *api.StructAPIHandlerParams) (interface{}, error) 
 
 	// delete operation
 	//-----------------
-	visitorModel, err := visitor.GetVisitorModelAndSetId(visitorID)
+	visitorModel, err := visitor.GetVisitorModelAndSetID(visitorID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -266,7 +266,7 @@ func restGetVisitor(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// get operation
 	//--------------
-	visitorModel, err := visitor.LoadVisitorById(visitorID)
+	visitorModel, err := visitor.LoadVisitorByID(visitorID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -515,7 +515,7 @@ func restValidate(params *api.StructAPIHandlerParams) (interface{}, error) {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	return api.StructRestRedirect{Result: "ok", Location: app.GetStorefrontUrl("login")}, nil
+	return api.StructRestRedirect{Result: "ok", Location: app.GetStorefrontURL("login")}, nil
 }
 
 // WEB REST API used to invalidate customer e-mail
@@ -586,14 +586,14 @@ func restInfo(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// visitor info
 	//--------------
-	visitorModel, err := visitor.LoadVisitorById(visitorID)
+	visitorModel, err := visitor.LoadVisitorByID(visitorID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
 	result := visitorModel.ToHashMap()
-	result["facebook_id"] = visitorModel.GetFacebookId()
-	result["google_id"] = visitorModel.GetGoogleId()
+	result["facebook_id"] = visitorModel.GetFacebookID()
+	result["google_id"] = visitorModel.GetGoogleID()
 
 	return result, nil
 }
@@ -655,7 +655,7 @@ func restLogin(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// api session updates
 	if visitorModel.IsValidated() {
-		params.Session.Set(visitor.ConstSessionKeyVisitorID, visitorModel.GetId())
+		params.Session.Set(visitor.ConstSessionKeyVisitorID, visitorModel.GetID())
 	} else {
 		return nil, env.ErrorNew("visitor is not validated, please check " + visitorModel.GetEmail() + " for a verify link we sent you")
 	}
@@ -737,7 +737,7 @@ func restLoginFacebook(params *api.StructAPIHandlerParams) (interface{}, error) 
 	}
 
 	// trying to load visitor by facebook_id
-	err = visitorModel.LoadByFacebookId(reqData["user_id"].(string))
+	err = visitorModel.LoadByFacebookID(reqData["user_id"].(string))
 	if err != nil && strings.Contains(err.Error(), "not found") {
 
 		// there is no such facebook_id in DB, trying to find by e-mail
@@ -770,7 +770,7 @@ func restLoginFacebook(params *api.StructAPIHandlerParams) (interface{}, error) 
 	}
 
 	// api session updates
-	params.Session.Set(visitor.ConstSessionKeyVisitorID, visitorModel.GetId())
+	params.Session.Set(visitor.ConstSessionKeyVisitorID, visitorModel.GetID())
 
 	if visitorModel.IsAdmin() {
 		params.Session.Set(api.ConstSessionKeyAdminRights, true)
@@ -845,7 +845,7 @@ func restLoginGoogle(params *api.StructAPIHandlerParams) (interface{}, error) {
 	}
 
 	// trying to load visitor by google_id
-	err = visitorModel.LoadByGoogleId(jsonMap["email"].(string))
+	err = visitorModel.LoadByGoogleID(jsonMap["email"].(string))
 	if err != nil && strings.Contains(err.Error(), "not found") {
 
 		// there is no such google_id in DB, trying to find by e-mail
@@ -880,7 +880,7 @@ func restLoginGoogle(params *api.StructAPIHandlerParams) (interface{}, error) {
 	}
 
 	// api session updates
-	params.Session.Set(visitor.ConstSessionKeyVisitorID, visitorModel.GetId())
+	params.Session.Set(visitor.ConstSessionKeyVisitorID, visitorModel.GetID())
 
 	if visitorModel.IsAdmin() {
 		params.Session.Set(api.ConstSessionKeyAdminRights, true)
@@ -891,12 +891,12 @@ func restLoginGoogle(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 // WEB REST API function used to get visitor order details information
 func restVisitorOrderDetails(params *api.StructAPIHandlerParams) (interface{}, error) {
-	visitorID := visitor.GetCurrentVisitorId(params)
+	visitorID := visitor.GetCurrentVisitorID(params)
 	if visitorID == "" {
 		return "you are not logined in", nil
 	}
 
-	orderModel, err := order.LoadOrderById(params.RequestURLParams["id"])
+	orderModel, err := order.LoadOrderByID(params.RequestURLParams["id"])
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -923,7 +923,7 @@ func restListVisitorOrders(params *api.StructAPIHandlerParams) (interface{}, err
 
 	// list operation
 	//---------------
-	visitorID := visitor.GetCurrentVisitorId(params)
+	visitorID := visitor.GetCurrentVisitorID(params)
 	if visitorID == "" {
 		return "you are not logined in", nil
 	}
@@ -973,7 +973,7 @@ func restVisitorSendMail(params *api.StructAPIHandlerParams) (interface{}, error
 	visitorIDs := utils.InterfaceToArray(reqData["visitor_ids"])
 
 	for _, visitorID := range visitorIDs {
-		visitorModel, err := visitor.LoadVisitorById(utils.InterfaceToString(visitorID))
+		visitorModel, err := visitor.LoadVisitorByID(utils.InterfaceToString(visitorID))
 		if err != nil {
 			return nil, env.ErrorDispatch(err)
 		}

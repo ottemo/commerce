@@ -36,14 +36,14 @@ func GetCMSPageModel() (InterfaceCMSPage, error) {
 }
 
 // retrieves current InterfaceCMSPage model implementation and sets its ID to some value
-func GetCMSPageModelAndSetId(cmsPageId string) (InterfaceCMSPage, error) {
+func GetCMSPageModelAndSetID(cmsPageID string) (InterfaceCMSPage, error) {
 
 	cmsPageModel, err := GetCMSPageModel()
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	err = cmsPageModel.SetId(cmsPageId)
+	err = cmsPageModel.SetID(cmsPageID)
 	if err != nil {
 		return cmsPageModel, env.ErrorDispatch(err)
 	}
@@ -52,14 +52,14 @@ func GetCMSPageModelAndSetId(cmsPageId string) (InterfaceCMSPage, error) {
 }
 
 // loads cmsPage data into current InterfaceCMSPage model implementation
-func LoadCMSPageById(cmsPageId string) (InterfaceCMSPage, error) {
+func LoadCMSPageByID(cmsPageID string) (InterfaceCMSPage, error) {
 
 	cmsPageModel, err := GetCMSPageModel()
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	err = cmsPageModel.Load(cmsPageId)
+	err = cmsPageModel.Load(cmsPageID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -101,14 +101,14 @@ func GetCMSBlockModel() (InterfaceCMSBlock, error) {
 }
 
 // retrieves current InterfaceCMSBlock model implementation and sets its ID to some value
-func GetCMSBlockModelAndSetId(csmBlockId string) (InterfaceCMSBlock, error) {
+func GetCMSBlockModelAndSetID(csmBlockID string) (InterfaceCMSBlock, error) {
 
 	csmBlockModel, err := GetCMSBlockModel()
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	err = csmBlockModel.SetId(csmBlockId)
+	err = csmBlockModel.SetID(csmBlockID)
 	if err != nil {
 		return csmBlockModel, env.ErrorDispatch(err)
 	}
@@ -117,14 +117,14 @@ func GetCMSBlockModelAndSetId(csmBlockId string) (InterfaceCMSBlock, error) {
 }
 
 // loads csmBlock data into current InterfaceCMSBlock model implementation
-func LoadCMSBlockById(csmBlockId string) (InterfaceCMSBlock, error) {
+func LoadCMSBlockByID(csmBlockID string) (InterfaceCMSBlock, error) {
 
 	csmBlockModel, err := GetCMSBlockModel()
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	err = csmBlockModel.Load(csmBlockId)
+	err = csmBlockModel.Load(csmBlockID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}

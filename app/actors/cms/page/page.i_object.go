@@ -14,7 +14,7 @@ import (
 func (it *DefaultCMSPage) Get(attribute string) interface{} {
 	switch strings.ToLower(attribute) {
 	case "_id", "id":
-		return it.GetId()
+		return it.GetID()
 	case "url":
 		return it.GetURL()
 	case "identifier":
@@ -42,7 +42,7 @@ func (it *DefaultCMSPage) Set(attribute string, value interface{}) error {
 
 	switch attribute {
 	case "_id", "id":
-		return it.SetId(utils.InterfaceToString(value))
+		return it.SetID(utils.InterfaceToString(value))
 	case "url":
 		return it.SetURL(utils.InterfaceToString(value))
 	case "identifier":
@@ -83,7 +83,7 @@ func (it *DefaultCMSPage) ToHashMap() map[string]interface{} {
 
 	result := make(map[string]interface{})
 
-	result["_id"] = it.GetId()
+	result["_id"] = it.GetID()
 	result["url"] = it.Get("url")
 	result["identifier"] = it.Get("identifier")
 	result["title"] = it.Get("title")

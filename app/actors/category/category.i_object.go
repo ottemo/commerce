@@ -15,15 +15,15 @@ import (
 
 // updates path attribute of model
 func (it *DefaultCategory) updatePath() {
-	if it.GetId() == "" {
+	if it.GetID() == "" {
 		it.Path = ""
 	} else if it.Parent != nil {
 		parentPath, ok := it.Parent.Get("path").(string)
 		if ok {
-			it.Path = parentPath + "/" + it.GetId()
+			it.Path = parentPath + "/" + it.GetID()
 		}
 	} else {
-		it.Path = "/" + it.GetId()
+		it.Path = "/" + it.GetID()
 	}
 }
 
@@ -47,7 +47,7 @@ func (it *DefaultCategory) Get(attribute string) interface{} {
 
 	case "parent_id":
 		if it.Parent != nil {
-			return it.Parent.GetId()
+			return it.Parent.GetID()
 		} else {
 			return ""
 		}
@@ -96,10 +96,10 @@ func (it *DefaultCategory) Set(attribute string, value interface{}) error {
 					return env.ErrorDispatch(err)
 				}
 
-				selfId := it.GetId()
-				if selfId != "" {
+				selfID := it.GetID()
+				if selfID != "" {
 					parentPath, ok := categoryModel.Get("path").(string)
-					if categoryModel.GetId() != selfId && ok && !strings.Contains(parentPath, selfId) {
+					if categoryModel.GetID() != selfID && ok && !strings.Contains(parentPath, selfID) {
 						it.Parent = categoryModel
 					} else {
 						return env.ErrorNew("category can't have sub-category or itself as parent")
@@ -132,21 +132,21 @@ func (it *DefaultCategory) Set(attribute string, value interface{}) error {
 
 		case []interface{}:
 			for _, listItem := range typedValue {
-				productId, ok := listItem.(string)
+				productID, ok := listItem.(string)
 				if ok {
-					productModel, err := product.LoadProductById(productId)
+					productModel, err := product.LoadProductByID(productID)
 					if err != nil {
 						return env.ErrorDispatch(err)
 					}
 
-					it.ProductIds = append(it.ProductIds, productModel.GetId())
+					it.ProductIds = append(it.ProductIds, productModel.GetID())
 				}
 			}
 
 		case []product.InterfaceProduct:
 			it.ProductIds = make([]string, 0)
 			for _, productItem := range typedValue {
-				it.ProductIds = append(it.ProductIds, productItem.GetId())
+				it.ProductIds = append(it.ProductIds, productItem.GetID())
 			}
 
 		default:

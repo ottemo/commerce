@@ -36,7 +36,7 @@ func (it *DefaultProductCollection) List() ([]models.StructListItem, error) {
 			return result, env.ErrorDispatch(err)
 		}
 
-		resultItem.Id = productModel.GetId()
+		resultItem.ID = productModel.GetID()
 		resultItem.Name = "[" + productModel.GetSku() + "] " + productModel.GetName()
 		resultItem.Image = ""
 		resultItem.Desc = productModel.GetShortDescription()

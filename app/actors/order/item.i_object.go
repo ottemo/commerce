@@ -21,17 +21,17 @@ func (it *DefaultOrderItem) Get(attribute string) interface{} {
 		return it.idx
 
 	case "order":
-		orderInstance, err := order.LoadOrderById(it.OrderId)
+		orderInstance, err := order.LoadOrderByID(it.OrderID)
 		if err == nil {
 			return orderInstance
 		}
 		return nil
 
 	case "order_id":
-		return it.OrderId
+		return it.OrderID
 
 	case "product_id":
-		return it.ProductId
+		return it.ProductID
 
 	case "qty":
 		return it.Qty
@@ -70,10 +70,10 @@ func (it *DefaultOrderItem) Set(attribute string, value interface{}) error {
 		it.idx = utils.InterfaceToInt(value)
 
 	case "order_id":
-		it.OrderId = utils.InterfaceToString(value)
+		it.OrderID = utils.InterfaceToString(value)
 
 	case "product_id":
-		it.ProductId = utils.InterfaceToString(value)
+		it.ProductID = utils.InterfaceToString(value)
 
 	case "qty":
 		it.Qty = utils.InterfaceToInt(value)

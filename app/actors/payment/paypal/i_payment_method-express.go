@@ -57,10 +57,10 @@ func (it *PayPalExpress) Authorize(orderInstance order.InterfaceOrder, paymentIn
 	itemAmount := fmt.Sprintf("%.2f", grandTotal-shippingPrice)
 
 	description := "Purchase%20for%20%24" + fmt.Sprintf("%.2f", grandTotal)
-	custom := orderInstance.GetId()
+	custom := orderInstance.GetID()
 
-	cancelURL := app.GetFoundationUrl("paypal/cancel")
-	returnURL := app.GetFoundationUrl("paypal/success")
+	cancelURL := app.GetFoundationURL("paypal/cancel")
+	returnURL := app.GetFoundationURL("paypal/success")
 
 	// making NVP request
 	//-------------------
@@ -111,12 +111,12 @@ func (it *PayPalExpress) Authorize(orderInstance order.InterfaceOrder, paymentIn
 		}
 	}
 	waitingTokensMutex.Lock()
-	waitingTokens[responseValues.Get("TOKEN")] = utils.InterfaceToString(paymentInfo["sessionId"])
+	waitingTokens[responseValues.Get("TOKEN")] = utils.InterfaceToString(paymentInfo["sessionID"])
 	waitingTokensMutex.Unlock()
 
 	env.Log("paypal.log", env.ConstLogPrefixInfo, "NEW TRANSACTION: "+
 		"Visitor ID - "+utils.InterfaceToString(orderInstance.Get("visitor_id"))+", "+
-		"Order ID - "+utils.InterfaceToString(orderInstance.GetId())+", "+
+		"Order ID - "+utils.InterfaceToString(orderInstance.GetID())+", "+
 		"TOKEN - "+utils.InterfaceToString(responseValues.Get("TOKEN")))
 
 	// redirecting user to PayPal server for following checkout
