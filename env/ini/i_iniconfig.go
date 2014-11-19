@@ -57,11 +57,10 @@ func (it *DefaultIniConfig) GetValue(valueName string, defaultValue string) stri
 		it.keysToStore[valueName] = true
 
 		return value
-	} else {
-		it.iniFileValues[ConstIniGlobalSection][valueName] = defaultValue
-
-		return defaultValue
 	}
+	it.iniFileValues[ConstIniGlobalSection][valueName] = defaultValue
+
+	return defaultValue
 }
 
 // SetWorkingSection changes working ini section to specified

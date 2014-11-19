@@ -40,7 +40,6 @@ func RegisterMediaStorage(newEngine InterfaceMediaStorage) error {
 func GetMediaStorage() (InterfaceMediaStorage, error) {
 	if currentMediaStorage != nil {
 		return currentMediaStorage, nil
-	} else {
-		return nil, env.ErrorNew("no registered media storage")
 	}
+	return nil, env.ErrorNew("no registered media storage")
 }

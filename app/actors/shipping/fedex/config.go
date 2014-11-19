@@ -50,9 +50,8 @@ func setupConfig() error {
 		}, func(value interface{}) (interface{}, error) {
 			if utils.CheckIsBlank(value) {
 				return nil, env.ErrorNew("can't be blank")
-			} else {
-				return value, nil
 			}
+			return value, nil
 		})
 
 		config.RegisterItem(env.StructConfigItem{
@@ -173,9 +172,8 @@ func setupConfig() error {
 			stringValue := utils.InterfaceToString(value)
 			if _, present := ConstShippingDropoff[stringValue]; !present {
 				return nil, env.ErrorNew("wrong value")
-			} else {
-				return value, nil
 			}
+			return value, nil
 		})
 
 		if err != nil {
@@ -195,9 +193,8 @@ func setupConfig() error {
 			stringValue := utils.InterfaceToString(value)
 			if _, present := ConstShippingPackaging[stringValue]; !present {
 				return nil, env.ErrorNew("wrong value")
-			} else {
-				return value, nil
 			}
+			return value, nil
 		})
 
 		if err != nil {

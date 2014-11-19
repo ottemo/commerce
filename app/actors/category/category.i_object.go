@@ -41,9 +41,8 @@ func (it *DefaultCategory) Get(attribute string) interface{} {
 	case "parent_id":
 		if it.Parent != nil {
 			return it.Parent.GetID()
-		} else {
-			return ""
 		}
+		return ""
 
 	case "parent":
 		return it.Parent

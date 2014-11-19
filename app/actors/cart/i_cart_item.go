@@ -80,9 +80,9 @@ func (it *DefaultCartItem) Remove() error {
 
 	if it.Cart != nil {
 		return it.Cart.RemoveItem(it.idx)
-	} else {
-		return env.ErrorNew("item is not bound to cart")
 	}
+
+	return env.ErrorNew("item is not bound to cart")
 }
 
 // GetOptions returns all item options or nil

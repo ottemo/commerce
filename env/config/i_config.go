@@ -86,9 +86,8 @@ func (it *DefaultConfig) UnregisterItem(Path string) error {
 func (it *DefaultConfig) GetValue(Path string) interface{} {
 	if value, present := it.configValues[Path]; present {
 		return value
-	} else {
-		return nil
 	}
+	return nil
 }
 
 // SetValue updates config item with new value, returns error if not possible
@@ -99,11 +98,12 @@ func (it *DefaultConfig) SetValue(Path string, Value interface{}) error {
 		//--------------------------
 		if validator, present := it.configValidators[Path]; present {
 
-			if newVal, err := validator(Value); err != nil {
+			newVal, err := validator(Value)
+			if err != nil {
 				return env.ErrorDispatch(err)
-			} else {
-				it.configValues[Path] = newVal
 			}
+
+			it.configValues[Path] = newVal
 
 		} else {
 			it.configValues[Path] = Value

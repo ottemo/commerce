@@ -50,9 +50,8 @@ func setupConfig() error {
 		}, func(value interface{}) (interface{}, error) {
 			if utils.CheckIsBlank(value) {
 				return nil, env.ErrorNew("can't be blank")
-			} else {
-				return value, nil
 			}
+			return value, nil
 		})
 
 		if err != nil {

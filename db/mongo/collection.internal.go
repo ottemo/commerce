@@ -204,9 +204,9 @@ func (it *DBCollection) makeSelector() bson.D {
 
 	if len(topLevelGroup.FilterValues) > 0 {
 		return bson.D{bson.DocElem{Name: "$and", Value: topLevelGroup.FilterValues}}
-	} else {
-		return bson.D{}
 	}
+
+	return bson.D{}
 }
 
 // returns bson.Query struct with applied Sort, Offset, Limit parameters, and executed subqueries

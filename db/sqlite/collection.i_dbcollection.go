@@ -459,9 +459,8 @@ func (it *DBCollection) AddColumn(columnName string, columnType string, indexed 
 	if it.HasColumn(columnName) {
 		if currentType := it.GetColumnType(columnName); currentType != columnType {
 			return env.ErrorNew("column '" + columnName + "' already exists with type '" + currentType + "' for '" + it.Name + "' collection. Requested type '" + columnType + "'")
-		} else {
-			return nil
 		}
+		return nil
 	}
 
 	// updating physical table

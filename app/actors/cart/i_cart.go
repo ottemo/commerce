@@ -90,15 +90,16 @@ func (it *DefaultCart) checkOptions(productOptions map[string]interface{}, cartI
 				if value, ok := productOptionValue["required"].(bool); ok && value {
 
 					//checking cart item option for required option existence
-					if itemOptionValue, present := cartItemOptions[productOption]; !present {
+					itemOptionValue, present := cartItemOptions[productOption]
+					if !present {
 						return env.ErrorNew(productOption + " was not specified")
-					} else {
-						// for multi value options additional check
-						switch typedValue := itemOptionValue.(type) {
-						case []interface{}:
-							if len(typedValue) == 0 {
-								return env.ErrorNew(productOption + " was not specified")
-							}
+					}
+
+					// for multi value options additional check
+					switch typedValue := itemOptionValue.(type) {
+					case []interface{}:
+						if len(typedValue) == 0 {
+							return env.ErrorNew(productOption + " was not specified")
 						}
 					}
 
@@ -180,9 +181,8 @@ func (it *DefaultCart) RemoveItem(itemIdx int) error {
 		it.cartChanged()
 
 		return nil
-	} else {
-		return env.ErrorNew("can't find index " + strconv.Itoa(itemIdx))
 	}
+	return env.ErrorNew("can't find index " + strconv.Itoa(itemIdx))
 }
 
 // SetQty sets new qty for particular item in cart
@@ -198,9 +198,8 @@ func (it *DefaultCart) SetQty(itemIdx int, qty int) error {
 		it.cartChanged()
 
 		return nil
-	} else {
-		return env.ErrorNew("there is no item with idx=" + strconv.Itoa(itemIdx))
 	}
+	return env.ErrorNew("there is no item with idx=" + strconv.Itoa(itemIdx))
 }
 
 // GetSubtotal returns subtotal for cart items

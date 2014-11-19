@@ -119,9 +119,8 @@ func GetDBType(ColumnType string) (string, error) {
 	case ColumnType == db.ConstDBBasetypeID:
 		if ConstUseUUIDids {
 			return "TEXT", nil
-		} else {
-			return "INTEGER", nil
 		}
+		return "INTEGER", nil
 	case ColumnType == "int" || ColumnType == "integer":
 		return "INTEGER", nil
 	case ColumnType == "real" || ColumnType == "float":

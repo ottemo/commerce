@@ -34,9 +34,8 @@ func GetRequestContentAsMap(params *StructAPIHandlerParams) (map[string]interfac
 	if !ok {
 		if params.Request.Method == "POST" {
 			return nil, env.ErrorNew("unexpected request content")
-		} else {
-			result = make(map[string]interface{})
 		}
+		result = make(map[string]interface{})
 	}
 
 	return result, nil

@@ -98,9 +98,8 @@ func restListCategories(params *api.StructAPIHandlerParams) (interface{}, error)
 	if !ok {
 		if params.Request.Method == "POST" {
 			return nil, env.ErrorNew("unexpected request content")
-		} else {
-			reqData = make(map[string]interface{})
 		}
+		reqData = make(map[string]interface{})
 	}
 
 	// operation start

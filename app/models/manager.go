@@ -8,9 +8,9 @@ import (
 func RegisterModel(ModelName string, Model InterfaceModel) error {
 	if _, present := declaredModels[ModelName]; present {
 		return env.ErrorNew("model with name '" + ModelName + "' already registered")
-	} else {
-		declaredModels[ModelName] = Model
 	}
+	declaredModels[ModelName] = Model
+
 	return nil
 }
 
@@ -28,9 +28,8 @@ func UnRegisterModel(ModelName string) error {
 func GetModel(ModelName string) (InterfaceModel, error) {
 	if model, present := declaredModels[ModelName]; present {
 		return model.New()
-	} else {
-		return nil, env.ErrorNew("can't find module with name '" + ModelName + "'")
 	}
+	return nil, env.ErrorNew("can't find module with name '" + ModelName + "'")
 }
 
 // GetDeclaredModels returns all currently registered in system models

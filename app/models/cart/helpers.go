@@ -84,22 +84,20 @@ func GetCurrentCart(params *api.StructAPIHandlerParams) (InterfaceCart, error) {
 
 		return currentCart, nil
 
-	} else {
+	}
 
-		// no cart id was in session, trying to get cart for visitor
-		visitorID := params.Session.Get(visitor.ConstSessionKeyVisitorID)
-		if visitorID != nil {
-			currentCart, err := GetCartForVisitor(utils.InterfaceToString(visitorID))
-			if err != nil {
-				return nil, env.ErrorDispatch(err)
-			}
-
-			params.Session.Set(ConstSessionKeyCurrentCart, currentCart.GetID())
-
-			return currentCart, nil
-		} else {
-			return nil, env.ErrorNew("you are not registered")
+	// no cart id was in session, trying to get cart for visitor
+	visitorID := params.Session.Get(visitor.ConstSessionKeyVisitorID)
+	if visitorID != nil {
+		currentCart, err := GetCartForVisitor(utils.InterfaceToString(visitorID))
+		if err != nil {
+			return nil, env.ErrorDispatch(err)
 		}
 
+		params.Session.Set(ConstSessionKeyCurrentCart, currentCart.GetID())
+
+		return currentCart, nil
 	}
+
+	return nil, env.ErrorNew("you are not registered")
 }

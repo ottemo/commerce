@@ -62,9 +62,8 @@ func StartSession(request *http.Request, responseWriter http.ResponseWriter) (*S
 func GetSessionByID(sessionID string) (*Session, error) {
 	if session, ok := Sessions[sessionID]; ok == true {
 		return session, nil
-	} else {
-		return nil, env.ErrorNew("session not found")
 	}
+	return nil, env.ErrorNew("session not found")
 }
 
 // NewSession initializes new session

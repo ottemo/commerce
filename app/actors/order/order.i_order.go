@@ -117,9 +117,9 @@ func (it *DefaultOrder) RemoveItem(itemIdx int) error {
 		delete(it.Items, itemIdx)
 
 		return nil
-	} else {
-		return env.ErrorNew("can't find index " + utils.InterfaceToString(itemIdx))
 	}
+
+	return env.ErrorNew("can't find index " + utils.InterfaceToString(itemIdx))
 }
 
 // NewIncrementID assigns new unique increment id to order

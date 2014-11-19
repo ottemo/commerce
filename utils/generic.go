@@ -184,17 +184,18 @@ func InterfaceToBool(value interface{}) bool {
 		typedValue = strings.TrimSpace(typedValue)
 		if boolValue, err := strconv.ParseBool(typedValue); err == nil {
 			return boolValue
-		} else {
-			typedValue = strings.ToLower(typedValue)
-			if IsAmongStr(typedValue, "1", "ok", "on", "yes", "y", "x", "+") {
-				return true
-			}
-			if intValue, err := strconv.Atoi(typedValue); err == nil && intValue > 0 {
-				return true
-			}
-
-			return false
 		}
+
+		typedValue = strings.ToLower(typedValue)
+		if IsAmongStr(typedValue, "1", "ok", "on", "yes", "y", "x", "+") {
+			return true
+		}
+
+		if intValue, err := strconv.Atoi(typedValue); err == nil && intValue > 0 {
+			return true
+		}
+
+		return false
 	case int:
 		return typedValue > 0
 	case int32:

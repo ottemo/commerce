@@ -24,9 +24,9 @@ func (it *DBEngine) HasCollection(collectionName string) bool {
 
 	if err == nil {
 		return true
-	} else {
-		return false
 	}
+
+	return false
 }
 
 // CreateCollection creates cllection(table) by it's name
@@ -38,11 +38,12 @@ func (it *DBEngine) CreateCollection(collectionName string) error {
 		SQL = "CREATE TABLE " + collectionName + " (_id NCHAR(24) PRIMARY KEY NOT NULL)"
 	}
 
-	if err := connectionExec(SQL); err == nil {
+	err := connectionExec(SQL)
+	if err == nil {
 		return nil
-	} else {
-		return env.ErrorDispatch(err)
 	}
+
+	return env.ErrorDispatch(err)
 }
 
 // GetCollection returns collection(table) by name or creates new one

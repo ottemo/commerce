@@ -191,31 +191,30 @@ func checkoutObtainAddress(params *api.StructAPIHandlerParams) (visitor.Interfac
 		}
 
 		return visitorAddress, nil
-	} else {
-
-		// supposedly address data was specified
-		visitorAddressModel, err := visitor.GetVisitorAddressModel()
-		if err != nil {
-			return nil, env.ErrorDispatch(err)
-		}
-
-		for attribute, value := range reqData {
-			err := visitorAddressModel.Set(attribute, value)
-			if err != nil {
-				return nil, env.ErrorDispatch(err)
-			}
-		}
-
-		visitorID := utils.InterfaceToString(params.Session.Get(visitor.ConstSessionKeyVisitorID))
-		visitorAddressModel.Set("visitor_id", visitorID)
-
-		err = visitorAddressModel.Save()
-		if err != nil {
-			return nil, env.ErrorDispatch(err)
-		}
-
-		return visitorAddressModel, nil
 	}
+
+	// supposedly address data was specified
+	visitorAddressModel, err := visitor.GetVisitorAddressModel()
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	for attribute, value := range reqData {
+		err := visitorAddressModel.Set(attribute, value)
+		if err != nil {
+			return nil, env.ErrorDispatch(err)
+		}
+	}
+
+	visitorID := utils.InterfaceToString(params.Session.Get(visitor.ConstSessionKeyVisitorID))
+	visitorAddressModel.Set("visitor_id", visitorID)
+
+	err = visitorAddressModel.Save()
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	return visitorAddressModel, nil
 }
 
 // WEB REST API function to set shipping address
@@ -287,9 +286,8 @@ func restCheckoutSetPaymentMethod(params *api.StructAPIHandlerParams) (interface
 				env.Event("api.checkout.setPayment", eventData)
 
 				return "ok", nil
-			} else {
-				return nil, env.ErrorNew("payment method not allowed")
 			}
+			return nil, env.ErrorNew("payment method not allowed")
 		}
 	}
 
