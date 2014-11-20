@@ -109,7 +109,7 @@ func restCartAdd(params *api.StructAPIHandlerParams) (interface{}, error) {
 		qty = utils.InterfaceToInt(reqQty)
 	}
 
-	var options map[string]interface{} = reqData
+	options := reqData
 	reqOptions, present := reqData["options"]
 	if present {
 		if tmpOptions, ok := reqOptions.(map[string]interface{}); ok {

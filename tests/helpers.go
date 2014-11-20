@@ -195,7 +195,7 @@ func RandomizeShippingAndBillingAddresses(currentCheckout checkout.InterfaceChec
 	if err != nil {
 		return err
 	}
-	err = addressModel.Set("phone", utils.InterfaceToString(randomdata.Number(1000000000, 9999999999)))
+	err = addressModel.Set("phone", randomdata.StringNumber(5, ""))
 	if err != nil {
 		return err
 	}

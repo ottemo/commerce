@@ -7,7 +7,7 @@ import (
 	"sync"
 
 	// including packages from regular build
-	_ "github.com/ottemo/foundation"
+	_ "github.com/ottemo/foundation/buildset"
 
 	"github.com/ottemo/foundation/app"
 	"github.com/ottemo/foundation/env"
