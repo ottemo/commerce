@@ -115,7 +115,7 @@ func restImpexImport(params *api.StructAPIHandlerParams) (interface{}, error) {
 				return nil, env.ErrorDispatch(err)
 			}
 
-			filesProcessed += 1
+			filesProcessed++
 		}
 	}
 

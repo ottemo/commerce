@@ -146,7 +146,7 @@ func (it *DefaultCart) AddItem(productID string, qty int, options map[string]int
 	}
 
 	// adding new item to others
-	it.maxIdx += 1
+	it.maxIdx++
 	cartItem.idx = it.maxIdx
 	it.Items[it.maxIdx] = cartItem
 

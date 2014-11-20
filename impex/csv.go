@@ -397,7 +397,7 @@ func CSVToMap(csvReader *csv.Reader, processorFunc func(item map[string]interfac
 			}
 		}
 
-		csvRecordNum += 1
+		csvRecordNum++
 	}
 	processorFunc(csvRecordMap)
 

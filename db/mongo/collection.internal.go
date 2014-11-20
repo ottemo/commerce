@@ -142,7 +142,7 @@ func (it *DBCollection) makeSelector() bson.D {
 	idx := 0
 	for groupName := range it.FilterGroups {
 		sortedFilterGroupsNames[idx] = groupName
-		idx += 1
+		idx++
 	}
 	sort.Strings(sortedFilterGroupsNames)
 

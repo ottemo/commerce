@@ -39,7 +39,7 @@ func parseErrorMessage(message string) *OttemoError {
 				resultError.Stack += file + ":" + strconv.Itoa(line) + "\n"
 			}
 
-			skip += 1
+			skip++
 			_, file, line, ok = runtime.Caller(skip)
 		}
 	}

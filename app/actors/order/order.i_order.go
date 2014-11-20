@@ -88,7 +88,7 @@ func (it *DefaultOrder) AddItem(productID string, qty int, productOptions map[st
 		return nil, env.ErrorDispatch(err)
 	}
 
-	it.maxIdx += 1
+	it.maxIdx++
 	newOrderItem.idx = it.maxIdx
 	it.Items[newOrderItem.idx] = newOrderItem
 
@@ -126,7 +126,7 @@ func (it *DefaultOrder) RemoveItem(itemIdx int) error {
 func (it *DefaultOrder) NewIncrementID() error {
 	lastIncrementIDMutex.Lock()
 
-	lastIncrementID += 1
+	lastIncrementID++
 	it.IncrementID = fmt.Sprintf(ConstIncrementIDFormat, lastIncrementID)
 
 	env.GetConfig().SetValue(ConstConfigPathLastIncrementID, lastIncrementID)
