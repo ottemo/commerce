@@ -12,7 +12,7 @@ func (it *DefaultCMSPageCollection) GetDBCollection() db.InterfaceDBCollection {
 
 // ListCMSPages returns list of cms page model items
 func (it *DefaultCMSPageCollection) ListCMSPages() []cms.InterfaceCMSPage {
-	result := make([]cms.InterfaceCMSPage, 0)
+	var result []cms.InterfaceCMSPage
 
 	dbRecords, err := it.listCollection.Load()
 	if err != nil {

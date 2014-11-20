@@ -106,7 +106,7 @@ func (it *FilesystemMediaStorage) Remove(model string, objID string, mediaType s
 
 // ListMedia returns list of given type media entities for a given model object
 func (it *FilesystemMediaStorage) ListMedia(model string, objID string, mediaType string) ([]string, error) {
-	result := make([]string, 0)
+	var result []string
 
 	dbEngine := db.GetDBEngine()
 	if dbEngine == nil {

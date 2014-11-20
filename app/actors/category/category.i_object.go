@@ -48,7 +48,7 @@ func (it *DefaultCategory) Get(attribute string) interface{} {
 		return it.Parent
 
 	case "products":
-		result := make([]map[string]interface{}, 0)
+		var result []map[string]interface{}
 
 		for _, categoryProduct := range it.GetProducts() {
 			result = append(result, categoryProduct.ToHashMap())

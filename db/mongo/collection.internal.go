@@ -149,7 +149,7 @@ func (it *DBCollection) makeSelector() bson.D {
 	// making recursive groups injects, based on Parent field
 	//-------------------------------------------------------
 	topLevelGroup := &StructDBFilterGroup{Name: "", FilterValues: make([]bson.D, 0)}
-	groupsStack := make([]*StructDBFilterGroup, 0)
+	var groupsStack []*StructDBFilterGroup
 	currentGroup := topLevelGroup
 
 	for {

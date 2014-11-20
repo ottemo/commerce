@@ -378,7 +378,7 @@ func (it *ImportCmdMedia) Process(itemData map[string]interface{}, input interfa
 
 	// checking for media field in itemData
 	if value, present := itemData[it.mediaField]; present {
-		mediaArray := make([]string, 0)
+		var mediaArray []string
 
 		// checking media field type and making it uniform
 		switch typedValue := value.(type) {

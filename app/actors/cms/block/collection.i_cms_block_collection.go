@@ -12,7 +12,7 @@ func (it *DefaultCMSBlockCollection) GetDBCollection() db.InterfaceDBCollection 
 
 // ListCMSBlocks returns list of cms block model items
 func (it *DefaultCMSBlockCollection) ListCMSBlocks() []cms.InterfaceCMSBlock {
-	result := make([]cms.InterfaceCMSBlock, 0)
+	var result []cms.InterfaceCMSBlock
 
 	dbRecords, err := it.listCollection.Load()
 	if err != nil {

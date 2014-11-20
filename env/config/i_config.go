@@ -11,7 +11,7 @@ import (
 
 // ListPathes enumerates registered pathes for config
 func (it *DefaultConfig) ListPathes() []string {
-	result := make([]string, 0)
+	var result []string
 	for key := range it.configValues {
 		result = append(result, key)
 	}
@@ -149,7 +149,7 @@ func (it *DefaultConfig) SetValue(Path string, Value interface{}) error {
 // GetGroupItems returns information about config items with type [ConstConfigItemGroupType]
 func (it *DefaultConfig) GetGroupItems() []env.StructConfigItem {
 
-	result := make([]env.StructConfigItem, 0)
+	var result []env.StructConfigItem
 
 	collection, err := db.GetCollection(ConstCollectionNameConfig)
 	if err != nil {
@@ -193,7 +193,7 @@ func (it *DefaultConfig) GetGroupItems() []env.StructConfigItem {
 // GetItemsInfo returns information about config items with given path
 // 	- use '*' to list sub-items (like "paypal.*" or "paypal*" if group item also needed)
 func (it *DefaultConfig) GetItemsInfo(Path string) []env.StructConfigItem {
-	result := make([]env.StructConfigItem, 0)
+	var result []env.StructConfigItem
 
 	collection, err := db.GetCollection(ConstCollectionNameConfig)
 	if err != nil {

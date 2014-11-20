@@ -21,7 +21,7 @@ func (it *DefaultDiscount) GetCode() string {
 // CalculateDiscount calculates and returns a set of discounts applied to given checkout
 func (it *DefaultDiscount) CalculateDiscount(checkoutInstance checkout.InterfaceCheckout) []checkout.StructDiscount {
 
-	result := make([]checkout.StructDiscount, 0)
+	var result []checkout.StructDiscount
 
 	// checking session for applied coupon codes
 	if currentSession := checkoutInstance.GetSession(); currentSession != nil {

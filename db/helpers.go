@@ -20,7 +20,7 @@ func GetCollection(CollectionName string) (InterfaceDBCollection, error) {
 func ConvertTypeFromDbToGo(value interface{}, valueType string) interface{} {
 	switch {
 	case strings.HasPrefix(valueType, "[]"):
-		result := make([]interface{}, 0)
+		var result []interface{}
 		if value == nil {
 			return result
 		}

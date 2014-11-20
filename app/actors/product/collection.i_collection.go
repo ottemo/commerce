@@ -10,7 +10,7 @@ import (
 
 // List enumerates items of Product model type
 func (it *DefaultProductCollection) List() ([]models.StructListItem, error) {
-	result := make([]models.StructListItem, 0)
+	var result []models.StructListItem
 
 	dbRecords, err := it.listCollection.Load()
 	if err != nil {
@@ -68,7 +68,7 @@ func (it *DefaultProductCollection) ListAddExtraAttribute(attribute string) erro
 		return env.ErrorDispatch(err)
 	}
 
-	allowedAttributes := make([]string, 0)
+	var allowedAttributes []string
 	for _, attributeInfo := range productModel.GetAttributesInfo() {
 		allowedAttributes = append(allowedAttributes, attributeInfo.Attribute)
 	}

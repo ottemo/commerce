@@ -13,7 +13,7 @@ func EncodeToJSONString(inputData interface{}) string {
 
 // DecodeJSONToArray decodes json string to []interface{} if it's possible
 func DecodeJSONToArray(jsonData interface{}) ([]interface{}, error) {
-	result := make([]interface{}, 0)
+	var result []interface{}
 
 	var err error
 	switch value := jsonData.(type) {

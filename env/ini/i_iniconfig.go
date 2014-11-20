@@ -88,7 +88,7 @@ func (it *DefaultIniConfig) ListSections() []string {
 
 // ListSectionItems enumerates value names within specified ini section
 func (it *DefaultIniConfig) ListSectionItems(sectionName string) []string {
-	result := make([]string, 0)
+	var result []string
 	if sectionValues, present := it.iniFileValues[sectionName]; present {
 		for valueName := range sectionValues {
 			result = append(result, valueName)

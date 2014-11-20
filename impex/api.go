@@ -57,7 +57,7 @@ func restImpexExportModel(params *api.StructAPIHandlerParams) (interface{}, erro
 	if isListable && isObject {
 		collection := listable.GetCollection()
 
-		attributes := make([]string, 0)
+		var attributes []string
 		for _, attribute := range object.GetAttributesInfo() {
 			attributes = append(attributes, attribute.Attribute)
 			collection.ListAddExtraAttribute(attribute.Attribute)
@@ -73,7 +73,7 @@ func restImpexExportModel(params *api.StructAPIHandlerParams) (interface{}, erro
 		// csvWriter.Write(attributes)
 		// csvWriter.Flush()
 
-		records := make([]map[string]interface{}, 0)
+		var records []map[string]interface{}
 
 		list, _ := collection.List()
 		for _, item := range list {
@@ -183,7 +183,7 @@ func restImpexTstImport(params *api.StructAPIHandlerParams) (interface{}, error)
 		return nil, env.ErrorDispatch(err)
 	}
 
-	result := make([]map[string]interface{}, 0)
+	var result []map[string]interface{}
 	processor := func(item map[string]interface{}) bool {
 		result = append(result, item)
 		return true
@@ -201,7 +201,7 @@ func restImpexTstExport(params *api.StructAPIHandlerParams) (interface{}, error)
 
 	params.ResponseWriter.Header().Set("Content-Type", "application/csv")
 
-	data := make([]map[string]interface{}, 0)
+	var data []map[string]interface{}
 
 	productCollection, err := product.GetProductCollectionModel()
 	if err != nil {

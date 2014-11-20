@@ -145,7 +145,7 @@ func StrKeysInMap(mapObject interface{}, keys ...string) bool {
 
 // Explode returns trimmed []string array of [separators] delimited values
 func Explode(value string, separators string) []string {
-	result := make([]string, 0)
+	var result []string
 
 	splitResult := strings.Split(value, separators)
 	for _, arrayValue := range splitResult {
@@ -209,7 +209,7 @@ func InterfaceToBool(value interface{}) bool {
 
 // InterfaceToArray converts interface{} to map[string]interface{}
 func InterfaceToArray(value interface{}) []interface{} {
-	result := make([]interface{}, 0)
+	var result []interface{}
 
 	switch typedValue := value.(type) {
 	case []string:
@@ -469,7 +469,7 @@ func StringToType(value string, valueType string) (interface{}, error) {
 		array := strings.Split(value, ",")
 		arrayType := strings.TrimPrefix(valueType, "[]")
 
-		result := make([]interface{}, 0)
+		var result []interface{}
 		for _, arrayValue := range array {
 			arrayValue = strings.TrimSpace(arrayValue)
 
@@ -518,7 +518,7 @@ func StringToInterface(value string) interface{} {
 		return result
 	}
 	if strings.HasPrefix(trimmedValue, "[") && strings.HasSuffix(trimmedValue, "]") {
-		result := make([]interface{}, 0)
+		var result []interface{}
 		trimmedValue = strings.TrimPrefix(trimmedValue, "[")
 		trimmedValue = strings.TrimSuffix(trimmedValue, "]")
 		for _, value := range SplitQuotedStringBy(trimmedValue, ',') {

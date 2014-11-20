@@ -44,7 +44,7 @@ func restDiscountApply(params *api.StructAPIHandlerParams) (interface{}, error) 
 	couponCode := params.RequestURLParams["code"]
 
 	// getting applied coupons array for current session
-	appliedCoupons := make([]string, 0)
+	var appliedCoupons []string
 	if sessionValue, ok := params.Session.Get(ConstSessionKeyAppliedDiscountCodes).([]string); ok {
 		appliedCoupons = sessionValue
 	}
@@ -121,7 +121,7 @@ func restDiscountNeglect(params *api.StructAPIHandlerParams) (interface{}, error
 	}
 
 	if appliedCoupons, ok := params.Session.Get(ConstSessionKeyAppliedDiscountCodes).([]string); ok {
-		newAppliedCoupons := make([]string, 0)
+		var newAppliedCoupons []string
 		for _, value := range appliedCoupons {
 			if value != couponCode {
 				newAppliedCoupons = append(newAppliedCoupons, value)

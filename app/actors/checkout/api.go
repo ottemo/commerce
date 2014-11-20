@@ -134,7 +134,7 @@ func restCheckoutPaymentMethods(params *api.StructAPIHandlerParams) (interface{}
 		Code string
 		Type string
 	}
-	result := make([]ResultValue, 0)
+	var result []ResultValue
 
 	for _, paymentMethod := range checkout.GetRegisteredPaymentMethods() {
 		if paymentMethod.IsAllowed(currentCheckout) {
@@ -158,7 +158,7 @@ func restCheckoutShippingMethods(params *api.StructAPIHandlerParams) (interface{
 		Code  string
 		Rates []checkout.StructShippingRate
 	}
-	result := make([]ResultValue, 0)
+	var result []ResultValue
 
 	for _, shippingMethod := range checkout.GetRegisteredShippingMethods() {
 		if shippingMethod.IsAllowed(currentCheckout) {

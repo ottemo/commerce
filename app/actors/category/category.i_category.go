@@ -35,7 +35,7 @@ func (it *DefaultCategory) GetProductsCollection() product.InterfaceProductColle
 
 // GetProducts returns a set of category associated products
 func (it *DefaultCategory) GetProducts() []product.InterfaceProduct {
-	result := make([]product.InterfaceProduct, 0)
+	var result []product.InterfaceProduct
 
 	for _, productID := range it.ProductIds {
 		productModel, err := product.LoadProductByID(productID)

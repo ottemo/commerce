@@ -17,7 +17,7 @@ func (it *DBCollection) LoadByID(id string) (map[string]interface{}, error) {
 
 // Load loads records from DB for current collection and filter if it set
 func (it *DBCollection) Load() ([]map[string]interface{}, error) {
-	result := make([]map[string]interface{}, 0)
+	var result []map[string]interface{}
 
 	err := it.prepareQuery().All(&result)
 
@@ -50,7 +50,7 @@ func (it *DBCollection) Count() (int, error) {
 
 // Distinct returns distinct values of specified attribute
 func (it *DBCollection) Distinct(columnName string) ([]interface{}, error) {
-	result := make([]interface{}, 0)
+	var result []interface{}
 
 	err := it.prepareQuery().Distinct(columnName, &result)
 

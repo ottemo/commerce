@@ -12,7 +12,7 @@ func (it *DefaultCategoryCollection) GetDBCollection() db.InterfaceDBCollection 
 
 // ListCategories returns list of category model items
 func (it *DefaultCategoryCollection) ListCategories() []category.InterfaceCategory {
-	result := make([]category.InterfaceCategory, 0)
+	var result []category.InterfaceCategory
 
 	dbRecords, err := it.listCollection.Load()
 	if err != nil {

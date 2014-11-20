@@ -9,7 +9,7 @@ import (
 
 // List enumerates items of CMS block model
 func (it *DefaultCMSBlockCollection) List() ([]models.StructListItem, error) {
-	result := make([]models.StructListItem, 0)
+	var result []models.StructListItem
 
 	dbRecords, err := it.listCollection.Load()
 	if err != nil {

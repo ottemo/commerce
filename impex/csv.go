@@ -61,7 +61,7 @@ func MapToCSV(input []map[string]interface{}, csvWriter *csv.Writer) error {
 
 			followingPath := pathArray[1:]
 			if keyValueAsList, ok := keyValue.([]interface{}); ok {
-				result := make([]interface{}, 0)
+				var result []interface{}
 				for _, listValue := range keyValueAsList {
 					if listValueAsMap, ok := listValue.(map[string]interface{}); ok {
 						result = append(result, getPathValue(listValueAsMap, followingPath))
@@ -94,7 +94,7 @@ func MapToCSV(input []map[string]interface{}, csvWriter *csv.Writer) error {
 	}
 	sort.Strings(sortedPaths)
 
-	csvHeader := make([]string, 0)
+	var csvHeader []string
 	for _, currentPath := range sortedPaths {
 		csvHeader = append(csvHeader, csvColumnHeaders[currentPath])
 	}
@@ -108,7 +108,7 @@ func MapToCSV(input []map[string]interface{}, csvWriter *csv.Writer) error {
 
 	for _, mapItem := range input { // 2nd loop - writing content rows
 		// one record by default for item
-		itemCSVRecords := make([][]string, 0)
+		var itemCSVRecords [][]string
 		itemCSVRecords = append(itemCSVRecords, make([]string, numberOfColumns))
 
 		for columnIdx, columnPath := range sortedPaths {
@@ -194,7 +194,7 @@ func CSVToMap(csvReader *csv.Reader, processorFunc func(item map[string]interfac
 
 	// reading CSV contents
 	//----------------------
-	result := make([]map[string]interface{}, 0)
+	var result []map[string]interface{}
 	csvRecordMap := make(map[string]interface{})
 	csvMemorize := make(map[string]interface{})
 
@@ -458,7 +458,7 @@ func ImportCSV(csvReader *csv.Reader) error {
 		// looking for required commands and preparing them to process
 		//-------------------------------------------------------------
 		exchangeDict := make(map[string]interface{})
-		commandsChain := make([]InterfaceImpexImportCmd, 0)
+		var commandsChain []InterfaceImpexImportCmd
 
 		for _, command := range utils.SplitQuotedStringBy(commandLine, '|') {
 			command = strings.TrimSpace(command)

@@ -41,7 +41,7 @@ func restCartInfo(params *api.StructAPIHandlerParams) (interface{}, error) {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	items := make([]map[string]interface{}, 0)
+	var items []map[string]interface{}
 
 	cartItems := currentCart.GetItems()
 	for _, cartItem := range cartItems {

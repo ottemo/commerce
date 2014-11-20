@@ -15,9 +15,9 @@ import (
 
 // GetItems returns order items for current order
 func (it *DefaultOrder) GetItems() []order.InterfaceOrderItem {
-	result := make([]order.InterfaceOrderItem, 0)
+	var result []order.InterfaceOrderItem
 
-	keys := make([]int, 0)
+	var keys []int
 	for key := range it.Items {
 		keys = append(keys, key)
 	}

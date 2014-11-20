@@ -31,7 +31,7 @@ func (it *DefaultCart) checkOptions(productOptions map[string]interface{}, cartI
 
 					// checking for valid value was set by customer
 					// cart option value can be one or multiple values, but should be string there
-					optionValuesToCheck := make([]string, 0)
+					var optionValuesToCheck []string
 					switch typedOptionValue := optionValue.(type) {
 					case string:
 						optionValuesToCheck = append(optionValuesToCheck, typedOptionValue)
@@ -220,9 +220,9 @@ func (it *DefaultCart) GetSubtotal() float64 {
 // GetItems enumerates current cart items sorted by item idx
 func (it *DefaultCart) GetItems() []cart.InterfaceCartItem {
 
-	result := make([]cart.InterfaceCartItem, 0)
+	var result []cart.InterfaceCartItem
 
-	keys := make([]int, 0)
+	var keys []int
 	for key := range it.Items {
 		keys = append(keys, key)
 	}

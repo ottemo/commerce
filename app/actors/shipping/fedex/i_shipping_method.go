@@ -31,7 +31,7 @@ func (it *FedEx) IsAllowed(checkout checkout.InterfaceCheckout) bool {
 // GetRates returns rates allowed by shipping method for a given checkout
 func (it *FedEx) GetRates(checkoutObject checkout.InterfaceCheckout) []checkout.StructShippingRate {
 
-	result := make([]checkout.StructShippingRate, 0)
+	var result []checkout.StructShippingRate
 
 	useDebugLog := utils.InterfaceToBool(env.ConfigGetValue(ConstConfigPathDebugLog))
 

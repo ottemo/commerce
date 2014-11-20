@@ -9,7 +9,7 @@ import (
 
 // List enumerates items of model type
 func (it *DefaultCategoryCollection) List() ([]models.StructListItem, error) {
-	result := make([]models.StructListItem, 0)
+	var result []models.StructListItem
 
 	// loading data from DB
 	//---------------------
@@ -59,7 +59,7 @@ func (it *DefaultCategoryCollection) ListAddExtraAttribute(attribute string) err
 		return env.ErrorDispatch(err)
 	}
 
-	allowedAttributes := make([]string, 0)
+	var allowedAttributes []string
 	for _, attributeInfo := range categoryModel.GetAttributesInfo() {
 		allowedAttributes = append(allowedAttributes, attributeInfo.Attribute)
 	}

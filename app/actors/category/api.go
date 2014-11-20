@@ -328,7 +328,7 @@ func restListCategoryProducts(params *api.StructAPIHandlerParams) (interface{}, 
 	api.ApplyFilters(params, productsCollection.GetDBCollection())
 
 	// preparing product information
-	result := make([]map[string]interface{}, 0)
+	var result []map[string]interface{}
 
 	for _, productModel := range productsCollection.ListProducts() {
 		productInfo := productModel.ToHashMap()
@@ -481,8 +481,8 @@ func restGetCategoriesTree(params *api.StructAPIHandlerParams) (interface{}, err
 		return nil, env.ErrorDispatch(err)
 	}
 
-	categoryStack := make([]map[string]interface{}, 0)
-	pathStack := make([]string, 0)
+	var categoryStack []map[string]interface{}
+	var pathStack []string
 
 	for _, row := range rowData {
 

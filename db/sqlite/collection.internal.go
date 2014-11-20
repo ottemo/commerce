@@ -108,7 +108,7 @@ func (it *DBCollection) getSQLFilters() string {
 	var collectSubfilters func(string) []string
 
 	collectSubfilters = func(parentGroupName string) []string {
-		result := make([]string, 0)
+		var result []string
 
 		for filterGroupName, filterGroup := range it.FilterGroups {
 			if filterGroup.ParentGroup == parentGroupName {

@@ -35,7 +35,7 @@ func (it *DBCollection) LoadByID(id string) (map[string]interface{}, error) {
 
 // Load loads records from DB for current collection and filter if it set
 func (it *DBCollection) Load() ([]map[string]interface{}, error) {
-	result := make([]map[string]interface{}, 0)
+	var result []map[string]interface{}
 
 	err := it.Iterate(func(row map[string]interface{}) bool {
 		result = append(result, row)
@@ -94,7 +94,7 @@ func (it *DBCollection) Distinct(columnName string) ([]interface{}, error) {
 	stmt, err := connectionQuery(SQL)
 	defer closeStatement(stmt)
 
-	result := make([]interface{}, 0)
+	var result []interface{}
 	if err == nil {
 		for ; err == nil; err = stmt.Next() {
 			row := make(sqlite3.RowMap)

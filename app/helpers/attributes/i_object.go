@@ -23,7 +23,7 @@ func (it *CustomAttributes) Set(attribute string, value interface{}) error {
 
 // GetAttributesInfo represents object as map[string]interface{}
 func (it *CustomAttributes) GetAttributesInfo() []models.StructAttributeInfo {
-	info := make([]models.StructAttributeInfo, 0)
+	var info []models.StructAttributeInfo
 	for _, attribute := range it.attributes {
 		info = append(info, attribute)
 	}

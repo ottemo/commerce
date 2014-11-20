@@ -33,7 +33,7 @@ func processRecords(name string, records []map[string]interface{}, result []chec
 
 // CalculateTax calculates a taxes for a given checkout
 func (it *DefaultTax) CalculateTax(currentCheckout checkout.InterfaceCheckout) []checkout.StructTaxRate {
-	result := make([]checkout.StructTaxRate, 0)
+	var result []checkout.StructTaxRate
 
 	if shippingAddress := currentCheckout.GetShippingAddress(); shippingAddress != nil {
 		state := shippingAddress.GetState()

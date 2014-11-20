@@ -12,7 +12,7 @@ func (it *DefaultProductCollection) GetDBCollection() db.InterfaceDBCollection {
 
 // ListProducts returns array of products in model instance form
 func (it *DefaultProductCollection) ListProducts() []product.InterfaceProduct {
-	result := make([]product.InterfaceProduct, 0)
+	var result []product.InterfaceProduct
 
 	dbRecords, err := it.listCollection.Load()
 	if err != nil {

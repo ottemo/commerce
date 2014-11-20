@@ -37,7 +37,7 @@ func (it *DefaultProduct) RemoveMedia(mediaType string, mediaName string) error 
 
 // ListMedia lists media assigned to product
 func (it *DefaultProduct) ListMedia(mediaType string) ([]string, error) {
-	result := make([]string, 0)
+	var result []string
 
 	productID := it.GetID()
 	if productID == "" {
