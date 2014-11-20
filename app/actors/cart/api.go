@@ -10,7 +10,7 @@ import (
 // setupAPI setups package related API endpoint routines
 func setupAPI() error {
 
-	var err error = nil
+	var err error
 
 	err = api.GetRestService().RegisterAPI("cart", "GET", "info", restCartInfo)
 	if err != nil {
@@ -96,7 +96,7 @@ func restCartAdd(params *api.StructAPIHandlerParams) (interface{}, error) {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	var pid string = ""
+	var pid string
 	reqPid, present := params.RequestURLParams["productID"]
 	pid = utils.InterfaceToString(reqPid)
 	if !present || pid == "" {

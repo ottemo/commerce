@@ -57,7 +57,7 @@ func (it *FedEx) GetRates(checkoutObject checkout.InterfaceCheckout) []checkout.
 
 	// calculating weight
 	//-------------------
-	var pounds float64 = 0
+	var pounds float64
 	if checkoutCart := checkoutObject.GetCart(); checkoutCart != nil {
 
 		cartItems := checkoutCart.GetItems()

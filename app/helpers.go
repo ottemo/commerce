@@ -71,7 +71,7 @@ Content-Type: text/html
 		return env.ErrorDispatch(err)
 	}
 
-	var auth smtp.Auth = nil
+	var auth smtp.Auth
 	if userName != "" {
 		auth = smtp.PlainAuth("", userName, password, mailServer)
 	}

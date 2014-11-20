@@ -18,7 +18,7 @@ import (
 // setupAPI setups package related API endpoint routines
 func setupAPI() error {
 
-	var err error = nil
+	var err error
 
 	err = api.GetRestService().RegisterAPI("url_rewrite", "GET", "list", restURLRewritesList)
 	if err != nil {

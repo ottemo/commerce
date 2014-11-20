@@ -105,7 +105,7 @@ func (it *DBCollection) getSQLOrder() string {
 // collects all filters in a single string (for internal usage)
 func (it *DBCollection) getSQLFilters() string {
 
-	var collectSubfilters func(string) []string = nil
+	var collectSubfilters func(string) []string
 
 	collectSubfilters = func(parentGroupName string) []string {
 		result := make([]string, 0)

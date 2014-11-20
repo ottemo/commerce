@@ -10,7 +10,7 @@ import (
 // setups package related API endpoint routines
 func setupAPI() error {
 
-	var err error = nil
+	var err error
 
 	err = api.GetRestService().RegisterAPI("config", "GET", "groups", restConfigGroups)
 	if err != nil {
@@ -82,7 +82,7 @@ func restConfigGet(params *api.StructAPIHandlerParams) (interface{}, error) {
 func restConfigSet(params *api.StructAPIHandlerParams) (interface{}, error) {
 	config := env.GetConfig()
 
-	var setValue interface{} = nil
+	var setValue interface{}
 
 	setValue = params.RequestContent
 	configPath := params.RequestURLParams["path"]

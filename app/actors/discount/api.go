@@ -13,7 +13,7 @@ import (
 
 // setupAPI setups package related API endpoint routines
 func setupAPI() error {
-	var err error = nil
+	var err error
 
 	err = api.GetRestService().RegisterAPI("discount", "GET", "apply/:code", restDiscountApply)
 	if err != nil {

@@ -6,8 +6,8 @@ import (
 
 // Package global variables
 var (
-	currentDBEngine          InterfaceDBEngine = nil              // currently registered database service in system
-	callbacksOnDatabaseStart                   = []func() error{} // set of callback function on database service start
+	currentDBEngine          InterfaceDBEngine  // currently registered database service in system
+	callbacksOnDatabaseStart = []func() error{} // set of callback function on database service start
 )
 
 // RegisterOnDatabaseStart registers new callback on database service start

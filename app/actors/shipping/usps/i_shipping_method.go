@@ -58,8 +58,8 @@ func (it *USPS) GetRates(checkoutObject checkout.InterfaceCheckout) []checkout.S
 		return result
 	}
 
-	var pounds float64 = 0
-	var ounces float64 = 0
+	var pounds float64
+	var ounces float64
 	if checkoutCart := checkoutObject.GetCart(); checkoutCart != nil {
 
 		cartItems := checkoutCart.GetItems()

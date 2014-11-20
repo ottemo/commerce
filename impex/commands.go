@@ -69,8 +69,8 @@ func ArgsGetAsNamed(args []string, includeIndexes bool) map[string]string {
 
 // ArgsFindWorkingModel looks for model mention among command attributes
 func ArgsFindWorkingModel(args []string, neededInterfaces []string) (models.InterfaceModel, error) {
-	var result models.InterfaceModel = nil
-	var err error = nil
+	var result models.InterfaceModel
+	var err error
 
 	namedArgs := ArgsGetAsNamed(args, true)
 	for _, argKey := range []string{"model", "1"} {
@@ -397,7 +397,7 @@ func (it *ImportCmdMedia) Process(itemData map[string]interface{}, input interfa
 		// adding found media value(s)
 		for _, mediaValue := range mediaArray {
 			mediaContents := []byte{}
-			var err error = nil
+			var err error
 
 			// looking for media type
 			mediaType := it.mediaType

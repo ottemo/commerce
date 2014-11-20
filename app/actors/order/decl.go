@@ -12,7 +12,7 @@ import (
 
 // Package global variables
 var (
-	lastIncrementID      int = 0
+	lastIncrementID      int
 	lastIncrementIDMutex sync.Mutex
 )
 

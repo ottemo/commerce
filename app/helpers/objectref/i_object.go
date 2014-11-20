@@ -7,7 +7,7 @@ import (
 
 // Get returns attribute value for current object or nil if no such attribute
 func (it *DBObjectRef) Get(attribute string) interface{} {
-	var result interface{} = nil
+	var result interface{}
 
 	if it.currData != nil {
 		result, _ = it.currData[attribute]

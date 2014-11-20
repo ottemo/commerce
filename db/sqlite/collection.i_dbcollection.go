@@ -13,7 +13,7 @@ import (
 
 // LoadByID loads record from DB by it's id
 func (it *DBCollection) LoadByID(id string) (map[string]interface{}, error) {
-	var result map[string]interface{} = nil
+	var result map[string]interface{}
 
 	if !ConstUseUUIDids {
 		it.AddFilter("_id", "=", id)
@@ -523,7 +523,7 @@ func (it *DBCollection) RemoveColumn(columnName string) error {
 
 	// getting table create SQL to take columns from
 	//----------------------------------------------
-	var tableCreateSQL string = ""
+	var tableCreateSQL string
 
 	SQL := "SELECT sql FROM sqlite_master WHERE tbl_name='" + it.Name + "' AND type='table'"
 	stmt, err := connectionQuery(SQL)

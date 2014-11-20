@@ -51,7 +51,7 @@ func GetPaymentMethodByCode(code string) InterfacePaymentMethod {
 func GetCurrentCheckout(params *api.StructAPIHandlerParams) (InterfaceCheckout, error) {
 	sessionObject := params.Session.Get(ConstSessionKeyCurrentCheckout)
 
-	var checkoutInstance InterfaceCheckout = nil
+	var checkoutInstance InterfaceCheckout
 
 	// trying to get checkout object from session, otherwise creating new one
 	if sessionCheckout, ok := sessionObject.(InterfaceCheckout); ok {

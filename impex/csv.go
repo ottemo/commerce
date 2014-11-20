@@ -18,7 +18,7 @@ func MapToCSV(input []map[string]interface{}, csvWriter *csv.Writer) error {
 
 	// recursuve functions for internal usage
 	//----------------------------------------
-	var collectColumns func(mapItem map[string]interface{}, path string) = nil
+	var collectColumns func(mapItem map[string]interface{}, path string)
 	var getPathValue func(item map[string]interface{}, path []string) interface{}
 
 	collectColumns = func(mapItem map[string]interface{}, path string) {
@@ -299,8 +299,8 @@ func CSVToMap(csvReader *csv.Reader, processorFunc func(item map[string]interfac
 			keyPathArray := columnPathArray[columnIdx]
 			lastPathIdx := len(keyPathArray) - 1
 
-			var prevPathMap map[string]interface{} = nil
-			var prevPathKey string = ""
+			var prevPathMap map[string]interface{}
+			var prevPathKey string
 			var prevPathValue interface{} = result
 
 			currentPathMap := csvRecordMap
@@ -329,7 +329,7 @@ func CSVToMap(csvReader *csv.Reader, processorFunc func(item map[string]interfac
 				if idx == lastPathIdx { // we are at end of key path (i.e. on x for key like a.b.c.d.x)
 
 					// trying to convert string value to supposed type
-					var typedValue interface{} = nil
+					var typedValue interface{}
 
 					if columnType := csvColumnType[columnIdx]; columnType != "" {
 						if result, err := utils.StringToType(value, columnType); err == nil {
@@ -488,7 +488,7 @@ func ImportCSV(csvReader *csv.Reader) error {
 				env.Log("impex.log", env.ConstLogPrefixDebug, fmt.Sprintf("Processing: %s", utils.EncodeToJSONString(itemData)))
 			}
 
-			var input interface{} = nil
+			var input interface{}
 			for _, command := range commandsChain {
 				if ConstDebugLog {
 					env.Log("impex.log", env.ConstLogPrefixDebug, fmt.Sprintf("Command: %T", command))

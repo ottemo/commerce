@@ -6,8 +6,8 @@ import (
 
 // Package global variables
 var (
-	currentRestService          InterfaceRestService = nil              // currently registered RESTFul service in system
-	callbacksOnRestServiceStart                      = []func() error{} // set of callback function on RESTFul service start
+	currentRestService          InterfaceRestService // currently registered RESTFul service in system
+	callbacksOnRestServiceStart = []func() error{}   // set of callback function on RESTFul service start
 )
 
 // RegisterOnRestServiceStart registers new callback on RESTFul service start

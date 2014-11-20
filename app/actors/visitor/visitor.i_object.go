@@ -111,8 +111,8 @@ func (it *DefaultVisitor) Set(attribute string, value interface{}) error {
 
 		// we have sub-map, supposedly InterfaceVisitorAddress capable
 		case map[string]interface{}:
-			var addressModel visitor.InterfaceVisitorAddress = nil
-			var err error = nil
+			var addressModel visitor.InterfaceVisitorAddress
+			var err error
 
 			if len(typedValue) != 0 {
 				addressModel, err = visitor.GetVisitorAddressModel()

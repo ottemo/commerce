@@ -14,7 +14,7 @@ import (
 // setupAPI setups package related API endpoint routines
 func setupAPI() error {
 
-	var err error = nil
+	var err error
 
 	err = api.GetRestService().RegisterAPI("product", "GET", "review/list/:pid", restReviewList)
 	if err != nil {
@@ -119,7 +119,7 @@ func restReviewAdd(params *api.StructAPIHandlerParams) (interface{}, error) {
 		}
 
 		recordAttribute := "stars_" + utils.InterfaceToString(ratingValue)
-		var ratingRecord map[string]interface{} = nil
+		var ratingRecord map[string]interface{}
 
 		if len(ratingRecords) > 0 {
 			ratingRecord = ratingRecords[0]
@@ -206,7 +206,7 @@ func restReviewRemove(params *api.StructAPIHandlerParams) (interface{}, error) {
 				return nil, env.ErrorDispatch(err)
 			}
 
-			var ratingRecord map[string]interface{} = nil
+			var ratingRecord map[string]interface{}
 
 			if len(ratingRecords) > 0 {
 				ratingRecord = ratingRecords[0]

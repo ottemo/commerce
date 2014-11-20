@@ -151,7 +151,7 @@ func (it *DefaultOrder) SetIncrementID(incrementID string) error {
 // CalculateTotals recalculates order Subtotal and GrandTotal
 func (it *DefaultOrder) CalculateTotals() error {
 
-	var subtotal float64 = 0.0
+	var subtotal float64
 	for _, orderItem := range it.Items {
 		subtotal += utils.RoundPrice(orderItem.GetPrice() * float64(orderItem.GetQty()))
 	}

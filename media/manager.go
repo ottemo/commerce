@@ -6,8 +6,8 @@ import (
 
 // Package global variables
 var (
-	currentMediaStorage          InterfaceMediaStorage = nil              // currently registered media storage service in system
-	callbacksOnMediaStorageStart                       = []func() error{} // set of callback function on media storage service start
+	currentMediaStorage          InterfaceMediaStorage // currently registered media storage service in system
+	callbacksOnMediaStorageStart = []func() error{}    // set of callback function on media storage service start
 )
 
 // RegisterOnMediaStorageStart registers new callback on media storage service start

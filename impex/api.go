@@ -15,7 +15,7 @@ import (
 // setups package related API endpoint routines
 func setupAPI() error {
 
-	var err error = nil
+	var err error
 
 	err = api.GetRestService().RegisterAPI("impex", "GET", "export/:model", restImpexExportModel)
 	if err != nil {
