@@ -144,18 +144,9 @@ func (it *USPS) GetRates(checkoutObject checkout.InterfaceCheckout) []checkout.S
 		return result
 	}
 
-	var responseData []byte
-	if response.ContentLength > 0 {
-		responseData = make([]byte, response.ContentLength)
-		_, err := response.Body.Read(responseData)
-		if err != nil {
-			return result
-		}
-	} else {
-		responseData, err = ioutil.ReadAll(response.Body)
-		if err != nil {
-			return result
-		}
+	responseData, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return result
 	}
 
 	if useDebugLog {

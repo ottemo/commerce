@@ -700,18 +700,9 @@ func restLoginFacebook(params *api.StructAPIHandlerParams) (interface{}, error) 
 		return nil, env.ErrorNew("Can't use google API: " + facebookResponse.Status)
 	}
 
-	var responseData []byte
-	if facebookResponse.ContentLength > 0 {
-		responseData = make([]byte, facebookResponse.ContentLength)
-		_, err := facebookResponse.Body.Read(responseData)
-		if err != nil {
-			return nil, env.ErrorDispatch(err)
-		}
-	} else {
-		responseData, err = ioutil.ReadAll(facebookResponse.Body)
-		if err != nil {
-			return nil, env.ErrorDispatch(err)
-		}
+	responseData, err := ioutil.ReadAll(facebookResponse.Body)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
 	}
 
 	// response json workaround
@@ -808,18 +799,9 @@ func restLoginGoogle(params *api.StructAPIHandlerParams) (interface{}, error) {
 		return nil, env.ErrorNew("Can't use google API: " + googleResponse.Status)
 	}
 
-	var responseData []byte
-	if googleResponse.ContentLength > 0 {
-		responseData = make([]byte, googleResponse.ContentLength)
-		_, err := googleResponse.Body.Read(responseData)
-		if err != nil {
-			return nil, env.ErrorDispatch(err)
-		}
-	} else {
-		responseData, err = ioutil.ReadAll(googleResponse.Body)
-		if err != nil {
-			return nil, env.ErrorDispatch(err)
-		}
+	responseData, err := ioutil.ReadAll(googleResponse.Body)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
 	}
 
 	// response json workaround
