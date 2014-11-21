@@ -44,7 +44,7 @@ func setupConfig() error {
 
 	err = config.RegisterItem(env.StructConfigItem{
 		Path:        ConstConfigPathStorefrontURL,
-		Value:       "http://localhost:8080/",
+		Value:       nil,
 		Type:        "varchar(255)",
 		Editor:      "text",
 		Options:     nil,
@@ -59,7 +59,7 @@ func setupConfig() error {
 
 	err = config.RegisterItem(env.StructConfigItem{
 		Path:        ConstConfigPathDashboardURL,
-		Value:       "http://localhost:9000/",
+		Value:       nil,
 		Type:        "varchar(255)",
 		Editor:      "text",
 		Options:     nil,
@@ -74,7 +74,7 @@ func setupConfig() error {
 
 	err = config.RegisterItem(env.StructConfigItem{
 		Path:        ConstConfigPathFoundationURL,
-		Value:       "http://localhost:3000/",
+		Value:       nil,
 		Type:        "varchar(255)",
 		Editor:      "text",
 		Options:     nil,
@@ -119,7 +119,7 @@ func setupConfig() error {
 
 	err = config.RegisterItem(env.StructConfigItem{
 		Path:        ConstConfigPathStoreEmail,
-		Value:       "store@ottemo.io",
+		Value:       "",
 		Type:        "varchar(255)",
 		Editor:      "text",
 		Options:     nil,
