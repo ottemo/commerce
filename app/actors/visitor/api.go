@@ -575,10 +575,16 @@ func restForgotPassword(params *api.StructAPIHandlerParams) (interface{}, error)
 //   - visitor id must be specified in request URI
 func restInfo(params *api.StructAPIHandlerParams) (interface{}, error) {
 
+	// so if user was logged to app as admin, we want to reflect this
+	isAdmin := false
+	if api.ValidateAdminRights(params) == nil {
+		isAdmin = true
+	}
+
 	sessionValue := params.Session.Get(visitor.ConstSessionKeyVisitorID)
 	visitorID, ok := sessionValue.(string)
 	if !ok {
-		if api.ValidateAdminRights(params) == nil {
+		if isAdmin {
 			return map[string]interface{}{"is_admin": true}, nil
 		}
 		return "you are not logined in", nil
@@ -594,6 +600,11 @@ func restInfo(params *api.StructAPIHandlerParams) (interface{}, error) {
 	result := visitorModel.ToHashMap()
 	result["facebook_id"] = visitorModel.GetFacebookID()
 	result["google_id"] = visitorModel.GetGoogleID()
+
+	// overriding DB value if currently logged as admin
+	if isAdmin {
+		result["is_admin"] = true
+	}
 
 	return result, nil
 }
