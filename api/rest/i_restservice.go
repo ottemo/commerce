@@ -1,8 +1,9 @@
 package rest
 
 import (
-	"log"
+	"fmt"
 	"strings"
+	"time"
 
 	"io/ioutil"
 	"net/http"
@@ -26,8 +27,27 @@ func (it *DefaultRestService) GetName() string {
 // RegisterAPI is available for modules to call in order to provide their own REST API functionality
 func (it *DefaultRestService) RegisterAPI(service string, method string, uri string, handler api.FuncAPIHandler) error {
 
-	// httprouter needs other type of handler that we using
+	// httprouter supposes other format of handler than we use, so we need wrapper
 	wrappedHandler := func(resp http.ResponseWriter, req *http.Request, params httprouter.Params) {
+
+		// catching API handler fails
+		defer func() {
+			if recoverResult := recover(); recoverResult != nil {
+				env.ErrorNew("API call fail")
+			}
+		}()
+
+		// debug log related variables initialization
+		var startTime time.Time
+		var debugRequestIdentifier string
+
+		if ConstUseDebugLog {
+			startTime = time.Now()
+			debugRequestIdentifier = startTime.Format("20060102150405")
+		}
+
+		// Request URL parameters detection
+		//----------------------------------
 
 		// getting URL params of request
 		mappedParams := make(map[string]string)
@@ -44,13 +64,15 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 			}
 		}
 
-		// request content conversion (if possible)
-		var content interface{}
+		// Request content detection
+		//----------------------------
 
+		var content interface{}
 		contentType := req.Header.Get("Content-Type")
+
 		switch {
 
-		// JSON content
+		// request contains JSON content
 		case strings.Contains(contentType, "json"):
 			newContent := map[string]interface{}{}
 
@@ -60,7 +82,7 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 
 			content = newContent
 
-		// POST form content
+		// request contains POST form data
 		case strings.Contains(contentType, "form-data"):
 			newContent := map[string]interface{}{}
 
@@ -78,7 +100,7 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 
 			content = newContent
 
-		// x-www-form-urlencoded content
+		// request contains "x-www-form-urlencoded" data
 		case strings.Contains(contentType, "urlencode"):
 			newContent := map[string]interface{}{}
 
@@ -102,23 +124,30 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 			content = string(body)
 		}
 
-		// starting session for request
-		session, err := session.StartSession(req, resp)
+		// Handling request
+		//------------------
 
+		// starting session for request
+		currentSession, err := session.StartSession(req, resp)
 		if err != nil {
-			log.Println("Session init fail: " + err.Error())
+			env.ErrorNew("Session init fail: " + err.Error())
 		}
 
-		// module handler callback
+		// preparing struct for API handler
 		apiParams := new(api.StructAPIHandlerParams)
 		apiParams.Request = req
 		apiParams.RequestURLParams = mappedParams
 		apiParams.RequestGETParams = urlGETParams
 		apiParams.RequestContent = content
 		apiParams.ResponseWriter = resp
-		apiParams.Session = session
+		apiParams.Session = currentSession
 
-		eventData := map[string]interface{}{"session": session, "apiParams": apiParams}
+		if ConstUseDebugLog {
+			env.Log(ConstDebugLogStorage, "REQUEST_"+debugRequestIdentifier, fmt.Sprintf("%s [%s]\n%#v\n", req.RequestURI, currentSession.GetID(), content))
+		}
+
+		// event for request
+		eventData := map[string]interface{}{"session": currentSession, "apiParams": apiParams}
 		cookieReferrer, err := req.Cookie("X_Referrer")
 		if err != nil {
 			eventData["referrer"] = ""
@@ -127,11 +156,10 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 		}
 		env.Event("api.request", eventData)
 
+		// API handler processing
 		result, err := handler(apiParams)
-		if err != nil {
-			log.Printf("REST error: %s - %s\n", req.RequestURI, err.Error())
-		}
 
+		// event for response
 		eventData["response"] = result
 		env.Event("api.response", eventData)
 		result = eventData["response"]
@@ -149,6 +177,7 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 			}
 		}
 
+		// converting result to []byte if it is not already done
 		if _, ok := result.([]byte); !ok {
 
 			// JSON encode
@@ -167,10 +196,16 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 			}
 		}
 
+		if ConstUseDebugLog {
+			responseTime := time.Now().Sub(startTime)
+			env.Log(ConstDebugLogStorage, "RESPONSE_"+debugRequestIdentifier, fmt.Sprintf("%s (%dns)\n%s\n", req.RequestURI, responseTime, result))
+		}
+
 		resp.Write(result.([]byte))
 	}
 
-	// registration to httprouter
+	// registration of handler within httprouter
+	//-------------------------------------------
 	path := "/" + service + "/" + uri
 
 	switch method {
@@ -192,7 +227,7 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 	return nil
 }
 
-// entry point for HTTP request - takes control before request handled
+// ServeHTTP is an entry point for HTTP request, it takes control before request handled
 // (go lang "http.server" package "Handler" interface implementation)
 func (it DefaultRestService) ServeHTTP(responseWriter http.ResponseWriter, request *http.Request) {
 
@@ -215,8 +250,8 @@ func (it DefaultRestService) ServeHTTP(responseWriter http.ResponseWriter, reque
 
 // Run is the REST server startup function, analogous to "ListenAndServe"
 func (it *DefaultRestService) Run() error {
-	log.Println("REST API Service [HTTPRouter] starting to listen on " + it.ListenOn)
-	log.Fatal(http.ListenAndServe(it.ListenOn, it))
+	fmt.Println("REST API Service [HTTPRouter] starting to listen on " + it.ListenOn)
+	env.ErrorDispatch(http.ListenAndServe(it.ListenOn, it))
 
 	return nil
 }

@@ -16,7 +16,7 @@ func GetSessionByID(sessionID string) InterfaceSession {
 	return session
 }
 
-// ValidateAdminRights returns true if admin rights allowed for current session
+// ValidateAdminRights returns nil if admin rights allowed for current session
 func ValidateAdminRights(params *StructAPIHandlerParams) error {
 	if value := params.Session.Get(ConstSessionKeyAdminRights); value != nil {
 		if value.(bool) == true {

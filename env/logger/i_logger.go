@@ -10,7 +10,7 @@ import (
 
 // Log is a general case logging function
 func (it *DefaultLogger) Log(storage string, prefix string, msg string) {
-	message := time.Now().Format(time.RFC3339) + ": " + msg + "\n"
+	message := time.Now().Format(time.RFC3339) + " [" + prefix + "]: " + msg + "\n"
 
 	logFile, err := os.OpenFile(baseDirectory+storage, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0660)
 	if err != nil {

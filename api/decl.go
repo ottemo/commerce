@@ -8,7 +8,7 @@ import (
 )
 
 // Package global constants
-var (
+const (
 	ConstSessionKeyAdminRights = "adminRights" // session key used to flag that user have admin rights
 )
 

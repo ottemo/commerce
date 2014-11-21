@@ -6,6 +6,12 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
+// Package global constants
+const (
+	ConstUseDebugLog     = true       // flag to use REST API logging
+	ConstDebugLogStorage = "rest.txt" // log storage for debug log records
+)
+
 // DefaultRestService is a default implementer of InterfaceRestService declared in
 // "github.com/ottemo/foundation/api" package
 type DefaultRestService struct {
