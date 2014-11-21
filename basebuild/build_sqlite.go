@@ -1,6 +1,6 @@
-// +build !build
+// +build !mongo
 
-package buildset
+package basebuild
 
 import (
 	// SQLite based database service

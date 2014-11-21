@@ -6,12 +6,12 @@ import (
 	"strings"
 	"sync"
 
-	// including packages from regular build
-	_ "github.com/ottemo/foundation/buildset"
-
 	"github.com/ottemo/foundation/app"
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/env/ini"
+
+	// using standard set of packages
+	_ "github.com/ottemo/foundation/basebuild"
 )
 
 // Package global variables

@@ -17,7 +17,9 @@ import (
 	"syscall"
 
 	"github.com/ottemo/foundation/app"
-	_ "github.com/ottemo/foundation/buildset"
+
+	// using standard set of packages
+	_ "github.com/ottemo/foundation/basebuild"
 )
 
 // executable file start point

@@ -1,5 +1,5 @@
-// Package buildset is a standard set of self-initialization packages for Ottemo system
-package buildset
+// Package basebuild is a standard set of self-initialization packages for Ottemo system
+package basebuild
 
 import (
 	_ "github.com/ottemo/foundation/env/config" // system configuration service

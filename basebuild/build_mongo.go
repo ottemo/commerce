@@ -1,6 +1,6 @@
 // +build mongo
 
-package buildset
+package basebuild
 
 import (
 	// MongoDB based database service
