@@ -27,6 +27,26 @@ func (it *DBCollection) makeSQLFilterString(ColumnName string, Operator string, 
 		return "", env.ErrorNew("unknown operator '" + Operator + "' for column '" + ColumnName + "', allowed: '" + strings.Join(allowedOperators, "', ") + "'")
 	}
 
+	columnType := it.GetColumnType(ColumnName)
+
+	// array column - special case
+	if strings.HasPrefix(columnType, "[]") {
+		value := strings.Trim(convertValueForSQL(Value), "'")
+		template := "(', ' || `" + ColumnName + "` || ',') LIKE '%, $value,%'"
+
+		var resultItems []string
+		for _, arrayItem := range strings.Split(value, ", ") {
+			item := utils.InterfaceToString(arrayItem)
+			resultItems = append(resultItems, strings.Replace(template, "$value", item, 1))
+		}
+
+		if len(resultItems) == 1 {
+			return resultItems[0], nil
+		}
+		return strings.Join(resultItems, " OR "), nil
+	}
+
+	// regular columns - default case
 	switch Operator {
 	case "LIKE":
 		if typedValue, ok := Value.(string); ok && !strings.Contains(typedValue, "%") {

@@ -112,7 +112,26 @@ func (it *DBCollection) Distinct(columnName string) ([]interface{}, error) {
 				it.modifyResultRow(row)
 
 				for _, columnValue := range row {
-					result = append(result, columnValue)
+					// if value is array then we need to make distinct within array by self
+					if arrayValue, ok := columnValue.([]interface{}); ok {
+						for _, arrayItem := range arrayValue {
+							isAlreadyInResult := false
+							// looking for array item value in result array
+							for _, resultItem := range result {
+								if arrayItem == resultItem {
+									isAlreadyInResult = true
+									break
+								}
+							}
+							if !isAlreadyInResult {
+								result = append(result, arrayItem)
+							}
+						}
+					} else {
+						// if value is not array SQLite did distinct work for us
+						result = append(result, columnValue)
+					}
+
 					break
 				}
 			}
