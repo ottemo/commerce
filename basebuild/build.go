@@ -22,6 +22,7 @@ import (
 	_ "github.com/ottemo/foundation/app/actors/cart"     // checkout cart model implementation
 	_ "github.com/ottemo/foundation/app/actors/checkout" // checkout model implementation
 	_ "github.com/ottemo/foundation/app/actors/order"    // purchase order model implementation
+	_ "github.com/ottemo/foundation/app/actors/stock"    // stock management model implementation
 
 	_ "github.com/ottemo/foundation/app/actors/payment/authorizenet" // Authorize.Net payment method
 	_ "github.com/ottemo/foundation/app/actors/payment/checkmo"      // "Check Money Order" payment method

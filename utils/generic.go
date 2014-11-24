@@ -537,3 +537,40 @@ func StringToInterface(value string) interface{} {
 
 	return trimmedValue
 }
+
+// MatchMapAValuesToMapB compares key values of mapA to same key value of mapB, returns true
+// if all keys in mapA present and matches keys in mapB
+func MatchMapAValuesToMapB(mapA map[string]interface{}, mapB map[string]interface{}) bool {
+
+	if mapA == nil || mapB == nil {
+		if mapA == nil && mapB == nil {
+			return true
+		}
+		return false
+	}
+
+	for key, valueA := range mapA {
+		if valueB, present := mapB[key]; present {
+			switch valueA.(type) {
+			case string, int, int32, int64, float32, float64, uint, uint32, uint64, complex64, complex128:
+				return valueA == valueB
+
+			case map[string]interface{}:
+				typedValueA, okA := valueA.(map[string]interface{})
+				typedValueB, okB := valueB.(map[string]interface{})
+
+				if okA && okB {
+					return MatchMapAValuesToMapB(typedValueA, typedValueB)
+				}
+				return false
+
+			default:
+				return valueA == valueB
+			}
+		} else {
+			break
+		}
+	}
+
+	return false
+}

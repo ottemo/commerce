@@ -11,6 +11,8 @@ var (
 
 	registeredTaxes     = make([]InterfaceTax, 0)
 	registeredDiscounts = make([]InterfaceDiscount, 0)
+
+	registeredStock InterfaceStock
 )
 
 // RegisterShippingMethod registers given shipping method in system
@@ -65,6 +67,16 @@ func RegisterDiscount(discount InterfaceDiscount) error {
 	return nil
 }
 
+// RegisterStock registers given stock manager in system
+func RegisterStock(stock InterfaceStock) error {
+	if registeredStock != nil {
+		return env.ErrorNew("stock already registered")
+	}
+	registeredStock = stock
+
+	return nil
+}
+
 // GetRegisteredShippingMethods returns list of registered shipping methods
 func GetRegisteredShippingMethods() []InterfaceShippingMethod {
 	return registeredShippingMethods
@@ -83,4 +95,9 @@ func GetRegisteredTaxes() []InterfaceTax {
 // GetRegisteredDiscounts returns list of registered tax calculators
 func GetRegisteredDiscounts() []InterfaceDiscount {
 	return registeredDiscounts
+}
+
+// GetRegisteredStock returns currently used stack manager or nil
+func GetRegisteredStock() InterfaceStock {
+	return registeredStock
 }
