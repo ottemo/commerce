@@ -66,6 +66,7 @@ func setupAPI() error {
 	return nil
 }
 
+// WEB REST API used for registering a new storefront visit and obtain referer info
 func restRegisterVisit(params *api.StructAPIHandlerParams) (interface{}, error) {
 	xReferrer := utils.InterfaceToString(params.Request.Header.Get("X-Referer"))
 
@@ -77,6 +78,7 @@ func restRegisterVisit(params *api.StructAPIHandlerParams) (interface{}, error) 
 	return nil, nil
 }
 
+// WEB REST API used to obtain site referers list
 func restGetReferrers(params *api.StructAPIHandlerParams) (interface{}, error) {
 	result := make(map[string]int)
 
@@ -87,6 +89,7 @@ func restGetReferrers(params *api.StructAPIHandlerParams) (interface{}, error) {
 	return result, nil
 }
 
+// WEB REST API used to obtain site visit information for current day
 func restGetVisits(params *api.StructAPIHandlerParams) (interface{}, error) {
 	result := make(map[string]interface{})
 
@@ -112,6 +115,7 @@ func restGetVisits(params *api.StructAPIHandlerParams) (interface{}, error) {
 	return result, nil
 }
 
+// WEB REST API used to obtain detailed site visit information for a specified period
 func restGetVisitsDetails(params *api.StructAPIHandlerParams) (interface{}, error) {
 	result := make(map[string]int)
 
@@ -178,6 +182,7 @@ func restGetVisitsDetails(params *api.StructAPIHandlerParams) (interface{}, erro
 	return result, nil
 }
 
+// WEB REST API used to obtain site conversation information
 func restGetConversions(params *api.StructAPIHandlerParams) (interface{}, error) {
 	result := make(map[string]interface{})
 
@@ -189,6 +194,7 @@ func restGetConversions(params *api.StructAPIHandlerParams) (interface{}, error)
 	return result, nil
 }
 
+// WEB REST API used to get information on site sales for today
 func restGetSales(params *api.StructAPIHandlerParams) (interface{}, error) {
 	result := make(map[string]interface{})
 
@@ -216,6 +222,7 @@ func restGetSales(params *api.StructAPIHandlerParams) (interface{}, error) {
 	return result, nil
 }
 
+// WEB REST API used to get information on site sales for a specified period
 func restGetSalesDetails(params *api.StructAPIHandlerParams) (interface{}, error) {
 	result := make(map[string]int)
 
@@ -264,6 +271,7 @@ func restGetSalesDetails(params *api.StructAPIHandlerParams) (interface{}, error
 	return result, nil
 }
 
+// WEB REST API used to get information on site top sellers
 func restGetTopSellers(params *api.StructAPIHandlerParams) (interface{}, error) {
 	result := make(map[string]*SellerInfo)
 
@@ -310,6 +318,7 @@ func restGetTopSellers(params *api.StructAPIHandlerParams) (interface{}, error) 
 	return result, nil
 }
 
+// WEB REST API used to get information on site real time visitors
 func restGetVisitsRealtime(params *api.StructAPIHandlerParams) (interface{}, error) {
 	result := make(map[string]interface{})
 	ratio := float64(0)

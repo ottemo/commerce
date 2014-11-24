@@ -208,8 +208,8 @@ func registerVisitorAsOnlineHandler(event string, data map[string]interface{}) b
 		}
 
 		isSearchEngine := false
-		for index := 0; index < len(searchEngines); index++ {
-			if strings.Contains(referrer, searchEngines[index]) {
+		for index := 0; index < len(knownSearchEngines); index++ {
+			if strings.Contains(referrer, knownSearchEngines[index]) {
 				isSearchEngine = true
 			}
 		}

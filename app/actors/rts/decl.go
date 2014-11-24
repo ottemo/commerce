@@ -3,73 +3,6 @@ package rts
 
 import "time"
 
-/**
- * referrers = {
- * 		'url_1': N,
- * 		'url_2': N
- * }
- *
- * visits = {
- *		'Yesterday': 'DAY_2',
- *		'Today': 'DAY_1',
- *		'Data' : {
- * 			'DAY_1': {sessionID_1: timestamp, sessionID_2: timestamp, .., sessionID_N: timestamp},
- *			'...': 	 {sessionID_1: timestamp, sessionID_2: timestamp, .., sessionID_N: timestamp},
- *			'DAY_N': {sessionID_1: timestamp, sessionID_2: timestamp, .., sessionID_N: timestamp},
- *		}
- * }
- *
- * conversions = {
- *		"addedToCart": {sessionID_1: true, sessionID_2: true, .., sessionID_N: true},
- *		"reachedCheckout": {sessionID_1: true, sessionID_2: true, .., sessionID_N: true},
- *		"purchased": {sessionID_1: true, sessionID_2: true, .., sessionID_N: true},
- *		"visitors": X
- * }
- *
- * sales = {
- *		"lastUpdate": timestamp,
- *		"today": x,
- *		"yesterday": y,
- *		"ratio": z,
- * }
- *
- * salesDetail = {
- *		"period(MD5(dateFrom/dateTo))": {
- *			"Data": {},
- *			"lastUpdate": timestamp
- *		}
- * }
- *
- * topSellers = {
- *		"lastUpdate": timestamp,
- *		"Data": {
- *			"itemID_1": {
- *				"Name": "XXX",
- *				"Image": "YYY",
- *				"Count": X,
- *			},
- *			...
- *			"itemID_N": {
- *				"Name": "XXX",
- *				"Image": "YYY",
- *				"Count": X,
- *			},
- *		},
- * }
- *
- * type OnlineReferer struct {
- * 		type int
- * 		time int
- * }
- *
- * OnlineSessions map[string]OnlineReferer
- * OnlineDirect int
- * OnlineSite int
- * OnlineSearch int
- *
- *
- */
-
 // Package global constants
 const (
 	ConstCollectionNameRTSSalesHistory = "rts_sales_history"
@@ -88,15 +21,17 @@ const (
 
 // Package global variables
 var (
-	referrers             = make(map[string]int)
-	visitorsInfoToday     = new(dbVisitorRow)
-	visitorsInfoYesterday = new(dbVisitorRow)
+	referrers             = make(map[string]int) // collects and counts refers from external sites
+	visitorsInfoToday     = new(dbVisitorsRow)   // information on current day site visits
+	visitorsInfoYesterday = new(dbVisitorsRow)   // information on previous day site visits
 
-	sales       = Sales{}
-	salesDetail = make(map[string]*SalesDetailData)
-	topSellers  = new(TopSellers)
+	sales       = new(Sales)                        // amount of sales for today (created orders)
+	salesDetail = make(map[string]*SalesDetailData) // sales details on day/hour basis (used for dashboard graphs)
+	topSellers  = new(TopSellers)                   // top sellers information
 
-	OnlineSessions    = make(map[string]*OnlineReferrer)
+	// OnlineSessions holds session based information about referer type on first visit
+	OnlineSessions = make(map[string]*OnlineReferrer)
+
 	OnlineDirect      = 0
 	OnlineSite        = 0
 	OnlineSearch      = 0
@@ -105,7 +40,8 @@ var (
 	OnlineSiteMax     = 0
 	OnlineSearchMax   = 0
 
-	searchEngines = []string{"www.daum.net", "www.google.com", "www.eniro.se", "www.naver.com", "www.yahoo.com",
+	// knownSearchEngines is a list of search engines used to determinate referer type
+	knownSearchEngines = []string{"www.daum.net", "www.google.com", "www.eniro.se", "www.naver.com", "www.yahoo.com",
 		"www.msn.com", "www.bing.com", "www.aol.com", "www.aol.com", "www.lycos.com", "www.ask.com", "www.altavista.com",
 		"search.netscape.com", "www.cnn.com", "www.about.com", "www.mamma.com", "www.alltheweb.com", "www.voila.fr",
 		"search.virgilio.it", "www.bing.com", "www.baidu.com", "www.alice.com", "www.yandex.com", "www.najdi.org.mk",
@@ -127,45 +63,45 @@ type VisitorDetail struct {
 	Checkout int
 }
 
-// dbVisitorRow - unknown purpose structure
-type dbVisitorRow struct {
-	ID       string
-	Day      time.Time
-	Visitors int
-	Cart     int
-	Checkout int
-	Sales    int
+// dbVisitorsRow represents database record on site visit activity for a day
+type dbVisitorsRow struct {
+	ID       string    // database record _id
+	Day      time.Time // day when event happened
+	Visitors int       // count site visits
+	Cart     int       // count times product was added to cart
+	Checkout int       // count times checkout acheeved
+	Sales    int       // count of orders visitor made
 	Details  map[string]*VisitorDetail
 }
 
-// Sales - unknown purpose structure
+// Sales represents statistics on created orders for a day
 type Sales struct {
-	lastUpdate int64
-	today      int
-	yesterday  int
-	ratio      float64
+	lastUpdate int64   // timestamp used to track current day
+	today      int     // today orders made
+	yesterday  int     // yesterday orders made
+	ratio      float64 // % sales for today in compare to yesterday: (today / yesterday)-1
 }
 
-// SalesDetailData - unknown purpose structure
+// SalesDetailData holds hour/day detailed information about sales
 type SalesDetailData struct {
-	Data       map[string]int
-	lastUpdate int64
+	Data       map[string]int // count of sales for specified in key time
+	lastUpdate int64          // timestamp used to update struct once in a hour
 }
 
-// TopSellers - unknown purpose structure
+// TopSellers holds information about best sellers
 type TopSellers struct {
-	Data       map[string]*SellerInfo
-	lastUpdate int64
+	Data       map[string]*SellerInfo // product id based map holds best sellers
+	lastUpdate int64                  // timestamp used to update struct once in a hour
 }
 
-// SellerInfo - unknown purpose structure
+// SellerInfo represents particular product in TopSellers struct
 type SellerInfo struct {
-	Name  string
-	Image string
-	Count int
+	Name  string // product name
+	Image string // product image
+	Count int    // times bought
 }
 
-// OnlineReferrer - unknown purpose structure
+// OnlineReferrer holds information about visit referer type and visit time
 type OnlineReferrer struct {
 	referrerType int
 	time         time.Time

@@ -467,7 +467,7 @@ func GetTodayVisitorsData() error {
 		}
 	}
 
-	visitorsInfoToday = new(dbVisitorRow)
+	visitorsInfoToday = new(dbVisitorsRow)
 	visitorsInfoToday.ID = ""
 	visitorsInfoToday.Day = today
 	visitorsInfoToday.Details = make(map[string]*VisitorDetail)
@@ -504,7 +504,7 @@ func GetYesterdayVisitorsData() error {
 		}
 	}
 
-	visitorsInfoYesterday = new(dbVisitorRow)
+	visitorsInfoYesterday = new(dbVisitorsRow)
 	visitorsInfoYesterday.ID = ""
 	visitorsInfoYesterday.Day = yesterday
 	visitorsInfoYesterday.Details = make(map[string]*VisitorDetail)
