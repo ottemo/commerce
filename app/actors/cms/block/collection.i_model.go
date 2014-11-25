@@ -7,19 +7,19 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
-// returns model name
+// GetModelName returns model name
 func (it *DefaultCMSBlockCollection) GetModelName() string {
-	return cms.MODEL_NAME_CMS_BLOCK_COLLECTION
+	return cms.ConstModelNameCMSBlockCollection
 }
 
-// returns model implementation name
+// GetImplementationName returns model implementation name
 func (it *DefaultCMSBlockCollection) GetImplementationName() string {
-	return "Default" + cms.MODEL_NAME_CMS_BLOCK_COLLECTION
+	return "Default" + cms.ConstModelNameCMSBlockCollection
 }
 
-// returns new instance of model implementation object
-func (it *DefaultCMSBlockCollection) New() (models.I_Model, error) {
-	dbCollection, err := db.GetCollection(CMS_BLOCK_COLLECTION_NAME)
+// New returns new instance of model implementation object
+func (it *DefaultCMSBlockCollection) New() (models.InterfaceModel, error) {
+	dbCollection, err := db.GetCollection(ConstCmsBlockCollectionName)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}

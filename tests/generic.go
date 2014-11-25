@@ -1,3 +1,4 @@
+// Package tests represents a set of tests intended to benchmark application
 package tests
 
 import (
@@ -9,59 +10,24 @@ import (
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/env/ini"
 
-	_ "github.com/ottemo/foundation/env/config"
-	_ "github.com/ottemo/foundation/env/errors"
-	_ "github.com/ottemo/foundation/env/events"
-	_ "github.com/ottemo/foundation/env/ini"
-	_ "github.com/ottemo/foundation/env/logger"
-
-	_ "github.com/ottemo/foundation/db/sqlite"
-	//_ "github.com/ottemo/foundation/db/mongo"
-
-	_ "github.com/ottemo/foundation/media/fsmedia"
-
-	_ "github.com/ottemo/foundation/api/rest"
-
-	_ "github.com/ottemo/foundation/app/actors/cart"
-	_ "github.com/ottemo/foundation/app/actors/category"
-	_ "github.com/ottemo/foundation/app/actors/product"
-	_ "github.com/ottemo/foundation/app/actors/visitor"
-	_ "github.com/ottemo/foundation/app/actors/visitor/address"
-
-	_ "github.com/ottemo/foundation/app/actors/checkout"
-	_ "github.com/ottemo/foundation/app/actors/order"
-
-	_ "github.com/ottemo/foundation/app/actors/payment/checkmo"
-	_ "github.com/ottemo/foundation/app/actors/payment/paypal"
-
-	_ "github.com/ottemo/foundation/app/actors/shipping/flat"
-	_ "github.com/ottemo/foundation/app/actors/shipping/usps"
-
-	_ "github.com/ottemo/foundation/app/actors/discount"
-	_ "github.com/ottemo/foundation/app/actors/tax"
-
-	_ "github.com/ottemo/foundation/app/actors/product/review"
-
-	_ "github.com/ottemo/foundation/app/actors/cms"
-	_ "github.com/ottemo/foundation/app/actors/seo"
-
-	_ "github.com/ottemo/foundation/app/actors/payment/authorize"
-	_ "github.com/ottemo/foundation/app/actors/shipping/fedex"
+	// using standard set of packages
+	_ "github.com/ottemo/foundation/basebuild"
 )
 
+// Package global variables
 var (
 	startAppFlag  bool
 	startAppMutex sync.RWMutex
 )
 
-// switches ini config to use value from test section instead of general
+// SwitchToTestIniSection switches ini config to use value from test section instead of general
 func SwitchToTestIniSection() error {
-	os.Setenv(ini.ENVIRONMENT_INI_SECTION, ini.TEST_SECTION_NAME)
+	os.Setenv(ini.ConstEnvironmentIniSection, ini.ConstTestSectionName)
 
 	return nil
 }
 
-// modifies current working directory to be same for all packages
+// UpdateWorkingDirectory modifies current working directory to be same for all packages
 func UpdateWorkingDirectory() error {
 
 	// was specified environment variable
@@ -90,7 +56,7 @@ func UpdateWorkingDirectory() error {
 	return nil
 }
 
-// prepares database to be used for tests
+// CheckTestIniDefaults prepares database to be used for tests
 func CheckTestIniDefaults() error {
 
 	// we need to init iniConfig before check
@@ -101,26 +67,26 @@ func CheckTestIniDefaults() error {
 
 	// checking default test mode values
 	iniConfig := env.GetIniConfig()
-	iniConfig.SetWorkingSection(ini.TEST_SECTION_NAME)
+	iniConfig.SetWorkingSection(ini.ConstTestSectionName)
 
 	changesMade := false
 
 	// checking sqlite
-	if iniConfig.GetSectionValue(ini.TEST_SECTION_NAME, "db.sqlite3.uri", "") == "" {
+	if iniConfig.GetSectionValue(ini.ConstTestSectionName, "db.sqlite3.uri", "") == "" {
 		iniConfig.SetValue("db.sqlite3.uri", "ottemo_test.db")
 
 		changesMade = true
 	}
 
 	// checking mongodb
-	if iniConfig.GetSectionValue(ini.TEST_SECTION_NAME, "mongodb.uri", "") == "" {
+	if iniConfig.GetSectionValue(ini.ConstTestSectionName, "mongodb.uri", "") == "" {
 		uriValue := strings.Trim(iniConfig.GetValue("mongodb.uri", "mongodb://localhost:27017/ottemo"), "/") + "_test"
 		iniConfig.SetValue("mongodb.uri", uriValue)
 
 		changesMade = true
 	}
 
-	if iniConfig.GetSectionValue(ini.TEST_SECTION_NAME, "mongodb.db", "") == "" {
+	if iniConfig.GetSectionValue(ini.ConstTestSectionName, "mongodb.db", "") == "" {
 		dbValue := iniConfig.GetValue("mongodb.db", "ottemo") + "_test"
 		iniConfig.SetValue("mongodb.db", dbValue)
 
@@ -141,12 +107,12 @@ func CheckTestIniDefaults() error {
 	}
 
 	envConfig := env.GetConfig()
-	envConfig.SetValue(app.CONFIG_PATH_MAIL_PORT, nil)
+	envConfig.SetValue(app.ConstConfigPathMailPort, nil)
 
 	return nil
 }
 
-// you should use that function in your package GO tests to run application and init modules
+// StartAppInTestingMode starts application in "test mode" (you should use that function for your package tests)
 func StartAppInTestingMode() error {
 	startAppMutex.Lock()
 	defer startAppMutex.Unlock()

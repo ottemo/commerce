@@ -10,11 +10,11 @@ import (
 	"github.com/ottemo/foundation/utils"
 )
 
-// returns object attribute value or nil
+// Get returns object attribute value or nil
 func (it *DefaultCMSBlock) Get(attribute string) interface{} {
 	switch strings.ToLower(attribute) {
 	case "_id", "id":
-		return it.GetId()
+		return it.GetID()
 	case "identifier":
 		return it.GetIdentifier()
 	case "content":
@@ -28,13 +28,13 @@ func (it *DefaultCMSBlock) Get(attribute string) interface{} {
 	return nil
 }
 
-// sets attribute value to object or returns error
+// Set sets attribute value to object or returns error
 func (it *DefaultCMSBlock) Set(attribute string, value interface{}) error {
 	attribute = strings.ToLower(attribute)
 
 	switch attribute {
 	case "_id", "id":
-		return it.SetId(utils.InterfaceToString(value))
+		return it.SetID(utils.InterfaceToString(value))
 	case "identifier":
 		return it.SetIdentifier(utils.InterfaceToString(value))
 	case "content":
@@ -50,7 +50,7 @@ func (it *DefaultCMSBlock) Set(attribute string, value interface{}) error {
 	return env.ErrorNew("unknown attribute '" + attribute + "'")
 }
 
-// represents object as map[string]interface{}
+// FromHashMap represents object as map[string]interface{}
 func (it *DefaultCMSBlock) FromHashMap(input map[string]interface{}) error {
 
 	for attribute, value := range input {
@@ -62,7 +62,7 @@ func (it *DefaultCMSBlock) FromHashMap(input map[string]interface{}) error {
 	return nil
 }
 
-// fills object attributes from map[string]interface{}
+// ToHashMap fills object attributes from map[string]interface{}
 func (it *DefaultCMSBlock) ToHashMap() map[string]interface{} {
 
 	result := make(map[string]interface{})
@@ -77,13 +77,13 @@ func (it *DefaultCMSBlock) ToHashMap() map[string]interface{} {
 	return result
 }
 
-// returns information about object attributes
-func (it *DefaultCMSBlock) GetAttributesInfo() []models.T_AttributeInfo {
+// GetAttributesInfo returns information about object attributes
+func (it *DefaultCMSBlock) GetAttributesInfo() []models.StructAttributeInfo {
 
-	info := []models.T_AttributeInfo{
-		models.T_AttributeInfo{
-			Model:      cms.MODEL_NAME_CMS_BLOCK,
-			Collection: CMS_BLOCK_COLLECTION_NAME,
+	info := []models.StructAttributeInfo{
+		models.StructAttributeInfo{
+			Model:      cms.ConstModelNameCMSBlock,
+			Collection: ConstCmsBlockCollectionName,
 			Attribute:  "_id",
 			Type:       "id",
 			IsRequired: false,
@@ -94,9 +94,9 @@ func (it *DefaultCMSBlock) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
-			Model:      cms.MODEL_NAME_CMS_BLOCK,
-			Collection: CMS_BLOCK_COLLECTION_NAME,
+		models.StructAttributeInfo{
+			Model:      cms.ConstModelNameCMSBlock,
+			Collection: ConstCmsBlockCollectionName,
 			Attribute:  "identifier",
 			Type:       "varchar(255)",
 			IsRequired: true,
@@ -107,9 +107,9 @@ func (it *DefaultCMSBlock) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
-			Model:      cms.MODEL_NAME_CMS_BLOCK,
-			Collection: CMS_BLOCK_COLLECTION_NAME,
+		models.StructAttributeInfo{
+			Model:      cms.ConstModelNameCMSBlock,
+			Collection: ConstCmsBlockCollectionName,
 			Attribute:  "content",
 			Type:       "text",
 			IsRequired: false,
@@ -120,9 +120,9 @@ func (it *DefaultCMSBlock) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
-			Model:      cms.MODEL_NAME_CMS_BLOCK,
-			Collection: CMS_BLOCK_COLLECTION_NAME,
+		models.StructAttributeInfo{
+			Model:      cms.ConstModelNameCMSBlock,
+			Collection: ConstCmsBlockCollectionName,
 			Attribute:  "created_at",
 			Type:       "datetime",
 			IsRequired: true,
@@ -133,9 +133,9 @@ func (it *DefaultCMSBlock) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
-			Model:      cms.MODEL_NAME_CMS_BLOCK,
-			Collection: CMS_BLOCK_COLLECTION_NAME,
+		models.StructAttributeInfo{
+			Model:      cms.ConstModelNameCMSBlock,
+			Collection: ConstCmsBlockCollectionName,
 			Attribute:  "updated_at",
 			Type:       "datetime",
 			IsRequired: true,

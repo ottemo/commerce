@@ -1,28 +1,29 @@
+// Package checkout is a default implementation of interfaces declared in
+// "github.com/ottemo/foundation/app/models/checkout" package
 package checkout
 
 import (
 	"github.com/ottemo/foundation/app/models/checkout"
 )
 
-const ()
-
+// DefaultCheckout is a default implementer of InterfaceCheckout
 type DefaultCheckout struct {
-	CartId    string
-	VisitorId string
-	OrderId   string
+	CartID    string
+	VisitorID string
+	OrderID   string
 
-	SessionId string
+	SessionID string
 
-	ShippingAddressId string
-	BillingAddressId  string
+	ShippingAddressID string
+	BillingAddressID  string
 
 	PaymentMethodCode  string
 	ShippingMethodCode string
 
-	ShippingRate checkout.T_ShippingRate
+	ShippingRate checkout.StructShippingRate
 
-	Taxes     []checkout.T_TaxRate
-	Discounts []checkout.T_Discount
+	Taxes     []checkout.StructTaxRate
+	Discounts []checkout.StructDiscount
 
 	Info map[string]interface{}
 

@@ -7,9 +7,9 @@ import (
 	"github.com/ottemo/foundation/utils"
 )
 
-// enumerates items of model type
-func (it *DefaultCategoryCollection) List() ([]models.T_ListItem, error) {
-	result := make([]models.T_ListItem, 0)
+// List enumerates items of model type
+func (it *DefaultCategoryCollection) List() ([]models.StructListItem, error) {
+	var result []models.StructListItem
 
 	// loading data from DB
 	//---------------------
@@ -18,7 +18,7 @@ func (it *DefaultCategoryCollection) List() ([]models.T_ListItem, error) {
 		return result, env.ErrorDispatch(err)
 	}
 
-	// converting db record to T_ListItem
+	// converting db record to StructListItem
 	//-----------------------------------
 	for _, dbItemData := range dbItems {
 		categoryModel, err := category.GetCategoryModel()
@@ -28,9 +28,9 @@ func (it *DefaultCategoryCollection) List() ([]models.T_ListItem, error) {
 		categoryModel.FromHashMap(dbItemData)
 
 		// retrieving minimal data needed for list
-		resultItem := new(models.T_ListItem)
+		resultItem := new(models.StructListItem)
 
-		resultItem.Id = categoryModel.GetId()
+		resultItem.ID = categoryModel.GetID()
 		resultItem.Name = categoryModel.GetName()
 		resultItem.Image = ""
 		resultItem.Desc = ""
@@ -51,7 +51,7 @@ func (it *DefaultCategoryCollection) List() ([]models.T_ListItem, error) {
 	return result, nil
 }
 
-// allows to obtain additional attributes from  List() function
+// ListAddExtraAttribute allows to obtain additional attributes from  List() function
 func (it *DefaultCategoryCollection) ListAddExtraAttribute(attribute string) error {
 
 	categoryModel, err := category.GetCategoryModel()
@@ -59,7 +59,7 @@ func (it *DefaultCategoryCollection) ListAddExtraAttribute(attribute string) err
 		return env.ErrorDispatch(err)
 	}
 
-	allowedAttributes := make([]string, 0)
+	var allowedAttributes []string
 	for _, attributeInfo := range categoryModel.GetAttributesInfo() {
 		allowedAttributes = append(allowedAttributes, attributeInfo.Attribute)
 	}
@@ -78,19 +78,19 @@ func (it *DefaultCategoryCollection) ListAddExtraAttribute(attribute string) err
 	return nil
 }
 
-// adds selection filter to List() function
+// ListFilterAdd adds selection filter to List() function
 func (it *DefaultCategoryCollection) ListFilterAdd(Attribute string, Operator string, Value interface{}) error {
 	it.listCollection.AddFilter(Attribute, Operator, Value.(string))
 	return nil
 }
 
-// clears presets made by ListFilterAdd() and ListAddExtraAttribute() functions
+// ListFilterReset clears presets made by ListFilterAdd() and ListAddExtraAttribute() functions
 func (it *DefaultCategoryCollection) ListFilterReset() error {
 	it.listCollection.ClearFilters()
 	return nil
 }
 
-// specifies selection paging
+// ListLimit specifies selection paging
 func (it *DefaultCategoryCollection) ListLimit(offset int, limit int) error {
 	return it.listCollection.SetLimit(offset, limit)
 }

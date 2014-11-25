@@ -1,46 +1,53 @@
+// Package models represents abstraction of business layer object and basic access interfaces for it
 package models
 
 import (
 	"github.com/ottemo/foundation/db"
 )
 
-type I_Model interface {
+// InterfaceModel represents interface for basic business layer implementation object
+type InterfaceModel interface {
 	GetModelName() string
 	GetImplementationName() string
-	New() (I_Model, error)
+	New() (InterfaceModel, error)
 }
 
-type I_Storable interface {
-	GetId() string
-	SetId(string) error
+// InterfaceStorable represents interface load/store business layer implementation object from database
+type InterfaceStorable interface {
+	GetID() string
+	SetID(string) error
 
 	Save() error
 	Load(id string) error
 	Delete() error
 }
 
-type I_Object interface {
+// InterfaceObject represents interface to access business layer implementation object via get/set functions
+type InterfaceObject interface {
 	Get(attribute string) interface{}
 	Set(attribute string, value interface{}) error
 
 	FromHashMap(hashMap map[string]interface{}) error
 	ToHashMap() map[string]interface{}
 
-	GetAttributesInfo() []T_AttributeInfo
+	GetAttributesInfo() []StructAttributeInfo
 }
 
-type I_Listable interface {
-	GetCollection() I_Collection
+// InterfaceListable represents interface to access business layer implementation collection via object instance
+type InterfaceListable interface {
+	GetCollection() InterfaceCollection
 }
 
-type I_CustomAttributes interface {
+// InterfaceCustomAttributes represents interface to access business layer implementation object custom attributes
+type InterfaceCustomAttributes interface {
 	GetCustomAttributeCollectionName() string
 
-	AddNewAttribute(newAttribute T_AttributeInfo) error
+	AddNewAttribute(newAttribute StructAttributeInfo) error
 	RemoveAttribute(attributeName string) error
 }
 
-type I_Media interface {
+// InterfaceMedia represents interface to access business layer implementation object assigned media resources
+type InterfaceMedia interface {
 	AddMedia(mediaType string, mediaName string, content []byte) error
 	RemoveMedia(mediaType string, mediaName string) error
 
@@ -50,10 +57,11 @@ type I_Media interface {
 	GetMediaPath(mediaType string) (string, error)
 }
 
-type I_Collection interface {
-	GetDBCollection() db.I_DBCollection
+// InterfaceCollection represents interface to access business layer implementation collection
+type InterfaceCollection interface {
+	GetDBCollection() db.InterfaceDBCollection
 
-	List() ([]T_ListItem, error)
+	List() ([]StructListItem, error)
 
 	ListAddExtraAttribute(attribute string) error
 

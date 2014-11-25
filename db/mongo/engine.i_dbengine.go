@@ -10,20 +10,20 @@ import (
 	"labix.org/v2/mgo/bson"
 )
 
-// returns current DB engine name
-func (it *MongoDB) GetName() string {
+// GetName returns current DB engine name
+func (it *DBEngine) GetName() string {
 	return "MongoDB"
 }
 
-// checks if collection already exists
-func (it *MongoDB) HasCollection(CollectionName string) bool {
+// HasCollection checks if collection already exists
+func (it *DBEngine) HasCollection(CollectionName string) bool {
 	CollectionName = strings.ToLower(CollectionName)
 
 	return true
 }
 
-// creates cllection by it's name
-func (it *MongoDB) CreateCollection(CollectionName string) error {
+// CreateCollection creates cllection by it's name
+func (it *DBEngine) CreateCollection(CollectionName string) error {
 	CollectionName = strings.ToLower(CollectionName)
 
 	err := it.database.C(CollectionName).Create(new(mgo.CollectionInfo))
@@ -36,8 +36,8 @@ func (it *MongoDB) CreateCollection(CollectionName string) error {
 	return env.ErrorDispatch(err)
 }
 
-// returns collection by name or creates new one
-func (it *MongoDB) GetCollection(CollectionName string) (db.I_DBCollection, error) {
+// GetCollection returns collection by name or creates new one
+func (it *DBEngine) GetCollection(CollectionName string) (db.InterfaceDBCollection, error) {
 	CollectionName = strings.ToLower(CollectionName)
 
 	if _, present := it.collections[CollectionName]; !present {
@@ -49,9 +49,9 @@ func (it *MongoDB) GetCollection(CollectionName string) (db.I_DBCollection, erro
 
 	mgoCollection := it.database.C(CollectionName)
 
-	result := &MongoDBCollection{
+	result := &DBCollection{
 		Name:             CollectionName,
-		FilterGroups:     make(map[string]*T_DBFilterGroup),
+		FilterGroups:     make(map[string]*StructDBFilterGroup),
 		ResultAttributes: make([]string, 0),
 		database:         it.database,
 		collection:       mgoCollection,
@@ -60,11 +60,11 @@ func (it *MongoDB) GetCollection(CollectionName string) (db.I_DBCollection, erro
 	return result, nil
 }
 
-// executes raw query for DB engine.
+// RawQuery executes raw query for DB engine.
 //   This function makes eval commang on mongo db (http://docs.mongodb.org/manual/reference/command/eval/#dbcmd.eval)
 //   so if you are using "db.collection.find()" - it returns cursor object, do not forget to add ".toArray()", i.e.
 //   "db.collection.find().toArray()"
-func (it *MongoDB) RawQuery(query string) (map[string]interface{}, error) {
+func (it *DBEngine) RawQuery(query string) (map[string]interface{}, error) {
 	result := make(map[string]interface{})
 	err := it.database.Run(bson.D{{"eval", query}}, result)
 	return result, err

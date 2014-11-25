@@ -9,20 +9,20 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
-// module entry point before app start
+// init makes package self-initialization routine before app start
 func init() {
 	api.RegisterOnRestServiceStart(setupAPI)
 	db.RegisterOnDatabaseStart(setupDB)
 	app.OnAppStart(initListners)
 	app.OnAppStart(initSalesHistory)
 
-	seconds := time.Millisecond * VisitorOnlineSeconds * 1000
+	seconds := time.Millisecond * ConstVisitorOnlineSeconds * 1000
 	ticker := time.NewTicker(seconds)
 	go func() {
 		for _ = range ticker.C {
 			for sessionID := range OnlineSessions {
 				delta := time.Now().Sub(OnlineSessions[sessionID].time)
-				if float64(VisitorOnlineSeconds) < delta.Seconds() {
+				if float64(ConstVisitorOnlineSeconds) < delta.Seconds() {
 					DecreaseOnline(OnlineSessions[sessionID].referrerType)
 					delete(OnlineSessions, sessionID)
 				}
@@ -50,7 +50,7 @@ func initListners() error {
 // DB preparations for current model implementation
 func setupDB() error {
 
-	collection, err := db.GetCollection(CollectionNameSalesHistory)
+	collection, err := db.GetCollection(ConstCollectionNameRTSSalesHistory)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -59,7 +59,7 @@ func setupDB() error {
 	collection.AddColumn("created_at", "datetime", false)
 	collection.AddColumn("count", "int", false)
 
-	collection, err = db.GetCollection(CollectionNameSales)
+	collection, err = db.GetCollection(ConstCollectionNameRTSSales)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -68,7 +68,7 @@ func setupDB() error {
 	collection.AddColumn("count", "int", false)
 	collection.AddColumn("range", "varchar(21)", false)
 
-	collection, err = db.GetCollection(CollectionNameVisitors)
+	collection, err = db.GetCollection(ConstCollectionNameRTSVisitors)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}

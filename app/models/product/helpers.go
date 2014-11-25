@@ -5,45 +5,45 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
-// retrieves current I_ProductCollection model implementation
-func GetProductCollectionModel() (I_ProductCollection, error) {
-	model, err := models.GetModel(MODEL_NAME_PRODUCT_COLLECTION)
+// GetProductCollectionModel retrieves current InterfaceProductCollection model implementation
+func GetProductCollectionModel() (InterfaceProductCollection, error) {
+	model, err := models.GetModel(ConstModelNameProductCollection)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	productModel, ok := model.(I_ProductCollection)
+	productModel, ok := model.(InterfaceProductCollection)
 	if !ok {
-		return nil, env.ErrorNew("model " + model.GetImplementationName() + " is not 'I_ProductCollection' capable")
+		return nil, env.ErrorNew("model " + model.GetImplementationName() + " is not 'InterfaceProductCollection' capable")
 	}
 
 	return productModel, nil
 }
 
-// retrieves current I_Product model implementation
-func GetProductModel() (I_Product, error) {
-	model, err := models.GetModel(MODEL_NAME_PRODUCT)
+// GetProductModel retrieves current InterfaceProduct model implementation
+func GetProductModel() (InterfaceProduct, error) {
+	model, err := models.GetModel(ConstModelNameProduct)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	productModel, ok := model.(I_Product)
+	productModel, ok := model.(InterfaceProduct)
 	if !ok {
-		return nil, env.ErrorNew("model " + model.GetImplementationName() + " is not 'I_Product' capable")
+		return nil, env.ErrorNew("model " + model.GetImplementationName() + " is not 'InterfaceProduct' capable")
 	}
 
 	return productModel, nil
 }
 
-// retrieves current I_Product model implementation and sets its ID to some value
-func GetProductModelAndSetId(productId string) (I_Product, error) {
+// GetProductModelAndSetID retrieves current InterfaceProduct model implementation and sets its ID to some value
+func GetProductModelAndSetID(productID string) (InterfaceProduct, error) {
 
 	productModel, err := GetProductModel()
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	err = productModel.SetId(productId)
+	err = productModel.SetID(productID)
 	if err != nil {
 		return productModel, env.ErrorDispatch(err)
 	}
@@ -51,15 +51,15 @@ func GetProductModelAndSetId(productId string) (I_Product, error) {
 	return productModel, nil
 }
 
-// loads product data into current I_Product model implementation
-func LoadProductById(productId string) (I_Product, error) {
+// LoadProductByID loads product data into current InterfaceProduct model implementation
+func LoadProductByID(productID string) (InterfaceProduct, error) {
 
 	productModel, err := GetProductModel()
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	err = productModel.Load(productId)
+	err = productModel.Load(productID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}

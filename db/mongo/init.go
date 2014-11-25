@@ -7,16 +7,16 @@ import (
 	"labix.org/v2/mgo"
 )
 
-// package self initializer
+// init makes package self-initialization routine
 func init() {
-	instance := new(MongoDB)
+	instance := new(DBEngine)
 
 	env.RegisterOnConfigIniStart(instance.Startup)
 	db.RegisterDBEngine(instance)
 }
 
-// mongo DB engine startup, opens connections to database
-func (it *MongoDB) Startup() error {
+// Startup is a database engine startup routines
+func (it *DBEngine) Startup() error {
 
 	var DBUri = "mongodb://localhost:27017/ottemo"
 	var DBName = "ottemo"
@@ -33,7 +33,7 @@ func (it *MongoDB) Startup() error {
 
 	session, err := mgo.Dial(DBUri)
 	if err != nil {
-		return env.ErrorNew("Can't connect to MongoDB")
+		return env.ErrorNew("Can't connect to DBEngine")
 	}
 
 	it.session = session
@@ -41,7 +41,7 @@ func (it *MongoDB) Startup() error {
 	it.DBName = DBName
 	it.collections = map[string]bool{}
 
-	if MONGO_DEBUG {
+	if ConstMongoDebug {
 		mgo.SetDebug(true)
 		mgo.SetLogger(it)
 	}
@@ -57,8 +57,8 @@ func (it *MongoDB) Startup() error {
 	return nil
 }
 
-// debug logger mgo.log_Logger implementation
-func (it *MongoDB) Output(calldepth int, s string) error {
-	println(s)
+// Output is a implementation of mgo.log_Logger interface
+func (it *DBEngine) Output(calldepth int, s string) error {
+	env.Log("mongo.log", "DEBUG", s)
 	return nil
 }

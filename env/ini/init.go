@@ -11,22 +11,10 @@ import (
 	goini "github.com/vaughan0/go-ini"
 )
 
-const (
-	CMD_ARG_STORE_ALL_FLAG = "--iniStoreAll"
-	CMD_ARG_SECTION_NAME   = "--iniSection="
-	CMD_ARG_TEST_FLAG      = "--test"
-
-	ENVIRONMENT_INI_FILE    = "OTTEMO_INI"
-	ENVIRONMENT_INI_SECTION = "OTTEMO_MODE"
-
-	TEST_SECTION_NAME = "test"
-	DEFAULT_INI_FILE  = "ottemo.ini"
-)
-
-// module entry point before app start
+// init makes package self-initialization routine
 func init() {
 	instance := new(DefaultIniConfig)
-	var _ env.I_IniConfig = instance
+	var _ env.InterfaceIniConfig = instance
 
 	instance.iniFileValues = make(map[string]map[string]string)
 	instance.keysToStore = make(map[string]bool)
@@ -52,7 +40,7 @@ func (it *DefaultIniConfig) appEndEvent() error {
 
 		// making alphabetically sorted section names
 		sortedSections := make([]string, 0, len(it.iniFileValues))
-		for sectionName, _ := range it.iniFileValues {
+		for sectionName := range it.iniFileValues {
 			sortedSections = append(sortedSections, sectionName)
 		}
 		sort.Strings(sortedSections)
@@ -73,7 +61,7 @@ func (it *DefaultIniConfig) appEndEvent() error {
 
 			if it.storeAll {
 				storingValueNames = make([]string, 0, len(sectionValues))
-				for iniItem, _ := range sectionValues {
+				for iniItem := range sectionValues {
 					storingValueNames = append(storingValueNames, iniItem)
 				}
 			} else {
@@ -106,31 +94,31 @@ func (it *DefaultIniConfig) appEndEvent() error {
 func (it *DefaultIniConfig) appInitEvent() error {
 
 	// checking for environment variable for ini location
-	iniFilePath := os.Getenv(ENVIRONMENT_INI_FILE)
+	iniFilePath := os.Getenv(ConstEnvironmentIniFile)
 	if iniFilePath == "" {
-		iniFilePath = DEFAULT_INI_FILE
+		iniFilePath = ConstDefaultIniFile
 	}
 	it.iniFilePath = iniFilePath
 
-	it.currentSection = INI_GLOBAL_SECTION
-	it.iniFileValues[INI_GLOBAL_SECTION] = make(map[string]string)
+	it.currentSection = ConstIniGlobalSection
+	it.iniFileValues[ConstIniGlobalSection] = make(map[string]string)
 
-	if envSectionName := os.Getenv(ENVIRONMENT_INI_SECTION); envSectionName != "" {
+	if envSectionName := os.Getenv(ConstEnvironmentIniSection); envSectionName != "" {
 		it.currentSection = envSectionName
 	}
 
 	// checking command line args for additional parameters
 	for _, arg := range os.Args {
-		if arg == CMD_ARG_STORE_ALL_FLAG {
+		if arg == ConstCmdArgStoreAllFlag {
 			it.storeAll = true
 		}
 
-		if arg == CMD_ARG_TEST_FLAG {
-			it.currentSection = TEST_SECTION_NAME
+		if arg == ConstCmdArgTestFlag {
+			it.currentSection = ConstTestSectionName
 		}
 
-		if strings.HasPrefix(arg, CMD_ARG_SECTION_NAME) {
-			argValue := strings.TrimPrefix(arg, CMD_ARG_SECTION_NAME)
+		if strings.HasPrefix(arg, ConstCmdArgSectionName) {
+			argValue := strings.TrimPrefix(arg, ConstCmdArgSectionName)
 			it.currentSection = argValue
 		}
 	}
@@ -141,7 +129,7 @@ func (it *DefaultIniConfig) appInitEvent() error {
 		it.iniFileValues[sectionName] = sectionValue
 
 		// so all the keys we read from file should be stored back
-		for valueName, _ := range sectionValue {
+		for valueName := range sectionValue {
 			it.keysToStore[valueName] = true
 		}
 	}

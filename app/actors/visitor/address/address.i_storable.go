@@ -5,13 +5,13 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
-// GetId returns the Default Visitor Address as a string
-func (it *DefaultVisitorAddress) GetId() string {
+// GetID returns the Default Visitor Address as a string
+func (it *DefaultVisitorAddress) GetID() string {
 	return it.id
 }
 
-// SetId takes a string as input and sets the ID on the Visitor Address
-func (it *DefaultVisitorAddress) SetId(NewID string) error {
+// SetID takes a string as input and sets the ID on the Visitor Address
+func (it *DefaultVisitorAddress) SetID(NewID string) error {
 	it.id = NewID
 	return nil
 }
@@ -19,9 +19,9 @@ func (it *DefaultVisitorAddress) SetId(NewID string) error {
 // Load will take Visitor Address ID and retrieve it from the database
 func (it *DefaultVisitorAddress) Load(ID string) error {
 	if dbEngine := db.GetDBEngine(); dbEngine != nil {
-		if collection, err := dbEngine.GetCollection(COLLECTION_NAME_VISITOR_ADDRESS); err == nil {
+		if collection, err := dbEngine.GetCollection(ConstCollectionNameVisitorAddress); err == nil {
 
-			if values, err := collection.LoadById(ID); err == nil {
+			if values, err := collection.LoadByID(ID); err == nil {
 				if err := it.FromHashMap(values); err != nil {
 					return env.ErrorDispatch(err)
 				}
@@ -39,8 +39,8 @@ func (it *DefaultVisitorAddress) Load(ID string) error {
 // Delete will remove the Visitor Address from the database
 func (it *DefaultVisitorAddress) Delete() error {
 	if dbEngine := db.GetDBEngine(); dbEngine != nil {
-		if collection, err := dbEngine.GetCollection(COLLECTION_NAME_VISITOR_ADDRESS); err == nil {
-			err := collection.DeleteById(it.GetId())
+		if collection, err := dbEngine.GetCollection(ConstCollectionNameVisitorAddress); err == nil {
+			err := collection.DeleteByID(it.GetID())
 			if err != nil {
 				return env.ErrorDispatch(err)
 			}
@@ -55,7 +55,7 @@ func (it *DefaultVisitorAddress) Delete() error {
 func (it *DefaultVisitorAddress) Save() error {
 
 	if dbEngine := db.GetDBEngine(); dbEngine != nil {
-		if collection, err := dbEngine.GetCollection(COLLECTION_NAME_VISITOR_ADDRESS); err == nil {
+		if collection, err := dbEngine.GetCollection(ConstCollectionNameVisitorAddress); err == nil {
 
 			//if it.ZipCode== "" {
 			//	return env.ErrorNew("Zip code for address - required")

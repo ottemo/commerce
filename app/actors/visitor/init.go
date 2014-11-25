@@ -8,24 +8,24 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
-// package self initializer
+// init makes package self-initialization routine
 func init() {
 	visitorInstance := new(DefaultVisitor)
-	var _ visitor.I_Visitor = visitorInstance
-	models.RegisterModel(visitor.MODEL_NAME_VISITOR, visitorInstance)
+	var _ visitor.InterfaceVisitor = visitorInstance
+	models.RegisterModel(visitor.ConstModelNameVisitor, visitorInstance)
 
 	visitorCollectionInstance := new(DefaultVisitorCollection)
-	var _ visitor.I_VisitorCollection = visitorCollectionInstance
-	models.RegisterModel(visitor.MODEL_NAME_VISITOR_COLLECTION, visitorCollectionInstance)
+	var _ visitor.InterfaceVisitorCollection = visitorCollectionInstance
+	models.RegisterModel(visitor.ConstModelNameVisitorCollection, visitorCollectionInstance)
 
 	db.RegisterOnDatabaseStart(setupDB)
 	api.RegisterOnRestServiceStart(setupAPI)
 }
 
-// setups database tables for model usage
+// setupDB prepares system database for package usage
 func setupDB() error {
 
-	collection, err := db.GetCollection(COLLECTION_NAME_VISITOR)
+	collection, err := db.GetCollection(ConstCollectionNameVisitor)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}

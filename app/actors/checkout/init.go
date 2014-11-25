@@ -8,11 +8,11 @@ import (
 	"github.com/ottemo/foundation/app/models/checkout"
 )
 
-// module entry point before app start
+// init makes package self-initialization routine
 func init() {
 	instance := new(DefaultCheckout)
-	var _ checkout.I_Checkout = instance
-	models.RegisterModel(checkout.CHECKOUT_MODEL_NAME, instance)
+	var _ checkout.InterfaceCheckout = instance
+	models.RegisterModel(checkout.ConstCheckoutModelName, instance)
 
 	api.RegisterOnRestServiceStart(setupAPI)
 	env.RegisterOnConfigStart(setupConfig)

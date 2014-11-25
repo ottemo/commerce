@@ -6,17 +6,20 @@ import (
 	"github.com/ottemo/foundation/utils"
 )
 
+// GetName returns name of current tax implementation
 func (it *DefaultTax) GetName() string {
 	return "Tax"
 }
 
+// GetCode returns code of current tax implementation
 func (it *DefaultTax) GetCode() string {
 	return "tax"
 }
 
-func processRecords(name string, records []map[string]interface{}, result []checkout.T_TaxRate) []checkout.T_TaxRate {
+// processRecords processes records from database collection
+func processRecords(name string, records []map[string]interface{}, result []checkout.StructTaxRate) []checkout.StructTaxRate {
 	for _, record := range records {
-		taxRate := checkout.T_TaxRate{
+		taxRate := checkout.StructTaxRate{
 			Name:   name,
 			Code:   utils.InterfaceToString(record["code"]),
 			Amount: utils.InterfaceToFloat64(record["rate"]),
@@ -28,8 +31,9 @@ func processRecords(name string, records []map[string]interface{}, result []chec
 	return result
 }
 
-func (it *DefaultTax) CalculateTax(currentCheckout checkout.I_Checkout) []checkout.T_TaxRate {
-	result := make([]checkout.T_TaxRate, 0)
+// CalculateTax calculates a taxes for a given checkout
+func (it *DefaultTax) CalculateTax(currentCheckout checkout.InterfaceCheckout) []checkout.StructTaxRate {
+	var result []checkout.StructTaxRate
 
 	if shippingAddress := currentCheckout.GetShippingAddress(); shippingAddress != nil {
 		state := shippingAddress.GetState()

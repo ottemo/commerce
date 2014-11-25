@@ -6,15 +6,12 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
-const (
-	CONFIG_COLLECTION_NAME = "config"
-)
-
+// init makes package self-initialization routine
 func init() {
 	instance := &DefaultConfig{
 		configValues:     make(map[string]interface{}),
 		configTypes:      make(map[string]string),
-		configValidators: make(map[string]env.F_ConfigValueValidator)}
+		configValidators: make(map[string]env.FuncConfigValueValidator)}
 
 	db.RegisterOnDatabaseStart(setupDB)
 	db.RegisterOnDatabaseStart(instance.Load)
@@ -24,10 +21,9 @@ func init() {
 	env.RegisterConfig(instance)
 }
 
-// DB preparations for current model implementation
+// setupDB prepares system database for package usage
 func setupDB() error {
-
-	collection, err := db.GetCollection(CONFIG_COLLECTION_NAME)
+	collection, err := db.GetCollection(ConstCollectionNameConfig)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}

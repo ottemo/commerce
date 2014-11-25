@@ -7,20 +7,20 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
-// module entry point before app start
+// init makes package self-initialization routine
 func init() {
 	instance := new(DefaultDiscount)
-
+	var _ checkout.InterfaceDiscount = instance
 	checkout.RegisterDiscount(instance)
 
 	db.RegisterOnDatabaseStart(setupDB)
 	api.RegisterOnRestServiceStart(setupAPI)
 }
 
-// DB preparations for current model implementation
+// setupDB prepares system database for package usage
 func setupDB() error {
 
-	collection, err := db.GetCollection(COLLECTION_NAME_COUPON_DISCOUNTS)
+	collection, err := db.GetCollection(ConstCollectionNameCouponDiscounts)
 	if err != nil {
 		env.ErrorDispatch(err)
 	}

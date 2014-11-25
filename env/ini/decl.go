@@ -1,10 +1,24 @@
+// Package ini is a default implementation of InterfaceIniConfig declared in
+// "github.com/ottemo/foundation/env" package
 package ini
 
+// Package global constants
 const (
-	INI_GLOBAL_SECTION   = ""
-	ASK_FOR_VALUE_PREFIX = "?"
+	ConstIniGlobalSection  = ""  // ini file section name to be used as default section
+	ConstAskForValuePrefix = "?" // prefix used before default ini value to be asked in console if not set
+
+	ConstCmdArgStoreAllFlag = "--iniStoreAll"
+	ConstCmdArgSectionName  = "--iniSection="
+	ConstCmdArgTestFlag     = "--test"
+
+	ConstEnvironmentIniFile    = "OTTEMO_INI"
+	ConstEnvironmentIniSection = "OTTEMO_MODE"
+
+	ConstTestSectionName = "test"
+	ConstDefaultIniFile  = "ottemo.ini"
 )
 
+// DefaultIniConfig is a default implementer of InterfaceIniConfig
 type DefaultIniConfig struct {
 	iniFilePath string
 

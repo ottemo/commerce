@@ -9,9 +9,10 @@ import (
 	"github.com/ottemo/foundation/utils"
 )
 
+// setupAPI setups package related API endpoint routines
 func setupAPI() error {
 
-	var err error = nil
+	var err error
 
 	err = api.GetRestService().RegisterAPI("checkout", "GET", "info", restCheckoutInfo)
 	if err != nil {
@@ -54,7 +55,7 @@ func setupAPI() error {
 }
 
 // WEB REST API function to get current checkout process status
-func restCheckoutInfo(params *api.T_APIHandlerParams) (interface{}, error) {
+func restCheckoutInfo(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	currentCheckout, err := checkout.GetCurrentCheckout(params)
 	if err != nil {
@@ -121,7 +122,7 @@ func restCheckoutInfo(params *api.T_APIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API function to get possible payment methods for checkout
-func restCheckoutPaymentMethods(params *api.T_APIHandlerParams) (interface{}, error) {
+func restCheckoutPaymentMethods(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	currentCheckout, err := checkout.GetCurrentCheckout(params)
 	if err != nil {
@@ -133,7 +134,7 @@ func restCheckoutPaymentMethods(params *api.T_APIHandlerParams) (interface{}, er
 		Code string
 		Type string
 	}
-	result := make([]ResultValue, 0)
+	var result []ResultValue
 
 	for _, paymentMethod := range checkout.GetRegisteredPaymentMethods() {
 		if paymentMethod.IsAllowed(currentCheckout) {
@@ -145,7 +146,7 @@ func restCheckoutPaymentMethods(params *api.T_APIHandlerParams) (interface{}, er
 }
 
 // WEB REST API function to get possible shipping methods for checkout
-func restCheckoutShippingMethods(params *api.T_APIHandlerParams) (interface{}, error) {
+func restCheckoutShippingMethods(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	currentCheckout, err := checkout.GetCurrentCheckout(params)
 	if err != nil {
@@ -155,9 +156,9 @@ func restCheckoutShippingMethods(params *api.T_APIHandlerParams) (interface{}, e
 	type ResultValue struct {
 		Name  string
 		Code  string
-		Rates []checkout.T_ShippingRate
+		Rates []checkout.StructShippingRate
 	}
-	result := make([]ResultValue, 0)
+	var result []ResultValue
 
 	for _, shippingMethod := range checkout.GetRegisteredShippingMethods() {
 		if shippingMethod.IsAllowed(currentCheckout) {
@@ -169,56 +170,55 @@ func restCheckoutShippingMethods(params *api.T_APIHandlerParams) (interface{}, e
 }
 
 // internal function for  restCheckoutSetShippingAddress() and restCheckoutSetBillingAddress()
-func checkoutObtainAddress(params *api.T_APIHandlerParams) (visitor.I_VisitorAddress, error) {
+func checkoutObtainAddress(params *api.StructAPIHandlerParams) (visitor.InterfaceVisitorAddress, error) {
 
 	reqData, err := api.GetRequestContentAsMap(params)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	if addressId, present := reqData["id"]; present {
+	if addressID, present := reqData["id"]; present {
 
 		// Address id was specified - trying to load
-		visitorAddress, err := visitor.LoadVisitorAddressById(utils.InterfaceToString(addressId))
+		visitorAddress, err := visitor.LoadVisitorAddressByID(utils.InterfaceToString(addressID))
 		if err != nil {
 			return nil, env.ErrorDispatch(err)
 		}
 
-		currentVisitorId := utils.InterfaceToString(params.Session.Get(visitor.SESSION_KEY_VISITOR_ID))
-		if visitorAddress.GetVisitorId() != currentVisitorId {
+		currentVisitorID := utils.InterfaceToString(params.Session.Get(visitor.ConstSessionKeyVisitorID))
+		if visitorAddress.GetVisitorID() != currentVisitorID {
 			return nil, env.ErrorNew("wrong address id")
 		}
 
 		return visitorAddress, nil
-	} else {
-
-		// supposedly address data was specified
-		visitorAddressModel, err := visitor.GetVisitorAddressModel()
-		if err != nil {
-			return nil, env.ErrorDispatch(err)
-		}
-
-		for attribute, value := range reqData {
-			err := visitorAddressModel.Set(attribute, value)
-			if err != nil {
-				return nil, env.ErrorDispatch(err)
-			}
-		}
-
-		visitorId := utils.InterfaceToString(params.Session.Get(visitor.SESSION_KEY_VISITOR_ID))
-		visitorAddressModel.Set("visitor_id", visitorId)
-
-		err = visitorAddressModel.Save()
-		if err != nil {
-			return nil, env.ErrorDispatch(err)
-		}
-
-		return visitorAddressModel, nil
 	}
+
+	// supposedly address data was specified
+	visitorAddressModel, err := visitor.GetVisitorAddressModel()
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	for attribute, value := range reqData {
+		err := visitorAddressModel.Set(attribute, value)
+		if err != nil {
+			return nil, env.ErrorDispatch(err)
+		}
+	}
+
+	visitorID := utils.InterfaceToString(params.Session.Get(visitor.ConstSessionKeyVisitorID))
+	visitorAddressModel.Set("visitor_id", visitorID)
+
+	err = visitorAddressModel.Save()
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	return visitorAddressModel, nil
 }
 
 // WEB REST API function to set shipping address
-func restCheckoutSetShippingAddress(params *api.T_APIHandlerParams) (interface{}, error) {
+func restCheckoutSetShippingAddress(params *api.StructAPIHandlerParams) (interface{}, error) {
 	currentCheckout, err := checkout.GetCurrentCheckout(params)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
@@ -238,7 +238,7 @@ func restCheckoutSetShippingAddress(params *api.T_APIHandlerParams) (interface{}
 }
 
 // WEB REST API function to set billing address
-func restCheckoutSetBillingAddress(params *api.T_APIHandlerParams) (interface{}, error) {
+func restCheckoutSetBillingAddress(params *api.StructAPIHandlerParams) (interface{}, error) {
 	currentCheckout, err := checkout.GetCurrentCheckout(params)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
@@ -258,7 +258,7 @@ func restCheckoutSetBillingAddress(params *api.T_APIHandlerParams) (interface{},
 }
 
 // WEB REST API function to set payment method
-func restCheckoutSetPaymentMethod(params *api.T_APIHandlerParams) (interface{}, error) {
+func restCheckoutSetPaymentMethod(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	currentCheckout, err := checkout.GetCurrentCheckout(params)
 	if err != nil {
@@ -286,9 +286,8 @@ func restCheckoutSetPaymentMethod(params *api.T_APIHandlerParams) (interface{}, 
 				env.Event("api.checkout.setPayment", eventData)
 
 				return "ok", nil
-			} else {
-				return nil, env.ErrorNew("payment method not allowed")
 			}
+			return nil, env.ErrorNew("payment method not allowed")
 		}
 	}
 
@@ -296,7 +295,7 @@ func restCheckoutSetPaymentMethod(params *api.T_APIHandlerParams) (interface{}, 
 }
 
 // WEB REST API function to set payment method
-func restCheckoutSetShippingMethod(params *api.T_APIHandlerParams) (interface{}, error) {
+func restCheckoutSetShippingMethod(params *api.StructAPIHandlerParams) (interface{}, error) {
 	currentCheckout, err := checkout.GetCurrentCheckout(params)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
@@ -335,7 +334,7 @@ func restCheckoutSetShippingMethod(params *api.T_APIHandlerParams) (interface{},
 }
 
 // WEB REST API function to submit checkout information and make order
-func restSubmit(params *api.T_APIHandlerParams) (interface{}, error) {
+func restSubmit(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	currentCheckout, err := checkout.GetCurrentCheckout(params)
 	if err != nil {

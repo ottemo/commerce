@@ -9,17 +9,17 @@ import (
 
 // GetModelName returns the Visitor Address model
 func (it *DefaultVisitorAddressCollection) GetModelName() string {
-	return visitor.MODEL_NAME_VISITOR_ADDRESS
+	return visitor.ConstModelNameVisitorAddress
 }
 
 // GetImplementationName returns the Visitor Address implementation name
 func (it *DefaultVisitorAddressCollection) GetImplementationName() string {
-	return "Default" + visitor.MODEL_NAME_VISITOR_ADDRESS
+	return "Default" + visitor.ConstModelNameVisitorAddress
 }
 
 // New creates a new Visitor Address Collection
-func (it *DefaultVisitorAddressCollection) New() (models.I_Model, error) {
-	dbCollection, err := db.GetCollection(COLLECTION_NAME_VISITOR_ADDRESS)
+func (it *DefaultVisitorAddressCollection) New() (models.InterfaceModel, error) {
+	dbCollection, err := db.GetCollection(ConstCollectionNameVisitorAddress)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}

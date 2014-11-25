@@ -1,3 +1,5 @@
+// Package block is a default implementation of cms block related interfaces declared in
+// "github.com/ottemo/foundation/app/models/csm" package
 package block
 
 import (
@@ -5,10 +7,12 @@ import (
 	"time"
 )
 
+// Package global constants
 const (
-	CMS_BLOCK_COLLECTION_NAME = "cms_block"
+	ConstCmsBlockCollectionName = "cms_block"
 )
 
+// DefaultCMSBlock is a default implementer of InterfaceCMSBlock
 type DefaultCMSBlock struct {
 	id string
 
@@ -19,7 +23,8 @@ type DefaultCMSBlock struct {
 	UpdatedAt time.Time
 }
 
+// DefaultCMSBlockCollection is a default implementer of InterfaceCMSBlockCollection
 type DefaultCMSBlockCollection struct {
-	listCollection     db.I_DBCollection
+	listCollection     db.InterfaceDBCollection
 	listExtraAtributes []string
 }

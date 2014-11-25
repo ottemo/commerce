@@ -7,7 +7,7 @@ import (
 	"github.com/ottemo/foundation/utils"
 )
 
-// initializes helper before usage
+// Init initializes helper before usage
 func (it *CustomAttributes) Init(model string, collection string) (*CustomAttributes, error) {
 	it.model = model
 	it.collection = collection
@@ -21,11 +21,11 @@ func (it *CustomAttributes) Init(model string, collection string) (*CustomAttrib
 		it.attributes = globalCustomAttributes[model]
 	} else {
 
-		it.attributes = make(map[string]models.T_AttributeInfo)
+		it.attributes = make(map[string]models.StructAttributeInfo)
 
 		// retrieving information from DB
 		//-------------------------------
-		customAttributesCollection, err := db.GetCollection(COLLECTION_NAME_CUSTOM_ATTRIBUTES)
+		customAttributesCollection, err := db.GetCollection(ConstCollectionNameCustomAttributes)
 		if err != nil {
 			return it, env.ErrorNew("Can't get collection 'custom_attributes': " + err.Error())
 		}
@@ -40,7 +40,7 @@ func (it *CustomAttributes) Init(model string, collection string) (*CustomAttrib
 		// filling attribute info structure
 		//---------------------------------
 		for _, row := range dbValues {
-			attribute := models.T_AttributeInfo{}
+			attribute := models.StructAttributeInfo{}
 
 			for key, value := range row {
 				switch key {
@@ -83,7 +83,7 @@ func (it *CustomAttributes) Init(model string, collection string) (*CustomAttrib
 	return it, nil
 }
 
-// removes custom attribute from collection
+// RemoveAttribute removes custom attribute from collection
 func (it *CustomAttributes) RemoveAttribute(attributeName string) error {
 
 	customAttribute, present := it.attributes[attributeName]
@@ -91,9 +91,9 @@ func (it *CustomAttributes) RemoveAttribute(attributeName string) error {
 		return env.ErrorNew("There is no attribute '" + attributeName + "' for model '" + it.model + "'")
 	}
 
-	customAttributesCollection, err := db.GetCollection(COLLECTION_NAME_CUSTOM_ATTRIBUTES)
+	customAttributesCollection, err := db.GetCollection(ConstCollectionNameCustomAttributes)
 	if err != nil {
-		return env.ErrorNew("Can't get collection '" + COLLECTION_NAME_CUSTOM_ATTRIBUTES + "': " + err.Error())
+		return env.ErrorNew("Can't get collection '" + ConstCollectionNameCustomAttributes + "': " + err.Error())
 	}
 
 	modelCollection, err := db.GetCollection(customAttribute.Collection)
@@ -120,17 +120,17 @@ func (it *CustomAttributes) RemoveAttribute(attributeName string) error {
 	return nil
 }
 
-// extends collection with new custom attribute
-func (it *CustomAttributes) AddNewAttribute(newAttribute models.T_AttributeInfo) error {
+// AddNewAttribute extends collection with new custom attribute
+func (it *CustomAttributes) AddNewAttribute(newAttribute models.StructAttributeInfo) error {
 
 	if _, present := it.attributes[newAttribute.Attribute]; present {
 		return env.ErrorNew("There is already atribute '" + newAttribute.Attribute + "' for model '" + it.model + "'")
 	}
 
 	// getting collection where custom attribute information stores
-	customAttribuesCollection, err := db.GetCollection(COLLECTION_NAME_CUSTOM_ATTRIBUTES)
+	customAttribuesCollection, err := db.GetCollection(ConstCollectionNameCustomAttributes)
 	if err != nil {
-		return env.ErrorNew("Can't get collection '" + COLLECTION_NAME_CUSTOM_ATTRIBUTES + "': " + err.Error())
+		return env.ErrorNew("Can't get collection '" + ConstCollectionNameCustomAttributes + "': " + err.Error())
 	}
 
 	// getting collection where attribute supposed to be
@@ -155,7 +155,7 @@ func (it *CustomAttributes) AddNewAttribute(newAttribute models.T_AttributeInfo)
 	hashMap["validators"] = newAttribute.Validators
 	hashMap["layered"] = newAttribute.IsLayered
 
-	newCustomAttributeId, err := customAttribuesCollection.Save(hashMap)
+	newCustomAttributeID, err := customAttribuesCollection.Save(hashMap)
 
 	if err != nil {
 		return env.ErrorNew("Can't insert attribute '" + newAttribute.Attribute + "' in collection '" + newAttribute.Collection + "': " + err.Error())
@@ -164,7 +164,7 @@ func (it *CustomAttributes) AddNewAttribute(newAttribute models.T_AttributeInfo)
 	// inserting new attribute to supposed location
 	err = modelCollection.AddColumn(newAttribute.Attribute, newAttribute.Type, false)
 	if err != nil {
-		customAttribuesCollection.DeleteById(newCustomAttributeId)
+		customAttribuesCollection.DeleteByID(newCustomAttributeID)
 
 		return env.ErrorNew("Can't insert attribute '" + newAttribute.Attribute + "' in collection '" + newAttribute.Collection + "': " + err.Error())
 	}
@@ -174,7 +174,7 @@ func (it *CustomAttributes) AddNewAttribute(newAttribute models.T_AttributeInfo)
 	return env.ErrorDispatch(err)
 }
 
-// returns collection name you can use to fill CustomAttributes struct
+// GetCustomAttributeCollectionName returns collection name you can use to fill CustomAttributes struct
 func (it *CustomAttributes) GetCustomAttributeCollectionName() string {
 	return it.collection
 }

@@ -7,15 +7,16 @@ import (
 	"github.com/ottemo/foundation/utils"
 )
 
+// setupAPI setups package related API endpoint routines
 func setupAPI() error {
 
-	var err error = nil
+	var err error
 
 	err = api.GetRestService().RegisterAPI("cart", "GET", "info", restCartInfo)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("cart", "POST", "add/:productId/:qty", restCartAdd)
+	err = api.GetRestService().RegisterAPI("cart", "POST", "add/:productID/:qty", restCartAdd)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -33,24 +34,24 @@ func setupAPI() error {
 
 // WEB REST API function to get cart information
 //   - parent categories and categorys will not be present in list
-func restCartInfo(params *api.T_APIHandlerParams) (interface{}, error) {
+func restCartInfo(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	currentCart, err := cart.GetCurrentCart(params)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	items := make([]map[string]interface{}, 0)
+	var items []map[string]interface{}
 
 	cartItems := currentCart.GetItems()
 	for _, cartItem := range cartItems {
 
 		item := make(map[string]interface{})
 
-		item["_id"] = cartItem.GetId()
+		item["_id"] = cartItem.GetID()
 		item["idx"] = cartItem.GetIdx()
 		item["qty"] = cartItem.GetQty()
-		item["pid"] = cartItem.GetProductId()
+		item["pid"] = cartItem.GetProductID()
 		item["options"] = cartItem.GetOptions()
 
 		if product := cartItem.GetProduct(); product != nil {
@@ -75,7 +76,7 @@ func restCartInfo(params *api.T_APIHandlerParams) (interface{}, error) {
 	}
 
 	result := map[string]interface{}{
-		"visitor_id": currentCart.GetVisitorId(),
+		"visitor_id": currentCart.GetVisitorID(),
 		"cart_info":  currentCart.GetCartInfo(),
 		"items":      items,
 	}
@@ -86,7 +87,7 @@ func restCartInfo(params *api.T_APIHandlerParams) (interface{}, error) {
 // WEB REST API for adding new item into cart
 //   - "pid" (product id) should be specified
 //   - "qty" and "options" are optional params
-func restCartAdd(params *api.T_APIHandlerParams) (interface{}, error) {
+func restCartAdd(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -95,20 +96,20 @@ func restCartAdd(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	var pid string = ""
-	reqPid, present := params.RequestURLParams["productId"]
+	var pid string
+	reqPid, present := params.RequestURLParams["productID"]
 	pid = utils.InterfaceToString(reqPid)
 	if !present || pid == "" {
 		return nil, env.ErrorNew("pid should be specified")
 	}
 
-	var qty int = 1
+	qty := 1
 	reqQty, present := params.RequestURLParams["qty"]
 	if present {
 		qty = utils.InterfaceToInt(reqQty)
 	}
 
-	var options map[string]interface{} = reqData
+	options := reqData
 	reqOptions, present := reqData["options"]
 	if present {
 		if tmpOptions, ok := reqOptions.(map[string]interface{}); ok {
@@ -126,9 +127,9 @@ func restCartAdd(params *api.T_APIHandlerParams) (interface{}, error) {
 	addItemFlag := true
 	cartItems := currentCart.GetItems()
 	for _, item := range cartItems {
-		cartItemOptions := utils.EncodeToJsonString(item.GetOptions())
-		newItemOptions := utils.EncodeToJsonString(options)
-		if item.GetProductId() == pid && cartItemOptions == newItemOptions {
+		cartItemOptions := utils.EncodeToJSONString(item.GetOptions())
+		newItemOptions := utils.EncodeToJSONString(options)
+		if item.GetProductID() == pid && cartItemOptions == newItemOptions {
 			item.SetQty(item.GetQty() + qty)
 			addItemFlag = false
 		}
@@ -150,7 +151,7 @@ func restCartAdd(params *api.T_APIHandlerParams) (interface{}, error) {
 
 // WEB REST API used to update cart item qty
 //   - "itemIdx" and "qty" should be specified in request URI
-func restCartUpdate(params *api.T_APIHandlerParams) (interface{}, error) {
+func restCartUpdate(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -200,7 +201,7 @@ func restCartUpdate(params *api.T_APIHandlerParams) (interface{}, error) {
 
 // WEB REST API used to delete cart item from cart
 //   - "itemIdx" should be specified in request URI
-func restCartDelete(params *api.T_APIHandlerParams) (interface{}, error) {
+func restCartDelete(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	_, present := params.RequestURLParams["itemIdx"]
 	if !present {

@@ -17,8 +17,8 @@ import (
 	"github.com/ottemo/foundation/app/models/visitor"
 )
 
-// returns visitor object with randomly filled data
-func GetRandomVisitor() (visitor.I_Visitor, error) {
+// GetRandomVisitor returns visitor object with randomly filled data
+func GetRandomVisitor() (visitor.InterfaceVisitor, error) {
 	randomVisitor, err := visitor.GetVisitorModel()
 	if err != nil {
 		return nil, err
@@ -60,8 +60,8 @@ func GetRandomVisitor() (visitor.I_Visitor, error) {
 	return randomVisitor, nil
 }
 
-// returns new checkout object with assigned new session, and cart to it
-func GetNewCheckout(checkoutVisitor visitor.I_Visitor) (checkout.I_Checkout, error) {
+// GetNewCheckout returns new checkout object with assigned new session, and cart to it
+func GetNewCheckout(checkoutVisitor visitor.InterfaceVisitor) (checkout.InterfaceCheckout, error) {
 	newSession, err := session.NewSession()
 	if err != nil {
 		return nil, err
@@ -86,7 +86,7 @@ func GetNewCheckout(checkoutVisitor visitor.I_Visitor) (checkout.I_Checkout, err
 		return nil, err
 	}
 
-	err = newCart.MakeCartForVisitor(checkoutVisitor.GetId())
+	err = newCart.MakeCartForVisitor(checkoutVisitor.GetID())
 	if err != nil {
 		return nil, err
 	}
@@ -99,8 +99,8 @@ func GetNewCheckout(checkoutVisitor visitor.I_Visitor) (checkout.I_Checkout, err
 	return newCheckout, nil
 }
 
-// adding n count products to checkout cart
-func AddRandomProductsToCart(currentCheckout checkout.I_Checkout, n int) error {
+// AddRandomProductsToCart adds n count products to checkout cart
+func AddRandomProductsToCart(currentCheckout checkout.InterfaceCheckout, n int) error {
 	if n <= 0 {
 		return nil
 	}
@@ -134,7 +134,7 @@ func AddRandomProductsToCart(currentCheckout checkout.I_Checkout, n int) error {
 
 					if optionValues, present := typedProductOption["options"]; present {
 						if typedOptionValues, ok := optionValues.(map[string]interface{}); ok {
-							for optionValueName, _ := range typedOptionValues {
+							for optionValueName := range typedOptionValues {
 								if rand.Intn(2) == 1 {
 									options[optionName] = optionValueName
 									break
@@ -147,7 +147,7 @@ func AddRandomProductsToCart(currentCheckout checkout.I_Checkout, n int) error {
 		}
 
 		//adding item to cart
-		_, err := currentCart.AddItem(productModel.GetId(), rand.Intn(3)+1, options)
+		_, err := currentCart.AddItem(productModel.GetID(), rand.Intn(3)+1, options)
 		if err != nil {
 			return err
 		}
@@ -160,8 +160,8 @@ func AddRandomProductsToCart(currentCheckout checkout.I_Checkout, n int) error {
 	return nil
 }
 
-// sets shipping and billing addresses for checkout object
-func RandomizeShippingAndBillingAddresses(currentCheckout checkout.I_Checkout) error {
+// RandomizeShippingAndBillingAddresses sets shipping and billing addresses for checkout object
+func RandomizeShippingAndBillingAddresses(currentCheckout checkout.InterfaceCheckout) error {
 	currentVisitor := currentCheckout.GetVisitor()
 	if currentVisitor == nil {
 		return errors.New("visitor for checkout is not set")
@@ -195,7 +195,7 @@ func RandomizeShippingAndBillingAddresses(currentCheckout checkout.I_Checkout) e
 	if err != nil {
 		return err
 	}
-	err = addressModel.Set("phone", utils.InterfaceToString(randomdata.Number(1000000000, 9999999999)))
+	err = addressModel.Set("phone", randomdata.StringNumber(5, ""))
 	if err != nil {
 		return err
 	}
@@ -221,8 +221,8 @@ func RandomizeShippingAndBillingAddresses(currentCheckout checkout.I_Checkout) e
 	return nil
 }
 
-// sets check money order payment method and flat rate shipping method to checkout
-func UpdateShippingAndPaymentMethods(currentCheckout checkout.I_Checkout) error {
+// UpdateShippingAndPaymentMethods sets check money order payment method and flat rate shipping method to checkout
+func UpdateShippingAndPaymentMethods(currentCheckout checkout.InterfaceCheckout) error {
 	found := false
 	for _, shippingMethod := range checkout.GetRegisteredShippingMethods() {
 		if shippingMethod.GetCode() == "flat_rate" {
@@ -250,7 +250,7 @@ func UpdateShippingAndPaymentMethods(currentCheckout checkout.I_Checkout) error 
 	return nil
 }
 
-// routine to emulate full checkout process at once
+// FullCheckout is a routine to emulate full checkout process at once
 func FullCheckout() error {
 
 	currentVisitor, err := GetRandomVisitor()
@@ -286,7 +286,7 @@ func FullCheckout() error {
 	return nil
 }
 
-// function checks products count in DB and adds missing if needed
+// MakeSureProductsCount checks products count in DB and adds missing if needed
 func MakeSureProductsCount(countShouldBe int) error {
 
 	// getting database products count

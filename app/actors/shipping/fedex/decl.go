@@ -1,7 +1,10 @@
+// Package fedex is a FedEx implementation of shipping method interface declared in
+// "github.com/ottemo/foundation/app/models/checkout" package
 package fedex
 
+// Package global variables
 var (
-	SHIPPING_METHODS = map[string]string{
+	ConstShippingMethods = map[string]string{
 		"EUROPE_FIRST_INTERNATIONAL_PRIORITY": "Europe First Priority",
 		"FEDEX_1_DAY_FREIGHT":                 "1 Day Freight",
 		"FEDEX_2_DAY_FREIGHT":                 "2 Day Freight",
@@ -25,7 +28,7 @@ var (
 		"FEDEX_NATIONAL_FREIGHT":              "National Freight",
 	}
 
-	SHIPPING_DROPOFF = map[string]string{
+	ConstShippingDropoff = map[string]string{
 		"REGULAR_PICKUP":          "Regular Pickup",
 		"REQUEST_COURIER":         "Request Courier",
 		"DROP_BOX":                "Drop Box",
@@ -33,7 +36,7 @@ var (
 		"STATION":                 "Station",
 	}
 
-	SHIPPING_PACKAGING = map[string]string{
+	ConstShippingPackaging = map[string]string{
 		"FEDEX_ENVELOPE": "FedEx Envelope",
 		"FEDEX_PAK":      "FedEx Pak",
 		"FEDEX_BOX":      "FedEx Box",
@@ -44,27 +47,29 @@ var (
 	}
 )
 
+// Package global constants
 const (
-	SHIPPING_CODE = "fedex"
-	SHIPPING_NAME = "fedex"
+	ConstShippingCode = "fedex"
+	ConstShippingName = "fedex"
 
-	CONFIG_PATH_GROUP = "shipping.fedex"
+	ConstConfigPathGroup = "shipping.fedex"
 
-	CONFIG_PATH_ENABLED = "shipping.fedex.enabled"
-	CONFIG_PATH_TITLE   = "shipping.fedex.title"
+	ConstConfigPathEnabled = "shipping.fedex.enabled"
+	ConstConfigPathTitle   = "shipping.fedex.title"
 
-	CONFIG_PATH_GATEWAY  = "shipping.fedex.gateway"
-	CONFIG_PATH_KEY      = "shipping.fedex.key"
-	CONFIG_PATH_PASSWORD = "shipping.fedex.password"
-	CONFIG_PATH_NUMBER   = "shipping.fedex.number"
-	CONFIG_PATH_METER    = "shipping.fedex.meter"
+	ConstConfigPathGateway  = "shipping.fedex.gateway"
+	ConstConfigPathKey      = "shipping.fedex.key"
+	ConstConfigPathPassword = "shipping.fedex.password"
+	ConstConfigPathNumber   = "shipping.fedex.number"
+	ConstConfigPathMeter    = "shipping.fedex.meter"
 
-	CONFIG_PATH_DEFAULT_WEIGHT  = "shipping.fedex.default_weight"
-	CONFIG_PATH_ALLOWED_METHODS = "shipping.fedex.allowed_methods"
-	CONFIG_PATH_PACKAGING       = "shipping.fedex.packaging"
-	CONFIG_PATH_DROPOFF         = "shipping.fedex.dropoff"
+	ConstConfigPathDefaultWeight  = "shipping.fedex.default_weight"
+	ConstConfigPathAllowedMethods = "shipping.fedex.allowed_methods"
+	ConstConfigPathPackaging      = "shipping.fedex.packaging"
+	ConstConfigPathDropoff        = "shipping.fedex.dropoff"
 
-	CONFIG_PATH_DEBUG_LOG = "shipping.fedex.debug_log"
+	ConstConfigPathDebugLog = "shipping.fedex.debug_log"
 )
 
+// FedEx is a implementer of InterfaceShippingMethod for "FedEx" shipping method
 type FedEx struct{}

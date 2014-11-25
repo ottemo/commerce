@@ -1,3 +1,5 @@
+// Package session is a default implementation of InterfaceSession
+// declared in "github.com/ottemo/foundation/api" package
 package session
 
 import (
@@ -11,28 +13,30 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
+// Package global constants
 const (
-	ALPHANUMERIC = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890"
+	ALPHANUMERIC = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890" // sessionID allowed symbols
 
-	SESSION_COOKIE_NAME = "OTTEMOSESSION"
+	ConstSessionCookieName = "OTTEMOSESSION" // cookie name which should contain sessionID
 )
 
+// Package global variables
 var (
-	Sessions      = make(map[string]*Session)
-	sessionsMutex sync.RWMutex
+	Sessions      = make(map[string]*Session) // active session set
+	sessionsMutex sync.RWMutex                // syncronization on Sessions variable modification
 
-	gcRate int64 = 10
+	gcRate int64 = 10 // garbage collection rate
 )
 
-// returns session object for request or creates new one
+// StartSession returns session object for request or creates new one
 func StartSession(request *http.Request, responseWriter http.ResponseWriter) (*Session, error) {
 
 	// check session-cookie
-	cookie, err := request.Cookie(SESSION_COOKIE_NAME)
+	cookie, err := request.Cookie(ConstSessionCookieName)
 	if err == nil {
 		// looking for cookie-based session
-		sessionId := cookie.Value
-		if session, ok := Sessions[sessionId]; ok == true {
+		sessionID := cookie.Value
+		if session, ok := Sessions[sessionID]; ok == true {
 			return session, nil
 		}
 	} else {
@@ -48,34 +52,33 @@ func StartSession(request *http.Request, responseWriter http.ResponseWriter) (*S
 	}
 
 	// storing session id to cookie
-	cookie = &http.Cookie{Name: SESSION_COOKIE_NAME, Value: result.GetId(), Path: "/"}
+	cookie = &http.Cookie{Name: ConstSessionCookieName, Value: result.GetID(), Path: "/"}
 	http.SetCookie(responseWriter, cookie)
 
 	return result, nil
 }
 
-// returns session object for given id or nil
-func GetSessionById(sessionId string) (*Session, error) {
-	if session, ok := Sessions[sessionId]; ok == true {
+// GetSessionByID returns session object for given id or nil
+func GetSessionByID(sessionID string) (*Session, error) {
+	if session, ok := Sessions[sessionID]; ok == true {
 		return session, nil
-	} else {
-		return nil, env.ErrorNew("session not found")
 	}
+	return nil, env.ErrorNew("session not found")
 }
 
-// initializes new session
+// NewSession initializes new session
 func NewSession() (*Session, error) {
 
 	// receiving new session id
-	sessionId, err := newSessionId()
+	sessionID, err := newSessionID()
 	if err != nil {
 		return nil, err
 	}
 
 	// initializing session structure
-	sessionId = url.QueryEscape(sessionId)
-	Sessions[sessionId] = &Session{
-		id:     sessionId,
+	sessionID = url.QueryEscape(sessionID)
+	Sessions[sessionID] = &Session{
+		id:     sessionID,
 		values: make(map[string]interface{}),
 		time:   time.Now()}
 
@@ -85,24 +88,24 @@ func NewSession() (*Session, error) {
 		Gc()
 	}
 
-	return Sessions[sessionId], nil
+	return Sessions[sessionID], nil
 }
 
 // returns new session number
-func newSessionId() (string, error) {
-	sessionId := make([]byte, 32)
-	if _, err := rand.Read(sessionId); err != nil {
-		return "", env.ErrorNew("can't generate sessionId")
+func newSessionID() (string, error) {
+	sessionID := make([]byte, 32)
+	if _, err := rand.Read(sessionID); err != nil {
+		return "", env.ErrorNew("can't generate sessionID")
 	}
 
 	for i := 0; i < 32; i++ {
-		sessionId[i] = ALPHANUMERIC[sessionId[i]%62]
+		sessionID[i] = ALPHANUMERIC[sessionID[i]%62]
 	}
 
-	return string(sessionId), nil
+	return string(sessionID), nil
 }
 
-// removes expired sessions
+// Gc removes expired sessions
 func Gc() {
 	for id, session := range Sessions {
 		if time.Now().Sub(session.time).Seconds() > 3600 {

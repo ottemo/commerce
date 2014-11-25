@@ -5,10 +5,10 @@ import (
 	"github.com/ottemo/foundation/app/models/visitor"
 )
 
-// returns collection of current instance type
-func (it *DefaultVisitor) GetCollection() models.I_Collection {
-	model, _ := models.GetModel(visitor.MODEL_NAME_VISITOR_COLLECTION)
-	if result, ok := model.(visitor.I_VisitorCollection); ok {
+// GetCollection returns collection of current instance type
+func (it *DefaultVisitor) GetCollection() models.InterfaceCollection {
+	model, _ := models.GetModel(visitor.ConstModelNameVisitorCollection)
+	if result, ok := model.(visitor.InterfaceVisitorCollection); ok {
 		return result
 	}
 

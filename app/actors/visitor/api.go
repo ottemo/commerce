@@ -16,7 +16,7 @@ import (
 	"github.com/ottemo/foundation/utils"
 )
 
-// REST API registration function
+// setupAPI setups package related API endpoint routines
 func setupAPI() error {
 
 	// Dashboard API
@@ -125,7 +125,7 @@ func setupAPI() error {
 // WEB REST API used to create new visitor
 //   - visitor attributes must be included in POST form
 //   - email attribute required
-func restCreateVisitor(params *api.T_APIHandlerParams) (interface{}, error) {
+func restCreateVisitor(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -168,14 +168,14 @@ func restCreateVisitor(params *api.T_APIHandlerParams) (interface{}, error) {
 // WEB REST API used to update existing visitor
 //   - visitor id must be specified in request URI
 //   - visitor attributes must be included in POST form
-func restUpdateVisitor(params *api.T_APIHandlerParams) (interface{}, error) {
+func restUpdateVisitor(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
 	visitorID, isSpecifiedID := params.RequestURLParams["id"]
 	if !isSpecifiedID {
 
-		sessionValue := params.Session.Get(visitor.SESSION_KEY_VISITOR_ID)
+		sessionValue := params.Session.Get(visitor.ConstSessionKeyVisitorID)
 		sessionVisitorID, ok := sessionValue.(string)
 		if !ok {
 			return nil, env.ErrorNew("you are not logined in")
@@ -189,7 +189,7 @@ func restUpdateVisitor(params *api.T_APIHandlerParams) (interface{}, error) {
 	}
 
 	if err := api.ValidateAdminRights(params); err != nil {
-		if visitor.GetCurrentVisitorId(params) != visitorID {
+		if visitor.GetCurrentVisitorID(params) != visitorID {
 			return nil, env.ErrorDispatch(err)
 		}
 		if _, present := reqData["is_admin"]; present {
@@ -199,7 +199,7 @@ func restUpdateVisitor(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// update operation
 	//-----------------
-	visitorModel, err := visitor.LoadVisitorById(visitorID)
+	visitorModel, err := visitor.LoadVisitorByID(visitorID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -221,7 +221,7 @@ func restUpdateVisitor(params *api.T_APIHandlerParams) (interface{}, error) {
 
 // WEB REST API used to delete visitor
 //   - visitor id must be specified in request URI
-func restDeleteVisitor(params *api.T_APIHandlerParams) (interface{}, error) {
+func restDeleteVisitor(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -236,7 +236,7 @@ func restDeleteVisitor(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// delete operation
 	//-----------------
-	visitorModel, err := visitor.GetVisitorModelAndSetId(visitorID)
+	visitorModel, err := visitor.GetVisitorModelAndSetID(visitorID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -251,7 +251,7 @@ func restDeleteVisitor(params *api.T_APIHandlerParams) (interface{}, error) {
 
 // WEB REST API function used to obtain visitor information
 //   - visitor id must be specified in request URI
-func restGetVisitor(params *api.T_APIHandlerParams) (interface{}, error) {
+func restGetVisitor(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -266,7 +266,7 @@ func restGetVisitor(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// get operation
 	//--------------
-	visitorModel, err := visitor.LoadVisitorById(visitorID)
+	visitorModel, err := visitor.LoadVisitorByID(visitorID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -275,7 +275,7 @@ func restGetVisitor(params *api.T_APIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API function used to obtain visitors count in model collection
-func restCountVisitors(params *api.T_APIHandlerParams) (interface{}, error) {
+func restCountVisitors(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	if err := api.ValidateAdminRights(params); err != nil {
 		return nil, env.ErrorDispatch(err)
@@ -294,7 +294,7 @@ func restCountVisitors(params *api.T_APIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API function used to get visitors list
-func restListVisitors(params *api.T_APIHandlerParams) (interface{}, error) {
+func restListVisitors(params *api.StructAPIHandlerParams) (interface{}, error) {
 	// check request params
 	//---------------------
 	if err := api.ValidateAdminRights(params); err != nil {
@@ -337,7 +337,7 @@ func restListVisitors(params *api.T_APIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API function used to obtain visitor attributes information
-func restListVisitorAttributes(params *api.T_APIHandlerParams) (interface{}, error) {
+func restListVisitorAttributes(params *api.StructAPIHandlerParams) (interface{}, error) {
 	visitorModel, err := visitor.GetVisitorModel()
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
@@ -348,7 +348,7 @@ func restListVisitorAttributes(params *api.T_APIHandlerParams) (interface{}, err
 }
 
 // WEB REST API function used to add new custom attribute to visitor model
-func restAddVisitorAttribute(params *api.T_APIHandlerParams) (interface{}, error) {
+func restAddVisitorAttribute(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -378,9 +378,9 @@ func restAddVisitorAttribute(params *api.T_APIHandlerParams) (interface{}, error
 		return nil, env.ErrorDispatch(err)
 	}
 
-	attribute := models.T_AttributeInfo{
-		Model:      visitor.MODEL_NAME_VISITOR,
-		Collection: COLLECTION_NAME_VISITOR,
+	attribute := models.StructAttributeInfo{
+		Model:      visitor.ConstModelNameVisitor,
+		Collection: ConstCollectionNameVisitor,
 		Attribute:  utils.InterfaceToString(attributeName),
 		Type:       "text",
 		IsRequired: false,
@@ -424,7 +424,7 @@ func restAddVisitorAttribute(params *api.T_APIHandlerParams) (interface{}, error
 }
 
 // WEB REST API function used to remove custom attribute of visitor model
-func restRemoveVisitorAttribute(params *api.T_APIHandlerParams) (interface{}, error) {
+func restRemoveVisitorAttribute(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//--------------------
@@ -455,7 +455,7 @@ func restRemoveVisitorAttribute(params *api.T_APIHandlerParams) (interface{}, er
 // WEB REST API used to register new visitor (same as create but with email validation)
 //   - visitor attributes must be included in POST form
 //   - email attribute required
-func restRegister(params *api.T_APIHandlerParams) (interface{}, error) {
+func restRegister(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -498,7 +498,7 @@ func restRegister(params *api.T_APIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API used to validate e-mail address by key sent after registration
-func restValidate(params *api.T_APIHandlerParams) (interface{}, error) {
+func restValidate(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	validationKey, isKeySpecified := params.RequestURLParams["key"]
 	if !isKeySpecified {
@@ -515,11 +515,11 @@ func restValidate(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	return api.T_RestRedirect{Result: "ok", Location: app.GetStorefrontUrl("login")}, nil
+	return api.StructRestRedirect{Result: "ok", Location: app.GetStorefrontURL("login")}, nil
 }
 
 // WEB REST API used to invalidate customer e-mail
-func restInvalidate(params *api.T_APIHandlerParams) (interface{}, error) {
+func restInvalidate(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	visitorModel, err := visitor.GetVisitorModel()
 	if err != nil {
@@ -549,7 +549,7 @@ func restInvalidate(params *api.T_APIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API used to sent new password to customer e-mail
-func restForgotPassword(params *api.T_APIHandlerParams) (interface{}, error) {
+func restForgotPassword(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	visitorModel, err := visitor.GetVisitorModel()
 	if err != nil {
@@ -573,12 +573,18 @@ func restForgotPassword(params *api.T_APIHandlerParams) (interface{}, error) {
 
 // WEB REST API function used to obtain visitor information
 //   - visitor id must be specified in request URI
-func restInfo(params *api.T_APIHandlerParams) (interface{}, error) {
+func restInfo(params *api.StructAPIHandlerParams) (interface{}, error) {
 
-	sessionValue := params.Session.Get(visitor.SESSION_KEY_VISITOR_ID)
+	// so if user was logged to app as admin, we want to reflect this
+	isAdmin := false
+	if api.ValidateAdminRights(params) == nil {
+		isAdmin = true
+	}
+
+	sessionValue := params.Session.Get(visitor.ConstSessionKeyVisitorID)
 	visitorID, ok := sessionValue.(string)
 	if !ok {
-		if api.ValidateAdminRights(params) == nil {
+		if isAdmin {
 			return map[string]interface{}{"is_admin": true}, nil
 		}
 		return "you are not logined in", nil
@@ -586,20 +592,25 @@ func restInfo(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// visitor info
 	//--------------
-	visitorModel, err := visitor.LoadVisitorById(visitorID)
+	visitorModel, err := visitor.LoadVisitorByID(visitorID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
 	result := visitorModel.ToHashMap()
-	result["facebook_id"] = visitorModel.GetFacebookId()
-	result["google_id"] = visitorModel.GetGoogleId()
+	result["facebook_id"] = visitorModel.GetFacebookID()
+	result["google_id"] = visitorModel.GetGoogleID()
+
+	// overriding DB value if currently logged as admin
+	if isAdmin {
+		result["is_admin"] = true
+	}
 
 	return result, nil
 }
 
 // WEB REST API function used to make visitor logout
-func restLogout(params *api.T_APIHandlerParams) (interface{}, error) {
+func restLogout(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	params.Session.Close()
 
@@ -608,7 +619,7 @@ func restLogout(params *api.T_APIHandlerParams) (interface{}, error) {
 
 // WEB REST API function used to make visitor login
 //   - email and password information needed
-func restLogin(params *api.T_APIHandlerParams) (interface{}, error) {
+func restLogin(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -625,11 +636,11 @@ func restLogin(params *api.T_APIHandlerParams) (interface{}, error) {
 	requestPassword := utils.InterfaceToString(reqData["password"])
 
 	if !strings.Contains(requestLogin, "@") {
-		rootLogin := utils.InterfaceToString(env.ConfigGetValue(app.CONFIG_PATH_STORE_ROOT_LOGIN))
-		rootPassword := utils.InterfaceToString(env.ConfigGetValue(app.CONFIG_PATH_STORE_ROOT_PASSWORD))
+		rootLogin := utils.InterfaceToString(env.ConfigGetValue(app.ConstConfigPathStoreRootLogin))
+		rootPassword := utils.InterfaceToString(env.ConfigGetValue(app.ConstConfigPathStoreRootPassword))
 
 		if requestLogin == rootLogin && requestPassword == rootPassword {
-			params.Session.Set(api.SESSION_KEY_ADMIN_RIGHTS, true)
+			params.Session.Set(api.ConstSessionKeyAdminRights, true)
 
 			return "ok", nil
 		}
@@ -655,13 +666,13 @@ func restLogin(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// api session updates
 	if visitorModel.IsValidated() {
-		params.Session.Set(visitor.SESSION_KEY_VISITOR_ID, visitorModel.GetId())
+		params.Session.Set(visitor.ConstSessionKeyVisitorID, visitorModel.GetID())
 	} else {
 		return nil, env.ErrorNew("visitor is not validated, please check " + visitorModel.GetEmail() + " for a verify link we sent you")
 	}
 
 	if visitorModel.IsAdmin() {
-		params.Session.Set(api.SESSION_KEY_ADMIN_RIGHTS, true)
+		params.Session.Set(api.ConstSessionKeyAdminRights, true)
 	}
 
 	return "ok", nil
@@ -670,7 +681,7 @@ func restLogin(params *api.T_APIHandlerParams) (interface{}, error) {
 // WEB REST API function used to make login/registration via Facebook
 //   - access_token and user_id params needed
 //   - user needed information will be taken from Facebook
-func restLoginFacebook(params *api.T_APIHandlerParams) (interface{}, error) {
+func restLoginFacebook(params *api.StructAPIHandlerParams) (interface{}, error) {
 	// check request params
 	//---------------------
 	reqData, err := api.GetRequestContentAsMap(params)
@@ -700,18 +711,9 @@ func restLoginFacebook(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil, env.ErrorNew("Can't use google API: " + facebookResponse.Status)
 	}
 
-	var responseData []byte
-	if facebookResponse.ContentLength > 0 {
-		responseData = make([]byte, facebookResponse.ContentLength)
-		_, err := facebookResponse.Body.Read(responseData)
-		if err != nil {
-			return nil, env.ErrorDispatch(err)
-		}
-	} else {
-		responseData, err = ioutil.ReadAll(facebookResponse.Body)
-		if err != nil {
-			return nil, env.ErrorDispatch(err)
-		}
+	responseData, err := ioutil.ReadAll(facebookResponse.Body)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
 	}
 
 	// response json workaround
@@ -731,13 +733,13 @@ func restLoginFacebook(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	visitorModel, ok := model.(visitor.I_Visitor)
+	visitorModel, ok := model.(visitor.InterfaceVisitor)
 	if !ok {
-		return nil, env.ErrorNew("visitor model is not I_Visitor campatible")
+		return nil, env.ErrorNew("visitor model is not InterfaceVisitor campatible")
 	}
 
 	// trying to load visitor by facebook_id
-	err = visitorModel.LoadByFacebookId(reqData["user_id"].(string))
+	err = visitorModel.LoadByFacebookID(reqData["user_id"].(string))
 	if err != nil && strings.Contains(err.Error(), "not found") {
 
 		// there is no such facebook_id in DB, trying to find by e-mail
@@ -770,10 +772,10 @@ func restLoginFacebook(params *api.T_APIHandlerParams) (interface{}, error) {
 	}
 
 	// api session updates
-	params.Session.Set(visitor.SESSION_KEY_VISITOR_ID, visitorModel.GetId())
+	params.Session.Set(visitor.ConstSessionKeyVisitorID, visitorModel.GetID())
 
 	if visitorModel.IsAdmin() {
-		params.Session.Set(api.SESSION_KEY_ADMIN_RIGHTS, true)
+		params.Session.Set(api.ConstSessionKeyAdminRights, true)
 	}
 
 	return "ok", nil
@@ -782,7 +784,7 @@ func restLoginFacebook(params *api.T_APIHandlerParams) (interface{}, error) {
 // WEB REST API function used to make login/registration via Google
 //   - access_token param needed
 //   - user needed information will be taken from Google
-func restLoginGoogle(params *api.T_APIHandlerParams) (interface{}, error) {
+func restLoginGoogle(params *api.StructAPIHandlerParams) (interface{}, error) {
 	// check request params
 	//---------------------
 	reqData, err := api.GetRequestContentAsMap(params)
@@ -808,18 +810,9 @@ func restLoginGoogle(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil, env.ErrorNew("Can't use google API: " + googleResponse.Status)
 	}
 
-	var responseData []byte
-	if googleResponse.ContentLength > 0 {
-		responseData = make([]byte, googleResponse.ContentLength)
-		_, err := googleResponse.Body.Read(responseData)
-		if err != nil {
-			return nil, env.ErrorDispatch(err)
-		}
-	} else {
-		responseData, err = ioutil.ReadAll(googleResponse.Body)
-		if err != nil {
-			return nil, env.ErrorDispatch(err)
-		}
+	responseData, err := ioutil.ReadAll(googleResponse.Body)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
 	}
 
 	// response json workaround
@@ -839,13 +832,13 @@ func restLoginGoogle(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	visitorModel, ok := model.(visitor.I_Visitor)
+	visitorModel, ok := model.(visitor.InterfaceVisitor)
 	if !ok {
-		return nil, env.ErrorNew("visitor model is not I_Visitor campatible")
+		return nil, env.ErrorNew("visitor model is not InterfaceVisitor campatible")
 	}
 
 	// trying to load visitor by google_id
-	err = visitorModel.LoadByGoogleId(jsonMap["email"].(string))
+	err = visitorModel.LoadByGoogleID(jsonMap["email"].(string))
 	if err != nil && strings.Contains(err.Error(), "not found") {
 
 		// there is no such google_id in DB, trying to find by e-mail
@@ -880,23 +873,23 @@ func restLoginGoogle(params *api.T_APIHandlerParams) (interface{}, error) {
 	}
 
 	// api session updates
-	params.Session.Set(visitor.SESSION_KEY_VISITOR_ID, visitorModel.GetId())
+	params.Session.Set(visitor.ConstSessionKeyVisitorID, visitorModel.GetID())
 
 	if visitorModel.IsAdmin() {
-		params.Session.Set(api.SESSION_KEY_ADMIN_RIGHTS, true)
+		params.Session.Set(api.ConstSessionKeyAdminRights, true)
 	}
 
 	return "ok", nil
 }
 
 // WEB REST API function used to get visitor order details information
-func restVisitorOrderDetails(params *api.T_APIHandlerParams) (interface{}, error) {
-	visitorID := visitor.GetCurrentVisitorId(params)
+func restVisitorOrderDetails(params *api.StructAPIHandlerParams) (interface{}, error) {
+	visitorID := visitor.GetCurrentVisitorID(params)
 	if visitorID == "" {
 		return "you are not logined in", nil
 	}
 
-	orderModel, err := order.LoadOrderById(params.RequestURLParams["id"])
+	orderModel, err := order.LoadOrderByID(params.RequestURLParams["id"])
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -912,7 +905,7 @@ func restVisitorOrderDetails(params *api.T_APIHandlerParams) (interface{}, error
 }
 
 // WEB REST API function used to get visitor orders information
-func restListVisitorOrders(params *api.T_APIHandlerParams) (interface{}, error) {
+func restListVisitorOrders(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -923,7 +916,7 @@ func restListVisitorOrders(params *api.T_APIHandlerParams) (interface{}, error) 
 
 	// list operation
 	//---------------
-	visitorID := visitor.GetCurrentVisitorId(params)
+	visitorID := visitor.GetCurrentVisitorID(params)
 	if visitorID == "" {
 		return "you are not logined in", nil
 	}
@@ -958,7 +951,7 @@ func restListVisitorOrders(params *api.T_APIHandlerParams) (interface{}, error) 
 }
 
 // WEB REST API function used to get visitor orders information
-func restVisitorSendMail(params *api.T_APIHandlerParams) (interface{}, error) {
+func restVisitorSendMail(params *api.StructAPIHandlerParams) (interface{}, error) {
 	reqData, ok := params.RequestContent.(map[string]interface{})
 	if !ok {
 		reqData = make(map[string]interface{})
@@ -973,7 +966,7 @@ func restVisitorSendMail(params *api.T_APIHandlerParams) (interface{}, error) {
 	visitorIDs := utils.InterfaceToArray(reqData["visitor_ids"])
 
 	for _, visitorID := range visitorIDs {
-		visitorModel, err := visitor.LoadVisitorById(utils.InterfaceToString(visitorID))
+		visitorModel, err := visitor.LoadVisitorByID(utils.InterfaceToString(visitorID))
 		if err != nil {
 			return nil, env.ErrorDispatch(err)
 		}

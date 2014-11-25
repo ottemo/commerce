@@ -6,6 +6,7 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
+// setupConfig setups package configuration values for a system
 func setupConfig() error {
 	config := env.GetConfig()
 	if config == nil {
@@ -14,10 +15,10 @@ func setupConfig() error {
 
 	// Checkout
 	//---------
-	err := config.RegisterItem(env.T_ConfigItem{
-		Path:        checkout.CONFIG_PATH_GROUP,
+	err := config.RegisterItem(env.StructConfigItem{
+		Path:        checkout.ConstConfigPathGroup,
 		Value:       nil,
-		Type:        env.CONFIG_ITEM_GROUP_TYPE,
+		Type:        env.ConstConfigItemGroupType,
 		Editor:      "",
 		Options:     nil,
 		Label:       "Checkout",
@@ -29,8 +30,8 @@ func setupConfig() error {
 		return env.ErrorDispatch(err)
 	}
 
-	config.RegisterItem(env.T_ConfigItem{
-		Path: checkout.CONFIG_PATH_CONFIRMATION_EMAIL,
+	config.RegisterItem(env.StructConfigItem{
+		Path: checkout.ConstConfigPathConfirmationEmail,
 		Value: `Dear {{.Visitor.last_name}} {{.Visitor.first_name}}
 <br />
 <br />
@@ -54,8 +55,8 @@ Total: ${{.Order.grand_total}}<br />`,
 		return env.ErrorDispatch(err)
 	}
 
-	err = config.RegisterItem(env.T_ConfigItem{
-		Path:        checkout.CONFIG_PATH_CHECKOUT_TYPE,
+	err = config.RegisterItem(env.StructConfigItem{
+		Path:        checkout.ConstConfigPathCheckoutType,
 		Value:       "accordion",
 		Type:        "varchar(255)",
 		Editor:      "select",
@@ -71,10 +72,10 @@ Total: ${{.Order.grand_total}}<br />`,
 
 	// Payment
 	//--------
-	err = config.RegisterItem(env.T_ConfigItem{
-		Path:        checkout.CONFIG_PATH_PAYMENT_GROUP,
+	err = config.RegisterItem(env.StructConfigItem{
+		Path:        checkout.ConstConfigPathPaymentGroup,
 		Value:       nil,
-		Type:        env.CONFIG_ITEM_GROUP_TYPE,
+		Type:        env.ConstConfigItemGroupType,
 		Editor:      "",
 		Options:     nil,
 		Label:       "Payment",
@@ -86,10 +87,10 @@ Total: ${{.Order.grand_total}}<br />`,
 		return env.ErrorDispatch(err)
 	}
 
-	err = config.RegisterItem(env.T_ConfigItem{
-		Path:        checkout.CONFIG_PATH_PAYMENT_ORIGIN_GROUP,
+	err = config.RegisterItem(env.StructConfigItem{
+		Path:        checkout.ConstConfigPathPaymentOriginGroup,
 		Value:       nil,
-		Type:        env.CONFIG_ITEM_GROUP_TYPE,
+		Type:        env.ConstConfigItemGroupType,
 		Editor:      "",
 		Options:     nil,
 		Label:       "Payment Origin",
@@ -101,12 +102,12 @@ Total: ${{.Order.grand_total}}<br />`,
 		return env.ErrorDispatch(err)
 	}
 
-	err = config.RegisterItem(env.T_ConfigItem{
-		Path:        checkout.CONFIG_PATH_PAYMENT_ORIGIN_COUNTRY,
+	err = config.RegisterItem(env.StructConfigItem{
+		Path:        checkout.ConstConfigPathPaymentOriginCountry,
 		Value:       "US",
 		Type:        "string",
 		Editor:      "select",
-		Options:     models.COUNTRIES_LIST,
+		Options:     models.ConstCountriesList,
 		Label:       "Country",
 		Description: "payment methods origin country",
 		Image:       "",
@@ -116,12 +117,12 @@ Total: ${{.Order.grand_total}}<br />`,
 		return env.ErrorDispatch(err)
 	}
 
-	err = config.RegisterItem(env.T_ConfigItem{
-		Path:        checkout.CONFIG_PATH_PAYMENT_ORIGIN_STATE,
+	err = config.RegisterItem(env.StructConfigItem{
+		Path:        checkout.ConstConfigPathPaymentOriginState,
 		Value:       "",
 		Type:        "string",
 		Editor:      "select",
-		Options:     models.STATES_LIST,
+		Options:     models.ConstStatesList,
 		Label:       "State",
 		Description: "payment methods origin state",
 		Image:       "",
@@ -131,8 +132,8 @@ Total: ${{.Order.grand_total}}<br />`,
 		return env.ErrorDispatch(err)
 	}
 
-	err = config.RegisterItem(env.T_ConfigItem{
-		Path:        checkout.CONFIG_PATH_PAYMENT_ORIGIN_CITY,
+	err = config.RegisterItem(env.StructConfigItem{
+		Path:        checkout.ConstConfigPathPaymentOriginCity,
 		Value:       "",
 		Type:        "string",
 		Editor:      "line_text",
@@ -146,8 +147,8 @@ Total: ${{.Order.grand_total}}<br />`,
 		return env.ErrorDispatch(err)
 	}
 
-	err = config.RegisterItem(env.T_ConfigItem{
-		Path:        checkout.CONFIG_PATH_PAYMENT_ORIGIN_ADDRESSLINE1,
+	err = config.RegisterItem(env.StructConfigItem{
+		Path:        checkout.ConstConfigPathPaymentOriginAddressline1,
 		Value:       "",
 		Type:        "string",
 		Editor:      "line_text",
@@ -161,8 +162,8 @@ Total: ${{.Order.grand_total}}<br />`,
 		return env.ErrorDispatch(err)
 	}
 
-	err = config.RegisterItem(env.T_ConfigItem{
-		Path:        checkout.CONFIG_PATH_PAYMENT_ORIGIN_ADDRESSLINE2,
+	err = config.RegisterItem(env.StructConfigItem{
+		Path:        checkout.ConstConfigPathPaymentOriginAddressline2,
 		Value:       "",
 		Type:        "string",
 		Editor:      "line_text",
@@ -176,8 +177,8 @@ Total: ${{.Order.grand_total}}<br />`,
 		return env.ErrorDispatch(err)
 	}
 
-	err = config.RegisterItem(env.T_ConfigItem{
-		Path:        checkout.CONFIG_PATH_PAYMENT_ORIGIN_ZIP,
+	err = config.RegisterItem(env.StructConfigItem{
+		Path:        checkout.ConstConfigPathPaymentOriginZip,
 		Value:       "",
 		Type:        "string",
 		Editor:      "line_text",
@@ -193,10 +194,10 @@ Total: ${{.Order.grand_total}}<br />`,
 
 	// Shipping
 	//---------
-	err = config.RegisterItem(env.T_ConfigItem{
-		Path:        checkout.CONFIG_PATH_SHIPPING_GROUP,
+	err = config.RegisterItem(env.StructConfigItem{
+		Path:        checkout.ConstConfigPathShippingGroup,
 		Value:       nil,
-		Type:        env.CONFIG_ITEM_GROUP_TYPE,
+		Type:        env.ConstConfigItemGroupType,
 		Editor:      "",
 		Options:     nil,
 		Label:       "Shipping",
@@ -208,10 +209,10 @@ Total: ${{.Order.grand_total}}<br />`,
 		return env.ErrorDispatch(err)
 	}
 
-	err = config.RegisterItem(env.T_ConfigItem{
-		Path:        checkout.CONFIG_PATH_SHIPPING_ORIGIN_GROUP,
+	err = config.RegisterItem(env.StructConfigItem{
+		Path:        checkout.ConstConfigPathShippingOriginGroup,
 		Value:       nil,
-		Type:        env.CONFIG_ITEM_GROUP_TYPE,
+		Type:        env.ConstConfigItemGroupType,
 		Editor:      "",
 		Options:     nil,
 		Label:       "Shipping Origin",
@@ -223,12 +224,12 @@ Total: ${{.Order.grand_total}}<br />`,
 		return env.ErrorDispatch(err)
 	}
 
-	err = config.RegisterItem(env.T_ConfigItem{
-		Path:        checkout.CONFIG_PATH_SHIPPING_ORIGIN_COUNTRY,
+	err = config.RegisterItem(env.StructConfigItem{
+		Path:        checkout.ConstConfigPathShippingOriginCountry,
 		Value:       "US",
 		Type:        "string",
 		Editor:      "select",
-		Options:     models.COUNTRIES_LIST,
+		Options:     models.ConstCountriesList,
 		Label:       "Country",
 		Description: "shipping methods origin country",
 		Image:       "",
@@ -238,12 +239,12 @@ Total: ${{.Order.grand_total}}<br />`,
 		return env.ErrorDispatch(err)
 	}
 
-	err = config.RegisterItem(env.T_ConfigItem{
-		Path:        checkout.CONFIG_PATH_SHIPPING_ORIGIN_STATE,
+	err = config.RegisterItem(env.StructConfigItem{
+		Path:        checkout.ConstConfigPathShippingOriginState,
 		Value:       "",
 		Type:        "string",
 		Editor:      "select",
-		Options:     models.STATES_LIST,
+		Options:     models.ConstStatesList,
 		Label:       "State",
 		Description: "shipping methods origin state",
 		Image:       "",
@@ -253,8 +254,8 @@ Total: ${{.Order.grand_total}}<br />`,
 		return env.ErrorDispatch(err)
 	}
 
-	err = config.RegisterItem(env.T_ConfigItem{
-		Path:        checkout.CONFIG_PATH_SHIPPING_ORIGIN_CITY,
+	err = config.RegisterItem(env.StructConfigItem{
+		Path:        checkout.ConstConfigPathShippingOriginCity,
 		Value:       "",
 		Type:        "string",
 		Editor:      "line_text",
@@ -268,8 +269,8 @@ Total: ${{.Order.grand_total}}<br />`,
 		return env.ErrorDispatch(err)
 	}
 
-	err = config.RegisterItem(env.T_ConfigItem{
-		Path:        checkout.CONFIG_PATH_SHIPPING_ORIGIN_ADDRESSLINE1,
+	err = config.RegisterItem(env.StructConfigItem{
+		Path:        checkout.ConstConfigPathShippingOriginAddressline1,
 		Value:       "",
 		Type:        "string",
 		Editor:      "line_text",
@@ -283,8 +284,8 @@ Total: ${{.Order.grand_total}}<br />`,
 		return env.ErrorDispatch(err)
 	}
 
-	err = config.RegisterItem(env.T_ConfigItem{
-		Path:        checkout.CONFIG_PATH_SHIPPING_ORIGIN_ADDRESSLINE2,
+	err = config.RegisterItem(env.StructConfigItem{
+		Path:        checkout.ConstConfigPathShippingOriginAddressline2,
 		Value:       "",
 		Type:        "string",
 		Editor:      "line_text",
@@ -298,8 +299,8 @@ Total: ${{.Order.grand_total}}<br />`,
 		return env.ErrorDispatch(err)
 	}
 
-	err = config.RegisterItem(env.T_ConfigItem{
-		Path:        checkout.CONFIG_PATH_SHIPPING_ORIGIN_ZIP,
+	err = config.RegisterItem(env.StructConfigItem{
+		Path:        checkout.ConstConfigPathShippingOriginZip,
 		Value:       "",
 		Type:        "string",
 		Editor:      "line_text",

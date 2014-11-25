@@ -11,14 +11,14 @@ import (
 	"github.com/ottemo/foundation/utils"
 )
 
-// converts map[string]interface{} to csv data
+// MapToCSV converts map[string]interface{} to csv data
 func MapToCSV(input []map[string]interface{}, csvWriter *csv.Writer) error {
 
 	csvColumnHeaders := make(map[string]string)
 
 	// recursuve functions for internal usage
 	//----------------------------------------
-	var collectColumns func(mapItem map[string]interface{}, path string) = nil
+	var collectColumns func(mapItem map[string]interface{}, path string)
 	var getPathValue func(item map[string]interface{}, path []string) interface{}
 
 	collectColumns = func(mapItem map[string]interface{}, path string) {
@@ -61,7 +61,7 @@ func MapToCSV(input []map[string]interface{}, csvWriter *csv.Writer) error {
 
 			followingPath := pathArray[1:]
 			if keyValueAsList, ok := keyValue.([]interface{}); ok {
-				result := make([]interface{}, 0)
+				var result []interface{}
 				for _, listValue := range keyValueAsList {
 					if listValueAsMap, ok := listValue.(map[string]interface{}); ok {
 						result = append(result, getPathValue(listValueAsMap, followingPath))
@@ -89,12 +89,12 @@ func MapToCSV(input []map[string]interface{}, csvWriter *csv.Writer) error {
 	}
 
 	sortedPaths := make([]string, 0, len(csvColumnHeaders))
-	for path, _ := range csvColumnHeaders {
+	for path := range csvColumnHeaders {
 		sortedPaths = append(sortedPaths, path)
 	}
 	sort.Strings(sortedPaths)
 
-	csvHeader := make([]string, 0)
+	var csvHeader []string
 	for _, currentPath := range sortedPaths {
 		csvHeader = append(csvHeader, csvColumnHeaders[currentPath])
 	}
@@ -108,7 +108,7 @@ func MapToCSV(input []map[string]interface{}, csvWriter *csv.Writer) error {
 
 	for _, mapItem := range input { // 2nd loop - writing content rows
 		// one record by default for item
-		itemCSVRecords := make([][]string, 0)
+		var itemCSVRecords [][]string
 		itemCSVRecords = append(itemCSVRecords, make([]string, numberOfColumns))
 
 		for columnIdx, columnPath := range sortedPaths {
@@ -142,7 +142,7 @@ func MapToCSV(input []map[string]interface{}, csvWriter *csv.Writer) error {
 	return nil
 }
 
-// converts csv data to map[string]interface{} and sends to processorFunc
+// CSVToMap converts csv data to map[string]interface{} and sends to processorFunc
 func CSVToMap(csvReader *csv.Reader, processorFunc func(item map[string]interface{}) bool) error {
 
 	// reading header/columns information
@@ -163,7 +163,7 @@ func CSVToMap(csvReader *csv.Reader, processorFunc func(item map[string]interfac
 	allColumnsBlankFlag := true
 	// extracting column header parts
 	for idx, column := range csvColumns {
-		regexpGroups := CSV_COLUMN_REGEXP.FindStringSubmatch(column)
+		regexpGroups := ConstCSVColumnRegexp.FindStringSubmatch(column)
 
 		if len(regexpGroups) == 0 { // un-recognized column header
 			if strings.TrimSpace(column) != "" { // unless it is blank, considering as path
@@ -194,7 +194,7 @@ func CSVToMap(csvReader *csv.Reader, processorFunc func(item map[string]interfac
 
 	// reading CSV contents
 	//----------------------
-	result := make([]map[string]interface{}, 0)
+	var result []map[string]interface{}
 	csvRecordMap := make(map[string]interface{})
 	csvMemorize := make(map[string]interface{})
 
@@ -299,8 +299,8 @@ func CSVToMap(csvReader *csv.Reader, processorFunc func(item map[string]interfac
 			keyPathArray := columnPathArray[columnIdx]
 			lastPathIdx := len(keyPathArray) - 1
 
-			var prevPathMap map[string]interface{} = nil
-			var prevPathKey string = ""
+			var prevPathMap map[string]interface{}
+			var prevPathKey string
 			var prevPathValue interface{} = result
 
 			currentPathMap := csvRecordMap
@@ -329,7 +329,7 @@ func CSVToMap(csvReader *csv.Reader, processorFunc func(item map[string]interfac
 				if idx == lastPathIdx { // we are at end of key path (i.e. on x for key like a.b.c.d.x)
 
 					// trying to convert string value to supposed type
-					var typedValue interface{} = nil
+					var typedValue interface{}
 
 					if columnType := csvColumnType[columnIdx]; columnType != "" {
 						if result, err := utils.StringToType(value, columnType); err == nil {
@@ -397,14 +397,14 @@ func CSVToMap(csvReader *csv.Reader, processorFunc func(item map[string]interfac
 			}
 		}
 
-		csvRecordNum += 1
+		csvRecordNum++
 	}
 	processorFunc(csvRecordMap)
 
 	return nil
 }
 
-// imports csv data using command->data csv format
+// ImportCSV imports csv data using command->data csv format
 func ImportCSV(csvReader *csv.Reader) error {
 
 	// impex csv file should contain command preceding data
@@ -451,14 +451,14 @@ func ImportCSV(csvReader *csv.Reader) error {
 		commandLine = csvLine + " " + commandLine
 		commandLine = strings.TrimSpace(commandLine)
 
-		if IMPEX_LOG || DEBUG_LOG {
-			env.Log("impex.log", env.LOG_PREFIX_DEBUG, fmt.Sprintf("Command line: %s", commandLine))
+		if ConstImpexLog || ConstDebugLog {
+			env.Log("impex.log", env.ConstLogPrefixDebug, fmt.Sprintf("Command line: %s", commandLine))
 		}
 
 		// looking for required commands and preparing them to process
 		//-------------------------------------------------------------
 		exchangeDict := make(map[string]interface{})
-		commandsChain := make([]ImpexImportCmd, 0)
+		var commandsChain []InterfaceImpexImportCmd
 
 		for _, command := range utils.SplitQuotedStringBy(commandLine, '|') {
 			command = strings.TrimSpace(command)
@@ -484,29 +484,29 @@ func ImportCSV(csvReader *csv.Reader) error {
 		// making csv data processor based on received commands
 		//------------------------------------------------------
 		dataProcessor := func(itemData map[string]interface{}) bool {
-			if IMPEX_LOG || DEBUG_LOG {
-				env.Log("impex.log", env.LOG_PREFIX_DEBUG, fmt.Sprintf("Processing: %s", utils.EncodeToJsonString(itemData)))
+			if ConstImpexLog || ConstDebugLog {
+				env.Log("impex.log", env.ConstLogPrefixDebug, fmt.Sprintf("Processing: %s", utils.EncodeToJSONString(itemData)))
 			}
 
-			var input interface{} = nil
+			var input interface{}
 			for _, command := range commandsChain {
-				if DEBUG_LOG {
-					env.Log("impex.log", env.LOG_PREFIX_DEBUG, fmt.Sprintf("Command: %T", command))
-					env.Log("impex.log", env.LOG_PREFIX_DEBUG, fmt.Sprintf("Input: %#v", input))
-					env.Log("impex.log", env.LOG_PREFIX_DEBUG, fmt.Sprintf("itemData: %s", utils.EncodeToJsonString(itemData)))
-					env.Log("impex.log", env.LOG_PREFIX_DEBUG, fmt.Sprintf("Exchange: %s", utils.EncodeToJsonString(exchangeDict)))
+				if ConstDebugLog {
+					env.Log("impex.log", env.ConstLogPrefixDebug, fmt.Sprintf("Command: %T", command))
+					env.Log("impex.log", env.ConstLogPrefixDebug, fmt.Sprintf("Input: %#v", input))
+					env.Log("impex.log", env.ConstLogPrefixDebug, fmt.Sprintf("itemData: %s", utils.EncodeToJSONString(itemData)))
+					env.Log("impex.log", env.ConstLogPrefixDebug, fmt.Sprintf("Exchange: %s", utils.EncodeToJSONString(exchangeDict)))
 				}
 
 				input, err = command.Process(itemData, input, exchangeDict)
 				if err != nil {
-					if IMPEX_LOG || DEBUG_LOG {
-						env.Log("impex.log", env.LOG_PREFIX_DEBUG, fmt.Sprintf("Error: %s", err.Error()))
+					if ConstImpexLog || ConstDebugLog {
+						env.Log("impex.log", env.ConstLogPrefixDebug, fmt.Sprintf("Error: %s", err.Error()))
 					}
 					env.ErrorDispatch(err)
 					return true
 				}
-				if IMPEX_LOG || DEBUG_LOG {
-					env.Log("impex.log", env.LOG_PREFIX_DEBUG, "Finished ok")
+				if ConstImpexLog || ConstDebugLog {
+					env.Log("impex.log", env.ConstLogPrefixDebug, "Finished ok")
 				}
 			}
 			return true

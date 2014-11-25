@@ -17,7 +17,7 @@ import (
 
 // GetReferrer returns a string when provided a URL
 func GetReferrer(url string) (string, error) {
-	excludeURLs := []string{app.GetFoundationUrl(""), app.GetDashboardUrl("")}
+	excludeURLs := []string{app.GetFoundationURL(""), app.GetDashboardURL("")}
 
 	r := regexp.MustCompile(`^(http|https):\/\/(.+)\/.*$`)
 	groups := r.FindStringSubmatch(url)
@@ -38,19 +38,19 @@ func GetReferrer(url string) (string, error) {
 // IncreaseOnline is a method to increase the provided counter by 1
 func IncreaseOnline(typeCounter int) {
 	switch typeCounter {
-	case ReferrerTypeDirect:
+	case ConstReferrerTypeDirect:
 		OnlineDirect++
 		if OnlineDirect > OnlineDirectMax {
 			OnlineDirectMax = OnlineDirect
 		}
 		break
-	case ReferrerTypeSearch:
+	case ConstReferrerTypeSearch:
 		OnlineSearch++
 		if OnlineSearch > OnlineSearchMax {
 			OnlineSearchMax = OnlineSearch
 		}
 		break
-	case ReferrerTypeSite:
+	case ConstReferrerTypeSite:
 		OnlineSite++
 		if OnlineSite > OnlineSiteMax {
 			OnlineSiteMax = OnlineSite
@@ -62,18 +62,18 @@ func IncreaseOnline(typeCounter int) {
 // DecreaseOnline is a method to decrease the provided counter by 1
 func DecreaseOnline(typeCounter int) {
 	switch typeCounter {
-	case ReferrerTypeDirect:
+	case ConstReferrerTypeDirect:
 		if OnlineDirect != 0 {
 			OnlineDirect--
 		}
 		break
-	case ReferrerTypeSearch:
+	case ConstReferrerTypeSearch:
 		if OnlineSearch != 0 {
 			OnlineSearch--
 		}
 
 		break
-	case ReferrerTypeSite:
+	case ConstReferrerTypeSite:
 		if OnlineSite != 0 {
 			OnlineSite--
 		}
@@ -96,7 +96,7 @@ func GetProducts() ([]map[string]interface{}, error) {
 func GetDateFrom() (time.Time, error) {
 	result := time.Now()
 
-	salesHistoryCollection, err := db.GetCollection(CollectionNameSalesHistory)
+	salesHistoryCollection, err := db.GetCollection(ConstCollectionNameRTSSalesHistory)
 	if err == nil {
 		salesHistoryCollection.SetResultColumns("created_at")
 		salesHistoryCollection.AddSort("created_at", true)
@@ -176,7 +176,7 @@ func GetOrderItems(date time.Time, productID string) ([]map[string]interface{}, 
 
 // DeleteExistingRowHistory will remove the row entry for the given productID
 func DeleteExistingRowHistory(date time.Time, productID string) error {
-	salesHistoryCollection, err := db.GetCollection(CollectionNameSalesHistory)
+	salesHistoryCollection, err := db.GetCollection(ConstCollectionNameRTSSalesHistory)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -186,7 +186,7 @@ func DeleteExistingRowHistory(date time.Time, productID string) error {
 	salesHistoryCollection.AddFilter("created_at", "=", date)
 	dbSalesHist, _ := salesHistoryCollection.Load()
 	if len(dbSalesHist) > 0 {
-		err = salesHistoryCollection.DeleteById(utils.InterfaceToString(dbSalesHist[0]["_id"]))
+		err = salesHistoryCollection.DeleteByID(utils.InterfaceToString(dbSalesHist[0]["_id"]))
 		if err != nil {
 			return env.ErrorDispatch(err)
 		}
@@ -205,7 +205,7 @@ func initSalesHistory() error {
 		return nil
 	}
 
-	salesHistoryCollection, err := db.GetCollection(CollectionNameSalesHistory)
+	salesHistoryCollection, err := db.GetCollection(ConstCollectionNameRTSSalesHistory)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -246,7 +246,7 @@ func SaveSalesData(data map[string]int) error {
 		return nil
 	}
 
-	salesCollection, err := db.GetCollection(CollectionNameSales)
+	salesCollection, err := db.GetCollection(ConstCollectionNameRTSSales)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -449,26 +449,26 @@ func GetTodayVisitorsData() error {
 		SaveVisitorData()
 		visitorsInfoYesterday = visitorsInfoToday
 	}
-	visitorInfoCollection, err := db.GetCollection(CollectionNameVisitors)
+	visitorInfoCollection, err := db.GetCollection(ConstCollectionNameRTSVisitors)
 	if err == nil {
 		visitorInfoCollection.AddFilter("day", "=", today)
 		dbRecord, _ := visitorInfoCollection.Load()
 
 		if len(dbRecord) > 0 {
-			visitorsInfoToday.Id = utils.InterfaceToString(dbRecord[0]["_id"])
+			visitorsInfoToday.ID = utils.InterfaceToString(dbRecord[0]["_id"])
 			visitorsInfoToday.Day = utils.InterfaceToTime(dbRecord[0]["day"])
 			visitorsInfoToday.Visitors = utils.InterfaceToInt(dbRecord[0]["visitors"])
 			visitorsInfoToday.Cart = utils.InterfaceToInt(dbRecord[0]["cart"])
 			visitorsInfoToday.Checkout = utils.InterfaceToInt(dbRecord[0]["checkout"])
 			visitorsInfoToday.Sales = utils.InterfaceToInt(dbRecord[0]["sales"])
-			visitorsInfoToday.Details = RtsDecodeDetails(utils.InterfaceToString(dbRecord[0]["details"]))
+			visitorsInfoToday.Details = DecodeDetails(utils.InterfaceToString(dbRecord[0]["details"]))
 
 			return nil
 		}
 	}
 
-	visitorsInfoToday = new(dbVisitorRow)
-	visitorsInfoToday.Id = ""
+	visitorsInfoToday = new(dbVisitorsRow)
+	visitorsInfoToday.ID = ""
 	visitorsInfoToday.Day = today
 	visitorsInfoToday.Details = make(map[string]*VisitorDetail)
 
@@ -486,26 +486,26 @@ func GetYesterdayVisitorsData() error {
 		return nil
 	}
 
-	visitorInfoCollection, err := db.GetCollection(CollectionNameVisitors)
+	visitorInfoCollection, err := db.GetCollection(ConstCollectionNameRTSVisitors)
 	if err == nil {
 		visitorInfoCollection.AddFilter("day", "=", yesterday)
 		dbRecord, _ := visitorInfoCollection.Load()
 
 		if len(dbRecord) > 0 {
-			visitorsInfoYesterday.Id = utils.InterfaceToString(dbRecord[0]["_id"])
+			visitorsInfoYesterday.ID = utils.InterfaceToString(dbRecord[0]["_id"])
 			visitorsInfoYesterday.Day = utils.InterfaceToTime(dbRecord[0]["day"])
 			visitorsInfoYesterday.Visitors = utils.InterfaceToInt(dbRecord[0]["visitors"])
 			visitorsInfoYesterday.Cart = utils.InterfaceToInt(dbRecord[0]["cart"])
 			visitorsInfoYesterday.Checkout = utils.InterfaceToInt(dbRecord[0]["checkout"])
 			visitorsInfoYesterday.Sales = utils.InterfaceToInt(dbRecord[0]["sales"])
-			visitorsInfoYesterday.Details = RtsDecodeDetails(utils.InterfaceToString(dbRecord[0]["details"]))
+			visitorsInfoYesterday.Details = DecodeDetails(utils.InterfaceToString(dbRecord[0]["details"]))
 
 			return nil
 		}
 	}
 
-	visitorsInfoYesterday = new(dbVisitorRow)
-	visitorsInfoYesterday.Id = ""
+	visitorsInfoYesterday = new(dbVisitorsRow)
+	visitorsInfoYesterday.ID = ""
 	visitorsInfoYesterday.Day = yesterday
 	visitorsInfoYesterday.Details = make(map[string]*VisitorDetail)
 
@@ -514,11 +514,11 @@ func GetYesterdayVisitorsData() error {
 
 // SaveVisitorData will persist the Visitor data to the database
 func SaveVisitorData() error {
-	visitorInfoCollection, err := db.GetCollection(CollectionNameVisitors)
+	visitorInfoCollection, err := db.GetCollection(ConstCollectionNameRTSVisitors)
 	if err == nil {
 		visitorInfoRow := make(map[string]interface{})
-		if "" != visitorsInfoToday.Id {
-			visitorInfoRow["_id"] = visitorsInfoToday.Id
+		if "" != visitorsInfoToday.ID {
+			visitorInfoRow["_id"] = visitorsInfoToday.ID
 		}
 
 		visitorInfoRow["day"] = visitorsInfoToday.Day
@@ -526,7 +526,7 @@ func SaveVisitorData() error {
 		visitorInfoRow["cart"] = visitorsInfoToday.Cart
 		visitorInfoRow["checkout"] = visitorsInfoToday.Checkout
 		visitorInfoRow["sales"] = visitorsInfoToday.Sales
-		visitorInfoRow["details"] = RtsEncodeDetails(visitorsInfoToday.Details)
+		visitorInfoRow["details"] = EncodeDetails(visitorsInfoToday.Details)
 
 		_, err = visitorInfoCollection.Save(visitorInfoRow)
 		if err != nil {
@@ -537,15 +537,15 @@ func SaveVisitorData() error {
 	return nil
 }
 
-// RtsEncodeDetails returns the Visitor data in a string when provided a VisitorDetail map[string]*
-func RtsEncodeDetails(details map[string]*VisitorDetail) string {
+// EncodeDetails returns the Visitor data in a string when provided a VisitorDetail map[string]*
+func EncodeDetails(details map[string]*VisitorDetail) string {
 	jsonString, _ := json.Marshal(details)
 
 	return string(jsonString)
 }
 
-// RtsDecodeDetails returns the Visitor data in a VisitorDetail map[string]* when provieded an encoded string
-func RtsDecodeDetails(detailsString string) map[string]*VisitorDetail {
+// DecodeDetails returns the Visitor data in a VisitorDetail map[string]* when provieded an encoded string
+func DecodeDetails(detailsString string) map[string]*VisitorDetail {
 	var details map[string]*VisitorDetail
 	_ = json.Unmarshal([]byte(detailsString), &details)
 

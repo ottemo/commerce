@@ -7,36 +7,40 @@ import (
 	"sync"
 )
 
+// Package global variables
 var (
+	// application status indicators to flag that system already in progress or done on kind of routine
 	initFlag  bool
 	startFlag bool
 	endFlag   bool
 
+	// synchronize locks to prevent simultaneous processing
 	initMutex  sync.RWMutex
 	startMutex sync.RWMutex
 	endMutex   sync.RWMutex
 
+	// registered callbacks for application events
 	callbacksOnAppInit  = []func() error{}
 	callbacksOnAppStart = []func() error{}
 	callbacksOnAppEnd   = []func() error{}
 )
 
-// registers callback function on application init event
+// OnAppInit registers callback function on application init event
 func OnAppInit(callback func() error) {
 	callbacksOnAppInit = append(callbacksOnAppInit, callback)
 }
 
-// registers callback function on application start event
+// OnAppStart registers callback function on application start event
 func OnAppStart(callback func() error) {
 	callbacksOnAppStart = append(callbacksOnAppStart, callback)
 }
 
-// registers callback function on application start event
+// OnAppEnd registers callback function on application start event
 func OnAppEnd(callback func() error) {
 	callbacksOnAppEnd = append(callbacksOnAppEnd, callback)
 }
 
-// fires application init event for all registered modules
+// Init fires application init event for all registered modules
 func Init() error {
 	// prevents simultaneous execution
 	initMutex.Lock()
@@ -55,7 +59,7 @@ func Init() error {
 	return nil
 }
 
-// fires application start event for all registered modules
+// Start fires application start event for all registered modules
 func Start() error {
 	// prevents simultaneous execution
 	startMutex.Lock()
@@ -82,7 +86,7 @@ func Start() error {
 	return nil
 }
 
-// fires application end event for all registered modules
+// End fires application end event for all registered modules
 func End() error {
 	endMutex.Lock()
 	defer endMutex.Unlock()
@@ -104,7 +108,7 @@ func End() error {
 	return nil
 }
 
-// runs HTTP server in current go routine
+// Serve runs HTTP server in current go routine
 func Serve() error {
 	return api.GetRestService().Run()
 }

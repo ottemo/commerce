@@ -5,60 +5,60 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
-// retrieves current I_OrderCollection model implementation
-func GetOrderCollectionModel() (I_OrderCollection, error) {
-	model, err := models.GetModel(MODEL_NAME_ORDER_COLLECTION)
+// GetOrderCollectionModel retrieves current InterfaceOrderCollection model implementation
+func GetOrderCollectionModel() (InterfaceOrderCollection, error) {
+	model, err := models.GetModel(ConstModelNameOrderCollection)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	orderCollectionModel, ok := model.(I_OrderCollection)
+	orderCollectionModel, ok := model.(InterfaceOrderCollection)
 	if !ok {
-		return nil, env.ErrorNew("model " + model.GetImplementationName() + " is not 'I_OrderCollection' capable")
+		return nil, env.ErrorNew("model " + model.GetImplementationName() + " is not 'InterfaceOrderCollection' capable")
 	}
 
 	return orderCollectionModel, nil
 }
 
-// retrieves current I_OrderCollection model implementation
-func GetOrderItemCollectionModel() (I_OrderItemCollection, error) {
-	model, err := models.GetModel(MODEL_NAME_ORDER_ITEM_COLLECTION)
+// GetOrderItemCollectionModel retrieves current InterfaceOrderCollection model implementation
+func GetOrderItemCollectionModel() (InterfaceOrderItemCollection, error) {
+	model, err := models.GetModel(ConstModelNameOrderItemCollection)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	orderItemCollectionModel, ok := model.(I_OrderItemCollection)
+	orderItemCollectionModel, ok := model.(InterfaceOrderItemCollection)
 	if !ok {
-		return nil, env.ErrorNew("model " + model.GetImplementationName() + " is not 'I_OrderItemCollection' capable")
+		return nil, env.ErrorNew("model " + model.GetImplementationName() + " is not 'InterfaceOrderItemCollection' capable")
 	}
 
 	return orderItemCollectionModel, nil
 }
 
-// retrieves current I_Order model implementation
-func GetOrderModel() (I_Order, error) {
-	model, err := models.GetModel(MODEL_NAME_ORDER)
+// GetOrderModel retrieves current InterfaceOrder model implementation
+func GetOrderModel() (InterfaceOrder, error) {
+	model, err := models.GetModel(ConstModelNameOrder)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	orderModel, ok := model.(I_Order)
+	orderModel, ok := model.(InterfaceOrder)
 	if !ok {
-		return nil, env.ErrorNew("model " + model.GetImplementationName() + " is not 'I_Order' capable")
+		return nil, env.ErrorNew("model " + model.GetImplementationName() + " is not 'InterfaceOrder' capable")
 	}
 
 	return orderModel, nil
 }
 
-// retrieves current I_Order model implementation and sets its ID to some value
-func GetOrderModelAndSetId(orderId string) (I_Order, error) {
+// GetOrderModelAndSetID retrieves current InterfaceOrder model implementation and sets its ID to some value
+func GetOrderModelAndSetID(orderID string) (InterfaceOrder, error) {
 
 	orderModel, err := GetOrderModel()
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	err = orderModel.SetId(orderId)
+	err = orderModel.SetID(orderID)
 	if err != nil {
 		return orderModel, env.ErrorDispatch(err)
 	}
@@ -66,15 +66,15 @@ func GetOrderModelAndSetId(orderId string) (I_Order, error) {
 	return orderModel, nil
 }
 
-// loads order data into current I_Order model implementation
-func LoadOrderById(orderId string) (I_Order, error) {
+// LoadOrderByID loads order data into current InterfaceOrder model implementation
+func LoadOrderByID(orderID string) (InterfaceOrder, error) {
 
 	orderModel, err := GetOrderModel()
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	err = orderModel.Load(orderId)
+	err = orderModel.Load(orderID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}

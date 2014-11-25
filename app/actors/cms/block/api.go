@@ -8,9 +8,10 @@ import (
 	"github.com/ottemo/foundation/utils"
 )
 
+// setupAPI setups package related API endpoint routines
 func setupAPI() error {
 
-	var err error = nil
+	var err error
 
 	err = api.GetRestService().RegisterAPI("cms", "GET", "block/attributes", restCMSBlockAttributes)
 	if err != nil {
@@ -49,7 +50,7 @@ func setupAPI() error {
 }
 
 // WEB REST API function to get CMS block available attributes information
-func restCMSBlockAttributes(params *api.T_APIHandlerParams) (interface{}, error) {
+func restCMSBlockAttributes(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	cmsBlock, err := cms.GetCMSBlockModel()
 	if err != nil {
@@ -60,7 +61,7 @@ func restCMSBlockAttributes(params *api.T_APIHandlerParams) (interface{}, error)
 }
 
 // WEB REST API function used to obtain CMS blocks list
-func restCMSBlockList(params *api.T_APIHandlerParams) (interface{}, error) {
+func restCMSBlockList(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -68,9 +69,8 @@ func restCMSBlockList(params *api.T_APIHandlerParams) (interface{}, error) {
 	if !ok {
 		if params.Request.Method == "POST" {
 			return nil, env.ErrorNew("unexpected request content")
-		} else {
-			reqData = make(map[string]interface{})
 		}
+		reqData = make(map[string]interface{})
 	}
 
 	// operation start
@@ -101,7 +101,7 @@ func restCMSBlockList(params *api.T_APIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API function used to obtain CMS blocks count in model collection
-func restCMSBlockCount(params *api.T_APIHandlerParams) (interface{}, error) {
+func restCMSBlockCount(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	cmsBlockCollectionModel, err := cms.GetCMSBlockCollectionModel()
 	if err != nil {
@@ -116,19 +116,19 @@ func restCMSBlockCount(params *api.T_APIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API function to get CMS block information
-func restCMSBlockGet(params *api.T_APIHandlerParams) (interface{}, error) {
+func restCMSBlockGet(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
-	reqBlockId, present := params.RequestURLParams["id"]
+	reqBlockID, present := params.RequestURLParams["id"]
 	if !present {
 		return nil, env.ErrorNew("cms block id should be specified")
 	}
-	blockId := utils.InterfaceToString(reqBlockId)
+	blockID := utils.InterfaceToString(reqBlockID)
 
 	// operation
 	//----------
-	cmsBlock, err := cms.LoadCMSBlockById(blockId)
+	cmsBlock, err := cms.LoadCMSBlockByID(blockID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -137,7 +137,7 @@ func restCMSBlockGet(params *api.T_APIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API for adding new CMS block in system
-func restCMSBlockAdd(params *api.T_APIHandlerParams) (interface{}, error) {
+func restCMSBlockAdd(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -162,18 +162,18 @@ func restCMSBlockAdd(params *api.T_APIHandlerParams) (interface{}, error) {
 		cmsBlockModel.Set(attribute, value)
 	}
 
-	cmsBlockModel.SetId("")
+	cmsBlockModel.SetID("")
 	cmsBlockModel.Save()
 
 	return cmsBlockModel.ToHashMap(), nil
 }
 
 // WEB REST API for update existing CMS block in system
-func restCMSBlockUpdate(params *api.T_APIHandlerParams) (interface{}, error) {
+func restCMSBlockUpdate(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
-	blockId, present := params.RequestURLParams["id"]
+	blockID, present := params.RequestURLParams["id"]
 	if !present {
 		return nil, env.ErrorNew("cms block id should be specified")
 	}
@@ -190,7 +190,7 @@ func restCMSBlockUpdate(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// operation
 	//----------
-	cmsBlockModel, err := cms.LoadCMSBlockById(blockId)
+	cmsBlockModel, err := cms.LoadCMSBlockByID(blockID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -199,18 +199,18 @@ func restCMSBlockUpdate(params *api.T_APIHandlerParams) (interface{}, error) {
 		cmsBlockModel.Set(attribute, value)
 	}
 
-	cmsBlockModel.SetId(blockId)
+	cmsBlockModel.SetID(blockID)
 	cmsBlockModel.Save()
 
 	return cmsBlockModel.ToHashMap(), nil
 }
 
 // WEB REST API used to delete CMS block from system
-func restCMSBlockDelete(params *api.T_APIHandlerParams) (interface{}, error) {
+func restCMSBlockDelete(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
-	blockId, present := params.RequestURLParams["id"]
+	blockID, present := params.RequestURLParams["id"]
 	if !present {
 		return nil, env.ErrorNew("cms block id should be specified")
 	}
@@ -222,7 +222,7 @@ func restCMSBlockDelete(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// operation
 	//----------
-	cmsBlockModel, err := cms.GetCMSBlockModelAndSetId(blockId)
+	cmsBlockModel, err := cms.GetCMSBlockModelAndSetID(blockID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}

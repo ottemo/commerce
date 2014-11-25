@@ -6,13 +6,13 @@ import (
 )
 
 // GetDBCollection returns database collection for the Visitor
-func (it *DefaultVisitorCollection) GetDBCollection() db.I_DBCollection {
+func (it *DefaultVisitorCollection) GetDBCollection() db.InterfaceDBCollection {
 	return it.listCollection
 }
 
 // ListVisitors returns list of visitor model items in the Visitor Collection
-func (it *DefaultVisitorCollection) ListVisitors() []visitor.I_Visitor {
-	var result []visitor.I_Visitor
+func (it *DefaultVisitorCollection) ListVisitors() []visitor.InterfaceVisitor {
+	var result []visitor.InterfaceVisitor
 
 	dbRecords, err := it.listCollection.Load()
 	if err != nil {

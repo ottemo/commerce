@@ -6,8 +6,8 @@ import (
 	"strings"
 )
 
-// returns database collection or error otherwise
-func GetCollection(CollectionName string) (I_DBCollection, error) {
+// GetCollection returns database collection or error otherwise
+func GetCollection(CollectionName string) (InterfaceDBCollection, error) {
 	dbEngine := GetDBEngine()
 	if dbEngine == nil {
 		return nil, env.ErrorNew("Can't get DBEngine")
@@ -16,11 +16,11 @@ func GetCollection(CollectionName string) (I_DBCollection, error) {
 	return dbEngine.GetCollection(CollectionName)
 }
 
-// returns object that represents GO side value for given valueType
+// ConvertTypeFromDbToGo returns object that represents GO side value for given valueType
 func ConvertTypeFromDbToGo(value interface{}, valueType string) interface{} {
 	switch {
 	case strings.HasPrefix(valueType, "[]"):
-		result := make([]interface{}, 0)
+		var result []interface{}
 		if value == nil {
 			return result
 		}
@@ -38,26 +38,26 @@ func ConvertTypeFromDbToGo(value interface{}, valueType string) interface{} {
 		}
 		return result
 
-	case strings.HasPrefix(valueType, DB_BASETYPE_BOOLEAN):
+	case strings.HasPrefix(valueType, ConstDBBasetypeBoolean):
 		return utils.InterfaceToBool(value)
 
-	case strings.HasPrefix(valueType, DB_BASETYPE_INTEGER):
+	case strings.HasPrefix(valueType, ConstDBBasetypeInteger):
 		return utils.InterfaceToInt(value)
 
-	case strings.HasPrefix(valueType, DB_BASETYPE_DECIMAL),
-		strings.HasPrefix(valueType, DB_BASETYPE_FLOAT),
-		strings.HasPrefix(valueType, DB_BASETYPE_MONEY):
+	case strings.HasPrefix(valueType, ConstDBBasetypeDecimal),
+		strings.HasPrefix(valueType, ConstDBBasetypeFloat),
+		strings.HasPrefix(valueType, ConstDBBasetypeMoney):
 
 		return utils.InterfaceToFloat64(value)
 
-	case valueType == DB_BASETYPE_DATETIME:
+	case valueType == ConstDBBasetypeDatetime:
 		return utils.InterfaceToTime(value)
 
-	case valueType == DB_BASETYPE_JSON:
-		result, _ := utils.DecodeJsonToStringKeyMap(value)
+	case valueType == ConstDBBasetypeJSON:
+		result, _ := utils.DecodeJSONToStringKeyMap(value)
 		return result
 
-	case strings.HasPrefix(valueType, DB_BASETYPE_VARCHAR), valueType == DB_BASETYPE_TEXT, valueType == DB_BASETYPE_ID:
+	case strings.HasPrefix(valueType, ConstDBBasetypeVarchar), valueType == ConstDBBasetypeText, valueType == ConstDBBasetypeID:
 		return utils.InterfaceToString(value)
 
 	}

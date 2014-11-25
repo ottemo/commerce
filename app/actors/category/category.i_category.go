@@ -8,15 +8,18 @@ import (
 	"github.com/ottemo/foundation/app/models/product"
 )
 
+// GetName returns current category name
 func (it *DefaultCategory) GetName() string {
 	return it.Name
 }
 
+// GetProductIds returns product ids associated to category
 func (it *DefaultCategory) GetProductIds() []string {
 	return it.ProductIds
 }
 
-func (it *DefaultCategory) GetProductsCollection() product.I_ProductCollection {
+// GetProductsCollection returns category associated products collection instance
+func (it *DefaultCategory) GetProductsCollection() product.InterfaceProductCollection {
 	productCollection, err := product.GetProductCollectionModel()
 	if err != nil {
 		return nil
@@ -30,11 +33,12 @@ func (it *DefaultCategory) GetProductsCollection() product.I_ProductCollection {
 	return productCollection
 }
 
-func (it *DefaultCategory) GetProducts() []product.I_Product {
-	result := make([]product.I_Product, 0)
+// GetProducts returns a set of category associated products
+func (it *DefaultCategory) GetProducts() []product.InterfaceProduct {
+	var result []product.InterfaceProduct
 
-	for _, productId := range it.ProductIds {
-		productModel, err := product.LoadProductById(productId)
+	for _, productID := range it.ProductIds {
+		productModel, err := product.LoadProductByID(productID)
 		if err == nil {
 			result = append(result, productModel)
 		}
@@ -43,39 +47,41 @@ func (it *DefaultCategory) GetProducts() []product.I_Product {
 	return result
 }
 
-func (it *DefaultCategory) GetParent() category.I_Category {
+// GetParent returns parent category of nil
+func (it *DefaultCategory) GetParent() category.InterfaceCategory {
 	return it.Parent
 }
 
-func (it *DefaultCategory) AddProduct(productId string) error {
+// AddProduct associates given product with category
+func (it *DefaultCategory) AddProduct(productID string) error {
 
 	dbEngine := db.GetDBEngine()
 	if dbEngine == nil {
 		return env.ErrorNew("Can't obtain DBEngine")
 	}
 
-	collection, err := dbEngine.GetCollection(COLLECTION_NAME_CATEGORY_PRODUCT_JUNCTION)
+	collection, err := dbEngine.GetCollection(ConstCollectionNameCategoryProductJunction)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	categoryId := it.GetId()
-	if categoryId == "" {
+	categoryID := it.GetID()
+	if categoryID == "" {
 		return env.ErrorNew("category ID is not set")
 	}
-	if productId == "" {
+	if productID == "" {
 		return env.ErrorNew("product ID is not set")
 	}
 
-	collection.AddFilter("category_id", "=", categoryId)
-	collection.AddFilter("product_id", "=", productId)
+	collection.AddFilter("category_id", "=", categoryID)
+	collection.AddFilter("product_id", "=", productID)
 	cnt, err := collection.Count()
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
 	if cnt == 0 {
-		_, err := collection.Save(map[string]interface{}{"category_id": categoryId, "product_id": productId})
+		_, err := collection.Save(map[string]interface{}{"category_id": categoryID, "product_id": productID})
 		if err != nil {
 			return env.ErrorDispatch(err)
 		}
@@ -86,28 +92,29 @@ func (it *DefaultCategory) AddProduct(productId string) error {
 	return nil
 }
 
-func (it *DefaultCategory) RemoveProduct(productId string) error {
+// RemoveProduct un-associates given product with category
+func (it *DefaultCategory) RemoveProduct(productID string) error {
 
 	dbEngine := db.GetDBEngine()
 	if dbEngine == nil {
 		return env.ErrorNew("Can't obtain DBEngine")
 	}
 
-	collection, err := dbEngine.GetCollection(COLLECTION_NAME_CATEGORY_PRODUCT_JUNCTION)
+	collection, err := dbEngine.GetCollection(ConstCollectionNameCategoryProductJunction)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	categoryId := it.GetId()
-	if categoryId == "" {
+	categoryID := it.GetID()
+	if categoryID == "" {
 		return env.ErrorNew("category ID is not set")
 	}
-	if productId == "" {
+	if productID == "" {
 		return env.ErrorNew("product ID is not set")
 	}
 
-	collection.AddFilter("category_id", "=", categoryId)
-	collection.AddFilter("product_id", "=", productId)
+	collection.AddFilter("category_id", "=", categoryID)
+	collection.AddFilter("product_id", "=", productID)
 	_, err = collection.Delete()
 
 	return env.ErrorDispatch(err)

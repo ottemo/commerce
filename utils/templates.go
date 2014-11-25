@@ -5,7 +5,7 @@ import (
 	"text/template"
 )
 
-// evaluates text template, returns error if not possible
+// TextTemplate evaluates text template, returns error if not possible
 func TextTemplate(templateContents string, context map[string]interface{}) (string, error) {
 
 	textTemplate := template.New("textTemplate")

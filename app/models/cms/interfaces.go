@@ -1,17 +1,20 @@
+// Package cms represents abstraction of business layer cms page and cms block objects
 package cms
 
 import (
 	"github.com/ottemo/foundation/app/models"
 )
 
+// Package global constants
 const (
-	MODEL_NAME_CMS_PAGE             = "CMSPage"
-	MODEL_NAME_CMS_PAGE_COLLECTION  = "CMSPageCollection"
-	MODEL_NAME_CMS_BLOCK            = "CMSBlock"
-	MODEL_NAME_CMS_BLOCK_COLLECTION = "CMSBlockCollection"
+	ConstModelNameCMSPage            = "CMSPage"
+	ConstModelNameCMSPageCollection  = "CMSPageCollection"
+	ConstModelNameCMSBlock           = "CMSBlock"
+	ConstModelNameCMSBlockCollection = "CMSBlockCollection"
 )
 
-type I_CMSPage interface {
+// InterfaceCMSPage represents interface to access business layer implementation of cms page object
+type InterfaceCMSPage interface {
 	GetURL() string
 	SetURL(string) error
 
@@ -30,33 +33,36 @@ type I_CMSPage interface {
 	GetMetaDescription() string
 	SetMetaDescription(string) error
 
-	models.I_Model
-	models.I_Object
-	models.I_Storable
-	models.I_Listable
+	models.InterfaceModel
+	models.InterfaceObject
+	models.InterfaceStorable
+	models.InterfaceListable
 }
 
-type I_CMSPageCollection interface {
-	ListCMSPages() []I_CMSPage
+// InterfaceCMSPageCollection represents interface to access business layer implementation of cms page collection
+type InterfaceCMSPageCollection interface {
+	ListCMSPages() []InterfaceCMSPage
 
-	models.I_Collection
+	models.InterfaceCollection
 }
 
-type I_CMSBlock interface {
+// InterfaceCMSBlock represents interface to access business layer implementation of cms block object
+type InterfaceCMSBlock interface {
 	GetIdentifier() string
 	SetIdentifier(string) error
 
 	GetContent() string
 	SetContent(string) error
 
-	models.I_Model
-	models.I_Object
-	models.I_Storable
-	models.I_Listable
+	models.InterfaceModel
+	models.InterfaceObject
+	models.InterfaceStorable
+	models.InterfaceListable
 }
 
-type I_CMSBlockCollection interface {
-	ListCMSBlocks() []I_CMSBlock
+// InterfaceCMSBlockCollection represents interface to access business layer implementation of cms block collection
+type InterfaceCMSBlockCollection interface {
+	ListCMSBlocks() []InterfaceCMSBlock
 
-	models.I_Collection
+	models.InterfaceCollection
 }

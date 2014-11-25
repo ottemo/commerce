@@ -1,36 +1,42 @@
+// Package paypal is a PayPal implementation of payment method interface declared in
+// "github.com/ottemo/foundation/app/models/checkout" package
 package paypal
 
 import (
 	"sync"
 )
 
+// Package global constants
 const (
-	PAYMENT_CODE = "paypal_express"
-	PAYMENT_NAME = "PayPal Express"
+	ConstPaymentCode = "paypal_express"
+	ConstPaymentName = "PayPal Express"
 
-	PAYMENT_ACTION_SALE          = "Sale"
-	PAYMENT_ACTION_AUTHORIZATION = "Authorization"
+	ConstPaymentActionSale          = "Sale"
+	ConstPaymentActionAuthorization = "Authorization"
 
-	CONFIG_PATH_GROUP = "payment.paypal"
+	ConstConfigPathGroup = "payment.paypal"
 
-	CONFIG_PATH_ENABLED = "payment.paypal.enabled"
-	CONFIG_PATH_TITLE   = "payment.paypal.title"
+	ConstConfigPathEnabled = "payment.paypal.enabled"
+	ConstConfigPathTitle   = "payment.paypal.title"
 
-	CONFIG_PATH_NVP     = "payment.paypal.nvp"
-	CONFIG_PATH_GATEWAY = "payment.paypal.gateway"
+	ConstConfigPathNVP     = "payment.paypal.nvp"
+	ConstConfigPathGateway = "payment.paypal.gateway"
 
-	CONFIG_PATH_USER = "payment.paypal.user"
-	CONFIG_PATH_PASS = "payment.paypal.password"
+	ConstConfigPathUser = "payment.paypal.user"
+	ConstConfigPathPass = "payment.paypal.password"
 
-	CONFIG_PATH_SIGNATURE = "payment.paypal.signature"
-	CONFIG_PATH_ACTION    = "payment.paypal.action"
+	ConstConfigPathSignature = "payment.paypal.signature"
+	ConstConfigPathAction    = "payment.paypal.action"
 )
 
+// Package global variables
 var (
 	waitingTokens      = make(map[string]interface{})
 	waitingTokensMutex sync.RWMutex
 )
 
-type PayPalExpress struct{}
+// Express is a implementer of InterfacePaymentMethod for a PayPal Express method
+type Express struct{}
 
-type PayPalRest struct{}
+// RestAPI is a implementer of InterfacePaymentMethod for a PayPal REST API method (currently not working)
+type RestAPI struct{}

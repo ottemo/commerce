@@ -11,7 +11,7 @@ import (
 )
 
 // exec routines
-func connectionExecWLastInsertId(SQL string, args ...interface{}) (int64, error) {
+func connectionExecWLastInsertID(SQL string, args ...interface{}) (int64, error) {
 	dbEngine.connectionMutex.Lock()
 	defer dbEngine.connectionMutex.Unlock()
 
@@ -67,8 +67,8 @@ func sqlError(SQL string, err error) error {
 func convertValueForSQL(value interface{}) string {
 
 	switch value.(type) {
-	case *SQLiteCollection:
-		return value.(*SQLiteCollection).getSelectSQL()
+	case *DBCollection:
+		return value.(*DBCollection).getSelectSQL()
 
 	case bool:
 		if value.(bool) {
@@ -88,7 +88,7 @@ func convertValueForSQL(value interface{}) string {
 		return utils.InterfaceToString(value)
 
 	case map[string]interface{}, map[string]string:
-		return convertValueForSQL(utils.EncodeToJsonString(value))
+		return convertValueForSQL(utils.EncodeToJSONString(value))
 
 	case []string, []int, []int64, []int32, []float64, []bool:
 		return convertValueForSQL(utils.InterfaceToArray(value))
@@ -110,18 +110,17 @@ func convertValueForSQL(value interface{}) string {
 	return convertValueForSQL(utils.InterfaceToString(value))
 }
 
-// returns type used inside sqlite for given general name
+// GetDBType returns type used inside sqlite for given general name
 func GetDBType(ColumnType string) (string, error) {
 	ColumnType = strings.ToLower(ColumnType)
 	switch {
 	case strings.HasPrefix(ColumnType, "[]"):
 		return "TEXT", nil
-	case ColumnType == db.DB_BASETYPE_ID:
-		if UUID_ID {
+	case ColumnType == db.ConstDBBasetypeID:
+		if ConstUseUUIDids {
 			return "TEXT", nil
-		} else {
-			return "INTEGER", nil
 		}
+		return "INTEGER", nil
 	case ColumnType == "int" || ColumnType == "integer":
 		return "INTEGER", nil
 	case ColumnType == "real" || ColumnType == "float":

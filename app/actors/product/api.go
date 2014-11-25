@@ -13,6 +13,7 @@ import (
 	"github.com/ottemo/foundation/app/models/product"
 )
 
+// setupAPI setups package related API endpoint routines
 func setupAPI() error {
 
 	var err error
@@ -97,7 +98,7 @@ func setupAPI() error {
 //----------------------
 
 // WEB REST API function used to obtain product attributes information
-func restListProductAttributes(params *api.T_APIHandlerParams) (interface{}, error) {
+func restListProductAttributes(params *api.StructAPIHandlerParams) (interface{}, error) {
 	productModel, err := product.GetProductModel()
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
@@ -109,7 +110,7 @@ func restListProductAttributes(params *api.T_APIHandlerParams) (interface{}, err
 }
 
 // WEB REST API function used to add new one custom attribute
-func restAddProductAttribute(params *api.T_APIHandlerParams) (interface{}, error) {
+func restAddProductAttribute(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -140,9 +141,9 @@ func restAddProductAttribute(params *api.T_APIHandlerParams) (interface{}, error
 		return nil, env.ErrorDispatch(err)
 	}
 
-	attribute := models.T_AttributeInfo{
-		Model:      product.MODEL_NAME_PRODUCT,
-		Collection: COLLECTION_NAME_PRODUCT,
+	attribute := models.StructAttributeInfo{
+		Model:      product.ConstModelNameProduct,
+		Collection: ConstCollectionNameProduct,
 		Attribute:  utils.InterfaceToString(attributeName),
 		Type:       "text",
 		IsRequired: false,
@@ -186,7 +187,7 @@ func restAddProductAttribute(params *api.T_APIHandlerParams) (interface{}, error
 }
 
 // WEB REST API function used to remove custom attribute of product
-func restRemoveProductAttribute(params *api.T_APIHandlerParams) (interface{}, error) {
+func restRemoveProductAttribute(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//--------------------
@@ -217,7 +218,7 @@ func restRemoveProductAttribute(params *api.T_APIHandlerParams) (interface{}, er
 
 // WEB REST API function used to obtain all product attributes
 //   - product id must be specified in request URI "http://[site:port]/product/get/:id"
-func restGetProduct(params *api.T_APIHandlerParams) (interface{}, error) {
+func restGetProduct(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -228,7 +229,7 @@ func restGetProduct(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// load product operation
 	//-----------------------
-	productModel, err := product.LoadProductById(productID)
+	productModel, err := product.LoadProductByID(productID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -239,7 +240,7 @@ func restGetProduct(params *api.T_APIHandlerParams) (interface{}, error) {
 // WEB REST API used to create new one product
 //   - product attributes must be included in POST form
 //   - sku and name attributes required
-func restCreateProduct(params *api.T_APIHandlerParams) (interface{}, error) {
+func restCreateProduct(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -281,7 +282,7 @@ func restCreateProduct(params *api.T_APIHandlerParams) (interface{}, error) {
 
 // WEB REST API used to delete product
 //   - product attributes must be included in POST form
-func restDeleteProduct(params *api.T_APIHandlerParams) (interface{}, error) {
+func restDeleteProduct(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//--------------------
@@ -297,7 +298,7 @@ func restDeleteProduct(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// delete operation
 	//-----------------
-	productModel, err := product.GetProductModelAndSetId(productID)
+	productModel, err := product.GetProductModelAndSetID(productID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -313,7 +314,7 @@ func restDeleteProduct(params *api.T_APIHandlerParams) (interface{}, error) {
 // WEB REST API used to update existing product
 //   - product id must be specified in request URI
 //   - product attributes must be included in POST form
-func restUpdateProduct(params *api.T_APIHandlerParams) (interface{}, error) {
+func restUpdateProduct(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -334,7 +335,7 @@ func restUpdateProduct(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// update operations
 	//------------------
-	productModel, err := product.LoadProductById(productID)
+	productModel, err := product.LoadProductByID(productID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -356,7 +357,7 @@ func restUpdateProduct(params *api.T_APIHandlerParams) (interface{}, error) {
 
 // WEB REST API used to add media for a product
 //   - product id, media type must be specified in request URI
-func restMediaPath(params *api.T_APIHandlerParams) (interface{}, error) {
+func restMediaPath(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -372,7 +373,7 @@ func restMediaPath(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// list media operation
 	//---------------------
-	productModel, err := product.GetProductModelAndSetId(productID)
+	productModel, err := product.GetProductModelAndSetID(productID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -387,7 +388,7 @@ func restMediaPath(params *api.T_APIHandlerParams) (interface{}, error) {
 
 // WEB REST API used to add media for a product
 //   - product id, media type must be specified in request URI
-func restMediaList(params *api.T_APIHandlerParams) (interface{}, error) {
+func restMediaList(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -403,7 +404,7 @@ func restMediaList(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// list media operation
 	//---------------------
-	productModel, err := product.GetProductModelAndSetId(productID)
+	productModel, err := product.GetProductModelAndSetID(productID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -419,7 +420,7 @@ func restMediaList(params *api.T_APIHandlerParams) (interface{}, error) {
 // WEB REST API used to add media for a product
 //   - product id, media type and media name must be specified in request URI
 //   - media contents must be included as file in POST form
-func restMediaAdd(params *api.T_APIHandlerParams) (interface{}, error) {
+func restMediaAdd(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -458,7 +459,7 @@ func restMediaAdd(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// add media operation
 	//--------------------
-	productModel, err := product.GetProductModelAndSetId(productID)
+	productModel, err := product.GetProductModelAndSetID(productID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -473,7 +474,7 @@ func restMediaAdd(params *api.T_APIHandlerParams) (interface{}, error) {
 
 // WEB REST API used to add media for a product
 //   - product id, media type and media name must be specified in request URI
-func restMediaRemove(params *api.T_APIHandlerParams) (interface{}, error) {
+func restMediaRemove(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -499,7 +500,7 @@ func restMediaRemove(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// list media operation
 	//---------------------
-	productModel, err := product.GetProductModelAndSetId(productID)
+	productModel, err := product.GetProductModelAndSetID(productID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -514,7 +515,7 @@ func restMediaRemove(params *api.T_APIHandlerParams) (interface{}, error) {
 
 // WEB REST API used to get media contents for a product
 //   - product id, media type and media name must be specified in request URI
-func restMediaGet(params *api.T_APIHandlerParams) (interface{}, error) {
+func restMediaGet(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -537,7 +538,7 @@ func restMediaGet(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// list media operation
 	//---------------------
-	productModel, err := product.GetProductModelAndSetId(productID)
+	productModel, err := product.GetProductModelAndSetID(productID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -551,7 +552,7 @@ func restMediaGet(params *api.T_APIHandlerParams) (interface{}, error) {
 
 // WEB REST API function used to obtain product list we have in database
 //   - only [_id, sku, name] attributes returns by default
-func restListProducts(params *api.T_APIHandlerParams) (interface{}, error) {
+func restListProducts(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -587,7 +588,7 @@ func restListProducts(params *api.T_APIHandlerParams) (interface{}, error) {
 	return productCollectionModel.List()
 }
 
-func restRelatedList(params *api.T_APIHandlerParams) (interface{}, error) {
+func restRelatedList(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -608,13 +609,13 @@ func restRelatedList(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// load product operation
 	//-----------------------
-	productModel, err := product.LoadProductById(productID)
+	productModel, err := product.LoadProductByID(productID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	// result := make([]models.T_ListItem, 0)
-	var result []models.T_ListItem
+	// result := make([]models.StructListItem, 0)
+	var result []models.StructListItem
 
 	relatedPids := utils.InterfaceToArray(productModel.Get("related_pids"))
 
@@ -637,16 +638,16 @@ func restRelatedList(params *api.T_APIHandlerParams) (interface{}, error) {
 		}
 		for _, index := range indexes {
 			if productID := utils.InterfaceToString(relatedPids[index]); productID != "" {
-				if productModel, err := product.LoadProductById(productID); err == nil {
+				if productModel, err := product.LoadProductByID(productID); err == nil {
 					if err == nil {
-						resultItem := new(models.T_ListItem)
+						resultItem := new(models.StructListItem)
 
 						mediaPath, err := productModel.GetMediaPath("image")
 						if err != nil {
 							return result, env.ErrorDispatch(err)
 						}
 
-						resultItem.Id = productModel.GetId()
+						resultItem.ID = productModel.GetID()
 						resultItem.Name = "[" + productModel.GetSku() + "] " + productModel.GetName()
 						resultItem.Image = ""
 						resultItem.Desc = productModel.GetShortDescription()
@@ -674,16 +675,16 @@ func restRelatedList(params *api.T_APIHandlerParams) (interface{}, error) {
 				continue
 			}
 
-			productModel, err := product.LoadProductById(utils.InterfaceToString(productID))
+			productModel, err := product.LoadProductByID(utils.InterfaceToString(productID))
 			if err == nil {
-				resultItem := new(models.T_ListItem)
+				resultItem := new(models.StructListItem)
 
 				mediaPath, err := productModel.GetMediaPath("image")
 				if err != nil {
 					return result, env.ErrorDispatch(err)
 				}
 
-				resultItem.Id = productModel.GetId()
+				resultItem.ID = productModel.GetID()
 				resultItem.Name = "[" + productModel.GetSku() + "] " + productModel.GetName()
 				resultItem.Image = ""
 				resultItem.Desc = productModel.GetShortDescription()
@@ -709,7 +710,7 @@ func restRelatedList(params *api.T_APIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API function used to obtain visitors count in model collection
-func restCountProducts(params *api.T_APIHandlerParams) (interface{}, error) {
+func restCountProducts(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	productCollectionModel, err := product.GetProductCollectionModel()
 	if err != nil {

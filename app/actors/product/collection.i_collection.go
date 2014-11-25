@@ -8,9 +8,9 @@ import (
 	"github.com/ottemo/foundation/app/models/product"
 )
 
-// enumerates items of Product model type
-func (it *DefaultProductCollection) List() ([]models.T_ListItem, error) {
-	result := make([]models.T_ListItem, 0)
+// List enumerates items of Product model type
+func (it *DefaultProductCollection) List() ([]models.StructListItem, error) {
+	var result []models.StructListItem
 
 	dbRecords, err := it.listCollection.Load()
 	if err != nil {
@@ -29,14 +29,14 @@ func (it *DefaultProductCollection) List() ([]models.T_ListItem, error) {
 		}
 
 		// retrieving minimal data needed for list
-		resultItem := new(models.T_ListItem)
+		resultItem := new(models.StructListItem)
 
 		mediaPath, err := productModel.GetMediaPath("image")
 		if err != nil {
 			return result, env.ErrorDispatch(err)
 		}
 
-		resultItem.Id = productModel.GetId()
+		resultItem.ID = productModel.GetID()
 		resultItem.Name = "[" + productModel.GetSku() + "] " + productModel.GetName()
 		resultItem.Image = ""
 		resultItem.Desc = productModel.GetShortDescription()
@@ -60,7 +60,7 @@ func (it *DefaultProductCollection) List() ([]models.T_ListItem, error) {
 	return result, nil
 }
 
-// allows to obtain additional attributes from  List() function
+// ListAddExtraAttribute allows to obtain additional attributes from  List() function
 func (it *DefaultProductCollection) ListAddExtraAttribute(attribute string) error {
 
 	productModel, err := product.GetProductModel()
@@ -68,7 +68,7 @@ func (it *DefaultProductCollection) ListAddExtraAttribute(attribute string) erro
 		return env.ErrorDispatch(err)
 	}
 
-	allowedAttributes := make([]string, 0)
+	var allowedAttributes []string
 	for _, attributeInfo := range productModel.GetAttributesInfo() {
 		allowedAttributes = append(allowedAttributes, attributeInfo.Attribute)
 	}
@@ -86,19 +86,19 @@ func (it *DefaultProductCollection) ListAddExtraAttribute(attribute string) erro
 	return nil
 }
 
-// adds selection filter to List() function
+// ListFilterAdd adds selection filter to List() function
 func (it *DefaultProductCollection) ListFilterAdd(Attribute string, Operator string, Value interface{}) error {
 	it.listCollection.AddFilter(Attribute, Operator, Value.(string))
 	return nil
 }
 
-// clears presets made by ListFilterAdd() and ListAddExtraAttribute() functions
+// ListFilterReset clears presets made by ListFilterAdd() and ListAddExtraAttribute() functions
 func (it *DefaultProductCollection) ListFilterReset() error {
 	it.listCollection.ClearFilters()
 	return nil
 }
 
-// specifies selection paging
+// ListLimit specifies selection paging
 func (it *DefaultProductCollection) ListLimit(offset int, limit int) error {
 	return it.listCollection.SetLimit(offset, limit)
 }

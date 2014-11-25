@@ -1,17 +1,17 @@
-package authorize
+package authorizenet
 
 import (
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
 )
 
-// setup configuration values
+// setupConfig setups package configuration values for a system
 func setupConfig() error {
 	if config := env.GetConfig(); config != nil {
-		err := config.RegisterItem(env.T_ConfigItem{
-			Path:        CONFIG_PATH_DPM_GROUP,
+		err := config.RegisterItem(env.StructConfigItem{
+			Path:        ConstConfigPathDPMGroup,
 			Value:       nil,
-			Type:        env.CONFIG_ITEM_GROUP_TYPE,
+			Type:        env.ConstConfigItemGroupType,
 			Editor:      "",
 			Options:     nil,
 			Label:       "Authorize.Net (Direct Post)",
@@ -23,8 +23,8 @@ func setupConfig() error {
 			return env.ErrorDispatch(err)
 		}
 
-		config.RegisterItem(env.T_ConfigItem{
-			Path:        CONFIG_PATH_DPM_ENABLED,
+		config.RegisterItem(env.StructConfigItem{
+			Path:        ConstConfigPathDPMEnabled,
 			Value:       false,
 			Type:        "bool",
 			Editor:      "boolean",
@@ -38,8 +38,8 @@ func setupConfig() error {
 			return env.ErrorDispatch(err)
 		}
 
-		config.RegisterItem(env.T_ConfigItem{
-			Path:        CONFIG_PATH_DPM_TITLE,
+		config.RegisterItem(env.StructConfigItem{
+			Path:        ConstConfigPathDPMTitle,
 			Value:       "Authorize.Net (Direct Post)",
 			Type:        "string",
 			Editor:      "line_text",
@@ -50,28 +50,6 @@ func setupConfig() error {
 		}, func(value interface{}) (interface{}, error) {
 			if utils.CheckIsBlank(value) {
 				return nil, env.ErrorNew("can't be blank")
-			} else {
-				return value, nil
-			}
-		})
-
-		if err != nil {
-			return env.ErrorDispatch(err)
-		}
-
-		config.RegisterItem(env.T_ConfigItem{
-			Path:        CONFIG_PATH_DPM_ACTION,
-			Value:       DPM_ACTION_AUTHORIZE_ONLY,
-			Type:        "string",
-			Editor:      "select",
-			Options:     map[string]string{DPM_ACTION_AUTHORIZE_ONLY: "Authorize Only", DPM_ACTION_AUTHORIZE_AND_CAPTURE: "Authorize & Capture"},
-			Label:       "Action",
-			Description: "specifies action on checkout submit",
-			Image:       "",
-		}, func(value interface{}) (interface{}, error) {
-			stringValue := utils.InterfaceToString(value)
-			if !utils.IsAmongStr(stringValue, DPM_ACTION_AUTHORIZE_ONLY, DPM_ACTION_AUTHORIZE_AND_CAPTURE) {
-				return nil, env.ErrorNew("should be " + DPM_ACTION_AUTHORIZE_ONLY + " or " + DPM_ACTION_AUTHORIZE_AND_CAPTURE)
 			}
 			return value, nil
 		})
@@ -80,8 +58,29 @@ func setupConfig() error {
 			return env.ErrorDispatch(err)
 		}
 
-		config.RegisterItem(env.T_ConfigItem{
-			Path:        CONFIG_PATH_DPM_LOGIN,
+		config.RegisterItem(env.StructConfigItem{
+			Path:        ConstConfigPathDPMAction,
+			Value:       ConstDPMActionAuthorizeOnly,
+			Type:        "string",
+			Editor:      "select",
+			Options:     map[string]string{ConstDPMActionAuthorizeOnly: "Authorize Only", ConstDPMActionAuthorizeAndCapture: "Authorize & Capture"},
+			Label:       "Action",
+			Description: "specifies action on checkout submit",
+			Image:       "",
+		}, func(value interface{}) (interface{}, error) {
+			stringValue := utils.InterfaceToString(value)
+			if !utils.IsAmongStr(stringValue, ConstDPMActionAuthorizeOnly, ConstDPMActionAuthorizeAndCapture) {
+				return nil, env.ErrorNew("should be " + ConstDPMActionAuthorizeOnly + " or " + ConstDPMActionAuthorizeAndCapture)
+			}
+			return value, nil
+		})
+
+		if err != nil {
+			return env.ErrorDispatch(err)
+		}
+
+		config.RegisterItem(env.StructConfigItem{
+			Path:        ConstConfigPathDPMLogin,
 			Value:       "",
 			Type:        "string",
 			Editor:      "line_text",
@@ -95,8 +94,8 @@ func setupConfig() error {
 			return env.ErrorDispatch(err)
 		}
 
-		config.RegisterItem(env.T_ConfigItem{
-			Path:        CONFIG_PATH_DPM_KEY,
+		config.RegisterItem(env.StructConfigItem{
+			Path:        ConstConfigPathDPMKey,
 			Value:       "",
 			Type:        "string",
 			Editor:      "password",
@@ -110,8 +109,8 @@ func setupConfig() error {
 			return env.ErrorDispatch(err)
 		}
 
-		config.RegisterItem(env.T_ConfigItem{
-			Path:        CONFIG_PATH_DPM_GATEWAY,
+		config.RegisterItem(env.StructConfigItem{
+			Path:        ConstConfigPathDPMGateway,
 			Value:       "https://test.authorize.net/gateway/transact.dll",
 			Type:        "string",
 			Editor:      "line_text",
@@ -125,8 +124,8 @@ func setupConfig() error {
 			return env.ErrorDispatch(err)
 		}
 
-		config.RegisterItem(env.T_ConfigItem{
-			Path:        CONFIG_PATH_DPM_TEST,
+		config.RegisterItem(env.StructConfigItem{
+			Path:        ConstConfigPathDPMTest,
 			Value:       false,
 			Type:        "bool",
 			Editor:      "boolean",
@@ -140,8 +139,8 @@ func setupConfig() error {
 			return env.ErrorDispatch(err)
 		}
 
-		config.RegisterItem(env.T_ConfigItem{
-			Path:        CONFIG_PATH_DPM_DEBUG,
+		config.RegisterItem(env.StructConfigItem{
+			Path:        ConstConfigPathDPMDebug,
 			Value:       false,
 			Type:        "bool",
 			Editor:      "boolean",
@@ -155,8 +154,8 @@ func setupConfig() error {
 			return env.ErrorDispatch(err)
 		}
 
-		config.RegisterItem(env.T_ConfigItem{
-			Path:        CONFIG_PATH_DPM_CHECKOUT,
+		config.RegisterItem(env.StructConfigItem{
+			Path:        ConstConfigPathDPMCheckout,
 			Value:       false,
 			Type:        "bool",
 			Editor:      "boolean",

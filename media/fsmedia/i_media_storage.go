@@ -7,19 +7,19 @@ import (
 	"os"
 )
 
-// retrieve media storage name
+// GetName returns media storage name
 func (it *FilesystemMediaStorage) GetName() string {
 	return "FilesystemMediaStorage"
 }
 
-// returns path you can use to access media file (if possible for storage of course)
-func (it *FilesystemMediaStorage) GetMediaPath(model string, objId string, mediaType string) (string, error) {
-	return mediaType + "/" + model + "/" + objId + "/", nil
+// GetMediaPath returns path you can use to access media file (if possible for storage of course)
+func (it *FilesystemMediaStorage) GetMediaPath(model string, objID string, mediaType string) (string, error) {
+	return mediaType + "/" + model + "/" + objID + "/", nil
 }
 
-// retrieve contents of media entity for model object
-func (it *FilesystemMediaStorage) Load(model string, objId string, mediaType string, mediaName string) ([]byte, error) {
-	mediaPath, err := it.GetMediaPath(model, objId, mediaType)
+// Load retrieves contents of media entity for given model object
+func (it *FilesystemMediaStorage) Load(model string, objID string, mediaType string, mediaName string) ([]byte, error) {
+	mediaPath, err := it.GetMediaPath(model, objID, mediaType)
 	if err != nil {
 		return nil, err
 	}
@@ -29,9 +29,9 @@ func (it *FilesystemMediaStorage) Load(model string, objId string, mediaType str
 	return ioutil.ReadFile(mediaFilePath)
 }
 
-// add media entity for model object
-func (it *FilesystemMediaStorage) Save(model string, objId string, mediaType string, mediaName string, mediaData []byte) error {
-	mediaPath, err := it.GetMediaPath(model, objId, mediaType)
+// Save adds media entity for model object
+func (it *FilesystemMediaStorage) Save(model string, objID string, mediaType string, mediaName string, mediaData []byte) error {
+	mediaPath, err := it.GetMediaPath(model, objID, mediaType)
 	if err != nil {
 		return err
 	}
@@ -56,12 +56,12 @@ func (it *FilesystemMediaStorage) Save(model string, objId string, mediaType str
 		return env.ErrorNew("Can't get database engine")
 	}
 
-	collection, err := dbEngine.GetCollection(MEDIA_DB_COLLECTION)
+	collection, err := dbEngine.GetCollection(ConstMediaDBCollection)
 	if err != nil {
 		return err
 	}
 
-	_, err = collection.Save(map[string]interface{}{"model": model, "object": objId, "type": mediaType, "media": mediaName})
+	_, err = collection.Save(map[string]interface{}{"model": model, "object": objID, "type": mediaType, "media": mediaName})
 	if err != nil {
 		return err
 	}
@@ -69,9 +69,9 @@ func (it *FilesystemMediaStorage) Save(model string, objId string, mediaType str
 	return nil
 }
 
-// remove media entity for model object
-func (it *FilesystemMediaStorage) Remove(model string, objId string, mediaType string, mediaName string) error {
-	mediaPath, err := it.GetMediaPath(model, objId, mediaType)
+// Remove removes media entity for model object
+func (it *FilesystemMediaStorage) Remove(model string, objID string, mediaType string, mediaName string) error {
+	mediaPath, err := it.GetMediaPath(model, objID, mediaType)
 	if err != nil {
 		return err
 	}
@@ -90,13 +90,13 @@ func (it *FilesystemMediaStorage) Remove(model string, objId string, mediaType s
 		return env.ErrorNew("Can't get database engine")
 	}
 
-	collection, err := dbEngine.GetCollection(MEDIA_DB_COLLECTION)
+	collection, err := dbEngine.GetCollection(ConstMediaDBCollection)
 	if err != nil {
 		return err
 	}
 
 	err = collection.AddFilter("model", "=", model)
-	err = collection.AddFilter("object", "=", objId)
+	err = collection.AddFilter("object", "=", objID)
 	err = collection.AddFilter("type", "=", mediaType)
 	err = collection.AddFilter("media", "=", mediaName)
 
@@ -104,22 +104,22 @@ func (it *FilesystemMediaStorage) Remove(model string, objId string, mediaType s
 	return err
 }
 
-// get list of given type media entities for model object
-func (it *FilesystemMediaStorage) ListMedia(model string, objId string, mediaType string) ([]string, error) {
-	result := make([]string, 0)
+// ListMedia returns list of given type media entities for a given model object
+func (it *FilesystemMediaStorage) ListMedia(model string, objID string, mediaType string) ([]string, error) {
+	var result []string
 
 	dbEngine := db.GetDBEngine()
 	if dbEngine == nil {
 		return result, env.ErrorNew("Can't get database engine")
 	}
 
-	collection, err := dbEngine.GetCollection(MEDIA_DB_COLLECTION)
+	collection, err := dbEngine.GetCollection(ConstMediaDBCollection)
 	if err != nil {
 		return result, err
 	}
 
 	collection.AddFilter("model", "=", model)
-	collection.AddFilter("object", "=", objId)
+	collection.AddFilter("object", "=", objID)
 	collection.AddFilter("type", "=", mediaType)
 
 	records, err := collection.Load()

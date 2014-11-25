@@ -13,8 +13,8 @@ func (it *DefaultVisitorAddress) Get(attribute string) interface{} {
 	switch strings.ToLower(attribute) {
 	case "_id", "id":
 		return it.id
-	case "visitor_id", "visitorId":
-		return it.visitor_id
+	case "visitor_id", "visitorID":
+		return it.visitorID
 	case "fname", "first_name":
 		return it.FirstName
 	case "lname", "last_name":
@@ -46,8 +46,8 @@ func (it *DefaultVisitorAddress) Set(attribute string, value interface{}) error 
 	case "_id", "id":
 		it.id = utils.InterfaceToString(value)
 
-	case "visitor_id", "visitorId":
-		it.visitor_id = utils.InterfaceToString(value)
+	case "visitor_id", "visitorID":
+		it.visitorID = utils.InterfaceToString(value)
 
 	case "fname", "first_name":
 		it.FirstName = utils.InterfaceToString(value)
@@ -101,7 +101,7 @@ func (it *DefaultVisitorAddress) ToHashMap() map[string]interface{} {
 
 	result["_id"] = it.id
 
-	result["visitor_id"] = it.visitor_id
+	result["visitor_id"] = it.visitorID
 
 	result["first_name"] = it.FirstName
 	result["last_name"] = it.LastName
@@ -121,12 +121,12 @@ func (it *DefaultVisitorAddress) ToHashMap() map[string]interface{} {
 	return result
 }
 
-// GetAttributesInfo will return a set of Vistor Address attributes in []models.T_AttributeInfo
-func (it *DefaultVisitorAddress) GetAttributesInfo() []models.T_AttributeInfo {
-	info := []models.T_AttributeInfo{
-		models.T_AttributeInfo{
-			Model:      visitor.MODEL_NAME_VISITOR_ADDRESS,
-			Collection: COLLECTION_NAME_VISITOR_ADDRESS,
+// GetAttributesInfo will return a set of Vistor Address attributes in []models.StructAttributeInfo
+func (it *DefaultVisitorAddress) GetAttributesInfo() []models.StructAttributeInfo {
+	info := []models.StructAttributeInfo{
+		models.StructAttributeInfo{
+			Model:      visitor.ConstModelNameVisitorAddress,
+			Collection: ConstCollectionNameVisitorAddress,
 			Attribute:  "_id",
 			Type:       "id",
 			Label:      "ID",
@@ -135,9 +135,9 @@ func (it *DefaultVisitorAddress) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
-			Model:      visitor.MODEL_NAME_VISITOR_ADDRESS,
-			Collection: COLLECTION_NAME_VISITOR_ADDRESS,
+		models.StructAttributeInfo{
+			Model:      visitor.ConstModelNameVisitorAddress,
+			Collection: ConstCollectionNameVisitorAddress,
 			Attribute:  "visitor_id",
 			Type:       "id",
 			Label:      "Visitor ID",
@@ -146,9 +146,9 @@ func (it *DefaultVisitorAddress) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
-			Model:      visitor.MODEL_NAME_VISITOR_ADDRESS,
-			Collection: COLLECTION_NAME_VISITOR_ADDRESS,
+		models.StructAttributeInfo{
+			Model:      visitor.ConstModelNameVisitorAddress,
+			Collection: ConstCollectionNameVisitorAddress,
 			Attribute:  "address_line1",
 			Type:       "varchar(255)",
 			Label:      "Address Line 1",
@@ -157,9 +157,9 @@ func (it *DefaultVisitorAddress) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
-			Model:      visitor.MODEL_NAME_VISITOR_ADDRESS,
-			Collection: COLLECTION_NAME_VISITOR_ADDRESS,
+		models.StructAttributeInfo{
+			Model:      visitor.ConstModelNameVisitorAddress,
+			Collection: ConstCollectionNameVisitorAddress,
 			Attribute:  "address_line2",
 			Type:       "varchar(255)",
 			Label:      "Address Line 2",
@@ -168,9 +168,9 @@ func (it *DefaultVisitorAddress) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
-			Model:      visitor.MODEL_NAME_VISITOR_ADDRESS,
-			Collection: COLLECTION_NAME_VISITOR_ADDRESS,
+		models.StructAttributeInfo{
+			Model:      visitor.ConstModelNameVisitorAddress,
+			Collection: ConstCollectionNameVisitorAddress,
 			Attribute:  "first_name",
 			Type:       "varchar(100)",
 			Label:      "First Name",
@@ -179,9 +179,9 @@ func (it *DefaultVisitorAddress) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
-			Model:      visitor.MODEL_NAME_VISITOR_ADDRESS,
-			Collection: COLLECTION_NAME_VISITOR_ADDRESS,
+		models.StructAttributeInfo{
+			Model:      visitor.ConstModelNameVisitorAddress,
+			Collection: ConstCollectionNameVisitorAddress,
 			Attribute:  "last_name",
 			Type:       "varchar(100)",
 			Label:      "Last Name",
@@ -190,9 +190,9 @@ func (it *DefaultVisitorAddress) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
-			Model:      visitor.MODEL_NAME_VISITOR_ADDRESS,
-			Collection: COLLECTION_NAME_VISITOR_ADDRESS,
+		models.StructAttributeInfo{
+			Model:      visitor.ConstModelNameVisitorAddress,
+			Collection: ConstCollectionNameVisitorAddress,
 			Attribute:  "company",
 			Type:       "varchar(100)",
 			Label:      "Company",
@@ -201,20 +201,20 @@ func (it *DefaultVisitorAddress) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
-			Model:      visitor.MODEL_NAME_VISITOR_ADDRESS,
-			Collection: COLLECTION_NAME_VISITOR_ADDRESS,
+		models.StructAttributeInfo{
+			Model:      visitor.ConstModelNameVisitorAddress,
+			Collection: ConstCollectionNameVisitorAddress,
 			Attribute:  "country",
 			Type:       "varchar(50)",
 			Label:      "Country",
 			Group:      "General",
 			Editors:    "select",
-			Options:    utils.EncodeToJsonString(models.COUNTRIES_LIST),
+			Options:    utils.EncodeToJSONString(models.ConstCountriesList),
 			Default:    "",
 		},
-		models.T_AttributeInfo{
-			Model:      visitor.MODEL_NAME_VISITOR_ADDRESS,
-			Collection: COLLECTION_NAME_VISITOR_ADDRESS,
+		models.StructAttributeInfo{
+			Model:      visitor.ConstModelNameVisitorAddress,
+			Collection: ConstCollectionNameVisitorAddress,
 			Attribute:  "city",
 			Type:       "varchar(100)",
 			Label:      "City",
@@ -223,9 +223,9 @@ func (it *DefaultVisitorAddress) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
-			Model:      visitor.MODEL_NAME_VISITOR_ADDRESS,
-			Collection: COLLECTION_NAME_VISITOR_ADDRESS,
+		models.StructAttributeInfo{
+			Model:      visitor.ConstModelNameVisitorAddress,
+			Collection: ConstCollectionNameVisitorAddress,
 			Attribute:  "phone",
 			Type:       "varchar(100)",
 			Label:      "Phone",
@@ -234,20 +234,20 @@ func (it *DefaultVisitorAddress) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
-			Model:      visitor.MODEL_NAME_VISITOR_ADDRESS,
-			Collection: COLLECTION_NAME_VISITOR_ADDRESS,
+		models.StructAttributeInfo{
+			Model:      visitor.ConstModelNameVisitorAddress,
+			Collection: ConstCollectionNameVisitorAddress,
 			Attribute:  "state",
 			Type:       "varchar(2)",
 			Label:      "State",
 			Group:      "General",
 			Editors:    "select",
-			Options:    utils.EncodeToJsonString(models.STATES_LIST),
+			Options:    utils.EncodeToJSONString(models.ConstStatesList),
 			Default:    "",
 		},
-		models.T_AttributeInfo{
-			Model:      visitor.MODEL_NAME_VISITOR_ADDRESS,
-			Collection: COLLECTION_NAME_VISITOR_ADDRESS,
+		models.StructAttributeInfo{
+			Model:      visitor.ConstModelNameVisitorAddress,
+			Collection: ConstCollectionNameVisitorAddress,
 			Attribute:  "zip_code",
 			Type:       "varchar(10)",
 			Label:      "Zip",

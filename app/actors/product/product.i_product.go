@@ -171,9 +171,9 @@ func (it *DefaultProduct) GetRelatedProductIds() []string {
 	var result []string
 
 	for _, productID := range it.RelatedProductIds {
-		productModel, err := product.LoadProductById(productID)
+		productModel, err := product.LoadProductByID(productID)
 		if err == nil {
-			result = append(result, productModel.GetId())
+			result = append(result, productModel.GetID())
 		}
 	}
 
@@ -181,16 +181,16 @@ func (it *DefaultProduct) GetRelatedProductIds() []string {
 }
 
 // GetRelatedProducts will return an array of related products
-func (it *DefaultProduct) GetRelatedProducts() []product.I_Product {
-	// result := make([]product.I_Product, 0)
-	var result []product.I_Product
+func (it *DefaultProduct) GetRelatedProducts() []product.InterfaceProduct {
+	// result := make([]product.InterfaceProduct, 0)
+	var result []product.InterfaceProduct
 
 	for _, productID := range it.RelatedProductIds {
 		if productID == "" {
 			continue
 		}
 
-		productModel, err := product.LoadProductById(productID)
+		productModel, err := product.LoadProductByID(productID)
 		if err == nil {
 			result = append(result, productModel)
 		}

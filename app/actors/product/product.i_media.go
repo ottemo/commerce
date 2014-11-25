@@ -5,10 +5,10 @@ import (
 	"github.com/ottemo/foundation/media"
 )
 
-// adds new media assigned to product
+// AddMedia adds new media assigned to product
 func (it *DefaultProduct) AddMedia(mediaType string, mediaName string, content []byte) error {
-	productId := it.GetId()
-	if productId == "" {
+	productID := it.GetID()
+	if productID == "" {
 		return env.ErrorNew("product id not set")
 	}
 
@@ -17,13 +17,13 @@ func (it *DefaultProduct) AddMedia(mediaType string, mediaName string, content [
 		return env.ErrorDispatch(err)
 	}
 
-	return mediaStorage.Save(it.GetModelName(), productId, mediaType, mediaName, content)
+	return mediaStorage.Save(it.GetModelName(), productID, mediaType, mediaName, content)
 }
 
-// removes media assigned to product
+// RemoveMedia removes media assigned to product
 func (it *DefaultProduct) RemoveMedia(mediaType string, mediaName string) error {
-	productId := it.GetId()
-	if productId == "" {
+	productID := it.GetID()
+	if productID == "" {
 		return env.ErrorNew("product id not set")
 	}
 
@@ -32,15 +32,15 @@ func (it *DefaultProduct) RemoveMedia(mediaType string, mediaName string) error 
 		return env.ErrorDispatch(err)
 	}
 
-	return mediaStorage.Remove(it.GetModelName(), productId, mediaType, mediaName)
+	return mediaStorage.Remove(it.GetModelName(), productID, mediaType, mediaName)
 }
 
-// lists media assigned to product
+// ListMedia lists media assigned to product
 func (it *DefaultProduct) ListMedia(mediaType string) ([]string, error) {
-	result := make([]string, 0)
+	var result []string
 
-	productId := it.GetId()
-	if productId == "" {
+	productID := it.GetID()
+	if productID == "" {
 		return result, env.ErrorNew("product id not set")
 	}
 
@@ -49,13 +49,13 @@ func (it *DefaultProduct) ListMedia(mediaType string) ([]string, error) {
 		return result, env.ErrorDispatch(err)
 	}
 
-	return mediaStorage.ListMedia(it.GetModelName(), productId, mediaType)
+	return mediaStorage.ListMedia(it.GetModelName(), productID, mediaType)
 }
 
-// returns content of media assigned to product
+// GetMedia returns content of media assigned to product
 func (it *DefaultProduct) GetMedia(mediaType string, mediaName string) ([]byte, error) {
-	productId := it.GetId()
-	if productId == "" {
+	productID := it.GetID()
+	if productID == "" {
 		return nil, env.ErrorNew("product id not set")
 	}
 
@@ -64,13 +64,13 @@ func (it *DefaultProduct) GetMedia(mediaType string, mediaName string) ([]byte, 
 		return nil, env.ErrorDispatch(err)
 	}
 
-	return mediaStorage.Load(it.GetModelName(), productId, mediaType, mediaName)
+	return mediaStorage.Load(it.GetModelName(), productID, mediaType, mediaName)
 }
 
-// returns relative location of media assigned to product in media storage
+// GetMediaPath returns relative location of media assigned to product in media storage
 func (it *DefaultProduct) GetMediaPath(mediaType string) (string, error) {
-	productId := it.GetId()
-	if productId == "" {
+	productID := it.GetID()
+	if productID == "" {
 		return "", env.ErrorNew("product id not set")
 	}
 
@@ -79,5 +79,5 @@ func (it *DefaultProduct) GetMediaPath(mediaType string) (string, error) {
 		return "", env.ErrorDispatch(err)
 	}
 
-	return mediaStorage.GetMediaPath(it.GetModelName(), productId, mediaType)
+	return mediaStorage.GetMediaPath(it.GetModelName(), productID, mediaType)
 }

@@ -10,7 +10,7 @@ import (
 	"github.com/ottemo/foundation/app/models/order"
 )
 
-// returns attribute of OrderItem or nil
+// Get returns attribute of OrderItem or nil
 func (it *DefaultOrderItem) Get(attribute string) interface{} {
 
 	switch strings.ToLower(attribute) {
@@ -21,17 +21,17 @@ func (it *DefaultOrderItem) Get(attribute string) interface{} {
 		return it.idx
 
 	case "order":
-		orderInstance, err := order.LoadOrderById(it.OrderId)
+		orderInstance, err := order.LoadOrderByID(it.OrderID)
 		if err == nil {
 			return orderInstance
 		}
 		return nil
 
 	case "order_id":
-		return it.OrderId
+		return it.OrderID
 
 	case "product_id":
-		return it.ProductId
+		return it.ProductID
 
 	case "qty":
 		return it.Qty
@@ -58,7 +58,7 @@ func (it *DefaultOrderItem) Get(attribute string) interface{} {
 	return nil
 }
 
-// sets attribute to OrderItem object, returns error on problems
+// Set sets attribute to OrderItem object, returns error on problems
 func (it *DefaultOrderItem) Set(attribute string, value interface{}) error {
 	attribute = strings.ToLower(attribute)
 
@@ -70,10 +70,10 @@ func (it *DefaultOrderItem) Set(attribute string, value interface{}) error {
 		it.idx = utils.InterfaceToInt(value)
 
 	case "order_id":
-		it.OrderId = utils.InterfaceToString(value)
+		it.OrderID = utils.InterfaceToString(value)
 
 	case "product_id":
-		it.ProductId = utils.InterfaceToString(value)
+		it.ProductID = utils.InterfaceToString(value)
 
 	case "qty":
 		it.Qty = utils.InterfaceToInt(value)
@@ -103,7 +103,7 @@ func (it *DefaultOrderItem) Set(attribute string, value interface{}) error {
 	return nil
 }
 
-// fills OrderItem attributes with values provided in input map
+// FromHashMap fills OrderItem attributes with values provided in input map
 func (it *DefaultOrderItem) FromHashMap(input map[string]interface{}) error {
 
 	for attribute, value := range input {
@@ -115,7 +115,7 @@ func (it *DefaultOrderItem) FromHashMap(input map[string]interface{}) error {
 	return nil
 }
 
-// makes map from OrderItem attribute values
+// ToHashMap makes map from OrderItem attribute values
 func (it *DefaultOrderItem) ToHashMap() map[string]interface{} {
 
 	result := make(map[string]interface{})
@@ -140,11 +140,11 @@ func (it *DefaultOrderItem) ToHashMap() map[string]interface{} {
 	return result
 }
 
-// describes attributes of OrderItem model
-func (it *DefaultOrderItem) GetAttributesInfo() []models.T_AttributeInfo {
+// GetAttributesInfo describes attributes of OrderItem model
+func (it *DefaultOrderItem) GetAttributesInfo() []models.StructAttributeInfo {
 
-	info := []models.T_AttributeInfo{
-		models.T_AttributeInfo{
+	info := []models.StructAttributeInfo{
+		models.StructAttributeInfo{
 			Model:      "OrderItem",
 			Collection: "OrderItem",
 			Attribute:  "_id",
@@ -157,7 +157,7 @@ func (it *DefaultOrderItem) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
+		models.StructAttributeInfo{
 			Model:      "OrderItem",
 			Collection: "OrderItem",
 			Attribute:  "idx",
@@ -170,7 +170,7 @@ func (it *DefaultOrderItem) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
+		models.StructAttributeInfo{
 			Model:      "OrderItem",
 			Collection: "OrderItem",
 			Attribute:  "order_id",
@@ -183,7 +183,7 @@ func (it *DefaultOrderItem) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
+		models.StructAttributeInfo{
 			Model:      "OrderItem",
 			Collection: "OrderItem",
 			Attribute:  "product_id",
@@ -196,7 +196,7 @@ func (it *DefaultOrderItem) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
+		models.StructAttributeInfo{
 			Model:      "OrderItem",
 			Collection: "OrderItem",
 			Attribute:  "qty",
@@ -209,7 +209,7 @@ func (it *DefaultOrderItem) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
+		models.StructAttributeInfo{
 			Model:      "OrderItem",
 			Collection: "OrderItem",
 			Attribute:  "name",
@@ -222,7 +222,7 @@ func (it *DefaultOrderItem) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
+		models.StructAttributeInfo{
 			Model:      "OrderItem",
 			Collection: "OrderItem",
 			Attribute:  "sku",
@@ -235,7 +235,7 @@ func (it *DefaultOrderItem) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
+		models.StructAttributeInfo{
 			Model:      "OrderItem",
 			Collection: "OrderItem",
 			Attribute:  "short_description",
@@ -248,7 +248,7 @@ func (it *DefaultOrderItem) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
+		models.StructAttributeInfo{
 			Model:      "OrderItem",
 			Collection: "OrderItem",
 			Attribute:  "options",
@@ -261,7 +261,7 @@ func (it *DefaultOrderItem) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
+		models.StructAttributeInfo{
 			Model:      "OrderItem",
 			Collection: "OrderItem",
 			Attribute:  "price",
@@ -274,7 +274,7 @@ func (it *DefaultOrderItem) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
+		models.StructAttributeInfo{
 			Model:      "OrderItem",
 			Collection: "OrderItem",
 			Attribute:  "weight",

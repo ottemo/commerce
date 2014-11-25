@@ -13,32 +13,36 @@ import (
 	"github.com/ottemo/foundation/utils"
 )
 
+// GetName returns name of shipping method
 func (it *FedEx) GetName() string {
-	return SHIPPING_NAME
+	return ConstShippingName
 }
 
+// GetCode returns code of shipping method
 func (it *FedEx) GetCode() string {
-	return SHIPPING_CODE
+	return ConstShippingCode
 }
 
-func (it *FedEx) IsAllowed(checkout checkout.I_Checkout) bool {
+// IsAllowed checks for method applicability
+func (it *FedEx) IsAllowed(checkout checkout.InterfaceCheckout) bool {
 	return true
 }
 
-func (it *FedEx) GetRates(checkoutObject checkout.I_Checkout) []checkout.T_ShippingRate {
+// GetRates returns rates allowed by shipping method for a given checkout
+func (it *FedEx) GetRates(checkoutObject checkout.InterfaceCheckout) []checkout.StructShippingRate {
 
-	result := make([]checkout.T_ShippingRate, 0)
+	var result []checkout.StructShippingRate
 
-	useDebugLog := utils.InterfaceToBool(env.ConfigGetValue(CONFIG_PATH_DEBUG_LOG))
+	useDebugLog := utils.InterfaceToBool(env.ConfigGetValue(ConstConfigPathDebugLog))
 
 	templateValues := map[string]interface{}{
-		"key":         utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_KEY)),
-		"password":    utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_PASSWORD)),
-		"number":      utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_NUMBER)),
-		"meter":       utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_METER)),
-		"origin":      utils.InterfaceToString(env.ConfigGetValue(checkout.CONFIG_PATH_SHIPPING_ORIGIN_ZIP)),
-		"dropoff":     utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_DROPOFF)),
-		"packaging":   utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_PACKAGING)),
+		"key":         utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathKey)),
+		"password":    utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathPassword)),
+		"number":      utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathNumber)),
+		"meter":       utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathMeter)),
+		"origin":      utils.InterfaceToString(env.ConfigGetValue(checkout.ConstConfigPathShippingOriginZip)),
+		"dropoff":     utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathDropoff)),
+		"packaging":   utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathPackaging)),
 		"destination": nil,
 		"weight":      "0.01",
 	}
@@ -53,7 +57,7 @@ func (it *FedEx) GetRates(checkoutObject checkout.I_Checkout) []checkout.T_Shipp
 
 	// calculating weight
 	//-------------------
-	var pounds float64 = 0
+	var pounds float64
 	if checkoutCart := checkoutObject.GetCart(); checkoutCart != nil {
 
 		cartItems := checkoutCart.GetItems()
@@ -61,7 +65,7 @@ func (it *FedEx) GetRates(checkoutObject checkout.I_Checkout) []checkout.T_Shipp
 			return result
 		}
 
-		defaultWeight := utils.InterfaceToFloat64(env.ConfigGetValue(CONFIG_PATH_DEFAULT_WEIGHT))
+		defaultWeight := utils.InterfaceToFloat64(env.ConfigGetValue(ConstConfigPathDefaultWeight))
 
 		if defaultWeight == 0.0 {
 			defaultWeight = 0.01
@@ -149,7 +153,7 @@ func (it *FedEx) GetRates(checkoutObject checkout.I_Checkout) []checkout.T_Shipp
 		env.Log("fedex.log", "REQUEST", string(body.Bytes()))
 	}
 
-	url := utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_GATEWAY)) + "/rate"
+	url := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathGateway)) + "/rate"
 	request, err := http.NewRequest("POST", url, &body)
 	if err != nil {
 		env.ErrorDispatch(err)
@@ -194,7 +198,7 @@ func (it *FedEx) GetRates(checkoutObject checkout.I_Checkout) []checkout.T_Shipp
 	xmlMethod, _ := xmlpath.Compile("./ServiceType")
 	xmlRate, _ := xmlpath.Compile("./RatedShipmentDetails[1]/ShipmentRateDetail/TotalNetCharge/Amount")
 
-	allowedMethodsArray := utils.InterfaceToArray(env.ConfigGetValue(CONFIG_PATH_ALLOWED_METHODS))
+	allowedMethodsArray := utils.InterfaceToArray(env.ConfigGetValue(ConstConfigPathAllowedMethods))
 
 	for i := xmlPostage.Iter(xmlRoot); i.Next(); {
 		postageNode := i.Node()
@@ -210,13 +214,13 @@ func (it *FedEx) GetRates(checkoutObject checkout.I_Checkout) []checkout.T_Shipp
 		}
 
 		if len(allowedMethodsArray) == 0 || utils.IsInArray(stringMethod, allowedMethodsArray) {
-			rateName, present := SHIPPING_METHODS[stringMethod]
+			rateName, present := ConstShippingMethods[stringMethod]
 			if !present {
 				rateName = stringMethod
 			}
 
 			result = append(result,
-				checkout.T_ShippingRate{
+				checkout.StructShippingRate{
 					Code:  stringMethod,
 					Name:  rateName,
 					Price: utils.InterfaceToFloat64(stringRate),

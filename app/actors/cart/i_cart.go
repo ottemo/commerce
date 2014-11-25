@@ -31,7 +31,7 @@ func (it *DefaultCart) checkOptions(productOptions map[string]interface{}, cartI
 
 					// checking for valid value was set by customer
 					// cart option value can be one or multiple values, but should be string there
-					optionValuesToCheck := make([]string, 0)
+					var optionValuesToCheck []string
 					switch typedOptionValue := optionValue.(type) {
 					case string:
 						optionValuesToCheck = append(optionValuesToCheck, typedOptionValue)
@@ -90,15 +90,16 @@ func (it *DefaultCart) checkOptions(productOptions map[string]interface{}, cartI
 				if value, ok := productOptionValue["required"].(bool); ok && value {
 
 					//checking cart item option for required option existence
-					if itemOptionValue, present := cartItemOptions[productOption]; !present {
+					itemOptionValue, present := cartItemOptions[productOption]
+					if !present {
 						return env.ErrorNew(productOption + " was not specified")
-					} else {
-						// for multi value options additional check
-						switch typedValue := itemOptionValue.(type) {
-						case []interface{}:
-							if len(typedValue) == 0 {
-								return env.ErrorNew(productOption + " was not specified")
-							}
+					}
+
+					// for multi value options additional check
+					switch typedValue := itemOptionValue.(type) {
+					case []interface{}:
+						if len(typedValue) == 0 {
+							return env.ErrorNew(productOption + " was not specified")
 						}
 					}
 
@@ -110,9 +111,9 @@ func (it *DefaultCart) checkOptions(productOptions map[string]interface{}, cartI
 	return nil
 }
 
-// adds item to the current cart
+// AddItem adds item to the current cart
 //   - returns added item or nil if error happened
-func (it *DefaultCart) AddItem(productId string, qty int, options map[string]interface{}) (cart.I_CartItem, error) {
+func (it *DefaultCart) AddItem(productID string, qty int, options map[string]interface{}) (cart.InterfaceCartItem, error) {
 
 	//checking qty
 	if qty <= 0 {
@@ -120,7 +121,7 @@ func (it *DefaultCart) AddItem(productId string, qty int, options map[string]int
 	}
 
 	// checking product existence
-	reqProduct, err := product.LoadProductById(productId)
+	reqProduct, err := product.LoadProductByID(productID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -133,7 +134,7 @@ func (it *DefaultCart) AddItem(productId string, qty int, options map[string]int
 	// preparing new cart item
 	cartItem := &DefaultCartItem{
 		idx:       it.maxIdx,
-		ProductId: reqProduct.GetId(),
+		ProductID: reqProduct.GetID(),
 		Qty:       qty,
 		Options:   options,
 		Cart:      it,
@@ -145,7 +146,7 @@ func (it *DefaultCart) AddItem(productId string, qty int, options map[string]int
 	}
 
 	// adding new item to others
-	it.maxIdx += 1
+	it.maxIdx++
 	cartItem.idx = it.maxIdx
 	it.Items[it.maxIdx] = cartItem
 
@@ -155,7 +156,7 @@ func (it *DefaultCart) AddItem(productId string, qty int, options map[string]int
 	return cartItem, nil
 }
 
-// removes item from cart
+// RemoveItem removes item from cart
 //   - you need to know index you can get from ListItems()
 func (it *DefaultCart) RemoveItem(itemIdx int) error {
 	if cartItem, present := it.Items[itemIdx]; present {
@@ -165,12 +166,12 @@ func (it *DefaultCart) RemoveItem(itemIdx int) error {
 			return env.ErrorNew("can't get DB engine")
 		}
 
-		cartItemsCollection, err := dbEngine.GetCollection(CART_ITEMS_COLLECTION_NAME)
+		cartItemsCollection, err := dbEngine.GetCollection(ConstCartItemsCollectionName)
 		if err != nil {
 			return env.ErrorDispatch(err)
 		}
 
-		err = cartItemsCollection.DeleteById(cartItem.GetId())
+		err = cartItemsCollection.DeleteByID(cartItem.GetID())
 		if err != nil {
 			return env.ErrorDispatch(err)
 		}
@@ -180,12 +181,11 @@ func (it *DefaultCart) RemoveItem(itemIdx int) error {
 		it.cartChanged()
 
 		return nil
-	} else {
-		return env.ErrorNew("can't find index " + strconv.Itoa(itemIdx))
 	}
+	return env.ErrorNew("can't find index " + strconv.Itoa(itemIdx))
 }
 
-// sets new qty for particular item in cart
+// SetQty sets new qty for particular item in cart
 //   - you need to it's index, use ListItems() for that
 func (it *DefaultCart) SetQty(itemIdx int, qty int) error {
 	cartItem, present := it.Items[itemIdx]
@@ -198,12 +198,11 @@ func (it *DefaultCart) SetQty(itemIdx int, qty int) error {
 		it.cartChanged()
 
 		return nil
-	} else {
-		return env.ErrorNew("there is no item with idx=" + strconv.Itoa(itemIdx))
 	}
+	return env.ErrorNew("there is no item with idx=" + strconv.Itoa(itemIdx))
 }
 
-// returns subtotal for cart items
+// GetSubtotal returns subtotal for cart items
 func (it *DefaultCart) GetSubtotal() float64 {
 
 	if it.Subtotal == 0 {
@@ -218,13 +217,13 @@ func (it *DefaultCart) GetSubtotal() float64 {
 	return it.Subtotal
 }
 
-// enumerates current cart items sorted by item idx
-func (it *DefaultCart) GetItems() []cart.I_CartItem {
+// GetItems enumerates current cart items sorted by item idx
+func (it *DefaultCart) GetItems() []cart.InterfaceCartItem {
 
-	result := make([]cart.I_CartItem, 0)
+	var result []cart.InterfaceCartItem
 
-	keys := make([]int, 0)
-	for key, _ := range it.Items {
+	var keys []int
+	for key := range it.Items {
 		keys = append(keys, key)
 	}
 
@@ -237,24 +236,24 @@ func (it *DefaultCart) GetItems() []cart.I_CartItem {
 	return result
 }
 
-// returns visitor id this cart belongs to
-func (it *DefaultCart) GetVisitorId() string {
-	return it.VisitorId
+// GetVisitorID returns visitor id this cart belongs to
+func (it *DefaultCart) GetVisitorID() string {
+	return it.VisitorID
 }
 
-// sets new owner of cart
-func (it *DefaultCart) SetVisitorId(visitorId string) error {
-	it.VisitorId = visitorId
+// SetVisitorID sets new owner of cart
+func (it *DefaultCart) SetVisitorID(visitorID string) error {
+	it.VisitorID = visitorID
 	return nil
 }
 
-// returns visitor model represents owner or current cart or nil if visitor was not set to cart
-func (it *DefaultCart) GetVisitor() visitor.I_Visitor {
-	visitor, _ := visitor.LoadVisitorById(it.VisitorId)
+// GetVisitor returns visitor model represents owner or current cart or nil if visitor was not set to cart
+func (it *DefaultCart) GetVisitor() visitor.InterfaceVisitor {
+	visitor, _ := visitor.LoadVisitorByID(it.VisitorID)
 	return visitor
 }
 
-// assigns some information to current cart
+// SetCartInfo assigns some information to current cart
 func (it *DefaultCart) SetCartInfo(infoAttribute string, infoValue interface{}) error {
 	if it.Info == nil {
 		it.Info = make(map[string]interface{})
@@ -265,24 +264,24 @@ func (it *DefaultCart) SetCartInfo(infoAttribute string, infoValue interface{}) 
 	return nil
 }
 
-// returns current cart info assigned
+// GetCartInfo returns current cart info assigned
 func (it *DefaultCart) GetCartInfo() map[string]interface{} {
 	return it.Info
 }
 
-// loads cart information from DB for visitor
-func (it *DefaultCart) MakeCartForVisitor(visitorId string) error {
+// MakeCartForVisitor loads cart information from DB for visitor
+func (it *DefaultCart) MakeCartForVisitor(visitorID string) error {
 	dbEngine := db.GetDBEngine()
 	if dbEngine == nil {
 		return env.ErrorNew("can't get DB Engine")
 	}
 
-	cartCollection, err := dbEngine.GetCollection(CART_COLLECTION_NAME)
+	cartCollection, err := dbEngine.GetCollection(ConstCartCollectionName)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	cartCollection.AddFilter("visitor_id", "=", visitorId)
+	cartCollection.AddFilter("visitor_id", "=", visitorID)
 	cartCollection.AddFilter("active", "=", true)
 	rowsData, err := cartCollection.Load()
 	if err != nil {
@@ -295,7 +294,7 @@ func (it *DefaultCart) MakeCartForVisitor(visitorId string) error {
 			return env.ErrorDispatch(err)
 		}
 		newCart := newModel.(*DefaultCart)
-		newCart.SetVisitorId(visitorId)
+		newCart.SetVisitorID(visitorID)
 		newCart.Activate()
 		newCart.Save()
 
@@ -310,21 +309,21 @@ func (it *DefaultCart) MakeCartForVisitor(visitorId string) error {
 	return nil
 }
 
-// makes cart active
+// Activate makes cart active
 //   - only one cart can be active for particular visitor
 func (it *DefaultCart) Activate() error {
 	it.Active = true
 	return nil
 }
 
-// makes cart un-active
+// Deactivate makes cart un-active
 //   - so new cart will be created on next request
 func (it *DefaultCart) Deactivate() error {
 	it.Active = false
 	return nil
 }
 
-// returns active flag status of cart
+// IsActive returns active flag status of cart
 func (it *DefaultCart) IsActive() bool {
 	return it.Active
 }

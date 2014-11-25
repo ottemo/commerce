@@ -8,9 +8,10 @@ import (
 	"github.com/ottemo/foundation/app/models/cms"
 )
 
+// setupAPI setups package related API endpoint routines
 func setupAPI() error {
 
-	var err error = nil
+	var err error
 
 	err = api.GetRestService().RegisterAPI("cms", "GET", "page/attributes", restCMSPageAttributes)
 	if err != nil {
@@ -49,7 +50,7 @@ func setupAPI() error {
 }
 
 // WEB REST API function to get CMS page available attributes information
-func restCMSPageAttributes(params *api.T_APIHandlerParams) (interface{}, error) {
+func restCMSPageAttributes(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	cmsPage, err := cms.GetCMSPageModel()
 	if err != nil {
@@ -60,7 +61,7 @@ func restCMSPageAttributes(params *api.T_APIHandlerParams) (interface{}, error) 
 }
 
 // WEB REST API function used to obtain CMS pages list
-func restCMSPageList(params *api.T_APIHandlerParams) (interface{}, error) {
+func restCMSPageList(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -68,9 +69,8 @@ func restCMSPageList(params *api.T_APIHandlerParams) (interface{}, error) {
 	if !ok {
 		if params.Request.Method == "POST" {
 			return nil, env.ErrorNew("unexpected request content")
-		} else {
-			reqData = make(map[string]interface{})
 		}
+		reqData = make(map[string]interface{})
 	}
 
 	// operation start
@@ -101,7 +101,7 @@ func restCMSPageList(params *api.T_APIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API function used to obtain CMS pages count in model collection
-func restCMSPageCount(params *api.T_APIHandlerParams) (interface{}, error) {
+func restCMSPageCount(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	cmsPageCollectionModel, err := cms.GetCMSBlockCollectionModel()
 	if err != nil {
@@ -116,19 +116,19 @@ func restCMSPageCount(params *api.T_APIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API function to get CMS page information
-func restCMSPageGet(params *api.T_APIHandlerParams) (interface{}, error) {
+func restCMSPageGet(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
-	reqPageId, present := params.RequestURLParams["id"]
+	reqPageID, present := params.RequestURLParams["id"]
 	if !present {
 		return nil, env.ErrorNew("cms page id should be specified")
 	}
-	pageId := utils.InterfaceToString(reqPageId)
+	pageID := utils.InterfaceToString(reqPageID)
 
 	// operation
 	//----------
-	cmsPage, err := cms.LoadCMSPageById(pageId)
+	cmsPage, err := cms.LoadCMSPageByID(pageID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -137,7 +137,7 @@ func restCMSPageGet(params *api.T_APIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API for adding new CMS page in system
-func restCMSPageAdd(params *api.T_APIHandlerParams) (interface{}, error) {
+func restCMSPageAdd(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -162,18 +162,18 @@ func restCMSPageAdd(params *api.T_APIHandlerParams) (interface{}, error) {
 		cmsPageModel.Set(attribute, value)
 	}
 
-	cmsPageModel.SetId("")
+	cmsPageModel.SetID("")
 	cmsPageModel.Save()
 
 	return cmsPageModel.ToHashMap(), nil
 }
 
 // WEB REST API for update existing CMS page in system
-func restCMSPageUpdate(params *api.T_APIHandlerParams) (interface{}, error) {
+func restCMSPageUpdate(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
-	pageId, present := params.RequestURLParams["id"]
+	pageID, present := params.RequestURLParams["id"]
 	if !present {
 		return nil, env.ErrorNew("cms page id should be specified")
 	}
@@ -190,7 +190,7 @@ func restCMSPageUpdate(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// operation
 	//----------
-	cmsPageModel, err := cms.LoadCMSPageById(pageId)
+	cmsPageModel, err := cms.LoadCMSPageByID(pageID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -199,18 +199,18 @@ func restCMSPageUpdate(params *api.T_APIHandlerParams) (interface{}, error) {
 		cmsPageModel.Set(attribute, value)
 	}
 
-	cmsPageModel.SetId(pageId)
+	cmsPageModel.SetID(pageID)
 	cmsPageModel.Save()
 
 	return cmsPageModel.ToHashMap(), nil
 }
 
 // WEB REST API used to delete CMS page from system
-func restCMSPageDelete(params *api.T_APIHandlerParams) (interface{}, error) {
+func restCMSPageDelete(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
-	pageId, present := params.RequestURLParams["id"]
+	pageID, present := params.RequestURLParams["id"]
 	if !present {
 		return nil, env.ErrorNew("cms page id should be specified")
 	}
@@ -222,7 +222,7 @@ func restCMSPageDelete(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// operation
 	//----------
-	cmsPageModel, err := cms.GetCMSPageModelAndSetId(pageId)
+	cmsPageModel, err := cms.GetCMSPageModelAndSetID(pageID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}

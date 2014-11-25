@@ -1,36 +1,40 @@
+// Package db is a set of interfaces to access database services
 package db
 
+// Package global constants
 const (
-	DB_BASETYPE_ID       = "id"
-	DB_BASETYPE_BOOLEAN  = "bool"
-	DB_BASETYPE_VARCHAR  = "varchar"
-	DB_BASETYPE_TEXT     = "text"
-	DB_BASETYPE_INTEGER  = "int"
-	DB_BASETYPE_DECIMAL  = "decimal"
-	DB_BASETYPE_MONEY    = "money"
-	DB_BASETYPE_FLOAT    = "float"
-	DB_BASETYPE_DATETIME = "datetime"
-	DB_BASETYPE_JSON     = "json"
+	ConstDBBasetypeID       = "id"
+	ConstDBBasetypeBoolean  = "bool"
+	ConstDBBasetypeVarchar  = "varchar"
+	ConstDBBasetypeText     = "text"
+	ConstDBBasetypeInteger  = "int"
+	ConstDBBasetypeDecimal  = "decimal"
+	ConstDBBasetypeMoney    = "money"
+	ConstDBBasetypeFloat    = "float"
+	ConstDBBasetypeDatetime = "datetime"
+	ConstDBBasetypeJSON     = "json"
 )
 
-type I_DBEngine interface {
+// InterfaceDBEngine represents interface to access database engine
+type InterfaceDBEngine interface {
 	GetName() string
 
 	CreateCollection(Name string) error
-	GetCollection(Name string) (I_DBCollection, error)
+	GetCollection(Name string) (InterfaceDBCollection, error)
 	HasCollection(Name string) bool
 
 	RawQuery(query string) (map[string]interface{}, error)
 }
 
-type I_DBCollection interface {
+// InterfaceDBCollection interface to access particular table/collection of database
+type InterfaceDBCollection interface {
 	Load() ([]map[string]interface{}, error)
-	LoadById(id string) (map[string]interface{}, error)
+	LoadByID(id string) (map[string]interface{}, error)
 
 	Save(map[string]interface{}) (string, error)
 
 	Delete() (int, error)
-	DeleteById(id string) error
+	DeleteByID(id string) error
 
 	Iterate(iteratorFunc func(record map[string]interface{}) bool) error
 

@@ -1,3 +1,5 @@
+// Package order is a default implementation of interfaces declared in
+// "github.com/ottemo/foundation/app/models/order" package
 package order
 
 import (
@@ -8,27 +10,30 @@ import (
 	"time"
 )
 
+// Package global variables
 var (
-	lastIncrementId      int = 0
-	lastIncrementIdMutex sync.Mutex
+	lastIncrementID      int
+	lastIncrementIDMutex sync.Mutex
 )
 
+// Package global constants
 const (
-	COLLECTION_NAME_ORDER       = "orders"
-	COLLECTION_NAME_ORDER_ITEMS = "order_items"
+	ConstCollectionNameOrder      = "orders"
+	ConstCollectionNameOrderItems = "order_items"
 
-	INCREMENT_ID_FORMAT = "%0.10d"
+	ConstIncrementIDFormat = "%0.10d"
 
-	CONFIG_PATH_LAST_INCREMENT_ID = "internal.order.increment_id"
+	ConstConfigPathLastIncrementID = "internal.order.increment_id"
 )
 
+// DefaultOrderItem is a default implementer of InterfaceOrderItem
 type DefaultOrderItem struct {
 	id  string
 	idx int
 
-	OrderId string
+	OrderID string
 
-	ProductId string
+	ProductID string
 
 	Qty int
 
@@ -43,14 +48,15 @@ type DefaultOrderItem struct {
 	Weight float64
 }
 
+// DefaultOrder is a default implementer of InterfaceOrder
 type DefaultOrder struct {
 	id string
 
-	IncrementId string
+	IncrementID string
 	Status      string
 
-	VisitorId string
-	CartId    string
+	VisitorID string
+	CartID    string
 
 	Description string
 	PaymentInfo map[string]interface{}
@@ -73,17 +79,19 @@ type DefaultOrder struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 
-	Items map[int]order.I_OrderItem
+	Items map[int]order.InterfaceOrderItem
 
 	maxIdx int
 }
 
+// DefaultOrderCollection is a default implementer of InterfaceOrderCollection
 type DefaultOrderCollection struct {
-	listCollection     db.I_DBCollection
+	listCollection     db.InterfaceDBCollection
 	listExtraAtributes []string
 }
 
+// DefaultOrderItemCollection is a default implementer of InterfaceOrderItemCollection
 type DefaultOrderItemCollection struct {
-	listCollection     db.I_DBCollection
+	listCollection     db.InterfaceDBCollection
 	listExtraAtributes []string
 }

@@ -10,19 +10,19 @@ import (
 	"github.com/ottemo/foundation/app/models/cart"
 )
 
-// module entry point before app start
+// init makes package self-initialization routine
 func init() {
 	instance := new(DefaultCart)
 
 	ifce := interface{}(instance)
-	if _, ok := ifce.(models.I_Model); !ok {
-		panic("DefaultCart - I_Model interface not implemented")
+	if _, ok := ifce.(models.InterfaceModel); !ok {
+		panic("DefaultCart - InterfaceModel interface not implemented")
 	}
-	if _, ok := ifce.(models.I_Storable); !ok {
-		panic("DefaultCart - I_Storable interface not implemented")
+	if _, ok := ifce.(models.InterfaceStorable); !ok {
+		panic("DefaultCart - InterfaceStorable interface not implemented")
 	}
-	if _, ok := ifce.(cart.I_Cart); !ok {
-		panic("DefaultCart - I_Category interface not implemented")
+	if _, ok := ifce.(cart.InterfaceCart); !ok {
+		panic("DefaultCart - InterfaceCategory interface not implemented")
 	}
 
 	models.RegisterModel("Cart", instance)
@@ -31,11 +31,11 @@ func init() {
 	api.RegisterOnRestServiceStart(setupAPI)
 }
 
-// DB preparations for current model implementation
+// setupDB prepares system database for package usage
 func (it *DefaultCart) setupDB() error {
 
 	if dbEngine := db.GetDBEngine(); dbEngine != nil {
-		collection, err := dbEngine.GetCollection(CART_COLLECTION_NAME)
+		collection, err := dbEngine.GetCollection(ConstCartCollectionName)
 		if err != nil {
 			return env.ErrorDispatch(err)
 		}
@@ -44,7 +44,7 @@ func (it *DefaultCart) setupDB() error {
 		collection.AddColumn("active", "bool", true)
 		collection.AddColumn("info", "text", false)
 
-		collection, err = dbEngine.GetCollection(CART_ITEMS_COLLECTION_NAME)
+		collection, err = dbEngine.GetCollection(ConstCartItemsCollectionName)
 		if err != nil {
 			return env.ErrorDispatch(err)
 		}

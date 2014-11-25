@@ -1,15 +1,18 @@
+// Package product represents abstraction of business layer product object
 package product
 
 import (
 	"github.com/ottemo/foundation/app/models"
 )
 
+// Package global constants
 const (
-	MODEL_NAME_PRODUCT            = "Product"
-	MODEL_NAME_PRODUCT_COLLECTION = "ProductCollection"
+	ConstModelNameProduct           = "Product"
+	ConstModelNameProductCollection = "ProductCollection"
 )
 
-type I_Product interface {
+// InterfaceProduct represents interface to access business layer implementation of product object
+type InterfaceProduct interface {
 	GetSku() string
 	GetName() string
 
@@ -24,16 +27,17 @@ type I_Product interface {
 	ApplyOptions(map[string]interface{}) error
 	GetOptions() map[string]interface{}
 
-	models.I_Model
-	models.I_Object
-	models.I_Storable
-	models.I_Media
-	models.I_Listable
-	models.I_CustomAttributes
+	models.InterfaceModel
+	models.InterfaceObject
+	models.InterfaceStorable
+	models.InterfaceMedia
+	models.InterfaceListable
+	models.InterfaceCustomAttributes
 }
 
-type I_ProductCollection interface {
-	ListProducts() []I_Product
+// InterfaceProductCollection represents interface to access business layer implementation of product collection
+type InterfaceProductCollection interface {
+	ListProducts() []InterfaceProduct
 
-	models.I_Collection
+	models.InterfaceCollection
 }

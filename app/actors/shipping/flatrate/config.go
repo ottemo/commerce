@@ -1,26 +1,16 @@
-package flat
+package flatrate
 
 import (
-	"github.com/ottemo/foundation/app/models/checkout"
-
 	"github.com/ottemo/foundation/env"
 )
 
-// module entry point before app start
-func init() {
-	instance := new(FlatRateShipping)
-
-	checkout.RegisterShippingMethod(instance)
-
-	env.RegisterOnConfigStart(setupConfig)
-}
-
+// setupConfig setups package configuration values for a system
 func setupConfig() error {
 	if config := env.GetConfig(); config != nil {
-		err := config.RegisterItem(env.T_ConfigItem{
-			Path:        CONFIG_PATH_GROUP,
+		err := config.RegisterItem(env.StructConfigItem{
+			Path:        ConstConfigPathGroup,
 			Value:       nil,
-			Type:        env.CONFIG_ITEM_GROUP_TYPE,
+			Type:        env.ConstConfigItemGroupType,
 			Editor:      "",
 			Options:     nil,
 			Label:       "Flat Rate",
@@ -32,8 +22,8 @@ func setupConfig() error {
 			return env.ErrorDispatch(err)
 		}
 
-		config.RegisterItem(env.T_ConfigItem{
-			Path:        CONFIG_PATH_ENABLED,
+		config.RegisterItem(env.StructConfigItem{
+			Path:        ConstConfigPathEnabled,
 			Value:       false,
 			Type:        "bool",
 			Editor:      "boolean",
@@ -47,8 +37,8 @@ func setupConfig() error {
 			return env.ErrorDispatch(err)
 		}
 
-		config.RegisterItem(env.T_ConfigItem{
-			Path:        CONFIG_PATH_AMOUNT,
+		config.RegisterItem(env.StructConfigItem{
+			Path:        ConstConfigPathAmount,
 			Value:       10,
 			Type:        "int",
 			Editor:      "money",
@@ -62,8 +52,8 @@ func setupConfig() error {
 			return env.ErrorDispatch(err)
 		}
 
-		config.RegisterItem(env.T_ConfigItem{
-			Path:        CONFIG_PATH_NAME,
+		config.RegisterItem(env.StructConfigItem{
+			Path:        ConstConfigPathName,
 			Value:       "Flat Rate",
 			Type:        "string",
 			Editor:      "line_text",
@@ -77,8 +67,8 @@ func setupConfig() error {
 			return env.ErrorDispatch(err)
 		}
 
-		config.RegisterItem(env.T_ConfigItem{
-			Path:        CONFIG_PATH_DAYS,
+		config.RegisterItem(env.StructConfigItem{
+			Path:        ConstConfigPathDays,
 			Value:       0,
 			Type:        "int",
 			Editor:      "integer",

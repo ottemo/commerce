@@ -8,30 +8,30 @@ import (
 	"github.com/ottemo/foundation/utils"
 )
 
-// retrieves current I_Cart model implementation
-func GetCartModel() (I_Cart, error) {
-	model, err := models.GetModel(CART_MODEL_NAME)
+// GetCartModel retrieves current InterfaceCart model implementation
+func GetCartModel() (InterfaceCart, error) {
+	model, err := models.GetModel(ConstCartModelName)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	cartModel, ok := model.(I_Cart)
+	cartModel, ok := model.(InterfaceCart)
 	if !ok {
-		return nil, env.ErrorNew("model " + model.GetImplementationName() + " is not 'I_Cart' capable")
+		return nil, env.ErrorNew("model " + model.GetImplementationName() + " is not 'InterfaceCart' capable")
 	}
 
 	return cartModel, nil
 }
 
-// retrieves current I_Cart model implementation and sets its ID to some value
-func GetCartModelAndSetId(cartId string) (I_Cart, error) {
+// GetCartModelAndSetID retrieves current InterfaceCart model implementation and sets its ID to some value
+func GetCartModelAndSetID(cartID string) (InterfaceCart, error) {
 
 	cartModel, err := GetCartModel()
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	err = cartModel.SetId(cartId)
+	err = cartModel.SetID(cartID)
 	if err != nil {
 		return cartModel, env.ErrorDispatch(err)
 	}
@@ -39,15 +39,15 @@ func GetCartModelAndSetId(cartId string) (I_Cart, error) {
 	return cartModel, nil
 }
 
-// loads cart data into current I_Cart model implementation
-func LoadCartById(cartId string) (I_Cart, error) {
+// LoadCartByID loads cart data into current InterfaceCart model implementation
+func LoadCartByID(cartID string) (InterfaceCart, error) {
 
 	cartModel, err := GetCartModel()
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	err = cartModel.Load(cartId)
+	err = cartModel.Load(cartID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -55,14 +55,14 @@ func LoadCartById(cartId string) (I_Cart, error) {
 	return cartModel, nil
 }
 
-// loads cart for visitor or creates new one
-func GetCartForVisitor(visitorId string) (I_Cart, error) {
+// GetCartForVisitor loads cart for visitor or creates new one
+func GetCartForVisitor(visitorID string) (InterfaceCart, error) {
 	cartModel, err := GetCartModel()
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	err = cartModel.MakeCartForVisitor(visitorId)
+	err = cartModel.MakeCartForVisitor(visitorID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -70,36 +70,34 @@ func GetCartForVisitor(visitorId string) (I_Cart, error) {
 	return cartModel, nil
 }
 
-// returns cart for current session or creates new one
-func GetCurrentCart(params *api.T_APIHandlerParams) (I_Cart, error) {
-	sessionCartId := params.Session.Get(SESSION_KEY_CURRENT_CART)
+// GetCurrentCart returns cart for current session or creates new one
+func GetCurrentCart(params *api.StructAPIHandlerParams) (InterfaceCart, error) {
+	sessionCartID := params.Session.Get(ConstSessionKeyCurrentCart)
 
-	if sessionCartId != nil && sessionCartId != "" {
+	if sessionCartID != nil && sessionCartID != "" {
 
 		// cart id was found in session - loading cart by id
-		currentCart, err := LoadCartById(utils.InterfaceToString(sessionCartId))
+		currentCart, err := LoadCartByID(utils.InterfaceToString(sessionCartID))
 		if err != nil {
 			return nil, env.ErrorDispatch(err)
 		}
 
 		return currentCart, nil
 
-	} else {
+	}
 
-		// no cart id was in session, trying to get cart for visitor
-		visitorId := params.Session.Get(visitor.SESSION_KEY_VISITOR_ID)
-		if visitorId != nil {
-			currentCart, err := GetCartForVisitor(utils.InterfaceToString(visitorId))
-			if err != nil {
-				return nil, env.ErrorDispatch(err)
-			}
-
-			params.Session.Set(SESSION_KEY_CURRENT_CART, currentCart.GetId())
-
-			return currentCart, nil
-		} else {
-			return nil, env.ErrorNew("you are not registered")
+	// no cart id was in session, trying to get cart for visitor
+	visitorID := params.Session.Get(visitor.ConstSessionKeyVisitorID)
+	if visitorID != nil {
+		currentCart, err := GetCartForVisitor(utils.InterfaceToString(visitorID))
+		if err != nil {
+			return nil, env.ErrorDispatch(err)
 		}
 
+		params.Session.Set(ConstSessionKeyCurrentCart, currentCart.GetID())
+
+		return currentCart, nil
 	}
+
+	return nil, env.ErrorNew("you are not registered")
 }

@@ -5,17 +5,17 @@ import (
 	"github.com/ottemo/foundation/utils"
 )
 
-// setup configuration values
+// setupConfig setups package configuration values for a system
 func setupConfig() error {
 	config := env.GetConfig()
 	if config == nil {
 		return env.ErrorNew("can't obtain config")
 	}
 
-	err := config.RegisterItem(env.T_ConfigItem{
-		Path:        CONFIG_PATH_GROUP,
+	err := config.RegisterItem(env.StructConfigItem{
+		Path:        ConstConfigPathGroup,
 		Value:       nil,
-		Type:        env.CONFIG_ITEM_GROUP_TYPE,
+		Type:        env.ConstConfigItemGroupType,
 		Editor:      "",
 		Options:     nil,
 		Label:       "Check / Money Order",
@@ -27,8 +27,8 @@ func setupConfig() error {
 		return env.ErrorDispatch(err)
 	}
 
-	err = config.RegisterItem(env.T_ConfigItem{
-		Path:        CONFIG_PATH_ENABLED,
+	err = config.RegisterItem(env.StructConfigItem{
+		Path:        ConstConfigPathEnabled,
 		Value:       false,
 		Type:        "bool",
 		Editor:      "boolean",
@@ -42,8 +42,8 @@ func setupConfig() error {
 		return env.ErrorDispatch(err)
 	}
 
-	err = config.RegisterItem(env.T_ConfigItem{
-		Path:        CONFIG_PATH_TITLE,
+	err = config.RegisterItem(env.StructConfigItem{
+		Path:        ConstConfigPathTitle,
 		Value:       "Check/Money Order",
 		Type:        "string",
 		Editor:      "line_text",
@@ -54,9 +54,8 @@ func setupConfig() error {
 	}, func(value interface{}) (interface{}, error) {
 		if utils.CheckIsBlank(value) {
 			return nil, env.ErrorNew("can't be blank")
-		} else {
-			return value, nil
 		}
+		return value, nil
 	})
 
 	if err != nil {

@@ -9,8 +9,8 @@ import (
 )
 
 // List enumerates items of Visitor model type in a Visitor collection
-func (it *DefaultVisitorCollection) List() ([]models.T_ListItem, error) {
-	var result []models.T_ListItem
+func (it *DefaultVisitorCollection) List() ([]models.StructListItem, error) {
+	var result []models.StructListItem
 
 	dbRecords, err := it.listCollection.Load()
 	if err != nil {
@@ -25,9 +25,9 @@ func (it *DefaultVisitorCollection) List() ([]models.T_ListItem, error) {
 		visitorModel.FromHashMap(dbRecordData)
 
 		// retrieving minimal data needed for list
-		resultItem := new(models.T_ListItem)
+		resultItem := new(models.StructListItem)
 
-		resultItem.Id = visitorModel.GetId()
+		resultItem.ID = visitorModel.GetID()
 		resultItem.Name = visitorModel.GetFullName()
 		resultItem.Image = ""
 		resultItem.Desc = ""

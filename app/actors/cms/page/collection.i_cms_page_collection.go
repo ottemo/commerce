@@ -5,14 +5,14 @@ import (
 	"github.com/ottemo/foundation/db"
 )
 
-// returns database collection
-func (it *DefaultCMSPageCollection) GetDBCollection() db.I_DBCollection {
+// GetDBCollection returns database collection
+func (it *DefaultCMSPageCollection) GetDBCollection() db.InterfaceDBCollection {
 	return it.listCollection
 }
 
-// returns list of cms page model items
-func (it *DefaultCMSPageCollection) ListCMSPages() []cms.I_CMSPage {
-	result := make([]cms.I_CMSPage, 0)
+// ListCMSPages returns list of cms page model items
+func (it *DefaultCMSPageCollection) ListCMSPages() []cms.InterfaceCMSPage {
+	var result []cms.InterfaceCMSPage
 
 	dbRecords, err := it.listCollection.Load()
 	if err != nil {

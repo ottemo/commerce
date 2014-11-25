@@ -15,7 +15,7 @@ import (
 
 // makes SQL filter string based on ColumnName, Operator and Value parameters or returns nil
 //   - internal usage function for AddFilter and AddStaticFilter routines
-func (it *SQLiteCollection) makeSQLFilterString(ColumnName string, Operator string, Value interface{}) (string, error) {
+func (it *DBCollection) makeSQLFilterString(ColumnName string, Operator string, Value interface{}) (string, error) {
 	if !it.HasColumn(ColumnName) {
 		return "", env.ErrorNew("can't find column '" + ColumnName + "'")
 	}
@@ -27,6 +27,26 @@ func (it *SQLiteCollection) makeSQLFilterString(ColumnName string, Operator stri
 		return "", env.ErrorNew("unknown operator '" + Operator + "' for column '" + ColumnName + "', allowed: '" + strings.Join(allowedOperators, "', ") + "'")
 	}
 
+	columnType := it.GetColumnType(ColumnName)
+
+	// array column - special case
+	if strings.HasPrefix(columnType, "[]") {
+		value := strings.Trim(convertValueForSQL(Value), "'")
+		template := "(', ' || `" + ColumnName + "` || ',') LIKE '%, $value,%'"
+
+		var resultItems []string
+		for _, arrayItem := range strings.Split(value, ", ") {
+			item := utils.InterfaceToString(arrayItem)
+			resultItems = append(resultItems, strings.Replace(template, "$value", item, 1))
+		}
+
+		if len(resultItems) == 1 {
+			return resultItems[0], nil
+		}
+		return strings.Join(resultItems, " OR "), nil
+	}
+
+	// regular columns - default case
 	switch Operator {
 	case "LIKE":
 		if typedValue, ok := Value.(string); ok && !strings.Contains(typedValue, "%") {
@@ -38,7 +58,7 @@ func (it *SQLiteCollection) makeSQLFilterString(ColumnName string, Operator stri
 		}
 
 	case "IN":
-		if typedValue, ok := Value.(*SQLiteCollection); ok {
+		if typedValue, ok := Value.(*DBCollection); ok {
 			Value = "(" + typedValue.getSelectSQL() + ")"
 		} else {
 			newValue := "("
@@ -56,13 +76,13 @@ func (it *SQLiteCollection) makeSQLFilterString(ColumnName string, Operator stri
 }
 
 // returns SQL select statement for current collection
-func (it *SQLiteCollection) getSelectSQL() string {
+func (it *DBCollection) getSelectSQL() string {
 	SQL := "SELECT " + it.getSQLResultColumns() + " FROM " + it.Name + it.getSQLFilters() + it.getSQLOrder() + it.Limit
 	return SQL
 }
 
 // un-serialize object values
-func (it *SQLiteCollection) modifyResultRow(row sqlite3.RowMap) sqlite3.RowMap {
+func (it *DBCollection) modifyResultRow(row sqlite3.RowMap) sqlite3.RowMap {
 
 	for columnName, columnValue := range row {
 		columnType, present := dbEngine.attributeTypes[it.Name][columnName]
@@ -83,7 +103,7 @@ func (it *SQLiteCollection) modifyResultRow(row sqlite3.RowMap) sqlite3.RowMap {
 }
 
 // joins result columns in string
-func (it *SQLiteCollection) getSQLResultColumns() string {
+func (it *DBCollection) getSQLResultColumns() string {
 	sqlColumns := "`" + strings.Join(it.ResultColumns, "`, `") + "`"
 	if sqlColumns == "``" {
 		sqlColumns = "*"
@@ -93,7 +113,7 @@ func (it *SQLiteCollection) getSQLResultColumns() string {
 }
 
 // joins order olumns in one string with preceding keyword
-func (it *SQLiteCollection) getSQLOrder() string {
+func (it *DBCollection) getSQLOrder() string {
 	sqlOrder := strings.Join(it.Order, ", ")
 	if sqlOrder != "" {
 		sqlOrder = " ORDER BY " + sqlOrder
@@ -103,12 +123,12 @@ func (it *SQLiteCollection) getSQLOrder() string {
 }
 
 // collects all filters in a single string (for internal usage)
-func (it *SQLiteCollection) getSQLFilters() string {
+func (it *DBCollection) getSQLFilters() string {
 
-	var collectSubfilters func(string) []string = nil
+	var collectSubfilters func(string) []string
 
 	collectSubfilters = func(parentGroupName string) []string {
-		result := make([]string, 0)
+		var result []string
 
 		for filterGroupName, filterGroup := range it.FilterGroups {
 			if filterGroup.ParentGroup == parentGroupName {
@@ -134,17 +154,17 @@ func (it *SQLiteCollection) getSQLFilters() string {
 }
 
 // returns filter group, creates new one if not exists
-func (it *SQLiteCollection) getFilterGroup(groupName string) *T_DBFilterGroup {
+func (it *DBCollection) getFilterGroup(groupName string) *StructDBFilterGroup {
 	filterGroup, present := it.FilterGroups[groupName]
 	if !present {
-		filterGroup = &T_DBFilterGroup{Name: groupName, FilterValues: make([]string, 0)}
+		filterGroup = &StructDBFilterGroup{Name: groupName, FilterValues: make([]string, 0)}
 		it.FilterGroups[groupName] = filterGroup
 	}
 	return filterGroup
 }
 
 // adds filter(combination of [column, operator, value]) in named filter group
-func (it *SQLiteCollection) updateFilterGroup(groupName string, columnName string, operator string, value interface{}) error {
+func (it *DBCollection) updateFilterGroup(groupName string, columnName string, operator string, value interface{}) error {
 
 	/*if !it.HasColumn(columnName) {
 		return env.ErrorNew("not existing column " + columnName)
@@ -161,7 +181,8 @@ func (it *SQLiteCollection) updateFilterGroup(groupName string, columnName strin
 	return nil
 }
 
-func (it *SQLiteCollection) makeUUID(id string) string {
+// generates new UUID for _id column
+func (it *DBCollection) makeUUID(id string) string {
 
 	if len(id) != 24 {
 		timeStamp := strconv.FormatInt(time.Now().Unix(), 16)

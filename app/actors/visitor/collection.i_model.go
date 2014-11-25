@@ -9,17 +9,17 @@ import (
 
 // GetModelName returns model name for the Visitor Collection
 func (it *DefaultVisitorCollection) GetModelName() string {
-	return visitor.MODEL_NAME_VISITOR_COLLECTION
+	return visitor.ConstModelNameVisitorCollection
 }
 
 // GetImplementationName returns model implementation name for the Visitor Collection
 func (it *DefaultVisitorCollection) GetImplementationName() string {
-	return "Default" + visitor.MODEL_NAME_VISITOR_COLLECTION
+	return "Default" + visitor.ConstModelNameVisitorCollection
 }
 
 // New returns new instance of model implementation object for the Visitor Collection
-func (it *DefaultVisitorCollection) New() (models.I_Model, error) {
-	dbCollection, err := db.GetCollection(COLLECTION_NAME_VISITOR)
+func (it *DefaultVisitorCollection) New() (models.InterfaceModel, error) {
+	dbCollection, err := db.GetCollection(ConstCollectionNameVisitor)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}

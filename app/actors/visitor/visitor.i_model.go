@@ -9,18 +9,18 @@ import (
 
 // GetModelName returns model name for the Visitor
 func (it *DefaultVisitor) GetModelName() string {
-	return visitor.MODEL_NAME_VISITOR
+	return visitor.ConstModelNameVisitor
 }
 
 // GetImplementationName returns model implementation name for the Visitor
 func (it *DefaultVisitor) GetImplementationName() string {
-	return "Default" + visitor.MODEL_NAME_VISITOR
+	return "Default" + visitor.ConstModelNameVisitor
 }
 
 // New returns new instance of model implementation object for the Visitor
-func (it *DefaultVisitor) New() (models.I_Model, error) {
+func (it *DefaultVisitor) New() (models.InterfaceModel, error) {
 
-	customAttributes, err := new(attributes.CustomAttributes).Init(visitor.MODEL_NAME_VISITOR, COLLECTION_NAME_VISITOR)
+	customAttributes, err := new(attributes.CustomAttributes).Init(visitor.ConstModelNameVisitor, ConstCollectionNameVisitor)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}

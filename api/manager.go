@@ -4,22 +4,30 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
-var currentRestService I_RestService = nil
-var callbacksOnRestServiceStart = []func() error{}
+// Package global variables
+var (
+	currentRestService          InterfaceRestService // currently registered RESTFul service in system
+	callbacksOnRestServiceStart = []func() error{}   // set of callback function on RESTFul service start
+)
 
+// RegisterOnRestServiceStart registers new callback on RESTFul service start
 func RegisterOnRestServiceStart(callback func() error) {
 	callbacksOnRestServiceStart = append(callbacksOnRestServiceStart, callback)
 }
+
+// OnRestServiceStart fires RESTFul service start event (callback handling)
 func OnRestServiceStart() error {
 	for _, callback := range callbacksOnRestServiceStart {
 		if err := callback(); err != nil {
-			return err
+			return env.ErrorDispatch(err)
 		}
 	}
 	return nil
 }
 
-func RegisterRestService(newService I_RestService) error {
+// RegisterRestService registers RESTFul service in the system
+//   - will cause error if there are couple candidates for that role
+func RegisterRestService(newService InterfaceRestService) error {
 	if currentRestService == nil {
 		currentRestService = newService
 	} else {
@@ -28,6 +36,7 @@ func RegisterRestService(newService I_RestService) error {
 	return nil
 }
 
-func GetRestService() I_RestService {
+// GetRestService returns currently used RESTFul service implementation
+func GetRestService() InterfaceRestService {
 	return currentRestService
 }

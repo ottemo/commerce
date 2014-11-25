@@ -6,9 +6,9 @@ import (
 	"github.com/ottemo/foundation/utils"
 )
 
-// enumerates items of Product model type
-func (it *DefaultOrderItemCollection) List() ([]models.T_ListItem, error) {
-	result := make([]models.T_ListItem, 0)
+// List enumerates items of Product model type
+func (it *DefaultOrderItemCollection) List() ([]models.StructListItem, error) {
+	var result []models.StructListItem
 
 	dbRecords, err := it.listCollection.Load()
 	if err != nil {
@@ -23,9 +23,9 @@ func (it *DefaultOrderItemCollection) List() ([]models.T_ListItem, error) {
 			return result, env.ErrorDispatch(err)
 		}
 		// retrieving minimal data needed for list
-		resultItem := new(models.T_ListItem)
+		resultItem := new(models.StructListItem)
 
-		resultItem.Id = orderItemModel.GetId()
+		resultItem.ID = orderItemModel.GetID()
 		resultItem.Name = orderItemModel.GetName()
 		resultItem.Image = ""
 		resultItem.Desc = utils.InterfaceToString(orderItemModel.Get("description"))
@@ -45,12 +45,12 @@ func (it *DefaultOrderItemCollection) List() ([]models.T_ListItem, error) {
 	return result, nil
 }
 
-// allows to obtain additional attributes from  List() function
+// ListAddExtraAttribute allows to obtain additional attributes from  List() function
 func (it *DefaultOrderItemCollection) ListAddExtraAttribute(attribute string) error {
 
 	orderItemModel := new(DefaultOrderItem)
 
-	allowedAttributes := make([]string, 0)
+	var allowedAttributes []string
 	for _, attributeInfo := range orderItemModel.GetAttributesInfo() {
 		allowedAttributes = append(allowedAttributes, attributeInfo.Attribute)
 	}
@@ -68,19 +68,19 @@ func (it *DefaultOrderItemCollection) ListAddExtraAttribute(attribute string) er
 	return nil
 }
 
-// adds selection filter to List() function
+// ListFilterAdd adds selection filter to List() function
 func (it *DefaultOrderItemCollection) ListFilterAdd(Attribute string, Operator string, Value interface{}) error {
 	it.listCollection.AddFilter(Attribute, Operator, Value.(string))
 	return nil
 }
 
-// clears presets made by ListFilterAdd() and ListAddExtraAttribute() functions
+// ListFilterReset clears presets made by ListFilterAdd() and ListAddExtraAttribute() functions
 func (it *DefaultOrderItemCollection) ListFilterReset() error {
 	it.listCollection.ClearFilters()
 	return nil
 }
 
-// specifies selection paging
+// ListLimit specifies selection paging
 func (it *DefaultOrderItemCollection) ListLimit(offset int, limit int) error {
 	return it.listCollection.SetLimit(offset, limit)
 }

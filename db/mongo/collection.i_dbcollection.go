@@ -6,8 +6,8 @@ import (
 	"sort"
 )
 
-// loads one record from DB by record _id
-func (it *MongoDBCollection) LoadById(id string) (map[string]interface{}, error) {
+// LoadByID loads one record from DB by record _id
+func (it *DBCollection) LoadByID(id string) (map[string]interface{}, error) {
 	result := make(map[string]interface{})
 
 	err := it.collection.FindId(id).One(&result)
@@ -15,17 +15,17 @@ func (it *MongoDBCollection) LoadById(id string) (map[string]interface{}, error)
 	return result, env.ErrorDispatch(err)
 }
 
-// loads records from DB for current collection and filter if it set
-func (it *MongoDBCollection) Load() ([]map[string]interface{}, error) {
-	result := make([]map[string]interface{}, 0)
+// Load loads records from DB for current collection and filter if it set
+func (it *DBCollection) Load() ([]map[string]interface{}, error) {
+	var result []map[string]interface{}
 
 	err := it.prepareQuery().All(&result)
 
 	return result, env.ErrorDispatch(err)
 }
 
-// applies [iterator] function to each record, stops on return false
-func (it *MongoDBCollection) Iterate(iteratorFunc func(record map[string]interface{}) bool) error {
+// Iterate applies [iterator] function to each record, stops on return false
+func (it *DBCollection) Iterate(iteratorFunc func(record map[string]interface{}) bool) error {
 	record := make(map[string]interface{})
 
 	iterator := it.prepareQuery().Iter()
@@ -43,22 +43,22 @@ func (it *MongoDBCollection) Iterate(iteratorFunc func(record map[string]interfa
 	return nil
 }
 
-// returns count of rows matching current select statement
-func (it *MongoDBCollection) Count() (int, error) {
+// Count returns count of rows matching current select statement
+func (it *DBCollection) Count() (int, error) {
 	return it.collection.Find(it.makeSelector()).Count()
 }
 
-// returns distinct values of specified attribute
-func (it *MongoDBCollection) Distinct(columnName string) ([]interface{}, error) {
-	result := make([]interface{}, 0)
+// Distinct returns distinct values of specified attribute
+func (it *DBCollection) Distinct(columnName string) ([]interface{}, error) {
+	var result []interface{}
 
 	err := it.prepareQuery().Distinct(columnName, &result)
 
 	return result, env.ErrorDispatch(err)
 }
 
-// stores record in DB for current collection
-func (it *MongoDBCollection) Save(Item map[string]interface{}) (string, error) {
+// Save stores record in DB for current collection
+func (it *DBCollection) Save(Item map[string]interface{}) (string, error) {
 
 	// id validation/updating
 	//-----------------------
@@ -78,7 +78,7 @@ func (it *MongoDBCollection) Save(Item map[string]interface{}) (string, error) {
 	bsonDocument := make(bson.D, 0, len(Item))
 	keysList := make([]string, 0, len(Item))
 
-	for key, _ := range Item {
+	for key := range Item {
 		keysList = append(keysList, key)
 	}
 	sort.Strings(keysList)
@@ -98,20 +98,20 @@ func (it *MongoDBCollection) Save(Item map[string]interface{}) (string, error) {
 	return id, env.ErrorDispatch(err)
 }
 
-// removes records that matches current select statement from DB, returns amount of affected rows
-func (it *MongoDBCollection) Delete() (int, error) {
+// Delete removes records that matches current select statement from DB, returns amount of affected rows
+func (it *DBCollection) Delete() (int, error) {
 	changeInfo, err := it.collection.RemoveAll(it.makeSelector())
 
 	return changeInfo.Removed, env.ErrorDispatch(err)
 }
 
-// removes record from DB by is's id
-func (it *MongoDBCollection) DeleteById(id string) error {
+// DeleteByID removes record from DB by is's id
+func (it *DBCollection) DeleteByID(id string) error {
 	return it.collection.RemoveId(id)
 }
 
-// setups filter group params for collection
-func (it *MongoDBCollection) SetupFilterGroup(groupName string, orSequence bool, parentGroup string) error {
+// SetupFilterGroup setups filter group params for collection
+func (it *DBCollection) SetupFilterGroup(groupName string, orSequence bool, parentGroup string) error {
 	if _, present := it.FilterGroups[parentGroup]; !present && parentGroup != "" {
 		return env.ErrorNew("invalid parent group")
 	}
@@ -123,8 +123,8 @@ func (it *MongoDBCollection) SetupFilterGroup(groupName string, orSequence bool,
 	return nil
 }
 
-// removes filter group for collection
-func (it *MongoDBCollection) RemoveFilterGroup(GroupName string) error {
+// RemoveFilterGroup removes filter group for collection
+func (it *DBCollection) RemoveFilterGroup(GroupName string) error {
 	if _, present := it.FilterGroups[GroupName]; !present {
 		return env.ErrorNew("invalid group name")
 	}
@@ -132,8 +132,8 @@ func (it *MongoDBCollection) RemoveFilterGroup(GroupName string) error {
 	return nil
 }
 
-// adds selection filter to specific filter group (all filter groups will be joined before db query)
-func (it *MongoDBCollection) AddGroupFilter(GroupName string, ColumnName string, Operator string, Value interface{}) error {
+// AddGroupFilter adds selection filter to specific filter group (all filter groups will be joined before db query)
+func (it *DBCollection) AddGroupFilter(GroupName string, ColumnName string, Operator string, Value interface{}) error {
 	err := it.updateFilterGroup(GroupName, ColumnName, Operator, Value)
 	if err != nil {
 		return err
@@ -141,36 +141,36 @@ func (it *MongoDBCollection) AddGroupFilter(GroupName string, ColumnName string,
 	return nil
 }
 
-// adds selection filter that will not be cleared by ClearFilters() function
-func (it *MongoDBCollection) AddStaticFilter(ColumnName string, Operator string, Value interface{}) error {
-	err := it.updateFilterGroup(FILTER_GROUP_STATIC, ColumnName, Operator, Value)
+// AddStaticFilter adds selection filter that will not be cleared by ClearFilters() function
+func (it *DBCollection) AddStaticFilter(ColumnName string, Operator string, Value interface{}) error {
+	err := it.updateFilterGroup(ConstFilterGroupStatic, ColumnName, Operator, Value)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-// adds selection filter to current collection object
-func (it *MongoDBCollection) AddFilter(ColumnName string, Operator string, Value interface{}) error {
-	err := it.updateFilterGroup(FILTER_GROUP_DEFAULT, ColumnName, Operator, Value)
+// AddFilter adds selection filter to current collection object
+func (it *DBCollection) AddFilter(ColumnName string, Operator string, Value interface{}) error {
+	err := it.updateFilterGroup(ConstFilterGroupDefault, ColumnName, Operator, Value)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-// removes all filters that were set for current collection
-func (it *MongoDBCollection) ClearFilters() error {
-	for filterGroup, _ := range it.FilterGroups {
-		if filterGroup != FILTER_GROUP_STATIC {
+// ClearFilters removes all filters that were set for current collection
+func (it *DBCollection) ClearFilters() error {
+	for filterGroup := range it.FilterGroups {
+		if filterGroup != ConstFilterGroupStatic {
 			delete(it.FilterGroups, filterGroup)
 		}
 	}
 	return nil
 }
 
-// adds sorting for current collection
-func (it *MongoDBCollection) AddSort(ColumnName string, Desc bool) error {
+// AddSort adds sorting for current collection
+func (it *DBCollection) AddSort(ColumnName string, Desc bool) error {
 	if Desc {
 		it.Sort = append(it.Sort, "-"+ColumnName)
 	} else {
@@ -179,22 +179,22 @@ func (it *MongoDBCollection) AddSort(ColumnName string, Desc bool) error {
 	return nil
 }
 
-// removes any sorting that was set for current collection
-func (it *MongoDBCollection) ClearSort() error {
+// ClearSort removes any sorting that was set for current collection
+func (it *DBCollection) ClearSort() error {
 	it.Sort = make([]string, 0)
 	return nil
 }
 
-// results pagination
-func (it *MongoDBCollection) SetLimit(Offset int, Limit int) error {
+// SetLimit results pagination
+func (it *DBCollection) SetLimit(Offset int, Limit int) error {
 	it.Limit = Limit
 	it.Offset = Offset
 
 	return nil
 }
 
-// limits column selection for Load() and LoadById()function
-func (it *MongoDBCollection) SetResultColumns(columns ...string) error {
+// SetResultColumns limits column selection for Load() and LoadByID()function
+func (it *DBCollection) SetResultColumns(columns ...string) error {
 	for _, columnName := range columns {
 		it.ResultAttributes = []string{}
 
@@ -207,12 +207,12 @@ func (it *MongoDBCollection) SetResultColumns(columns ...string) error {
 	return nil
 }
 
-// returns attributes available for current collection
-func (it *MongoDBCollection) ListColumns() map[string]string {
+// ListColumns returns attributes available for current collection
+func (it *DBCollection) ListColumns() map[string]string {
 
 	result := map[string]string{}
 
-	infoCollection := it.database.C(COLLECTION_NAME_COLUMN_INFO)
+	infoCollection := it.database.C(ConstCollectionNameColumnInfo)
 	selector := map[string]string{"collection": it.Name}
 	iter := infoCollection.Find(selector).Iter()
 
@@ -240,8 +240,8 @@ func (it *MongoDBCollection) ListColumns() map[string]string {
 	return result
 }
 
-// returns SQL like type of attribute in current collection, or if not present ""
-func (it *MongoDBCollection) GetColumnType(ColumnName string) string {
+// GetColumnType returns SQL like type of attribute in current collection, or if not present ""
+func (it *DBCollection) GetColumnType(ColumnName string) string {
 	// _id - has static type
 	if ColumnName == "_id" {
 		return "string"
@@ -258,8 +258,8 @@ func (it *MongoDBCollection) GetColumnType(ColumnName string) string {
 	return attributeType
 }
 
-// check for attribute presence in current collection
-func (it *MongoDBCollection) HasColumn(ColumnName string) bool {
+// HasColumn checks attribute presence in current collection
+func (it *DBCollection) HasColumn(ColumnName string) bool {
 	// _id - always present
 	if ColumnName == "_id" {
 		return true
@@ -276,10 +276,10 @@ func (it *MongoDBCollection) HasColumn(ColumnName string) bool {
 	return present
 }
 
-// adds new attribute to current collection
-func (it *MongoDBCollection) AddColumn(ColumnName string, ColumnType string, indexed bool) error {
+// AddColumn adds new attribute to current collection
+func (it *DBCollection) AddColumn(ColumnName string, ColumnType string, indexed bool) error {
 
-	infoCollection := it.database.C(COLLECTION_NAME_COLUMN_INFO)
+	infoCollection := it.database.C(ConstCollectionNameColumnInfo)
 
 	selector := map[string]interface{}{"collection": it.Name, "column": ColumnName}
 	data := map[string]interface{}{"collection": it.Name, "column": ColumnName, "type": ColumnType, "indexed": indexed}
@@ -289,12 +289,12 @@ func (it *MongoDBCollection) AddColumn(ColumnName string, ColumnType string, ind
 	return env.ErrorDispatch(err)
 }
 
-// removes attribute from current collection
+// RemoveColumn removes attribute from current collection
 //   - for MoongoDB it means update "collection_column_info" collection
 //   and, update all objects of current collection to exclude attribute
-func (it *MongoDBCollection) RemoveColumn(ColumnName string) error {
+func (it *DBCollection) RemoveColumn(ColumnName string) error {
 
-	infoCollection := it.database.C(COLLECTION_NAME_COLUMN_INFO)
+	infoCollection := it.database.C(ConstCollectionNameColumnInfo)
 	removeSelector := map[string]string{"collection": it.Name, "column": ColumnName}
 
 	err := infoCollection.Remove(removeSelector)

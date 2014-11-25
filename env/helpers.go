@@ -4,7 +4,7 @@ import (
 	"errors"
 )
 
-// returns config value or nil if not present
+// ConfigGetValue returns config value or nil if not present
 func ConfigGetValue(Path string) interface{} {
 	if config := GetConfig(); config != nil {
 		return config.GetValue(Path)
@@ -13,7 +13,7 @@ func ConfigGetValue(Path string) interface{} {
 	return nil
 }
 
-// returns value from ini file or "" if not present
+// IniValue returns value from ini file or "" if not present
 func IniValue(Path string) string {
 	if iniConfig := GetIniConfig(); iniConfig != nil {
 		return iniConfig.GetValue(Path, "")
@@ -21,28 +21,28 @@ func IniValue(Path string) string {
 	return ""
 }
 
-// logs general purpose message
+// Log logs general purpose message
 func Log(storage string, prefix string, message string) {
 	if logger := GetLogger(); logger != nil {
 		logger.Log(storage, prefix, message)
 	}
 }
 
-// log for error
+// LogError logs an error message
 func LogError(err error) {
 	if logger := GetLogger(); logger != nil {
 		logger.LogError(err)
 	}
 }
 
-// log short form for info message
+// LogMessage is a Log function short form for info messages in default storage
 func LogMessage(message string) {
 	if logger := GetLogger(); logger != nil {
 		logger.LogMessage(message)
 	}
 }
 
-// returns error level of given error
+// ErrorLevel returns error level of given error
 func ErrorLevel(err error) int {
 	if errorBus := GetErrorBus(); errorBus != nil {
 		return errorBus.GetErrorLevel(err)
@@ -50,7 +50,7 @@ func ErrorLevel(err error) int {
 	return 0
 }
 
-// returns error code of given error
+// ErrorCode returns error code of given error
 func ErrorCode(err error) string {
 	if errorBus := GetErrorBus(); errorBus != nil {
 		return errorBus.GetErrorCode(err)
@@ -58,7 +58,7 @@ func ErrorCode(err error) string {
 	return ""
 }
 
-// returns message of given error
+// ErrorMessage returns message of given error
 func ErrorMessage(err error) string {
 	if errorBus := GetErrorBus(); errorBus != nil {
 		return errorBus.GetErrorMessage(err)
@@ -66,14 +66,14 @@ func ErrorMessage(err error) string {
 	return err.Error()
 }
 
-// registers listener for error bus
-func ErrorRegisterListener(listener F_ErrorListener) {
+// ErrorRegisterListener registers listener for error bus
+func ErrorRegisterListener(listener FuncErrorListener) {
 	if errorBus := GetErrorBus(); errorBus != nil {
 		errorBus.RegisterListener(listener)
 	}
 }
 
-// handles error, returns new one you should pass next
+// ErrorDispatch handles error, returns new one you should pass next
 func ErrorDispatch(err error) error {
 	if errorBus := GetErrorBus(); errorBus != nil {
 		return errorBus.Dispatch(err)
@@ -81,7 +81,7 @@ func ErrorDispatch(err error) error {
 	return err
 }
 
-// creates new error and dispatches it
+// ErrorNew creates new error and dispatches it
 func ErrorNew(message string) error {
 	if errorBus := GetErrorBus(); errorBus != nil {
 		return errorBus.New(message)
@@ -89,14 +89,14 @@ func ErrorNew(message string) error {
 	return errors.New(message)
 }
 
-// registers listener for event bus
-func EventRegisterListener(event string, listener F_EventListener) {
+// EventRegisterListener registers listener for event bus
+func EventRegisterListener(event string, listener FuncEventListener) {
 	if eventBus := GetEventBus(); eventBus != nil {
 		eventBus.RegisterListener(event, listener)
 	}
 }
 
-// emits new event for registered listeners
+// Event emits new event for registered listeners
 func Event(event string, args map[string]interface{}) {
 	if eventBus := GetEventBus(); eventBus != nil {
 		eventBus.New(event, args)

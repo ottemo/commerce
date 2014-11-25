@@ -8,9 +8,10 @@ import (
 	"github.com/ottemo/foundation/utils"
 )
 
+// setupAPI setups package related API endpoint routines
 func setupAPI() error {
 
-	var err error = nil
+	var err error
 
 	err = api.GetRestService().RegisterAPI("order", "GET", "attributes", restOrderAttributes)
 	if err != nil {
@@ -49,7 +50,7 @@ func setupAPI() error {
 }
 
 // WEB REST API function to get order available attributes information
-func restOrderAttributes(params *api.T_APIHandlerParams) (interface{}, error) {
+func restOrderAttributes(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	orderModel, err := order.GetOrderModel()
 	if err != nil {
@@ -60,7 +61,7 @@ func restOrderAttributes(params *api.T_APIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API function used to obtain orders list
-func restOrderList(params *api.T_APIHandlerParams) (interface{}, error) {
+func restOrderList(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -68,9 +69,8 @@ func restOrderList(params *api.T_APIHandlerParams) (interface{}, error) {
 	if !ok {
 		if params.Request.Method == "POST" {
 			return nil, env.ErrorNew("unexpected request content")
-		} else {
-			reqData = make(map[string]interface{})
 		}
+		reqData = make(map[string]interface{})
 	}
 
 	// check rights
@@ -106,7 +106,7 @@ func restOrderList(params *api.T_APIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API function used to obtain orders count in model collection
-func restOrderCount(params *api.T_APIHandlerParams) (interface{}, error) {
+func restOrderCount(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check rights
 	if err := api.ValidateAdminRights(params); err != nil {
@@ -126,15 +126,15 @@ func restOrderCount(params *api.T_APIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API function to get order information
-func restOrderGet(params *api.T_APIHandlerParams) (interface{}, error) {
+func restOrderGet(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
-	reqBlockId, present := params.RequestURLParams["id"]
+	reqBlockID, present := params.RequestURLParams["id"]
 	if !present {
 		return nil, env.ErrorNew("order id should be specified")
 	}
-	blockId := utils.InterfaceToString(reqBlockId)
+	blockID := utils.InterfaceToString(reqBlockID)
 
 	// check rights
 	if err := api.ValidateAdminRights(params); err != nil {
@@ -143,7 +143,7 @@ func restOrderGet(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// operation
 	//----------
-	orderModel, err := order.LoadOrderById(blockId)
+	orderModel, err := order.LoadOrderByID(blockID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -154,11 +154,11 @@ func restOrderGet(params *api.T_APIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API for update existing order in system
-func restOrderUpdate(params *api.T_APIHandlerParams) (interface{}, error) {
+func restOrderUpdate(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
-	blockId, present := params.RequestURLParams["id"]
+	blockID, present := params.RequestURLParams["id"]
 	if !present {
 		return nil, env.ErrorNew("order id should be specified")
 	}
@@ -175,7 +175,7 @@ func restOrderUpdate(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// operation
 	//----------
-	orderModel, err := order.LoadOrderById(blockId)
+	orderModel, err := order.LoadOrderByID(blockID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -184,18 +184,18 @@ func restOrderUpdate(params *api.T_APIHandlerParams) (interface{}, error) {
 		orderModel.Set(attribute, value)
 	}
 
-	orderModel.SetId(blockId)
+	orderModel.SetID(blockID)
 	orderModel.Save()
 
 	return orderModel.ToHashMap(), nil
 }
 
 // WEB REST API used to delete order from system
-func restOrderDelete(params *api.T_APIHandlerParams) (interface{}, error) {
+func restOrderDelete(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
-	blockId, present := params.RequestURLParams["id"]
+	blockID, present := params.RequestURLParams["id"]
 	if !present {
 		return nil, env.ErrorNew("order id should be specified")
 	}
@@ -207,7 +207,7 @@ func restOrderDelete(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// operation
 	//----------
-	orderModel, err := order.GetOrderModelAndSetId(blockId)
+	orderModel, err := order.GetOrderModelAndSetID(blockID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}

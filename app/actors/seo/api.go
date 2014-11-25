@@ -15,9 +15,10 @@ import (
 	"github.com/ottemo/foundation/app/models/product"
 )
 
+// setupAPI setups package related API endpoint routines
 func setupAPI() error {
 
-	var err error = nil
+	var err error
 
 	err = api.GetRestService().RegisterAPI("url_rewrite", "GET", "list", restURLRewritesList)
 	if err != nil {
@@ -53,9 +54,9 @@ func setupAPI() error {
 }
 
 // WEB REST API function used to obtain url rewrites list
-func restURLRewritesList(params *api.T_APIHandlerParams) (interface{}, error) {
+func restURLRewritesList(params *api.StructAPIHandlerParams) (interface{}, error) {
 
-	collection, err := db.GetCollection(COLLECTION_NAME_URL_REWRITES)
+	collection, err := db.GetCollection(ConstCollectionNameURLRewrites)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -67,9 +68,9 @@ func restURLRewritesList(params *api.T_APIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API function used to obtain rewrite for specified url
-func restURLRewritesGet(params *api.T_APIHandlerParams) (interface{}, error) {
+func restURLRewritesGet(params *api.StructAPIHandlerParams) (interface{}, error) {
 
-	collection, err := db.GetCollection(COLLECTION_NAME_URL_REWRITES)
+	collection, err := db.GetCollection(ConstCollectionNameURLRewrites)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -81,7 +82,7 @@ func restURLRewritesGet(params *api.T_APIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API function used to update existing url rewrite
-func restURLRewritesUpdate(params *api.T_APIHandlerParams) (interface{}, error) {
+func restURLRewritesUpdate(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check request params
 	//---------------------
@@ -95,13 +96,13 @@ func restURLRewritesUpdate(params *api.T_APIHandlerParams) (interface{}, error) 
 		return nil, env.ErrorDispatch(err)
 	}
 
-	collection, err := db.GetCollection(COLLECTION_NAME_URL_REWRITES)
+	collection, err := db.GetCollection(ConstCollectionNameURLRewrites)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	urlRewriteId := params.RequestURLParams["id"]
-	record, err := collection.LoadById(urlRewriteId)
+	urlRewriteID := params.RequestURLParams["id"]
+	record, err := collection.LoadByID(urlRewriteID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -143,7 +144,7 @@ func restURLRewritesUpdate(params *api.T_APIHandlerParams) (interface{}, error) 
 }
 
 // WEB REST API function used to add url rewrite
-func restURLRewritesAdd(params *api.T_APIHandlerParams) (interface{}, error) {
+func restURLRewritesAdd(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// checking request params
 	//------------------------
@@ -162,29 +163,29 @@ func restURLRewritesAdd(params *api.T_APIHandlerParams) (interface{}, error) {
 		return nil, env.ErrorNew("'url' and 'rewrite' params should be specified")
 	}
 
-	valueUrl := utils.InterfaceToString(postValues["url"])
+	valueURL := utils.InterfaceToString(postValues["url"])
 	valueRewrite := utils.InterfaceToString(postValues["rewrite"])
 
 	// looking for duplicated 'url'
 	//-----------------------------
-	collection, err := db.GetCollection(COLLECTION_NAME_URL_REWRITES)
+	collection, err := db.GetCollection(ConstCollectionNameURLRewrites)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	collection.AddFilter("url", "=", valueUrl)
+	collection.AddFilter("url", "=", valueURL)
 	recordsNumber, err := collection.Count()
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 	if recordsNumber > 0 {
-		return nil, env.ErrorNew("rewrite for url '" + valueUrl + "' already exists")
+		return nil, env.ErrorNew("rewrite for url '" + valueURL + "' already exists")
 	}
 
 	// making new record and storing it
 	//---------------------------------
 	newRecord := map[string]interface{}{
-		"url":              valueUrl,
+		"url":              valueURL,
 		"type":             "",
 		"rewrite":          valueRewrite,
 		"title":            nil,
@@ -199,29 +200,29 @@ func restURLRewritesAdd(params *api.T_APIHandlerParams) (interface{}, error) {
 		}
 	}
 
-	newId, err := collection.Save(newRecord)
+	newID, err := collection.Save(newRecord)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	newRecord["_id"] = newId
+	newRecord["_id"] = newID
 
 	return newRecord, nil
 }
 
 // WEB REST API function used to delete url rewrite
-func restURLRewritesDelete(params *api.T_APIHandlerParams) (interface{}, error) {
+func restURLRewritesDelete(params *api.StructAPIHandlerParams) (interface{}, error) {
 	// check rights
 	if err := api.ValidateAdminRights(params); err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	collection, err := db.GetCollection(COLLECTION_NAME_URL_REWRITES)
+	collection, err := db.GetCollection(ConstCollectionNameURLRewrites)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	err = collection.DeleteById(params.RequestURLParams["id"])
+	err = collection.DeleteByID(params.RequestURLParams["id"])
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -230,16 +231,16 @@ func restURLRewritesDelete(params *api.T_APIHandlerParams) (interface{}, error) 
 }
 
 // WEB REST API function used to get sitemap
-func restSitemap(params *api.T_APIHandlerParams) (interface{}, error) {
+func restSitemap(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// if sitemap expied - generating new one
-	info, err := os.Stat(SITEMAP_FILE_PATH)
-	if err != nil || (time.Now().Unix()-info.ModTime().Unix() >= SITEMAP_EXPIRE_SEC) {
+	info, err := os.Stat(ConstSitemapFilePath)
+	if err != nil || (time.Now().Unix()-info.ModTime().Unix() >= ConstSitemapExpireSec) {
 		return restSitemapGenerate(params)
 	}
 
 	// using generated otherwise
-	sitemapFile, err := os.Open(SITEMAP_FILE_PATH)
+	sitemapFile, err := os.Open(ConstSitemapFilePath)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -264,12 +265,12 @@ func restSitemap(params *api.T_APIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API function used to generate new sitemap
-func restSitemapGenerate(params *api.T_APIHandlerParams) (interface{}, error) {
+func restSitemapGenerate(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	params.ResponseWriter.Header().Set("Content-Type", "text/xml")
 
 	// creating sitemap file
-	sitemapFile, err := os.Create(SITEMAP_FILE_PATH)
+	sitemapFile, err := os.Create(ConstSitemapFilePath)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -294,20 +295,20 @@ func restSitemapGenerate(params *api.T_APIHandlerParams) (interface{}, error) {
 
 	// per database record iterator
 	iteratorFunc := func(record map[string]interface{}) bool {
-		pageUrl := ""
+		pageURL := ""
 		if pageType == "" {
-			pageUrl = baseURL + utils.InterfaceToString(record["url"])
+			pageURL = baseURL + utils.InterfaceToString(record["url"])
 		} else {
-			pageUrl = baseURL + pageType + "/" + utils.InterfaceToString(record["_id"])
+			pageURL = baseURL + pageType + "/" + utils.InterfaceToString(record["_id"])
 		}
 
-		writeLine([]byte("  <url><loc>" + pageUrl + "</loc></url>"))
+		writeLine([]byte("  <url><loc>" + pageURL + "</loc></url>"))
 
 		return true
 	}
 
 	// Re-writed pages
-	rewritesCollection, err := db.GetCollection(COLLECTION_NAME_URL_REWRITES)
+	rewritesCollection, err := db.GetCollection(ConstCollectionNameURLRewrites)
 	rewritesCollection.SetResultColumns("url")
 	rewritesCollection.Iterate(iteratorFunc)
 

@@ -8,27 +8,27 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
-// returns id of current order
-func (it *DefaultOrder) GetId() string {
+// GetID returns id of current order
+func (it *DefaultOrder) GetID() string {
 	return it.id
 }
 
-// sets id for order
-func (it *DefaultOrder) SetId(NewId string) error {
-	it.id = NewId
+// SetID sets id for order
+func (it *DefaultOrder) SetID(NewID string) error {
+	it.id = NewID
 	return nil
 }
 
-// loads order information from DB
-func (it *DefaultOrder) Load(Id string) error {
+// Load loads order information from DB
+func (it *DefaultOrder) Load(ID string) error {
 
 	// loading order
-	orderCollection, err := db.GetCollection(COLLECTION_NAME_ORDER)
+	orderCollection, err := db.GetCollection(ConstCollectionNameOrder)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	values, err := orderCollection.LoadById(Id)
+	values, err := orderCollection.LoadByID(ID)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -38,16 +38,16 @@ func (it *DefaultOrder) Load(Id string) error {
 		it.Set(attribute, value)
 	}
 
-	it.Items = make(map[int]order.I_OrderItem)
+	it.Items = make(map[int]order.InterfaceOrderItem)
 	it.maxIdx = 0
 
 	// loading order items
-	orderItemsCollection, err := db.GetCollection(COLLECTION_NAME_ORDER_ITEMS)
+	orderItemsCollection, err := db.GetCollection(ConstCollectionNameOrderItems)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	orderItemsCollection.AddFilter("order_id", "=", it.GetId())
+	orderItemsCollection.AddFilter("order_id", "=", it.GetID())
 	orderItems, err := orderItemsCollection.Load()
 	if err != nil {
 		return env.ErrorDispatch(err)
@@ -66,19 +66,19 @@ func (it *DefaultOrder) Load(Id string) error {
 	return nil
 }
 
-// removes current order from DB
+// Delete removes current order from DB
 func (it *DefaultOrder) Delete() error {
-	if it.GetId() == "" {
+	if it.GetID() == "" {
 		return env.ErrorNew("order id is not set")
 	}
 
 	// deleting order items
-	orderItemsCollection, err := db.GetCollection(COLLECTION_NAME_ORDER_ITEMS)
+	orderItemsCollection, err := db.GetCollection(ConstCollectionNameOrderItems)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = orderItemsCollection.AddFilter("order_id", "=", it.GetId())
+	err = orderItemsCollection.AddFilter("order_id", "=", it.GetID())
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -89,24 +89,24 @@ func (it *DefaultOrder) Delete() error {
 	}
 
 	// deleting order
-	orderCollection, err := db.GetCollection(COLLECTION_NAME_ORDER)
+	orderCollection, err := db.GetCollection(ConstCollectionNameOrder)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = orderCollection.DeleteById(it.GetId())
+	err = orderCollection.DeleteByID(it.GetID())
 
 	return env.ErrorDispatch(err)
 }
 
-// stores current order in DB
+// Save stores current order in DB
 func (it *DefaultOrder) Save() error {
 
-	orderCollection, err := db.GetCollection(COLLECTION_NAME_ORDER)
+	orderCollection, err := db.GetCollection(ConstCollectionNameOrder)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	orderItemsCollection, err := db.GetCollection(COLLECTION_NAME_ORDER_ITEMS)
+	orderItemsCollection, err := db.GetCollection(ConstCollectionNameOrderItems)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -116,22 +116,22 @@ func (it *DefaultOrder) Save() error {
 
 	it.UpdatedAt = time.Now()
 
-	newId, err := orderCollection.Save(orderStoringValues)
+	newID, err := orderCollection.Save(orderStoringValues)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	it.SetId(newId)
+	it.SetID(newID)
 
 	// storing order items
 	for _, orderItem := range it.GetItems() {
-		orderItem.Set("order_id", newId)
+		orderItem.Set("order_id", newID)
 		orderItemStoringValues := orderItem.ToHashMap()
 
-		newId, err := orderItemsCollection.Save(orderItemStoringValues)
+		newID, err := orderItemsCollection.Save(orderItemStoringValues)
 		if err != nil {
 			return env.ErrorDispatch(err)
 		}
-		orderItem.SetId(newId)
+		orderItem.SetID(newID)
 	}
 
 	return nil

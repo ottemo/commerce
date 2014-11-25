@@ -1,7 +1,8 @@
 package models
 
-type T_ListItem struct {
-	Id    string
+// StructListItem represents type to hold business layer object information within collection
+type StructListItem struct {
+	ID    string
 	Name  string
 	Image string
 	Desc  string
@@ -9,7 +10,8 @@ type T_ListItem struct {
 	Extra map[string]interface{}
 }
 
-type T_AttributeInfo struct {
+// StructAttributeInfo represents type to hold business layer object attribute information
+type StructAttributeInfo struct {
 	Model      string
 	Collection string
 	Attribute  string
@@ -25,10 +27,11 @@ type T_AttributeInfo struct {
 	IsLayered  bool
 }
 
+// Package global variables
 var (
-	declaredModels = map[string]I_Model{}
+	declaredModels = map[string]InterfaceModel{}
 
-	STATES_LIST = map[string]string{
+	ConstStatesList = map[string]string{
 		"":   "No state",
 		"AL": "Alabama",
 		"AK": "Alaska",
@@ -82,7 +85,7 @@ var (
 		"WY": "Wyoming",
 	}
 
-	COUNTRIES_LIST = map[string]string{
+	ConstCountriesList = map[string]string{
 		"AF": "Afghanistan",
 		"AX": "Åland Islands",
 		"AL": "Albania",

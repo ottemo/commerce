@@ -6,26 +6,24 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
-var (
-	dbEngine *SQLite
-)
-
+// init makes package self-initialization routine
 func init() {
-	dbEngine = new(SQLite)
+	dbEngine = new(DBEngine)
 	dbEngine.attributeTypes = make(map[string]map[string]string)
 
-	var _ db.I_DBEngine = dbEngine
+	var _ db.InterfaceDBEngine = dbEngine
 
 	env.RegisterOnConfigIniStart(dbEngine.Startup)
 	db.RegisterDBEngine(dbEngine)
 }
 
-func (it *SQLite) Startup() error {
+// Startup is a database engine startup routines
+func (it *DBEngine) Startup() error {
 
 	it.attributeTypes = make(map[string]map[string]string)
 
 	// opening connection
-	var uri string = "ottemo.db"
+	uri := "ottemo.db"
 
 	if iniConfig := env.GetIniConfig(); iniConfig != nil {
 		if iniValue := iniConfig.GetValue("db.sqlite3.uri", uri); iniValue != "" {
@@ -40,7 +38,7 @@ func (it *SQLite) Startup() error {
 	}
 
 	// making column info table
-	SQL := "CREATE TABLE IF NOT EXISTS " + COLLECTION_NAME_COLUMN_INFO + ` (
+	SQL := "CREATE TABLE IF NOT EXISTS " + ConstCollectionNameColumnInfo + ` (
 		_id        INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 		collection VARCHAR(255),
 		column     VARCHAR(255),

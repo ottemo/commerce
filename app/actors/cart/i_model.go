@@ -5,20 +5,20 @@ import (
 	"github.com/ottemo/foundation/app/models/cart"
 )
 
-// returns model name we have implementation for
+// GetModelName returns model name we have implementation for
 func (it *DefaultCart) GetModelName() string {
-	return cart.CART_MODEL_NAME
+	return cart.ConstCartModelName
 }
 
-// returns name of current model implementation
+// GetImplementationName returns name of current model implementation
 func (it *DefaultCart) GetImplementationName() string {
 	return "DefaultCart"
 }
 
-// makes new instance of model
-func (it *DefaultCart) New() (models.I_Model, error) {
+// New makes new instance of model
+func (it *DefaultCart) New() (models.InterfaceModel, error) {
 	return &DefaultCart{
-		Items: make(map[int]cart.I_CartItem),
+		Items: make(map[int]cart.InterfaceCartItem),
 		Info:  make(map[string]interface{}),
 	}, nil
 }

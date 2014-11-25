@@ -14,11 +14,10 @@ import (
 	"github.com/ottemo/foundation/utils"
 )
 
+// setupAPI setups package related API endpoint routines
 func setupAPI() error {
 	var err error
 
-	// 1. DefaultRtsAPI
-	//----------------------
 	err = api.GetRestService().RegisterAPI("rts", "GET", "visit", restRegisterVisit)
 	if err != nil {
 		return env.ErrorDispatch(err)
@@ -67,7 +66,8 @@ func setupAPI() error {
 	return nil
 }
 
-func restRegisterVisit(params *api.T_APIHandlerParams) (interface{}, error) {
+// WEB REST API used for registering a new storefront visit and obtain referer info
+func restRegisterVisit(params *api.StructAPIHandlerParams) (interface{}, error) {
 	xReferrer := utils.InterfaceToString(params.Request.Header.Get("X-Referer"))
 
 	http.SetCookie(params.ResponseWriter, &http.Cookie{Name: "X_Referrer", Value: xReferrer, Path: "/"})
@@ -78,7 +78,8 @@ func restRegisterVisit(params *api.T_APIHandlerParams) (interface{}, error) {
 	return nil, nil
 }
 
-func restGetReferrers(params *api.T_APIHandlerParams) (interface{}, error) {
+// WEB REST API used to obtain site referers list
+func restGetReferrers(params *api.StructAPIHandlerParams) (interface{}, error) {
 	result := make(map[string]int)
 
 	for url := range referrers {
@@ -88,7 +89,8 @@ func restGetReferrers(params *api.T_APIHandlerParams) (interface{}, error) {
 	return result, nil
 }
 
-func restGetVisits(params *api.T_APIHandlerParams) (interface{}, error) {
+// WEB REST API used to obtain site visit information for current day
+func restGetVisits(params *api.StructAPIHandlerParams) (interface{}, error) {
 	result := make(map[string]interface{})
 
 	err := GetTodayVisitorsData()
@@ -113,7 +115,8 @@ func restGetVisits(params *api.T_APIHandlerParams) (interface{}, error) {
 	return result, nil
 }
 
-func restGetVisitsDetails(params *api.T_APIHandlerParams) (interface{}, error) {
+// WEB REST API used to obtain detailed site visit information for a specified period
+func restGetVisitsDetails(params *api.StructAPIHandlerParams) (interface{}, error) {
 	result := make(map[string]int)
 
 	fromDatetmp, present := params.RequestURLParams["from"]
@@ -129,7 +132,7 @@ func restGetVisitsDetails(params *api.T_APIHandlerParams) (interface{}, error) {
 	toDate, _ := time.Parse("2006-01-02", toDatetmp)
 
 	delta := toDate.Sub(fromDate)
-	visitorInfoCollection, err := db.GetCollection(CollectionNameVisitors)
+	visitorInfoCollection, err := db.GetCollection(ConstCollectionNameRTSVisitors)
 	if err == nil {
 		visitorInfoCollection.AddFilter("day", ">=", fromDate)
 		visitorInfoCollection.AddFilter("day", "<", toDate)
@@ -151,7 +154,7 @@ func restGetVisitsDetails(params *api.T_APIHandlerParams) (interface{}, error) {
 
 		} else {
 			if len(dbRecord) > 0 {
-				details := RtsDecodeDetails(utils.InterfaceToString(dbRecord[0]["details"]))
+				details := DecodeDetails(utils.InterfaceToString(dbRecord[0]["details"]))
 				for _, item := range details {
 					timestamp := fmt.Sprintf("%v", int32(utils.InterfaceToTime(item.Time).Unix()))
 					dbResult[timestamp]++
@@ -179,7 +182,8 @@ func restGetVisitsDetails(params *api.T_APIHandlerParams) (interface{}, error) {
 	return result, nil
 }
 
-func restGetConversions(params *api.T_APIHandlerParams) (interface{}, error) {
+// WEB REST API used to obtain site conversation information
+func restGetConversions(params *api.StructAPIHandlerParams) (interface{}, error) {
 	result := make(map[string]interface{})
 
 	result["totalVisitors"] = visitorsInfoToday.Visitors
@@ -190,7 +194,8 @@ func restGetConversions(params *api.T_APIHandlerParams) (interface{}, error) {
 	return result, nil
 }
 
-func restGetSales(params *api.T_APIHandlerParams) (interface{}, error) {
+// WEB REST API used to get information on site sales for today
+func restGetSales(params *api.StructAPIHandlerParams) (interface{}, error) {
 	result := make(map[string]interface{})
 
 	currDate, _ := time.Parse("2006-01-02", time.Now().Format("2006-01-02"))
@@ -217,7 +222,8 @@ func restGetSales(params *api.T_APIHandlerParams) (interface{}, error) {
 	return result, nil
 }
 
-func restGetSalesDetails(params *api.T_APIHandlerParams) (interface{}, error) {
+// WEB REST API used to get information on site sales for a specified period
+func restGetSalesDetails(params *api.StructAPIHandlerParams) (interface{}, error) {
 	result := make(map[string]int)
 
 	// check request params
@@ -265,10 +271,11 @@ func restGetSalesDetails(params *api.T_APIHandlerParams) (interface{}, error) {
 	return result, nil
 }
 
-func restGetTopSellers(params *api.T_APIHandlerParams) (interface{}, error) {
+// WEB REST API used to get information on site top sellers
+func restGetTopSellers(params *api.StructAPIHandlerParams) (interface{}, error) {
 	result := make(map[string]*SellerInfo)
 
-	salesCollection, err := db.GetCollection(CollectionNameSales)
+	salesCollection, err := db.GetCollection(ConstCollectionNameRTSSales)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -287,12 +294,12 @@ func restGetTopSellers(params *api.T_APIHandlerParams) (interface{}, error) {
 		result[productID] = &SellerInfo{}
 		if _, ok := topSellers.Data[productID]; !ok {
 
-			product, err := product.LoadProductById(productID)
+			product, err := product.LoadProductByID(productID)
 			if err != nil {
 				return nil, env.ErrorDispatch(err)
 			}
 
-			productModel.SetId(productID)
+			productModel.SetID(productID)
 			mediaPath, err := productModel.GetMediaPath("image")
 			if err != nil {
 				return result, env.ErrorDispatch(err)
@@ -311,7 +318,8 @@ func restGetTopSellers(params *api.T_APIHandlerParams) (interface{}, error) {
 	return result, nil
 }
 
-func restGetVisitsRealtime(params *api.T_APIHandlerParams) (interface{}, error) {
+// WEB REST API used to get information on site real time visitors
+func restGetVisitsRealtime(params *api.StructAPIHandlerParams) (interface{}, error) {
 	result := make(map[string]interface{})
 	ratio := float64(0)
 

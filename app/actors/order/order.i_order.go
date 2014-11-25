@@ -13,12 +13,12 @@ import (
 	"github.com/ottemo/foundation/app/models/visitor"
 )
 
-// returns order items for current order
-func (it *DefaultOrder) GetItems() []order.I_OrderItem {
-	result := make([]order.I_OrderItem, 0)
+// GetItems returns order items for current order
+func (it *DefaultOrder) GetItems() []order.InterfaceOrderItem {
+	var result []order.InterfaceOrderItem
 
-	keys := make([]int, 0)
-	for key, _ := range it.Items {
+	var keys []int
+	for key := range it.Items {
 		keys = append(keys, key)
 	}
 
@@ -32,10 +32,10 @@ func (it *DefaultOrder) GetItems() []order.I_OrderItem {
 
 }
 
-// adds line item to current order, or returns error
-func (it *DefaultOrder) AddItem(productId string, qty int, productOptions map[string]interface{}) (order.I_OrderItem, error) {
+// AddItem adds line item to current order, or returns error
+func (it *DefaultOrder) AddItem(productID string, qty int, productOptions map[string]interface{}) (order.InterfaceOrderItem, error) {
 
-	productModel, err := product.LoadProductById(productId)
+	productModel, err := product.LoadProductByID(productID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -46,9 +46,9 @@ func (it *DefaultOrder) AddItem(productId string, qty int, productOptions map[st
 	}
 
 	newOrderItem := new(DefaultOrderItem)
-	newOrderItem.OrderId = it.GetId()
+	newOrderItem.OrderID = it.GetID()
 
-	err = newOrderItem.Set("product_id", productModel.GetId())
+	err = newOrderItem.Set("product_id", productModel.GetID())
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -88,14 +88,14 @@ func (it *DefaultOrder) AddItem(productId string, qty int, productOptions map[st
 		return nil, env.ErrorDispatch(err)
 	}
 
-	it.maxIdx += 1
+	it.maxIdx++
 	newOrderItem.idx = it.maxIdx
 	it.Items[newOrderItem.idx] = newOrderItem
 
 	return newOrderItem, nil
 }
 
-// removes line item from current order, or returns error
+// RemoveItem removes line item from current order, or returns error
 func (it *DefaultOrder) RemoveItem(itemIdx int) error {
 	if orderItem, present := it.Items[itemIdx]; present {
 
@@ -104,12 +104,12 @@ func (it *DefaultOrder) RemoveItem(itemIdx int) error {
 			return env.ErrorNew("can't get DB engine")
 		}
 
-		orderItemsCollection, err := dbEngine.GetCollection(COLLECTION_NAME_ORDER_ITEMS)
+		orderItemsCollection, err := dbEngine.GetCollection(ConstCollectionNameOrderItems)
 		if err != nil {
 			return env.ErrorDispatch(err)
 		}
 
-		err = orderItemsCollection.DeleteById(orderItem.GetId())
+		err = orderItemsCollection.DeleteByID(orderItem.GetID())
 		if err != nil {
 			return env.ErrorDispatch(err)
 		}
@@ -117,41 +117,41 @@ func (it *DefaultOrder) RemoveItem(itemIdx int) error {
 		delete(it.Items, itemIdx)
 
 		return nil
-	} else {
-		return env.ErrorNew("can't find index " + utils.InterfaceToString(itemIdx))
 	}
+
+	return env.ErrorNew("can't find index " + utils.InterfaceToString(itemIdx))
 }
 
-// assigns new unique increment id to order
-func (it *DefaultOrder) NewIncrementId() error {
-	lastIncrementIdMutex.Lock()
+// NewIncrementID assigns new unique increment id to order
+func (it *DefaultOrder) NewIncrementID() error {
+	lastIncrementIDMutex.Lock()
 
-	lastIncrementId += 1
-	it.IncrementId = fmt.Sprintf(INCREMENT_ID_FORMAT, lastIncrementId)
+	lastIncrementID++
+	it.IncrementID = fmt.Sprintf(ConstIncrementIDFormat, lastIncrementID)
 
-	env.GetConfig().SetValue(CONFIG_PATH_LAST_INCREMENT_ID, lastIncrementId)
+	env.GetConfig().SetValue(ConstConfigPathLastIncrementID, lastIncrementID)
 
-	lastIncrementIdMutex.Unlock()
+	lastIncrementIDMutex.Unlock()
 
 	return nil
 }
 
-// returns increment id of order
-func (it *DefaultOrder) GetIncrementId() string {
-	return it.IncrementId
+// GetIncrementID returns increment id of order
+func (it *DefaultOrder) GetIncrementID() string {
+	return it.IncrementID
 }
 
-// sets increment id to order
-func (it *DefaultOrder) SetIncrementId(incrementId string) error {
-	it.IncrementId = incrementId
+// SetIncrementID sets increment id to order
+func (it *DefaultOrder) SetIncrementID(incrementID string) error {
+	it.IncrementID = incrementID
 
 	return nil
 }
 
-// recalculates order Subtotal and GrandTotal
+// CalculateTotals recalculates order Subtotal and GrandTotal
 func (it *DefaultOrder) CalculateTotals() error {
 
-	var subtotal float64 = 0.0
+	var subtotal float64
 	for _, orderItem := range it.Items {
 		subtotal += utils.RoundPrice(orderItem.GetPrice() * float64(orderItem.GetQty()))
 	}
@@ -162,51 +162,51 @@ func (it *DefaultOrder) CalculateTotals() error {
 	return nil
 }
 
-// returns subtotal of order
+// GetSubtotal returns subtotal of order
 func (it *DefaultOrder) GetSubtotal() float64 {
 	return it.Subtotal
 }
 
-// returns grand total of order
+// GetGrandTotal returns grand total of order
 func (it *DefaultOrder) GetGrandTotal() float64 {
 	return it.GrandTotal
 }
 
-// returns discount amount applied to order
+// GetDiscountAmount returns discount amount applied to order
 func (it *DefaultOrder) GetDiscountAmount() float64 {
 	return it.Discount
 }
 
-// returns tax amount applied to order
+// GetTaxAmount returns tax amount applied to order
 func (it *DefaultOrder) GetTaxAmount() float64 {
 	return it.TaxAmount
 }
 
-// returns order shipping cost
+// GetShippingAmount returns order shipping cost
 func (it *DefaultOrder) GetShippingAmount() float64 {
 	return it.ShippingAmount
 }
 
-// returns shipping method for order
+// GetShippingMethod returns shipping method for order
 func (it *DefaultOrder) GetShippingMethod() string {
 	return it.ShippingMethod
 }
 
-// returns payment method used for order
+// GetPaymentMethod returns payment method used for order
 func (it *DefaultOrder) GetPaymentMethod() string {
 	return it.PaymentMethod
 }
 
-// returns shipping address for order
-func (it *DefaultOrder) GetShippingAddress() visitor.I_VisitorAddress {
+// GetShippingAddress returns shipping address for order
+func (it *DefaultOrder) GetShippingAddress() visitor.InterfaceVisitorAddress {
 	addressModel, _ := visitor.GetVisitorAddressModel()
 	addressModel.FromHashMap(it.ShippingAddress)
 
 	return addressModel
 }
 
-// returns billing address for order
-func (it *DefaultOrder) GetBillingAddress() visitor.I_VisitorAddress {
+// GetBillingAddress returns billing address for order
+func (it *DefaultOrder) GetBillingAddress() visitor.InterfaceVisitorAddress {
 	addressModel, _ := visitor.GetVisitorAddressModel()
 	addressModel.FromHashMap(it.BillingAddress)
 

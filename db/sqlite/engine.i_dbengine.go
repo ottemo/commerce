@@ -8,13 +8,13 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
-// returns current DB engine name
-func (it *SQLite) GetName() string {
+// GetName returns current DB engine name
+func (it *DBEngine) GetName() string {
 	return "Sqlite3"
 }
 
-// checks if collection(table) already exists
-func (it *SQLite) HasCollection(collectionName string) bool {
+// HasCollection checks if collection(table) already exists
+func (it *DBEngine) HasCollection(collectionName string) bool {
 	// collectionName = strings.ToLower(collectionName)
 
 	SQL := "SELECT name FROM sqlite_master WHERE type='table' AND name='" + collectionName + "'"
@@ -24,30 +24,31 @@ func (it *SQLite) HasCollection(collectionName string) bool {
 
 	if err == nil {
 		return true
-	} else {
-		return false
 	}
+
+	return false
 }
 
-// creates cllection(table) by it's name
-func (it *SQLite) CreateCollection(collectionName string) error {
+// CreateCollection creates cllection(table) by it's name
+func (it *DBEngine) CreateCollection(collectionName string) error {
 	// collectionName = strings.ToLower(collectionName)
 
 	SQL := "CREATE TABLE " + collectionName + " (_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL)"
-	if UUID_ID {
+	if ConstUseUUIDids {
 		SQL = "CREATE TABLE " + collectionName + " (_id NCHAR(24) PRIMARY KEY NOT NULL)"
 	}
 
-	if err := connectionExec(SQL); err == nil {
+	err := connectionExec(SQL)
+	if err == nil {
 		return nil
-	} else {
-		return env.ErrorDispatch(err)
 	}
+
+	return env.ErrorDispatch(err)
 }
 
-// returns collection(table) by name or creates new one
-func (it *SQLite) GetCollection(collectionName string) (db.I_DBCollection, error) {
-	if !SQL_NAME_VALIDATOR.MatchString(collectionName) {
+// GetCollection returns collection(table) by name or creates new one
+func (it *DBEngine) GetCollection(collectionName string) (db.InterfaceDBCollection, error) {
+	if !ConstSQLNameValidator.MatchString(collectionName) {
 		return nil, env.ErrorNew("not valid collection name for DB engine")
 	}
 
@@ -57,9 +58,9 @@ func (it *SQLite) GetCollection(collectionName string) (db.I_DBCollection, error
 		}
 	}
 
-	collection := &SQLiteCollection{
+	collection := &DBCollection{
 		Name:          collectionName,
-		FilterGroups:  make(map[string]*T_DBFilterGroup),
+		FilterGroups:  make(map[string]*StructDBFilterGroup),
 		Order:         make([]string, 0),
 		ResultColumns: make([]string, 0),
 	}
@@ -71,8 +72,8 @@ func (it *SQLite) GetCollection(collectionName string) (db.I_DBCollection, error
 	return collection, nil
 }
 
-// returns collection(table) by name or creates new one
-func (it *SQLite) RawQuery(query string) (map[string]interface{}, error) {
+// RawQuery returns collection(table) by name or creates new one
+func (it *DBEngine) RawQuery(query string) (map[string]interface{}, error) {
 
 	result := make([]map[string]interface{}, 0, 10)
 
@@ -88,7 +89,7 @@ func (it *SQLite) RawQuery(query string) (map[string]interface{}, error) {
 	for ; err == nil; err = stmt.Next() {
 		if err := stmt.Scan(row); err == nil {
 
-			if UUID_ID {
+			if ConstUseUUIDids {
 				if _, present := row["_id"]; present {
 					row["_id"] = strconv.FormatInt(row["_id"].(int64), 10)
 				}

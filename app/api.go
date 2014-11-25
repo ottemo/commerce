@@ -6,9 +6,9 @@ import (
 	"github.com/ottemo/foundation/utils"
 )
 
-// initializes API for tax
+// setupAPI setups package related API endpoint routines
 func setupAPI() error {
-	var err error = nil
+	var err error
 
 	err = api.GetRestService().RegisterAPI("app", "GET", "login", restLogin)
 	if err != nil {
@@ -31,7 +31,7 @@ func setupAPI() error {
 }
 
 // WEB REST API function login application with root rights
-func restLogin(params *api.T_APIHandlerParams) (interface{}, error) {
+func restLogin(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	var requestLogin string
 	var requestPassword string
@@ -55,11 +55,11 @@ func restLogin(params *api.T_APIHandlerParams) (interface{}, error) {
 		requestPassword = utils.InterfaceToString(reqData["password"])
 	}
 
-	rootLogin := utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_STORE_ROOT_LOGIN))
-	rootPassword := utils.InterfaceToString(env.ConfigGetValue(CONFIG_PATH_STORE_ROOT_PASSWORD))
+	rootLogin := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathStoreRootLogin))
+	rootPassword := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathStoreRootPassword))
 
 	if requestLogin == rootLogin && requestPassword == rootPassword {
-		params.Session.Set(api.SESSION_KEY_ADMIN_RIGHTS, true)
+		params.Session.Set(api.ConstSessionKeyAdminRights, true)
 
 		return "ok", nil
 	}
@@ -68,7 +68,7 @@ func restLogin(params *api.T_APIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API function logout application - session data clear
-func restLogout(params *api.T_APIHandlerParams) (interface{}, error) {
+func restLogout(params *api.StructAPIHandlerParams) (interface{}, error) {
 	err := params.Session.Close()
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
@@ -77,10 +77,10 @@ func restLogout(params *api.T_APIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API function to get info about current rights
-func restRightsInfo(params *api.T_APIHandlerParams) (interface{}, error) {
+func restRightsInfo(params *api.StructAPIHandlerParams) (interface{}, error) {
 	result := make(map[string]interface{})
 
-	result["is_admin"] = utils.InterfaceToBool(params.Session.Get(api.SESSION_KEY_ADMIN_RIGHTS))
+	result["is_admin"] = utils.InterfaceToBool(params.Session.Get(api.ConstSessionKeyAdminRights))
 
 	return result, nil
 }

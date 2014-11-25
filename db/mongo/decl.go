@@ -1,3 +1,5 @@
+// Package mongo is a DBEngine implementation of interfaces declared in
+// "github.com/ottemo/foundation/db" package
 package mongo
 
 import (
@@ -7,37 +9,41 @@ import (
 	"labix.org/v2/mgo/bson"
 )
 
+// Package global variables
 var (
-	attributeTypes      = make(map[string]map[string]string)
-	attributeTypesMutex sync.RWMutex
+	attributeTypes      = make(map[string]map[string]string) // cached values of collection attribute types
+	attributeTypesMutex sync.RWMutex                         // syncronization for attributeTypes modification
 )
 
+// Package global constants
 const (
-	MONGO_DEBUG = false
+	ConstMongoDebug = false // flag which indicates to perform log on each operation
 
-	FILTER_GROUP_STATIC  = "static"
-	FILTER_GROUP_DEFAULT = "default"
+	ConstFilterGroupStatic  = "static"  // name for static filter, ref. to AddStaticFilter(...)
+	ConstFilterGroupDefault = "default" // name for default filter, ref. to by AddFilter(...)
 
-	COLLECTION_NAME_COLUMN_INFO = "collection_column_info"
+	ConstCollectionNameColumnInfo = "collection_column_info" // collection name to hold Ottemo types of attributes
 )
 
-type T_DBFilterGroup struct {
+// StructDBFilterGroup is a structure to hold information of named collection filter
+type StructDBFilterGroup struct {
 	Name         string
 	FilterValues []bson.D
 	ParentGroup  string
 	OrSequence   bool
 }
 
-type MongoDBCollection struct {
+// DBCollection is a implementer of InterfaceDBCollection
+type DBCollection struct {
 	database   *mgo.Database
 	collection *mgo.Collection
 
-	subcollections []*MongoDBCollection
+	subcollections []*DBCollection
 	subresults     []*bson.Raw
 
 	Name string
 
-	FilterGroups map[string]*T_DBFilterGroup
+	FilterGroups map[string]*StructDBFilterGroup
 
 	Sort []string
 
@@ -47,7 +53,8 @@ type MongoDBCollection struct {
 	Offset int
 }
 
-type MongoDB struct {
+// DBEngine is a implementer of InterfaceDBEngine
+type DBEngine struct {
 	database *mgo.Database
 	session  *mgo.Session
 

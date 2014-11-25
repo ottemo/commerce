@@ -5,15 +5,15 @@ import (
 	"errors"
 )
 
-// encodes inputData to JSON string if it's possible
-func EncodeToJsonString(inputData interface{}) string {
+// EncodeToJSONString encodes inputData to JSON string if it's possible
+func EncodeToJSONString(inputData interface{}) string {
 	result, _ := json.Marshal(inputData)
 	return string(result)
 }
 
-// decodes json string to []interface{} if it's possible
-func DecodeJsonToArray(jsonData interface{}) ([]interface{}, error) {
-	result := make([]interface{}, 0)
+// DecodeJSONToArray decodes json string to []interface{} if it's possible
+func DecodeJSONToArray(jsonData interface{}) ([]interface{}, error) {
+	var result []interface{}
 
 	var err error
 	switch value := jsonData.(type) {
@@ -28,8 +28,8 @@ func DecodeJsonToArray(jsonData interface{}) ([]interface{}, error) {
 	return result, err
 }
 
-// decodes json string to map[string]interface{} if it's possible
-func DecodeJsonToStringKeyMap(jsonData interface{}) (map[string]interface{}, error) {
+// DecodeJSONToStringKeyMap decodes json string to map[string]interface{} if it's possible
+func DecodeJSONToStringKeyMap(jsonData interface{}) (map[string]interface{}, error) {
 
 	result := make(map[string]interface{})
 

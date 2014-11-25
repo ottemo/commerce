@@ -13,7 +13,7 @@ import (
 func parseErrorMessage(message string) *OttemoError {
 	resultError := new(OttemoError)
 
-	reResult := MSG_REGEXP.FindStringSubmatch(message)
+	reResult := ConstMsgRegexp.FindStringSubmatch(message)
 
 	if level, err := strconv.ParseInt(reResult[1], 10, 64); err == nil {
 		resultError.Level = int(level)
@@ -29,7 +29,7 @@ func parseErrorMessage(message string) *OttemoError {
 	}
 
 	// primitive stack trace
-	if COLLECT_STACK {
+	if ConstCollectStack {
 		cutStopFlag := false
 		skip := 0
 		_, file, line, ok := runtime.Caller(skip)
@@ -39,7 +39,7 @@ func parseErrorMessage(message string) *OttemoError {
 				resultError.Stack += file + ":" + strconv.Itoa(line) + "\n"
 			}
 
-			skip += 1
+			skip++
 			_, file, line, ok = runtime.Caller(skip)
 		}
 	}
@@ -47,7 +47,7 @@ func parseErrorMessage(message string) *OttemoError {
 	return resultError
 }
 
-// returns error level
+// GetErrorLevel returns error level
 func (it *DefaultErrorBus) GetErrorLevel(err error) int {
 	if ottemoErr, ok := err.(*OttemoError); ok {
 		return ottemoErr.Level
@@ -55,7 +55,7 @@ func (it *DefaultErrorBus) GetErrorLevel(err error) int {
 	return parseErrorMessage(err.Error()).Level
 }
 
-// returns errors code
+// GetErrorCode returns errors code
 func (it *DefaultErrorBus) GetErrorCode(err error) string {
 	if ottemoErr, ok := err.(*OttemoError); ok {
 		return ottemoErr.Code
@@ -63,7 +63,7 @@ func (it *DefaultErrorBus) GetErrorCode(err error) string {
 	return parseErrorMessage(err.Error()).Code
 }
 
-// returns error message
+// GetErrorMessage returns error message
 func (it *DefaultErrorBus) GetErrorMessage(err error) string {
 	if ottemoErr, ok := err.(*OttemoError); ok {
 		return ottemoErr.Message
@@ -71,17 +71,17 @@ func (it *DefaultErrorBus) GetErrorMessage(err error) string {
 	return err.Error()
 }
 
-// registers error listener
-func (it *DefaultErrorBus) RegisterListener(listener env.F_ErrorListener) {
+// RegisterListener registers error listener
+func (it *DefaultErrorBus) RegisterListener(listener env.FuncErrorListener) {
 	it.listeners = append(it.listeners, listener)
 }
 
-// creates and processes OttemoError
+// New creates and processes OttemoError
 func (it *DefaultErrorBus) New(message string) error {
 	return it.Dispatch(parseErrorMessage(message))
 }
 
-// converts regular error to OttemoError and passes it through registered listeners
+// Dispatch converts regular error to OttemoError and passes it through registered listeners
 func (it *DefaultErrorBus) Dispatch(err error) error {
 	if err == nil {
 		return err

@@ -9,28 +9,21 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
-//---------------------------------
-// IMPLEMENTATION SPECIFIC METHODS
-//---------------------------------
-
-// updates path attribute of model
+// updatePath is an internal function used to update "path" attribute of object
 func (it *DefaultCategory) updatePath() {
-	if it.GetId() == "" {
+	if it.GetID() == "" {
 		it.Path = ""
 	} else if it.Parent != nil {
 		parentPath, ok := it.Parent.Get("path").(string)
 		if ok {
-			it.Path = parentPath + "/" + it.GetId()
+			it.Path = parentPath + "/" + it.GetID()
 		}
 	} else {
-		it.Path = "/" + it.GetId()
+		it.Path = "/" + it.GetID()
 	}
 }
 
-//--------------------------
-// INTERFACE IMPLEMENTATION
-//--------------------------
-
+// Get returns object attribute value or nil
 func (it *DefaultCategory) Get(attribute string) interface{} {
 	switch strings.ToLower(attribute) {
 	case "_id", "id":
@@ -47,16 +40,15 @@ func (it *DefaultCategory) Get(attribute string) interface{} {
 
 	case "parent_id":
 		if it.Parent != nil {
-			return it.Parent.GetId()
-		} else {
-			return ""
+			return it.Parent.GetID()
 		}
+		return ""
 
 	case "parent":
 		return it.Parent
 
 	case "products":
-		result := make([]map[string]interface{}, 0)
+		var result []map[string]interface{}
 
 		for _, categoryProduct := range it.GetProducts() {
 			result = append(result, categoryProduct.ToHashMap())
@@ -68,6 +60,7 @@ func (it *DefaultCategory) Get(attribute string) interface{} {
 	return nil
 }
 
+// Set sets attribute value to object or returns error
 func (it *DefaultCategory) Set(attribute string, value interface{}) error {
 	attribute = strings.ToLower(attribute)
 
@@ -86,7 +79,7 @@ func (it *DefaultCategory) Set(attribute string, value interface{}) error {
 				if err != nil {
 					return env.ErrorDispatch(err)
 				}
-				categoryModel, ok := model.(category.I_Category)
+				categoryModel, ok := model.(category.InterfaceCategory)
 				if !ok {
 					return env.ErrorNew("unsupported category model " + model.GetImplementationName())
 				}
@@ -96,10 +89,10 @@ func (it *DefaultCategory) Set(attribute string, value interface{}) error {
 					return env.ErrorDispatch(err)
 				}
 
-				selfId := it.GetId()
-				if selfId != "" {
+				selfID := it.GetID()
+				if selfID != "" {
 					parentPath, ok := categoryModel.Get("path").(string)
-					if categoryModel.GetId() != selfId && ok && !strings.Contains(parentPath, selfId) {
+					if categoryModel.GetID() != selfID && ok && !strings.Contains(parentPath, selfID) {
 						it.Parent = categoryModel
 					} else {
 						return env.ErrorNew("category can't have sub-category or itself as parent")
@@ -117,7 +110,7 @@ func (it *DefaultCategory) Set(attribute string, value interface{}) error {
 
 	case "parent":
 		switch value := value.(type) {
-		case category.I_Category:
+		case category.InterfaceCategory:
 			it.Parent = value
 		case string:
 			it.Set("parent_id", value)
@@ -132,21 +125,21 @@ func (it *DefaultCategory) Set(attribute string, value interface{}) error {
 
 		case []interface{}:
 			for _, listItem := range typedValue {
-				productId, ok := listItem.(string)
+				productID, ok := listItem.(string)
 				if ok {
-					productModel, err := product.LoadProductById(productId)
+					productModel, err := product.LoadProductByID(productID)
 					if err != nil {
 						return env.ErrorDispatch(err)
 					}
 
-					it.ProductIds = append(it.ProductIds, productModel.GetId())
+					it.ProductIds = append(it.ProductIds, productModel.GetID())
 				}
 			}
 
-		case []product.I_Product:
+		case []product.InterfaceProduct:
 			it.ProductIds = make([]string, 0)
 			for _, productItem := range typedValue {
-				it.ProductIds = append(it.ProductIds, productItem.GetId())
+				it.ProductIds = append(it.ProductIds, productItem.GetID())
 			}
 
 		default:
@@ -156,6 +149,7 @@ func (it *DefaultCategory) Set(attribute string, value interface{}) error {
 	return nil
 }
 
+// FromHashMap fills object attributes from map[string]interface{}
 func (it *DefaultCategory) FromHashMap(input map[string]interface{}) error {
 
 	for attribute, value := range input {
@@ -167,6 +161,7 @@ func (it *DefaultCategory) FromHashMap(input map[string]interface{}) error {
 	return nil
 }
 
+// ToHashMap represents object as map[string]interface{}
 func (it *DefaultCategory) ToHashMap() map[string]interface{} {
 
 	result := make(map[string]interface{})
@@ -181,10 +176,11 @@ func (it *DefaultCategory) ToHashMap() map[string]interface{} {
 	return result
 }
 
-func (it *DefaultCategory) GetAttributesInfo() []models.T_AttributeInfo {
+// GetAttributesInfo returns information about object attributes
+func (it *DefaultCategory) GetAttributesInfo() []models.StructAttributeInfo {
 
-	info := []models.T_AttributeInfo{
-		models.T_AttributeInfo{
+	info := []models.StructAttributeInfo{
+		models.StructAttributeInfo{
 			Model:      "Category",
 			Collection: "Category",
 			Attribute:  "_id",
@@ -197,7 +193,7 @@ func (it *DefaultCategory) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
+		models.StructAttributeInfo{
 			Model:      "Category",
 			Collection: "Category",
 			Attribute:  "name",
@@ -210,7 +206,7 @@ func (it *DefaultCategory) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
+		models.StructAttributeInfo{
 			Model:      "Category",
 			Collection: "Category",
 			Attribute:  "parent_id",
@@ -223,7 +219,7 @@ func (it *DefaultCategory) GetAttributesInfo() []models.T_AttributeInfo {
 			Options:    "",
 			Default:    "",
 		},
-		models.T_AttributeInfo{
+		models.StructAttributeInfo{
 			Model:      "Category",
 			Collection: "Category",
 			Attribute:  "products",

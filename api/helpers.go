@@ -10,15 +10,15 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
-// returns session instance by id or nil
-func GetSessionById(sessionId string) I_Session {
-	session, _ := session.GetSessionById(sessionId)
+// GetSessionByID returns session instance by id or nil
+func GetSessionByID(sessionID string) InterfaceSession {
+	session, _ := session.GetSessionByID(sessionID)
 	return session
 }
 
-// returns true if admin rights allowed for current session
-func ValidateAdminRights(params *T_APIHandlerParams) error {
-	if value := params.Session.Get(SESSION_KEY_ADMIN_RIGHTS); value != nil {
+// ValidateAdminRights returns nil if admin rights allowed for current session
+func ValidateAdminRights(params *StructAPIHandlerParams) error {
+	if value := params.Session.Get(ConstSessionKeyAdminRights); value != nil {
 		if value.(bool) == true {
 			return nil
 		}
@@ -27,23 +27,22 @@ func ValidateAdminRights(params *T_APIHandlerParams) error {
 	return env.ErrorNew("no admin rights")
 }
 
-// tries to represent HTTP request content in map[string]interface{} format
-func GetRequestContentAsMap(params *T_APIHandlerParams) (map[string]interface{}, error) {
+// GetRequestContentAsMap tries to represent HTTP request content in map[string]interface{} format
+func GetRequestContentAsMap(params *StructAPIHandlerParams) (map[string]interface{}, error) {
 
 	result, ok := params.RequestContent.(map[string]interface{})
 	if !ok {
 		if params.Request.Method == "POST" {
 			return nil, env.ErrorNew("unexpected request content")
-		} else {
-			result = make(map[string]interface{})
 		}
+		result = make(map[string]interface{})
 	}
 
 	return result, nil
 }
 
-// modifies collection with applying filters from request URL
-func ApplyFilters(params *T_APIHandlerParams, collection db.I_DBCollection) error {
+// ApplyFilters modifies collection with applying filters from request URL
+func ApplyFilters(params *StructAPIHandlerParams, collection db.InterfaceDBCollection) error {
 
 	for attributeName, attributeValue := range params.RequestGETParams {
 		switch attributeName {
@@ -105,11 +104,11 @@ func ApplyFilters(params *T_APIHandlerParams, collection db.I_DBCollection) erro
 	return nil
 }
 
-// returns (offset, limit, error) values based on request string value
+// GetListLimit returns (offset, limit, error) values based on request string value
 //   "1,2" will return offset: 1, limit: 2, error: nil
 //   "2" will return offset: 0, limit: 2, error: nil
 //   "something wrong" will return offset: 0, limit: 0, error: [error msg]
-func GetListLimit(params *T_APIHandlerParams) (int, int) {
+func GetListLimit(params *StructAPIHandlerParams) (int, int) {
 	limitValue := ""
 
 	if value, isLimit := params.RequestURLParams["limit"]; isLimit {

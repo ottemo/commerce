@@ -6,13 +6,13 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
-// GetId returns current ID of the Visitor
-func (it *DefaultVisitor) GetId() string {
+// GetID returns current ID of the Visitor
+func (it *DefaultVisitor) GetID() string {
 	return it.id
 }
 
-// SetId sets current ID of the current Visitor
-func (it *DefaultVisitor) SetId(NewID string) error {
+// SetID sets current ID of the current Visitor
+func (it *DefaultVisitor) SetID(NewID string) error {
 	it.id = NewID
 	return nil
 }
@@ -20,12 +20,12 @@ func (it *DefaultVisitor) SetId(NewID string) error {
 // Load will retrieve the Visitor information from database
 func (it *DefaultVisitor) Load(ID string) error {
 
-	collection, err := db.GetCollection(COLLECTION_NAME_VISITOR)
+	collection, err := db.GetCollection(ConstCollectionNameVisitor)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	values, err := collection.LoadById(ID)
+	values, err := collection.LoadByID(ID)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -41,21 +41,21 @@ func (it *DefaultVisitor) Load(ID string) error {
 // Delete removes current Visitor from the database
 func (it *DefaultVisitor) Delete() error {
 
-	collection, err := db.GetCollection(COLLECTION_NAME_VISITOR)
+	collection, err := db.GetCollection(ConstCollectionNameVisitor)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	addressCollection, err := db.GetCollection(address.COLLECTION_NAME_VISITOR_ADDRESS)
+	addressCollection, err := db.GetCollection(address.ConstCollectionNameVisitorAddress)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	addressCollection.AddFilter("visitor_id", "=", it.GetId())
+	addressCollection.AddFilter("visitor_id", "=", it.GetID())
 	if _, err := addressCollection.Delete(); err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = collection.DeleteById(it.GetId())
+	err = collection.DeleteByID(it.GetID())
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -66,12 +66,12 @@ func (it *DefaultVisitor) Delete() error {
 // Save stores current Visitor to the database
 func (it *DefaultVisitor) Save() error {
 
-	collection, err := db.GetCollection(COLLECTION_NAME_VISITOR)
+	collection, err := db.GetCollection(ConstCollectionNameVisitor)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	if it.GetId() == "" {
+	if it.GetID() == "" {
 		collection.AddFilter("email", "=", it.GetEmail())
 		n, err := collection.Count()
 		if err != nil {
@@ -91,8 +91,8 @@ func (it *DefaultVisitor) Save() error {
 		return env.ErrorNew("password can't be blank")
 	}*/
 
-	storableValues["facebook_id"] = it.FacebookId
-	storableValues["google_id"] = it.GoogleId
+	storableValues["facebook_id"] = it.FacebookID
+	storableValues["google_id"] = it.GoogleID
 	storableValues["password"] = it.Password
 	storableValues["validate"] = it.ValidateKey
 
@@ -103,7 +103,7 @@ func (it *DefaultVisitor) Save() error {
 			return env.ErrorDispatch(err)
 		}
 
-		storableValues["shipping_address_id"] = it.ShippingAddress.GetId()
+		storableValues["shipping_address_id"] = it.ShippingAddress.GetID()
 	}
 
 	// billing address save
@@ -113,7 +113,7 @@ func (it *DefaultVisitor) Save() error {
 			return env.ErrorDispatch(err)
 		}
 
-		storableValues["billing_address_id"] = it.BillingAddress.GetId()
+		storableValues["billing_address_id"] = it.BillingAddress.GetID()
 	}
 
 	// saving visitor

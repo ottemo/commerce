@@ -5,45 +5,45 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
-// retrieves current I_CMSPageCollection model implementation
-func GetCMSPageCollectionModel() (I_CMSPageCollection, error) {
-	model, err := models.GetModel(MODEL_NAME_CMS_PAGE_COLLECTION)
+// GetCMSPageCollectionModel retrieves current InterfaceCMSPageCollection model implementation
+func GetCMSPageCollectionModel() (InterfaceCMSPageCollection, error) {
+	model, err := models.GetModel(ConstModelNameCMSPageCollection)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	cmsPageCollectionModel, ok := model.(I_CMSPageCollection)
+	cmsPageCollectionModel, ok := model.(InterfaceCMSPageCollection)
 	if !ok {
-		return nil, env.ErrorNew("model " + model.GetImplementationName() + " is not 'I_CMSPageCollection' capable")
+		return nil, env.ErrorNew("model " + model.GetImplementationName() + " is not 'InterfaceCMSPageCollection' capable")
 	}
 
 	return cmsPageCollectionModel, nil
 }
 
-// retrieves current I_CMSPage model implementation
-func GetCMSPageModel() (I_CMSPage, error) {
-	model, err := models.GetModel(MODEL_NAME_CMS_PAGE)
+// GetCMSPageModel retrieves current InterfaceCMSPage model implementation
+func GetCMSPageModel() (InterfaceCMSPage, error) {
+	model, err := models.GetModel(ConstModelNameCMSPage)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	cmsPageModel, ok := model.(I_CMSPage)
+	cmsPageModel, ok := model.(InterfaceCMSPage)
 	if !ok {
-		return nil, env.ErrorNew("model " + model.GetImplementationName() + " is not 'I_CMSPage' capable")
+		return nil, env.ErrorNew("model " + model.GetImplementationName() + " is not 'InterfaceCMSPage' capable")
 	}
 
 	return cmsPageModel, nil
 }
 
-// retrieves current I_CMSPage model implementation and sets its ID to some value
-func GetCMSPageModelAndSetId(cmsPageId string) (I_CMSPage, error) {
+// GetCMSPageModelAndSetID retrieves current InterfaceCMSPage model implementation and sets its ID to some value
+func GetCMSPageModelAndSetID(cmsPageID string) (InterfaceCMSPage, error) {
 
 	cmsPageModel, err := GetCMSPageModel()
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	err = cmsPageModel.SetId(cmsPageId)
+	err = cmsPageModel.SetID(cmsPageID)
 	if err != nil {
 		return cmsPageModel, env.ErrorDispatch(err)
 	}
@@ -51,15 +51,15 @@ func GetCMSPageModelAndSetId(cmsPageId string) (I_CMSPage, error) {
 	return cmsPageModel, nil
 }
 
-// loads cmsPage data into current I_CMSPage model implementation
-func LoadCMSPageById(cmsPageId string) (I_CMSPage, error) {
+// LoadCMSPageByID loads cmsPage data into current InterfaceCMSPage model implementation
+func LoadCMSPageByID(cmsPageID string) (InterfaceCMSPage, error) {
 
 	cmsPageModel, err := GetCMSPageModel()
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	err = cmsPageModel.Load(cmsPageId)
+	err = cmsPageModel.Load(cmsPageID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -67,16 +67,16 @@ func LoadCMSPageById(cmsPageId string) (I_CMSPage, error) {
 	return cmsPageModel, nil
 }
 
-// retrieves current I_CMSBlockCollection model implementation
-func GetCMSBlockCollectionModel() (I_CMSBlockCollection, error) {
-	model, err := models.GetModel(MODEL_NAME_CMS_BLOCK_COLLECTION)
+// GetCMSBlockCollectionModel retrieves current InterfaceCMSBlockCollection model implementation
+func GetCMSBlockCollectionModel() (InterfaceCMSBlockCollection, error) {
+	model, err := models.GetModel(ConstModelNameCMSBlockCollection)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	csmBlockCollectionModel, ok := model.(I_CMSBlockCollection)
+	csmBlockCollectionModel, ok := model.(InterfaceCMSBlockCollection)
 	if !ok {
-		return nil, env.ErrorNew("model " + model.GetImplementationName() + " is not 'I_CMSBlockCollection' capable")
+		return nil, env.ErrorNew("model " + model.GetImplementationName() + " is not 'InterfaceCMSBlockCollection' capable")
 	}
 
 	return csmBlockCollectionModel, nil
@@ -85,30 +85,30 @@ func GetCMSBlockCollectionModel() (I_CMSBlockCollection, error) {
 // CMS Block helpers
 //------------------
 
-// retrieves current I_CMSBlock model implementation
-func GetCMSBlockModel() (I_CMSBlock, error) {
-	model, err := models.GetModel(MODEL_NAME_CMS_BLOCK)
+// GetCMSBlockModel retrieves current InterfaceCMSBlock model implementation
+func GetCMSBlockModel() (InterfaceCMSBlock, error) {
+	model, err := models.GetModel(ConstModelNameCMSBlock)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	csmBlockModel, ok := model.(I_CMSBlock)
+	csmBlockModel, ok := model.(InterfaceCMSBlock)
 	if !ok {
-		return nil, env.ErrorNew("model " + model.GetImplementationName() + " is not 'I_CMSBlock' capable")
+		return nil, env.ErrorNew("model " + model.GetImplementationName() + " is not 'InterfaceCMSBlock' capable")
 	}
 
 	return csmBlockModel, nil
 }
 
-// retrieves current I_CMSBlock model implementation and sets its ID to some value
-func GetCMSBlockModelAndSetId(csmBlockId string) (I_CMSBlock, error) {
+// GetCMSBlockModelAndSetID retrieves current InterfaceCMSBlock model implementation and sets its ID to some value
+func GetCMSBlockModelAndSetID(csmBlockID string) (InterfaceCMSBlock, error) {
 
 	csmBlockModel, err := GetCMSBlockModel()
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	err = csmBlockModel.SetId(csmBlockId)
+	err = csmBlockModel.SetID(csmBlockID)
 	if err != nil {
 		return csmBlockModel, env.ErrorDispatch(err)
 	}
@@ -116,15 +116,15 @@ func GetCMSBlockModelAndSetId(csmBlockId string) (I_CMSBlock, error) {
 	return csmBlockModel, nil
 }
 
-// loads csmBlock data into current I_CMSBlock model implementation
-func LoadCMSBlockById(csmBlockId string) (I_CMSBlock, error) {
+// LoadCMSBlockByID loads csmBlock data into current InterfaceCMSBlock model implementation
+func LoadCMSBlockByID(csmBlockID string) (InterfaceCMSBlock, error) {
 
 	csmBlockModel, err := GetCMSBlockModel()
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	err = csmBlockModel.Load(csmBlockId)
+	err = csmBlockModel.Load(csmBlockID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
