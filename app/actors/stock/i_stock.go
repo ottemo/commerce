@@ -1,16 +1,10 @@
 package stock
 
 import (
-	"github.com/ottemo/foundation/app/models/cart"
 	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
 )
-
-// ValidateCart checks cart items qty to be available
-func (it *DefaultStock) ValidateCart(cart.InterfaceCart) (bool, error) {
-	return true, nil
-}
 
 // GetProductQty returns stock qty for a requested product-options pair
 func (it *DefaultStock) GetProductQty(productID string, options map[string]interface{}) float64 {

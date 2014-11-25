@@ -31,6 +31,8 @@ type InterfaceCartItem interface {
 	GetOptions() map[string]interface{}
 	SetOption(optionName string, optionValue interface{}) error
 
+	ValidateProduct() error
+
 	GetCart() InterfaceCart
 }
 
@@ -59,6 +61,8 @@ type InterfaceCart interface {
 
 	SetCartInfo(infoAttribute string, infoValue interface{}) error
 	GetCartInfo() map[string]interface{}
+
+	ValidateCart() error
 
 	models.InterfaceModel
 	models.InterfaceStorable

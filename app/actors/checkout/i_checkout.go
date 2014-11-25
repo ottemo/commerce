@@ -264,6 +264,10 @@ func (it *DefaultCheckout) Submit() (interface{}, error) {
 		return nil, env.ErrorNew("Cart have no products inside")
 	}
 
+	if err := currentCart.ValidateCart(); err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
 	// making new order if needed
 	//---------------------------
 	currentTime := time.Now()

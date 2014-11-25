@@ -2,7 +2,7 @@ package stock
 
 import (
 	"github.com/ottemo/foundation/api"
-	"github.com/ottemo/foundation/app/models/checkout"
+	"github.com/ottemo/foundation/app/models/product"
 	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
@@ -74,7 +74,7 @@ func restStockGet(params *api.StructAPIHandlerParams) (interface{}, error) {
 		return nil, env.ErrorNew("unexpected request content")
 	}
 
-	stockManager := checkout.GetRegisteredStock()
+	stockManager := product.GetRegisteredStock()
 	if stockManager == nil {
 		return nil, env.ErrorNew("no registered stock manager")
 	}
@@ -95,7 +95,7 @@ func restStockSet(params *api.StructAPIHandlerParams) (interface{}, error) {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	stockManager := checkout.GetRegisteredStock()
+	stockManager := product.GetRegisteredStock()
 	if stockManager == nil {
 		return nil, env.ErrorNew("no registered stock manager")
 	}
@@ -118,7 +118,7 @@ func restStockUpdate(params *api.StructAPIHandlerParams) (interface{}, error) {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	stockManager := checkout.GetRegisteredStock()
+	stockManager := product.GetRegisteredStock()
 	if stockManager == nil {
 		return nil, env.ErrorNew("no registered stock manager")
 	}
@@ -141,7 +141,7 @@ func restStockRemove(params *api.StructAPIHandlerParams) (interface{}, error) {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	stockManager := checkout.GetRegisteredStock()
+	stockManager := product.GetRegisteredStock()
 	if stockManager == nil {
 		return nil, env.ErrorNew("no registered stock manager")
 	}

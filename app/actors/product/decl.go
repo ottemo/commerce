@@ -16,6 +16,8 @@ const (
 type DefaultProduct struct {
 	id string
 
+	Enabled bool
+
 	Sku  string
 	Name string
 
@@ -28,9 +30,17 @@ type DefaultProduct struct {
 
 	Weight float64
 
+	Qty float64
+
 	Options map[string]interface{}
 
 	RelatedProductIds []string
+
+	// appliedOptions tracks options were applied to current instance
+	appliedOptions map[string]interface{}
+
+	// qtyWasUpdated sets to true in Set('qty') operation, so only then we need to save it
+	qtyWasUpdated bool
 
 	*attributes.CustomAttributes
 }

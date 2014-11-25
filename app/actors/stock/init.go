@@ -2,7 +2,7 @@ package stock
 
 import (
 	"github.com/ottemo/foundation/api"
-	"github.com/ottemo/foundation/app/models/checkout"
+	"github.com/ottemo/foundation/app/models/product"
 	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/env"
 )
@@ -11,12 +11,12 @@ import (
 func init() {
 
 	instance := new(DefaultStock)
-	var _ checkout.InterfaceStock = instance
+	var _ product.InterfaceStock = instance
 
 	api.RegisterOnRestServiceStart(setupAPI)
 	db.RegisterOnDatabaseStart(setupDB)
 
-	checkout.RegisterStock(instance)
+	product.RegisterStock(instance)
 }
 
 // setupDB prepares system database for package usage

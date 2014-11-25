@@ -6,9 +6,8 @@ package stock
 const (
 	ConstCollectionNameStock = "stock"
 
-	ConstConfigPathGroup      = "payment.stock"
-	ConstConfigPathEnabled    = "payment.stock.enabled"
-	ConstConfigPathBackorders = "payment.stock.backorders"
+	ConstConfigPathGroup   = "payment.stock"
+	ConstConfigPathEnabled = "payment.stock.enabled"
 )
 
 // DefaultStock is a default implementer of InterfaceStock

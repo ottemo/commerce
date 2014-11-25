@@ -2,8 +2,10 @@ package cart
 
 import (
 	"github.com/ottemo/foundation/app/models/cart"
+	"github.com/ottemo/foundation/app/models/checkout"
 	"github.com/ottemo/foundation/app/models/product"
 	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/foundation/utils"
 )
 
 // GetID returns id of cart item
@@ -70,6 +72,10 @@ func (it *DefaultCartItem) SetQty(qty int) error {
 		return env.ErrorNew("qty must be greater then 0")
 	}
 
+	if err := it.ValidateProduct(); err != nil {
+		return err
+	}
+
 	it.Cart.cartChanged()
 
 	return nil
@@ -104,4 +110,26 @@ func (it *DefaultCartItem) SetOption(optionName string, optionValue interface{})
 // GetCart returns cart that item belongs to
 func (it *DefaultCartItem) GetCart() cart.InterfaceCart {
 	return it.Cart
+}
+
+// ValidateProduct checks that cart product is existent and have available qty
+func (it *DefaultCartItem) ValidateProduct() error {
+	cartProduct := it.GetProduct()
+	if cartProduct == nil {
+		return env.ErrorNew("product " + it.GetProductID() + " is not exists currently")
+	}
+
+	err := cartProduct.ApplyOptions(it.Options)
+	if err != nil {
+		return err
+	}
+
+	allowBackorders := utils.InterfaceToBool(env.ConfigGetValue(checkout.ConstConfigPathBackorders))
+	if !allowBackorders && product.GetRegisteredStock() != nil {
+		if qty := cartProduct.GetQty(); qty <= 0 {
+			return env.ErrorNew("item out of stock")
+		}
+	}
+
+	return nil
 }

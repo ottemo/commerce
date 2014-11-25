@@ -13,6 +13,8 @@ const (
 
 // InterfaceProduct represents interface to access business layer implementation of product object
 type InterfaceProduct interface {
+	GetEnabled() bool
+
 	GetSku() string
 	GetName() string
 
@@ -24,8 +26,12 @@ type InterfaceProduct interface {
 	GetPrice() float64
 	GetWeight() float64
 
-	ApplyOptions(map[string]interface{}) error
+	GetQty() float64
+
+	GetAppliedOptions() map[string]interface{}
 	GetOptions() map[string]interface{}
+
+	ApplyOptions(map[string]interface{}) error
 
 	models.InterfaceModel
 	models.InterfaceObject
@@ -40,4 +46,13 @@ type InterfaceProductCollection interface {
 	ListProducts() []InterfaceProduct
 
 	models.InterfaceCollection
+}
+
+// InterfaceStock represents interface to access business layer implementation of stock management
+type InterfaceStock interface {
+	SetProductQty(productID string, options map[string]interface{}, qty float64) error
+	GetProductQty(productID string, options map[string]interface{}) float64
+
+	RemoveProductQty(productID string, options map[string]interface{}) error
+	UpdateProductQty(productID string, options map[string]interface{}, deltaQty float64) error
 }

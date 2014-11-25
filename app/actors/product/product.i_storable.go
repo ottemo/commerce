@@ -1,6 +1,7 @@
 package product
 
 import (
+	"github.com/ottemo/foundation/app/models/product"
 	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/env"
 )
@@ -49,6 +50,11 @@ func (it *DefaultProduct) Delete() error {
 		return env.ErrorDispatch(err)
 	}
 
+	// stock management stuff
+	if stockManager := product.GetRegisteredStock(); stockManager != nil {
+		stockManager.RemoveProductQty(it.GetID(), make(map[string]interface{}))
+	}
+
 	return nil
 }
 
@@ -67,6 +73,11 @@ func (it *DefaultProduct) Save() error {
 	err = it.SetID(newID)
 	if err != nil {
 		return env.ErrorDispatch(err)
+	}
+
+	// stock management stuff
+	if stockManager := product.GetRegisteredStock(); it.qtyWasUpdated && stockManager != nil {
+		stockManager.SetProductQty(it.GetID(), it.GetAppliedOptions(), it.Qty)
 	}
 
 	return nil

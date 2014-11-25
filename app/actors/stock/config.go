@@ -1,6 +1,7 @@
 package stock
 
 import (
+	"github.com/ottemo/foundation/app/models/checkout"
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
 )
@@ -39,7 +40,7 @@ func setupConfig() error {
 		}
 
 		config.RegisterItem(env.StructConfigItem{
-			Path:        ConstConfigPathBackorders,
+			Path:        checkout.ConstConfigPathBackorders,
 			Value:       false,
 			Type:        "bool",
 			Editor:      "boolean",
