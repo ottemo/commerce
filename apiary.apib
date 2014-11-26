@@ -1,50 +1,101 @@
 FORMAT: 1A
-HOST: http://foundation.dev.ottemo.io
+HOST: http://foundation.demo.ottemo.io
 
 # Ottemo Foundation Server API
-#### Formate 1A revision 1
+#### Format 1A revision 1
 **Ottemo Foundation Server** is the API Server for the Ottemo eCommerce solution.
 
-NOTE: Some services are RESTful and others are not, expect change with each new release of Ottemo Foundation.
+NOTE: Some services are RESTful and others are not, expect change with each new release of Ottemo Foundation Server.
 
-# Group Notes
-Notes related resources of the **Notes API**
 
-## Notes Collection [/notes]
-### List all Notes [GET]
-+ Response 200 (application/json)
+# Group Visitor
+A Visitor in Ottemo is any authenticated and unauthenticated web site visitor.  The following are the available resources of the **Visitor API**.
 
-        [{
-          "id": 1, "title": "Jogging in park"
-        }, {
-          "id": 2, "title": "Pick-up posters from post-office"
-        }]
-
-### Create a Note [POST]
+## Visitor [/visitor/create]
+### Create a Visitor [POST]
 + Request (application/json)
 
-        { "title": "Buy cheese and bread for breakfast." }
+    { "facebook_id":"","google_id":"","email":"jamesdoe@ottemo.io","fname":"James","lname":"Doe","password":"P@ssw0rd","billing_address":{},"shipping_address":{},"birthday":"02/12/1971" }
 
 + Response 201 (application/json)
+    { "error":"","redirect":"","result":{"_id":"54751590a9fc9f132678c696","billing_address":null,"birthday":"1971-12-02T00:00:00Z","created_at":"2014-11-25T18:49:36.399279015-05:00","email":"jamesdoe@ottemo.io","facebook_id":"","first_name":"James","google_id":"","is_admin":false,"last_name":"Doe","password":"a78e27495e6dd8c7b7c9fa53e72c9df3","shipping_address":null,"validate":"415141414141374d42777951474169716a2f3755"} }
 
-        { "id": 3, "title": "Buy cheese and bread for breakfast." }
+## Retrieve Visitor [/visitor/load/{id}]
+### Update Visitor attributes [GET]
++ Request (application/json)
 
-## Note [/notes/{id}]
-A single Note object with all its details
+    { "id":"54751590a9fc9f132678c747" }
 
-+ Parameters
-    + id (required, number, `1`) ... Numeric `id` of the Note to perform action with. Has example value.
++ Response 201
+    { "error":"","redirect":"","result":{R[MaR[MaR[M`R[M`R"_id":"54751590a9fc9f132678c747","billing_address":null,"birthday":"1991-12-02T00:00:00Z","created_at":"2014-11-25T18:49:36.399279015-05:00","email":"janedoe@ottemo.io","facebook_id":"","first_name":"Jane","google_id":"","is_admin":false,"last_name":"Doe","password":"a78e27495e6dd8c7b7c9fa53e72c9df3","shipping_address":null,"validate":"415141414141374d42777951474169716a2f3755"} }
 
-### Retrieve a Note [GET]
-+ Response 200 (application/json)
+## Update Visitor [/visitor/update]
+### Update Visitor attributes [PUT]
++ Request (application/json)
 
-    + Header
+    { "id":"54751590a9fc9f132678c747","email":"janedoe@ottemo.io","fname":"Jane","lname":"Doe","birthday":"02/12/1991" }
 
-            X-My-Header: The Value
++ Response 201
+    { "error":"","redirect":"","result":{"_id":"54751590a9fc9f132678c747","billing_address":null,"birthday":"1991-12-02T00:00:00Z","created_at":"2014-11-25T18:49:36.399279015-05:00","email":"janedoe@ottemo.io","facebook_id":"","first_name":"Jane","google_id":"","is_admin":false,"last_name":"Doe","password":"a78e27495e6dd8c7b7c9fa53e72c9df3","shipping_address":null,"validate":"415141414141374d42777951474169716a2f3755"} }
 
-    + Body
+## Update Visitor [/visitor/update/{id}]
+### Update Visitor attributes [PUT]
++ Request (application/json)
 
-            { "id": 2, "title": "Pick-up posters from post-office" }
+    { "id":"54751590a9fc9f132678c747","email":"janedoe@ottemo.io","fname":"Jane","lname":"Doe","birthday":"02/12/1991" }
 
-### Remove a Note [DELETE]
++ Response 201
+    { "error":"","redirect":"","result":{"_id":"54751590a9fc9f132678c747","billing_address":null,"birthday":"1991-12-02T00:00:00Z","created_at":"2014-11-25T18:49:36.399279015-05:00","email":"janedoe@ottemo.io","facebook_id":"","first_name":"Jane","google_id":"","is_admin":false,"last_name":"Doe","password":"a78e27495e6dd8c7b7c9fa53e72c9df3","shipping_address":null,"validate":"415141414141374d42777951474169716a2f3755"} }
+
+## Delete Visitor [/visitor/delete/{id}]
+### Purge Visitor from the database [DELETE]
++ Request (application/json)
+
+    { "id":"54751590a9fc9f132678c747" }
+
 + Response 204
+
+## Retrieve Visitors [/visitor/list]
+### Retrive Visitor list [GET]
++ Request (application/json)
+
+    { "Update":"with sample JSON" }
+
++ Response 201
+    { "Update":"with sample of JSON returned" }
+
+## Count Visitors [/visitor/count]
+### Retrive current Visitor count [GET]
++ Request (application/json)
+
+    { "Update":"with sample JSON" }
+
++ Response 201
+    { "Update":"with sample of JSON returned" }
+
+## Visitor Attributes [/visitor/attribute/list]
+### Retrive current Visitor attributes [GET]
++ Request (application/json)
+
+    { "Update":"with sample JSON" }
+
++ Response 201
+    { "Update":"with sample of JSON returned" }
+
+## Delete Vistor Attribute [/visitor/delete/{attribute}]
+### Remove Visitor Attribute from the database [DELETE]
++ Request (application/json)
+
+    { "Update":"with sample JSON" }
+
++ Response 204
+
+## Retrieve Visitors [/visitor/list]
+### Retrive Visitor list [GET]
++ Request (application/json)
+
+    { "Update":"with sample JSON" }
+
++ Response 201
+    { "Update":"with sample of JSON returned" }
+
