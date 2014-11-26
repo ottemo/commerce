@@ -44,6 +44,7 @@ func setupAPI() error {
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
+	//TODO: why support POST only to push an error message?
 	err = api.GetRestService().RegisterAPI("visitor", "POST", "list", restListVisitors)
 	if err != nil {
 		return env.ErrorDispatch(err)
@@ -178,6 +179,7 @@ func restUpdateVisitor(params *api.StructAPIHandlerParams) (interface{}, error) 
 		sessionValue := params.Session.Get(visitor.ConstSessionKeyVisitorID)
 		sessionVisitorID, ok := sessionValue.(string)
 		if !ok {
+			//TODO: fix error message
 			return nil, env.ErrorNew("you are not logined in")
 		}
 		visitorID = sessionVisitorID
@@ -304,6 +306,7 @@ func restListVisitors(params *api.StructAPIHandlerParams) (interface{}, error) {
 	reqData, ok := params.RequestContent.(map[string]interface{})
 	if !ok {
 		if params.Request.Method == "POST" {
+			//TODO: better error message needed
 			return nil, env.ErrorNew("unexpected request content")
 		}
 		reqData = make(map[string]interface{})
