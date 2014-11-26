@@ -15,43 +15,48 @@ A Visitor in Ottemo is any authenticated and unauthenticated web site visitor.  
 ### Create a Visitor [POST]
 + Request (application/json)
 
-    { "facebook_id":"","google_id":"","email":"jamesdoe@ottemo.io","fname":"James","lname":"Doe","password":"P@ssw0rd","billing_address":{},"shipping_address":{},"birthday":"02/12/1971" }
+        { "facebook_id":"","google_id":"","email":"jamesdoe@ottemo.io","fname":"James","lname":"Doe","password":"P@ssw0rd","billing_address":{},"shipping_address":{},"birthday":"02/12/1971" }
 
 + Response 201 (application/json)
-    { "error":"","redirect":"","result":{"_id":"54751590a9fc9f132678c696","billing_address":null,"birthday":"1971-12-02T00:00:00Z","created_at":"2014-11-25T18:49:36.399279015-05:00","email":"jamesdoe@ottemo.io","facebook_id":"","first_name":"James","google_id":"","is_admin":false,"last_name":"Doe","password":"a78e27495e6dd8c7b7c9fa53e72c9df3","shipping_address":null,"validate":"415141414141374d42777951474169716a2f3755"} }
+
+        { "error":"","redirect":"","result":{"_id":"54751590a9fc9f132678c696","billing_address":null,"birthday":"1971-12-02T00:00:00Z","created_at":"2014-11-25T18:49:36.399279015-05:00","email":"jamesdoe@ottemo.io","facebook_id":"","first_name":"James","google_id":"","is_admin":false,"last_name":"Doe","password":"a78e27495e6dd8c7b7c9fa53e72c9df3","shipping_address":null,"validate":"415141414141374d42777951474169716a2f3755"} }
+
 
 ## Retrieve Visitor [/visitor/load/{id}]
-### Update Visitor profile [GET]
+### Get Visitor profile [GET]
 + Request (application/json)
 
-    { "id":"54751590a9fc9f132678c747" }
+        { "id":"54751590a9fc9f132678c747" }
 
 + Response 201
-    { "error":"","redirect":"","result":{"_id":"54751590a9fc9f132678c747","billing_address":null,"birthday":"1991-12-02T00:00:00Z","created_at":"2014-11-25T18:49:36.399279015-05:00","email":"janedoe@ottemo.io","facebook_id":"","first_name":"Jane","google_id":"","is_admin":false,"last_name":"Doe","password":"a78e27495e6dd8c7b7c9fa53e72c9df3","shipping_address":null,"validate":"415141414141374d42777951474169716a2f3755"} }
+
+        { "error":"","redirect":"","result":{"_id":"54751590a9fc9f132678c747","billing_address":null,"birthday":"1991-12-02T00:00:00Z","created_at":"2014-11-25T18:49:36.399279015-05:00","email":"janedoe@ottemo.io","facebook_id":"","first_name":"Jane","google_id":"","is_admin":false,"last_name":"Doe","password":"a78e27495e6dd8c7b7c9fa53e72c9df3","shipping_address":null,"validate":"415141414141374d42777951474169716a2f3755"} }
 
 ## Update Visitor [/visitor/update]
 ### Update Visitor profile [PUT]
 + Request (application/json)
 
-    { "id":"54751590a9fc9f132678c747","email":"janedoe@ottemo.io","fname":"Jane","lname":"Doe","birthday":"02/12/1991" }
+        { "id":"54751590a9fc9f132678c747","email":"janedoe@ottemo.io","fname":"Jane","lname":"Doe","birthday":"02/12/1991" }
 
 + Response 201
-    { "error":"","redirect":"","result":{"_id":"54751590a9fc9f132678c747","billing_address":null,"birthday":"1991-12-02T00:00:00Z","created_at":"2014-11-25T18:49:36.399279015-05:00","email":"janedoe@ottemo.io","facebook_id":"","first_name":"Jane","google_id":"","is_admin":false,"last_name":"Doe","password":"a78e27495e6dd8c7b7c9fa53e72c9df3","shipping_address":null,"validate":"415141414141374d42777951474169716a2f3755"} }
+
+         { "error":"","redirect":"","result":{"_id":"54751590a9fc9f132678c747","billing_address":null,"birthday":"1991-12-02T00:00:00Z","created_at":"2014-11-25T18:49:36.399279015-05:00","email":"janedoe@ottemo.io","facebook_id":"","first_name":"Jane","google_id":"","is_admin":false,"last_name":"Doe","password":"a78e27495e6dd8c7b7c9fa53e72c9df3","shipping_address":null,"validate":"415141414141374d42777951474169716a2f3755"} }
 
 ## Update Visitor [/visitor/update/{id}]
 ### Update Visitor profile [PUT]
 + Request (application/json)
 
-    { "id":"54751590a9fc9f132678c747","email":"janedoe@ottemo.io","fname":"Jane","lname":"Doe","birthday":"02/12/1991" }
+         { "id":"54751590a9fc9f132678c747","email":"janedoe@ottemo.io","fname":"Jane","lname":"Doe","birthday":"02/12/1991" }
 
 + Response 201
-    { "error":"","redirect":"","result":{"_id":"54751590a9fc9f132678c747","billing_address":null,"birthday":"1991-12-02T00:00:00Z","created_at":"2014-11-25T18:49:36.399279015-05:00","email":"janedoe@ottemo.io","facebook_id":"","first_name":"Jane","google_id":"","is_admin":false,"last_name":"Doe","password":"a78e27495e6dd8c7b7c9fa53e72c9df3","shipping_address":null,"validate":"415141414141374d42777951474169716a2f3755"} }
+
+         { "error":"","redirect":"","result":{"_id":"54751590a9fc9f132678c747","billing_address":null,"birthday":"1991-12-02T00:00:00Z","created_at":"2014-11-25T18:49:36.399279015-05:00","email":"janedoe@ottemo.io","facebook_id":"","first_name":"Jane","google_id":"","is_admin":false,"last_name":"Doe","password":"a78e27495e6dd8c7b7c9fa53e72c9df3","shipping_address":null,"validate":"415141414141374d42777951474169716a2f3755"} }
 
 ## Delete Visitor [/visitor/delete/{id}]
 ### Purge Visitor from the database [DELETE]
 + Request (application/json)
 
-    { "id":"54751590a9fc9f132678c747" }
+         { "id":"54751590a9fc9f132678c747" }
 
 + Response 204
 
@@ -59,43 +64,47 @@ A Visitor in Ottemo is any authenticated and unauthenticated web site visitor.  
 ### Retrieve Visitor list [GET]
 + Request (application/json)
 
-    { "Update":"with sample JSON" }
+        { "Update":"with sample JSON" }
 
 + Response 201
-    { "Update":"with sample of JSON returned" }
+
+        { "Update":"with sample of JSON returned" }
 
 ## Count Visitors [/visitor/count]
 ### Retrieve current Visitor count [GET]
 + Request (application/json)
 
-    { "Update":"with sample JSON" }
+        { "Update":"with sample JSON" }
 
 + Response 201
-    { "Update":"with sample of JSON returned" }
+
+        { "Update":"with sample of JSON returned" }
 
 ## Visitor Attributes [/visitor/attribute/list]
 ### Retrieve current Visitor attributes [GET]
 + Request (application/json)
 
-    { "Update":"with sample JSON" }
+        { "Update":"with sample JSON" }
 
 + Response 201
-    { "Update":"with sample of JSON returned" }
+
+        { "Update":"with sample of JSON returned" }
 
 ## Add Visitor Attribute [/visitor/attribute/add]
 ### Retrieve Visitor list [POST]
 + Request (application/json)
 
-    { "Update":"with sample JSON" }
+        { "Update":"with sample JSON" }
 
 + Response 201
-    { "Update":"with sample of JSON returned" }
+
+        { "Update":"with sample of JSON returned" }
 
 ## Delete Visitor Attribute [/visitor/delete/{attribute}]
 ### Remove Visitor Attribute from the database [DELETE]
 + Request (application/json)
 
-    { "Update":"with sample JSON" }
+         { "Update":"with sample JSON" }
 
 + Response 204
 
