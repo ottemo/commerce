@@ -26,7 +26,7 @@ type InterfaceProduct interface {
 	GetPrice() float64
 	GetWeight() float64
 
-	GetQty() float64
+	GetQty() int
 
 	GetAppliedOptions() map[string]interface{}
 	GetOptions() map[string]interface{}
@@ -50,9 +50,9 @@ type InterfaceProductCollection interface {
 
 // InterfaceStock represents interface to access business layer implementation of stock management
 type InterfaceStock interface {
-	SetProductQty(productID string, options map[string]interface{}, qty float64) error
-	GetProductQty(productID string, options map[string]interface{}) float64
+	SetProductQty(productID string, options map[string]interface{}, qty int) error
+	GetProductQty(productID string, options map[string]interface{}) int
 
 	RemoveProductQty(productID string, options map[string]interface{}) error
-	UpdateProductQty(productID string, options map[string]interface{}, deltaQty float64) error
+	UpdateProductQty(productID string, options map[string]interface{}, deltaQty int) error
 }

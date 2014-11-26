@@ -39,7 +39,7 @@ func (it *DefaultProduct) GetOptions() map[string]interface{} { return it.Option
 
 // GetQty updates and returns the product qty if stock manager is available and Qty was not set to instance
 // otherwise returns qty was set
-func (it *DefaultProduct) GetQty() float64 {
+func (it *DefaultProduct) GetQty() int {
 	if stockManager := product.GetRegisteredStock(); it.Qty == 0 && stockManager != nil {
 		it.Qty = stockManager.GetProductQty(it.GetID(), it.GetAppliedOptions())
 	}

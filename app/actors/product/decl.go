@@ -30,7 +30,7 @@ type DefaultProduct struct {
 
 	Weight float64
 
-	Qty float64
+	Qty int
 
 	Options map[string]interface{}
 

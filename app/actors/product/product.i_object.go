@@ -65,7 +65,7 @@ func (it *DefaultProduct) Set(attribute string, value interface{}) error {
 	case "weight":
 		it.Weight = utils.InterfaceToFloat64(value)
 	case "qty":
-		it.Qty = utils.InterfaceToFloat64(value)
+		it.Qty = utils.InterfaceToInt(value)
 		it.qtyWasUpdated = true
 	case "options":
 		it.Options = utils.InterfaceToMap(value)

@@ -101,7 +101,7 @@ func restStockSet(params *api.StructAPIHandlerParams) (interface{}, error) {
 	}
 
 	productID := params.RequestURLParams["productID"]
-	qty := utils.InterfaceToFloat64(params.RequestURLParams["qty"])
+	qty := utils.InterfaceToInt(params.RequestURLParams["qty"])
 
 	options := make(map[string]interface{})
 	if requestedOptions, present := requestData["options"]; present {
@@ -124,7 +124,7 @@ func restStockUpdate(params *api.StructAPIHandlerParams) (interface{}, error) {
 	}
 
 	productID := params.RequestURLParams["productID"]
-	qty := utils.InterfaceToFloat64(params.RequestURLParams["delta"])
+	qty := utils.InterfaceToInt(params.RequestURLParams["delta"])
 
 	options := make(map[string]interface{})
 	if requestedOptions, present := requestData["options"]; present {

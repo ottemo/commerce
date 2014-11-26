@@ -7,9 +7,9 @@ import (
 )
 
 // GetProductQty returns stock qty for a requested product-options pair
-func (it *DefaultStock) GetProductQty(productID string, options map[string]interface{}) float64 {
+func (it *DefaultStock) GetProductQty(productID string, options map[string]interface{}) int {
 
-	var minQty float64
+	var minQty int
 
 	// receiving database information
 	dbCollection, err := db.GetCollection(ConstCollectionNameStock)
@@ -44,7 +44,7 @@ func (it *DefaultStock) GetProductQty(productID string, options map[string]inter
 			continue
 		}
 
-		qty := utils.InterfaceToFloat64(dbRecord["qty"])
+		qty := utils.InterfaceToInt(dbRecord["qty"])
 
 		if qty < minQty {
 			minQty = qty
@@ -108,7 +108,7 @@ func (it *DefaultStock) RemoveProductQty(productID string, options map[string]in
 
 // SetProductQty updates stock qty for a product-options pair to be exact given value
 //   - use UpdateProductQty in all cases you can as it is more safer option
-func (it *DefaultStock) SetProductQty(productID string, options map[string]interface{}, qty float64) error {
+func (it *DefaultStock) SetProductQty(productID string, options map[string]interface{}, qty int) error {
 
 	// receiving database information
 	dbCollection, err := db.GetCollection(ConstCollectionNameStock)
@@ -162,7 +162,7 @@ func (it *DefaultStock) SetProductQty(productID string, options map[string]inter
 }
 
 // UpdateProductQty updates stock qty for a product-options pair on delta value which can be positive or negative
-func (it *DefaultStock) UpdateProductQty(productID string, options map[string]interface{}, deltaQty float64) error {
+func (it *DefaultStock) UpdateProductQty(productID string, options map[string]interface{}, deltaQty int) error {
 
 	// receiving database information
 	dbCollection, err := db.GetCollection(ConstCollectionNameStock)
@@ -196,7 +196,7 @@ func (it *DefaultStock) UpdateProductQty(productID string, options map[string]in
 		}
 
 		// TODO: should work through collection update function
-		qty := utils.InterfaceToFloat64(dbRecord["qty"])
+		qty := utils.InterfaceToInt(dbRecord["qty"])
 		dbRecord["qty"] = qty + deltaQty
 
 		_, err := dbCollection.Save(dbRecord)
