@@ -65,7 +65,11 @@ func (it *DefaultProduct) Save() error {
 		return env.ErrorDispatch(err)
 	}
 
-	newID, err := collection.Save(it.ToHashMap())
+	valuesToStore := it.ToHashMap()
+	if _, present := valuesToStore["qty"]; present {
+		delete(valuesToStore, "qty")
+	}
+	newID, err := collection.Save(valuesToStore)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}

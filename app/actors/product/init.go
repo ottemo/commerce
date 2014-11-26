@@ -29,16 +29,17 @@ func setupDB() error {
 		return env.ErrorDispatch(err)
 	}
 
-	collection.AddColumn("sku", "text", true)
-	collection.AddColumn("name", "text", true)
-	collection.AddColumn("short_description", "text", false)
-	collection.AddColumn("description", "text", false)
-	collection.AddColumn("default_image", "text", false)
-	collection.AddColumn("price", "numeric", false)
-	collection.AddColumn("weight", "numeric", false)
-	collection.AddColumn("options", "text", false)
+	collection.AddColumn("enabled", db.ConstDBBasetypeBoolean, true)
+	collection.AddColumn("sku", db.ConstDBBasetypeVarchar, true)
+	collection.AddColumn("name", db.ConstDBBasetypeVarchar, true)
+	collection.AddColumn("short_description", db.ConstDBBasetypeVarchar, false)
+	collection.AddColumn("description", db.ConstDBBasetypeText, false)
+	collection.AddColumn("default_image", db.ConstDBBasetypeVarchar, false)
+	collection.AddColumn("price", db.ConstDBBasetypeMoney, false)
+	collection.AddColumn("weight", db.ConstDBBasetypeFloat, false)
+	collection.AddColumn("options", db.ConstDBBasetypeJSON, false)
 
-	collection.AddColumn("related_pids", "[]text", false)
+	collection.AddColumn("related_pids", "[]"+db.ConstDBBasetypeID, false)
 
 	return nil
 }
