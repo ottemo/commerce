@@ -15,8 +15,8 @@ const (
 
 // InterfaceCMSPage represents interface to access business layer implementation of cms page object
 type InterfaceCMSPage interface {
-	GetURL() string
-	SetURL(string) error
+	GetEnabled() bool
+	SetEnabled(bool) error
 
 	GetIdentifier() string
 	SetIdentifier(string) error
@@ -26,12 +26,6 @@ type InterfaceCMSPage interface {
 
 	GetContent() string
 	SetContent(string) error
-
-	GetMetaKeywords() string
-	SetMetaKeywords(string) error
-
-	GetMetaDescription() string
-	SetMetaDescription(string) error
 
 	models.InterfaceModel
 	models.InterfaceObject

@@ -115,6 +115,11 @@ func restListCategories(params *api.StructAPIHandlerParams) (interface{}, error)
 	// filters handle
 	api.ApplyFilters(params, categoryCollectionModel.GetDBCollection())
 
+	// not allowing to see disabled if not admin
+	if err := api.ValidateAdminRights(params); err != nil {
+		categoryCollectionModel.GetDBCollection().AddFilter("enabled", "=", true)
+	}
+
 	// extra parameter handler
 	if extra, isExtra := reqData["extra"]; isExtra {
 		extra := utils.Explode(utils.InterfaceToString(extra), ",")
@@ -139,6 +144,11 @@ func restCountCategories(params *api.StructAPIHandlerParams) (interface{}, error
 
 	// filters handle
 	api.ApplyFilters(params, dbCollection)
+
+	// not allowing to see disabled if not admin
+	if err := api.ValidateAdminRights(params); err != nil {
+		categoryCollectionModel.GetDBCollection().AddFilter("enabled", "=", true)
+	}
 
 	return dbCollection.Count()
 }
@@ -282,6 +292,10 @@ func restListCategoryLayers(params *api.StructAPIHandlerParams) (interface{}, er
 		return nil, env.ErrorDispatch(err)
 	}
 
+	if api.ValidateAdminRights(params) != nil && !categoryModel.GetEnabled() {
+		return nil, env.ErrorNew("category is not available")
+	}
+
 	productsCollection := categoryModel.GetProductsCollection()
 	productsDBCollection := productsCollection.GetDBCollection()
 
@@ -294,6 +308,11 @@ func restListCategoryLayers(params *api.StructAPIHandlerParams) (interface{}, er
 	result := make(map[string]interface{})
 
 	api.ApplyFilters(params, productsDBCollection)
+
+	// not allowing to see disabled products if not admin
+	if err := api.ValidateAdminRights(params); err != nil {
+		productsDBCollection.AddFilter("enabled", "=", true)
+	}
 
 	for _, productAttribute := range productAttributesInfo {
 		if productAttribute.IsLayered {
@@ -323,9 +342,18 @@ func restListCategoryProducts(params *api.StructAPIHandlerParams) (interface{}, 
 		return nil, env.ErrorDispatch(err)
 	}
 
+	if api.ValidateAdminRights(params) != nil && !categoryModel.GetEnabled() {
+		return nil, env.ErrorNew("category is not available")
+	}
+
 	productsCollection := categoryModel.GetProductsCollection()
 
 	api.ApplyFilters(params, productsCollection.GetDBCollection())
+
+	// not allowing to see disabled products if not admin
+	if err := api.ValidateAdminRights(params); err != nil {
+		productsCollection.GetDBCollection().AddFilter("enabled", "=", true)
+	}
 
 	// preparing product information
 	var result []map[string]interface{}
@@ -432,6 +460,10 @@ func restGetCategory(params *api.StructAPIHandlerParams) (interface{}, error) {
 		return nil, env.ErrorDispatch(err)
 	}
 
+	if api.ValidateAdminRights(params) != nil && !categoryModel.GetEnabled() {
+		return nil, env.ErrorNew("category is not available")
+	}
+
 	return categoryModel.ToHashMap(), nil
 }
 
@@ -451,10 +483,20 @@ func restCategoryProductsCount(params *api.StructAPIHandlerParams) (interface{},
 		return nil, env.ErrorDispatch(err)
 	}
 
+	if api.ValidateAdminRights(params) != nil && !categoryModel.GetEnabled() {
+		return nil, env.ErrorNew("category is not available")
+	}
+
 	// count when we have filters (more complex and slow)
 	if len(params.RequestGETParams) > 0 {
 		productsDBCollection := categoryModel.GetProductsCollection().GetDBCollection()
 		api.ApplyFilters(params, productsDBCollection)
+
+		// not allowing to see disabled products if not admin
+		if err := api.ValidateAdminRights(params); err != nil {
+			productsDBCollection.AddFilter("enabled", "=", true)
+		}
+
 		return productsDBCollection.Count()
 	}
 
@@ -467,6 +509,11 @@ func restGetCategoriesTree(params *api.StructAPIHandlerParams) (interface{}, err
 	var result = make([]map[string]interface{}, 0)
 
 	collection, err := db.GetCollection(ConstCollectionNameCategory)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	err = collection.AddFilter("enabled", "=", true)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}

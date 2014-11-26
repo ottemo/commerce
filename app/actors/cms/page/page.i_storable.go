@@ -34,13 +34,10 @@ func (it *DefaultCMSPage) Load(id string) error {
 	it.SetID(utils.InterfaceToString(dbValues["_id"]))
 
 	it.Identifier = utils.InterfaceToString(dbValues["identifier"])
-	it.URL = utils.InterfaceToString(dbValues["url"])
+	it.Enabled = utils.InterfaceToBool(dbValues["enabled"])
 
 	it.Title = utils.InterfaceToString(dbValues["title"])
 	it.Content = utils.InterfaceToString(dbValues["content"])
-
-	it.MetaKeywords = utils.InterfaceToString(dbValues["meta_keywords"])
-	it.MetaDescription = utils.InterfaceToString(dbValues["meta_description"])
 
 	it.CreatedAt = utils.InterfaceToTime(dbValues["created_at"])
 	it.UpdatedAt = utils.InterfaceToTime(dbValues["updated_at"])
@@ -77,15 +74,12 @@ func (it *DefaultCMSPage) Save() error {
 
 	storingValues["_id"] = it.GetID()
 
-	storingValues["url"] = it.GetURL()
+	storingValues["enabled"] = it.GetEnabled()
 
 	storingValues["identifier"] = it.GetIdentifier()
 
 	storingValues["title"] = it.GetTitle()
 	storingValues["content"] = it.GetContent()
-
-	storingValues["meta_keywords"] = it.GetMetaKeywords()
-	storingValues["meta_description"] = it.GetMetaDescription()
 
 	if it.CreatedAt.IsZero() {
 		storingValues["created_at"] = currentTime

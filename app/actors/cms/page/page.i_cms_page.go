@@ -1,13 +1,13 @@
 package page
 
-// GetURL returns page URL
-func (it *DefaultCMSPage) GetURL() string {
-	return it.URL
+// GetEnabled returns page enabled flag
+func (it *DefaultCMSPage) GetEnabled() bool {
+	return it.Enabled
 }
 
-// SetURL returns page URL to be shown on
-func (it *DefaultCMSPage) SetURL(newValue string) error {
-	it.URL = newValue
+// SetEnabled returns page enabled flag
+func (it *DefaultCMSPage) SetEnabled(newValue bool) error {
+	it.Enabled = newValue
 	return nil
 }
 
@@ -41,27 +41,5 @@ func (it *DefaultCMSPage) GetContent() string {
 // SetContent sets page content value
 func (it *DefaultCMSPage) SetContent(newValue string) error {
 	it.Content = newValue
-	return nil
-}
-
-// GetMetaKeywords returns page meta title
-func (it *DefaultCMSPage) GetMetaKeywords() string {
-	return it.MetaKeywords
-}
-
-// SetMetaKeywords sets page meta title value
-func (it *DefaultCMSPage) SetMetaKeywords(newValue string) error {
-	it.MetaKeywords = newValue
-	return nil
-}
-
-// GetMetaDescription returns page meta description
-func (it *DefaultCMSPage) GetMetaDescription() string {
-	return it.MetaDescription
-}
-
-// SetMetaDescription sets page meta description value
-func (it *DefaultCMSPage) SetMetaDescription(newValue string) error {
-	it.MetaDescription = newValue
 	return nil
 }

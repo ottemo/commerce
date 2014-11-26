@@ -234,6 +234,11 @@ func restGetProduct(params *api.StructAPIHandlerParams) (interface{}, error) {
 		return nil, env.ErrorDispatch(err)
 	}
 
+	// not allowing to see disabled products if not admin
+	if api.ValidateAdminRights(params) != nil && productModel.GetEnabled() == false {
+		return nil, env.ErrorNew("product not available")
+	}
+
 	return productModel.ToHashMap(), nil
 }
 
@@ -574,6 +579,11 @@ func restListProducts(params *api.StructAPIHandlerParams) (interface{}, error) {
 	// filters handle
 	api.ApplyFilters(params, productCollectionModel.GetDBCollection())
 
+	// not allowing to see disabled products if not admin
+	if err := api.ValidateAdminRights(params); err != nil {
+		productCollectionModel.GetDBCollection().AddFilter("enabled", "=", true)
+	}
+
 	// extra parameter handle
 	if extra, isExtra := reqData["extra"]; isExtra {
 		extra := utils.Explode(utils.InterfaceToString(extra), ",")
@@ -639,6 +649,14 @@ func restRelatedList(params *api.StructAPIHandlerParams) (interface{}, error) {
 		for _, index := range indexes {
 			if productID := utils.InterfaceToString(relatedPids[index]); productID != "" {
 				if productModel, err := product.LoadProductByID(productID); err == nil {
+
+					// not allowing to see disabled products if not admin
+					if err := api.ValidateAdminRights(params); err != nil {
+						if productModel.GetEnabled() == false {
+							continue
+						}
+					}
+
 					if err == nil {
 						resultItem := new(models.StructListItem)
 
@@ -720,6 +738,11 @@ func restCountProducts(params *api.StructAPIHandlerParams) (interface{}, error) 
 
 	// filters handle
 	api.ApplyFilters(params, dbCollection)
+
+	// not allowing to see disabled products if not admin
+	if err := api.ValidateAdminRights(params); err != nil {
+		productCollectionModel.GetDBCollection().AddFilter("enabled", "=", true)
+	}
 
 	return dbCollection.Count()
 }

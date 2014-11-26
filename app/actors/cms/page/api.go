@@ -86,6 +86,11 @@ func restCMSPageList(params *api.StructAPIHandlerParams) (interface{}, error) {
 	// filters handle
 	api.ApplyFilters(params, cmsPageCollectionModel.GetDBCollection())
 
+	// not allowing to see disabled if not admin
+	if err := api.ValidateAdminRights(params); err != nil {
+		cmsPageCollectionModel.GetDBCollection().AddFilter("enabled", "=", true)
+	}
+
 	// extra parameter handle
 	if extra, isExtra := reqData["extra"]; isExtra {
 		extra := utils.Explode(utils.InterfaceToString(extra), ",")
@@ -103,7 +108,7 @@ func restCMSPageList(params *api.StructAPIHandlerParams) (interface{}, error) {
 // WEB REST API function used to obtain CMS pages count in model collection
 func restCMSPageCount(params *api.StructAPIHandlerParams) (interface{}, error) {
 
-	cmsPageCollectionModel, err := cms.GetCMSBlockCollectionModel()
+	cmsPageCollectionModel, err := cms.GetCMSPageCollectionModel()
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -111,6 +116,11 @@ func restCMSPageCount(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// filters handle
 	api.ApplyFilters(params, dbCollection)
+
+	// not allowing to see disabled if not admin
+	if err := api.ValidateAdminRights(params); err != nil {
+		dbCollection.AddFilter("enabled", "=", true)
+	}
 
 	return dbCollection.Count()
 }
@@ -131,6 +141,11 @@ func restCMSPageGet(params *api.StructAPIHandlerParams) (interface{}, error) {
 	cmsPage, err := cms.LoadCMSPageByID(pageID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
+	}
+
+	// not allowing to see disabled if not admin
+	if api.ValidateAdminRights(params) != nil && !cmsPage.GetEnabled() {
+		return nil, env.ErrorNew("cms page is not available")
 	}
 
 	return cmsPage.ToHashMap(), nil

@@ -29,17 +29,18 @@ func (it *DefaultCategory) setupDB() error {
 		return env.ErrorDispatch(err)
 	}
 
-	collection.AddColumn("parent_id", "id", true)
-	collection.AddColumn("path", "text", true)
-	collection.AddColumn("name", "text", true)
+	collection.AddColumn("enabled", db.ConstDBBasetypeBoolean, true)
+	collection.AddColumn("parent_id", db.ConstDBBasetypeID, true)
+	collection.AddColumn("path", db.ConstDBBasetypeVarchar, true)
+	collection.AddColumn("name", db.ConstDBBasetypeVarchar, true)
 
 	collection, err = db.GetCollection(ConstCollectionNameCategoryProductJunction)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	collection.AddColumn("category_id", "id", true)
-	collection.AddColumn("product_id", "id", true)
+	collection.AddColumn("category_id", db.ConstDBBasetypeID, true)
+	collection.AddColumn("product_id", db.ConstDBBasetypeID, true)
 
 	return nil
 }

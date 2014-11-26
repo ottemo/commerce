@@ -1,7 +1,6 @@
 package cart
 
 import (
-	"fmt"
 	"github.com/ottemo/foundation/app/models/cart"
 	"github.com/ottemo/foundation/app/models/checkout"
 	"github.com/ottemo/foundation/app/models/product"
@@ -120,6 +119,10 @@ func (it *DefaultCartItem) ValidateProduct() error {
 		return env.ErrorNew("product " + it.GetProductID() + " is not exists currently")
 	}
 
+	if cartProduct.GetEnabled() == false {
+		return env.ErrorNew("product " + it.GetProductID() + " is not available")
+	}
+
 	err := cartProduct.ApplyOptions(it.Options)
 	if err != nil {
 		return err
@@ -127,11 +130,7 @@ func (it *DefaultCartItem) ValidateProduct() error {
 
 	allowBackorders := utils.InterfaceToBool(env.ConfigGetValue(checkout.ConstConfigPathBackorders))
 	if !allowBackorders && product.GetRegisteredStock() != nil {
-		println(cartProduct.GetQty())
-		fmt.Println(it.GetQty())
-		fmt.Println(cartProduct.ToHashMap())
 		if qty := cartProduct.GetQty(); qty < it.GetQty() {
-			fmt.Println("==== IF ====")
 			return env.ErrorNew("item out of stock")
 		}
 	}
