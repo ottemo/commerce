@@ -9,6 +9,7 @@ import (
 // GetProductQty returns stock qty for a requested product-options pair
 func (it *DefaultStock) GetProductQty(productID string, options map[string]interface{}) int {
 
+	var qtySetFlag bool
 	var minQty int
 
 	// receiving database information
@@ -46,8 +47,9 @@ func (it *DefaultStock) GetProductQty(productID string, options map[string]inter
 
 		qty := utils.InterfaceToInt(dbRecord["qty"])
 
-		if qty < minQty {
+		if !qtySetFlag || qty < minQty {
 			minQty = qty
+			qtySetFlag = true
 		}
 	}
 

@@ -549,6 +549,10 @@ func MatchMapAValuesToMapB(mapA map[string]interface{}, mapB map[string]interfac
 		return false
 	}
 
+	if len(mapA) == 0 {
+		return true
+	}
+
 	for key, valueA := range mapA {
 		if valueB, present := mapB[key]; present {
 			switch valueA.(type) {

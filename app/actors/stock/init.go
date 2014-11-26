@@ -26,7 +26,7 @@ func setupDB() error {
 	if collection, err := db.GetCollection(ConstCollectionNameStock); err == nil {
 		collection.AddColumn("product_id", db.ConstDBBasetypeID, true)
 		collection.AddColumn("options", db.ConstDBBasetypeJSON, true)
-		collection.AddColumn("qty", db.ConstDBBasetypeFloat, false)
+		collection.AddColumn("qty", db.ConstDBBasetypeInteger, false)
 	} else {
 		return env.ErrorDispatch(err)
 	}

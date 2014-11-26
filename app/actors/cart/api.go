@@ -130,7 +130,10 @@ func restCartAdd(params *api.StructAPIHandlerParams) (interface{}, error) {
 		cartItemOptions := utils.EncodeToJSONString(item.GetOptions())
 		newItemOptions := utils.EncodeToJSONString(options)
 		if item.GetProductID() == pid && cartItemOptions == newItemOptions {
-			item.SetQty(item.GetQty() + qty)
+			err = item.SetQty(item.GetQty() + qty)
+			if err != nil {
+				return nil, env.ErrorDispatch(err)
+			}
 			addItemFlag = false
 		}
 	}

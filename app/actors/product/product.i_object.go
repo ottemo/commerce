@@ -302,7 +302,7 @@ func (it *DefaultProduct) GetAttributesInfo() []models.StructAttributeInfo {
 				Model:      product.ConstModelNameProduct,
 				Collection: ConstCollectionNameProduct,
 				Attribute:  "qty",
-				Type:       "numeric",
+				Type:       "int",
 				IsRequired: true,
 				IsStatic:   true,
 				Label:      "Qty",
