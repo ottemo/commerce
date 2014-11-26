@@ -4,6 +4,7 @@ import (
 	"github.com/ottemo/foundation/app/models/product"
 	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/foundation/utils"
 )
 
 // GetID returns current product id
@@ -81,8 +82,39 @@ func (it *DefaultProduct) Save() error {
 
 	// stock management stuff
 	if stockManager := product.GetRegisteredStock(); it.qtyWasUpdated && stockManager != nil {
-		stockManager.SetProductQty(it.GetID(), it.GetAppliedOptions(), it.Qty)
+		// stockManager.SetProductQty(it.GetID(), it.GetAppliedOptions(), it.Qty)
+		err = it.saveQty()
+		if err != nil {
+			return env.ErrorDispatch(err)
+		}
 	}
 
+	return nil
+}
+
+// saveQty saves product qty to stock manager, with options qty id set
+func (it *DefaultProduct) saveQty() error {
+
+	stockManager := product.GetRegisteredStock()
+	productOptions := it.GetOptions()
+
+	for productOptionName, productOption := range productOptions {
+		if productOption, ok := productOption.(map[string]interface{}); ok {
+			if qtyValue, present := productOption["qty"]; present {
+				stockManager.SetProductQty(it.GetID(), map[string]interface{}{productOptionName: nil}, utils.InterfaceToInt(qtyValue))
+			}
+
+			if productOptionValues, present := productOptions["options"]; present {
+				if productOptionValues, ok := productOptionValues.(map[string]interface{}); ok {
+
+					for productOptionValueName := range productOptionValues {
+						if qtyValue, present := productOption["qty"]; present {
+							stockManager.SetProductQty(it.GetID(), map[string]interface{}{productOptionName: productOptionValueName}, utils.InterfaceToInt(qtyValue))
+						}
+					}
+				}
+			}
+		}
+	}
 	return nil
 }
