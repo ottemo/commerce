@@ -61,6 +61,7 @@ func setupAPI() error {
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
+	//TODO: are we missing a PUT to modify an attribute
 	err = api.GetRestService().RegisterAPI("visitor", "POST", "attribute/add", restAddVisitorAttribute)
 	if err != nil {
 		return env.ErrorDispatch(err)
@@ -953,7 +954,7 @@ func restListVisitorOrders(params *api.StructAPIHandlerParams) (interface{}, err
 	return result, env.ErrorDispatch(err)
 }
 
-// WEB REST API function used to get visitor orders information
+// WEB REST API function used to send email to a Visitor
 func restVisitorSendMail(params *api.StructAPIHandlerParams) (interface{}, error) {
 	reqData, ok := params.RequestContent.(map[string]interface{})
 	if !ok {
