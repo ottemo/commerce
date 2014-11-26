@@ -954,7 +954,7 @@ func restListVisitorOrders(params *api.StructAPIHandlerParams) (interface{}, err
 	return result, env.ErrorDispatch(err)
 }
 
-// WEB REST API function used to get visitor orders information
+// WEB REST API function used to send email to a Visitor
 func restVisitorSendMail(params *api.StructAPIHandlerParams) (interface{}, error) {
 	reqData, ok := params.RequestContent.(map[string]interface{})
 	if !ok {
