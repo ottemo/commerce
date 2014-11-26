@@ -61,6 +61,7 @@ func setupAPI() error {
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
+	//TODO: are we missing a PUT to modify an attribute
 	err = api.GetRestService().RegisterAPI("visitor", "POST", "attribute/add", restAddVisitorAttribute)
 	if err != nil {
 		return env.ErrorDispatch(err)
