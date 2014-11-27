@@ -212,3 +212,75 @@ func (it *DefaultOrder) GetBillingAddress() visitor.InterfaceVisitorAddress {
 
 	return addressModel
 }
+
+// GetStatus returns current order status
+func (it *DefaultOrder) GetStatus() string {
+	return it.Status
+}
+
+// SetStatus changes status for current order
+func (it *DefaultOrder) SetStatus(status string) error {
+	var err error
+
+	if it.Status == status {
+		return nil
+	}
+
+	switch status {
+	case order.ConstOrderStatusNew:
+		err = it.Proceed()
+	case order.ConstOrderStatusCanceled:
+		err = it.Cancel()
+	default:
+		it.Status = status
+	}
+
+	return err
+}
+
+// Proceed subtracts order items from stock, changes status to new, saves order
+func (it *DefaultOrder) Proceed() error {
+
+	it.Status = order.ConstOrderStatusNew
+
+	var err error
+	stockManager := product.GetRegisteredStock()
+	if stockManager != nil {
+		for _, orderItem := range it.GetItems() {
+			err := stockManager.UpdateProductQty(orderItem.GetProductID(), orderItem.GetOptions(), -1*orderItem.GetQty())
+			if err != nil {
+				return env.ErrorDispatch(err)
+			}
+		}
+	}
+
+	err = it.Save()
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	return nil
+}
+
+// Cancel returns order items to stock and changing order status to canceled, saves order
+func (it *DefaultOrder) Cancel() error {
+	it.Status = order.ConstOrderStatusCanceled
+
+	var err error
+	stockManager := product.GetRegisteredStock()
+	if stockManager != nil {
+		for _, orderItem := range it.GetItems() {
+			err := stockManager.UpdateProductQty(orderItem.GetProductID(), orderItem.GetOptions(), orderItem.GetQty())
+			if err != nil {
+				return env.ErrorDispatch(err)
+			}
+		}
+	}
+
+	err = it.Save()
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	return nil
+}
