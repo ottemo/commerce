@@ -7,6 +7,162 @@ HOST: http://foundation.demo.ottemo.io
 
 NOTE: Some services are RESTful and others are not, expect change with each new release of Ottemo Foundation Server.
 
+# Group Product API
+All APIs for working with Products and their Attributes
+
+## Create Product [/product/create]
+### Create a new Product [POST]
++ Request (application/json)
+
+        { "Update":"with sample JSON" }
+
++ Response 201
+
+        { "Update":"with sample of JSON returned" }
+
+## Retrieve Product [/product/get/{id}]
+### Retrieve Product with specified ID [GET]
++ Request (application/json)
+
+        { "Update":"with sample JSON" }
+
++ Response 201
+
+        { "Update":"with sample of JSON returned" }
+
+## Update Product [/product/update/{id}]
+### Update Product with specified ID [PUT]
++ Request (application/json)
+
+        { "Update":"with sample JSON" }
+
++ Response 201
+
+        { "Update":"with sample of JSON returned" }
+
+## Delete Product [/product/delete/{id}]
+### Delete Product with specified ID [DELETE]
++ Request (application/json)
+
+        { "Update":"with sample JSON" }
+
++ Response 204
+
+## Product Attribute List [/product/attribute/list]
+### Retrieve the Attribute List for the current Product [GET]
++ Request (application/json)
+
+        { "Update":"with sample JSON" }
+
++ Response 201
+
+        { "Update":"with sample of JSON returned" }
+
+## Add Product Attribute [/product/attribute/add]
+### Create a new Attribute for the current Product [POST]
++ Request (application/json)
+
+        { "Update":"with sample JSON" }
+
++ Response 201
+
+        { "Update":"with sample of JSON returned" }
+
+## Delete Product Attribute [/product/attribute/remove/{attribute}]
+### Delete the specified Atttribute for the current Product [DELETE]
++ Request (application/json)
+
+        { "Update":"with sample JSON" }
+
++ Response 204
+
+## Product Media [/product/media/get/{productID}/{mediaType}/{mediaName}]
+### Retrieve the Media for the specified Product [GET]
++ Request (application/json)
+
+        { "Update":"with sample JSON" }
+
++ Response 201
+
+        { "Update":"with sample of JSON returned" }
+
+## Product Media List [/product/media/list/{productID}/{mediaType}]
+### Retrieve the Media List for the specified Product [GET]
++ Request (application/json)
+
+        { "Update":"with sample JSON" }
+
++ Response 201
+
+        { "Update":"with sample of JSON returned" }
+
+## Product Media Path [/product/media/path/{productID}/{mediaType}]
+### Retrieve the Media Path for the specified Product [GET]
++ Request (application/json)
+
+        { "Update":"with sample JSON" }
+
++ Response 201
+
+        { "Update":"with sample of JSON returned" }
+
+## Add Product Media [/product/media/add/{productID}/{mediaType}/{mediaName}]
+### Add Media for the specified Product [POST]
++ Request (application/json)
+
+        { "Update":"with sample JSON" }
+
++ Response 201
+
+        { "Update":"with sample of JSON returned" }
+
+## Delete Product Media [/product/media/remove/{productID}/{mediaType}/{mediaName}]
+### Create a new Product [DELETE]
++ Request (application/json)
+
+        { "Update":"with sample JSON" }
+
++ Response 204
+
+## Related Product List [/product/related/{productID}]
+### Retrieve the List of related Product of the specified ID [POST]
++ Request (application/json)
+
+        { "Update":"with sample JSON" }
+
++ Response 201
+
+        { "Update":"with sample of JSON returned" }
+
+## Product List [/product/list]
+### Retrieve a List of Products [GET]
++ Request (application/json)
+
+        { "Update":"with sample JSON" }
+
++ Response 201
+
+        { "Update":"with sample of JSON returned" }
+
+### Create a List of Products [POST]
++ Request (application/json)
+
+        { "Update":"with sample JSON" }
+
++ Response 201
+
+        { "Update":"with sample of JSON returned" }
+
+## Product Count [/product/count]
+### Retrieve a List of Products [GET]
++ Request (application/json)
+
+        { "Update":"with sample JSON" }
+
++ Response 201
+
+        { "Update":"with sample of JSON returned" }
+
 
 # Group Visitor API for use with Dashboard
 A Visitor in Ottemo is any authenticated and unauthenticated web site visitor.  The following are the available resources of the **Visitor API** which might be called from the **Dashboard**.
