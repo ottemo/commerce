@@ -89,22 +89,56 @@ func (it *DefaultProduct) ApplyOptions(options map[string]interface{}) error {
 
 	// function to modify orderItem according to option values
 	applyOptionModifiers := func(optionToApply map[string]interface{}) {
+
 		// price modifier
 		if optionValue, present := optionToApply["price"]; present {
-			addPrice := utils.InterfaceToFloat64(optionValue)
-			priceType := utils.InterfaceToString(optionToApply["price_type"])
 
-			if priceType == "percent" || priceType == "%" {
-				it.Price += startPrice * addPrice / 100
+			if optionValue, ok := optionValue.(string); ok {
+
+				isDelta := false
+				isPercent := false
+
+				optionValue = strings.TrimSpace(optionValue)
+				if strings.HasSuffix(optionValue, "%") {
+					isPercent = true
+					optionValue = strings.TrimSuffix(optionValue, "%")
+				}
+
+				var priceValue float64
+				switch {
+				case strings.HasPrefix(optionValue, "+"):
+					optionValue = strings.TrimPrefix(optionValue, "+")
+					isDelta = true
+					priceValue = utils.InterfaceToFloat64(optionValue)
+				case strings.HasPrefix(optionValue, "-"):
+					optionValue = strings.TrimPrefix(optionValue, "-")
+					isDelta = true
+					priceValue = -1 * utils.InterfaceToFloat64(optionValue)
+				default:
+					priceValue = utils.InterfaceToFloat64(optionValue)
+				}
+
+				if isPercent {
+					it.Price += startPrice * priceValue / 100
+				} else if isDelta {
+					it.Price += priceValue
+				} else {
+					it.Price = priceValue
+				}
+
 			} else {
-				it.Price += addPrice
+				it.Set("price", optionValue)
 			}
 		}
 
 		// sku modifier
 		if optionValue, present := optionToApply["sku"]; present {
 			skuModifier := utils.InterfaceToString(optionValue)
-			it.Sku += "-" + skuModifier
+			if strings.HasPrefix(skuModifier, "-") || strings.HasPrefix(skuModifier, "_") {
+				it.Sku += skuModifier
+			} else {
+				it.Sku = skuModifier
+			}
 		}
 	}
 
