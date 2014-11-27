@@ -111,9 +111,13 @@ func (it *DefaultStock) RemoveProductQty(productID string, options map[string]in
 // SetProductQty updates stock qty for a product-options pair to be exact given value
 //   - use UpdateProductQty in all cases you can as it is more safer option
 func (it *DefaultStock) SetProductQty(productID string, options map[string]interface{}, qty int) error {
-
 	// receiving database information
 	dbCollection, err := db.GetCollection(ConstCollectionNameStock)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	err = dbCollection.AddFilter("options", "=", options)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -139,12 +143,11 @@ func (it *DefaultStock) SetProductQty(productID string, options map[string]inter
 		recordOptions, ok := dbRecord["options"].(map[string]interface{})
 
 		// skipping un-matching records
-		if !ok || !utils.MatchMapAValuesToMapB(recordOptions, options) {
+		if !ok || !utils.MatchMapAValuesToMapB(options, recordOptions) {
 			continue
 		}
 
 		dbRecord["qty"] = qty
-
 		_, err := dbCollection.Save(dbRecord)
 		if err != nil {
 			return env.ErrorDispatch(err)
@@ -200,7 +203,6 @@ func (it *DefaultStock) UpdateProductQty(productID string, options map[string]in
 		// TODO: should work through collection update function
 		qty := utils.InterfaceToInt(dbRecord["qty"])
 		dbRecord["qty"] = qty + deltaQty
-
 		_, err := dbCollection.Save(dbRecord)
 		if err != nil {
 			return env.ErrorDispatch(err)

@@ -247,10 +247,22 @@ func (it *DefaultOrder) Proceed() error {
 	stockManager := product.GetRegisteredStock()
 	if stockManager != nil {
 		for _, orderItem := range it.GetItems() {
-			err := stockManager.UpdateProductQty(orderItem.GetProductID(), orderItem.GetOptions(), -1*orderItem.GetQty())
-			if err != nil {
-				return env.ErrorDispatch(err)
+			options := orderItem.GetOptions()
+
+			for optionName, optionValue := range options {
+				if optionValue, ok := optionValue.(map[string]interface{}); ok {
+					if value, present := optionValue["value"]; present {
+						options := map[string]interface{}{optionName: value}
+
+						err := stockManager.UpdateProductQty(orderItem.GetProductID(), options, -1*orderItem.GetQty())
+						if err != nil {
+							return env.ErrorDispatch(err)
+						}
+
+					}
+				}
 			}
+
 		}
 	}
 
@@ -270,10 +282,22 @@ func (it *DefaultOrder) Cancel() error {
 	stockManager := product.GetRegisteredStock()
 	if stockManager != nil {
 		for _, orderItem := range it.GetItems() {
-			err := stockManager.UpdateProductQty(orderItem.GetProductID(), orderItem.GetOptions(), orderItem.GetQty())
-			if err != nil {
-				return env.ErrorDispatch(err)
+			options := orderItem.GetOptions()
+
+			for optionName, optionValue := range options {
+				if optionValue, ok := optionValue.(map[string]interface{}); ok {
+					if value, present := optionValue["value"]; present {
+						options := map[string]interface{}{optionName: value}
+
+						err := stockManager.UpdateProductQty(orderItem.GetProductID(), options, orderItem.GetQty())
+						if err != nil {
+							return env.ErrorDispatch(err)
+						}
+
+					}
+				}
 			}
+
 		}
 	}
 

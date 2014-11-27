@@ -40,7 +40,8 @@ type DefaultProduct struct {
 	appliedOptions map[string]interface{}
 
 	// qtyWasUpdated sets to true in Set('qty') operation, so only then we need to save it
-	qtyWasUpdated bool
+	qtyWasUpdated      bool
+	optionsWereUpdated bool
 
 	*attributes.CustomAttributes
 }

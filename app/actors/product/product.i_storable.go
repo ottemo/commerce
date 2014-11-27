@@ -81,37 +81,55 @@ func (it *DefaultProduct) Save() error {
 	}
 
 	// stock management stuff
-	if stockManager := product.GetRegisteredStock(); it.qtyWasUpdated && stockManager != nil {
-		// stockManager.SetProductQty(it.GetID(), it.GetAppliedOptions(), it.Qty)
-		err = it.saveQty()
-		if err != nil {
-			return env.ErrorDispatch(err)
+	if stockManager := product.GetRegisteredStock(); stockManager != nil {
+
+		if it.qtyWasUpdated {
+			err = stockManager.SetProductQty(it.GetID(), it.GetAppliedOptions(), it.Qty)
+			if err != nil {
+				return env.ErrorDispatch(err)
+			}
 		}
+		if it.optionsWereUpdated {
+			err = it.saveOptionsQty()
+			if err != nil {
+				return env.ErrorDispatch(err)
+			}
+		}
+
 	}
 
 	return nil
 }
 
 // saveQty saves product qty to stock manager, with options qty id set
-func (it *DefaultProduct) saveQty() error {
+func (it *DefaultProduct) saveOptionsQty() error {
 
 	stockManager := product.GetRegisteredStock()
-	productOptions := it.GetOptions()
+	if stockManager == nil {
+		return nil
+	}
+	//	stockManager.SetProductQty(it.GetID(), it.GetAppliedOptions(), it.Qty)
 
+	productOptions := it.GetOptions()
 	for productOptionName, productOption := range productOptions {
 		if productOption, ok := productOption.(map[string]interface{}); ok {
 			if qtyValue, present := productOption["qty"]; present {
-				stockManager.SetProductQty(it.GetID(), map[string]interface{}{productOptionName: nil}, utils.InterfaceToInt(qtyValue))
+				options := map[string]interface{}{productOptionName: nil}
+				stockManager.SetProductQty(it.GetID(), options, utils.InterfaceToInt(qtyValue))
 			}
 
-			if productOptionValues, present := productOptions["options"]; present {
+			if productOptionValues, present := productOption["options"]; present {
 				if productOptionValues, ok := productOptionValues.(map[string]interface{}); ok {
 
-					for productOptionValueName := range productOptionValues {
-						if qtyValue, present := productOption["qty"]; present {
-							stockManager.SetProductQty(it.GetID(), map[string]interface{}{productOptionName: productOptionValueName}, utils.InterfaceToInt(qtyValue))
+					for productOptionValueName, productOptionValue := range productOptionValues {
+						if productOptionValue, ok := productOptionValue.(map[string]interface{}); ok {
+							if qtyValue, present := productOptionValue["qty"]; present {
+								options := map[string]interface{}{productOptionName: productOptionValueName}
+								stockManager.SetProductQty(it.GetID(), options, utils.InterfaceToInt(qtyValue))
+							}
 						}
 					}
+
 				}
 			}
 		}
