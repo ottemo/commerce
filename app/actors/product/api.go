@@ -20,18 +20,22 @@ func setupAPI() error {
 
 	// 1. DefaultProduct API
 	//----------------------
+	//TODO: shorten endpoint to just 'product/:id' as GET verb is enough - jwv
 	err = api.GetRestService().RegisterAPI("product", "GET", "get/:id", restGetProduct)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
+	//TODO: shorten endpoint to just 'product' as POST verb assumes creation - jwv
 	err = api.GetRestService().RegisterAPI("product", "POST", "create", restCreateProduct)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
+	//TODO: shorten endpoint to just 'product/:id' as PUT verb describes it as an update - jwv
 	err = api.GetRestService().RegisterAPI("product", "PUT", "update/:id", restUpdateProduct)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
+	//TODO: shorten endpoint to just 'product/:id' as verb DELETE describes delete action - jwv
 	err = api.GetRestService().RegisterAPI("product", "DELETE", "delete/:id", restDeleteProduct)
 	if err != nil {
 		return env.ErrorDispatch(err)
@@ -41,15 +45,18 @@ func setupAPI() error {
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
+	//TODO: shorten endpoint to just 'product/attribute/:attribute' as DELETE verb indicates purpose - jwv
 	err = api.GetRestService().RegisterAPI("product", "DELETE", "attribute/remove/:attribute", restRemoveProductAttribute)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
+	//TODO: shorten endpoint to just 'product/attribute' - jwv
 	err = api.GetRestService().RegisterAPI("product", "POST", "attribute/add", restAddProductAttribute)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
+	//TODO: shorten endpoint to just 'product/media/:productID/"mediaType/:mediaName' - jwv
 	err = api.GetRestService().RegisterAPI("product", "GET", "media/get/:productID/:mediaType/:mediaName", restMediaGet)
 	if err != nil {
 		return env.ErrorDispatch(err)
@@ -62,14 +69,17 @@ func setupAPI() error {
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
+	//TODO: remove 'add' from endpoint URL - jwv
 	err = api.GetRestService().RegisterAPI("product", "POST", "media/add/:productID/:mediaType/:mediaName", restMediaAdd)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
+	//TODO: remove 'remove' from endpoint URL - jwv
 	err = api.GetRestService().RegisterAPI("product", "DELETE", "media/remove/:productID/:mediaType/:mediaName", restMediaRemove)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
+	//TODO: change to a GET as we are retrieving a list not creating one - jwv
 	err = api.GetRestService().RegisterAPI("product", "POST", "related/:productID", restRelatedList)
 	if err != nil {
 		return env.ErrorDispatch(err)

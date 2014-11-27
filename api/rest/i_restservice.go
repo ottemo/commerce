@@ -248,7 +248,7 @@ func (it DefaultRestService) ServeHTTP(responseWriter http.ResponseWriter, reque
 	}
 }
 
-// Run is the REST server startup function, analogous to "ListenAndServe"
+// Run is the Ottemo REST server startup function, analogous to "ListenAndServe"
 func (it *DefaultRestService) Run() error {
 	fmt.Println("REST API Service [HTTPRouter] starting to listen on " + it.ListenOn)
 	env.ErrorDispatch(http.ListenAndServe(it.ListenOn, it))
