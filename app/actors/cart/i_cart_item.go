@@ -123,7 +123,14 @@ func (it *DefaultCartItem) ValidateProduct() error {
 		return env.ErrorNew("product " + it.GetProductID() + " is not available")
 	}
 
-	err := cartProduct.ApplyOptions(it.Options)
+	// checking for right options
+	if cart := it.Cart; cart != nil {
+		if err := cart.checkOptions(cartProduct.GetOptions(), it.GetOptions()); err != nil {
+			return env.ErrorDispatch(err)
+		}
+	}
+
+	err := cartProduct.ApplyOptions(it.GetOptions())
 	if err != nil {
 		return err
 	}
