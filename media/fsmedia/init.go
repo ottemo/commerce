@@ -11,11 +11,14 @@ import (
 // init makes package self-initialization routine
 func init() {
 	instance := new(FilesystemMediaStorage)
-	if err := media.RegisterMediaStorage(instance); err == nil {
-		instance.setupWaitCnt = 2
 
-		env.RegisterOnConfigIniStart(instance.setupOnIniConfig)
-		db.RegisterOnDatabaseStart(instance.setupOnDatabase)
+	if err := media.RegisterMediaStorage(instance); err == nil {
+		instance.imageSizes = make(map[string]string)
+		instance.setupWaitCnt = 3
+
+		env.RegisterOnConfigIniStart(instance.setupOnIniConfigStart)
+		env.RegisterOnConfigStart(setupConfig)
+		db.RegisterOnDatabaseStart(instance.setupOnDatabaseStart)
 	}
 }
 
@@ -28,13 +31,13 @@ func (it *FilesystemMediaStorage) setupCheckDone() {
 	}
 }
 
-// setupOnIniConfig is a initialization based on ini config service
-func (it *FilesystemMediaStorage) setupOnIniConfig() error {
+// setupOnIniConfigStart is a initialization based on ini config service
+func (it *FilesystemMediaStorage) setupOnIniConfigStart() error {
 
 	var storageFolder = ConstMediaDefaultFolder
 
 	if iniConfig := env.GetIniConfig(); iniConfig != nil {
-		if iniValue := iniConfig.GetValue("media.fsmedia.folder", "?"); iniValue != "" {
+		if iniValue := iniConfig.GetValue("media.fsmedia.folder", "?"+ConstMediaDefaultFolder); iniValue != "" {
 			storageFolder = iniValue
 		}
 	}
@@ -55,23 +58,23 @@ func (it *FilesystemMediaStorage) setupOnIniConfig() error {
 	return nil
 }
 
-// setupOnDatabase is a initialization based on config service
-func (it *FilesystemMediaStorage) setupOnDatabase() error {
+// setupOnDatabaseStart is a initialization based on config service
+func (it *FilesystemMediaStorage) setupOnDatabaseStart() error {
 
 	dbEngine := db.GetDBEngine()
 	if dbEngine == nil {
 		return env.ErrorNew("Can't get database engine")
 	}
 
-	collection, err := dbEngine.GetCollection(ConstMediaDBCollection)
+	dbCollection, err := dbEngine.GetCollection(ConstMediaDBCollection)
 	if err != nil {
 		return err
 	}
 
-	collection.AddColumn("model", "text", true)
-	collection.AddColumn("object", "text", true)
-	collection.AddColumn("type", "text", true)
-	collection.AddColumn("media", "text", false)
+	dbCollection.AddColumn("model", "text", true)
+	dbCollection.AddColumn("object", "text", true)
+	dbCollection.AddColumn("type", "text", true)
+	dbCollection.AddColumn("media", "text", false)
 
 	it.setupCheckDone()
 

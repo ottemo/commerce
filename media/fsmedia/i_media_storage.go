@@ -51,19 +51,45 @@ func (it *FilesystemMediaStorage) Save(model string, objID string, mediaType str
 		return ioerr
 	}
 
+	if mediaType == "image" {
+		it.UpdateSizeNames()
+
+		for imageSize := range it.imageSizes {
+			err = it.ResizeMediaImage(model, objID, mediaName, imageSize)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	// making database record
+	//------------------------
+
 	dbEngine := db.GetDBEngine()
 	if dbEngine == nil {
 		return env.ErrorNew("Can't get database engine")
 	}
 
-	collection, err := dbEngine.GetCollection(ConstMediaDBCollection)
+	dbCollection, err := dbEngine.GetCollection(ConstMediaDBCollection)
 	if err != nil {
 		return err
 	}
 
-	_, err = collection.Save(map[string]interface{}{"model": model, "object": objID, "type": mediaType, "media": mediaName})
+	dbCollection.AddFilter("model", "=", model)
+	dbCollection.AddFilter("object", "=", objID)
+	dbCollection.AddFilter("type", "=", mediaType)
+	dbCollection.AddFilter("media", "=", mediaName)
+
+	count, err := dbCollection.Count()
 	if err != nil {
 		return err
+	}
+
+	if count == 0 {
+		_, err = dbCollection.Save(map[string]interface{}{"model": model, "object": objID, "type": mediaType, "media": mediaName})
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -79,9 +105,11 @@ func (it *FilesystemMediaStorage) Remove(model string, objID string, mediaType s
 	mediaFilePath := it.storageFolder + mediaPath + mediaName
 
 	// removing file
-	err = os.Remove(mediaFilePath)
-	if err != nil {
-		return err
+	if _, err := os.Stat(mediaFilePath); os.IsExist(err) {
+		err = os.Remove(mediaFilePath)
+		if err != nil {
+			return err
+		}
 	}
 
 	// removing DB records
@@ -90,17 +118,17 @@ func (it *FilesystemMediaStorage) Remove(model string, objID string, mediaType s
 		return env.ErrorNew("Can't get database engine")
 	}
 
-	collection, err := dbEngine.GetCollection(ConstMediaDBCollection)
+	dbCollection, err := dbEngine.GetCollection(ConstMediaDBCollection)
 	if err != nil {
 		return err
 	}
 
-	err = collection.AddFilter("model", "=", model)
-	err = collection.AddFilter("object", "=", objID)
-	err = collection.AddFilter("type", "=", mediaType)
-	err = collection.AddFilter("media", "=", mediaName)
+	err = dbCollection.AddFilter("model", "=", model)
+	err = dbCollection.AddFilter("object", "=", objID)
+	err = dbCollection.AddFilter("type", "=", mediaType)
+	err = dbCollection.AddFilter("media", "=", mediaName)
 
-	_, err = collection.Delete()
+	_, err = dbCollection.Delete()
 	return err
 }
 
@@ -113,16 +141,16 @@ func (it *FilesystemMediaStorage) ListMedia(model string, objID string, mediaTyp
 		return result, env.ErrorNew("Can't get database engine")
 	}
 
-	collection, err := dbEngine.GetCollection(ConstMediaDBCollection)
+	dbCollection, err := dbEngine.GetCollection(ConstMediaDBCollection)
 	if err != nil {
 		return result, err
 	}
 
-	collection.AddFilter("model", "=", model)
-	collection.AddFilter("object", "=", objID)
-	collection.AddFilter("type", "=", mediaType)
+	dbCollection.AddFilter("model", "=", model)
+	dbCollection.AddFilter("object", "=", objID)
+	dbCollection.AddFilter("type", "=", mediaType)
 
-	records, err := collection.Load()
+	records, err := dbCollection.Load()
 
 	for _, record := range records {
 		result = append(result, record["media"].(string))

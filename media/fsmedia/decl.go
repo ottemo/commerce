@@ -6,10 +6,14 @@ package fsmedia
 const (
 	ConstMediaDBCollection  = "media"    // database collection name to store media assignment information into
 	ConstMediaDefaultFolder = "./media/" // filesystem folder path to store media files in there
+
+	ConstConfigPathMediaImageSizes = "general.app.image_sizes"
 )
 
 // FilesystemMediaStorage is a filesystem based implementer of InterfaceMediaStorage
 type FilesystemMediaStorage struct {
 	storageFolder string
 	setupWaitCnt  int
+
+	imageSizes map[string]string
 }
