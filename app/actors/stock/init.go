@@ -16,8 +16,6 @@ func init() {
 	api.RegisterOnRestServiceStart(setupAPI)
 	db.RegisterOnDatabaseStart(setupDB)
 	env.RegisterOnConfigStart(setupConfig)
-
-	product.RegisterStock(instance)
 }
 
 // setupDB prepares system database for package usage

@@ -66,10 +66,10 @@ func (it *DefaultProduct) Set(attribute string, value interface{}) error {
 		it.Weight = utils.InterfaceToFloat64(value)
 	case "qty":
 		it.Qty = utils.InterfaceToInt(value)
-		it.qtyWasUpdated = true
+		it.updatedQty = append(it.updatedQty, map[string]interface{}{"": it.Qty})
 	case "options":
 		it.Options = utils.InterfaceToMap(value)
-		it.optionsWereUpdated = true
+		it.checkOptionsForQty()
 	case "related_pids":
 		it.RelatedProductIds = make([]string, 0)
 
@@ -320,4 +320,44 @@ func (it *DefaultProduct) GetAttributesInfo() []models.StructAttributeInfo {
 	}
 
 	return result
+}
+
+// checkOptionsForQty looking for specified qty attribute for options, removes it and passes for stock management
+func (it *DefaultProduct) checkOptionsForQty() {
+
+	for productOptionName, productOption := range it.Options {
+		if productOption, ok := productOption.(map[string]interface{}); ok {
+
+			// checking options for specified qty
+			if qtyValue, present := productOption["qty"]; present {
+				qty := utils.InterfaceToInt(qtyValue)
+				options := map[string]interface{}{productOptionName: nil, "": qty}
+				it.updatedQty = append(it.updatedQty, options)
+
+				// qty should not be stored with options
+				delete(productOption, "qty")
+			}
+
+			// checking option values for specified qty
+			if productOptionValues, present := productOption["options"]; present {
+				if productOptionValues, ok := productOptionValues.(map[string]interface{}); ok {
+
+					for productOptionValueName, productOptionValue := range productOptionValues {
+						if productOptionValue, ok := productOptionValue.(map[string]interface{}); ok {
+							if qtyValue, present := productOptionValue["qty"]; present {
+								qty := utils.InterfaceToInt(qtyValue)
+								options := map[string]interface{}{productOptionName: productOptionValueName, "": qty}
+								it.updatedQty = append(it.updatedQty, options)
+
+								// qty should not be stored with options values
+								delete(productOptionValue, "qty")
+							}
+						}
+					}
+
+				}
+			}
+
+		}
+	}
 }

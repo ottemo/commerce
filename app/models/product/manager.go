@@ -9,6 +9,12 @@ var (
 	registeredStock InterfaceStock
 )
 
+// UnRegisterStock removes stock management from system
+func UnRegisterStock() error {
+	registeredStock = nil
+	return nil
+}
+
 // RegisterStock registers given stock manager in system
 func RegisterStock(stock InterfaceStock) error {
 	if registeredStock != nil {

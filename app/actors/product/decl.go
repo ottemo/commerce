@@ -39,9 +39,8 @@ type DefaultProduct struct {
 	// appliedOptions tracks options were applied to current instance
 	appliedOptions map[string]interface{}
 
-	// qtyWasUpdated sets to true in Set('qty') operation, so only then we need to save it
-	qtyWasUpdated      bool
-	optionsWereUpdated bool
+	// updatedQty holds qty should be updated during save operation ("" item holds qty value)
+	updatedQty []map[string]interface{}
 
 	*attributes.CustomAttributes
 }

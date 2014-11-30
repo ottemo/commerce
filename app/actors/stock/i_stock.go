@@ -147,16 +147,24 @@ func (it *DefaultStock) SetProductQty(productID string, options map[string]inter
 			continue
 		}
 
-		dbRecord["qty"] = qty
-		_, err := dbCollection.Save(dbRecord)
+		// if you sets qty=0 it means to delete record from db
+		if qty != 0 {
+			dbRecord["qty"] = qty
+			_, err = dbCollection.Save(dbRecord)
+		} else {
+			id := utils.InterfaceToString(dbRecord["_id"])
+			err = dbCollection.DeleteByID(id)
+		}
+
 		if err != nil {
 			return env.ErrorDispatch(err)
 		}
+
 		recordsProcessed++
 	}
 
 	// no records was - adding new
-	if recordsProcessed == 0 {
+	if recordsProcessed == 0 && qty != 0 {
 		_, err := dbCollection.Save(map[string]interface{}{"product_id": productID, "options": options, "qty": qty})
 		if err != nil {
 			return env.ErrorDispatch(err)

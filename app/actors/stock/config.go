@@ -1,7 +1,7 @@
 package stock
 
 import (
-	"github.com/ottemo/foundation/app/models/checkout"
+	"github.com/ottemo/foundation/app/models/product"
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
 )
@@ -24,6 +24,15 @@ func setupConfig() error {
 			return env.ErrorDispatch(err)
 		}
 
+		validateEnabled := func(value interface{}) (interface{}, error) {
+			boolValue := utils.InterfaceToBool(value)
+			if boolValue {
+				product.RegisterStock(new(DefaultStock))
+			} else {
+				product.UnRegisterStock()
+			}
+			return boolValue, nil
+		}
 		config.RegisterItem(env.StructConfigItem{
 			Path:        ConstConfigPathEnabled,
 			Value:       false,
@@ -33,26 +42,13 @@ func setupConfig() error {
 			Label:       "Enabled",
 			Description: "enables/disables stock management",
 			Image:       "",
-		}, func(value interface{}) (interface{}, error) { return utils.InterfaceToBool(value), nil })
+		}, validateEnabled)
 
 		if err != nil {
 			return env.ErrorDispatch(err)
 		}
 
-		config.RegisterItem(env.StructConfigItem{
-			Path:        checkout.ConstConfigPathBackorders,
-			Value:       false,
-			Type:        "bool",
-			Editor:      "boolean",
-			Options:     nil,
-			Label:       "Enabled",
-			Description: "allows to make backorders (sell products when qty < 0)",
-			Image:       "",
-		}, func(value interface{}) (interface{}, error) { return utils.InterfaceToBool(value), nil })
-
-		if err != nil {
-			return env.ErrorDispatch(err)
-		}
+		validateEnabled(env.ConfigGetValue(ConstConfigPathEnabled))
 	}
 
 	return nil

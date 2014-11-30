@@ -82,57 +82,22 @@ func (it *DefaultProduct) Save() error {
 
 	// stock management stuff
 	if stockManager := product.GetRegisteredStock(); stockManager != nil {
-
-		if it.qtyWasUpdated {
-			err = stockManager.SetProductQty(it.GetID(), it.GetAppliedOptions(), it.Qty)
-			if err != nil {
-				return env.ErrorDispatch(err)
-			}
-		}
-		if it.optionsWereUpdated {
-			err = it.saveOptionsQty()
-			if err != nil {
-				return env.ErrorDispatch(err)
-			}
-		}
-
-	}
-
-	return nil
-}
-
-// saveQty saves product qty to stock manager, with options qty id set
-func (it *DefaultProduct) saveOptionsQty() error {
-
-	stockManager := product.GetRegisteredStock()
-	if stockManager == nil {
-		return nil
-	}
-	//	stockManager.SetProductQty(it.GetID(), it.GetAppliedOptions(), it.Qty)
-
-	productOptions := it.GetOptions()
-	for productOptionName, productOption := range productOptions {
-		if productOption, ok := productOption.(map[string]interface{}); ok {
-			if qtyValue, present := productOption["qty"]; present {
-				options := map[string]interface{}{productOptionName: nil}
-				stockManager.SetProductQty(it.GetID(), options, utils.InterfaceToInt(qtyValue))
+		for _, qtyOptions := range it.updatedQty {
+			if qtyOptions == nil {
+				continue
 			}
 
-			if productOptionValues, present := productOption["options"]; present {
-				if productOptionValues, ok := productOptionValues.(map[string]interface{}); ok {
+			if qtyValue, present := qtyOptions[""]; present {
+				qty := utils.InterfaceToInt(qtyValue)
+				delete(qtyOptions, "")
 
-					for productOptionValueName, productOptionValue := range productOptionValues {
-						if productOptionValue, ok := productOptionValue.(map[string]interface{}); ok {
-							if qtyValue, present := productOptionValue["qty"]; present {
-								options := map[string]interface{}{productOptionName: productOptionValueName}
-								stockManager.SetProductQty(it.GetID(), options, utils.InterfaceToInt(qtyValue))
-							}
-						}
-					}
-
+				err := stockManager.SetProductQty(it.GetID(), qtyOptions, qty)
+				if err != nil {
+					return env.ErrorDispatch(err)
 				}
 			}
 		}
 	}
+
 	return nil
 }
