@@ -23,6 +23,7 @@ type FilesystemMediaStorage struct {
 	storageFolder string
 	setupWaitCnt  int
 
-	baseSize   string
-	imageSizes map[string]string
+	baseSize    string
+	biggestSize string
+	imageSizes  map[string]string
 }

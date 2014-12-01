@@ -17,7 +17,32 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
-// UpdateSizeNames loads predefined sizes from config value
+// GetBiggestSize returns size with a image bounds limit 0x0 or with most resolution, "" - default size
+func (it *FilesystemMediaStorage) GetBiggestSize() string {
+	maxSize := ""
+
+	maxWidth, maxHeight, _ := it.GetSizeDimensions(it.baseSize)
+	if maxWidth == 0 && maxHeight == 0 {
+		return maxSize
+	}
+
+	for imageSize := range it.imageSizes {
+		width, height, _ := it.GetSizeDimensions(it.baseSize)
+		if width == 0 && height == 0 {
+			return imageSize
+		}
+
+		if width > maxWidth || height > maxHeight || width > maxHeight || height > maxWidth {
+			maxWidth = width
+			maxHeight = height
+			maxSize = imageSize
+		}
+	}
+
+	return maxSize
+}
+
+// UpdateBaseSize loads predefined sizes from config value
 func (it *FilesystemMediaStorage) UpdateBaseSize(newValue string) error {
 	newValue = strings.TrimSpace(newValue)
 	_, _, err := it.GetSizeDimensions(newValue)
@@ -25,6 +50,8 @@ func (it *FilesystemMediaStorage) UpdateBaseSize(newValue string) error {
 		return env.ErrorDispatch(err)
 	}
 	it.baseSize = newValue
+	it.biggestSize = it.GetBiggestSize()
+
 	return nil
 }
 
@@ -57,6 +84,7 @@ func (it *FilesystemMediaStorage) UpdateSizeNames(newValue string) error {
 
 	}
 	it.imageSizes = result
+	it.biggestSize = it.GetBiggestSize()
 	return nil
 }
 
@@ -122,8 +150,14 @@ func (it *FilesystemMediaStorage) ResizeMediaImage(model string, objID string, m
 	path, _ := it.GetMediaPath(model, objID, "image")
 	path = it.storageFolder + path
 
-	sourceFileName := path + mediaName
+	sourceFileName := path + it.GetResizedMediaName(mediaName, "")
 	resizedFileName := path + it.GetResizedMediaName(mediaName, size)
+
+	// using biggest resolution file if it exists, otherwise - default
+	biggestFileName := path + it.GetResizedMediaName(mediaName, it.biggestSize)
+	if _, err := os.Stat(biggestFileName); !os.IsNotExist(err) {
+		sourceFileName = biggestFileName
+	}
 
 	// opening source file
 	sourceFile, err := os.Open(sourceFileName)
@@ -134,7 +168,7 @@ func (it *FilesystemMediaStorage) ResizeMediaImage(model string, objID string, m
 
 	// checking destination file
 	flagResizeNeeded := false
-	if _, err := os.Stat(resizedFileName); os.IsExist(err) {
+	if _, err := os.Stat(resizedFileName); !os.IsNotExist(err) {
 		resizedFile, err := os.Open(resizedFileName)
 		defer resizedFile.Close()
 		if err != nil {
@@ -148,7 +182,7 @@ func (it *FilesystemMediaStorage) ResizeMediaImage(model string, objID string, m
 
 		resizedImageSize := resizedImage.Bounds().Size()
 		width, height, err := it.GetSizeDimensions(size)
-		if err != nil {
+		if err == nil {
 			if (int(width) != resizedImageSize.X && int(height) != resizedImageSize.Y) ||
 				resizedImageSize.X > int(width) ||
 				resizedImageSize.Y > int(height) {
@@ -167,9 +201,9 @@ func (it *FilesystemMediaStorage) ResizeMediaImage(model string, objID string, m
 
 	// so, current file not exists or have wrong size
 	if flagResizeNeeded {
-
 		var sourceReader io.Reader
 
+		// we can't read and write from same file
 		if sourceFileName == resizedFileName {
 			sourceContent, err := ioutil.ReadFile(sourceFileName)
 			if err != nil {
@@ -180,6 +214,7 @@ func (it *FilesystemMediaStorage) ResizeMediaImage(model string, objID string, m
 			sourceReader = sourceFile
 		}
 
+		// resizing stuff
 		width, height, err := it.GetSizeDimensions(size)
 		if err != nil {
 			return env.ErrorDispatch(err)
@@ -206,6 +241,7 @@ func (it *FilesystemMediaStorage) ResizeMediaImage(model string, objID string, m
 		}
 		resizedImage := resize.Resize(width, height, sourceImage, resize.Bilinear)
 
+		// encoding re-sized image
 		switch imageFormat {
 		case "jpeg":
 			err = jpeg.Encode(resizedFile, resizedImage, nil)
