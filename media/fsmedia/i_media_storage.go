@@ -205,7 +205,7 @@ func (it *FilesystemMediaStorage) ListMedia(model string, objID string, mediaTyp
 		if path, err := it.GetMediaPath(model, objID, mediaType); err == nil {
 			for _, mediaName := range result {
 				for imageSize := range it.imageSizes {
-					mediaFilePath := path + it.GetResizedMediaName(mediaName, imageSize)
+					mediaFilePath := it.storageFolder + path + it.GetResizedMediaName(mediaName, imageSize)
 
 					if _, err := os.Stat(mediaFilePath); os.IsNotExist(err) {
 						it.ResizeMediaImage(model, objID, mediaName, imageSize)
