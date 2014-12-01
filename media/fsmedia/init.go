@@ -17,7 +17,7 @@ func init() {
 		instance.setupWaitCnt = 3
 
 		env.RegisterOnConfigIniStart(instance.setupOnIniConfigStart)
-		env.RegisterOnConfigStart(setupConfig)
+		env.RegisterOnConfigStart(instance.setupConfig)
 		db.RegisterOnDatabaseStart(instance.setupOnDatabaseStart)
 	}
 }
@@ -44,7 +44,7 @@ func (it *FilesystemMediaStorage) setupOnIniConfigStart() error {
 
 	err := os.MkdirAll(storageFolder, os.ModePerm)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	it.storageFolder = storageFolder
@@ -68,7 +68,7 @@ func (it *FilesystemMediaStorage) setupOnDatabaseStart() error {
 
 	dbCollection, err := dbEngine.GetCollection(ConstMediaDBCollection)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	dbCollection.AddColumn("model", "text", true)

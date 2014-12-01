@@ -2,7 +2,6 @@ package fsmedia
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"image"
 	"os"
@@ -19,28 +18,35 @@ import (
 )
 
 // UpdateSizeNames loads predefined sizes from config value
-func (it *FilesystemMediaStorage) UpdateSizeNames() {
-	if configValue, ok := env.ConfigGetValue(ConstConfigPathMediaImageSizes).(string); ok && configValue != "" {
-		for _, size := range strings.Split(configValue, ",") {
-			var sizeName, sizeValue string
-			sizeArray := strings.Split(size, ":")
+func (it *FilesystemMediaStorage) UpdateSizeNames(newValue string) error {
+	result := make(map[string]string)
+	for _, size := range strings.Split(newValue, ",") {
+		var sizeName, sizeValue string
+		sizeArray := strings.Split(size, ":")
 
-			if len(sizeArray) > 1 {
-				sizeName = strings.TrimSpace(sizeArray[1])
-				sizeValue = strings.TrimSpace(sizeArray[0])
-			} else {
-				sizeValue = strings.TrimSpace(sizeArray[0])
-			}
-
-			if sizeValue != "" {
-				if sizeName != "" {
-					it.imageSizes[sizeName] = sizeValue
-				}
-				it.imageSizes[sizeValue] = sizeValue
-			}
-
+		if len(sizeArray) > 1 {
+			sizeName = strings.TrimSpace(sizeArray[0])
+			sizeValue = strings.TrimSpace(sizeArray[1])
+		} else {
+			sizeValue = strings.TrimSpace(sizeArray[0])
 		}
+
+		_, _, err := it.GetSizeDimensions(sizeValue)
+		if err != nil {
+			return env.ErrorDispatch(err)
+		}
+
+		if sizeValue != "" {
+			if sizeName != "" {
+				result[sizeName] = sizeValue
+			} else {
+				result[sizeValue] = sizeValue
+			}
+		}
+
 	}
+	it.imageSizes = result
+	return nil
 }
 
 // GetSizeDimensions returns width and height for specified size or error if size is ot valid
@@ -55,7 +61,7 @@ func (it *FilesystemMediaStorage) GetSizeDimensions(size string) (uint, uint, er
 
 	width, err := strconv.ParseUint(value[0], 10, 0)
 	if err != nil {
-		return 0, 0, errors.New("Invalid size")
+		return 0, 0, env.ErrorNew("Invalid size")
 	}
 
 	if len(value) > 1 {
@@ -90,29 +96,30 @@ func (it *FilesystemMediaStorage) GetResizedMediaName(mediaName string, size str
 
 // ResizeMediaImage re-sizes specified media to given size, returns error if not possible
 func (it *FilesystemMediaStorage) ResizeMediaImage(model string, objID string, mediaName string, size string) error {
+
 	path, _ := it.GetMediaPath(model, objID, "image")
 	path = it.storageFolder + path
 
 	sourceFileName := path + mediaName
 	sourceImage, err := ioutil.ReadFile(sourceFileName)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	width, height, err := it.GetSizeDimensions(size)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	resizedFileName := path + it.GetResizedMediaName(mediaName, size)
 	resizedFile, err := os.Create(resizedFileName)
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	decodedImage, imageFormat, err := image.Decode(bytes.NewReader(sourceImage))
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	originalSize := decodedImage.Bounds().Size()
@@ -131,11 +138,11 @@ func (it *FilesystemMediaStorage) ResizeMediaImage(model string, objID string, m
 	case "png":
 		err = png.Encode(resizedFile, resizedImage)
 	default:
-		return errors.New("unknown image format to encode")
+		return env.ErrorNew("unknown image format to encode")
 	}
 
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
 	}
 
 	return nil
@@ -152,15 +159,15 @@ func (it *FilesystemMediaStorage) GetResizedImage(model string, objID string, me
 
 		err = it.ResizeMediaImage(model, objID, mediaName, size)
 		if err != nil {
-			return nil, err
+			return nil, env.ErrorDispatch(err)
 		}
 
 		resizedFileContents, err = ioutil.ReadFile(resizedFileName)
 		if err != nil {
-			return nil, err
+			return nil, env.ErrorDispatch(err)
 		}
 
 	}
 
-	return resizedFileContents, err
+	return resizedFileContents, env.ErrorDispatch(err)
 }

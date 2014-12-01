@@ -7,7 +7,13 @@ const (
 	ConstMediaDBCollection  = "media"    // database collection name to store media assignment information into
 	ConstMediaDefaultFolder = "./media/" // filesystem folder path to store media files in there
 
+	ConstDefaultImageSizes = "small: 75x75, thumb: 260x300, big: 560x650"
+
 	ConstConfigPathMediaImageSizes = "general.app.image_sizes"
+
+	ConstMediaTypeImage    = "image"
+	ConstMediaTypeLink     = "link"
+	ConstMediaTypeDocument = "document"
 )
 
 // FilesystemMediaStorage is a filesystem based implementer of InterfaceMediaStorage
