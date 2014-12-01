@@ -68,6 +68,7 @@ func (it *FilesystemMediaStorage) Save(model string, objID string, mediaType str
 		if imageFormat != "jpeg" && imageFormat != "png" {
 
 			newFile, err := os.Create(mediaFilePath)
+			defer newFile.Close()
 			if err != nil {
 				return env.ErrorDispatch(err)
 			}
@@ -84,13 +85,11 @@ func (it *FilesystemMediaStorage) Save(model string, objID string, mediaType str
 			}
 		}
 
-		// resizing to image sizes system currently using
+		// ResizeMediaImage will check necessity of resize by it self
 		for imageSize := range it.imageSizes {
-			err = it.ResizeMediaImage(model, objID, mediaName, imageSize)
-			if err != nil {
-				return env.ErrorDispatch(err)
-			}
+			it.ResizeMediaImage(model, objID, mediaName, imageSize)
 		}
+		it.ResizeMediaImage(model, objID, mediaName, it.baseSize)
 	}
 
 	// making database record
@@ -202,16 +201,12 @@ func (it *FilesystemMediaStorage) ListMedia(model string, objID string, mediaTyp
 
 	// checking that object have all image sizes
 	if mediaType == ConstMediaTypeImage {
-		if path, err := it.GetMediaPath(model, objID, mediaType); err == nil {
-			for _, mediaName := range result {
-				for imageSize := range it.imageSizes {
-					mediaFilePath := it.storageFolder + path + it.GetResizedMediaName(mediaName, imageSize)
-
-					if _, err := os.Stat(mediaFilePath); os.IsNotExist(err) {
-						it.ResizeMediaImage(model, objID, mediaName, imageSize)
-					}
-				}
+		// ResizeMediaImage will check necessity of resize by it self
+		for _, mediaName := range result {
+			for imageSize := range it.imageSizes {
+				it.ResizeMediaImage(model, objID, mediaName, imageSize)
 			}
+			it.ResizeMediaImage(model, objID, mediaName, it.baseSize)
 		}
 	}
 

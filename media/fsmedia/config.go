@@ -39,5 +39,33 @@ func (it *FilesystemMediaStorage) setupConfig() error {
 
 	imageSizesValidator(env.ConfigGetValue(ConstConfigPathMediaImageSizes))
 
+	imageDefaultSizeValidator := func(newValue interface{}) (interface{}, error) {
+		if newValue, ok := newValue.(string); ok && newValue != "" {
+			err := it.UpdateBaseSize(newValue)
+			if err != nil {
+				return ConstDefaultImageSize, env.ErrorDispatch(err)
+			}
+			return newValue, nil
+		}
+		return ConstDefaultImageSize, env.ErrorNew("unexpected image sizes value")
+	}
+
+	err = config.RegisterItem(env.StructConfigItem{
+		Path:        ConstConfigPathMediaImageSize,
+		Value:       ConstDefaultImageSize,
+		Type:        "string",
+		Editor:      "line_text",
+		Options:     "",
+		Label:       "Base image size",
+		Description: "size of main image in format [maxWidth:maxHeight], leave 0x0 of blank if no resize needed",
+		Image:       "",
+	}, imageDefaultSizeValidator)
+
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	imageDefaultSizeValidator(env.ConfigGetValue(ConstConfigPathMediaImageSize))
+
 	return nil
 }
