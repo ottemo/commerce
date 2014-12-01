@@ -54,6 +54,12 @@ Start the container and access locally (currently set to use sqlite in the conta
 
     docker run -d -p 3000:3000 -t ottemo/foundation
 
+### How to proxy foundation with nginx for HTTP/HTTPS traffic
+It is suggested to secure Foundation API Server with SSL.  To offload the 
+added work to maintain high performance on Foundation, we will use nginx to
+ proxy HTTPS.  In production, only allow connections to Foundation over SSL.   
+[This gist](https://gist.github.com/vastbinderj/b5e5fa2acfd199d48fa5) explains 
+to create the certificate and configure nginx.
 
 ## License
 
