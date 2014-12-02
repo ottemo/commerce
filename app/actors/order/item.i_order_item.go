@@ -5,6 +5,11 @@ func (it *DefaultOrderItem) GetID() string {
 	return it.id
 }
 
+// GetProductID returns product ID which order item represents
+func (it *DefaultOrderItem) GetProductID() string {
+	return it.ProductID
+}
+
 // SetID sets order item unique id
 func (it *DefaultOrderItem) SetID(newID string) error {
 	it.id = newID

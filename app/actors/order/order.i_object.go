@@ -87,7 +87,11 @@ func (it *DefaultOrder) Set(attribute string, value interface{}) error {
 		it.IncrementID = utils.InterfaceToString(value)
 
 	case "status":
-		it.Status = utils.InterfaceToString(value)
+		if "" == it.Status {
+			it.Status = utils.InterfaceToString(value)
+		} else {
+			it.SetStatus(utils.InterfaceToString(value))
+		}
 
 	case "visitor_id":
 		it.VisitorID = utils.InterfaceToString(value)

@@ -14,6 +14,8 @@ func (it *DefaultProduct) Get(attribute string) interface{} {
 	switch strings.ToLower(attribute) {
 	case "_id", "id":
 		return it.id
+	case "enable", "enabled":
+		return it.Enabled
 	case "sku":
 		return it.Sku
 	case "name":
@@ -28,6 +30,8 @@ func (it *DefaultProduct) Get(attribute string) interface{} {
 		return it.Price
 	case "weight":
 		return it.Weight
+	case "qty":
+		return it.GetQty()
 	case "options":
 		return it.Options
 	case "related_pids":
@@ -44,6 +48,8 @@ func (it *DefaultProduct) Set(attribute string, value interface{}) error {
 	switch lowerCaseAttribute {
 	case "_id", "id":
 		it.id = utils.InterfaceToString(value)
+	case "enable", "enabled":
+		it.Enabled = utils.InterfaceToBool(value)
 	case "sku":
 		it.Sku = utils.InterfaceToString(value)
 	case "name":
@@ -58,8 +64,12 @@ func (it *DefaultProduct) Set(attribute string, value interface{}) error {
 		it.Price = utils.InterfaceToFloat64(value)
 	case "weight":
 		it.Weight = utils.InterfaceToFloat64(value)
+	case "qty":
+		it.Qty = utils.InterfaceToInt(value)
+		it.updatedQty = append(it.updatedQty, map[string]interface{}{"": it.Qty})
 	case "options":
 		it.Options = utils.InterfaceToMap(value)
+		it.checkOptionsForQty()
 	case "related_pids":
 		it.RelatedProductIds = make([]string, 0)
 
@@ -109,11 +119,14 @@ func (it *DefaultProduct) FromHashMap(input map[string]interface{}) error {
 	return nil
 }
 
-// ToHashMap will return a map[string]interface{}
+// ToHashMap returns a map[string]interface{}
 func (it *DefaultProduct) ToHashMap() map[string]interface{} {
 	result := it.CustomAttributes.ToHashMap()
 
 	result["_id"] = it.id
+
+	result["enabled"] = it.Enabled
+
 	result["sku"] = it.Sku
 	result["name"] = it.Name
 
@@ -124,14 +137,19 @@ func (it *DefaultProduct) ToHashMap() map[string]interface{} {
 
 	result["price"] = it.Price
 	result["weight"] = it.Weight
+
 	result["options"] = it.Options
 
 	result["related_pids"] = it.Get("related_pids")
 
+	if product.GetRegisteredStock() != nil {
+		result["qty"] = it.Get("qty")
+	}
+
 	return result
 }
 
-// GetAttributesInfo will return the requested object attributes
+// GetAttributesInfo returns the requested object attributes
 func (it *DefaultProduct) GetAttributesInfo() []models.StructAttributeInfo {
 	result := []models.StructAttributeInfo{
 		models.StructAttributeInfo{
@@ -144,6 +162,19 @@ func (it *DefaultProduct) GetAttributesInfo() []models.StructAttributeInfo {
 			Label:      "ID",
 			Group:      "General",
 			Editors:    "not_editable",
+			Options:    "",
+			Default:    "",
+		},
+		models.StructAttributeInfo{
+			Model:      product.ConstModelNameProduct,
+			Collection: ConstCollectionNameProduct,
+			Attribute:  "enabled",
+			Type:       "bool",
+			IsRequired: true,
+			IsStatic:   true,
+			Label:      "Enabled",
+			Group:      "General",
+			Editors:    "boolean",
 			Options:    "",
 			Default:    "",
 		},
@@ -266,10 +297,67 @@ func (it *DefaultProduct) GetAttributesInfo() []models.StructAttributeInfo {
 		},
 	}
 
+	if product.GetRegisteredStock() != nil {
+		result = append(result,
+			models.StructAttributeInfo{
+				Model:      product.ConstModelNameProduct,
+				Collection: ConstCollectionNameProduct,
+				Attribute:  "qty",
+				Type:       "int",
+				IsRequired: true,
+				IsStatic:   true,
+				Label:      "Qty",
+				Group:      "General",
+				Editors:    "numeric",
+				Options:    "",
+				Default:    "0",
+			})
+	}
+
 	customAttributesInfo := it.CustomAttributes.GetAttributesInfo()
 	for _, customAttribute := range customAttributesInfo {
 		result = append(result, customAttribute)
 	}
 
 	return result
+}
+
+// checkOptionsForQty looking for specified qty attribute for options, removes it and passes for stock management
+func (it *DefaultProduct) checkOptionsForQty() {
+
+	for productOptionName, productOption := range it.Options {
+		if productOption, ok := productOption.(map[string]interface{}); ok {
+
+			// checking options for specified qty
+			if qtyValue, present := productOption["qty"]; present {
+				qty := utils.InterfaceToInt(qtyValue)
+				options := map[string]interface{}{productOptionName: nil, "": qty}
+				it.updatedQty = append(it.updatedQty, options)
+
+				// qty should not be stored with options
+				delete(productOption, "qty")
+			}
+
+			// checking option values for specified qty
+			if productOptionValues, present := productOption["options"]; present {
+				if productOptionValues, ok := productOptionValues.(map[string]interface{}); ok {
+
+					for productOptionValueName, productOptionValue := range productOptionValues {
+						if productOptionValue, ok := productOptionValue.(map[string]interface{}); ok {
+							if qtyValue, present := productOptionValue["qty"]; present {
+								qty := utils.InterfaceToInt(qtyValue)
+								options := map[string]interface{}{productOptionName: productOptionValueName, "": qty}
+								it.updatedQty = append(it.updatedQty, options)
+
+								// qty should not be stored with options values
+								delete(productOptionValue, "qty")
+							}
+						}
+					}
+
+				}
+			}
+
+		}
+	}
 }

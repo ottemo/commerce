@@ -12,12 +12,19 @@ const (
 	ConstModelNameOrderCollection = "OrderCollection"
 
 	ConstModelNameOrderItemCollection = "OrderItemCollection"
+
+	ConstOrderStatusCancelled = "cancelled"
+	ConstOrderStatusNew       = "new"
+	ConstOrderStatusPending   = "pending"
+	ConstOrderStatusCompleted = "completed"
 )
 
 // InterfaceOrderItem represents interface to access business layer implementation of purchase order item object
 type InterfaceOrderItem interface {
 	GetID() string
 	SetID(newID string) error
+
+	GetProductID() string
 
 	GetName() string
 	GetSku() string
@@ -59,6 +66,12 @@ type InterfaceOrder interface {
 
 	GetShippingMethod() string
 	GetPaymentMethod() string
+
+	GetStatus() string
+	SetStatus(status string) error
+
+	Proceed() error
+	Cancel() error
 
 	models.InterfaceModel
 	models.InterfaceObject

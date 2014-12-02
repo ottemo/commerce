@@ -1,8 +1,10 @@
 package product
 
 import (
+	"github.com/ottemo/foundation/app/models/product"
 	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/foundation/utils"
 )
 
 // GetID returns current product id
@@ -49,6 +51,11 @@ func (it *DefaultProduct) Delete() error {
 		return env.ErrorDispatch(err)
 	}
 
+	// stock management stuff
+	if stockManager := product.GetRegisteredStock(); stockManager != nil {
+		stockManager.RemoveProductQty(it.GetID(), make(map[string]interface{}))
+	}
+
 	return nil
 }
 
@@ -59,7 +66,11 @@ func (it *DefaultProduct) Save() error {
 		return env.ErrorDispatch(err)
 	}
 
-	newID, err := collection.Save(it.ToHashMap())
+	valuesToStore := it.ToHashMap()
+	if _, present := valuesToStore["qty"]; present {
+		delete(valuesToStore, "qty")
+	}
+	newID, err := collection.Save(valuesToStore)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -67,6 +78,25 @@ func (it *DefaultProduct) Save() error {
 	err = it.SetID(newID)
 	if err != nil {
 		return env.ErrorDispatch(err)
+	}
+
+	// stock management stuff
+	if stockManager := product.GetRegisteredStock(); stockManager != nil {
+		for _, qtyOptions := range it.updatedQty {
+			if qtyOptions == nil {
+				continue
+			}
+
+			if qtyValue, present := qtyOptions[""]; present {
+				qty := utils.InterfaceToInt(qtyValue)
+				delete(qtyOptions, "")
+
+				err := stockManager.SetProductQty(it.GetID(), qtyOptions, qty)
+				if err != nil {
+					return env.ErrorDispatch(err)
+				}
+			}
+		}
 	}
 
 	return nil

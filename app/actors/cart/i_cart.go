@@ -5,7 +5,6 @@ import (
 	"strconv"
 
 	"github.com/ottemo/foundation/app/models/cart"
-	"github.com/ottemo/foundation/app/models/product"
 	"github.com/ottemo/foundation/app/models/visitor"
 	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/env"
@@ -121,10 +120,10 @@ func (it *DefaultCart) AddItem(productID string, qty int, options map[string]int
 	}
 
 	// checking product existence
-	reqProduct, err := product.LoadProductByID(productID)
-	if err != nil {
-		return nil, env.ErrorDispatch(err)
-	}
+	// reqProduct, err := product.LoadProductByID(productID)
+	// if err != nil {
+	// 	return nil, env.ErrorDispatch(err)
+	// }
 
 	// options default value if them are not set
 	if options == nil {
@@ -134,15 +133,20 @@ func (it *DefaultCart) AddItem(productID string, qty int, options map[string]int
 	// preparing new cart item
 	cartItem := &DefaultCartItem{
 		idx:       it.maxIdx,
-		ProductID: reqProduct.GetID(),
+		ProductID: productID,
 		Qty:       qty,
 		Options:   options,
 		Cart:      it,
 	}
 
 	// checking for right options
-	if err := it.checkOptions(reqProduct.GetOptions(), cartItem.Options); err != nil {
-		return nil, env.ErrorDispatch(err)
+	// if err := it.checkOptions(reqProduct.GetOptions(), cartItem.Options); err != nil {
+	// 	return nil, env.ErrorDispatch(err)
+	// }
+
+	// validate cart item before add to cart
+	if err := cartItem.ValidateProduct(); err != nil {
+		return nil, err
 	}
 
 	// adding new item to others
@@ -326,4 +330,14 @@ func (it *DefaultCart) Deactivate() error {
 // IsActive returns active flag status of cart
 func (it *DefaultCart) IsActive() bool {
 	return it.Active
+}
+
+// ValidateCart returns nil of cart is valid, error otherwise
+func (it *DefaultCart) ValidateCart() error {
+	for _, cartItem := range it.GetItems() {
+		if err := cartItem.ValidateProduct(); err != nil {
+			return err
+		}
+	}
+	return nil
 }

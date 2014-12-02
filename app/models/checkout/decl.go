@@ -7,6 +7,7 @@ const (
 	ConstConfigPathGroup             = "general.checkout"
 	ConstConfigPathConfirmationEmail = "general.checkout.order_confirmation_email"
 	ConstConfigPathCheckoutType      = "general.checkout.checkout_type"
+	ConstConfigPathOversell          = "general.checkout.oversell"
 
 	ConstConfigPathShippingGroup              = "shipping"
 	ConstConfigPathShippingOriginGroup        = "shipping.origin"

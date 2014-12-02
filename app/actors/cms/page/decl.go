@@ -16,15 +16,11 @@ const (
 type DefaultCMSPage struct {
 	id string
 
-	URL string
-
+	Enabled    bool
 	Identifier string
 
 	Title   string
 	Content string
-
-	MetaKeywords    string
-	MetaDescription string
 
 	CreatedAt time.Time
 	UpdatedAt time.Time

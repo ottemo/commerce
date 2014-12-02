@@ -8,6 +8,11 @@ import (
 	"github.com/ottemo/foundation/app/models/product"
 )
 
+// GetEnabled returns enabled flag for the current category
+func (it *DefaultCategory) GetEnabled() bool {
+	return it.Enabled
+}
+
 // GetName returns current category name
 func (it *DefaultCategory) GetName() string {
 	return it.Name

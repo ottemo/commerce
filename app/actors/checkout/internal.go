@@ -50,23 +50,47 @@ func (it *DefaultCheckout) CheckoutSuccess(checkoutOrder order.InterfaceOrder, s
 		return env.ErrorNew("Order or session is null")
 	}
 
-	currentCart := it.GetCart()
-
-	err := checkoutOrder.Save()
+	err := checkoutOrder.NewIncrementID()
 	if err != nil {
-		return err
+		return env.ErrorDispatch(err)
+	}
+
+	err = checkoutOrder.SetStatus(order.ConstOrderStatusPending)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	err = checkoutOrder.Save()
+	if err != nil {
+		return env.ErrorDispatch(err)
 	}
 
 	// cleanup checkout information
 	//-----------------------------
-	currentCart.Deactivate()
-	currentCart.Save()
+	currentCart := it.GetCart()
+
+	err = currentCart.Deactivate()
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	err = currentCart.Save()
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
 
 	session.Set(cart.ConstSessionKeyCurrentCart, nil)
 	session.Set(checkout.ConstSessionKeyCurrentCheckout, nil)
 
+	// sending notifications
+	//-----------------------------
 	eventData := map[string]interface{}{"checkout": it, "order": checkoutOrder, "session": session, "cart": currentCart}
 	env.Event("checkout.success", eventData)
+
+	err = it.SendOrderConfirmationMail()
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
 
 	return nil
 }

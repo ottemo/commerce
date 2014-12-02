@@ -17,6 +17,7 @@ const (
 type DefaultCategory struct {
 	id string
 
+	Enabled    bool
 	Name       string
 	Parent     category.InterfaceCategory
 	Path       string

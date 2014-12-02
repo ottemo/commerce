@@ -7,6 +7,7 @@ import (
 	"github.com/ottemo/foundation/app/models/category"
 	"github.com/ottemo/foundation/app/models/product"
 	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/foundation/utils"
 )
 
 // updatePath is an internal function used to update "path" attribute of object
@@ -27,10 +28,13 @@ func (it *DefaultCategory) updatePath() {
 func (it *DefaultCategory) Get(attribute string) interface{} {
 	switch strings.ToLower(attribute) {
 	case "_id", "id":
-		return it.id
+		return it.GetID()
+
+	case "enabled":
+		return it.GetEnabled()
 
 	case "name":
-		return it.Name
+		return it.GetName()
 
 	case "path":
 		if it.Path == "" {
@@ -45,7 +49,7 @@ func (it *DefaultCategory) Get(attribute string) interface{} {
 		return ""
 
 	case "parent":
-		return it.Parent
+		return it.GetParent()
 
 	case "products":
 		var result []map[string]interface{}
@@ -66,10 +70,13 @@ func (it *DefaultCategory) Set(attribute string, value interface{}) error {
 
 	switch attribute {
 	case "_id", "id":
-		it.id = value.(string)
+		it.SetID(utils.InterfaceToString(value))
+
+	case "enabled":
+		it.Enabled = utils.InterfaceToBool(value)
 
 	case "name":
-		it.Name = value.(string)
+		it.Name = utils.InterfaceToString(value)
 
 	case "parent_id":
 		if value, ok := value.(string); ok {
@@ -166,7 +173,9 @@ func (it *DefaultCategory) ToHashMap() map[string]interface{} {
 
 	result := make(map[string]interface{})
 
-	result["_id"] = it.id
+	result["_id"] = it.GetID()
+
+	result["enabled"] = it.Get("enabled")
 
 	result["parent_id"] = it.Get("parent_id")
 	result["name"] = it.Get("name")
@@ -181,8 +190,8 @@ func (it *DefaultCategory) GetAttributesInfo() []models.StructAttributeInfo {
 
 	info := []models.StructAttributeInfo{
 		models.StructAttributeInfo{
-			Model:      "Category",
-			Collection: "Category",
+			Model:      category.ConstModelNameCategory,
+			Collection: ConstCollectionNameCategory,
 			Attribute:  "_id",
 			Type:       "id",
 			IsRequired: false,
@@ -194,8 +203,21 @@ func (it *DefaultCategory) GetAttributesInfo() []models.StructAttributeInfo {
 			Default:    "",
 		},
 		models.StructAttributeInfo{
-			Model:      "Category",
-			Collection: "Category",
+			Model:      category.ConstModelNameCategory,
+			Collection: ConstCollectionNameCategory,
+			Attribute:  "enabled",
+			Type:       "bool",
+			IsRequired: true,
+			IsStatic:   true,
+			Label:      "Enabled",
+			Group:      "General",
+			Editors:    "boolean",
+			Options:    "",
+			Default:    "",
+		},
+		models.StructAttributeInfo{
+			Model:      category.ConstModelNameCategory,
+			Collection: ConstCollectionNameCategory,
 			Attribute:  "name",
 			Type:       "text",
 			IsRequired: true,
@@ -207,8 +229,8 @@ func (it *DefaultCategory) GetAttributesInfo() []models.StructAttributeInfo {
 			Default:    "",
 		},
 		models.StructAttributeInfo{
-			Model:      "Category",
-			Collection: "Category",
+			Model:      category.ConstModelNameCategory,
+			Collection: ConstCollectionNameCategory,
 			Attribute:  "parent_id",
 			Type:       "id",
 			IsRequired: false,
@@ -220,8 +242,8 @@ func (it *DefaultCategory) GetAttributesInfo() []models.StructAttributeInfo {
 			Default:    "",
 		},
 		models.StructAttributeInfo{
-			Model:      "Category",
-			Collection: "Category",
+			Model:      category.ConstModelNameCategory,
+			Collection: ConstCollectionNameCategory,
 			Attribute:  "products",
 			Type:       "id",
 			IsRequired: false,

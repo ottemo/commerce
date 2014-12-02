@@ -15,18 +15,14 @@ func (it *DefaultCMSPage) Get(attribute string) interface{} {
 	switch strings.ToLower(attribute) {
 	case "_id", "id":
 		return it.GetID()
-	case "url":
-		return it.GetURL()
+	case "enabled":
+		return it.GetEnabled()
 	case "identifier":
 		return it.GetIdentifier()
 	case "title":
 		return it.GetTitle()
 	case "content":
 		return it.GetContent()
-	case "meta_keywords":
-		return it.GetMetaKeywords()
-	case "meta_description":
-		return it.GetMetaDescription()
 	case "created_at":
 		return it.CreatedAt
 	case "updated_at":
@@ -43,18 +39,14 @@ func (it *DefaultCMSPage) Set(attribute string, value interface{}) error {
 	switch attribute {
 	case "_id", "id":
 		return it.SetID(utils.InterfaceToString(value))
-	case "url":
-		return it.SetURL(utils.InterfaceToString(value))
+	case "enabled":
+		return it.SetEnabled(utils.InterfaceToBool(value))
 	case "identifier":
 		return it.SetIdentifier(utils.InterfaceToString(value))
 	case "title":
 		return it.SetTitle(utils.InterfaceToString(value))
 	case "content":
 		return it.SetContent(utils.InterfaceToString(value))
-	case "meta_keywords":
-		return it.SetMetaKeywords(utils.InterfaceToString(value))
-	case "meta_description":
-		return it.SetMetaDescription(utils.InterfaceToString(value))
 	case "created_at":
 		it.CreatedAt = utils.InterfaceToTime(value)
 		return nil
@@ -84,12 +76,10 @@ func (it *DefaultCMSPage) ToHashMap() map[string]interface{} {
 	result := make(map[string]interface{})
 
 	result["_id"] = it.GetID()
-	result["url"] = it.Get("url")
+	result["enabled"] = it.Get("enabled")
 	result["identifier"] = it.Get("identifier")
 	result["title"] = it.Get("title")
 	result["content"] = it.Get("content")
-	result["meta_keywords"] = it.Get("meta_keywords")
-	result["meta_description"] = it.Get("meta_description")
 	result["created_at"] = it.Get("created_at")
 	result["updated_at"] = it.Get("updated_at")
 
@@ -116,13 +106,13 @@ func (it *DefaultCMSPage) GetAttributesInfo() []models.StructAttributeInfo {
 		models.StructAttributeInfo{
 			Model:      cms.ConstModelNameCMSPage,
 			Collection: ConstCmsPageCollectionName,
-			Attribute:  "url",
-			Type:       "varchar(255)",
+			Attribute:  "enabled",
+			Type:       "bool",
 			IsRequired: true,
 			IsStatic:   true,
-			Label:      "Page URL",
+			Label:      "Enabled",
 			Group:      "General",
-			Editors:    "line_text",
+			Editors:    "boolean",
 			Options:    "",
 			Default:    "",
 		},
@@ -162,32 +152,6 @@ func (it *DefaultCMSPage) GetAttributesInfo() []models.StructAttributeInfo {
 			Label:      "Content",
 			Group:      "General",
 			Editors:    "html",
-			Options:    "",
-			Default:    "",
-		},
-		models.StructAttributeInfo{
-			Model:      cms.ConstModelNameCMSPage,
-			Collection: ConstCmsPageCollectionName,
-			Attribute:  "meta_keywords",
-			Type:       "varchar(255)",
-			IsRequired: false,
-			IsStatic:   true,
-			Label:      "Meta Keywords",
-			Group:      "General",
-			Editors:    "line_text",
-			Options:    "",
-			Default:    "",
-		},
-		models.StructAttributeInfo{
-			Model:      cms.ConstModelNameCMSPage,
-			Collection: ConstCmsPageCollectionName,
-			Attribute:  "meta_description",
-			Type:       "text",
-			IsRequired: false,
-			IsStatic:   true,
-			Label:      "Meta Description",
-			Group:      "General",
-			Editors:    "text",
 			Options:    "",
 			Default:    "",
 		},

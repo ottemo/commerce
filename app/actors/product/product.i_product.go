@@ -10,31 +10,52 @@ import (
 	"github.com/ottemo/foundation/utils"
 )
 
-// GetSku will return requested sku for the given product
+// GetEnabled returns enabled flag for the given product
+func (it *DefaultProduct) GetEnabled() bool { return it.Enabled }
+
+// GetSku returns requested sku for the given product
 func (it *DefaultProduct) GetSku() string { return it.Sku }
 
-// GetName will return the name of the given product
+// GetName returns the name of the given product
 func (it *DefaultProduct) GetName() string { return it.Name }
 
-// GetShortDescription will return the short description of the requested product
+// GetShortDescription returns the short description of the requested product
 func (it *DefaultProduct) GetShortDescription() string { return it.ShortDescription }
 
-// GetDescription will return the long description of the requested product
+// GetDescription returns the long description of the requested product
 func (it *DefaultProduct) GetDescription() string { return it.Description }
 
-// GetDefaultImage will return the imaged identified as defult for the given product
+// GetDefaultImage returns the imaged identified as defult for the given product
 func (it *DefaultProduct) GetDefaultImage() string { return it.DefaultImage }
 
-// GetPrice will return the price as a float64 for the given product
+// GetPrice returns the price as a float64 for the given product
 func (it *DefaultProduct) GetPrice() float64 { return it.Price }
 
-// GetWeight will return the weight for the given product
+// GetWeight returns the weight for the given product
 func (it *DefaultProduct) GetWeight() float64 { return it.Weight }
 
-// GetOptions will return the products otions as a map[string]interface{}
+// GetOptions returns current products possible options as a map[string]interface{}
 func (it *DefaultProduct) GetOptions() map[string]interface{} { return it.Options }
 
-// ApplyOptions is an internal usage function to update order item fields according to options
+// GetQty updates and returns the product qty if stock manager is available and Qty was not set to instance
+// otherwise returns qty was set
+func (it *DefaultProduct) GetQty() int {
+	if stockManager := product.GetRegisteredStock(); it.Qty == 0 && stockManager != nil {
+		it.Qty = stockManager.GetProductQty(it.GetID(), it.GetAppliedOptions())
+	}
+	return it.Qty
+}
+
+// GetAppliedOptions returns applied options for current product instance
+func (it *DefaultProduct) GetAppliedOptions() map[string]interface{} {
+	if it.appliedOptions != nil {
+		return it.appliedOptions
+	}
+	return make(map[string]interface{})
+}
+
+// ApplyOptions updates current product attributes according to given product options,
+// returns error if specified option are not possible for the product
 func (it *DefaultProduct) ApplyOptions(options map[string]interface{}) error {
 	// taking item specified options and product options
 	productOptions := it.GetOptions()
@@ -48,7 +69,7 @@ func (it *DefaultProduct) ApplyOptions(options map[string]interface{}) error {
 
 	for itemOptionName := range options {
 
-		// looking only for options that customer customer set for item
+		// looking only for options that customer set for item
 		if productOption, present := productOptions[itemOptionName]; present {
 			if productOption, ok := productOption.(map[string]interface{}); ok {
 
@@ -68,22 +89,56 @@ func (it *DefaultProduct) ApplyOptions(options map[string]interface{}) error {
 
 	// function to modify orderItem according to option values
 	applyOptionModifiers := func(optionToApply map[string]interface{}) {
+
 		// price modifier
 		if optionValue, present := optionToApply["price"]; present {
-			addPrice := utils.InterfaceToFloat64(optionValue)
-			priceType := utils.InterfaceToString(optionToApply["price_type"])
 
-			if priceType == "percent" || priceType == "%" {
-				it.Price += startPrice * addPrice / 100
+			if optionValue, ok := optionValue.(string); ok {
+
+				isDelta := false
+				isPercent := false
+
+				optionValue = strings.TrimSpace(optionValue)
+				if strings.HasSuffix(optionValue, "%") {
+					isPercent = true
+					optionValue = strings.TrimSuffix(optionValue, "%")
+				}
+
+				var priceValue float64
+				switch {
+				case strings.HasPrefix(optionValue, "+"):
+					optionValue = strings.TrimPrefix(optionValue, "+")
+					isDelta = true
+					priceValue = utils.InterfaceToFloat64(optionValue)
+				case strings.HasPrefix(optionValue, "-"):
+					optionValue = strings.TrimPrefix(optionValue, "-")
+					isDelta = true
+					priceValue = -1 * utils.InterfaceToFloat64(optionValue)
+				default:
+					priceValue = utils.InterfaceToFloat64(optionValue)
+				}
+
+				if isPercent {
+					it.Price += startPrice * priceValue / 100
+				} else if isDelta {
+					it.Price += priceValue
+				} else {
+					it.Price = priceValue
+				}
+
 			} else {
-				it.Price += addPrice
+				it.Set("price", optionValue)
 			}
 		}
 
 		// sku modifier
 		if optionValue, present := optionToApply["sku"]; present {
 			skuModifier := utils.InterfaceToString(optionValue)
-			it.Sku += "-" + skuModifier
+			if strings.HasPrefix(skuModifier, "-") || strings.HasPrefix(skuModifier, "_") {
+				it.Sku += skuModifier
+			} else {
+				it.Sku = skuModifier
+			}
 		}
 	}
 
@@ -162,10 +217,17 @@ func (it *DefaultProduct) ApplyOptions(options map[string]interface{}) error {
 
 	it.Price = utils.RoundPrice(it.Price)
 
+	it.appliedOptions = options
+
+	// stock management stuff
+	if stockManager := product.GetRegisteredStock(); stockManager != nil {
+		it.Qty = stockManager.GetProductQty(it.GetID(), it.GetAppliedOptions())
+	}
+
 	return nil
 }
 
-// GetRelatedProductIds will return the related product IDs
+// GetRelatedProductIds returns the related product IDs
 func (it *DefaultProduct) GetRelatedProductIds() []string {
 	// result := make([]string, 0)
 	var result []string
@@ -180,7 +242,7 @@ func (it *DefaultProduct) GetRelatedProductIds() []string {
 	return result
 }
 
-// GetRelatedProducts will return an array of related products
+// GetRelatedProducts returns an array of related products
 func (it *DefaultProduct) GetRelatedProducts() []product.InterfaceProduct {
 	// result := make([]product.InterfaceProduct, 0)
 	var result []product.InterfaceProduct

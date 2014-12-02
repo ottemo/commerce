@@ -261,7 +261,11 @@ func (it *DefaultCheckout) Submit() (interface{}, error) {
 
 	cartItems := currentCart.GetItems()
 	if len(cartItems) == 0 {
-		return nil, env.ErrorNew("Cart have no products inside")
+		return nil, env.ErrorNew("Cart is empty")
+	}
+
+	if err := currentCart.ValidateCart(); err != nil {
+		return nil, env.ErrorDispatch(err)
 	}
 
 	// making new order if needed
@@ -284,7 +288,7 @@ func (it *DefaultCheckout) Submit() (interface{}, error) {
 	//---------------------------
 	checkoutOrder.Set("updated_at", currentTime)
 
-	checkoutOrder.Set("status", "new")
+	checkoutOrder.Set("status", order.ConstOrderStatusNew)
 	if currentVisitor := it.GetVisitor(); currentVisitor != nil {
 		checkoutOrder.Set("visitor_id", currentVisitor.GetID())
 
@@ -335,7 +339,7 @@ func (it *DefaultCheckout) Submit() (interface{}, error) {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	err = checkoutOrder.Save()
+	err = checkoutOrder.Proceed()
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -360,29 +364,10 @@ func (it *DefaultCheckout) Submit() (interface{}, error) {
 		return result, nil
 	}
 
-	// assigning new order increment id after success payment
-	//-------------------------------------------------------
-	checkoutOrder.NewIncrementID()
-
-	checkoutOrder.Set("status", "pending")
-
 	err = it.CheckoutSuccess(checkoutOrder, it.GetSession())
 	if err != nil {
 		return nil, err
 	}
-
-	err = it.SendOrderConfirmationMail()
-	if err != nil {
-		return nil, env.ErrorDispatch(err)
-	}
-
-	// cleanup checkout information
-	//-----------------------------
-	currentCart.Deactivate()
-	currentCart.Save()
-
-	it.GetSession().Set(cart.ConstSessionKeyCurrentCart, nil)
-	it.GetSession().Set(checkout.ConstSessionKeyCurrentCheckout, nil)
 
 	return checkoutOrder.ToHashMap(), nil
 }

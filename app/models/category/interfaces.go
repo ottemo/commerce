@@ -14,6 +14,8 @@ const (
 
 // InterfaceCategory represents interface to access business layer implementation of category object
 type InterfaceCategory interface {
+	GetEnabled() bool
+
 	GetName() string
 
 	GetParent() InterfaceCategory

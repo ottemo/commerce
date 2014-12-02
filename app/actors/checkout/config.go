@@ -4,6 +4,7 @@ import (
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/checkout"
 	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/foundation/utils"
 )
 
 // setupConfig setups package configuration values for a system
@@ -309,6 +310,21 @@ Total: ${{.Order.grand_total}}<br />`,
 		Description: "shipping methods origin zip code",
 		Image:       "",
 	}, nil)
+
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	config.RegisterItem(env.StructConfigItem{
+		Path:        checkout.ConstConfigPathOversell,
+		Value:       false,
+		Type:        "bool",
+		Editor:      "boolean",
+		Options:     nil,
+		Label:       "Oversell",
+		Description: "Allow product to oversell, (i.e. continue to sell product when qty < 0)",
+		Image:       "",
+	}, func(value interface{}) (interface{}, error) { return utils.InterfaceToBool(value), nil })
 
 	if err != nil {
 		return env.ErrorDispatch(err)
