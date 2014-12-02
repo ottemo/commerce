@@ -116,11 +116,11 @@ func (it *DefaultCartItem) GetCart() cart.InterfaceCart {
 func (it *DefaultCartItem) ValidateProduct() error {
 	cartProduct := it.GetProduct()
 	if cartProduct == nil {
-		return env.ErrorNew("product " + it.GetProductID() + " is not exists currently")
+		return env.ErrorNew("Item with Product ID: " + it.GetProductID() + " does not currently exist")
 	}
 
 	if cartProduct.GetEnabled() == false {
-		return env.ErrorNew("product " + it.GetProductID() + " is not available")
+		return env.ErrorNew("Item with Product ID: " + it.GetProductID() + " is not currently available")
 	}
 
 	// checking for right options
@@ -135,10 +135,10 @@ func (it *DefaultCartItem) ValidateProduct() error {
 		return err
 	}
 
-	allowBackorders := utils.InterfaceToBool(env.ConfigGetValue(checkout.ConstConfigPathBackorders))
-	if !allowBackorders && product.GetRegisteredStock() != nil {
+	allowOversell := utils.InterfaceToBool(env.ConfigGetValue(checkout.ConstConfigPathOversell))
+	if !allowOversell && product.GetRegisteredStock() != nil {
 		if qty := cartProduct.GetQty(); qty < it.GetQty() {
-			return env.ErrorNew("item out of stock")
+			return env.ErrorNew("Item is out of stock")
 		}
 	}
 

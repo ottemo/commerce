@@ -261,7 +261,7 @@ func (it *DefaultCheckout) Submit() (interface{}, error) {
 
 	cartItems := currentCart.GetItems()
 	if len(cartItems) == 0 {
-		return nil, env.ErrorNew("Cart have no products inside")
+		return nil, env.ErrorNew("Cart is empty")
 	}
 
 	if err := currentCart.ValidateCart(); err != nil {

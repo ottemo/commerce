@@ -229,7 +229,7 @@ func (it *DefaultOrder) SetStatus(status string) error {
 	switch status {
 	case order.ConstOrderStatusNew:
 		err = it.Proceed()
-	case order.ConstOrderStatusCanceled:
+	case order.ConstOrderStatusCancelled:
 		err = it.Cancel()
 	default:
 		it.Status = status
@@ -276,7 +276,7 @@ func (it *DefaultOrder) Proceed() error {
 
 // Cancel returns order items to stock and changing order status to canceled, saves order
 func (it *DefaultOrder) Cancel() error {
-	it.Status = order.ConstOrderStatusCanceled
+	it.Status = order.ConstOrderStatusCancelled
 
 	var err error
 	stockManager := product.GetRegisteredStock()

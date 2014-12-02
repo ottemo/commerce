@@ -316,13 +316,13 @@ Total: ${{.Order.grand_total}}<br />`,
 	}
 
 	config.RegisterItem(env.StructConfigItem{
-		Path:        checkout.ConstConfigPathBackorders,
+		Path:        checkout.ConstConfigPathOversell,
 		Value:       false,
 		Type:        "bool",
 		Editor:      "boolean",
 		Options:     nil,
-		Label:       "Backorders",
-		Description: "allows to make backorders (i.e. sell products when qty < 0)",
+		Label:       "Oversell",
+		Description: "Allow product to oversell, (i.e. continue to sell product when qty < 0)",
 		Image:       "",
 	}, func(value interface{}) (interface{}, error) { return utils.InterfaceToBool(value), nil })
 

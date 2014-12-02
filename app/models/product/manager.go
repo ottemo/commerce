@@ -18,7 +18,7 @@ func UnRegisterStock() error {
 // RegisterStock registers given stock manager in system
 func RegisterStock(stock InterfaceStock) error {
 	if registeredStock != nil {
-		return env.ErrorNew("stock already registered")
+		return env.ErrorNew("Already registered")
 	}
 	registeredStock = stock
 

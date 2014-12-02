@@ -13,7 +13,7 @@ const (
 
 	ConstModelNameOrderItemCollection = "OrderItemCollection"
 
-	ConstOrderStatusCanceled  = "canceled"
+	ConstOrderStatusCancelled = "cancelled"
 	ConstOrderStatusNew       = "new"
 	ConstOrderStatusPending   = "pending"
 	ConstOrderStatusCompleted = "completed"
