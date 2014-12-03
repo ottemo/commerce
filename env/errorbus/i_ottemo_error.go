@@ -1,4 +1,4 @@
-package errors
+package errorbus
 
 import (
 	"fmt"
@@ -12,10 +12,15 @@ func (it *OttemoError) Error() string {
 // ErrorFull returns error detail information about error
 func (it *OttemoError) ErrorFull() string {
 	message := it.Message
-	if it.Stack != "" {
-		message += "\n" + it.Stack
+	if it.CallStack != "" {
+		message += "\n" + it.CallStack
 	}
-	return fmt.Sprintf("%d:%s - %s", it.Level, it.Code, message)
+
+	module := it.Module
+	if module != "" {
+		module += ":"
+	}
+	return fmt.Sprintf("%s%d:%s - %s", module, it.Level, it.Code, message)
 }
 
 // ErrorLevel returns error level - if specified or 0
@@ -28,8 +33,8 @@ func (it *OttemoError) ErrorCode() string {
 	return it.Code
 }
 
-// ErrorStack returns error functions call stack for error
+// ErrorCallStack returns error functions call stack for error
 //   Note: ConstCollectStack constant should be set to true, otherwise, stack information will be blank
-func (it *OttemoError) ErrorStack() string {
-	return it.Stack
+func (it *OttemoError) ErrorCallStack() string {
+	return it.CallStack
 }

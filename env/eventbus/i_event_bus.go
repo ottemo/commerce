@@ -1,4 +1,4 @@
-package events
+package eventbus
 
 import (
 	"github.com/ottemo/foundation/env"

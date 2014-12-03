@@ -1,4 +1,4 @@
-package errors
+package errorbus
 
 import (
 	"github.com/ottemo/foundation/env"
@@ -12,4 +12,5 @@ func init() {
 	var _ env.InterfaceOttemoError = new(OttemoError)
 
 	env.RegisterErrorBus(instance)
+	env.RegisterOnConfigStart(setupConfig)
 }

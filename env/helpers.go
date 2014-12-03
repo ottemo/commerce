@@ -81,10 +81,26 @@ func ErrorDispatch(err error) error {
 	return err
 }
 
-// ErrorNew creates new error and dispatches it
+// ErrorModify works similar to ErrorDispatch but allows to set error level, code and module name
+func ErrorModify(err error, module string, level int, code string) error {
+	if errorBus := GetErrorBus(); errorBus != nil {
+		return errorBus.Modify(err, module, level, code)
+	}
+	return err
+}
+
+// ErrorFull creates new error and dispatches it
+func ErrorFull(module string, level int, code string, message string) error {
+	if errorBus := GetErrorBus(); errorBus != nil {
+		return errorBus.New(module, level, code, message)
+	}
+	return errors.New(message)
+}
+
+// ErrorNew creates new error by parsing given string (seek for module name, level and code inside) and dispatches it
 func ErrorNew(message string) error {
 	if errorBus := GetErrorBus(); errorBus != nil {
-		return errorBus.New(message)
+		return errorBus.Raw(message)
 	}
 	return errors.New(message)
 }

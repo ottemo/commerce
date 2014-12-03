@@ -2,11 +2,11 @@
 package basebuild
 
 import (
-	_ "github.com/ottemo/foundation/env/config" // system configuration service
-	_ "github.com/ottemo/foundation/env/errors" // error bus service
-	_ "github.com/ottemo/foundation/env/events" // event bus service
-	_ "github.com/ottemo/foundation/env/ini"    // ini configuration service
-	_ "github.com/ottemo/foundation/env/logger" // file-based logger service
+	_ "github.com/ottemo/foundation/env/config"   // system configuration service
+	_ "github.com/ottemo/foundation/env/errorbus" // error bus service
+	_ "github.com/ottemo/foundation/env/eventbus" // event bus service
+	_ "github.com/ottemo/foundation/env/ini"      // ini configuration service
+	_ "github.com/ottemo/foundation/env/logger"   // file-based logger service
 
 	_ "github.com/ottemo/foundation/api/rest"      // RESTful API service
 	_ "github.com/ottemo/foundation/impex"         // import/export service
