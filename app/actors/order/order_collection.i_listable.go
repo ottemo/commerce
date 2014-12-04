@@ -68,10 +68,10 @@ func (it *DefaultOrderCollection) ListAddExtraAttribute(attribute string) error 
 		if !utils.IsInListStr(attribute, it.listExtraAtributes) {
 			it.listExtraAtributes = append(it.listExtraAtributes, attribute)
 		} else {
-			return env.ErrorNew("attribute already in list")
+			return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "43aa574955b841b698b4851abd2962bd", "attribute already in list")
 		}
 	} else {
-		return env.ErrorNew("not allowed attribute")
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "23ab202d2af54bf9a8886dc767ef53fe", "not allowed attribute")
 	}
 
 	return nil

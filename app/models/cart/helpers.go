@@ -17,7 +17,7 @@ func GetCartModel() (InterfaceCart, error) {
 
 	cartModel, ok := model.(InterfaceCart)
 	if !ok {
-		return nil, env.ErrorNew("model " + model.GetImplementationName() + " is not 'InterfaceCart' capable")
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "369c29544a204958b929036a4bdf944d", "model "+model.GetImplementationName()+" is not 'InterfaceCart' capable")
 	}
 
 	return cartModel, nil
@@ -99,5 +99,5 @@ func GetCurrentCart(params *api.StructAPIHandlerParams) (InterfaceCart, error) {
 		return currentCart, nil
 	}
 
-	return nil, env.ErrorNew("you are not registered")
+	return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "388af60afced4f9b92e4984af79654a7", "you are not registered")
 }

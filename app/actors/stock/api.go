@@ -71,12 +71,12 @@ func restStockGet(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	requestData, err := api.GetRequestContentAsMap(params)
 	if err != nil {
-		return nil, env.ErrorNew("unexpected request content")
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "a4d6f5ae35be44c4a1ff6b7c17e05a73", "unexpected request content")
 	}
 
 	stockManager := product.GetRegisteredStock()
 	if stockManager == nil {
-		return nil, env.ErrorNew("no registered stock manager")
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "0d7805efe13e47c388735ccf29749863", "no registered stock manager")
 	}
 
 	productID := params.RequestURLParams["productID"]
@@ -97,7 +97,7 @@ func restStockSet(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	stockManager := product.GetRegisteredStock()
 	if stockManager == nil {
-		return nil, env.ErrorNew("no registered stock manager")
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "b72e9050cd304d9ea3da20b843fce518", "no registered stock manager")
 	}
 
 	productID := params.RequestURLParams["productID"]
@@ -120,7 +120,7 @@ func restStockUpdate(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	stockManager := product.GetRegisteredStock()
 	if stockManager == nil {
-		return nil, env.ErrorNew("no registered stock manager")
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "c03d0b95400e415f8c4a26863993adbc", "no registered stock manager")
 	}
 
 	productID := params.RequestURLParams["productID"]
@@ -143,7 +143,7 @@ func restStockRemove(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	stockManager := product.GetRegisteredStock()
 	if stockManager == nil {
-		return nil, env.ErrorNew("no registered stock manager")
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "9a4ca9aaa12f49139505e05802a94c32", "no registered stock manager")
 	}
 
 	productID := params.RequestURLParams["productID"]

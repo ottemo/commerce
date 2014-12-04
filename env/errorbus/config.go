@@ -9,7 +9,7 @@ import (
 func setupConfig() error {
 	config := env.GetConfig()
 	if config == nil {
-		return env.ErrorNew("can't obtain config")
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "6dee39acc930420eb777b95f6cab8981", "can't obtain config")
 	}
 
 	err := config.RegisterItem(env.StructConfigItem{

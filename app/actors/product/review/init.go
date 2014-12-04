@@ -17,7 +17,7 @@ func setupDB() error {
 
 	dbEngine := db.GetDBEngine()
 	if dbEngine == nil {
-		return env.ErrorNew("Can't get database engine")
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "da2fa1c95ca346dda5ea3fae1e7b9614", "Can't get database engine")
 	}
 
 	if collection, err := dbEngine.GetCollection("review"); err == nil {

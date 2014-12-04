@@ -58,7 +58,7 @@ func (it *DefaultVisitorAddress) Save() error {
 		if collection, err := dbEngine.GetCollection(ConstCollectionNameVisitorAddress); err == nil {
 
 			//if it.ZipCode== "" {
-			//	return env.ErrorNew("Zip code for address - required")
+			//	return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "c0c6fe3d10554e81aa02e33143594242", "Zip code for address - required")
 			//}
 
 			if newID, err := collection.Save(it.ToHashMap()); err == nil {

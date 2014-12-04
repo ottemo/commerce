@@ -15,14 +15,14 @@ func (it *DefaultCheckout) SendOrderConfirmationMail() error {
 
 	checkoutOrder := it.GetOrder()
 	if checkoutOrder == nil {
-		return env.ErrorNew("given checkout order does not exists")
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "e7c69056cc284632952450d71b909d83", "given checkout order does not exists")
 	}
 
 	confirmationEmail := utils.InterfaceToString(env.ConfigGetValue(checkout.ConstConfigPathConfirmationEmail))
 	if confirmationEmail != "" {
 		email := utils.InterfaceToString(checkoutOrder.Get("customer_email"))
 		if email == "" {
-			return env.ErrorNew("customer email for order is not set")
+			return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "1202fcfbda3f4a0f9a2e92f288fd3881", "customer email for order is not set")
 		}
 
 		confirmationEmail, err := utils.TextTemplate(confirmationEmail,
@@ -47,7 +47,7 @@ func (it *DefaultCheckout) SendOrderConfirmationMail() error {
 func (it *DefaultCheckout) CheckoutSuccess(checkoutOrder order.InterfaceOrder, session api.InterfaceSession) error {
 
 	if checkoutOrder == nil || session == nil {
-		return env.ErrorNew("Order or session is null")
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "17d4536578084a1bad361741a83e820f", "Order or session is null")
 	}
 
 	err := checkoutOrder.NewIncrementID()

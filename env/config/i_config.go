@@ -127,7 +127,7 @@ func (it *DefaultConfig) SetValue(Path string, Value interface{}) error {
 		}
 
 		if len(records) == 0 {
-			return env.ErrorNew("config item '" + Path + "' is not registered")
+			return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "1f29fe4c606248b5a106e3ac94339cda", "config item '"+Path+"' is not registered")
 		}
 
 		record := records[0]
@@ -140,7 +140,7 @@ func (it *DefaultConfig) SetValue(Path string, Value interface{}) error {
 		}
 
 	} else {
-		return env.ErrorNew("can not find config item '" + Path + "' ")
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "6984f1ce1fb140d5b6749d88956164c0", "can not find config item '"+Path+"' ")
 	}
 
 	return nil

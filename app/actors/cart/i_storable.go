@@ -88,12 +88,12 @@ func (it *DefaultCart) Load(ID string) error {
 // Delete removes current cart from DB
 func (it *DefaultCart) Delete() error {
 	if it.GetID() == "" {
-		return env.ErrorNew("cart id is not set")
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "75d83a42db904917969d39dd7fb50943", "cart id is not set")
 	}
 
 	dbEngine := db.GetDBEngine()
 	if dbEngine == nil {
-		return env.ErrorNew("can't get DbEngine")
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "b168a5686f15461290e1f924501c1f0a", "can't get DbEngine")
 	}
 
 	// deleting cart items
@@ -127,7 +127,7 @@ func (it *DefaultCart) Save() error {
 
 	dbEngine := db.GetDBEngine()
 	if dbEngine == nil {
-		return env.ErrorNew("can't get DbEngine")
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "3ca9e7027a8146a9a95002c9a246f581", "can't get DbEngine")
 	}
 
 	cartCollection, err := dbEngine.GetCollection(ConstCartCollectionName)

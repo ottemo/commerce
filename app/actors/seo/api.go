@@ -118,7 +118,7 @@ func restURLRewritesUpdate(params *api.StructAPIHandlerParams) (interface{}, err
 			return nil, env.ErrorDispatch(err)
 		}
 		if recordsNumber > 0 {
-			return nil, env.ErrorNew("rewrite for url '" + urlValue + "' already exists")
+			return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "c2a2e89db3584c3b9b654d161188b592", "rewrite for url '"+urlValue+"' already exists")
 		}
 
 		record["url"] = urlValue
@@ -160,7 +160,7 @@ func restURLRewritesAdd(params *api.StructAPIHandlerParams) (interface{}, error)
 	}
 
 	if !utils.KeysInMapAndNotBlank(postValues, "url", "rewrite") {
-		return nil, env.ErrorNew("'url' and 'rewrite' params should be specified")
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "1a3901a148d54055bacb2b02681bbb71", "'url' and 'rewrite' params should be specified")
 	}
 
 	valueURL := utils.InterfaceToString(postValues["url"])
@@ -179,7 +179,7 @@ func restURLRewritesAdd(params *api.StructAPIHandlerParams) (interface{}, error)
 		return nil, env.ErrorDispatch(err)
 	}
 	if recordsNumber > 0 {
-		return nil, env.ErrorNew("rewrite for url '" + valueURL + "' already exists")
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "77987a8334204baf99f0af9c47689d3b", "rewrite for url '"+valueURL+"' already exists")
 	}
 
 	// making new record and storing it

@@ -43,7 +43,7 @@ func (it *DefaultCart) checkOptions(productOptions map[string]interface{}, cartI
 							}
 						}
 					default:
-						return env.ErrorNew("unexpected option value for '" + optionName + "' option")
+						return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "8e735b08b2b34bb8aa74bb8ebfe86369", "unexpected option value for '"+optionName+"' option")
 					}
 
 					// checking for option customer set with available for product
@@ -53,7 +53,7 @@ func (it *DefaultCart) checkOptions(productOptions map[string]interface{}, cartI
 						switch productOptionValues := productOption["options"].(type) {
 						case map[string]interface{}:
 							if _, present := productOptionValues[optionValue]; !present {
-								return env.ErrorNew("invalid value for option '" + optionName + "'")
+								return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "482efc22b29e44e29ed6b78505a56d4d", "invalid value for option '"+optionName+"'")
 							}
 
 						case []interface{}:
@@ -65,19 +65,19 @@ func (it *DefaultCart) checkOptions(productOptions map[string]interface{}, cartI
 								}
 							}
 							if !found {
-								return env.ErrorNew("invalid value for option '" + optionName + "'")
+								return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "aad634c1fe7b42fbadb758dfc0e3591b", "invalid value for option '"+optionName+"'")
 							}
 
 						default:
 							if productOptionValues != optionValue {
-								return env.ErrorNew("invalid value for option '" + optionName + "'")
+								return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "eec3b62d3aad429c821c1b243fd80fd9", "invalid value for option '"+optionName+"'")
 							}
 						}
 					}
 				}
 			}
 		} else {
-			return env.ErrorNew("unknown option '" + optionName + "'")
+			return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "504c4098c7fe418d9857adf2a08a8c3f", "unknown option '"+optionName+"'")
 		}
 	}
 
@@ -91,14 +91,14 @@ func (it *DefaultCart) checkOptions(productOptions map[string]interface{}, cartI
 					//checking cart item option for required option existence
 					itemOptionValue, present := cartItemOptions[productOption]
 					if !present {
-						return env.ErrorNew(productOption + " was not specified")
+						return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "7d23e4a54f3c49868860c49008510175", productOption+" was not specified")
 					}
 
 					// for multi value options additional check
 					switch typedValue := itemOptionValue.(type) {
 					case []interface{}:
 						if len(typedValue) == 0 {
-							return env.ErrorNew(productOption + " was not specified")
+							return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "c03fd0725aa148d9bb60f03d23ed6ba4", productOption+" was not specified")
 						}
 					}
 
@@ -116,7 +116,7 @@ func (it *DefaultCart) AddItem(productID string, qty int, options map[string]int
 
 	//checking qty
 	if qty <= 0 {
-		return nil, env.ErrorNew("qty can't be zero or less")
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "653e6163077541c69ff54d8ac93bed5e", "qty can't be zero or less")
 	}
 
 	// checking product existence
@@ -167,7 +167,7 @@ func (it *DefaultCart) RemoveItem(itemIdx int) error {
 
 		dbEngine := db.GetDBEngine()
 		if dbEngine == nil {
-			return env.ErrorNew("can't get DB engine")
+			return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "d68c0e088bc6488489b0f8f949266ec4", "can't get DB engine")
 		}
 
 		cartItemsCollection, err := dbEngine.GetCollection(ConstCartItemsCollectionName)
@@ -186,7 +186,7 @@ func (it *DefaultCart) RemoveItem(itemIdx int) error {
 
 		return nil
 	}
-	return env.ErrorNew("can't find index " + strconv.Itoa(itemIdx))
+	return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "f72d898f477d42b49a698ccfffeb298d", "can't find index "+strconv.Itoa(itemIdx))
 }
 
 // SetQty sets new qty for particular item in cart
@@ -203,7 +203,7 @@ func (it *DefaultCart) SetQty(itemIdx int, qty int) error {
 
 		return nil
 	}
-	return env.ErrorNew("there is no item with idx=" + strconv.Itoa(itemIdx))
+	return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "770050963b3f46bc8c674b7df255fdaf", "there is no item with idx="+strconv.Itoa(itemIdx))
 }
 
 // GetSubtotal returns subtotal for cart items
@@ -277,7 +277,7 @@ func (it *DefaultCart) GetCartInfo() map[string]interface{} {
 func (it *DefaultCart) MakeCartForVisitor(visitorID string) error {
 	dbEngine := db.GetDBEngine()
 	if dbEngine == nil {
-		return env.ErrorNew("can't get DB Engine")
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "4c6da71fe0ea4aae8560026c08bfc097", "can't get DB Engine")
 	}
 
 	cartCollection, err := dbEngine.GetCollection(ConstCartCollectionName)

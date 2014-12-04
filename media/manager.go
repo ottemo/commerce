@@ -31,7 +31,7 @@ func RegisterMediaStorage(newEngine InterfaceMediaStorage) error {
 	if currentMediaStorage == nil {
 		currentMediaStorage = newEngine
 	} else {
-		return env.ErrorNew("Sorry, '" + currentMediaStorage.GetName() + "' media storage already registered")
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "eaf0079512f64ea98ce27cc89088af14", "Sorry, '"+currentMediaStorage.GetName()+"' media storage already registered")
 	}
 	return nil
 }
@@ -41,5 +41,5 @@ func GetMediaStorage() (InterfaceMediaStorage, error) {
 	if currentMediaStorage != nil {
 		return currentMediaStorage, nil
 	}
-	return nil, env.ErrorNew("no registered media storage")
+	return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "2bac26ac67c64db49d071b813288a1af", "no registered media storage")
 }

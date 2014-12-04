@@ -59,10 +59,10 @@ func (it *DefaultVisitorAddressCollection) ListAddExtraAttribute(attribute strin
 		if !utils.IsInListStr(attribute, it.listExtraAtributes) {
 			it.listExtraAtributes = append(it.listExtraAtributes, attribute)
 		} else {
-			return env.ErrorNew("attribute already in list")
+			return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "e26dc48728734fdd8dffb9a1005e08ab", "attribute already in list")
 		}
 	} else {
-		return env.ErrorNew("not allowed attribute")
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "393c0a079acf4f669b598de31be541ce", "not allowed attribute")
 	}
 
 	return nil

@@ -63,7 +63,7 @@ func (it *FilesystemMediaStorage) setupOnDatabaseStart() error {
 
 	dbEngine := db.GetDBEngine()
 	if dbEngine == nil {
-		return env.ErrorNew("Can't get database engine")
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "b50f7128a32f4d92866e1ee35ba079df", "Can't get database engine")
 	}
 
 	dbCollection, err := dbEngine.GetCollection(ConstMediaDBCollection)

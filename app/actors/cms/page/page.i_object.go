@@ -55,7 +55,7 @@ func (it *DefaultCMSPage) Set(attribute string, value interface{}) error {
 		return nil
 	}
 
-	return env.ErrorNew("unknown attribute '" + attribute + "'")
+	return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "e6af9084fddc45bfa90c9c3d6ff88a57", "unknown attribute '"+attribute+"'")
 }
 
 // FromHashMap fills object attributes from map[string]interface{}

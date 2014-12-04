@@ -1,5 +1,15 @@
 package models
 
+import (
+	"github.com/ottemo/foundation/env"
+)
+
+// Package global constants
+const (
+	ConstErrorModule = "models"
+	ConstErrorLevel  = env.ConstErrorLevelModel
+)
+
 // StructListItem represents type to hold business layer object information within collection
 type StructListItem struct {
 	ID    string

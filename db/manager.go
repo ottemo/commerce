@@ -31,7 +31,7 @@ func RegisterDBEngine(newEngine InterfaceDBEngine) error {
 	if currentDBEngine == nil {
 		currentDBEngine = newEngine
 	} else {
-		return env.ErrorNew("Sorry, '" + currentDBEngine.GetName() + "' already registered")
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "c8588998a99b406a91cbcb5766e34f7e", "Sorry, '"+currentDBEngine.GetName()+"' already registered")
 	}
 	return nil
 }

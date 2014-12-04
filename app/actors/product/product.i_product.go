@@ -174,7 +174,7 @@ func (it *DefaultProduct) ApplyOptions(options map[string]interface{}) error {
 								}
 							}
 						default:
-							return env.ErrorNew("unexpected option value for " + itemOptionName + " option")
+							return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "6d02be30ca5e46e494c72f01782f30b2", "unexpected option value for " + itemOptionName + " option")
 						}
 
 						// loop through option values customer set for product
@@ -185,7 +185,7 @@ func (it *DefaultProduct) ApplyOptions(options map[string]interface{}) error {
 									applyOptionModifiers(productOptionValue)
 								}
 							} else {
-								return env.ErrorNew("invalid '" + itemOptionName + "' option value: '" + itemOptionValue)
+								return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "8f2baf8aaf9144f38364b42099959ec4", "invalid '" + itemOptionName + "' option value: '" + itemOptionValue)
 							}
 
 						}
@@ -200,7 +200,7 @@ func (it *DefaultProduct) ApplyOptions(options map[string]interface{}) error {
 				}
 			}
 		} else {
-			return env.ErrorNew("unknown option '" + itemOptionName + "'")
+			return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "96246e83fb804781b6712d3d75a65e56", "unknown option '" + itemOptionName + "'")
 		}
 	}
 

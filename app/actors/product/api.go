@@ -131,12 +131,12 @@ func restAddProductAttribute(params *api.StructAPIHandlerParams) (interface{}, e
 
 	attributeName, isSpecified := reqData["Attribute"]
 	if !isSpecified {
-		return nil, env.ErrorNew("attribute name was not specified")
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "2f7aec81dba84cadb68323c5d0a08cf5", "attribute name was not specified")
 	}
 
 	attributeLabel, isSpecified := reqData["Label"]
 	if !isSpecified {
-		return nil, env.ErrorNew("attribute label was not specified")
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "934578478e4d4536898543f340a1abc4", "attribute label was not specified")
 	}
 
 	// check rights
@@ -203,7 +203,7 @@ func restRemoveProductAttribute(params *api.StructAPIHandlerParams) (interface{}
 	//--------------------
 	attributeName, isSpecified := params.RequestURLParams["attribute"]
 	if !isSpecified {
-		return nil, env.ErrorNew("attribute name was not specified")
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "cb8f7251e22b460597bbe239df6c7aac", "attribute name was not specified")
 	}
 
 	// check rights
@@ -234,7 +234,7 @@ func restGetProduct(params *api.StructAPIHandlerParams) (interface{}, error) {
 	//---------------------
 	productID, isSpecifiedID := params.RequestURLParams["id"]
 	if !isSpecifiedID {
-		return nil, env.ErrorNew("product id was not specified")
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "feb3a463622b477ea22dc0a3fd1972dc", "product id was not specified")
 	}
 
 	// load product operation
@@ -246,7 +246,7 @@ func restGetProduct(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// not allowing to see disabled products if not admin
 	if api.ValidateAdminRights(params) != nil && productModel.GetEnabled() == false {
-		return nil, env.ErrorNew("product not available")
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "153673ac100840b5ada92286ad3f02b0", "product not available")
 	}
 
 	return productModel.ToHashMap(), nil
@@ -265,7 +265,7 @@ func restCreateProduct(params *api.StructAPIHandlerParams) (interface{}, error) 
 	}
 
 	if !utils.KeysInMapAndNotBlank(params.RequestURLParams, "sku", "name") {
-		return nil, env.ErrorNew("product name and/or sku were not specified")
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "2a0cf2b0215e4b53bf5598fbfe22cd27", "product name and/or sku were not specified")
 	}
 
 	// check rights
@@ -303,7 +303,7 @@ func restDeleteProduct(params *api.StructAPIHandlerParams) (interface{}, error) 
 	//--------------------
 	productID, isSpecifiedID := params.RequestURLParams["id"]
 	if !isSpecifiedID {
-		return nil, env.ErrorNew("product id was not specified")
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "f35af17081724ec0b30dab883231d222", "product id was not specified")
 	}
 
 	// check rights
@@ -335,12 +335,12 @@ func restUpdateProduct(params *api.StructAPIHandlerParams) (interface{}, error) 
 	//---------------------
 	productID, isSpecifiedID := params.RequestURLParams["id"]
 	if !isSpecifiedID {
-		return nil, env.ErrorNew("product id was not specified")
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "c91e8fc7ca7740d1823ce50f90b8b4b5", "product id was not specified")
 	}
 
 	reqData, err := api.GetRequestContentAsMap(params)
 	if err != nil {
-		return nil, env.ErrorNew("unexpected request content")
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "fffccbad455a4fff81d48919ae3a5c35", "unexpected request content")
 	}
 
 	// check rights
@@ -378,12 +378,12 @@ func restMediaPath(params *api.StructAPIHandlerParams) (interface{}, error) {
 	//---------------------
 	productID, isIDSpecified := params.RequestURLParams["productID"]
 	if !isIDSpecified {
-		return nil, env.ErrorNew("product id was not specified")
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "6597ff92f2ee4233bcf9eb73b957fb05", "product id was not specified")
 	}
 
 	mediaType, isTypeSpecified := params.RequestURLParams["mediaType"]
 	if !isTypeSpecified {
-		return nil, env.ErrorNew("media type was not specified")
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "75c0074158734be19fa0df9d2956d3de", "media type was not specified")
 	}
 
 	// list media operation
@@ -409,12 +409,12 @@ func restMediaList(params *api.StructAPIHandlerParams) (interface{}, error) {
 	//---------------------
 	productID, isIDSpecified := params.RequestURLParams["productID"]
 	if !isIDSpecified {
-		return nil, env.ErrorNew("product id was not specified")
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "526774508a7f49c9a47251d0e80bc7ca", "product id was not specified")
 	}
 
 	mediaType, isTypeSpecified := params.RequestURLParams["mediaType"]
 	if !isTypeSpecified {
-		return nil, env.ErrorNew("media type was not specified")
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "b8b31a9f6fac47b389e2c9b3e589a8f6", "media type was not specified")
 	}
 
 	// list media operation
@@ -441,17 +441,17 @@ func restMediaAdd(params *api.StructAPIHandlerParams) (interface{}, error) {
 	//---------------------
 	productID, isIDSpecified := params.RequestURLParams["productID"]
 	if !isIDSpecified {
-		return nil, env.ErrorNew("product id was not specified")
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "a4696c5d327642728d868061e57743a5", "product id was not specified")
 	}
 
 	mediaType, isTypeSpecified := params.RequestURLParams["mediaType"]
 	if !isTypeSpecified {
-		return nil, env.ErrorNew("media type was not specified")
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "f3ea9a01412a4af29496cb58cdb8139d", "media type was not specified")
 	}
 
 	mediaName, isNameSpecified := params.RequestURLParams["mediaName"]
 	if !isNameSpecified {
-		return nil, env.ErrorNew("media name was not specified")
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "23fb7617f19a4505b70610f7898fd980", "media name was not specified")
 	}
 
 	// check rights
@@ -495,17 +495,17 @@ func restMediaRemove(params *api.StructAPIHandlerParams) (interface{}, error) {
 	//---------------------
 	productID, isIDSpecified := params.RequestURLParams["productID"]
 	if !isIDSpecified {
-		return nil, env.ErrorNew("product id was not specified")
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "f5f77b7f66064bdda1130a3b26f5759c", "product id was not specified")
 	}
 
 	mediaType, isTypeSpecified := params.RequestURLParams["mediaType"]
 	if !isTypeSpecified {
-		return nil, env.ErrorNew("media type was not specified")
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "e81b841f82534b66ac7d2cc9a484044c", "media type was not specified")
 	}
 
 	mediaName, isNameSpecified := params.RequestURLParams["mediaName"]
 	if !isNameSpecified {
-		return nil, env.ErrorNew("media name was not specified")
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "63b37b083b2148b79058291bb7e635a1", "media name was not specified")
 	}
 
 	// check rights
@@ -536,17 +536,17 @@ func restMediaGet(params *api.StructAPIHandlerParams) (interface{}, error) {
 	//---------------------
 	productID, isIDSpecified := params.RequestURLParams["productID"]
 	if !isIDSpecified {
-		return nil, env.ErrorNew("product id was not specified")
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "d33b8a67359f4a3eb626f58b6c70f09f", "product id was not specified")
 	}
 
 	mediaType, isTypeSpecified := params.RequestURLParams["mediaType"]
 	if !isTypeSpecified {
-		return nil, env.ErrorNew("media type was not specified")
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "d081b726caf44694baaa7b1801ca9713", "media type was not specified")
 	}
 
 	mediaName, isNameSpecified := params.RequestURLParams["mediaName"]
 	if !isNameSpecified {
-		return nil, env.ErrorNew("media name was not specified")
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "124c8b9d1a6b491c97baa03e8c828337", "media name was not specified")
 	}
 
 	params.ResponseWriter.Header().Set("Content-Type", mime.TypeByExtension(mediaName))
@@ -614,7 +614,7 @@ func restRelatedList(params *api.StructAPIHandlerParams) (interface{}, error) {
 	//---------------------
 	productID, isSpecifiedID := params.RequestURLParams["productID"]
 	if !isSpecifiedID {
-		return nil, env.ErrorNew("product id was not specified")
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "55aa2eee04074094a90a5d69d8c1efcc", "product id was not specified")
 	}
 
 	reqData, err := api.GetRequestContentAsMap(params)

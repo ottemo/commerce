@@ -31,7 +31,7 @@ func RegisterRestService(newService InterfaceRestService) error {
 	if currentRestService == nil {
 		currentRestService = newService
 	} else {
-		return env.ErrorNew("Sorry, '" + currentRestService.GetName() + "' already registered")
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "9aecae0349854682b42d145da67ba74b", "Sorry, '"+currentRestService.GetName()+"' already registered")
 	}
 	return nil
 }

@@ -134,7 +134,7 @@ func restImpexImportModel(params *api.StructAPIHandlerParams) (interface{}, erro
 	object, isObject := model.(models.InterfaceObject)
 	_, isStorable := model.(models.InterfaceStorable)
 	if !isObject || !isStorable {
-		return nil, env.ErrorNew(modelName + " not implements InterfaceObject or InterfaceStorable interface")
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "e4a8bb15704143caa29d1c053409efef", modelName+" not implements InterfaceObject or InterfaceStorable interface")
 	}
 
 	attributes := make(map[string]models.StructAttributeInfo)
@@ -159,7 +159,7 @@ func restImpexImportModel(params *api.StructAPIHandlerParams) (interface{}, erro
 
 	for _, csvColumn := range csvColumns {
 		if _, ok := attributes[csvColumn]; !ok {
-			return nil, env.ErrorNew("there is no attribute " + csvColumn)
+			return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "de6474369f7945d880f9139b52d1ba23", "there is no attribute "+csvColumn)
 		}
 	}
 
@@ -172,7 +172,7 @@ func restImpexImportModel(params *api.StructAPIHandlerParams) (interface{}, erro
 		object.(models.InterfaceStorable).Save()
 	}
 
-	return nil, env.ErrorNew("not implemented")
+	return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "0a00d776415843a2845102f4344380d6", "not implemented")
 }
 
 // WEB REST API to test import csv file

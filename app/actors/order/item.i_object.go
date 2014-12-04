@@ -97,7 +97,7 @@ func (it *DefaultOrderItem) Set(attribute string, value interface{}) error {
 		it.Weight = utils.InterfaceToFloat64(value)
 
 	default:
-		return env.ErrorNew("unknown attribute: " + attribute)
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "bb97327a389f4a7a91c28ad4e82c6be5", "unknown attribute: "+attribute)
 	}
 
 	return nil

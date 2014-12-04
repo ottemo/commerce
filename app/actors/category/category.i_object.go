@@ -88,7 +88,7 @@ func (it *DefaultCategory) Set(attribute string, value interface{}) error {
 				}
 				categoryModel, ok := model.(category.InterfaceCategory)
 				if !ok {
-					return env.ErrorNew("unsupported category model " + model.GetImplementationName())
+					return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "39b6496a41454b169f67ca6375fd8b1f", "unsupported category model "+model.GetImplementationName())
 				}
 
 				err = categoryModel.Load(value)
@@ -102,7 +102,7 @@ func (it *DefaultCategory) Set(attribute string, value interface{}) error {
 					if categoryModel.GetID() != selfID && ok && !strings.Contains(parentPath, selfID) {
 						it.Parent = categoryModel
 					} else {
-						return env.ErrorNew("category can't have sub-category or itself as parent")
+						return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "0ae6484111234add8250c4f324ad8eab", "category can't have sub-category or itself as parent")
 					}
 				} else {
 					it.Parent = categoryModel
@@ -111,7 +111,7 @@ func (it *DefaultCategory) Set(attribute string, value interface{}) error {
 				it.Parent = nil
 			}
 		} else {
-			return env.ErrorNew("unsupported id specified")
+			return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "04ac194b191245209087b0248b9ea758", "unsupported id specified")
 		}
 		it.updatePath()
 
@@ -122,7 +122,7 @@ func (it *DefaultCategory) Set(attribute string, value interface{}) error {
 		case string:
 			it.Set("parent_id", value)
 		default:
-			env.ErrorNew("unsupported 'parent' value")
+			env.ErrorNew(ConstErrorModule, ConstErrorLevel, "2156d563932b4de7a6157d473717a3bd", "unsupported 'parent' value")
 		}
 		// path should be changed as well
 		it.updatePath()
@@ -150,7 +150,7 @@ func (it *DefaultCategory) Set(attribute string, value interface{}) error {
 			}
 
 		default:
-			return env.ErrorNew("unsupported 'products' value")
+			return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "84284b030a294036aa2db35768884b63", "unsupported 'products' value")
 		}
 	}
 	return nil

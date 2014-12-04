@@ -89,16 +89,16 @@ func ErrorModify(err error, module string, level int, code string) error {
 	return err
 }
 
-// ErrorFull creates new error and dispatches it
-func ErrorFull(module string, level int, code string, message string) error {
+// ErrorNew creates new error and dispatches it
+func ErrorNew(module string, level int, code string, message string) error {
 	if errorBus := GetErrorBus(); errorBus != nil {
 		return errorBus.New(module, level, code, message)
 	}
 	return errors.New(message)
 }
 
-// ErrorNew creates new error by parsing given string (seek for module name, level and code inside) and dispatches it
-func ErrorNew(message string) error {
+// ErrorRaw creates new error by parsing given string (seek for module name, level and code inside) and dispatches it
+func ErrorRaw(message string) error {
 	if errorBus := GetErrorBus(); errorBus != nil {
 		return errorBus.Raw(message)
 	}

@@ -14,7 +14,7 @@ func GetCategoryCollectionModel() (InterfaceCategoryCollection, error) {
 
 	categoryModel, ok := model.(InterfaceCategoryCollection)
 	if !ok {
-		return nil, env.ErrorNew("model " + model.GetImplementationName() + " is not 'InterfaceCategoryCollection' capable")
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "fa2d194880434c0cb10da64e81b5e59d", "model "+model.GetImplementationName()+" is not 'InterfaceCategoryCollection' capable")
 	}
 
 	return categoryModel, nil
@@ -29,7 +29,7 @@ func GetCategoryModel() (InterfaceCategory, error) {
 
 	categoryModel, ok := model.(InterfaceCategory)
 	if !ok {
-		return nil, env.ErrorNew("model " + model.GetImplementationName() + " is not 'InterfaceCategory' capable")
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "3bcc23cb12c642d583898f35e9a876be", "model "+model.GetImplementationName()+" is not 'InterfaceCategory' capable")
 	}
 
 	return categoryModel, nil

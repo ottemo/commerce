@@ -33,7 +33,7 @@ func (it *DBEngine) Startup() error {
 
 	session, err := mgo.Dial(DBUri)
 	if err != nil {
-		return env.ErrorNew("Can't connect to DBEngine")
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "9cbde45b17c04a45b0cbc261db261458", "Can't connect to DBEngine")
 	}
 
 	it.session = session
