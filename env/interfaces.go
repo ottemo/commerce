@@ -19,6 +19,9 @@ const (
 	ConstErrorLevelCritical   = 2
 	ConstErrorLevelStartStop  = 1
 	ConstErrorLevelExternal   = 0
+
+	ConstErrorModule = "env"
+	ConstErrorLevel  = ConstErrorLevelService
 )
 
 // InterfaceEventBus is an interface to system event processor

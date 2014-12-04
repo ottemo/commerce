@@ -2,6 +2,10 @@
 // "github.com/ottemo/foundation/media" package
 package fsmedia
 
+import (
+	"github.com/ottemo/foundation/env"
+)
+
 // Package global constants
 const (
 	ConstMediaDBCollection  = "media"    // database collection name to store media assignment information into
@@ -16,6 +20,9 @@ const (
 	ConstMediaTypeImage    = "image"
 	ConstMediaTypeLink     = "link"
 	ConstMediaTypeDocument = "document"
+
+	ConstErrorModule = "media/fsmedia"
+	ConstErrorLevel  = env.ConstErrorLevelService
 )
 
 // FilesystemMediaStorage is a filesystem based implementer of InterfaceMediaStorage

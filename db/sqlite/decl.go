@@ -7,6 +7,7 @@ import (
 	"sync"
 
 	"github.com/mxk/go-sqlite/sqlite3"
+	"github.com/ottemo/foundation/env"
 )
 
 // Package global constants
@@ -18,6 +19,9 @@ const (
 	ConstFilterGroupDefault = "default" // name for default filter, ref. to by AddFilter(...)
 
 	ConstCollectionNameColumnInfo = "collection_column_info" // table name to hold Ottemo types of columns
+
+	ConstErrorModule = "db/sqlite"
+	ConstErrorLevel  = env.ConstErrorLevelService
 )
 
 // Package global variables

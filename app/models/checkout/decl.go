@@ -1,5 +1,9 @@
 package checkout
 
+import (
+	"github.com/ottemo/foundation/env"
+)
+
 // Package global constants
 const (
 	ConstCheckoutModelName = "Checkout"
@@ -34,4 +38,7 @@ const (
 	ConstPaymentTypePostCC     = "post_cc"
 
 	ConstSessionKeyCurrentCheckout = "Checkout"
+
+	ConstErrorModule = "checkout"
+	ConstErrorLevel  = env.ConstErrorLevelModel
 )

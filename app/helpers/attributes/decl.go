@@ -9,11 +9,15 @@ import (
 	"sync"
 
 	"github.com/ottemo/foundation/app/models"
+	"github.com/ottemo/foundation/env"
 )
 
 // Package global constants
 const (
 	ConstCollectionNameCustomAttributes = "custom_attributes"
+
+	ConstErrorModule = "attributes"
+	ConstErrorLevel  = env.ConstErrorLevelHelper
 )
 
 // Package global variables

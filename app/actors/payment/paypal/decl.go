@@ -3,6 +3,7 @@
 package paypal
 
 import (
+	"github.com/ottemo/foundation/env"
 	"sync"
 )
 
@@ -27,6 +28,9 @@ const (
 
 	ConstConfigPathSignature = "payment.paypal.signature"
 	ConstConfigPathAction    = "payment.paypal.action"
+
+	ConstErrorModule = "payment/paypal"
+	ConstErrorLevel  = env.ConstErrorLevelActor
 )
 
 // Package global variables

@@ -3,6 +3,7 @@ package cms
 
 import (
 	"github.com/ottemo/foundation/app/models"
+	"github.com/ottemo/foundation/env"
 )
 
 // Package global constants
@@ -11,6 +12,9 @@ const (
 	ConstModelNameCMSPageCollection  = "CMSPageCollection"
 	ConstModelNameCMSBlock           = "CMSBlock"
 	ConstModelNameCMSBlockCollection = "CMSBlockCollection"
+
+	ConstErrorModule = "cms"
+	ConstErrorLevel  = env.ConstErrorLevelModel
 )
 
 // InterfaceCMSPage represents interface to access business layer implementation of cms page object

@@ -4,12 +4,16 @@ package cart
 
 import (
 	"github.com/ottemo/foundation/app/models/cart"
+	"github.com/ottemo/foundation/env"
 )
 
 // Package global constants
 const (
 	ConstCartCollectionName      = "cart"
 	ConstCartItemsCollectionName = "cart_items"
+
+	ConstErrorModule = "cart"
+	ConstErrorLevel  = env.ConstErrorLevelActor
 )
 
 // DefaultCart is a default implementer of InterfaceCart

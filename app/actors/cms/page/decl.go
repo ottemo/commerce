@@ -4,12 +4,16 @@ package page
 
 import (
 	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/foundation/env"
 	"time"
 )
 
 // Package global constants
 const (
 	ConstCmsPageCollectionName = "cms_page"
+
+	ConstErrorModule = "cms/page"
+	ConstErrorLevel  = env.ConstErrorLevelActor
 )
 
 // DefaultCMSPage is a default implementer of InterfaceCMSPage

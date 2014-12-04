@@ -2,6 +2,10 @@
 // "github.com/ottemo/foundation/app/models/checkout" package
 package fedex
 
+import (
+	"github.com/ottemo/foundation/env"
+)
+
 // Package global variables
 var (
 	ConstShippingMethods = map[string]string{
@@ -69,6 +73,9 @@ const (
 	ConstConfigPathDropoff        = "shipping.fedex.dropoff"
 
 	ConstConfigPathDebugLog = "shipping.fedex.debug_log"
+
+	ConstErrorModule = "shipping/fedex"
+	ConstErrorLevel  = env.ConstErrorLevelActor
 )
 
 // FedEx is a implementer of InterfaceShippingMethod for "FedEx" shipping method

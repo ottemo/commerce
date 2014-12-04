@@ -9,6 +9,9 @@ import (
 // Package global constants
 const (
 	ConstCollectionNameConfig = "config"
+
+	ConstErrorModule = "env/config"
+	ConstErrorLevel  = env.ConstErrorLevelService
 )
 
 // DefaultConfig is a default implementer of InterfaceConfig

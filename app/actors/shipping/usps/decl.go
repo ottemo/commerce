@@ -2,6 +2,10 @@
 // "github.com/ottemo/foundation/app/models/checkout" package
 package usps
 
+import (
+	"github.com/ottemo/foundation/env"
+)
+
 // Package global constants
 const (
 	ConstShippingCode = "usps"
@@ -22,6 +26,9 @@ const (
 	ConstConfigPathDefaultWeight     = "shipping.usps.default_weight"
 	ConstConfigPathAllowedMethods    = "shipping.usps.allowed_methods"
 	ConstConfigPathDebugLog          = "shipping.usps.debug_log"
+
+	ConstErrorModule = "shipping/usps"
+	ConstErrorLevel  = env.ConstErrorLevelActor
 )
 
 // USPS is a implementer of InterfaceShippingMethod for a "USPS" shipping method

@@ -2,6 +2,10 @@
 // "github.com/ottemo/foundation/env" package
 package ini
 
+import (
+	"github.com/ottemo/foundation/env"
+)
+
 // Package global constants
 const (
 	ConstIniGlobalSection  = ""  // ini file section name to be used as default section
@@ -16,6 +20,9 @@ const (
 
 	ConstTestSectionName = "test"
 	ConstDefaultIniFile  = "ottemo.ini"
+
+	ConstErrorModule = "env/ini"
+	ConstErrorLevel  = env.ConstErrorLevelService
 )
 
 // DefaultIniConfig is a default implementer of InterfaceIniConfig

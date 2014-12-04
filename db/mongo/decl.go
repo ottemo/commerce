@@ -5,6 +5,7 @@ package mongo
 import (
 	"sync"
 
+	"github.com/ottemo/foundation/env"
 	"labix.org/v2/mgo"
 	"labix.org/v2/mgo/bson"
 )
@@ -23,6 +24,9 @@ const (
 	ConstFilterGroupDefault = "default" // name for default filter, ref. to by AddFilter(...)
 
 	ConstCollectionNameColumnInfo = "collection_column_info" // collection name to hold Ottemo types of attributes
+
+	ConstErrorModule = "db/mongo"
+	ConstErrorLevel  = env.ConstErrorLevelService
 )
 
 // StructDBFilterGroup is a structure to hold information of named collection filter

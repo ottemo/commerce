@@ -5,11 +5,15 @@ package product
 import (
 	"github.com/ottemo/foundation/app/helpers/attributes"
 	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/foundation/env"
 )
 
 // Package global constants
 const (
 	ConstCollectionNameProduct = "product"
+
+	ConstErrorModule = "product"
+	ConstErrorLevel  = env.ConstErrorLevelActor
 )
 
 // DefaultProduct is a default implementer of InterfaceProduct

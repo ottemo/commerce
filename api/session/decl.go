@@ -18,6 +18,9 @@ const (
 	ALPHANUMERIC = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890" // sessionID allowed symbols
 
 	ConstSessionCookieName = "OTTEMOSESSION" // cookie name which should contain sessionID
+
+	ConstErrorModule = "api/session"
+	ConstErrorLevel  = env.ConstErrorLevelService
 )
 
 // Package global variables

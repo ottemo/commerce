@@ -2,6 +2,10 @@
 // "github.com/ottemo/foundation/app/models/checkout" package
 package flatrate
 
+import (
+	"github.com/ottemo/foundation/env"
+)
+
 // Package global constants
 const (
 	ConstShippingCode = "flat_rate"
@@ -13,6 +17,9 @@ const (
 	ConstConfigPathAmount  = "shipping.flat_rate.amount"
 	ConstConfigPathName    = "shipping.flat_rate.name"
 	ConstConfigPathDays    = "shipping.flat_rate.days"
+
+	ConstErrorModule = "shipping/flatrate"
+	ConstErrorLevel  = env.ConstErrorLevelActor
 )
 
 // ShippingMethod is a implementer of InterfaceShippingMethod for a "Flat Rate" shipping method

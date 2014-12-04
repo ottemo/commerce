@@ -4,12 +4,16 @@
 package api
 
 import (
+	"github.com/ottemo/foundation/env"
 	"net/http"
 )
 
 // Package global constants
 const (
 	ConstSessionKeyAdminRights = "adminRights" // session key used to flag that user have admin rights
+
+	ConstErrorModule = "api"
+	ConstErrorLevel  = env.ConstErrorLevelService
 )
 
 // StructAPIHandlerParams is a structure to hold API request related information

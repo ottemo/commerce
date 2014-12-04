@@ -1,6 +1,10 @@
 // Package rts implements Real Time Statistics calculations module
 package rts
 
+import (
+	"github.com/ottemo/foundation/env"
+)
+
 import "time"
 
 // Package global constants
@@ -17,6 +21,9 @@ const (
 	ConstVisitorCheckout      = 2
 	ConstVisitorSales         = 3
 	ConstVisitorOnlineSeconds = 10
+
+	ConstErrorModule = "rts"
+	ConstErrorLevel  = env.ConstErrorLevelActor
 )
 
 // Package global variables

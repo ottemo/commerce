@@ -4,12 +4,16 @@ package block
 
 import (
 	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/foundation/env"
 	"time"
 )
 
 // Package global constants
 const (
 	ConstCmsBlockCollectionName = "cms_block"
+
+	ConstErrorModule = "cms/block"
+	ConstErrorLevel  = env.ConstErrorLevelActor
 )
 
 // DefaultCMSBlock is a default implementer of InterfaceCMSBlock

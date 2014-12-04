@@ -1,6 +1,10 @@
 // Package db is a set of interfaces to access database services
 package db
 
+import (
+	"github.com/ottemo/foundation/env"
+)
+
 // Package global constants
 const (
 	ConstDBBasetypeID       = "id"
@@ -13,6 +17,9 @@ const (
 	ConstDBBasetypeFloat    = "float"
 	ConstDBBasetypeDatetime = "datetime"
 	ConstDBBasetypeJSON     = "json"
+
+	ConstErrorModule = "db"
+	ConstErrorLevel  = env.ConstErrorLevelService
 )
 
 // InterfaceDBEngine represents interface to access database engine

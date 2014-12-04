@@ -4,12 +4,16 @@ package category
 import (
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/product"
+	"github.com/ottemo/foundation/env"
 )
 
 // Package global constants
 const (
 	ConstModelNameCategory           = "Category"
 	ConstModelNameCategoryCollection = "CategoryCollection"
+
+	ConstErrorModule = "category"
+	ConstErrorLevel  = env.ConstErrorLevelModel
 )
 
 // InterfaceCategory represents interface to access business layer implementation of category object

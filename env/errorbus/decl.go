@@ -15,6 +15,9 @@ const (
 	ConstConfigPathErrorLogLevel    = "general.error.log_level"
 	ConstConfigPathErrorHideLevel   = "general.error.hide_level"
 	ConstConfigPathErrorHideMessage = "general.error.hide_message"
+
+	ConstErrorModule = "env/errorbus"
+	ConstErrorLevel  = env.ConstErrorLevelService
 )
 
 // Package global variables

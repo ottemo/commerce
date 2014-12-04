@@ -6,6 +6,10 @@
 // In general this package contains the stuff addressed to system application.
 package app
 
+import (
+	"github.com/ottemo/foundation/env"
+)
+
 // Package global constants
 const (
 	ConstConfigPathGroup      = "general"
@@ -36,4 +40,7 @@ const (
 	ConstConfigPathMailPort      = "general.mail.port"
 	ConstConfigPathMailUser      = "general.mail.user"
 	ConstConfigPathMailPassword  = "general.mail.password"
+
+	ConstErrorModule = "app"
+	ConstErrorLevel  = env.ConstErrorLevelService
 )
