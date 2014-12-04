@@ -89,7 +89,7 @@ func restReviewAdd(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 		starsNum := utils.InterfaceToInt(starsValue)
 		if starsNum <= 0 || starsNum > 5 {
-			return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "1a7d1a3daa794722b02bc030bffb7557", "stars should be value integer beetween 1 and 5")
+			return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "1a7d1a3daa794722b02bc030bffb7557", "stars should be value integer beetween 1 and 5")
 		}
 
 		reviewCollection.AddFilter("product_id", "=", productObject.GetID())
@@ -102,7 +102,7 @@ func restReviewAdd(params *api.StructAPIHandlerParams) (interface{}, error) {
 		}
 
 		if records > 0 {
-			return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "930320888575475492cb0146b9c4fa97", "you have already vote for that product")
+			return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "930320888575475492cb0146b9c4fa97", "you have already vote for that product")
 		}
 
 		ratingValue = starsNum

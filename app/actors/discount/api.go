@@ -51,7 +51,7 @@ func restDiscountApply(params *api.StructAPIHandlerParams) (interface{}, error) 
 
 	// checking if coupon was already applied
 	if utils.IsInArray(couponCode, appliedCoupons) {
-		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "29c4c963094047808ad29ed5ca7c97ff", "coupon code already applied")
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "29c4c963094047808ad29ed5ca7c97ff", "coupon code already applied")
 	}
 
 	// loading coupon for specified code
@@ -100,10 +100,10 @@ func restDiscountApply(params *api.StructAPIHandlerParams) (interface{}, error) 
 			params.Session.Set(ConstSessionKeyAppliedDiscountCodes, appliedCoupons)
 
 		} else {
-			return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "63442858bd714f10855ab5975fc2dd16", "coupon is not applicable")
+			return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "63442858bd714f10855ab5975fc2dd16", "coupon is not applicable")
 		}
 	} else {
-		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "b293450506e94250bb98c22e4918799e", "coupon code not found")
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "b293450506e94250bb98c22e4918799e", "coupon code not found")
 	}
 
 	return "ok", nil

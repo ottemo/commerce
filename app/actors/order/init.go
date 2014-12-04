@@ -89,7 +89,7 @@ func setupDB() error {
 		collection.AddColumn("weight", "decimal(10,2)", false)
 
 	} else {
-		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "9d0358f103ab44d1a0802c62fed5fd81", "Can't get database engine")
+		return env.ErrorNew(ConstErrorModule, env.ConstErrorLevelStartStop, "9d0358f103ab44d1a0802c62fed5fd81", "Can't get database engine")
 	}
 
 	return nil

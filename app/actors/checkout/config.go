@@ -11,7 +11,7 @@ import (
 func setupConfig() error {
 	config := env.GetConfig()
 	if config == nil {
-		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "701e85e4b63c48f4a990673ba0ed6a2a", "can't obtain config")
+		return env.ErrorNew(ConstErrorModule, env.ConstErrorLevelStartStop, "701e85e4b63c48f4a990673ba0ed6a2a", "can't obtain config")
 	}
 
 	// Checkout

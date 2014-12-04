@@ -56,7 +56,7 @@ func (it *DefaultCart) setupDB() error {
 		collection.AddColumn("options", "text", false)
 
 	} else {
-		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "33076d0b5c6541ddaa84e4b68e1efa5b", "Can't get database engine")
+		return env.ErrorNew(ConstErrorModule, env.ConstErrorLevelStartStop, "33076d0b5c6541ddaa84e4b68e1efa5b", "Can't get database engine")
 	}
 
 	return nil

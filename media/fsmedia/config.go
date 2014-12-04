@@ -8,7 +8,7 @@ import (
 func (it *FilesystemMediaStorage) setupConfig() error {
 	config := env.GetConfig()
 	if config == nil {
-		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "7c6d90929a174d96a796fd0f7b64c00a", "can't obtain config")
+		return env.ErrorNew(ConstErrorModule, env.ConstErrorLevelStartStop, "7c6d90929a174d96a796fd0f7b64c00a", "can't obtain config")
 	}
 
 	imageSizesValidator := func(newValue interface{}) (interface{}, error) {
@@ -19,7 +19,7 @@ func (it *FilesystemMediaStorage) setupConfig() error {
 			}
 			return newValue, nil
 		}
-		return ConstDefaultImageSizes, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "165834bdd8ca4b1d8cfab8a153288913", "unexpected image sizes value")
+		return ConstDefaultImageSizes, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelStartStop, "165834bdd8ca4b1d8cfab8a153288913", "unexpected image sizes value")
 	}
 
 	err := config.RegisterItem(env.StructConfigItem{
