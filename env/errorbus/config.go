@@ -3,6 +3,7 @@ package errorbus
 import (
 	"errors"
 	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/foundation/utils"
 )
 
 // setupConfig setups package configuration values for a system
@@ -29,14 +30,12 @@ func setupConfig() error {
 
 	// Log level
 	logLevelValidator := func(newValue interface{}) (interface{}, error) {
-		if newLevel, ok := newValue.(int); ok {
-			if newLevel > 10 || newLevel < 0 {
-				return logLevel, errors.New("'Log level' config value should be between 0 and 10")
-			}
-			logLevel = newLevel
-		} else {
-			return logLevel, errors.New("wrong type for 'Log level' config value")
+		newLevel := utils.InterfaceToInt(newValue)
+		if newLevel > 10 || newLevel < 0 {
+			return logLevel, errors.New("'Log level' config value should be between 0 and 10")
 		}
+		logLevel = newLevel
+
 		return logLevel, nil
 	}
 	err = config.RegisterItem(env.StructConfigItem{
@@ -56,14 +55,12 @@ func setupConfig() error {
 
 	// Hide level
 	hideLevelValidator := func(newValue interface{}) (interface{}, error) {
-		if newLevel, ok := newValue.(int); ok {
-			if newLevel > 10 || newLevel < 0 {
-				return hideLevel, errors.New("'Hide level' config value should be between 0 and 10")
-			}
-			hideLevel = newLevel
-		} else {
-			return hideLevel, errors.New("wrong type for 'Hide level' config value")
+		newLevel := utils.InterfaceToInt(newValue)
+		if newLevel > 10 || newLevel < 0 {
+			return hideLevel, errors.New("'Hide level' config value should be between 0 and 10")
 		}
+		hideLevel = newLevel
+
 		return hideLevel, nil
 	}
 	err = config.RegisterItem(env.StructConfigItem{

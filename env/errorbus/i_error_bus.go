@@ -20,9 +20,7 @@ func (it *DefaultErrorBus) backtrace(ottemoErr *OttemoError) {
 			if cutStopFlag {
 				ottemoErr.CallStack += file + ":" + strconv.Itoa(line) + "\n"
 			} else {
-				if !strings.Contains(file, "github.com/ottemo/foundation/env/helpers.go") &&
-					!strings.Contains(file, "github.com/ottemo/foundation/env/errors") {
-
+				if !strings.Contains(file, "env/helpers.go") && !strings.Contains(file, "env/errorbus/") {
 					cutStopFlag = true
 				}
 			}
