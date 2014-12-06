@@ -47,7 +47,7 @@ func (it *FilesystemMediaStorage) setupConfig() error {
 			}
 			return newValue, nil
 		}
-		return ConstDefaultImageSize, env.ErrorNew("unexpected image sizes value")
+		return ConstDefaultImageSize, env.ErrorNew("fsmedia", 5, "165834bdd8ca4b1d8cfab8a153288913", "Unexpected value for image size")
 	}
 
 	err = config.RegisterItem(env.StructConfigItem{
