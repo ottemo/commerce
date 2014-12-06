@@ -6,12 +6,16 @@ import (
 
 	"github.com/ottemo/foundation/app/models/product"
 	"github.com/ottemo/foundation/app/models/visitor"
+	"github.com/ottemo/foundation/env"
 )
 
 // Package global constants
 const (
 	ConstCartModelName         = "Cart"
 	ConstSessionKeyCurrentCart = "cart_id"
+
+	ConstErrorModule = "cart"
+	ConstErrorLevel  = env.ConstErrorLevelModel
 )
 
 // InterfaceCartItem represents interface to access business layer implementation of cart item object

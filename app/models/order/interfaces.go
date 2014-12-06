@@ -4,6 +4,7 @@ package order
 import (
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/visitor"
+	"github.com/ottemo/foundation/env"
 )
 
 // Package global constants
@@ -17,6 +18,9 @@ const (
 	ConstOrderStatusNew       = "new"
 	ConstOrderStatusPending   = "pending"
 	ConstOrderStatusCompleted = "completed"
+
+	ConstErrorModule = "order"
+	ConstErrorLevel  = env.ConstErrorLevelModel
 )
 
 // InterfaceOrderItem represents interface to access business layer implementation of purchase order item object

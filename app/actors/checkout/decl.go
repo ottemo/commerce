@@ -4,6 +4,13 @@ package checkout
 
 import (
 	"github.com/ottemo/foundation/app/models/checkout"
+	"github.com/ottemo/foundation/env"
+)
+
+// Package global constants
+const (
+	ConstErrorModule = "checkout"
+	ConstErrorLevel  = env.ConstErrorLevelActor
 )
 
 // DefaultCheckout is a default implementer of InterfaceCheckout

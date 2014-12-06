@@ -9,6 +9,19 @@ const (
 	ConstLogPrefixWarning = "WARNING"
 	ConstLogPrefixDebug   = "DEBUG"
 	ConstLogPrefixInfo    = "INFO"
+
+	ConstErrorLevelAPI        = 10
+	ConstErrorLevelModel      = 9
+	ConstErrorLevelActor      = 8
+	ConstErrorLevelHelper     = 7
+	ConstErrorLevelService    = 4
+	ConstErrorLevelServiceAct = 3
+	ConstErrorLevelCritical   = 2
+	ConstErrorLevelStartStop  = 1
+	ConstErrorLevelExternal   = 0
+
+	ConstErrorModule = "env"
+	ConstErrorLevel  = ConstErrorLevelService
 )
 
 // InterfaceEventBus is an interface to system event processor
@@ -25,8 +38,11 @@ type InterfaceErrorBus interface {
 
 	RegisterListener(FuncErrorListener)
 
-	Dispatch(error) error
-	New(string) error
+	Dispatch(err error) error
+	Modify(err error, module string, level int, code string) error
+
+	New(module string, level int, code string, message string) error
+	Raw(message string) error
 }
 
 // InterfaceLogger is an interface to system logging service
@@ -74,7 +90,7 @@ type InterfaceOttemoError interface {
 	ErrorFull() string
 	ErrorLevel() int
 	ErrorCode() string
-	ErrorStack() string
+	ErrorCallStack() string
 
 	error
 }

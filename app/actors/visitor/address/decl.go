@@ -3,11 +3,15 @@ package address
 
 import (
 	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/foundation/env"
 )
 
 // Package global constants
 const (
 	ConstCollectionNameVisitorAddress = "visitor_address"
+
+	ConstErrorModule = "visitor/address"
+	ConstErrorLevel  = env.ConstErrorLevelActor
 )
 
 // DefaultVisitorAddress is a default implementer of InterfaceVisitorAddress

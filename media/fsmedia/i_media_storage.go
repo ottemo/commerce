@@ -68,6 +68,7 @@ func (it *FilesystemMediaStorage) Save(model string, objID string, mediaType str
 		if imageFormat != "jpeg" && imageFormat != "png" {
 
 			newFile, err := os.Create(mediaFilePath)
+			defer newFile.Close()
 			if err != nil {
 				return env.ErrorDispatch(err)
 			}
@@ -84,13 +85,11 @@ func (it *FilesystemMediaStorage) Save(model string, objID string, mediaType str
 			}
 		}
 
-		// resizing to image sizes system currently using
+		// ResizeMediaImage will check necessity of resize by it self
 		for imageSize := range it.imageSizes {
-			err = it.ResizeMediaImage(model, objID, mediaName, imageSize)
-			if err != nil {
-				return env.ErrorDispatch(err)
-			}
+			it.ResizeMediaImage(model, objID, mediaName, imageSize)
 		}
+		it.ResizeMediaImage(model, objID, mediaName, it.baseSize)
 	}
 
 	// making database record
@@ -98,7 +97,7 @@ func (it *FilesystemMediaStorage) Save(model string, objID string, mediaType str
 
 	dbEngine := db.GetDBEngine()
 	if dbEngine == nil {
-		return env.ErrorNew("Can't get database engine")
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "92bd8bc98d0443a097217b57aaabac7f", "Can't get database engine")
 	}
 
 	dbCollection, err := dbEngine.GetCollection(ConstMediaDBCollection)
@@ -132,7 +131,7 @@ func (it *FilesystemMediaStorage) Remove(model string, objID string, mediaType s
 	// preparing DB collection
 	dbEngine := db.GetDBEngine()
 	if dbEngine == nil {
-		return env.ErrorNew("Can't get database engine")
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "f3af959a4d1e4dd8a8277652fcb5402a", "Can't get database engine")
 	}
 
 	dbCollection, err := dbEngine.GetCollection(ConstMediaDBCollection)
@@ -180,7 +179,7 @@ func (it *FilesystemMediaStorage) ListMedia(model string, objID string, mediaTyp
 
 	dbEngine := db.GetDBEngine()
 	if dbEngine == nil {
-		return result, env.ErrorNew("Can't get database engine")
+		return result, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "d4c8dd6e95be4b8fb6065544b633cd7c", "Can't get database engine")
 	}
 
 	dbCollection, err := dbEngine.GetCollection(ConstMediaDBCollection)
@@ -202,16 +201,12 @@ func (it *FilesystemMediaStorage) ListMedia(model string, objID string, mediaTyp
 
 	// checking that object have all image sizes
 	if mediaType == ConstMediaTypeImage {
-		if path, err := it.GetMediaPath(model, objID, mediaType); err == nil {
-			for _, mediaName := range result {
-				for imageSize := range it.imageSizes {
-					mediaFilePath := it.storageFolder + path + it.GetResizedMediaName(mediaName, imageSize)
-
-					if _, err := os.Stat(mediaFilePath); os.IsNotExist(err) {
-						it.ResizeMediaImage(model, objID, mediaName, imageSize)
-					}
-				}
+		// ResizeMediaImage will check necessity of resize by it self
+		for _, mediaName := range result {
+			for imageSize := range it.imageSizes {
+				it.ResizeMediaImage(model, objID, mediaName, imageSize)
 			}
+			it.ResizeMediaImage(model, objID, mediaName, it.baseSize)
 		}
 	}
 

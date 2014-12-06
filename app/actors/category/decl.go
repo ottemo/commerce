@@ -5,12 +5,16 @@ package category
 import (
 	"github.com/ottemo/foundation/app/models/category"
 	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/foundation/env"
 )
 
 // Package global constants
 const (
 	ConstCollectionNameCategory                = "category"
 	ConstCollectionNameCategoryProductJunction = "category_product"
+
+	ConstErrorModule = "category"
+	ConstErrorLevel  = env.ConstErrorLevelActor
 )
 
 // DefaultCategory is a default implementer of InterfaceCategory

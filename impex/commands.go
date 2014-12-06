@@ -36,7 +36,7 @@ func CheckModelImplements(modelName string, neededInterfaces []string) (models.I
 		}
 
 		if !ok {
-			return nil, env.ErrorNew("model " + modelName + " not implements " + interfaceName)
+			return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "40d041484bd94e698748088b85bb7e0f", "model "+modelName+" not implements "+interfaceName)
 		}
 	}
 
@@ -143,7 +143,7 @@ func (it *ImportCmdInsert) Process(itemData map[string]interface{}, input interf
 	// preparing model
 	//-----------------
 	if it.model == nil {
-		return nil, env.ErrorNew("INSERT command have no assigned model to work on")
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "eb15163bbca941a792bcc646fe4eba53", "INSERT command have no assigned model to work on")
 	}
 	cmdModel, err := it.model.New()
 	if err != nil {
@@ -190,7 +190,7 @@ func (it *ImportCmdUpdate) Init(args []string, exchange map[string]interface{}) 
 	it.idKey = ArgsFindIDKey(args)
 
 	if it.model == nil {
-		return env.ErrorNew("INSERT command have no assigned model to work on")
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "0ceb92d576fc4022866f6f905d299ab8", "INSERT command have no assigned model to work on")
 	}
 
 	if it.idKey == "" {
@@ -256,7 +256,7 @@ func (it *ImportCmdDelete) Init(args []string, exchange map[string]interface{}) 
 	it.idKey = ArgsFindIDKey(args)
 
 	if it.model == nil {
-		return env.ErrorNew("DELETE command have no assigned model to work on")
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "049c8839f2414b9bb7369338552b8143", "DELETE command have no assigned model to work on")
 	}
 
 	if it.idKey == "" {
@@ -363,7 +363,7 @@ func (it *ImportCmdMedia) Init(args []string, exchange map[string]interface{}) e
 	}
 
 	if it.mediaField == "" {
-		return env.ErrorNew("media field was not specified")
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "34994aea87a04d6f935ee875d0708e65", "media field was not specified")
 	}
 
 	return nil
@@ -373,7 +373,7 @@ func (it *ImportCmdMedia) Init(args []string, exchange map[string]interface{}) e
 func (it *ImportCmdMedia) Process(itemData map[string]interface{}, input interface{}, exchange map[string]interface{}) (interface{}, error) {
 	inputAsMedia, ok := input.(models.InterfaceMedia)
 	if !ok {
-		return nil, env.ErrorNew("object not implements InterfaceMedia interface")
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "f0f9b0ae2852411996eee9712e448419", "object not implements InterfaceMedia interface")
 	}
 
 	// checking for media field in itemData
@@ -419,7 +419,7 @@ func (it *ImportCmdMedia) Process(itemData map[string]interface{}, input interfa
 				}
 
 				if response.StatusCode != 200 {
-					return input, env.ErrorNew("can't get image " + mediaValue + " (Status: " + response.Status + ")")
+					return input, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "8fe36863b82f479bba9673a5e4008f75", "can't get image "+mediaValue+" (Status: "+response.Status+")")
 				}
 
 				// updating media type if wasn't set
@@ -516,7 +516,7 @@ func (it *ImportCmdAttributeAdd) Init(args []string, exchange map[string]interfa
 	}
 
 	if attributeName == "" {
-		return env.ErrorNew("attribute name was not specified, untill impex attribute add")
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "86b28a7b10a641ec9d59ccd55bb63632", "attribute name was not specified, untill impex attribute add")
 	}
 
 	attribute := models.StructAttributeInfo{

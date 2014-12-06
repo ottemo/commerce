@@ -6,6 +6,7 @@ import (
 	"github.com/ottemo/foundation/app/models/order"
 	"github.com/ottemo/foundation/db"
 
+	"github.com/ottemo/foundation/env"
 	"sync"
 	"time"
 )
@@ -24,6 +25,9 @@ const (
 	ConstIncrementIDFormat = "%0.10d"
 
 	ConstConfigPathLastIncrementID = "internal.order.increment_id"
+
+	ConstErrorModule = "order"
+	ConstErrorLevel  = env.ConstErrorLevelActor
 )
 
 // DefaultOrderItem is a default implementer of InterfaceOrderItem

@@ -5,6 +5,7 @@ import (
 	"github.com/ottemo/foundation/app/helpers/attributes"
 	"github.com/ottemo/foundation/app/models/visitor"
 	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/foundation/env"
 	"time"
 )
 
@@ -13,6 +14,9 @@ const (
 	ConstCollectionNameVisitor = "visitor"
 
 	ConstEmailValidateExpire = 60 * 60 * 24
+
+	ConstErrorModule = "visitor"
+	ConstErrorLevel  = env.ConstErrorLevelActor
 )
 
 // DefaultVisitor is a default implementer of InterfaceVisitor

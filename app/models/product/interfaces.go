@@ -3,12 +3,16 @@ package product
 
 import (
 	"github.com/ottemo/foundation/app/models"
+	"github.com/ottemo/foundation/env"
 )
 
 // Package global constants
 const (
 	ConstModelNameProduct           = "Product"
 	ConstModelNameProductCollection = "ProductCollection"
+
+	ConstErrorModule = "product"
+	ConstErrorLevel  = env.ConstErrorLevelModel
 )
 
 // InterfaceProduct represents interface to access business layer implementation of product object

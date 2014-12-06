@@ -53,10 +53,10 @@ func (it *DefaultCMSPageCollection) ListAddExtraAttribute(attribute string) erro
 		if !utils.IsInListStr(attribute, it.listExtraAtributes) {
 			it.listExtraAtributes = append(it.listExtraAtributes, attribute)
 		} else {
-			return env.ErrorNew("attribute already in list")
+			return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "8f5544bb625e4decbeddd6f19a25f968", "attribute already in list")
 		}
 	} else {
-		return env.ErrorNew("not allowed attribute")
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "77bd942c3fb4492b84b903de45c8eefa", "not allowed attribute")
 	}
 
 	return nil

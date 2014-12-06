@@ -102,12 +102,12 @@ func (it *Express) Authorize(orderInstance order.InterfaceOrder, paymentInfo map
 
 	responseValues, err := url.ParseQuery(string(responseData))
 	if err != nil {
-		return nil, env.ErrorNew("payment unexpected response")
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "7b6a22eba7b140b5a47a5528753135b2", "payment unexpected response")
 	}
 
 	if responseValues.Get("ACK") != "Success" || responseValues.Get("TOKEN") == "" {
 		if responseValues.Get("L_ERRORCODE0") != "" {
-			return nil, env.ErrorNew("payment error " + responseValues.Get("L_ERRORCODE0") + ": " + "L_LONGMESSAGE0")
+			return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "5ec8dc9bf72c4f359b1ef4353753dd9e", "payment error "+responseValues.Get("L_ERRORCODE0")+": "+"L_LONGMESSAGE0")
 		}
 	}
 	waitingTokensMutex.Lock()
@@ -130,15 +130,15 @@ func (it *Express) Authorize(orderInstance order.InterfaceOrder, paymentInfo map
 
 // Capture payment method capture operation
 func (it *Express) Capture(orderInstance order.InterfaceOrder, paymentInfo map[string]interface{}) (interface{}, error) {
-	return nil, env.ErrorNew("Not implemented")
+	return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "8569a80fffc04c99ab7989d0cbb90ca7", "Not implemented")
 }
 
 // Refund makes payment method refund operation
 func (it *Express) Refund(orderInstance order.InterfaceOrder, paymentInfo map[string]interface{}) (interface{}, error) {
-	return nil, env.ErrorNew("Not implemented")
+	return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "bcd6d1c312ad4e62a2c6e90bc61badd3", "Not implemented")
 }
 
 // Void makes payment method void operation
 func (it *Express) Void(orderInstance order.InterfaceOrder, paymentInfo map[string]interface{}) (interface{}, error) {
-	return nil, env.ErrorNew("Not implemented")
+	return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "780832470f7b4cf184a209f6162ca350", "Not implemented")
 }

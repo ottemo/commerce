@@ -132,7 +132,7 @@ func (it *DefaultVisitor) Set(attribute string, value interface{}) error {
 				it.ShippingAddress = addressModel
 			}
 		default:
-			return env.ErrorNew("unsupported billing or shipping address value")
+			return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "efa9cd9c2d9a4637ac59b4856d2e623e", "unsupported billing or shipping address value")
 		}
 
 	default:

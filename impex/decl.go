@@ -3,7 +3,14 @@ package impex
 
 import (
 	"github.com/ottemo/foundation/app/models"
+	"github.com/ottemo/foundation/env"
 	"regexp"
+)
+
+// Package global constants
+const (
+	ConstErrorModule = "impex"
+	ConstErrorLevel  = env.ConstErrorLevelService
 )
 
 // Package global variables

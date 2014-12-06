@@ -14,7 +14,7 @@ func GetOrderCollectionModel() (InterfaceOrderCollection, error) {
 
 	orderCollectionModel, ok := model.(InterfaceOrderCollection)
 	if !ok {
-		return nil, env.ErrorNew("model " + model.GetImplementationName() + " is not 'InterfaceOrderCollection' capable")
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "1f016c45174b4bb6bdf400f2ec942f64", "model "+model.GetImplementationName()+" is not 'InterfaceOrderCollection' capable")
 	}
 
 	return orderCollectionModel, nil
@@ -29,7 +29,7 @@ func GetOrderItemCollectionModel() (InterfaceOrderItemCollection, error) {
 
 	orderItemCollectionModel, ok := model.(InterfaceOrderItemCollection)
 	if !ok {
-		return nil, env.ErrorNew("model " + model.GetImplementationName() + " is not 'InterfaceOrderItemCollection' capable")
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "54bb331668f9499997a38549dde0940a", "model "+model.GetImplementationName()+" is not 'InterfaceOrderItemCollection' capable")
 	}
 
 	return orderItemCollectionModel, nil
@@ -44,7 +44,7 @@ func GetOrderModel() (InterfaceOrder, error) {
 
 	orderModel, ok := model.(InterfaceOrder)
 	if !ok {
-		return nil, env.ErrorNew("model " + model.GetImplementationName() + " is not 'InterfaceOrder' capable")
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "58fe1c56cea440f3bf663c51c03838c0", "model "+model.GetImplementationName()+" is not 'InterfaceOrder' capable")
 	}
 
 	return orderModel, nil

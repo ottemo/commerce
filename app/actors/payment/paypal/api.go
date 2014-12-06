@@ -104,7 +104,7 @@ func Completes(orderInstance order.InterfaceOrder, token string, payerID string)
 
 	if urlGETParams["ACK"] != "Success" || urlGETParams["TOKEN"] == "" {
 		if urlGETParams["L_ERRORCODE0"] != "" {
-			return nil, env.ErrorNew("payment confirm error " + utils.InterfaceToString(urlGETParams["L_ERRORCODE0"]) + ": " + "L_LONGMESSAGE0")
+			return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "2b3f49d1b6d7492fac96854a85b64c2f", "payment confirm error "+utils.InterfaceToString(urlGETParams["L_ERRORCODE0"])+": "+"L_LONGMESSAGE0")
 		}
 	}
 

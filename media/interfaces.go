@@ -1,6 +1,16 @@
 // Package media represents interfaces to access media storage services
 package media
 
+import (
+	"github.com/ottemo/foundation/env"
+)
+
+// Package global constants
+const (
+	ConstErrorModule = "media"
+	ConstErrorLevel  = env.ConstErrorLevelService
+)
+
 // InterfaceMediaStorage is an interface to access media storage service
 type InterfaceMediaStorage interface {
 	GetName() string

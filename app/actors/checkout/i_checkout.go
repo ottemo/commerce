@@ -239,29 +239,29 @@ func (it *DefaultCheckout) GetOrder() order.InterfaceOrder {
 func (it *DefaultCheckout) Submit() (interface{}, error) {
 
 	if it.GetBillingAddress() == nil {
-		return nil, env.ErrorNew("Billing address is not set")
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "080db3c0dbb54398b1f14c3fefef79b4", "Billing address is not set")
 	}
 
 	if it.GetShippingAddress() == nil {
-		return nil, env.ErrorNew("Shipping address is not set")
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "1c069d54284746cbbccd76fc13d229ea", "Shipping address is not set")
 	}
 
 	if it.GetPaymentMethod() == nil {
-		return nil, env.ErrorNew("Payment method is not set")
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "c06280383e0647e99252480351d903c0", "Payment method is not set")
 	}
 
 	if it.GetShippingMethod() == nil {
-		return nil, env.ErrorNew("Shipping method is not set")
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "e22877fe248d4b5ead2f10843cb9890c", "Shipping method is not set")
 	}
 
 	currentCart := it.GetCart()
 	if currentCart == nil {
-		return nil, env.ErrorNew("Cart is not specified")
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "ea211827202546cabe47d09841021890", "Cart is not specified")
 	}
 
 	cartItems := currentCart.GetItems()
 	if len(cartItems) == 0 {
-		return nil, env.ErrorNew("Cart is empty")
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "84ad4db529e9430caecfb675cbafbcec", "Cart is empty")
 	}
 
 	if err := currentCart.ValidateCart(); err != nil {

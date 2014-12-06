@@ -2,6 +2,10 @@
 // "github.com/ottemo/foundation/app/models/checkout" package
 package authorizenet
 
+import (
+	"github.com/ottemo/foundation/env"
+)
+
 // Package global constants
 const (
 	// ConstTransactionApproved constants for transaction state
@@ -29,6 +33,9 @@ const (
 	ConstConfigPathDPMTest     = "payment.authorizeNetDPM.test"
 	ConstConfigPathDPMDebug    = "payment.authorizeNetDPM.debug"
 	ConstConfigPathDPMCheckout = "payment.authorizeNetDPM.checkout"
+
+	ConstErrorModule = "payment/authorizenet"
+	ConstErrorLevel  = env.ConstErrorLevelActor
 )
 
 // DirectPostMethod is a implementer of InterfacePaymentMethod for a Authorize.Net Direct Post method

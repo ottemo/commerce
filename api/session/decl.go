@@ -18,6 +18,9 @@ const (
 	ALPHANUMERIC = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890" // sessionID allowed symbols
 
 	ConstSessionCookieName = "OTTEMOSESSION" // cookie name which should contain sessionID
+
+	ConstErrorModule = "api/session"
+	ConstErrorLevel  = env.ConstErrorLevelService
 )
 
 // Package global variables
@@ -63,7 +66,7 @@ func GetSessionByID(sessionID string) (*Session, error) {
 	if session, ok := Sessions[sessionID]; ok == true {
 		return session, nil
 	}
-	return nil, env.ErrorNew("session not found")
+	return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "e370399684f34c258996625154161d4b", "session not found")
 }
 
 // NewSession initializes new session
@@ -95,7 +98,7 @@ func NewSession() (*Session, error) {
 func newSessionID() (string, error) {
 	sessionID := make([]byte, 32)
 	if _, err := rand.Read(sessionID); err != nil {
-		return "", env.ErrorNew("can't generate sessionID")
+		return "", env.ErrorNew(ConstErrorModule, ConstErrorLevel, "aab0911497264844984c772fb25dcb88", "can't generate sessionID")
 	}
 
 	for i := 0; i < 32; i++ {

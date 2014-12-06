@@ -48,7 +48,7 @@ func restLogin(params *api.StructAPIHandlerParams) (interface{}, error) {
 		}
 
 		if !utils.KeysInMapAndNotBlank(reqData, "login", "password") {
-			return nil, env.ErrorNew("login and password should be specified")
+			return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "fee28a56adb144b9a0e21c9be6bd6fdb", "login and password should be specified")
 		}
 
 		requestLogin = utils.InterfaceToString(reqData["login"])
@@ -64,7 +64,7 @@ func restLogin(params *api.StructAPIHandlerParams) (interface{}, error) {
 		return "ok", nil
 	}
 
-	return nil, env.ErrorNew("wrong login or password")
+	return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "68546aa8a6be4c31ac44ea4278dfbdb0", "wrong login or password")
 }
 
 // WEB REST API function logout application - session data clear

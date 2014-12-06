@@ -3,6 +3,7 @@ package visitor
 
 import (
 	"github.com/ottemo/foundation/app/models"
+	"github.com/ottemo/foundation/env"
 	"time"
 )
 
@@ -14,6 +15,9 @@ const (
 	ConstModelNameVisitorAddressCollection = "VisitorAddressCollection"
 
 	ConstSessionKeyVisitorID = "visitor_id"
+
+	ConstErrorModule = "visitor"
+	ConstErrorLevel  = env.ConstErrorLevelModel
 )
 
 // InterfaceVisitor represents interface to access business layer implementation of visitor object

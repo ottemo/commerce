@@ -1,6 +1,16 @@
 // Package objectref intended to unify and simplify a way of model instance changes tracking (currently not implemented)
 package objectref
 
+import (
+	"github.com/ottemo/foundation/env"
+)
+
+// Package global constants
+const (
+	ConstErrorModule = "objectref"
+	ConstErrorLevel  = env.ConstErrorLevelHelper
+)
+
 // DBObjectRef is a object state tracking helper and implementer of InterfaceObject and InterfaceStorable
 type DBObjectRef struct {
 	id string

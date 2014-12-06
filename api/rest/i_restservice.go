@@ -33,7 +33,7 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 		// catching API handler fails
 		defer func() {
 			if recoverResult := recover(); recoverResult != nil {
-				env.ErrorNew("API call fail")
+				env.ErrorNew(ConstErrorModule, ConstErrorLevel, "28d7ef2f631f4f38a916579bf822908b", "API call fail")
 			}
 		}()
 
@@ -130,7 +130,7 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 		// starting session for request
 		currentSession, err := session.StartSession(req, resp)
 		if err != nil {
-			env.ErrorNew("Session init fail: " + err.Error())
+			env.ErrorNew(ConstErrorModule, ConstErrorLevel, "c8a3bbf8215f4dffb0e73d0d102ad02d", "Session init fail: "+err.Error())
 		}
 
 		// preparing struct for API handler
@@ -218,7 +218,7 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 	case "DELETE":
 		it.Router.DELETE(path, wrappedHandler)
 	default:
-		return env.ErrorNew("unsupported method '" + method + "'")
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "58228dccf5e44aaeb6df9dd55041a21e", "unsupported method '"+method+"'")
 	}
 
 	key := path + " {" + method + "}"
