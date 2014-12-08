@@ -148,11 +148,6 @@ func (it *FilesystemMediaStorage) GetResizedMediaName(mediaName string, size str
 // ResizeMediaImage re-sizes specified media to given size, returns error if not possible
 func (it *FilesystemMediaStorage) ResizeMediaImage(model string, objID string, mediaName string, size string) error {
 
-	var width, height uint
-	var decodedImage image.Image
-	var resizedFile *os.File
-	var sourceReader io.Reader
-
 	// initializing files path variables
 	path, _ := it.GetMediaPath(model, objID, "image")
 	path = it.storageFolder + path
@@ -208,6 +203,7 @@ func (it *FilesystemMediaStorage) ResizeMediaImage(model string, objID string, m
 
 	// so, current file not exists or have wrong size
 	if flagResizeNeeded {
+		var sourceReader io.Reader
 
 		// we can't read and write from same file
 		if sourceFileName == resizedFileName {
@@ -219,22 +215,6 @@ func (it *FilesystemMediaStorage) ResizeMediaImage(model string, objID string, m
 		} else {
 			sourceReader = sourceFile
 		}
-	}
-	resizedImage := resize.Resize(width, height, decodedImage, resize.Bilinear)
-
-	_, imageFormat, err := image.Decode(resizedFile)
-	if err != nil {
-		return env.ErrorDispatch(err)
-	}
-
-	switch imageFormat {
-	case "jpeg":
-		err = jpeg.Encode(resizedFile, resizedImage, nil)
-	case "png":
-		err = png.Encode(resizedFile, resizedImage)
-	default:
-		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "42f0cbb391874e1689535829ea8d2da8", "unknown image format to encode")
-		// }
 
 		// resizing stuff
 		width, height, err := it.GetSizeDimensions(size)
@@ -270,7 +250,7 @@ func (it *FilesystemMediaStorage) ResizeMediaImage(model string, objID string, m
 		case "png":
 			err = png.Encode(resizedFile, resizedImage)
 		default:
-			return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "42f0cbb391874e1689535829ea8d2da8", "Unknown image format to encode")
+			return env.ErrorNew("unknown image format to encode")
 		}
 
 		if err != nil {
