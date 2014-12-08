@@ -250,7 +250,7 @@ func (it *FilesystemMediaStorage) ResizeMediaImage(model string, objID string, m
 		case "png":
 			err = png.Encode(resizedFile, resizedImage)
 		default:
-			return env.ErrorNew("unknown image format to encode")
+			return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "42f0cbb391874e1689535829ea8d2da8", "Unknown image format to encode")
 		}
 
 		if err != nil {
