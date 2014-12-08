@@ -40,20 +40,22 @@ func (it *DefaultCart) setupDB() error {
 			return env.ErrorDispatch(err)
 		}
 
-		collection.AddColumn("visitor_id", "id", true)
-		collection.AddColumn("active", "bool", true)
-		collection.AddColumn("info", "text", false)
+		collection.AddColumn("visitor_id", db.ConstDBBasetypeID, true)
+		collection.AddColumn("session_id", db.ConstDBBasetypeID, true)
+		collection.AddColumn("updated_at", db.ConstDBBasetypeDatetime, true)
+		collection.AddColumn("active", db.ConstDBBasetypeBoolean, true)
+		collection.AddColumn("info", db.ConstDBBasetypeJSON, false)
 
 		collection, err = dbEngine.GetCollection(ConstCartItemsCollectionName)
 		if err != nil {
 			return env.ErrorDispatch(err)
 		}
 
-		collection.AddColumn("idx", "int", false)
-		collection.AddColumn("cart_id", "id", true)
-		collection.AddColumn("product_id", "id", true)
-		collection.AddColumn("qty", "int", false)
-		collection.AddColumn("options", "text", false)
+		collection.AddColumn("idx", db.ConstDBBasetypeInteger, false)
+		collection.AddColumn("cart_id", db.ConstDBBasetypeID, true)
+		collection.AddColumn("product_id", db.ConstDBBasetypeID, true)
+		collection.AddColumn("qty", db.ConstDBBasetypeInteger, false)
+		collection.AddColumn("options", db.ConstDBBasetypeJSON, false)
 
 	} else {
 		return env.ErrorNew(ConstErrorModule, env.ConstErrorLevelStartStop, "33076d0b5c6541ddaa84e4b68e1efa5b", "Can't get database engine")

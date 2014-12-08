@@ -5,6 +5,7 @@ package cart
 import (
 	"github.com/ottemo/foundation/app/models/cart"
 	"github.com/ottemo/foundation/env"
+	"time"
 )
 
 // Package global constants
@@ -21,12 +22,13 @@ type DefaultCart struct {
 	id string
 
 	VisitorID string
+	SessionID string
 
-	Info map[string]interface{}
-
+	Info  map[string]interface{}
 	Items map[int]cart.InterfaceCartItem
 
-	Active bool
+	Active    bool
+	UpdatedAt time.Time
 
 	Subtotal float64
 
@@ -35,15 +37,11 @@ type DefaultCart struct {
 
 // DefaultCartItem is a default implementer of InterfaceCart
 type DefaultCartItem struct {
-	id string
-
-	idx int
-
+	id        string
+	idx       int
 	ProductID string
-
-	Qty int
-
-	Options map[string]interface{}
+	Qty       int
+	Options   map[string]interface{}
 
 	Cart *DefaultCart
 }

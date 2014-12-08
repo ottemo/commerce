@@ -74,6 +74,7 @@ func GetCartForVisitor(visitorID string) (InterfaceCart, error) {
 func GetCurrentCart(params *api.StructAPIHandlerParams) (InterfaceCart, error) {
 	sessionCartID := params.Session.Get(ConstSessionKeyCurrentCart)
 
+	// checking session for cart id
 	if sessionCartID != nil && sessionCartID != "" {
 
 		// cart id was found in session - loading cart by id
@@ -99,5 +100,16 @@ func GetCurrentCart(params *api.StructAPIHandlerParams) (InterfaceCart, error) {
 		return currentCart, nil
 	}
 
-	return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "388af60afced4f9b92e4984af79654a7", "you are not registered")
+	// making new cart for guest
+	currentCart, err := GetCartModel()
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+	currentCart.SetSessionID(params.Session.GetID())
+	currentCart.Activate()
+	currentCart.Save()
+
+	params.Session.Set(ConstSessionKeyCurrentCart, currentCart.GetID())
+
+	return currentCart, nil
 }
