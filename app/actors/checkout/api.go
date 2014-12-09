@@ -26,6 +26,10 @@ func setupAPI() error {
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
+	err = api.GetRestService().RegisterAPI("checkout", "POST", "set/info", restCheckoutSetInfo)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
 	err = api.GetRestService().RegisterAPI("checkout", "POST", "set/shipping/address", restCheckoutSetShippingAddress)
 	if err != nil {
 		return env.ErrorDispatch(err)
@@ -83,6 +87,7 @@ func restCheckoutInfo(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 		"subtotal":   nil,
 		"grandtotal": nil,
+		"info":       nil,
 	}
 
 	if billingAddress := currentCheckout.GetBillingAddress(); billingAddress != nil {
@@ -117,6 +122,7 @@ func restCheckoutInfo(params *api.StructAPIHandlerParams) (interface{}, error) {
 	result["tax_amount"], result["taxes"] = currentCheckout.GetTaxes()
 
 	result["grandtotal"] = currentCheckout.GetGrandTotal()
+	result["info"] = currentCheckout.GetInfo("*")
 
 	return result, nil
 }
@@ -169,6 +175,28 @@ func restCheckoutShippingMethods(params *api.StructAPIHandlerParams) (interface{
 	return result, nil
 }
 
+// WEB REST API function to set checkout related extra information
+func restCheckoutSetInfo(params *api.StructAPIHandlerParams) (interface{}, error) {
+
+	currentCheckout, err := checkout.GetCurrentCheckout(params)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	reqData, err := api.GetRequestContentAsMap(params)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	for key, value := range reqData {
+		err := currentCheckout.SetInfo(key, value)
+		if err != nil {
+			return nil, env.ErrorDispatch(err)
+		}
+	}
+	return "ok", nil
+}
+
 // internal function for  restCheckoutSetShippingAddress() and restCheckoutSetBillingAddress()
 func checkoutObtainAddress(params *api.StructAPIHandlerParams) (visitor.InterfaceVisitorAddress, error) {
 
@@ -187,7 +215,7 @@ func checkoutObtainAddress(params *api.StructAPIHandlerParams) (visitor.Interfac
 
 		currentVisitorID := utils.InterfaceToString(params.Session.Get(visitor.ConstSessionKeyVisitorID))
 		if visitorAddress.GetVisitorID() != currentVisitorID {
-			return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "bef277144ac54705b59a47c8e0bc5aa4", "wrong address id")
+			return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "bef277144ac54705b59a47c8e0bc5aa4", "address id is not related to current visitor")
 		}
 
 		return visitorAddress, nil
@@ -209,9 +237,11 @@ func checkoutObtainAddress(params *api.StructAPIHandlerParams) (visitor.Interfac
 	visitorID := utils.InterfaceToString(params.Session.Get(visitor.ConstSessionKeyVisitorID))
 	visitorAddressModel.Set("visitor_id", visitorID)
 
-	err = visitorAddressModel.Save()
-	if err != nil {
-		return nil, env.ErrorDispatch(err)
+	if visitorAddressModel.GetID() != "" {
+		err = visitorAddressModel.Save()
+		if err != nil {
+			return nil, env.ErrorDispatch(err)
+		}
 	}
 
 	return visitorAddressModel, nil

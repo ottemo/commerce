@@ -1,13 +1,13 @@
 package cart
 
 import (
+	"github.com/ottemo/foundation/api"
+	"github.com/ottemo/foundation/app"
 	"github.com/ottemo/foundation/app/models"
+	"github.com/ottemo/foundation/app/models/cart"
 	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/env"
-
-	"github.com/ottemo/foundation/api"
-
-	"github.com/ottemo/foundation/app/models/cart"
+	"github.com/ottemo/foundation/utils"
 )
 
 // init makes package self-initialization routine
@@ -29,6 +29,78 @@ func init() {
 	db.RegisterOnDatabaseStart(instance.setupDB)
 
 	api.RegisterOnRestServiceStart(setupAPI)
+	app.OnAppStart(setupEventListeners)
+	app.OnAppStart(cleanupGuestCarts)
+}
+
+// setupEventListeners registers model related event listeners within system
+func setupEventListeners() error {
+	// on session close cart model should be also deleted
+	sessionCloseListener := func(eventName string, data map[string]interface{}) bool {
+		if data != nil {
+			if sessionObject, present := data["session"]; present {
+				if sessionInstance, ok := sessionObject.(api.InterfaceSession); ok {
+					if cartID := sessionInstance.Get(cart.ConstSessionKeyCurrentCart); cartID != nil {
+
+						cartModel, err := cart.GetCartModelAndSetID(utils.InterfaceToString(cartID))
+						if err != nil {
+							env.ErrorDispatch(err)
+						}
+
+						err = cartModel.Delete()
+						if err != nil {
+							env.ErrorDispatch(err)
+						}
+					}
+				}
+			}
+		}
+		return true
+	}
+	env.EventRegisterListener("session.close", sessionCloseListener)
+	return nil
+}
+
+// cleanupGuestCarts cleanups guest carts
+func cleanupGuestCarts() error {
+	cartCollection, err := db.GetCollection(ConstCartCollectionName)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+	cartItemsCollection, err := db.GetCollection(ConstCartItemsCollectionName)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	cartCollection.AddFilter("visitor_id", "=", nil)
+	err = cartCollection.SetResultColumns("_id", "session_id")
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	records, err := cartCollection.Load()
+	if err != nil {
+		env.ErrorDispatch(err)
+	}
+	for _, record := range records {
+		sessionID := utils.InterfaceToString(record["session_id"])
+		if sessionInstance := api.GetSessionByID(sessionID); sessionInstance == nil {
+			cartID := utils.InterfaceToString(record["_id"])
+			err = cartCollection.DeleteByID(cartID)
+			if err != nil {
+				env.ErrorDispatch(err)
+			}
+
+			cartItemsCollection.ClearFilters()
+			cartItemsCollection.AddFilter("cart_id", "=", cartID)
+			_, err = cartItemsCollection.Delete()
+			if err != nil {
+				env.ErrorDispatch(err)
+			}
+		}
+	}
+
+	return nil
 }
 
 // setupDB prepares system database for package usage

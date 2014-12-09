@@ -43,4 +43,6 @@ const (
 
 	ConstErrorModule = "app"
 	ConstErrorLevel  = env.ConstErrorLevelService
+
+	ConstAllowGuest = true
 )

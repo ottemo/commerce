@@ -21,8 +21,8 @@ type DefaultCheckout struct {
 
 	SessionID string
 
-	ShippingAddressID string
-	BillingAddressID  string
+	ShippingAddress map[string]interface{}
+	BillingAddress  map[string]interface{}
 
 	PaymentMethodCode  string
 	ShippingMethodCode string

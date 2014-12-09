@@ -2,6 +2,7 @@ package visitor
 
 import (
 	"github.com/ottemo/foundation/api"
+	"github.com/ottemo/foundation/app"
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/env"
 )
@@ -140,11 +141,19 @@ func GetCurrentVisitorID(params *api.StructAPIHandlerParams) string {
 	return sessionVisitorID
 }
 
-// GetCurrentVisitor returns visitor for current session if registered or error
+// GetCurrentVisitor returns visitor for current session if registered or nil - for guest visitor
 func GetCurrentVisitor(params *api.StructAPIHandlerParams) (InterfaceVisitor, error) {
 	sessionVisitorID, ok := params.Session.Get(ConstSessionKeyVisitorID).(string)
 	if !ok {
-		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "f5acb5eef6894dd8a85ff2ec47425ba1", "not registered visitor")
+		if app.ConstAllowGuest {
+			visitorInstance, err := GetVisitorModel()
+			if err != nil {
+				return nil, env.ErrorDispatch(err)
+			}
+			return visitorInstance, nil
+		}
+
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "f5acb5eef6894dd8a85ff2ec47425ba1", "not registered visitor")
 	}
 
 	visitorInstance, err := LoadVisitorByID(sessionVisitorID)

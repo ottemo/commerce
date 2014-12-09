@@ -1,6 +1,7 @@
 package session
 
 import (
+	"github.com/ottemo/foundation/env"
 	"time"
 )
 
@@ -34,10 +35,12 @@ func (it *Session) Set(key string, value interface{}) {
 
 // Close clears session data
 func (it *Session) Close() error {
+
+	eventData := map[string]interface{}{"session": it, "sessionID": it.GetID()}
+	env.Event("session.close", eventData)
+
 	sessionsMutex.Lock()
-
 	delete(Sessions, it.GetID())
-
 	sessionsMutex.Unlock()
 
 	return nil

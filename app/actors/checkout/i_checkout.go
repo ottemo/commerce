@@ -16,25 +16,65 @@ import (
 
 // SetShippingAddress sets shipping address for checkout
 func (it *DefaultCheckout) SetShippingAddress(address visitor.InterfaceVisitorAddress) error {
-	it.ShippingAddressID = address.GetID()
+	if address == nil {
+		it.ShippingAddress = nil
+		return nil
+	}
+
+	it.ShippingAddress = address.ToHashMap()
 	return nil
 }
 
 // GetShippingAddress returns checkout shipping address
 func (it *DefaultCheckout) GetShippingAddress() visitor.InterfaceVisitorAddress {
-	shippingAddress, _ := visitor.LoadVisitorAddressByID(it.ShippingAddressID)
+	if it.ShippingAddress == nil {
+		return nil
+	}
+
+	shippingAddress, err := visitor.GetVisitorAddressModel()
+	if err != nil {
+		env.ErrorDispatch(err)
+		return nil
+	}
+
+	err = shippingAddress.FromHashMap(it.ShippingAddress)
+	if err != nil {
+		env.ErrorDispatch(err)
+		return nil
+	}
+
 	return shippingAddress
 }
 
 // SetBillingAddress sets billing address for checkout
 func (it *DefaultCheckout) SetBillingAddress(address visitor.InterfaceVisitorAddress) error {
-	it.BillingAddressID = address.GetID()
+	if address == nil {
+		it.BillingAddress = nil
+		return nil
+	}
+
+	it.BillingAddress = address.ToHashMap()
 	return nil
 }
 
 // GetBillingAddress returns checkout billing address
 func (it *DefaultCheckout) GetBillingAddress() visitor.InterfaceVisitorAddress {
-	billingAddress, _ := visitor.LoadVisitorAddressByID(it.BillingAddressID)
+	if it.BillingAddress == nil {
+		return nil
+	}
+
+	billingAddress, err := visitor.GetVisitorAddressModel()
+	if err != nil {
+		env.ErrorDispatch(err)
+		return nil
+	}
+
+	err = billingAddress.FromHashMap(it.BillingAddress)
+	if err != nil {
+		env.ErrorDispatch(err)
+		return nil
+	}
+
 	return billingAddress
 }
 
@@ -101,12 +141,12 @@ func (it *DefaultCheckout) GetCart() cart.InterfaceCart {
 func (it *DefaultCheckout) SetVisitor(checkoutVisitor visitor.InterfaceVisitor) error {
 	it.VisitorID = checkoutVisitor.GetID()
 
-	if it.BillingAddressID == "" && checkoutVisitor.GetBillingAddress() != nil {
-		it.BillingAddressID = checkoutVisitor.GetBillingAddress().GetID()
+	if it.BillingAddress == nil && checkoutVisitor.GetBillingAddress() != nil {
+		it.BillingAddress = checkoutVisitor.GetBillingAddress().ToHashMap()
 	}
 
-	if it.ShippingAddressID == "" && checkoutVisitor.GetShippingAddress() != nil {
-		it.ShippingAddressID = checkoutVisitor.GetShippingAddress().GetID()
+	if it.ShippingAddress == nil && checkoutVisitor.GetShippingAddress() != nil {
+		it.ShippingAddress = checkoutVisitor.GetShippingAddress().ToHashMap()
 	}
 
 	return nil
@@ -205,16 +245,28 @@ func (it *DefaultCheckout) GetGrandTotal() float64 {
 
 // SetInfo sets additional info for checkout - any values related to checkout process
 func (it *DefaultCheckout) SetInfo(key string, value interface{}) error {
-	it.Info[key] = value
+	if value == nil {
+		if _, present := it.Info[key]; present {
+			delete(it.Info, key)
+		}
+	} else {
+		it.Info[key] = value
+	}
 
 	return nil
 }
 
-// GetInfo returns additional checkout info value or nil
+// GetInfo returns additional checkout info value or nil,
+//   - use "*" as a key to get all keys and values currently set
 func (it *DefaultCheckout) GetInfo(key string) interface{} {
+	if key == "*" {
+		return it.Info
+	}
+
 	if value, present := it.Info[key]; present {
 		return value
 	}
+
 	return nil
 }
 
@@ -264,6 +316,11 @@ func (it *DefaultCheckout) Submit() (interface{}, error) {
 		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "84ad4db529e9430caecfb675cbafbcec", "Cart is empty")
 	}
 
+	currentVisitor := it.GetVisitor()
+	if currentVisitor == nil && it.GetInfo("customer_email") == nil {
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "c5f53ede63b740ea952d4d4c04337563", "customer e-mail was not specified")
+	}
+
 	if err := currentCart.ValidateCart(); err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -289,11 +346,21 @@ func (it *DefaultCheckout) Submit() (interface{}, error) {
 	checkoutOrder.Set("updated_at", currentTime)
 
 	checkoutOrder.Set("status", order.ConstOrderStatusNew)
-	if currentVisitor := it.GetVisitor(); currentVisitor != nil {
+
+	if currentVisitor != nil {
 		checkoutOrder.Set("visitor_id", currentVisitor.GetID())
 
 		checkoutOrder.Set("customer_email", currentVisitor.GetEmail())
 		checkoutOrder.Set("customer_name", currentVisitor.GetFullName())
+	}
+
+	if it.GetInfo("customer_email") != nil {
+		orderCustomerEmail := utils.InterfaceToString(it.GetInfo("customer_email"))
+		checkoutOrder.Set("customer_email", orderCustomerEmail)
+	}
+	if it.GetInfo("customer_name") != nil {
+		orderCustomerName := utils.InterfaceToString(it.GetInfo("customer_name"))
+		checkoutOrder.Set("customer_name", orderCustomerName)
 	}
 
 	billingAddress := it.GetBillingAddress().ToHashMap()

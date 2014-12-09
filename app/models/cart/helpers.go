@@ -2,6 +2,7 @@ package cart
 
 import (
 	"github.com/ottemo/foundation/api"
+	"github.com/ottemo/foundation/app"
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/visitor"
 	"github.com/ottemo/foundation/env"
@@ -100,16 +101,20 @@ func GetCurrentCart(params *api.StructAPIHandlerParams) (InterfaceCart, error) {
 		return currentCart, nil
 	}
 
-	// making new cart for guest
-	currentCart, err := GetCartModel()
-	if err != nil {
-		return nil, env.ErrorDispatch(err)
+	// making new cart for guest if allowed
+	if app.ConstAllowGuest {
+		currentCart, err := GetCartModel()
+		if err != nil {
+			return nil, env.ErrorDispatch(err)
+		}
+		currentCart.SetSessionID(params.Session.GetID())
+		currentCart.Activate()
+		currentCart.Save()
+
+		params.Session.Set(ConstSessionKeyCurrentCart, currentCart.GetID())
+
+		return currentCart, nil
 	}
-	currentCart.SetSessionID(params.Session.GetID())
-	currentCart.Activate()
-	currentCart.Save()
 
-	params.Session.Set(ConstSessionKeyCurrentCart, currentCart.GetID())
-
-	return currentCart, nil
+	return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "f5acb5eef6894dd8a85ff2ec47425ba1", "not registered visitor")
 }
