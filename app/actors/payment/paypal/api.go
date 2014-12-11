@@ -9,7 +9,6 @@ import (
 	"net/url"
 
 	"github.com/ottemo/foundation/api"
-	"github.com/ottemo/foundation/api/session"
 	"github.com/ottemo/foundation/app"
 	"github.com/ottemo/foundation/app/models/checkout"
 	"github.com/ottemo/foundation/app/models/order"
@@ -120,7 +119,7 @@ func restSuccess(params *api.StructAPIHandlerParams) (interface{}, error) {
 	delete(waitingTokens, reqData["token"])
 	waitingTokensMutex.Unlock()
 
-	session, err := session.GetSessionByID(utils.InterfaceToString(sessionID))
+	session, err := api.GetSessionByID(utils.InterfaceToString(sessionID))
 	if err != nil {
 		return nil, errors.New("Wrong session ID")
 	}
@@ -185,7 +184,7 @@ func restCancel(params *api.StructAPIHandlerParams) (interface{}, error) {
 	delete(waitingTokens, reqData["token"])
 	waitingTokensMutex.Unlock()
 
-	session, err := session.GetSessionByID(utils.InterfaceToString(sessionID))
+	session, err := api.GetSessionByID(utils.InterfaceToString(sessionID))
 	if err != nil {
 		return nil, errors.New("Wrong session ID")
 	}

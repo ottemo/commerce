@@ -15,7 +15,6 @@ import (
 	"github.com/julienschmidt/httprouter"
 
 	"github.com/ottemo/foundation/api"
-	"github.com/ottemo/foundation/api/session"
 	"github.com/ottemo/foundation/env"
 )
 
@@ -127,12 +126,6 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 		// Handling request
 		//------------------
 
-		// starting session for request
-		currentSession, err := session.StartSession(req, resp)
-		if err != nil {
-			env.ErrorNew(ConstErrorModule, ConstErrorLevel, "c8a3bbf8215f4dffb0e73d0d102ad02d", "Session init fail: "+err.Error())
-		}
-
 		// preparing struct for API handler
 		apiParams := new(api.StructAPIHandlerParams)
 		apiParams.Request = req
@@ -140,6 +133,12 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 		apiParams.RequestGETParams = urlGETParams
 		apiParams.RequestContent = content
 		apiParams.ResponseWriter = resp
+
+		// starting session for request
+		currentSession, err := api.StartSession(apiParams)
+		if err != nil {
+			env.ErrorNew(ConstErrorModule, ConstErrorLevel, "c8a3bbf8215f4dffb0e73d0d102ad02d", "Session init fail: "+err.Error())
+		}
 		apiParams.Session = currentSession
 
 		if ConstUseDebugLog {

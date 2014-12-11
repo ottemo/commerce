@@ -174,7 +174,8 @@ func (it *DefaultCheckout) SetSession(checkoutSession api.InterfaceSession) erro
 
 // GetSession return checkout visitor
 func (it *DefaultCheckout) GetSession() api.InterfaceSession {
-	return api.GetSessionByID(it.SessionID)
+	sessionInstance, _ := api.GetSessionByID(it.SessionID)
+	return sessionInstance
 }
 
 // GetTaxes collects taxes applied for current checkout

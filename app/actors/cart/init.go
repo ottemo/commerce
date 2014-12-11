@@ -84,7 +84,7 @@ func cleanupGuestCarts() error {
 	}
 	for _, record := range records {
 		sessionID := utils.InterfaceToString(record["session_id"])
-		if sessionInstance := api.GetSessionByID(sessionID); sessionInstance == nil {
+		if sessionInstance, err := api.GetSessionByID(sessionID); err != nil || sessionInstance == nil {
 			cartID := utils.InterfaceToString(record["_id"])
 			err = cartCollection.DeleteByID(cartID)
 			if err != nil {

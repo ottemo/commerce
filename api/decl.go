@@ -10,7 +10,8 @@ import (
 
 // Package global constants
 const (
-	ConstSessionKeyAdminRights = "adminRights" // session key used to flag that user have admin rights
+	ConstSessionKeyAdminRights = "adminRights"   // session key used to flag that user have admin rights
+	ConstSessionCookieName     = "OTTEMOSESSION" // cookie name which should contain sessionID
 
 	ConstErrorModule = "api"
 	ConstErrorLevel  = env.ConstErrorLevelHelper
