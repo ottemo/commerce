@@ -18,11 +18,17 @@ func (it *DefaultSessionService) Get(sessionID string) (api.InterfaceSession, er
 	if sessionInstance, present := it.Sessions[sessionID]; present {
 		return sessionInstance, nil
 	}
-	return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "e370399684f34c258996625154161d4b", "session not found")
+	return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "e370399684f34c258996625154161d4b", "session not found")
 }
 
 // New initializes new session instance
 func (it *DefaultSessionService) New() (api.InterfaceSession, error) {
+
+	// garbage collecting
+	randomNumber, err := rand.Int(rand.Reader, big.NewInt(it.gcRate))
+	if err == nil && randomNumber.Cmp(big.NewInt(1)) == 0 {
+		it.gc()
+	}
 
 	// receiving new session id
 	sessionID, err := it.generateSessionID()
@@ -30,11 +36,12 @@ func (it *DefaultSessionService) New() (api.InterfaceSession, error) {
 		return nil, err
 	}
 
-	// garbage collecting
-	randomNumber, err := rand.Int(rand.Reader, big.NewInt(it.gcRate))
-	if err == nil && randomNumber.Cmp(big.NewInt(1)) == 0 {
-		it.gc()
-	}
+	sessionInstance := new(DefaultSession)
+	sessionInstance.id = sessionID
+	sessionInstance.Data = make(map[string]interface{})
+	sessionInstance.UpdatedAt = time.Now()
+
+	it.Sessions[sessionID] = sessionInstance
 
 	return it.Sessions[sessionID], nil
 }

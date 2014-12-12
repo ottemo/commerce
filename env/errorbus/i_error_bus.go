@@ -17,12 +17,12 @@ func (it *DefaultErrorBus) backtrace(ottemoErr *OttemoError) {
 
 		_, file, line, ok := runtime.Caller(step)
 		for ok {
+			if !cutStopFlag && !strings.Contains(file, "env/helpers.go") && !strings.Contains(file, "env/errorbus/") {
+				cutStopFlag = true
+			}
+
 			if cutStopFlag {
 				ottemoErr.CallStack += file + ":" + strconv.Itoa(line) + "\n"
-			} else {
-				if !strings.Contains(file, "env/helpers.go") && !strings.Contains(file, "env/errorbus/") {
-					cutStopFlag = true
-				}
 			}
 
 			step++

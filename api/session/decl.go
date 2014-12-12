@@ -26,7 +26,7 @@ var (
 // DefaultSession is a default implementer of InterfaceSession declared in
 // "github.com/ottemo/foundation/api" package
 type DefaultSession struct {
-	ID        string
+	id        string
 	Data      map[string]interface{}
 	UpdatedAt time.Time
 }

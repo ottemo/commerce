@@ -10,7 +10,7 @@ import (
 
 // init makes package self-initialization routine
 func init() {
-	sessionService := new(DefaultSessionService)
+	sessionService = new(DefaultSessionService)
 	sessionService.gcRate = 10
 	sessionService.Sessions = make(map[string]*DefaultSession)
 
