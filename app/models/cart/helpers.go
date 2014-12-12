@@ -74,22 +74,46 @@ func GetCartForVisitor(visitorID string) (InterfaceCart, error) {
 // GetCurrentCart returns cart for current session or creates new one
 func GetCurrentCart(params *api.StructAPIHandlerParams) (InterfaceCart, error) {
 	sessionCartID := params.Session.Get(ConstSessionKeyCurrentCart)
+	visitorID := params.Session.Get(visitor.ConstSessionKeyVisitorID)
 
 	// checking session for cart id
 	if sessionCartID != nil && sessionCartID != "" {
-
 		// cart id was found in session - loading cart by id
-		currentCart, err := LoadCartByID(utils.InterfaceToString(sessionCartID))
+		sessionCart, err := LoadCartByID(utils.InterfaceToString(sessionCartID))
 		if err != nil {
 			return nil, env.ErrorDispatch(err)
 		}
+		if visitorID != nil && sessionCart.GetVisitorID() == "" {
+			visitorCart, err := GetCartForVisitor(utils.InterfaceToString(visitorID))
+			if err != nil {
+				return nil, env.ErrorDispatch(err)
+			}
 
-		return currentCart, nil
+			for _, item := range sessionCart.GetItems() {
+				visitorCart.AddItem(item.GetProductID(), item.GetQty(), item.GetOptions())
+			}
+
+			visitorCart.SetSessionID(params.Session.GetID())
+
+			err = visitorCart.Save()
+			if err != nil {
+				env.ErrorDispatch(err)
+			}
+
+			err = sessionCart.Delete()
+			if err != nil {
+				env.ErrorDispatch(err)
+			}
+
+			params.Session.Set(ConstSessionKeyCurrentCart, visitorCart.GetID())
+
+			return visitorCart, nil
+		}
+		return sessionCart, nil
 
 	}
 
 	// no cart id was in session, trying to get cart for visitor
-	visitorID := params.Session.Get(visitor.ConstSessionKeyVisitorID)
 	if visitorID != nil {
 		currentCart, err := GetCartForVisitor(utils.InterfaceToString(visitorID))
 		if err != nil {
