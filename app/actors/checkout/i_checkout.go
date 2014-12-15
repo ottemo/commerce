@@ -154,7 +154,11 @@ func (it *DefaultCheckout) SetVisitor(checkoutVisitor visitor.InterfaceVisitor) 
 
 // GetVisitor return checkout visitor
 func (it *DefaultCheckout) GetVisitor() visitor.InterfaceVisitor {
-	visitorInstance, _ := visitor.LoadVisitorByID(it.VisitorID)
+	visitorInstance, err := visitor.LoadVisitorByID(it.VisitorID)
+	if err != nil {
+		return nil
+	}
+
 	return visitorInstance
 }
 
@@ -317,7 +321,7 @@ func (it *DefaultCheckout) Submit() (interface{}, error) {
 	}
 
 	currentVisitor := it.GetVisitor()
-	if currentVisitor == nil && it.GetInfo("customer_email") == nil {
+	if (it.VisitorID == "" || currentVisitor == nil) && utils.InterfaceToString(it.GetInfo("customer_email")) == "" {
 		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "c5f53ede63b740ea952d4d4c04337563", "customer e-mail was not specified")
 	}
 
