@@ -46,6 +46,11 @@ func StartSession(params *StructAPIHandlerParams) (InterfaceSession, error) {
 	return result, nil
 }
 
+// NewSession returns new session instance
+func NewSession() (InterfaceSession, error) {
+	return currentSessionService.New()
+}
+
 // GetSessionByID returns session instance by id or nil
 func GetSessionByID(sessionID string) (InterfaceSession, error) {
 	sessionInstance, err := currentSessionService.Get(sessionID)

@@ -63,7 +63,7 @@ func (it *DefaultSessionService) generateSessionID() (string, error) {
 // gc removes expired sessions
 func (it *DefaultSessionService) gc() {
 	for _, sessionInstance := range it.Sessions {
-		if time.Now().Sub(sessionInstance.UpdatedAt).Seconds() > 3600 {
+		if time.Now().Sub(sessionInstance.UpdatedAt).Seconds() > ConstSessionLifeTime {
 			sessionInstance.Close()
 		}
 	}

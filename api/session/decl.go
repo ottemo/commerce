@@ -12,6 +12,8 @@ import (
 const (
 	ALPHANUMERIC = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890" // sessionID allowed symbols
 
+	ConstSessionLifeTime = 3600
+
 	ConstErrorModule = "api/session"
 	ConstErrorLevel  = env.ConstErrorLevelService
 
