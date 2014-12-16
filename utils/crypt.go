@@ -1,117 +1,158 @@
 package utils
 
 import (
+	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
-	"crypto/rand"
-	"errors"
-	"fmt"
+	"encoding/base64"
 	"io"
 )
 
-// func EncryptString(data string, key string) (string, error) {
-// 	result, err := EncryptData([]byte(data), []byte(key))
-// 	return string(result), err
-// }
+// crypt.go providing an centralized way for bi-directional crypt of secure data,
+//   - note that SetKey() makes change for entire application,
+// 	   so, if you want local effect you should restore it after usage
+//   - normally application should take care about SetKey() on init and you should not touch it
+//   - if SetKey() was not called during application init then default hard-coded key will be used
 //
-// func DecryptString(data string, key string) (string, error) {
-// 	result, err := EncryptData([]byte(data), []byte(key))
-// 	return string(result), err
-// }
+//   Example 1:
+//     source := "just test"
+//     encoded := utils.EncryptStringBase64(source)
+//     decoded := utils.DecryptStringBase64(encoded)
+//     println( "'" + source + "' --encode--> '" + encoded + "' --decode--> '" +  decoded + "'")
+//
+//   Output:
+//     'just test' --encode--> 'Ddryse1yNL5z' --decode--> 'just test'
+//
+//
+//   Example 2:
+//     sampleData := []byte("It is just a sample.")
+//
+//     outFile, _ := os.OpenFile("sample.txt", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
+//     defer outFile.Close()
+//     writer, _ := utils.EncryptWriter(outFile)
+//     writer.Write(sampleData)
+//
+//     inFile, _ := os.OpenFile("sample.txt", os.O_RDONLY, 0600)
+//     defer inFile.Close()
+//     reader, _ := utils.EncryptReader(inFile)
+//     readBuffer := make([]byte, 10)
+//
+//     reader.Read(readBuffer)
+//     println(string(readBuffer))
+//     reader.Read(readBuffer)
+//     println(string(readBuffer))
+//
+//   Output:
+//     It is just
+//      a sample.
+var (
+	cryptKey []byte // a key used in crypto/cipher algorithm
+)
 
-// EncryptData encrypts given text with usage of given key
-func EncryptData(data []byte, key []byte) ([]byte, error) {
-	// CBC mode works on blocks so data may need to be padded to the
-	// next whole block. For an example of such padding, see
-	// https://tools.ietf.org/html/rfc5246#section-6.2.3.2. Here we'll
-	// assume that the data is already of the correct length.
-	if len(data)%aes.BlockSize != 0 {
-		// return nil, errors.New("data is not a multiple of the block size")
-		diff := len(data) - aes.BlockSize
-		for diff < 0 {
-			data = append(data, 0)
-			diff++
-		}
-	}
-	if len(key)%aes.BlockSize != 0 {
-		// return nil, errors.New("data is not a multiple of the block size")
-		diff := len(key) - aes.BlockSize
-		for diff < 0 {
+// SetKey changes a key that package using for crypto/cipher algorithm
+func SetKey(key []byte) error {
+	if diff := aes.BlockSize - len(key)%aes.BlockSize; diff > 0 {
+		for diff > 0 {
 			key = append(key, 0)
-			diff++
+			diff--
 		}
 	}
-
-	cipherBlock, err := aes.NewCipher(key)
-	if err != nil {
-		return nil, err
-	}
-
-	// The IV needs to be unique, but not secure. Therefore it's common to
-	// include it at the beginning of the ciphertext.
-	cipherText := make([]byte, aes.BlockSize+len(data))
-	iv := cipherText[:aes.BlockSize]
-	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
-		return nil, err
-	}
-
-	mode := cipher.NewCBCEncrypter(cipherBlock, iv)
-	mode.CryptBlocks(cipherText[aes.BlockSize:], data)
-
-	return cipherText, nil
+	cryptKey = key
+	return nil
 }
 
-// DecryptData decrypts given text with usage of given key
-func DecryptData(encodedData []byte, key []byte) ([]byte, error) {
+// GetKey returns a key used in crypto/cipher algorithm
+func GetKey() []byte {
+	if cryptKey == nil {
+		SetKey([]byte("hard-coded key:)"))
+	}
+	return cryptKey
+}
 
-	if len(key)%aes.BlockSize != 0 {
-		// return nil, errors.New("data is not a multiple of the block size")
-		diff := len(key) - aes.BlockSize
-		for diff < 0 {
-			key = append(key, 0)
-			diff++
-		}
+// EncryptStringBase64 encrypts string with crypto/cipher and makes it base64.URLEncoded, returns "" on error
+func EncryptStringBase64(data string) string {
+	result, err := EncryptData([]byte(data))
+	if err != nil {
+		return ""
+	}
+	return base64.URLEncoding.EncodeToString(result)
+}
+
+// DecryptStringBase64 decodes base64.URLEncoded string and then decrypts it with crypto/cipher, returns "" on error
+func DecryptStringBase64(data string) string {
+
+	decodedData, err := base64.URLEncoding.DecodeString(data)
+	if err != nil {
+		decodedData = []byte(data)
 	}
 
-	cipherBlock, err := aes.NewCipher(key)
+	result, err := DecryptData(decodedData)
+	if err != nil {
+		return ""
+	}
+	return string(result)
+}
+
+// EncryptData encrypts given data with crypto/cipher algorithm
+func EncryptData(data []byte) ([]byte, error) {
+	var buffer bytes.Buffer
+
+	writer, err := EncryptWriter(&buffer)
 	if err != nil {
 		return nil, err
 	}
 
-	// The IV needs to be unique, but not secure. Therefore it's common to
-	// include it at the beginning of the cipher text.
-	if len(encodedData) < aes.BlockSize {
-		return nil, errors.New("data too short")
-	}
-	iv := encodedData[:aes.BlockSize]
-	encodedData = encodedData[aes.BlockSize:]
-
-	// CBC mode always works in whole blocks.
-	if len(encodedData)%aes.BlockSize != 0 {
-		panic("data is not a multiple of the block size")
+	_, err = writer.Write(data)
+	if err != nil {
+		return nil, err
 	}
 
-	mode := cipher.NewCBCDecrypter(cipherBlock, iv)
+	return buffer.Bytes(), nil
+}
 
-	// CryptBlocks can work in-place if the two arguments are the same.
+// DecryptData decrypts given data with crypto/cipher algorithm
+func DecryptData(encodedData []byte) ([]byte, error) {
 	result := make([]byte, len(encodedData))
-	mode.CryptBlocks(result, encodedData)
+
+	reader, err := EncryptReader(bytes.NewReader(encodedData))
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = reader.Read(result)
+	if err != nil {
+		return nil, err
+	}
 
 	return result, nil
 }
 
-func testEncript() {
-	data := "some text"
-	key := "test"
-	encrypted, err := EncryptData([]byte(data), []byte(key))
+// EncryptReader decrypts given stream with crypto/cipher algorithm
+func EncryptReader(rawReader io.Reader) (io.Reader, error) {
+
+	cryptKey := GetKey()
+	cipherBlock, err := aes.NewCipher(cryptKey)
 	if err != nil {
-		fmt.Println(err.Error())
-	}
-	decrypted, err := DecryptData(encrypted, []byte(key))
-	if err != nil {
-		fmt.Println(err.Error())
+		return nil, err
 	}
 
-	fmt.Printf("%x\n", encrypted)
-	fmt.Printf("%s\n", decrypted)
+	iv := cryptKey[:aes.BlockSize]
+	stream := cipher.NewOFB(cipherBlock, iv)
+
+	return &cipher.StreamReader{S: stream, R: rawReader}, nil
+}
+
+// EncryptWriter encrypts given stream with crypto/cipher algorithm
+func EncryptWriter(rawWriter io.Writer) (io.Writer, error) {
+
+	cryptKey := GetKey()
+	cipherBlock, err := aes.NewCipher(cryptKey)
+	if err != nil {
+		return nil, err
+	}
+
+	iv := cryptKey[:aes.BlockSize]
+	stream := cipher.NewOFB(cipherBlock, iv)
+
+	return &cipher.StreamWriter{S: stream, W: rawWriter}, nil
 }

@@ -18,6 +18,7 @@ const (
 	ConstErrorLevel  = env.ConstErrorLevelService
 
 	ConstStorageFolder = "./var/session/"
+	ConstCryptSession  = true
 )
 
 // Package global variables

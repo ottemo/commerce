@@ -2,9 +2,12 @@ package session
 
 import (
 	"encoding/json"
-	"github.com/ottemo/foundation/env"
+	"io"
 	"os"
 	"time"
+
+	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/foundation/utils"
 )
 
 // GetID returns current session id
@@ -64,9 +67,16 @@ func (it *DefaultSession) Save() error {
 		return env.ErrorDispatch(err)
 	}
 
-	encoder := json.NewEncoder(sessionFile)
+	var writer io.Writer = sessionFile
+	if ConstCryptSession {
+		writer, err = utils.EncryptWriter(writer)
+		if err != nil {
+			return env.ErrorDispatch(err)
+		}
+	}
 
-	err = encoder.Encode(it)
+	jsonEncoder := json.NewEncoder(writer)
+	err = jsonEncoder.Encode(it)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -87,9 +97,16 @@ func (it *DefaultSession) Load(sessionID string) error {
 	sessionFile, err := os.OpenFile(ConstStorageFolder+sessionID, os.O_RDONLY, 0660)
 	defer sessionFile.Close()
 
-	decoder := json.NewDecoder(sessionFile)
+	var reader io.Reader = sessionFile
+	if ConstCryptSession {
+		reader, err = utils.EncryptReader(reader)
+		if err != nil {
+			return env.ErrorDispatch(err)
+		}
+	}
 
-	err = decoder.Decode(it)
+	jsonDecoder := json.NewDecoder(reader)
+	err = jsonDecoder.Decode(it)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
