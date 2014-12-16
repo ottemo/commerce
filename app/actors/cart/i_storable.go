@@ -6,6 +6,7 @@ import (
 
 	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/utils"
+	"time"
 )
 
 // GetID returns id of current cart
@@ -38,6 +39,8 @@ func (it *DefaultCart) Load(ID string) error {
 		it.id = utils.InterfaceToString(values["_id"])
 		it.Active = utils.InterfaceToBool(values["active"])
 		it.VisitorID = utils.InterfaceToString(values["visitor_id"])
+		it.SessionID = utils.InterfaceToString(values["session_id"])
+		it.UpdatedAt = utils.InterfaceToTime(values["updated_at"])
 		it.Info, _ = utils.DecodeJSONToStringKeyMap(values["info"])
 		it.Items = make(map[int]cart.InterfaceCartItem)
 		it.maxIdx = 0
@@ -145,8 +148,10 @@ func (it *DefaultCart) Save() error {
 
 	cartStoringValues["_id"] = it.GetID()
 	cartStoringValues["visitor_id"] = it.VisitorID
+	cartStoringValues["session_id"] = it.SessionID
 	cartStoringValues["active"] = it.Active
 	cartStoringValues["info"] = utils.EncodeToJSONString(it.Info)
+	cartStoringValues["updated_at"] = time.Now()
 
 	newID, err := cartCollection.Save(cartStoringValues)
 	if err != nil {

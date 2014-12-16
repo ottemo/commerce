@@ -3,6 +3,7 @@ package cart
 import (
 	"sort"
 	"strconv"
+	"time"
 
 	"github.com/ottemo/foundation/app/models/cart"
 	"github.com/ottemo/foundation/app/models/visitor"
@@ -273,7 +274,7 @@ func (it *DefaultCart) GetCartInfo() map[string]interface{} {
 	return it.Info
 }
 
-// MakeCartForVisitor loads cart information from DB for visitor
+// MakeCartForVisitor loads cart for given visitor from database or creates new one
 func (it *DefaultCart) MakeCartForVisitor(visitorID string) error {
 	dbEngine := db.GetDBEngine()
 	if dbEngine == nil {
@@ -340,4 +341,20 @@ func (it *DefaultCart) ValidateCart() error {
 		}
 	}
 	return nil
+}
+
+// GetSessionID returns session id last time used for cart
+func (it *DefaultCart) GetSessionID() string {
+	return it.SessionID
+}
+
+// SetSessionID sets session id associated to cart
+func (it *DefaultCart) SetSessionID(sessionID string) error {
+	it.SessionID = sessionID
+	return nil
+}
+
+// GetLastUpdateTime returns cart last update time
+func (it *DefaultCart) GetLastUpdateTime() time.Time {
+	return it.UpdatedAt
 }

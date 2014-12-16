@@ -99,6 +99,7 @@ type InterfaceOttemoError interface {
 type FuncConfigValueValidator func(interface{}) (interface{}, error)
 
 // FuncEventListener is an event listener callback function prototype
+//   - return value is continue flag, so listener should return false to stop event propagation
 type FuncEventListener func(string, map[string]interface{}) bool
 
 // FuncErrorListener is an error listener callback function prototype

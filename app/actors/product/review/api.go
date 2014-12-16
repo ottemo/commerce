@@ -72,6 +72,10 @@ func restReviewAdd(params *api.StructAPIHandlerParams) (interface{}, error) {
 		return nil, env.ErrorDispatch(err)
 	}
 
+	if visitorObject.IsGuest() {
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "2e671776659b4c1d8590a61f00a9d969", "guest visitor is no allowed to add review")
+	}
+
 	productObject, err := product.LoadProductByID(params.RequestURLParams["pid"])
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
@@ -169,6 +173,10 @@ func restReviewRemove(params *api.StructAPIHandlerParams) (interface{}, error) {
 	visitorObject, err := visitor.GetCurrentVisitor(params)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
+	}
+
+	if visitorObject.IsGuest() {
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "2e671776659b4c1d8590a61f00a9d969", "guest visitor is no allowed to edit review")
 	}
 
 	collection, err := db.GetCollection(ConstReviewCollectionName)

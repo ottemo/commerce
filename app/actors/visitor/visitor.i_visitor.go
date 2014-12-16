@@ -91,9 +91,14 @@ func (it *DefaultVisitor) SetBillingAddress(address visitor.InterfaceVisitorAddr
 	return nil
 }
 
-// IsAdmin returns true if the Visitor is an Admin
+// IsAdmin returns true if the visitor is an Admin (have admin rights)
 func (it *DefaultVisitor) IsAdmin() bool {
 	return it.Admin
+}
+
+// IsGuest returns true if instance represents guest visitor
+func (it *DefaultVisitor) IsGuest() bool {
+	return it.GetGoogleID() == "" && it.GetFacebookID() == "" && it.GetEmail() == ""
 }
 
 // IsValidated returns true if the Visitor's e-mail has been verified

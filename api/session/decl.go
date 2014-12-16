@@ -63,8 +63,8 @@ func StartSession(request *http.Request, responseWriter http.ResponseWriter) (*S
 
 // GetSessionByID returns session object for given id or nil
 func GetSessionByID(sessionID string) (*Session, error) {
-	if session, ok := Sessions[sessionID]; ok == true {
-		return session, nil
+	if sessionInstance, present := Sessions[sessionID]; present {
+		return sessionInstance, nil
 	}
 	return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "e370399684f34c258996625154161d4b", "session not found")
 }
@@ -110,13 +110,9 @@ func newSessionID() (string, error) {
 
 // Gc removes expired sessions
 func Gc() {
-	for id, session := range Sessions {
+	for _, session := range Sessions {
 		if time.Now().Sub(session.time).Seconds() > 3600 {
-			sessionsMutex.Lock()
-
-			delete(Sessions, id)
-
-			sessionsMutex.Unlock()
+			session.Close()
 		}
 	}
 }

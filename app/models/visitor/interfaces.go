@@ -44,6 +44,7 @@ type InterfaceVisitor interface {
 	GenerateNewPassword() error
 
 	IsAdmin() bool
+	IsGuest() bool
 
 	IsValidated() bool
 	Invalidate() error

@@ -12,8 +12,14 @@ import (
 
 // GetSessionByID returns session instance by id or nil
 func GetSessionByID(sessionID string) InterfaceSession {
-	session, _ := session.GetSessionByID(sessionID)
-	return session
+	sessionInstance, _ := session.GetSessionByID(sessionID)
+
+	// "(*session.Session)(nil)" is not "nil", and we want to have exact nil
+	if sessionInstance == nil {
+		return nil
+	}
+
+	return sessionInstance
 }
 
 // ValidateAdminRights returns nil if admin rights allowed for current session

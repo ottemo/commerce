@@ -2,8 +2,9 @@
 package cart
 
 import (
-	"github.com/ottemo/foundation/app/models"
+	"time"
 
+	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/product"
 	"github.com/ottemo/foundation/app/models/visitor"
 	"github.com/ottemo/foundation/env"
@@ -43,9 +44,7 @@ type InterfaceCartItem interface {
 // InterfaceCart represents interface to access business layer implementation of cart object
 type InterfaceCart interface {
 	AddItem(productID string, qty int, options map[string]interface{}) (InterfaceCartItem, error)
-
 	RemoveItem(itemIdx int) error
-
 	SetQty(itemIdx int, qty int) error
 
 	GetItems() []InterfaceCartItem
@@ -55,13 +54,17 @@ type InterfaceCart interface {
 	SetVisitorID(string) error
 
 	GetVisitor() visitor.InterfaceVisitor
+	MakeCartForVisitor(visitorID string) error
+
+	GetSessionID() string
+	SetSessionID(sessionID string) error
 
 	Activate() error
 	Deactivate() error
 
 	IsActive() bool
 
-	MakeCartForVisitor(visitorID string) error
+	GetLastUpdateTime() time.Time
 
 	SetCartInfo(infoAttribute string, infoValue interface{}) error
 	GetCartInfo() map[string]interface{}
