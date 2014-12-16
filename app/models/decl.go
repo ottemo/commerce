@@ -35,6 +35,7 @@ type StructAttributeInfo struct {
 	Default    string
 	Validators string
 	IsLayered  bool
+	Public     bool
 }
 
 // Package global variables

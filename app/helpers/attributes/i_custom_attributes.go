@@ -69,6 +69,8 @@ func (it *CustomAttributes) Init(model string, collection string) (*CustomAttrib
 					attribute.IsRequired = utils.InterfaceToBool(value)
 				case "islayered", "layered":
 					attribute.IsLayered = utils.InterfaceToBool(value)
+				case "publish", "public":
+					attribute.Public = utils.InterfaceToBool(value)
 				}
 			}
 
@@ -154,6 +156,7 @@ func (it *CustomAttributes) AddNewAttribute(newAttribute models.StructAttributeI
 	hashMap["default"] = newAttribute.Default
 	hashMap["validators"] = newAttribute.Validators
 	hashMap["layered"] = newAttribute.IsLayered
+	hashMap["public"] = newAttribute.Public
 
 	newCustomAttributeID, err := customAttribuesCollection.Save(hashMap)
 

@@ -165,6 +165,7 @@ func restAddProductAttribute(params *api.StructAPIHandlerParams) (interface{}, e
 		Default:    "",
 		Validators: "",
 		IsLayered:  false,
+		Public:     false,
 	}
 
 	for key, value := range reqData {
@@ -185,6 +186,8 @@ func restAddProductAttribute(params *api.StructAPIHandlerParams) (interface{}, e
 			attribute.IsRequired = utils.InterfaceToBool(value)
 		case "islayered", "layered":
 			attribute.IsLayered = utils.InterfaceToBool(value)
+		case "public":
+			attribute.Public = utils.InterfaceToBool(value)
 		}
 	}
 
