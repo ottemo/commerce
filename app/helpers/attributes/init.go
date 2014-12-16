@@ -26,6 +26,7 @@ func SetupDB() error {
 		collection.AddColumn("default", "text", false)
 		collection.AddColumn("validators", "text", false)
 		collection.AddColumn("layered", "bool", false)
+		collection.AddColumn("public", "bool", false)
 
 	} else {
 		return env.ErrorDispatch(err)

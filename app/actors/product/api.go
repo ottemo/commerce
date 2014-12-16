@@ -41,17 +41,21 @@ func setupAPI() error {
 		return env.ErrorDispatch(err)
 	}
 
+	//TODO: shorten endpoint to just 'product/attribute/:attribute' as DELETE verb indicates purpose - jwv
+	//TODO: shorten endpoint to just 'product/attribute' - jwv
 	err = api.GetRestService().RegisterAPI("product", "GET", "attribute/list", restListProductAttributes)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	//TODO: shorten endpoint to just 'product/attribute/:attribute' as DELETE verb indicates purpose - jwv
 	err = api.GetRestService().RegisterAPI("product", "DELETE", "attribute/remove/:attribute", restRemoveProductAttribute)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	//TODO: shorten endpoint to just 'product/attribute' - jwv
 	err = api.GetRestService().RegisterAPI("product", "POST", "attribute/add", restAddProductAttribute)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+	err = api.GetRestService().RegisterAPI("product", "POST", "attribute/edit/:attribute", restEditProductAttribute)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -119,6 +123,67 @@ func restListProductAttributes(params *api.StructAPIHandlerParams) (interface{},
 	return attrInfo, nil
 }
 
+// WEB REST API function used to edit existing custom attribute fields (except id and name)
+func restEditProductAttribute(params *api.StructAPIHandlerParams) (interface{}, error) {
+	reqData, err := api.GetRequestContentAsMap(params)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	attributeName, isSpecified := params.RequestURLParams["attribute"]
+	if !isSpecified {
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "cb8f7251e22b460597bbe239df6c7aac", "attribute name was not specified")
+	}
+
+	// check rights
+	if err := api.ValidateAdminRights(params); err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	productModel, err := product.GetProductModel()
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	for _, attribute := range productModel.GetAttributesInfo() {
+		if attribute.Attribute == attributeName {
+			if attribute.IsStatic == true {
+				return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "2893262fa61a42f89c75e763e0a5c8ca", "can't edit static attributes")
+			}
+
+			for key, value := range reqData {
+				switch strings.ToLower(key) {
+				case "label":
+					attribute.Label = utils.InterfaceToString(value)
+				case "group":
+					attribute.Group = utils.InterfaceToString(value)
+				case "editors":
+					attribute.Editors = utils.InterfaceToString(value)
+				case "options":
+					attribute.Options = utils.InterfaceToString(value)
+				case "default":
+					attribute.Default = utils.InterfaceToString(value)
+				case "validators":
+					attribute.Validators = utils.InterfaceToString(value)
+				case "isrequired", "required":
+					attribute.IsRequired = utils.InterfaceToBool(value)
+				case "islayered", "layered":
+					attribute.IsLayered = utils.InterfaceToBool(value)
+				case "ispublic", "public":
+					attribute.IsPublic = utils.InterfaceToBool(value)
+				}
+			}
+			err := productModel.EditAttribute(attributeName, attribute)
+			if err != nil {
+				return nil, err
+			}
+			return attribute, nil
+		}
+	}
+
+	return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "2893262fa61a42f89c75e763e0a5c8ca", "attribute not found")
+}
+
 // WEB REST API function used to add new one custom attribute
 func restAddProductAttribute(params *api.StructAPIHandlerParams) (interface{}, error) {
 
@@ -165,7 +230,7 @@ func restAddProductAttribute(params *api.StructAPIHandlerParams) (interface{}, e
 		Default:    "",
 		Validators: "",
 		IsLayered:  false,
-		Public:     false,
+		IsPublic:   false,
 	}
 
 	for key, value := range reqData {
@@ -186,8 +251,8 @@ func restAddProductAttribute(params *api.StructAPIHandlerParams) (interface{}, e
 			attribute.IsRequired = utils.InterfaceToBool(value)
 		case "islayered", "layered":
 			attribute.IsLayered = utils.InterfaceToBool(value)
-		case "public":
-			attribute.Public = utils.InterfaceToBool(value)
+		case "ispublic", "public":
+			attribute.IsPublic = utils.InterfaceToBool(value)
 		}
 	}
 

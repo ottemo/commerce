@@ -31,7 +31,7 @@ func (it *CustomAttributes) Init(model string, collection string) (*CustomAttrib
 		}
 
 		customAttributesCollection.AddFilter("model", "=", it.model)
-		dbValues, err := customAttributesCollection.Load()
+		records, err := customAttributesCollection.Load()
 		if err != nil {
 			env.ErrorDispatch(err)
 			return it, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "91e0f7e572344a33b94bbec7437200a5", "Can't load custom attributes information for '"+it.model+"'")
@@ -39,10 +39,10 @@ func (it *CustomAttributes) Init(model string, collection string) (*CustomAttrib
 
 		// filling attribute info structure
 		//---------------------------------
-		for _, row := range dbValues {
+		for _, record := range records {
 			attribute := models.StructAttributeInfo{}
 
-			for key, value := range row {
+			for key, value := range record {
 				switch key {
 				case "model":
 					attribute.Model = utils.InterfaceToString(value)
@@ -69,8 +69,8 @@ func (it *CustomAttributes) Init(model string, collection string) (*CustomAttrib
 					attribute.IsRequired = utils.InterfaceToBool(value)
 				case "islayered", "layered":
 					attribute.IsLayered = utils.InterfaceToBool(value)
-				case "publish", "public":
-					attribute.Public = utils.InterfaceToBool(value)
+				case "ispublic", "public":
+					attribute.IsPublic = utils.InterfaceToBool(value)
 				}
 			}
 
@@ -83,6 +83,67 @@ func (it *CustomAttributes) Init(model string, collection string) (*CustomAttrib
 	globalCustomAttributesMutex.Unlock()
 
 	return it, nil
+}
+
+// EditAttribute modifies custom attribute for collection
+func (it *CustomAttributes) EditAttribute(attributeName string, attributeValues models.StructAttributeInfo) error {
+	customAttribute, present := it.attributes[attributeName]
+	if !present {
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "d4ba1021eb4d4f03aafd6a4e33efb5ed", "There is no attribute '"+attributeName+"' for model '"+it.model+"'")
+	}
+
+	customAttributesCollection, err := db.GetCollection(ConstCollectionNameCustomAttributes)
+	if err != nil {
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "3b8b1e23c2ad45c59252215084a8cd81", "Can't get collection '"+ConstCollectionNameCustomAttributes+"': "+err.Error())
+	}
+
+	customAttributesCollection.AddFilter("model", "=", customAttribute.Model)
+	customAttributesCollection.AddFilter("attribute", "=", attributeName)
+	records, err := customAttributesCollection.Load()
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	for _, record := range records {
+		customAttribute.IsRequired = attributeValues.IsRequired
+		record["required"] = attributeValues.IsRequired
+
+		customAttribute.Label = attributeValues.Label
+		record["label"] = attributeValues.Label
+
+		if customAttribute.Group != "" {
+			customAttribute.Group = attributeValues.Group
+			record["group"] = attributeValues.Group
+		}
+		if customAttribute.Editors != "" {
+			customAttribute.Editors = attributeValues.Editors
+			record["editors"] = attributeValues.Editors
+		}
+
+		customAttribute.Options = attributeValues.Options
+		record["options"] = attributeValues.Options
+
+		customAttribute.Default = attributeValues.Default
+		record["default"] = attributeValues.Default
+
+		customAttribute.Validators = attributeValues.Validators
+		record["validators"] = attributeValues.Validators
+
+		customAttribute.IsLayered = attributeValues.IsLayered
+		record["layered"] = attributeValues.IsLayered
+
+		customAttribute.IsPublic = attributeValues.IsPublic
+		record["public"] = attributeValues.IsPublic
+
+		_, err := customAttributesCollection.Save(record)
+		if err != nil {
+			return err
+		}
+
+		it.attributes[attributeName] = customAttribute
+	}
+
+	return nil
 }
 
 // RemoveAttribute removes custom attribute from collection
@@ -142,23 +203,23 @@ func (it *CustomAttributes) AddNewAttribute(newAttribute models.StructAttributeI
 	}
 
 	// inserting attribute information in custom_attributes collection
-	hashMap := make(map[string]interface{})
+	record := make(map[string]interface{})
 
-	hashMap["model"] = newAttribute.Model
-	hashMap["collection"] = newAttribute.Collection
-	hashMap["attribute"] = newAttribute.Attribute
-	hashMap["type"] = newAttribute.Type
-	hashMap["required"] = newAttribute.IsRequired
-	hashMap["label"] = newAttribute.Label
-	hashMap["group"] = newAttribute.Group
-	hashMap["editors"] = newAttribute.Editors
-	hashMap["options"] = newAttribute.Options
-	hashMap["default"] = newAttribute.Default
-	hashMap["validators"] = newAttribute.Validators
-	hashMap["layered"] = newAttribute.IsLayered
-	hashMap["public"] = newAttribute.Public
+	record["model"] = newAttribute.Model
+	record["collection"] = newAttribute.Collection
+	record["attribute"] = newAttribute.Attribute
+	record["type"] = newAttribute.Type
+	record["required"] = newAttribute.IsRequired
+	record["label"] = newAttribute.Label
+	record["group"] = newAttribute.Group
+	record["editors"] = newAttribute.Editors
+	record["options"] = newAttribute.Options
+	record["default"] = newAttribute.Default
+	record["validators"] = newAttribute.Validators
+	record["layered"] = newAttribute.IsLayered
+	record["public"] = newAttribute.IsPublic
 
-	newCustomAttributeID, err := customAttribuesCollection.Save(hashMap)
+	newCustomAttributeID, err := customAttribuesCollection.Save(record)
 
 	if err != nil {
 		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "ad98e5b076724d029744e1beecb88922", "Can't insert attribute '"+newAttribute.Attribute+"' in collection '"+newAttribute.Collection+"': "+err.Error())
