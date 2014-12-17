@@ -268,6 +268,7 @@ func (it *DefaultOrder) GetAttributesInfo() []models.StructAttributeInfo {
 			Editors:    "line_text",
 			Options:    "",
 			Default:    "",
+			Validators: "email",
 		},
 		models.StructAttributeInfo{
 			Model:      "Order",
@@ -346,6 +347,7 @@ func (it *DefaultOrder) GetAttributesInfo() []models.StructAttributeInfo {
 			Editors:    "not_editable",
 			Options:    "",
 			Default:    "",
+			Validators: "numeric positive",
 		},
 		models.StructAttributeInfo{
 			Model:      "Order",
@@ -359,6 +361,7 @@ func (it *DefaultOrder) GetAttributesInfo() []models.StructAttributeInfo {
 			Editors:    "not_editable",
 			Options:    "",
 			Default:    "",
+			Validators: "numeric positive",
 		},
 		models.StructAttributeInfo{
 			Model:      "Order",
@@ -372,6 +375,7 @@ func (it *DefaultOrder) GetAttributesInfo() []models.StructAttributeInfo {
 			Editors:    "not_editable",
 			Options:    "",
 			Default:    "",
+			Validators: "numeric positive",
 		},
 		models.StructAttributeInfo{
 			Model:      "Order",
@@ -385,6 +389,7 @@ func (it *DefaultOrder) GetAttributesInfo() []models.StructAttributeInfo {
 			Editors:    "not_editable",
 			Options:    "",
 			Default:    "",
+			Validators: "numeric positive",
 		},
 		models.StructAttributeInfo{
 			Model:      "Order",
@@ -398,6 +403,7 @@ func (it *DefaultOrder) GetAttributesInfo() []models.StructAttributeInfo {
 			Editors:    "not_editable",
 			Options:    "",
 			Default:    "",
+			Validators: "numeric positive",
 		},
 		models.StructAttributeInfo{
 			Model:      "Order",

@@ -233,6 +233,7 @@ func (it *DefaultVisitorAddress) GetAttributesInfo() []models.StructAttributeInf
 			Editors:    "line_text",
 			Options:    "",
 			Default:    "",
+			Validators: `regexp(/^(\+?\d{1,3})?[- ]?\(?(\d{3})\)?[- ]?((?:\d{3})-?(?:\d{2})-?(?:\d{2}))$/)`,
 		},
 		models.StructAttributeInfo{
 			Model:      visitor.ConstModelNameVisitorAddress,
@@ -255,6 +256,7 @@ func (it *DefaultVisitorAddress) GetAttributesInfo() []models.StructAttributeInf
 			Editors:    "line_text",
 			Options:    "",
 			Default:    "",
+			Validators: `regexp(/^\d{5}(?:[-\s]\d{4})?$/)`,
 		},
 	}
 

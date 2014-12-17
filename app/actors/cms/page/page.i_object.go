@@ -128,6 +128,7 @@ func (it *DefaultCMSPage) GetAttributesInfo() []models.StructAttributeInfo {
 			Editors:    "line_text",
 			Options:    "",
 			Default:    "",
+			Validators: "sku",
 		},
 		models.StructAttributeInfo{
 			Model:      cms.ConstModelNameCMSPage,
@@ -141,6 +142,7 @@ func (it *DefaultCMSPage) GetAttributesInfo() []models.StructAttributeInfo {
 			Editors:    "line_text",
 			Options:    "",
 			Default:    "",
+			Validators: "sku",
 		},
 		models.StructAttributeInfo{
 			Model:      cms.ConstModelNameCMSPage,

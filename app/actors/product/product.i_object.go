@@ -190,6 +190,7 @@ func (it *DefaultProduct) GetAttributesInfo() []models.StructAttributeInfo {
 			Editors:    "line_text",
 			Options:    "",
 			Default:    "",
+			Validators: "sku",
 		},
 		models.StructAttributeInfo{
 			Model:      product.ConstModelNameProduct,
@@ -255,6 +256,7 @@ func (it *DefaultProduct) GetAttributesInfo() []models.StructAttributeInfo {
 			Editors:    "price",
 			Options:    "",
 			Default:    "",
+			Validators: "price",
 		},
 		models.StructAttributeInfo{
 			Model:      product.ConstModelNameProduct,
@@ -268,6 +270,7 @@ func (it *DefaultProduct) GetAttributesInfo() []models.StructAttributeInfo {
 			Editors:    "numeric",
 			Options:    "",
 			Default:    "",
+			Validators: "numeric positive",
 		},
 		models.StructAttributeInfo{
 			Model:      product.ConstModelNameProduct,
@@ -311,6 +314,7 @@ func (it *DefaultProduct) GetAttributesInfo() []models.StructAttributeInfo {
 				Editors:    "numeric",
 				Options:    "",
 				Default:    "0",
+				Validators: "numeric positive",
 			})
 	}
 
