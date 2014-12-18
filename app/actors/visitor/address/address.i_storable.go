@@ -61,6 +61,13 @@ func (it *DefaultVisitorAddress) Save() error {
 			//	return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "c0c6fe3d10554e81aa02e33143594242", "Zip code for address - required")
 			//}
 
+			if it.ZipCode == "" && it.FirstName == "" && it.LastName == "" &&
+				it.Company == "" && it.Country == "" && it.State == "" &&
+				it.City == "" && it.AddressLine1 == "" && it.AddressLine2 == "" {
+
+				return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "21c10a0c25c944f8bc3401551910f3e6", "address is blank")
+			}
+
 			if newID, err := collection.Save(it.ToHashMap()); err == nil {
 				it.Set("_id", newID)
 				return env.ErrorDispatch(err)

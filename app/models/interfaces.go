@@ -44,6 +44,7 @@ type InterfaceCustomAttributes interface {
 
 	AddNewAttribute(newAttribute StructAttributeInfo) error
 	RemoveAttribute(attributeName string) error
+	EditAttribute(attributeName string, attributeValues StructAttributeInfo) error
 }
 
 // InterfaceMedia represents interface to access business layer implementation object assigned media resources

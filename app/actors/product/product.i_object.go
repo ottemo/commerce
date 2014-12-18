@@ -264,7 +264,7 @@ func (it *DefaultProduct) GetAttributesInfo() []models.StructAttributeInfo {
 			IsRequired: false,
 			IsStatic:   true,
 			Label:      "DefaultImage",
-			Group:      "Pictures",
+			Group:      "General",
 			Editors:    "image_selector",
 			Options:    "",
 			Default:    "",
