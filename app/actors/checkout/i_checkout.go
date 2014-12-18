@@ -154,6 +154,10 @@ func (it *DefaultCheckout) SetVisitor(checkoutVisitor visitor.InterfaceVisitor) 
 
 // GetVisitor return checkout visitor
 func (it *DefaultCheckout) GetVisitor() visitor.InterfaceVisitor {
+	if it.VisitorID == "" {
+		return nil
+	}
+
 	visitorInstance, err := visitor.LoadVisitorByID(it.VisitorID)
 	if err != nil {
 		return nil
