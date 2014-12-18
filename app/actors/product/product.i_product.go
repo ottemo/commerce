@@ -11,31 +11,72 @@ import (
 )
 
 // GetEnabled returns enabled flag for the given product
-func (it *DefaultProduct) GetEnabled() bool { return it.Enabled }
+func (it *DefaultProduct) GetEnabled() bool {
+	return it.Enabled
+}
 
 // GetSku returns requested sku for the given product
-func (it *DefaultProduct) GetSku() string { return it.Sku }
+func (it *DefaultProduct) GetSku() string {
+	return it.Sku
+}
 
 // GetName returns the name of the given product
-func (it *DefaultProduct) GetName() string { return it.Name }
+func (it *DefaultProduct) GetName() string {
+	return it.Name
+}
 
 // GetShortDescription returns the short description of the requested product
-func (it *DefaultProduct) GetShortDescription() string { return it.ShortDescription }
+func (it *DefaultProduct) GetShortDescription() string {
+	return it.ShortDescription
+}
 
 // GetDescription returns the long description of the requested product
-func (it *DefaultProduct) GetDescription() string { return it.Description }
+func (it *DefaultProduct) GetDescription() string {
+	return it.Description
+}
 
 // GetDefaultImage returns the imaged identified as defult for the given product
-func (it *DefaultProduct) GetDefaultImage() string { return it.DefaultImage }
+func (it *DefaultProduct) GetDefaultImage() string {
+	return it.DefaultImage
+}
 
 // GetPrice returns the price as a float64 for the given product
-func (it *DefaultProduct) GetPrice() float64 { return it.Price }
+func (it *DefaultProduct) GetPrice() float64 {
+	return it.Price
+}
 
 // GetWeight returns the weight for the given product
-func (it *DefaultProduct) GetWeight() float64 { return it.Weight }
+func (it *DefaultProduct) GetWeight() float64 {
+	return it.Weight
+}
 
 // GetOptions returns current products possible options as a map[string]interface{}
-func (it *DefaultProduct) GetOptions() map[string]interface{} { return it.Options }
+func (it *DefaultProduct) GetOptions() map[string]interface{} {
+	return it.Options
+}
+
+// GetRelatedProductIds returns the related product id list
+func (it *DefaultProduct) GetRelatedProductIds() []string {
+	return it.RelatedProductIds
+}
+
+// GetRelatedProducts returns related products instances list
+func (it *DefaultProduct) GetRelatedProducts() []product.InterfaceProduct {
+	var result []product.InterfaceProduct
+
+	for _, productID := range it.RelatedProductIds {
+		if productID == "" {
+			continue
+		}
+
+		productModel, err := product.LoadProductByID(productID)
+		if err == nil {
+			result = append(result, productModel)
+		}
+	}
+
+	return result
+}
 
 // GetQty updates and returns the product qty if stock manager is available and Qty was not set to instance
 // otherwise returns qty was set
@@ -225,38 +266,4 @@ func (it *DefaultProduct) ApplyOptions(options map[string]interface{}) error {
 	}
 
 	return nil
-}
-
-// GetRelatedProductIds returns the related product IDs
-func (it *DefaultProduct) GetRelatedProductIds() []string {
-	// result := make([]string, 0)
-	var result []string
-
-	for _, productID := range it.RelatedProductIds {
-		productModel, err := product.LoadProductByID(productID)
-		if err == nil {
-			result = append(result, productModel.GetID())
-		}
-	}
-
-	return result
-}
-
-// GetRelatedProducts returns an array of related products
-func (it *DefaultProduct) GetRelatedProducts() []product.InterfaceProduct {
-	// result := make([]product.InterfaceProduct, 0)
-	var result []product.InterfaceProduct
-
-	for _, productID := range it.RelatedProductIds {
-		if productID == "" {
-			continue
-		}
-
-		productModel, err := product.LoadProductByID(productID)
-		if err == nil {
-			result = append(result, productModel)
-		}
-	}
-
-	return result
 }

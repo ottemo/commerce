@@ -1,12 +1,13 @@
 package product
 
 import (
+	"strings"
+
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/product"
+	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
-
-	"strings"
 )
 
 // Get returns an object attribute value or nil
@@ -82,14 +83,38 @@ func (it *DefaultProduct) Set(attribute string, value interface{}) error {
 		case []interface{}:
 
 			for _, listItem := range typedValue {
-				if productID, ok := listItem.(string); ok && productID != "" && it.id != productID {
-					// checking product existance
-					productModel, err := product.LoadProductByID(productID)
-					if err != nil {
-						return env.ErrorDispatch(err)
-					}
+				var relatedProductIDs []string
 
-					it.RelatedProductIds = append(it.RelatedProductIds, productModel.GetID())
+				currentProductID := it.GetID()
+				if relatedProductID, ok := listItem.(string); ok &&
+					relatedProductID != "" &&
+					currentProductID != relatedProductID {
+
+					relatedProductIDs = append(relatedProductIDs, relatedProductID)
+				}
+
+				// checking related products existence
+				dbCollection, err := db.GetCollection(ConstCollectionNameProduct)
+				if err != nil {
+					return env.ErrorDispatch(err)
+				}
+				err = dbCollection.AddFilter("_id", "in", relatedProductIDs)
+				if err != nil {
+					return env.ErrorDispatch(err)
+				}
+				err = dbCollection.SetResultColumns("_id")
+				if err != nil {
+					return env.ErrorDispatch(err)
+				}
+				records, err := dbCollection.Load()
+				if err != nil {
+					return env.ErrorDispatch(err)
+				}
+
+				// adding only exist products to model
+				for _, record := range records {
+					productID := utils.InterfaceToString(record["_id"])
+					it.RelatedProductIds = append(it.RelatedProductIds, productID)
 				}
 			}
 
