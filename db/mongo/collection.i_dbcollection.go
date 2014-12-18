@@ -1,9 +1,10 @@
 package mongo
 
 import (
-	"github.com/ottemo/foundation/env"
-	"labix.org/v2/mgo/bson"
 	"sort"
+
+	"github.com/ottemo/foundation/env"
+	"gopkg.in/mgo.v2/bson"
 )
 
 // LoadByID loads one record from DB by record _id

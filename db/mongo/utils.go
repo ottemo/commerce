@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sort"
 
-	"labix.org/v2/mgo/bson"
+	"gopkg.in/mgo.v2/bson"
 )
 
 // ConvertMapToDoc is a recursive function that converts map[string]interface{} to bson.D

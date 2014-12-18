@@ -1,10 +1,10 @@
 package mongo
 
 import (
+	"gopkg.in/mgo.v2"
+
 	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/env"
-
-	"labix.org/v2/mgo"
 )
 
 // init makes package self-initialization routine
