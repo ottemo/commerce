@@ -4,9 +4,10 @@ import (
 	"errors"
 	"strings"
 
-	"labix.org/v2/mgo/bson"
+	"gopkg.in/mgo.v2/bson"
 )
 
+// Constants for the mongodb package
 const (
 	COLUMN_INFO_COLLECTION = "collection_column_info"
 )
@@ -14,24 +15,6 @@ const (
 func sqlError(SQL string, err error) error {
 	return errors.New("SQL \"" + SQL + "\" error: " + err.Error())
 }
-
-//func getDBType(ColumnType string) (string, error) {
-//	ColumnType = strings.ToLower(ColumnType)
-//	switch ColumnType {
-//	case ColumnType == "int" || ColumnType == "integer":
-//		return "INTEGER", nil
-//	case ColumnType == "real" || ColumnType == "float":
-//		return "REAL", nil
-//	case ColumnType == "string" || ColumnType == "text" || strings.Contains(ColumnType, "char"):
-//		return "TEXT", nil
-//	case ColumnType == "blob" || ColumnType == "struct" || ColumnType == "data":
-//		return "BLOB", nil
-//	case strings.Contains(ColumnType, "numeric") || strings.Contains(ColumnType, "decimal") || ColumnType == "money":
-//		return "NUMERIC", nil
-//	}
-//
-//	return "?", errors.New("Unknown type '" + ColumnType + "'")
-//}
 
 func getMongoOperator(Operator string, Value string) (string, string, error) {
 	Operator = strings.ToLower(Operator)
@@ -55,6 +38,7 @@ func getMongoOperator(Operator string, Value string) (string, string, error) {
 	return "?", "?", errors.New("Unknown operator '" + Operator + "'")
 }
 
+// LoadById will return a map of interfaces when provided an ID.
 func (it *MongoDBCollection) LoadById(id string) (map[string]interface{}, error) {
 	result := make(map[string]interface{})
 
@@ -63,6 +47,7 @@ func (it *MongoDBCollection) LoadById(id string) (map[string]interface{}, error)
 	return result, err
 }
 
+// Load will return a map of interfaces matching the the Collection selector.
 func (it *MongoDBCollection) Load() ([]map[string]interface{}, error) {
 	result := make([]map[string]interface{}, 0)
 
@@ -84,6 +69,7 @@ func (it *MongoDBCollection) Load() ([]map[string]interface{}, error) {
 	return result, err
 }
 
+// Save will persist the map of interfaces to the database.
 func (it *MongoDBCollection) Save(Item map[string]interface{}) (string, error) {
 
 	id := bson.NewObjectId().Hex()
@@ -107,17 +93,20 @@ func (it *MongoDBCollection) Save(Item map[string]interface{}) (string, error) {
 	return id, err
 }
 
+// Delete will remove the given Selector from the database.
 func (it *MongoDBCollection) Delete() (int, error) {
 	changeInfo, err := it.collection.RemoveAll(it.Selector)
 
 	return changeInfo.Removed, err
 }
 
+// DeleteById will remove the data identified by ID.
 func (it *MongoDBCollection) DeleteById(id string) error {
 
 	return it.collection.RemoveId(id)
 }
 
+// AddFilter will insert a new Filter.
 func (it *MongoDBCollection) AddFilter(ColumnName string, Operator string, Value string) error {
 
 	newOperator, newValue, err := getMongoOperator(Operator, Value)
@@ -137,11 +126,13 @@ func (it *MongoDBCollection) AddFilter(ColumnName string, Operator string, Value
 	return nil
 }
 
+// ClearFilters will remove all filters for the Collection.
 func (it *MongoDBCollection) ClearFilters() error {
 	it.Selector = make(map[string]interface{})
 	return nil
 }
 
+// AddSort will append a new Sort.
 func (it *MongoDBCollection) AddSort(ColumnName string, Desc bool) error {
 	if Desc {
 		it.Sort = append(it.Sort, "-"+ColumnName)
@@ -151,11 +142,13 @@ func (it *MongoDBCollection) AddSort(ColumnName string, Desc bool) error {
 	return nil
 }
 
+// ClearSort will clear all Sorts.
 func (it *MongoDBCollection) ClearSort() error {
 	it.Sort = make([]string, 0)
 	return nil
 }
 
+// SetLimit will set the Offset and Limit for the Collection.
 func (it *MongoDBCollection) SetLimit(Offset int, Limit int) error {
 	it.Limit = Limit
 	it.Offset = Offset
@@ -165,6 +158,8 @@ func (it *MongoDBCollection) SetLimit(Offset int, Limit int) error {
 
 // Collection columns stuff
 //--------------------------
+
+// ListColumns will return the Columns of the Collection as map of strings.
 func (it *MongoDBCollection) ListColumns() map[string]string {
 
 	result := map[string]string{}
@@ -186,6 +181,7 @@ func (it *MongoDBCollection) ListColumns() map[string]string {
 	return result
 }
 
+// HasColumn will return true/false if the current Collection has a Column.
 func (it *MongoDBCollection) HasColumn(ColumnName string) bool {
 
 	infoCollection := it.database.C(COLUMN_INFO_COLLECTION)
@@ -195,6 +191,7 @@ func (it *MongoDBCollection) HasColumn(ColumnName string) bool {
 	return count > 0
 }
 
+// AddColumn will add a Column to the current Collection.
 func (it *MongoDBCollection) AddColumn(ColumnName string, ColumnType string, indexed bool) error {
 
 	infoCollection := it.database.C(COLUMN_INFO_COLLECTION)
@@ -207,6 +204,7 @@ func (it *MongoDBCollection) AddColumn(ColumnName string, ColumnType string, ind
 	return err
 }
 
+// RemoveColumn will remove the givne Column from the current Collection.
 func (it *MongoDBCollection) RemoveColumn(ColumnName string) error {
 
 	infoCollection := it.database.C(COLUMN_INFO_COLLECTION)

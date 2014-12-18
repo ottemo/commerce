@@ -1,19 +1,23 @@
 package mongo
 
 import (
-	"github.com/ottemo/foundation/db"
-	"labix.org/v2/mgo"
 	"strings"
+
+	"github.com/ottemo/foundation/db"
+	"gopkg.in/mgo.v2"
 )
 
+// GetName returns the name of the db provider.
 func (it *MongoDB) GetName() string { return "MongoDB" }
 
+// HasCollection returns true/false if the given Collection exists.
 func (it *MongoDB) HasCollection(CollectionName string) bool {
 	CollectionName = strings.ToLower(CollectionName)
 
 	return true
 }
 
+// CreateCollection will create a MongoDB Collection with the provided name.
 func (it *MongoDB) CreateCollection(CollectionName string) error {
 	CollectionName = strings.ToLower(CollectionName)
 
@@ -27,6 +31,7 @@ func (it *MongoDB) CreateCollection(CollectionName string) error {
 	return err
 }
 
+// GetCollection will return an Interface to the provided Collection name.
 func (it *MongoDB) GetCollection(CollectionName string) (db.I_DBCollection, error) {
 	CollectionName = strings.ToLower(CollectionName)
 

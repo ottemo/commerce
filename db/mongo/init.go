@@ -2,10 +2,11 @@ package mongo
 
 import (
 	"errors"
+
+	"gopkg.in/mgo.v2"
+
 	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/env"
-
-	"labix.org/v2/mgo"
 )
 
 func init() {
@@ -15,6 +16,7 @@ func init() {
 	db.RegisterDBEngine(instance)
 }
 
+// Startup will initialize the MongoDB connection and connect to the MongoDB instance.
 func (it *MongoDB) Startup() error {
 
 	var DBUri = "mongodb://localhost:27017/ottemo"
