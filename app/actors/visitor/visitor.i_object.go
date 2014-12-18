@@ -218,6 +218,7 @@ func (it *DefaultVisitor) GetAttributesInfo() []models.StructAttributeInfo {
 			Editors:    "line_text",
 			Options:    "",
 			Default:    "",
+			Validators: "email",
 		},
 		models.StructAttributeInfo{
 			Model:      visitor.ConstModelNameVisitor,
