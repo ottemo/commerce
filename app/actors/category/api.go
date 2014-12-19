@@ -487,20 +487,15 @@ func restCategoryProductsCount(params *api.StructAPIHandlerParams) (interface{},
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "9c2efb6acd284dd2ba7f5c1fe7c0df30", "category is not available")
 	}
 
-	// count when we have filters (more complex and slow)
-	if len(params.RequestGETParams) > 0 {
-		productsDBCollection := categoryModel.GetProductsCollection().GetDBCollection()
-		api.ApplyFilters(params, productsDBCollection)
+	productsDBCollection := categoryModel.GetProductsCollection().GetDBCollection()
+	api.ApplyFilters(params, productsDBCollection)
 
-		// not allowing to see disabled products if not admin
-		if err := api.ValidateAdminRights(params); err != nil {
-			productsDBCollection.AddFilter("enabled", "=", true)
-		}
-
-		return productsDBCollection.Count()
+	// not allowing to see disabled products if not admin
+	if err := api.ValidateAdminRights(params); err != nil {
+		productsDBCollection.AddFilter("enabled", "=", true)
 	}
 
-	return len(categoryModel.GetProductIds()), nil
+	return productsDBCollection.Count()
 }
 
 // WEB REST API function used to categories menu
