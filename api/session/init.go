@@ -1,24 +1,34 @@
 package session
 
 import (
+	"io/ioutil"
+	"os"
+	"time"
+
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/app"
 	"github.com/ottemo/foundation/env"
-	"io/ioutil"
-	"os"
 )
 
 // init makes package self-initialization routine
 func init() {
 	sessionService = new(DefaultSessionService)
-	sessionService.gcRate = 10
+	sessionService.gcRate = ConstSessionGCRate
 	sessionService.Sessions = make(map[string]*DefaultSession)
 
 	var _ api.InterfaceSessionService = sessionService
 
 	api.RegisterSessionService(sessionService)
 
-	app.OnAppStart(startup)
+	timerInterval := time.Millisecond*ConstSessionUpdateTime + 1
+	ticker := time.NewTicker(timerInterval)
+	go func() {
+		for _ = range ticker.C {
+			sessionService.gc()
+		}
+	}()
+
+	// app.OnAppStart(startup)
 	app.OnAppEnd(shutdown)
 }
 

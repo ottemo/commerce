@@ -12,13 +12,17 @@ import (
 const (
 	ALPHANUMERIC = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890" // sessionID allowed symbols
 
-	ConstSessionLifeTime = 3600
+	ConstSessionLifeTime   = 3600
+	ConstSessionUpdateTime = 10
+	ConstSessionGCRate     = 10
+
+	ConstSessionKeepInMemoryItems = 1000
 
 	ConstErrorModule = "api/session"
 	ConstErrorLevel  = env.ConstErrorLevelService
 
 	ConstStorageFolder = "./var/session/"
-	ConstCryptSession  = true
+	ConstCryptSession  = false
 )
 
 // Package global variables
