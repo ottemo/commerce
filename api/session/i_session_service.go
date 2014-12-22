@@ -8,6 +8,28 @@ import (
 	"time"
 )
 
+// flushSession writes session data to shared storage and forgets about
+//   - you can send sessionID or session instance to function, if have no session instance use nil
+func (it *DefaultSessionService) flushSession(sessionID string, sessionInstance *DefaultSession) error {
+	if sessionInstance != nil {
+		sessionID = sessionInstance.GetID()
+	}
+
+	if value, present := it.Sessions[sessionID]; present {
+		sessionInstance = value
+
+		it.sessionsMutex.Lock()
+		delete(it.Sessions, sessionID)
+		it.sessionsMutex.Unlock()
+	}
+
+	if sessionInstance != nil {
+		return sessionInstance.Save()
+	}
+
+	return nil
+}
+
 // GetName returns implementation name of session service
 func (it *DefaultSessionService) GetName() string {
 	return "DefaultSessionService"
@@ -40,12 +62,7 @@ func (it *DefaultSessionService) New() (api.InterfaceSession, error) {
 	// keeping in memory only allowed amount of sessions
 	numOfSessionsToClean := len(it.Sessions) - ConstSessionKeepInMemoryItems
 	for sessionID, sessionInstance := range it.Sessions {
-		err := sessionInstance.Save()
-		if err == nil {
-			it.sessionsMutex.Lock()
-			delete(it.Sessions, sessionID)
-			it.sessionsMutex.Unlock()
-		}
+		it.flushSession(sessionID, sessionInstance)
 
 		numOfSessionsToClean--
 		if numOfSessionsToClean == 0 {
@@ -85,7 +102,7 @@ func (it *DefaultSessionService) generateSessionID() (string, error) {
 
 // gc removes expired sessions
 func (it *DefaultSessionService) gc() {
-	for _, sessionInstance := range it.Sessions {
+	for sessionID, sessionInstance := range it.Sessions {
 		secondsAfterLastUpdate := time.Now().Sub(sessionInstance.UpdatedAt).Seconds()
 
 		// closing out of date sessions
@@ -95,7 +112,10 @@ func (it *DefaultSessionService) gc() {
 
 		// updating sessions information in a storage
 		if secondsAfterLastUpdate > ConstSessionUpdateTime {
-			sessionInstance.Save()
+			err := it.flushSession(sessionID, nil)
+			if err != nil {
+				env.ErrorDispatch(err)
+			}
 		}
 	}
 }

@@ -12,11 +12,21 @@ import (
 
 // GetID returns current session id
 func (it *DefaultSession) GetID() string {
+	if it == nil {
+		env.ErrorNew(ConstErrorModule, ConstErrorLevel, "0467d401030a4ca49540a4e2e72cc736", "nil session instance")
+		return ""
+	}
+
 	return it.id
 }
 
 // Get returns session value by a given key or nil - if not set
 func (it *DefaultSession) Get(key string) interface{} {
+	if it == nil {
+		env.ErrorNew(ConstErrorModule, ConstErrorLevel, "0467d401030a4ca49540a4e2e72cc736", "nil session instance")
+		return nil
+	}
+
 	if value, ok := it.Data[key]; ok == true {
 		return value
 	}
@@ -25,12 +35,19 @@ func (it *DefaultSession) Get(key string) interface{} {
 
 // Set assigns value to session key
 func (it *DefaultSession) Set(key string, value interface{}) {
+	if it == nil {
+		env.ErrorNew(ConstErrorModule, ConstErrorLevel, "0467d401030a4ca49540a4e2e72cc736", "nil session instance")
+	}
+
 	it.Data[key] = value
 	it.UpdatedAt = time.Now()
 }
 
 // Close clears session data
 func (it *DefaultSession) Close() error {
+	if it == nil {
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "0467d401030a4ca49540a4e2e72cc736", "nil session instance")
+	}
 
 	eventData := map[string]interface{}{"session": it, "sessionID": it.GetID()}
 	env.Event("session.close", eventData)
@@ -58,7 +75,14 @@ func (it *DefaultSession) Close() error {
 
 // Save stores session for a long period
 func (it *DefaultSession) Save() error {
+	if it == nil {
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "0467d401030a4ca49540a4e2e72cc736", "nil session instance")
+	}
+
 	sessionID := it.GetID()
+	if sessionID == "" {
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "af9b84a18c82443c919f8dd75f956887", "session id is blank")
+	}
 
 	sessionFile, err := os.OpenFile(ConstStorageFolder+sessionID, os.O_WRONLY|os.O_CREATE, 0660)
 	defer sessionFile.Close()
@@ -86,15 +110,18 @@ func (it *DefaultSession) Save() error {
 
 // Load restores session from a long period storage
 func (it *DefaultSession) Load(sessionID string) error {
-
+	if sessionID == "" {
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "af9b84a18c82443c919f8dd75f956887", "session id is blank")
+	}
 	filename := ConstStorageFolder + sessionID
 
+	// loading session data to instance
 	_, err := os.Stat(filename)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	sessionFile, err := os.OpenFile(ConstStorageFolder+sessionID, os.O_RDONLY, 0660)
+	sessionFile, err := os.OpenFile(filename, os.O_RDONLY, 0660)
 	defer sessionFile.Close()
 
 	var reader io.Reader = sessionFile
@@ -105,13 +132,22 @@ func (it *DefaultSession) Load(sessionID string) error {
 		}
 	}
 
+	if it == nil {
+		it = new(DefaultSession)
+	}
+
 	jsonDecoder := json.NewDecoder(reader)
 	err = jsonDecoder.Decode(it)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
+	it.id = sessionID
+	it.UpdatedAt = time.Now()
 
+	// updating sessions cache
+	sessionService.sessionsMutex.Lock()
 	sessionService.Sessions[sessionID] = it
+	sessionService.sessionsMutex.Unlock()
 
 	return nil
 }

@@ -79,14 +79,14 @@ func GetCurrentCheckout(params *api.StructAPIHandlerParams) (InterfaceCheckout, 
 			return nil, env.ErrorDispatch(err)
 		}
 
-		// storing checkout object to session
-		params.Session.Set(ConstSessionKeyCurrentCheckout, newCheckoutInstance)
-
 		//setting session
 		newCheckoutInstance.SetSession(params.Session)
 
 		checkoutInstance = newCheckoutInstance
 	}
+
+	// storing checkout object to session
+	params.Session.Set(ConstSessionKeyCurrentCheckout, checkoutInstance)
 
 	// updating checkout object
 	//-------------------------

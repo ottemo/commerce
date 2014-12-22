@@ -20,7 +20,7 @@ func init() {
 
 	api.RegisterSessionService(sessionService)
 
-	timerInterval := time.Millisecond*ConstSessionUpdateTime + 1
+	timerInterval := time.Second * (ConstSessionUpdateTime + 1)
 	ticker := time.NewTicker(timerInterval)
 	go func() {
 		for _ = range ticker.C {
