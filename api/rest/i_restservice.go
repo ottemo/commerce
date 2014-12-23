@@ -181,9 +181,26 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 
 			// JSON encode
 			if resp.Header().Get("Content-Type") == "application/json" {
-				errorMsg := ""
+				var errorMsg map[string]interface{}
 				if err != nil {
-					errorMsg = err.Error()
+					if _, ok := err.(env.InterfaceOttemoError); !ok {
+						err = env.ErrorDispatch(err)
+					}
+
+					if ottemoError, ok := err.(env.InterfaceOttemoError); ok {
+						errorMsg = map[string]interface{}{
+							"message": ottemoError.Error(),
+							"level":   ottemoError.ErrorLevel(),
+							"code":    ottemoError.ErrorCode(),
+						}
+					} else {
+						env.ErrorNew(ConstErrorModule, ConstErrorLevel, "bdbb862718e84969a048c8b482235f39", "can't convert error to ottemoError")
+						errorMsg = map[string]interface{}{
+							"message": err.Error(),
+							"level":   env.ConstErrorLevelAPI,
+							"code":    "bdbb862718e84969a048c8b482235f39",
+						}
+					}
 				}
 
 				result, _ = json.Marshal(map[string]interface{}{"result": result, "error": errorMsg, "redirect": redirectLocation})
