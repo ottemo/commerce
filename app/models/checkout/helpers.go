@@ -54,10 +54,24 @@ func GetCurrentCheckout(params *api.StructAPIHandlerParams) (InterfaceCheckout, 
 	var checkoutInstance InterfaceCheckout
 
 	// trying to get checkout object from session, otherwise creating new one
-	if sessionCheckout, ok := sessionObject.(InterfaceCheckout); ok {
-		checkoutInstance = sessionCheckout
+	switch typedvalue := sessionObject.(type) {
+	case InterfaceCheckout:
+		checkoutInstance = typedvalue
 
-	} else {
+	case map[string]interface{}:
+		checkoutModel, err := GetCheckoutModel()
+		if err != nil {
+			return nil, env.ErrorDispatch(err)
+		}
+
+		err = checkoutModel.FromHashMap(typedvalue)
+		if err != nil {
+			return nil, env.ErrorDispatch(err)
+		}
+
+		checkoutInstance = checkoutModel
+
+	default:
 
 		// making new checkout object
 		newCheckoutInstance, err := GetCheckoutModel()
@@ -65,14 +79,14 @@ func GetCurrentCheckout(params *api.StructAPIHandlerParams) (InterfaceCheckout, 
 			return nil, env.ErrorDispatch(err)
 		}
 
-		// storing checkout object to session
-		params.Session.Set(ConstSessionKeyCurrentCheckout, newCheckoutInstance)
-
 		//setting session
 		newCheckoutInstance.SetSession(params.Session)
 
 		checkoutInstance = newCheckoutInstance
 	}
+
+	// storing checkout object to session
+	params.Session.Set(ConstSessionKeyCurrentCheckout, checkoutInstance)
 
 	// updating checkout object
 	//-------------------------

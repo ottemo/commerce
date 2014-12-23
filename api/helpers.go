@@ -1,31 +1,72 @@
 package api
 
 import (
-	"net/url"
 	"strconv"
 	"strings"
 
-	"github.com/ottemo/foundation/api/session"
+	"net/http"
+	"net/url"
+
 	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/env"
 )
 
-// GetSessionByID returns session instance by id or nil
-func GetSessionByID(sessionID string) InterfaceSession {
-	sessionInstance, _ := session.GetSessionByID(sessionID)
+// StartSession returns session object for request or creates new one
+func StartSession(params *StructAPIHandlerParams) (InterfaceSession, error) {
 
-	// "(*session.Session)(nil)" is not "nil", and we want to have exact nil
-	if sessionInstance == nil {
-		return nil
+	request := params.Request
+	responseWriter := params.ResponseWriter
+
+	// check session-cookie
+	cookie, err := request.Cookie(ConstSessionCookieName)
+	if err == nil {
+		// looking for cookie-based session
+		sessionID := cookie.Value
+
+		sessionInstance, err := currentSessionService.Get(sessionID)
+		if err == nil {
+			return sessionInstance, nil
+		}
+	} else {
+		if err != http.ErrNoCookie {
+			return nil, err
+		}
 	}
 
-	return sessionInstance
+	// session cookie is not set or expired, making new
+	result, err := currentSessionService.New()
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	// storing session id to cookie
+	cookie = &http.Cookie{Name: ConstSessionCookieName, Value: result.GetID(), Path: "/"}
+	http.SetCookie(responseWriter, cookie)
+
+	return result, nil
+}
+
+// NewSession returns new session instance
+func NewSession() (InterfaceSession, error) {
+	return currentSessionService.New()
+}
+
+// GetSessionByID returns session instance by id or nil
+func GetSessionByID(sessionID string) (InterfaceSession, error) {
+	sessionInstance, err := currentSessionService.Get(sessionID)
+
+	// "(*session.DefaultSession)(nil)" is not "nil", and we want to have exact nil
+	if sessionInstance == nil {
+		return nil, err
+	}
+
+	return sessionInstance, err
 }
 
 // ValidateAdminRights returns nil if admin rights allowed for current session
 func ValidateAdminRights(params *StructAPIHandlerParams) error {
 	if value := params.Session.Get(ConstSessionKeyAdminRights); value != nil {
-		if value.(bool) == true {
+		if value, ok := value.(bool); ok && value {
 			return nil
 		}
 	}

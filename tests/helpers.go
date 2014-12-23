@@ -8,7 +8,7 @@ import (
 	randomdata "github.com/Pallinder/go-randomdata"
 	golorem "github.com/drhodes/golorem"
 
-	"github.com/ottemo/foundation/api/session"
+	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/utils"
 
 	"github.com/ottemo/foundation/app/models/cart"
@@ -62,7 +62,7 @@ func GetRandomVisitor() (visitor.InterfaceVisitor, error) {
 
 // GetNewCheckout returns new checkout object with assigned new session, and cart to it
 func GetNewCheckout(checkoutVisitor visitor.InterfaceVisitor) (checkout.InterfaceCheckout, error) {
-	newSession, err := session.NewSession()
+	newSession, err := api.NewSession()
 	if err != nil {
 		return nil, err
 	}
