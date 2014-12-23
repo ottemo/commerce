@@ -198,7 +198,7 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 						errorMsg = map[string]interface{}{
 							"message": err.Error(),
 							"level":   env.ConstErrorLevelAPI,
-							"code":    "bdbb862718e84969a048c8b482235f39",
+							"code":    "bdbb8627-18e8-4969-a048-c8b482235f39",
 						}
 					}
 				}
