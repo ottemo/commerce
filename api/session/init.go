@@ -13,22 +13,24 @@ import (
 // init makes package self-initialization routine
 func init() {
 	sessionService = new(DefaultSessionService)
-	sessionService.gcRate = ConstSessionGCRate
 	sessionService.Sessions = make(map[string]*DefaultSession)
 
 	var _ api.InterfaceSessionService = sessionService
 
 	api.RegisterSessionService(sessionService)
 
-	timerInterval := time.Second * (ConstSessionUpdateTime + 1)
-	ticker := time.NewTicker(timerInterval)
-	go func() {
-		for _ = range ticker.C {
-			sessionService.gc()
-		}
-	}()
+	// starting ticker for a case of timer based mode
+	if ConstSessionUpdateTime > 0 {
+		timerInterval := time.Second * (ConstSessionUpdateTime + 1)
+		ticker := time.NewTicker(timerInterval)
+		go func() {
+			for _ = range ticker.C {
+				sessionService.gc()
+			}
+		}()
+	}
 
-	// app.OnAppStart(startup)
+	app.OnAppStart(startup)
 	app.OnAppEnd(shutdown)
 }
 
@@ -49,12 +51,27 @@ func startup() error {
 		return env.ErrorDispatch(err)
 	}
 
+	currentTime := time.Now()
+
 	// loading session data
 	for _, fileInfo := range files {
-		sessionInstance := new(DefaultSession)
-		err := sessionInstance.Load(fileInfo.Name())
-		if err != nil {
-			env.ErrorDispatch(err)
+
+		// removing old sessions
+		if currentTime.Sub(fileInfo.ModTime()).Seconds() >= ConstSessionLifeTime {
+			err := os.Remove(ConstStorageFolder + fileInfo.Name())
+			if err != nil {
+				env.ErrorDispatch(err)
+			}
+			continue
+		}
+
+		// "keep in memory" mode
+		if ConstSessionUpdateTime == -1 {
+			sessionInstance := new(DefaultSession)
+			err := sessionInstance.Load(fileInfo.Name())
+			if err != nil {
+				env.ErrorDispatch(err)
+			}
 		}
 	}
 
@@ -64,9 +81,16 @@ func startup() error {
 // service shutdown routines
 func shutdown() error {
 
+	currentTime := time.Now()
+
 	// saving all session to storage
-	for _, session := range sessionService.Sessions {
-		err := session.Save()
+	for _, sessionInstance := range sessionService.Sessions {
+
+		if currentTime.Sub(sessionInstance.UpdatedAt).Seconds() >= ConstSessionLifeTime {
+			continue
+		}
+
+		err := sessionInstance.Save()
 		if err != nil {
 			env.ErrorDispatch(err)
 		}

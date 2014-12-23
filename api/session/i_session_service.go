@@ -4,9 +4,35 @@ import (
 	"crypto/rand"
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/env"
-	"math/big"
+	"os"
 	"time"
 )
+
+// updateSession reloads session data from storage if it newer
+//   - you can send sessionID or session instance to function, if have no session instance use nil
+func (it *DefaultSessionService) updateSession(sessionID string, sessionInstance *DefaultSession) error {
+	if sessionInstance != nil {
+		sessionID = sessionInstance.GetID()
+	} else {
+		if value, present := it.Sessions[sessionID]; present {
+			sessionInstance = value
+		} else {
+			sessionInstance = new(DefaultSession)
+		}
+	}
+
+	fileName := ConstStorageFolder + sessionID
+	stats, err := os.Stat(fileName)
+	if err != nil {
+		return err
+	}
+
+	if stats.ModTime().After(sessionInstance.UpdatedAt) {
+		sessionInstance.Load(sessionID)
+	}
+
+	return nil
+}
 
 // flushSession writes session data to shared storage and forgets about
 //   - you can send sessionID or session instance to function, if have no session instance use nil
@@ -38,7 +64,9 @@ func (it *DefaultSessionService) GetName() string {
 // Get returns session object for given session id or nil of not currently exists
 func (it *DefaultSessionService) Get(sessionID string) (api.InterfaceSession, error) {
 	if sessionInstance, present := it.Sessions[sessionID]; present {
-		return sessionInstance, nil
+		if time.Now().Sub(sessionInstance.UpdatedAt).Seconds() < ConstSessionLifeTime {
+			return sessionInstance, nil
+		}
 	}
 
 	sessionInstance := new(DefaultSession)
@@ -53,20 +81,18 @@ func (it *DefaultSessionService) Get(sessionID string) (api.InterfaceSession, er
 // New initializes new session instance
 func (it *DefaultSessionService) New() (api.InterfaceSession, error) {
 
-	// garbage collecting
-	randomNumber, err := rand.Int(rand.Reader, big.NewInt(it.gcRate))
-	if err == nil && randomNumber.Cmp(big.NewInt(1)) == 0 {
+	// "keep in memory" mode - checking for allowed amount of sessions
+	if ConstSessionUpdateTime == -1 && ConstSessionKeepInMemoryItems > 0 {
 		it.gc()
-	}
 
-	// keeping in memory only allowed amount of sessions
-	numOfSessionsToClean := len(it.Sessions) - ConstSessionKeepInMemoryItems
-	for sessionID, sessionInstance := range it.Sessions {
-		it.flushSession(sessionID, sessionInstance)
+		numOfSessionsToClean := len(it.Sessions) - ConstSessionKeepInMemoryItems
+		for sessionID, sessionInstance := range it.Sessions {
+			it.flushSession(sessionID, sessionInstance)
 
-		numOfSessionsToClean--
-		if numOfSessionsToClean == 0 {
-			break
+			numOfSessionsToClean--
+			if numOfSessionsToClean == 0 {
+				break
+			}
 		}
 	}
 
@@ -100,7 +126,7 @@ func (it *DefaultSessionService) generateSessionID() (string, error) {
 	return string(sessionID), nil
 }
 
-// gc removes expired sessions
+// gc is a garbage collector for sessions, it removes expired sessions, flushes to storage, etc.
 func (it *DefaultSessionService) gc() {
 	for sessionID, sessionInstance := range it.Sessions {
 		secondsAfterLastUpdate := time.Now().Sub(sessionInstance.UpdatedAt).Seconds()
@@ -108,6 +134,7 @@ func (it *DefaultSessionService) gc() {
 		// closing out of date sessions
 		if secondsAfterLastUpdate > ConstSessionLifeTime {
 			sessionInstance.Close()
+			continue
 		}
 
 		// updating sessions information in a storage
