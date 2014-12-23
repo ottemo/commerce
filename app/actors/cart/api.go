@@ -124,26 +124,11 @@ func restCartAdd(params *api.StructAPIHandlerParams) (interface{}, error) {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	addItemFlag := true
-	cartItems := currentCart.GetItems()
-	for _, item := range cartItems {
-		cartItemOptions := utils.EncodeToJSONString(item.GetOptions())
-		newItemOptions := utils.EncodeToJSONString(options)
-		if item.GetProductID() == pid && cartItemOptions == newItemOptions {
-			err = item.SetQty(item.GetQty() + qty)
-			if err != nil {
-				return nil, env.ErrorDispatch(err)
-			}
-			addItemFlag = false
-		}
+	_, err = currentCart.AddItem(pid, qty, options)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
 	}
 
-	if addItemFlag {
-		_, err := currentCart.AddItem(pid, qty, options)
-		if err != nil {
-			return nil, env.ErrorDispatch(err)
-		}
-	}
 	currentCart.Save()
 
 	eventData := map[string]interface{}{"session": params.Session, "cart": currentCart, "pid": pid, "qty": qty, "options": options}

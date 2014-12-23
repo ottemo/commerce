@@ -9,6 +9,7 @@ import (
 	"github.com/ottemo/foundation/app/models/visitor"
 	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/foundation/utils"
 )
 
 // function calls when cart was changes and subtotal recalculation needed
@@ -120,17 +121,26 @@ func (it *DefaultCart) AddItem(productID string, qty int, options map[string]int
 		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "653e6163077541c69ff54d8ac93bed5e", "qty can't be zero or less")
 	}
 
-	// checking product existence
-	// reqProduct, err := product.LoadProductByID(productID)
-	// if err != nil {
-	// 	return nil, env.ErrorDispatch(err)
-	// }
-
 	// options default value if them are not set
 	if options == nil {
 		options = make(map[string]interface{})
 	}
 
+	// looking for already present item in cart
+	newItemOptions := utils.EncodeToJSONString(options)
+	cartItems := it.GetItems()
+	for _, item := range cartItems {
+		cartItemOptions := utils.EncodeToJSONString(item.GetOptions())
+		if item.GetProductID() == productID && cartItemOptions == newItemOptions {
+			err := item.SetQty(item.GetQty() + qty)
+			if err != nil {
+				return nil, env.ErrorDispatch(err)
+			}
+			return item, nil
+		}
+	}
+
+	// if we are there then new item was added to cart
 	// preparing new cart item
 	cartItem := &DefaultCartItem{
 		idx:       it.maxIdx,
@@ -139,11 +149,6 @@ func (it *DefaultCart) AddItem(productID string, qty int, options map[string]int
 		Options:   options,
 		Cart:      it,
 	}
-
-	// checking for right options
-	// if err := it.checkOptions(reqProduct.GetOptions(), cartItem.Options); err != nil {
-	// 	return nil, env.ErrorDispatch(err)
-	// }
 
 	// validate cart item before add to cart
 	if err := cartItem.ValidateProduct(); err != nil {
