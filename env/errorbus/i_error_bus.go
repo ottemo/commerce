@@ -79,6 +79,11 @@ func (it *DefaultErrorBus) parseErrorMessage(message string) *OttemoError {
 		resultError.Code = hex.EncodeToString(hasher.Sum(nil))
 	}
 
+	rawCode := strings.Replace(resultError.Code, "-", "", -1)
+	if len(rawCode) == 32 {
+		resultError.Code = rawCode[0:8] + "-" + rawCode[8:12] + "-" + rawCode[12:16] + "-" + rawCode[16:20] + "-" + rawCode[20:]
+	}
+
 	return resultError
 }
 
