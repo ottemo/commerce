@@ -32,7 +32,7 @@ func RegisterRestService(newService InterfaceRestService) error {
 	if currentRestService == nil {
 		currentRestService = newService
 	} else {
-		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "9aecae0349854682b42d145da67ba74b", "REST service '"+currentRestService.GetName()+"' was already registered")
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "9aecae03-4985-4682-b42d-145da67ba74b", "REST service '"+currentRestService.GetName()+"' was already registered")
 	}
 	return nil
 }
@@ -43,7 +43,7 @@ func RegisterSessionService(newService InterfaceSessionService) error {
 	if currentSessionService == nil {
 		currentSessionService = newService
 	} else {
-		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "2a0e046c75bd4460b3c6843ff761bd59", "Session service '"+currentSessionService.GetName()+"' was already registered")
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "2a0e046c-75bd-4460-b3c6-843ff761bd59", "Session service '"+currentSessionService.GetName()+"' was already registered")
 	}
 	return nil
 }

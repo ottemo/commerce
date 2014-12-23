@@ -49,7 +49,7 @@ func setupConfig() error {
 			Image:       "",
 		}, func(value interface{}) (interface{}, error) {
 			if utils.CheckIsBlank(value) {
-				return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelStartStop, "e37e8ab2ab8740d0b3684e2f930d79b1", "can't be blank")
+				return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelStartStop, "e37e8ab2-ab87-40d0-b368-4e2f930d79b1", "can't be blank")
 			}
 			return value, nil
 		})
@@ -171,7 +171,7 @@ func setupConfig() error {
 		}, func(value interface{}) (interface{}, error) {
 			stringValue := utils.InterfaceToString(value)
 			if _, present := ConstShippingDropoff[stringValue]; !present {
-				return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelStartStop, "c212932804774741a09ffc96863e936d", "wrong value")
+				return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelStartStop, "c2129328-0477-4741-a09f-fc96863e936d", "wrong value")
 			}
 			return value, nil
 		})
@@ -192,7 +192,7 @@ func setupConfig() error {
 		}, func(value interface{}) (interface{}, error) {
 			stringValue := utils.InterfaceToString(value)
 			if _, present := ConstShippingPackaging[stringValue]; !present {
-				return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelStartStop, "890ae42ab890448181ba5165a78acd18", "wrong value")
+				return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelStartStop, "890ae42a-b890-4481-81ba-5165a78acd18", "wrong value")
 			}
 			return value, nil
 		})

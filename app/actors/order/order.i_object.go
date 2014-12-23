@@ -145,7 +145,7 @@ func (it *DefaultOrder) Set(attribute string, value interface{}) error {
 		it.PaymentInfo = utils.InterfaceToMap(value)
 
 	default:
-		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "5a0efabf916942e99d788e8374998ad6", "unknown attribute: "+attribute)
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "5a0efabf-9169-42e9-9d78-8e8374998ad6", "unknown attribute: "+attribute)
 	}
 
 	return nil

@@ -104,7 +104,7 @@ func (it *FilesystemMediaStorage) GetSizeDimensions(size string) (uint, uint, er
 
 	width, err := strconv.ParseUint(value[0], 10, 0)
 	if err != nil {
-		return 0, 0, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "f92ff65d86454ee383e4adea0fdb3588", "Invalid size")
+		return 0, 0, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "f92ff65d-8645-4ee3-83e4-adea0fdb3588", "Invalid size")
 	}
 
 	if len(value) > 1 {
@@ -250,7 +250,7 @@ func (it *FilesystemMediaStorage) ResizeMediaImage(model string, objID string, m
 		case "png":
 			err = png.Encode(resizedFile, resizedImage)
 		default:
-			return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "42f0cbb391874e1689535829ea8d2da8", "Unknown image format to encode")
+			return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "42f0cbb3-9187-4e16-8953-5829ea8d2da8", "Unknown image format to encode")
 		}
 
 		if err != nil {

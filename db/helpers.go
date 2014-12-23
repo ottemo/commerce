@@ -10,7 +10,7 @@ import (
 func GetCollection(CollectionName string) (InterfaceDBCollection, error) {
 	dbEngine := GetDBEngine()
 	if dbEngine == nil {
-		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "7f379d36eb934addb1eedf2c3a35a590", "Can't get DBEngine")
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "7f379d36-eb93-4add-b1ee-df2c3a35a590", "Can't get DBEngine")
 	}
 
 	return dbEngine.GetCollection(CollectionName)

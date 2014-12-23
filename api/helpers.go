@@ -71,7 +71,7 @@ func ValidateAdminRights(params *StructAPIHandlerParams) error {
 		}
 	}
 
-	return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "0bc07b3d14434594af829d15211ed179", "no admin rights")
+	return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "0bc07b3d-1443-4594-af82-9d15211ed179", "no admin rights")
 }
 
 // GetRequestContentAsMap tries to represent HTTP request content in map[string]interface{} format
@@ -80,7 +80,7 @@ func GetRequestContentAsMap(params *StructAPIHandlerParams) (map[string]interfac
 	result, ok := params.RequestContent.(map[string]interface{})
 	if !ok {
 		if params.Request.Method == "POST" {
-			return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "ab71d4a903044d48ae78556aa56ac53c", "unexpected request content")
+			return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "ab71d4a9-0304-4d48-ae78-556aa56ac53c", "unexpected request content")
 		}
 		result = make(map[string]interface{})
 	}

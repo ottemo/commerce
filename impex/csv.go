@@ -472,13 +472,13 @@ func ImportCSV(csvReader *csv.Reader) error {
 						return env.ErrorDispatch(err)
 					}
 				} else {
-					return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "004e9f7bbb974356bbc25e084736983b", "unknows cmd '"+args[0]+"'")
+					return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "004e9f7b-bb97-4356-bbc2-5e084736983b", "unknows cmd '"+args[0]+"'")
 				}
 			}
 		}
 
 		if len(commandsChain) == 0 {
-			return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "84ac22e2c2154375af15a9eed636b16c", "There are no commands for csv data processing")
+			return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "84ac22e2-c215-4375-af15-a9eed636b16c", "There are no commands for csv data processing")
 		}
 
 		// making csv data processor based on received commands

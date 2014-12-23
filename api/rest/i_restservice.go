@@ -32,7 +32,7 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 		// catching API handler fails
 		defer func() {
 			if recoverResult := recover(); recoverResult != nil {
-				env.ErrorNew(ConstErrorModule, ConstErrorLevel, "28d7ef2f631f4f38a916579bf822908b", "API call fail")
+				env.ErrorNew(ConstErrorModule, ConstErrorLevel, "28d7ef2f-631f-4f38-a916-579bf822908b", "API call fail")
 			}
 		}()
 
@@ -137,7 +137,7 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 		// starting session for request
 		currentSession, err := api.StartSession(apiParams)
 		if err != nil {
-			env.ErrorNew(ConstErrorModule, ConstErrorLevel, "c8a3bbf8215f4dffb0e73d0d102ad02d", "Session init fail: "+err.Error())
+			env.ErrorNew(ConstErrorModule, ConstErrorLevel, "c8a3bbf8-215f-4dff-b0e7-3d0d102ad02d", "Session init fail: "+err.Error())
 		}
 		apiParams.Session = currentSession
 
@@ -194,7 +194,7 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 							"code":    ottemoError.ErrorCode(),
 						}
 					} else {
-						env.ErrorNew(ConstErrorModule, ConstErrorLevel, "bdbb862718e84969a048c8b482235f39", "can't convert error to ottemoError")
+						env.ErrorNew(ConstErrorModule, ConstErrorLevel, "bdbb8627-18e8-4969-a048-c8b482235f39", "can't convert error to ottemoError")
 						errorMsg = map[string]interface{}{
 							"message": err.Error(),
 							"level":   env.ConstErrorLevelAPI,
@@ -234,7 +234,7 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 	case "DELETE":
 		it.Router.DELETE(path, wrappedHandler)
 	default:
-		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "58228dccf5e44aaeb6df9dd55041a21e", "unsupported method '"+method+"'")
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "58228dcc-f5e4-4aae-b6df-9dd55041a21e", "unsupported method '"+method+"'")
 	}
 
 	key := path + " {" + method + "}"
