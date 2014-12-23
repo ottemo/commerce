@@ -116,7 +116,7 @@ func (it *DefaultSessionService) New() (api.InterfaceSession, error) {
 func (it *DefaultSessionService) generateSessionID() (string, error) {
 	sessionID := make([]byte, 32)
 	if _, err := rand.Read(sessionID); err != nil {
-		return "", env.ErrorNew(ConstErrorModule, ConstErrorLevel, "aab0911497264844984c772fb25dcb88", "can't generate sessionID")
+		return "", env.ErrorNew(ConstErrorModule, ConstErrorLevel, "aab09114-9726-4844-984c-772fb25dcb88", "can't generate sessionID")
 	}
 
 	for i := 0; i < 32; i++ {

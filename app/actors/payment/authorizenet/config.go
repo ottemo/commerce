@@ -49,7 +49,7 @@ func setupConfig() error {
 			Image:       "",
 		}, func(value interface{}) (interface{}, error) {
 			if utils.CheckIsBlank(value) {
-				return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelStartStop, "e3e1002e02da45dd876a2ffd1d7790d2", "can't be blank")
+				return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelStartStop, "e3e1002e-02da-45dd-876a-2ffd1d7790d2", "can't be blank")
 			}
 			return value, nil
 		})
@@ -70,7 +70,7 @@ func setupConfig() error {
 		}, func(value interface{}) (interface{}, error) {
 			stringValue := utils.InterfaceToString(value)
 			if !utils.IsAmongStr(stringValue, ConstDPMActionAuthorizeOnly, ConstDPMActionAuthorizeAndCapture) {
-				return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelStartStop, "9164550937f34addb6922dafac332bd1", "should be "+ConstDPMActionAuthorizeOnly+" or "+ConstDPMActionAuthorizeAndCapture)
+				return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelStartStop, "91645509-37f3-4add-b692-2dafac332bd1", "should be "+ConstDPMActionAuthorizeOnly+" or "+ConstDPMActionAuthorizeAndCapture)
 			}
 			return value, nil
 		})

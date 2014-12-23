@@ -13,7 +13,7 @@ import (
 // GetID returns current session id
 func (it *DefaultSession) GetID() string {
 	if it == nil {
-		env.ErrorNew(ConstErrorModule, ConstErrorLevel, "0467d401030a4ca49540a4e2e72cc736", "nil session instance")
+		env.ErrorNew(ConstErrorModule, ConstErrorLevel, "0467d401-030a-4ca4-9540-a4e2e72cc736", "nil session instance")
 		return ""
 	}
 
@@ -24,7 +24,7 @@ func (it *DefaultSession) GetID() string {
 func (it *DefaultSession) Get(key string) interface{} {
 	// checking current instance
 	if it == nil {
-		env.ErrorNew(ConstErrorModule, ConstErrorLevel, "0467d401030a4ca49540a4e2e72cc736", "nil session instance")
+		env.ErrorNew(ConstErrorModule, ConstErrorLevel, "0467d401-030a-4ca4-9540-a4e2e72cc736", "nil session instance")
 		return nil
 	}
 
@@ -47,7 +47,7 @@ func (it *DefaultSession) Get(key string) interface{} {
 func (it *DefaultSession) Set(key string, value interface{}) {
 	// checking current instance
 	if it == nil {
-		env.ErrorNew(ConstErrorModule, ConstErrorLevel, "0467d401030a4ca49540a4e2e72cc736", "nil session instance")
+		env.ErrorNew(ConstErrorModule, ConstErrorLevel, "0467d401-030a-4ca4-9540-a4e2e72cc736", "nil session instance")
 	}
 
 	// immediate mode
@@ -75,7 +75,7 @@ func (it *DefaultSession) Set(key string, value interface{}) {
 func (it *DefaultSession) Close() error {
 	// checking current instance
 	if it == nil {
-		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "0467d401030a4ca49540a4e2e72cc736", "nil session instance")
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "0467d401-030a-4ca4-9540-a4e2e72cc736", "nil session instance")
 	}
 
 	sessionID := it.GetID()
@@ -107,13 +107,13 @@ func (it *DefaultSession) Close() error {
 func (it *DefaultSession) Save() error {
 	// checking current instance
 	if it == nil {
-		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "0467d401030a4ca49540a4e2e72cc736", "nil session instance")
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "0467d401-030a-4ca4-9540-a4e2e72cc736", "nil session instance")
 	}
 
 	// checking session id
 	sessionID := it.GetID()
 	if sessionID == "" {
-		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "af9b84a18c82443c919f8dd75f956887", "session id is blank")
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "af9b84a1-8c82-443c-919f-8dd75f956887", "session id is blank")
 	}
 
 	// saving session data
@@ -149,7 +149,7 @@ func (it *DefaultSession) Load(sessionID string) error {
 
 	// checking session id
 	if sessionID == "" {
-		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "af9b84a18c82443c919f8dd75f956887", "session id is blank")
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "af9b84a1-8c82-443c-919f-8dd75f956887", "session id is blank")
 	}
 
 	// checking current instance
@@ -162,7 +162,7 @@ func (it *DefaultSession) Load(sessionID string) error {
 	filename := ConstStorageFolder + sessionID
 	fileInfo, err := os.Stat(filename)
 	if err != nil {
-		return env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "363cd5a81a3d4163a7d3cb96dbaff01c", "session "+sessionID+" not found")
+		return env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "363cd5a8-1a3d-4163-a7d3-cb96dbaff01c", "session "+sessionID+" not found")
 	}
 
 	// checking for expired session
@@ -171,7 +171,7 @@ func (it *DefaultSession) Load(sessionID string) error {
 		if err != nil {
 			return err
 		}
-		return env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "7aee9352a08b420aa7257f32a17495a8", "session "+sessionID+" expired")
+		return env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "7aee9352-a08b-420a-a725-7f32a17495a8", "session "+sessionID+" expired")
 	}
 
 	// if not expired

@@ -9,7 +9,7 @@ import (
 func setupConfig() error {
 	config := env.GetConfig()
 	if config == nil {
-		return env.ErrorNew(ConstErrorModule, env.ConstErrorLevelStartStop, "681bd727d51e4bb6a2ba59855db7bee9", "can't obtain config")
+		return env.ErrorNew(ConstErrorModule, env.ConstErrorLevelStartStop, "681bd727-d51e-4bb6-a2ba-59855db7bee9", "can't obtain config")
 	}
 
 	err := config.RegisterItem(env.StructConfigItem{
@@ -53,7 +53,7 @@ func setupConfig() error {
 		Image:       "",
 	}, func(value interface{}) (interface{}, error) {
 		if utils.CheckIsBlank(value) {
-			return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelStartStop, "90107e36025949ffb74f3bb498fbed05", "can't be blank")
+			return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelStartStop, "90107e36-0259-49ff-b74f-3bb498fbed05", "can't be blank")
 		}
 		return value, nil
 	})

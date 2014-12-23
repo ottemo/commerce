@@ -32,7 +32,7 @@ func setupDB() error {
 			return env.ErrorDispatch(err)
 		}
 	} else {
-		return env.ErrorNew(ConstErrorModule, env.ConstErrorLevelStartStop, "e132f4b0d69d4900b2de24b96d0fc1ce", "Can't get database engine")
+		return env.ErrorNew(ConstErrorModule, env.ConstErrorLevelStartStop, "e132f4b0-d69d-4900-b2de-24b96d0fc1ce", "Can't get database engine")
 	}
 
 	return nil

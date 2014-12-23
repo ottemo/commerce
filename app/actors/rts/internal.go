@@ -22,13 +22,13 @@ func GetReferrer(url string) (string, error) {
 	r := regexp.MustCompile(`^(http|https):\/\/(.+)\/.*$`)
 	groups := r.FindStringSubmatch(url)
 	if len(groups) == 0 {
-		return "", env.ErrorNew(ConstErrorModule, ConstErrorLevel, "e9ee22d7f62d4379b48eec9a59e388c8", "Invalid URL in referrer")
+		return "", env.ErrorNew(ConstErrorModule, ConstErrorLevel, "e9ee22d7-f62d-4379-b48e-ec9a59e388c8", "Invalid URL in referrer")
 	}
 	result := groups[2]
 
 	for index := 0; index < len(excludeURLs); index++ {
 		if strings.Contains(excludeURLs[index], result) {
-			return "", env.ErrorNew(ConstErrorModule, ConstErrorLevel, "841fa275e0fb4d29868f2bca20d5fe4e", "Invalid URL in referrer")
+			return "", env.ErrorNew(ConstErrorModule, ConstErrorLevel, "841fa275-e0fb-4d29-868f-2bca20d5fe4e", "Invalid URL in referrer")
 		}
 	}
 
@@ -110,7 +110,7 @@ func GetDateFrom() (time.Time, error) {
 			day := datetime.Day()
 			result := time.Date(year, month, day, 0, 0, 0, 0, time.Local)
 			if time.Now().Format("2006-01-02") == datetime.Format("2006-01-02") {
-				return result, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "ead00ed31d1e45e7b3305dcd73c88764", "Sales history has last data")
+				return result, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "ead00ed3-1d1e-45e7-b330-5dcd73c88764", "Sales history has last data")
 			}
 
 			return result, nil

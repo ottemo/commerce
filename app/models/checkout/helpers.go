@@ -17,7 +17,7 @@ func GetCheckoutModel() (InterfaceCheckout, error) {
 
 	checkoutModel, ok := model.(InterfaceCheckout)
 	if !ok {
-		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "3e5976af4d4841d7a1cf72696907bce8", "model "+model.GetImplementationName()+" is not 'InterfaceCheckout' capable")
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "3e5976af-4d48-41d7-a1cf-72696907bce8", "model "+model.GetImplementationName()+" is not 'InterfaceCheckout' capable")
 	}
 
 	return checkoutModel, nil

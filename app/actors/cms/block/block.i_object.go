@@ -47,7 +47,7 @@ func (it *DefaultCMSBlock) Set(attribute string, value interface{}) error {
 		return nil
 	}
 
-	return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "ab4ceb20cb87429fa8fb296136515077", "unknown attribute '"+attribute+"'")
+	return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "ab4ceb20-cb87-429f-a8fb-296136515077", "unknown attribute '"+attribute+"'")
 }
 
 // FromHashMap represents object as map[string]interface{}

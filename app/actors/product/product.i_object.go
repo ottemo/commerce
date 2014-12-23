@@ -120,7 +120,7 @@ func (it *DefaultProduct) Set(attribute string, value interface{}) error {
 
 		default:
 			if value != nil {
-				return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "3c402ecc7c7d49ab879e16af5f4661ed", "unsupported 'related_pids' attribute value")
+				return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "3c402ecc-7c7d-49ab-879e-16af5f4661ed", "unsupported 'related_pids' attribute value")
 			}
 		}
 

@@ -131,7 +131,7 @@ func (it *DefaultCheckout) Set(attribute string, value interface{}) error {
 		}
 
 	default:
-		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "84284b030a294036aa2db35768884b63", "unsupported 'products' value")
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "84284b03-0a29-4036-aa2d-b35768884b63", "unsupported 'products' value")
 	}
 	return nil
 }
