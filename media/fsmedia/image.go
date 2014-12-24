@@ -96,12 +96,13 @@ func (it *FilesystemMediaStorage) GetSizeDimensions(size string) (uint, uint, er
 		size = sizeValue
 	}
 
-	if size == "" {
+	if size == "" && it.baseSize != "" {
 		size = it.baseSize
+	} else {
+		return 0, 0, nil
 	}
 
 	value := strings.Split(size, "x")
-
 	width, err := strconv.ParseUint(value[0], 10, 0)
 	if err != nil {
 		return 0, 0, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "f92ff65d-8645-4ee3-83e4-adea0fdb3588", "Invalid size")
