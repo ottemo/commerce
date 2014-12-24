@@ -49,9 +49,6 @@ func (it *DBCollection) Load() ([]map[string]interface{}, error) {
 func (it *DBCollection) Iterate(iteratorFunc func(record map[string]interface{}) bool) error {
 
 	SQL := it.getSelectSQL()
-	if ConstDebugSQL {
-		env.Log("sqlite", env.ConstLogPrefixInfo, SQL)
-	}
 
 	stmt, err := connectionQuery(SQL)
 	defer closeStatement(stmt)
@@ -85,9 +82,6 @@ func (it *DBCollection) Distinct(columnName string) ([]interface{}, error) {
 	it.SetResultColumns(columnName)
 
 	SQL := "SELECT DISTINCT " + it.getSQLResultColumns() + " FROM " + it.Name + it.getSQLFilters() + it.getSQLOrder() + it.Limit
-	if ConstDebugSQL {
-		env.Log("sqlite", env.ConstLogPrefixInfo, SQL)
-	}
 
 	it.ResultColumns = prevResultColumns
 
@@ -152,10 +146,6 @@ func (it *DBCollection) Count() (int, error) {
 	sqlLoadFilter := it.getSQLFilters()
 
 	SQL := "SELECT COUNT(*) AS cnt FROM " + it.Name + sqlLoadFilter
-
-	if ConstDebugSQL {
-		env.Log("sqlite", env.ConstLogPrefixInfo, SQL)
-	}
 
 	stmt, err := connectionQuery(SQL)
 	defer closeStatement(stmt)
@@ -242,10 +232,6 @@ func (it *DBCollection) Save(item map[string]interface{}) (string, error) {
 		SQL := "UPDATE " + it.Name + " SET " + strings.Join(columnEqArg, ", ") +
 			" WHERE `_id`=" + convertValueForSQL(item["_id"])
 
-		if ConstDebugSQL {
-			env.Log("sqlite", env.ConstLogPrefixInfo, SQL)
-		}
-
 		affected, err := connectionExecWAffected(SQL)
 		if err != nil {
 			return "", sqlError(SQL, err)
@@ -260,10 +246,6 @@ func (it *DBCollection) Save(item map[string]interface{}) (string, error) {
 		SQL := "INSERT INTO " + it.Name +
 			" (" + strings.Join(columns, ",") + ") VALUES" +
 			" (" + strings.Join(args, ",") + ")"
-
-		if ConstDebugSQL {
-			env.Log("sqlite", env.ConstLogPrefixInfo, SQL)
-		}
 
 		if !ConstUseUUIDids {
 			newIDInt64, err := connectionExecWLastInsertID(SQL, values...)
@@ -292,10 +274,6 @@ func (it *DBCollection) Delete() (int, error) {
 
 	SQL := "DELETE FROM " + it.Name + sqlDeleteFilter
 
-	if ConstDebugSQL {
-		env.Log("sqlite", env.ConstLogPrefixInfo, SQL)
-	}
-
 	affected, err := connectionExecWAffected(SQL)
 
 	return affected, env.ErrorDispatch(err)
@@ -304,10 +282,6 @@ func (it *DBCollection) Delete() (int, error) {
 // DeleteByID removes record from DB by is's id
 func (it *DBCollection) DeleteByID(id string) error {
 	SQL := "DELETE FROM " + it.Name + " WHERE _id = " + convertValueForSQL(id)
-
-	if ConstDebugSQL {
-		env.Log("sqlite", env.ConstLogPrefixInfo, SQL)
-	}
 
 	return connectionExec(SQL)
 }
@@ -518,10 +492,6 @@ func (it *DBCollection) AddColumn(columnName string, columnType string, indexed 
 
 	SQL := "ALTER TABLE " + it.Name + " ADD COLUMN \"" + columnName + "\" " + ColumnType
 
-	if ConstDebugSQL {
-		env.Log("sqlite", env.ConstLogPrefixInfo, SQL)
-	}
-
 	err = connectionExec(SQL)
 	if err != nil {
 		return sqlError(SQL, err)
@@ -537,10 +507,6 @@ func (it *DBCollection) AddColumn(columnName string, columnType string, indexed 
 		SQL += "1)"
 	} else {
 		SQL += "0)"
-	}
-
-	if ConstDebugSQL {
-		env.Log("sqlite", env.ConstLogPrefixInfo, SQL)
 	}
 
 	err = connectionExec(SQL)
