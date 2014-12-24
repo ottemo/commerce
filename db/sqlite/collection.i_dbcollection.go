@@ -49,9 +49,6 @@ func (it *DBCollection) Load() ([]map[string]interface{}, error) {
 func (it *DBCollection) Iterate(iteratorFunc func(record map[string]interface{}) bool) error {
 
 	SQL := it.getSelectSQL()
-	if ConstDebugSQL {
-		env.Log("sqlite", env.ConstLogPrefixInfo, SQL)
-	}
 
 	stmt, err := connectionQuery(SQL)
 	defer closeStatement(stmt)
@@ -85,9 +82,6 @@ func (it *DBCollection) Distinct(columnName string) ([]interface{}, error) {
 	it.SetResultColumns(columnName)
 
 	SQL := "SELECT DISTINCT " + it.getSQLResultColumns() + " FROM " + it.Name + it.getSQLFilters() + it.getSQLOrder() + it.Limit
-	if ConstDebugSQL {
-		env.Log("sqlite", env.ConstLogPrefixInfo, SQL)
-	}
 
 	it.ResultColumns = prevResultColumns
 
@@ -153,10 +147,6 @@ func (it *DBCollection) Count() (int, error) {
 
 	SQL := "SELECT COUNT(*) AS cnt FROM " + it.Name + sqlLoadFilter
 
-	if ConstDebugSQL {
-		env.Log("sqlite", env.ConstLogPrefixInfo, SQL)
-	}
-
 	stmt, err := connectionQuery(SQL)
 	defer closeStatement(stmt)
 
@@ -219,6 +209,8 @@ func (it *DBCollection) Save(item map[string]interface{}) (string, error) {
 	// SQL generation
 	columns := make([]string, 0, len(item))
 	args := make([]string, 0, len(item))
+	columnEqArg := make([]string, 0, len(item))
+
 	values := make([]interface{}, 0, len(item))
 
 	for k, v := range item {
@@ -226,32 +218,49 @@ func (it *DBCollection) Save(item map[string]interface{}) (string, error) {
 			columns = append(columns, "`"+k+"`")
 			args = append(args, convertValueForSQL(v))
 
+			columnEqArg = append(columnEqArg, k+"="+convertValueForSQL(v))
+
 			//args = append(args, "$_"+k)
 			//values = append(values, convertValueForSQL(v))
 		}
 	}
 
-	SQL := "INSERT OR REPLACE INTO " + it.Name +
-		" (" + strings.Join(columns, ",") + ") VALUES" +
-		" (" + strings.Join(args, ",") + ")"
+	makeInsertFlag := true
 
-	if ConstDebugSQL {
-		env.Log("sqlite", env.ConstLogPrefixInfo, SQL)
-	}
+	// trying to make update first, it we have _id
+	if item["_id"] != nil && item["_id"] != "" {
+		SQL := "UPDATE " + it.Name + " SET " + strings.Join(columnEqArg, ", ") +
+			" WHERE `_id`=" + convertValueForSQL(item["_id"])
 
-	if !ConstUseUUIDids {
-		newIDInt64, err := connectionExecWLastInsertID(SQL, values...)
+		affected, err := connectionExecWAffected(SQL)
 		if err != nil {
 			return "", sqlError(SQL, err)
 		}
+		if affected > 0 {
+			makeInsertFlag = false
+		}
+	}
 
-		// auto-incremented _id back to string
-		newIDString := strconv.FormatInt(newIDInt64, 10)
-		item["_id"] = newIDString
-	} else {
-		err := connectionExec(SQL, values...)
-		if err != nil {
-			return "", sqlError(SQL, err)
+	// so if update fas successful we do not need to insert
+	if makeInsertFlag {
+		SQL := "INSERT INTO " + it.Name +
+			" (" + strings.Join(columns, ",") + ") VALUES" +
+			" (" + strings.Join(args, ",") + ")"
+
+		if !ConstUseUUIDids {
+			newIDInt64, err := connectionExecWLastInsertID(SQL, values...)
+			if err != nil {
+				return "", sqlError(SQL, err)
+			}
+
+			// auto-incremented _id back to string
+			newIDString := strconv.FormatInt(newIDInt64, 10)
+			item["_id"] = newIDString
+		} else {
+			err := connectionExec(SQL, values...)
+			if err != nil {
+				return "", sqlError(SQL, err)
+			}
 		}
 	}
 
@@ -265,10 +274,6 @@ func (it *DBCollection) Delete() (int, error) {
 
 	SQL := "DELETE FROM " + it.Name + sqlDeleteFilter
 
-	if ConstDebugSQL {
-		env.Log("sqlite", env.ConstLogPrefixInfo, SQL)
-	}
-
 	affected, err := connectionExecWAffected(SQL)
 
 	return affected, env.ErrorDispatch(err)
@@ -277,10 +282,6 @@ func (it *DBCollection) Delete() (int, error) {
 // DeleteByID removes record from DB by is's id
 func (it *DBCollection) DeleteByID(id string) error {
 	SQL := "DELETE FROM " + it.Name + " WHERE _id = " + convertValueForSQL(id)
-
-	if ConstDebugSQL {
-		env.Log("sqlite", env.ConstLogPrefixInfo, SQL)
-	}
 
 	return connectionExec(SQL)
 }
@@ -491,10 +492,6 @@ func (it *DBCollection) AddColumn(columnName string, columnType string, indexed 
 
 	SQL := "ALTER TABLE " + it.Name + " ADD COLUMN \"" + columnName + "\" " + ColumnType
 
-	if ConstDebugSQL {
-		env.Log("sqlite", env.ConstLogPrefixInfo, SQL)
-	}
-
 	err = connectionExec(SQL)
 	if err != nil {
 		return sqlError(SQL, err)
@@ -510,10 +507,6 @@ func (it *DBCollection) AddColumn(columnName string, columnType string, indexed 
 		SQL += "1)"
 	} else {
 		SQL += "0)"
-	}
-
-	if ConstDebugSQL {
-		env.Log("sqlite", env.ConstLogPrefixInfo, SQL)
 	}
 
 	err = connectionExec(SQL)

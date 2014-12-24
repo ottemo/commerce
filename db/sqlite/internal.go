@@ -20,7 +20,7 @@ func connectionExecWLastInsertID(SQL string, args ...interface{}) (int64, error)
 		return dbEngine.connection.LastInsertId(), err
 	}
 
-	return 0, err
+	return dbEngine.connection.LastInsertId(), err
 }
 
 // exec routines
@@ -28,12 +28,16 @@ func connectionExecWAffected(SQL string, args ...interface{}) (int, error) {
 	dbEngine.connectionMutex.Lock()
 	defer dbEngine.connectionMutex.Unlock()
 
-	err := dbEngine.connection.Exec(SQL, args...)
-	if err != nil {
-		return dbEngine.connection.RowsAffected(), err
+	if ConstDebugSQL {
+		env.Log("sqlite.log", env.ConstLogPrefixInfo, SQL)
 	}
 
-	return 0, err
+	err := dbEngine.connection.Exec(SQL, args...)
+	if err != nil {
+		return 0, err
+	}
+
+	return dbEngine.connection.RowsAffected(), err
 }
 
 // exec routines
@@ -41,12 +45,21 @@ func connectionExec(SQL string, args ...interface{}) error {
 	dbEngine.connectionMutex.Lock()
 	defer dbEngine.connectionMutex.Unlock()
 
+	if ConstDebugSQL {
+		env.Log("sqlite.log", env.ConstLogPrefixInfo, SQL)
+	}
+
 	return dbEngine.connection.Exec(SQL, args...)
 }
 
 // query routines
 func connectionQuery(SQL string) (*sqlite3.Stmt, error) {
 	dbEngine.connectionMutex.Lock()
+
+	if ConstDebugSQL {
+		env.Log("sqlite.log", env.ConstLogPrefixInfo, SQL)
+	}
+
 	return dbEngine.connection.Query(SQL)
 }
 
