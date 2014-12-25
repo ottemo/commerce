@@ -213,15 +213,17 @@ func (it *DBCollection) Save(item map[string]interface{}) (string, error) {
 
 	values := make([]interface{}, 0, len(item))
 
-	for k, v := range item {
-		if item[k] != nil {
-			columns = append(columns, "`"+k+"`")
-			args = append(args, convertValueForSQL(v))
+	for key, value := range item {
+		if item[key] != nil {
+			columns = append(columns, "`"+key+"`")
+			args = append(args, convertValueForSQL(value))
 
-			columnEqArg = append(columnEqArg, k+"="+convertValueForSQL(v))
+			if key != "_id" {
+				columnEqArg = append(columnEqArg, "`"+key+"`="+convertValueForSQL(value))
+			}
 
-			//args = append(args, "$_"+k)
-			//values = append(values, convertValueForSQL(v))
+			//args = append(args, "$_"+key)
+			//values = append(values, convertValueForSQL(value))
 		}
 	}
 

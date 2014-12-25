@@ -1,6 +1,8 @@
 package attributes
 
 import (
+	"strings"
+
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/env"
@@ -202,8 +204,25 @@ func (it *CustomAttributes) AddNewAttribute(newAttribute models.StructAttributeI
 		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "da1337be-d710-4c1c-9e3e-04cca84cb82b", "Can't get attribute '"+newAttribute.Attribute+"' collection '"+newAttribute.Collection+"': "+err.Error())
 	}
 
+	// checking collection already existent columns
 	if modelCollection.HasColumn(newAttribute.Attribute) {
 		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "0402b818-03e9-4c56-bee8-0c1471b8d2ba", "There is already atribute '"+newAttribute.Attribute+"' in collection '"+it.collection+"'")
+	}
+
+	// type validation
+	if !utils.IsAmongStr(strings.Trim(newAttribute.Type, "[]"),
+		db.ConstDBBasetypeID,
+		db.ConstDBBasetypeBoolean,
+		db.ConstDBBasetypeVarchar,
+		db.ConstDBBasetypeText,
+		db.ConstDBBasetypeInteger,
+		db.ConstDBBasetypeDecimal,
+		db.ConstDBBasetypeMoney,
+		db.ConstDBBasetypeFloat,
+		db.ConstDBBasetypeDatetime,
+		db.ConstDBBasetypeJSON) {
+
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "26f15efc-8490-41f0-82f7-b677ea427af7", "unknown attribute type '"+newAttribute.Type+"'")
 	}
 
 	// inserting attribute information in custom_attributes collection
