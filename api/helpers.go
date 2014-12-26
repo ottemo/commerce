@@ -167,7 +167,16 @@ func ApplyFilters(params *StructAPIHandlerParams, collection db.InterfaceDBColle
 					}
 
 					if typedValue, err := utils.StringToType(attributeValue, attributeType); err == nil {
-						collection.AddFilter(attributeName, filterOperator, typedValue)
+						// fix for NULL db boolean values filter, perhaps should be part of DB adapter
+						if attributeType == db.ConstDBBasetypeBoolean && typedValue == false {
+							filterGroupName := attributeName + "_applyFilter"
+
+							collection.SetupFilterGroup(filterGroupName, true, "")
+							collection.AddGroupFilter(filterGroupName, attributeName, filterOperator, typedValue)
+							collection.AddGroupFilter(filterGroupName, attributeName, "=", nil)
+						} else {
+							collection.AddFilter(attributeName, filterOperator, typedValue)
+						}
 					} else {
 						collection.AddFilter(attributeName, filterOperator, attributeValue)
 					}
