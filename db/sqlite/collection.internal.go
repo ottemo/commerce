@@ -49,12 +49,16 @@ func (it *DBCollection) makeSQLFilterString(ColumnName string, Operator string, 
 	// regular columns - default case
 	switch Operator {
 	case "LIKE":
-		if typedValue, ok := Value.(string); ok && !strings.Contains(typedValue, "%") {
-			Value = "'%" + typedValue + "%'"
+		if typedValue, ok := Value.(string); ok {
+			if !strings.Contains(typedValue, "%") {
+				Value = "'%" + typedValue + "%'"
+			} else {
+				newValue := strings.Trim(Value.(string), "'")
+				newValue = strings.Trim(newValue, "\"")
+				Value = "'" + newValue + "'"
+			}
 		} else {
-			newValue := strings.Trim(Value.(string), "'")
-			newValue = strings.Trim(newValue, "\"")
-			Value = "'" + newValue + "'"
+			Value = "''"
 		}
 
 	case "IN":
