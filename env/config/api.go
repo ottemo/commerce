@@ -52,11 +52,6 @@ func setupAPI() error {
 // WEB REST API to get value information about config items with type [ConstConfigItemGroupType]
 func restConfigGroups(params *api.StructAPIHandlerParams) (interface{}, error) {
 
-	// check rights
-	if err := api.ValidateAdminRights(params); err != nil {
-		return nil, env.ErrorDispatch(err)
-	}
-
 	config := env.GetConfig()
 	return config.GetGroupItems(), nil
 }
@@ -107,11 +102,9 @@ func restConfigGet(params *api.StructAPIHandlerParams) (interface{}, error) {
 				return nil, env.ErrorDispatch(err)
 			}
 		}
-
-		return config.GetValue(configItemPath), nil
 	}
 
-	return nil, nil
+	return config.GetValue(params.RequestURLParams["path"]), nil
 }
 
 // WEB REST API used to set value of particular item in config
