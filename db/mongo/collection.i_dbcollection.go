@@ -307,10 +307,11 @@ func (it *DBCollection) RemoveColumn(ColumnName string) error {
 	data := map[string]interface{}{"$unset": map[string]interface{}{ColumnName: ""}}
 
 	_, err = it.collection.UpdateAll(updateSelector, data)
-
 	if err != nil {
 		return err
 	}
+
+	it.ListColumns()
 
 	return nil
 }

@@ -613,6 +613,12 @@ func (it *DBCollection) RemoveColumn(columnName string) error {
 		return sqlError(SQL, err)
 	}
 
+	if _, present := dbEngine.attributeTypes[it.Name]; present {
+		if _, present = dbEngine.attributeTypes[it.Name][columnName]; present {
+			delete(dbEngine.attributeTypes[it.Name], columnName)
+		}
+	}
+
 	it.ListColumns()
 
 	return nil
