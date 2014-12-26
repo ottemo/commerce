@@ -1,6 +1,7 @@
 package impex
 
 import (
+	"crypto/tls"
 	"io/ioutil"
 	"net/http"
 	"path"
@@ -9,6 +10,7 @@ import (
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
+	"strconv"
 )
 
 // CheckModelImplements checks that model support InterfaceObject and InterfaceStorable interfaces
@@ -394,8 +396,11 @@ func (it *ImportCmdMedia) Process(itemData map[string]interface{}, input interfa
 			mediaArray = append(mediaArray, utils.InterfaceToString(typedValue))
 		}
 
+		prevMediaName := ""
+
 		// adding found media value(s)
-		for _, mediaValue := range mediaArray {
+		for mediaIdx, mediaValue := range mediaArray {
+
 			mediaContents := []byte{}
 			var err error
 
@@ -412,8 +417,13 @@ func (it *ImportCmdMedia) Process(itemData map[string]interface{}, input interfa
 			}
 
 			// checking value type
-			if strings.HasPrefix(mediaValue, "http") { // we have http link
-				response, err := http.Get(mediaValue)
+			if strings.HasPrefix(mediaValue, "http") { // we have http(s) link
+				transport := &http.Transport{
+					TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+				}
+				client := &http.Client{Transport: transport}
+
+				response, err := client.Get(mediaValue)
 				if err != nil {
 					return input, env.ErrorDispatch(err)
 				}
@@ -483,6 +493,13 @@ func (it *ImportCmdMedia) Process(itemData map[string]interface{}, input interfa
 						mediaName += "_" + objectID
 					}
 				}
+			}
+
+			// so, if media name is static and we have array we want images to not be replaced
+			if prevMediaName == mediaName {
+				mediaName = strconv.Itoa(mediaIdx) + "_" + mediaName
+			} else {
+				prevMediaName = mediaName
 			}
 
 			// finally adding media to object
