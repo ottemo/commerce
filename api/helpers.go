@@ -9,6 +9,7 @@ import (
 
 	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/foundation/utils"
 )
 
 // StartSession returns session object for request or creates new one
@@ -65,9 +66,26 @@ func GetSessionByID(sessionID string) (InterfaceSession, error) {
 
 // ValidateAdminRights returns nil if admin rights allowed for current session
 func ValidateAdminRights(params *StructAPIHandlerParams) error {
+
 	if value := params.Session.Get(ConstSessionKeyAdminRights); value != nil {
 		if value, ok := value.(bool); ok && value {
 			return nil
+		}
+	}
+
+	// it is un-secure as request can be intercepted by malefactor, so use it only if no other way to do auth
+	// (we are using it for "gulp build" local tool, so all data within one host)
+	if value, present := params.RequestGETParams[ConstGETAuthParamName]; present {
+		if splited := strings.Split(value, ":"); len(splited) > 1 {
+			login := splited[0]
+			password := splited[1]
+
+			rootLogin := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathStoreRootLogin))
+			rootPassword := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathStoreRootPassword))
+
+			if login == rootLogin && password == rootPassword {
+				return nil
+			}
 		}
 	}
 
