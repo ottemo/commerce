@@ -191,7 +191,9 @@ func restImpexTstImport(params *api.StructAPIHandlerParams) (interface{}, error)
 
 	reader := csv.NewReader(csvFile)
 	reader.Comma = ','
-	err = CSVToMap(reader, processor)
+
+	exchangeDict := make(map[string]interface{})
+	err = CSVToMap(reader, processor, exchangeDict)
 
 	return result, err
 }

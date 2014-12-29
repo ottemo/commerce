@@ -11,6 +11,8 @@ import (
 const (
 	ConstErrorModule = "impex"
 	ConstErrorLevel  = env.ConstErrorLevelService
+
+	ConstLogFileName = "impex.log"
 )
 
 // Package global variables
@@ -21,6 +23,7 @@ var (
 	// ConstCSVColumnRegexp is a regular expression used to grab csv column information
 	//
 	//	column format: [flags]path [memorize] [type] [convertors]
+	//                 [~|^|?][@a.b.c.]path [={name}|>{name}] [<{type}>]
 	//
 	//	flags - optional column modificator
 	//		format: [~|^|?]
@@ -45,6 +48,8 @@ var (
 	//	convertors - text template modifications you can apply to value before use it
 	//		format: see (http://golang.org/pkg/text/template/)
 	ConstCSVColumnRegexp = regexp.MustCompile(`^\s*([~^?])?((?:@?\w+\.)*@?\w+)(\s+(?:=|>)\s*\w+)?(?:\s+<([^>]+)>)?\s*(.*)$`)
+
+	ConversionFuncs = map[string]interface{} {}
 
 	// set of service import commands
 	importCmd = make(map[string]InterfaceImpexImportCmd)
