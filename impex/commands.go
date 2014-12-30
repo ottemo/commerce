@@ -139,6 +139,34 @@ func (it *ImportCmdInsert) Init(args []string, exchange map[string]interface{}) 
 	return nil
 }
 
+// Test is a INSERT command processor for test mode
+func (it *ImportCmdInsert) Test(itemData map[string]interface{}, input interface{}, exchange map[string]interface{}) (interface{}, error) {
+	// preparing model
+	//-----------------
+	if it.model == nil {
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "eb15163b-bca9-41a7-92bc-c646fe4eba53", "INSERT command have no assigned model to work on")
+	}
+	cmdModel, err := it.model.New()
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	modelAsObject := cmdModel.(models.InterfaceObject)
+
+	// filling model attributes
+	//--------------------------
+	for attribute, value := range itemData {
+		if useAttribute, wasMentioned := it.attributes[attribute]; !wasMentioned || useAttribute {
+			err := modelAsObject.Set(attribute, value)
+			if err != nil && !it.skipErrors {
+				return nil, err
+			}
+		}
+	}
+
+	return cmdModel, nil
+}
+
 // Process is a INSERT command processor
 func (it *ImportCmdInsert) Process(itemData map[string]interface{}, input interface{}, exchange map[string]interface{}) (interface{}, error) {
 
@@ -200,6 +228,42 @@ func (it *ImportCmdUpdate) Init(args []string, exchange map[string]interface{}) 
 	}
 
 	return nil
+}
+
+// Test is a UPDATE command processor for test mode
+func (it *ImportCmdUpdate) Test(itemData map[string]interface{}, input interface{}, exchange map[string]interface{}) (interface{}, error) {
+	// preparing model
+	//-----------------
+	cmdModel, err := it.model.New()
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	modelAsObject := cmdModel.(models.InterfaceObject)
+	modelAsStorable := cmdModel.(models.InterfaceStorable)
+
+	if modelID, present := itemData[it.idKey]; present {
+		// loading model by id
+		//---------------------
+		err = modelAsStorable.Load(utils.InterfaceToString(modelID))
+		if err != nil {
+			return nil, env.ErrorDispatch(err)
+		}
+
+		// filling model attributes
+		//--------------------------
+		for attribute, value := range itemData {
+			if attribute == it.idKey {
+				continue
+			}
+
+			if useAttribute, wasMentioned := it.attributes[attribute]; !wasMentioned || useAttribute {
+				modelAsObject.Set(attribute, value)
+			}
+		}
+	}
+
+	return cmdModel, nil
 }
 
 // Process is a UPDATE command processor
@@ -268,6 +332,27 @@ func (it *ImportCmdDelete) Init(args []string, exchange map[string]interface{}) 
 	return nil
 }
 
+// Test is a DELETE command processor for test mode
+func (it *ImportCmdDelete) Test(itemData map[string]interface{}, input interface{}, exchange map[string]interface{}) (interface{}, error) {
+	// preparing model
+	//-----------------
+	cmdModel, err := it.model.New()
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	modelAsStorable := cmdModel.(models.InterfaceStorable)
+
+	if modelID, present := itemData[it.idKey]; present {
+		err = modelAsStorable.SetID(utils.InterfaceToString(modelID))
+		if err != nil {
+			return nil, env.ErrorDispatch(err)
+		}
+	}
+
+	return cmdModel, nil
+}
+
 // Process is a DELETE command processor
 func (it *ImportCmdDelete) Process(itemData map[string]interface{}, input interface{}, exchange map[string]interface{}) (interface{}, error) {
 	// preparing model
@@ -323,6 +408,11 @@ func (it *ImportCmdStore) Init(args []string, exchange map[string]interface{}) e
 	return nil
 }
 
+// Process is a STORE command processor for test mode
+func (it *ImportCmdStore) Test(itemData map[string]interface{}, input interface{}, exchange map[string]interface{}) (interface{}, error) {
+	return it.Process(itemData, input, exchange)
+}
+
 // Process is a STORE command processor
 func (it *ImportCmdStore) Process(itemData map[string]interface{}, input interface{}, exchange map[string]interface{}) (interface{}, error) {
 	if it.storeObjectAs != "" {
@@ -369,6 +459,11 @@ func (it *ImportCmdMedia) Init(args []string, exchange map[string]interface{}) e
 	}
 
 	return nil
+}
+
+// Process is a MEDIA command processor for test mode
+func (it *ImportCmdMedia) Test(itemData map[string]interface{}, input interface{}, exchange map[string]interface{}) (interface{}, error) {
+	return input, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "c6384ea9-08db-46aa-b49b-cb8ee28598fa", "MEDIA command is not allowed in test mode")
 }
 
 // Process is a MEDIA command processor
@@ -579,6 +674,11 @@ func (it *ImportCmdAttributeAdd) Init(args []string, exchange map[string]interfa
 	it.attribute = attribute
 
 	return nil
+}
+
+// Test is a ATTRIBUTE_ADD command processor
+func (it *ImportCmdAttributeAdd) Test(itemData map[string]interface{}, input interface{}, exchange map[string]interface{}) (interface{}, error) {
+	return input, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "c6384ea9-08db-46aa-b49b-cb8ee28598fa", "ATTRIBUTE_ADD command is not allowed in test mode")
 }
 
 // Process is a ATTRIBUTE_ADD command processor

@@ -20,21 +20,17 @@ func init() {
 
 	RegisterImportCommand("ATTRIBUTE_ADD", new(ImportCmdAttributeAdd))
 
-
 	// initializing column conversion functions
-	ConversionFuncs["printf"] = func (format string, args ...interface{}) {
-		env.Log(ConstLogFileName, env.ConstLogPrefixDebug, fmt.Sprintf(format, args))
-	}
-
-	ConversionFuncs["print"] = func (args ...interface{}) {
+	ConversionFuncs["log"] = func(args ...interface{}) {
 		env.Log(ConstLogFileName, env.ConstLogPrefixDebug, fmt.Sprint(args))
 	}
 
-	ConversionFuncs["println"] = func (args ...interface{}) {
-		env.Log(ConstLogFileName, env.ConstLogPrefixDebug, fmt.Sprintln(args))
+	ConversionFuncs["logf"] = func(format string, args ...interface{}) {
+		env.Log(ConstLogFileName, env.ConstLogPrefixDebug, fmt.Sprintf(format, args))
 	}
 
-	ConversionFuncs["println"] = func (args ...interface{}) {
-		env.Log(ConstLogFileName, env.ConstLogPrefixDebug, fmt.Sprintln(args))
+	ConversionFuncs["set"] = func(context map[string]interface{}, key string, value interface{}) string {
+		context[key] = value
+		return ""
 	}
 }

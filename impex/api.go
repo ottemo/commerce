@@ -3,12 +3,12 @@ package impex
 import (
 	"encoding/csv"
 	"fmt"
-	"os"
+	"io"
+	"strings"
 	"time"
 
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/app/models"
-	"github.com/ottemo/foundation/app/models/product"
 	"github.com/ottemo/foundation/env"
 )
 
@@ -30,12 +30,12 @@ func setupAPI() error {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("impex", "GET", "tstImport", restImpexTstImport)
+	err = api.GetRestService().RegisterAPI("impex", "POST", "test/import", restImpexTestImport)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("impex", "GET", "tstExport", restImpexTstExport)
+	err = api.GetRestService().RegisterAPI("impex", "POST", "test/mapping", restImpexTestCsvToMap)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -93,29 +93,63 @@ func restImpexExportModel(params *api.StructAPIHandlerParams) (interface{}, erro
 	return nil, nil
 }
 
-// WEB REST API used process scv file in impex format
+// WEB REST API used to test csv file before import
+func restImpexTestImport(params *api.StructAPIHandlerParams) (interface{}, error) {
+
+	params.ResponseWriter.Header().Set("Content-Type", "text/plain")
+
+	filesProcessed := 0
+	if params.Request != nil && params.Request.MultipartForm != nil && params.Request.MultipartForm.File != nil {
+		for _, fileInfoArray := range params.Request.MultipartForm.File {
+			for _, fileInfo := range fileInfoArray {
+
+				attachedFile, err := fileInfo.Open()
+				defer attachedFile.Close()
+				if err != nil {
+					return nil, env.ErrorDispatch(err)
+				}
+
+				// preparing csv reader
+				csvReader := csv.NewReader(attachedFile)
+				csvReader.Comma = ','
+
+				err = ImportCSV(csvReader, params.ResponseWriter, true)
+				if err != nil {
+					return nil, env.ErrorDispatch(err)
+				}
+				filesProcessed++
+			}
+		}
+	}
+
+	return []byte(fmt.Sprintf("%d file(s) processed", filesProcessed)), nil
+}
+
+// WEB REST API used to process csv file script in impex format
 func restImpexImport(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	filesProcessed := 0
-	for _, fileInfoArray := range params.Request.MultipartForm.File {
-		for _, fileInfo := range fileInfoArray {
-			// if utils.IsAmongStr(fileInfo.Header.Get("Content-Type"), "application/csv", "text/csv") {
-			attachedFile, err := fileInfo.Open()
-			defer attachedFile.Close()
-			if err != nil {
-				return nil, env.ErrorDispatch(err)
+	if params.Request != nil && params.Request.MultipartForm != nil && params.Request.MultipartForm.File != nil {
+		for _, fileInfoArray := range params.Request.MultipartForm.File {
+			for _, fileInfo := range fileInfoArray {
+				// if utils.IsAmongStr(fileInfo.Header.Get("Content-Type"), "application/csv", "text/csv") {
+				attachedFile, err := fileInfo.Open()
+				defer attachedFile.Close()
+				if err != nil {
+					return nil, env.ErrorDispatch(err)
+				}
+
+				// preparing csv reader
+				csvReader := csv.NewReader(attachedFile)
+				csvReader.Comma = ','
+
+				err = ImportCSV(csvReader, params.ResponseWriter, false)
+				if err != nil {
+					return nil, env.ErrorDispatch(err)
+				}
+
+				filesProcessed++
 			}
-
-			// preparing csv reader
-			csvReader := csv.NewReader(attachedFile)
-			csvReader.Comma = ','
-
-			err = ImportCSV(csvReader)
-			if err != nil {
-				return nil, env.ErrorDispatch(err)
-			}
-
-			filesProcessed++
 		}
 	}
 
@@ -175,52 +209,52 @@ func restImpexImportModel(params *api.StructAPIHandlerParams) (interface{}, erro
 	return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "0a00d776-4158-43a2-8451-02f4344380d6", "not implemented")
 }
 
-// WEB REST API to test import csv file
-func restImpexTstImport(params *api.StructAPIHandlerParams) (interface{}, error) {
-	csvFile, err := os.OpenFile("test.csv", os.O_RDONLY, 0666)
-	defer csvFile.Close()
-	if err != nil {
-		return nil, env.ErrorDispatch(err)
+// WEB REST API to test conversion from csv to json / map[string]interface{}
+func restImpexTestCsvToMap(params *api.StructAPIHandlerParams) (interface{}, error) {
+	var attachedFile interface {
+		io.Reader
+		io.Closer
+	}
+	var err error
+
+	// looking for first one attached .csv file
+	if params.Request != nil && params.Request.MultipartForm != nil && params.Request.MultipartForm.File != nil {
+
+		for _, fileInfoArray := range params.Request.MultipartForm.File {
+			for _, fileInfo := range fileInfoArray {
+				if strings.Contains(fileInfo.Filename, ".csv") {
+
+					attachedFile, err = fileInfo.Open()
+					defer attachedFile.Close()
+					if err != nil {
+						return nil, env.ErrorDispatch(err)
+					}
+
+					break
+				}
+			}
+		}
+
 	}
 
+	// file was not found
+	if attachedFile == nil {
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "6f5a582f-46f1-4b46-834d-e6b39da1ca68", "no csv file was attached")
+	}
+
+	// preparing csv reader
 	var result []map[string]interface{}
 	processor := func(item map[string]interface{}) bool {
 		result = append(result, item)
 		return true
 	}
 
-	reader := csv.NewReader(csvFile)
+	reader := csv.NewReader(attachedFile)
 	reader.Comma = ','
 
+	// making csv processing
 	exchangeDict := make(map[string]interface{})
 	err = CSVToMap(reader, processor, exchangeDict)
 
 	return result, err
-}
-
-// WEB REST API to test export
-func restImpexTstExport(params *api.StructAPIHandlerParams) (interface{}, error) {
-
-	params.ResponseWriter.Header().Set("Content-Type", "application/csv")
-
-	var data []map[string]interface{}
-
-	productCollection, err := product.GetProductCollectionModel()
-	if err != nil {
-		return nil, env.ErrorDispatch(err)
-	}
-
-	for _, productItem := range productCollection.ListProducts() {
-		data = append(data, productItem.ToHashMap())
-	}
-
-	csvWriter := csv.NewWriter(params.ResponseWriter)
-	csvWriter.Comma = ','
-
-	err = MapToCSV(data, csvWriter)
-	if err != nil {
-		return nil, env.ErrorDispatch(err)
-	}
-
-	return []byte{}, nil
 }

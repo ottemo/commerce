@@ -4,4 +4,5 @@ package impex
 type InterfaceImpexImportCmd interface {
 	Init(args []string, exchange map[string]interface{}) error
 	Process(itemData map[string]interface{}, input interface{}, exchange map[string]interface{}) (interface{}, error)
+	Test(itemData map[string]interface{}, input interface{}, exchange map[string]interface{}) (interface{}, error)
 }
