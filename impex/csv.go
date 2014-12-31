@@ -339,20 +339,20 @@ func CSVToMap(csvReader *csv.Reader, processorFunc func(item map[string]interfac
 				if idx == lastPathIdx { // we are at end of key path (i.e. on x for key like a.b.c.d.x)
 
 					// looking for text template in value
-					// if strings.Contains(value, "{{") {
-					// 	textTemplate := template.New("impex_tmp").Funcs(ConversionFuncs)
-					// 	textTemplate, err := textTemplate.Parse(value)
-					// 	if err == nil {
-					// 		var result bytes.Buffer
-					//
-					// 		err = textTemplate.Execute(&result, exchange)
-					// 		if err == nil {
-					// 			if newValue := strings.TrimSpace(result.String()); newValue != "" {
-					// 				value = newValue
-					// 			}
-					// 		}
-					// 	}
-					// }
+					if strings.Contains(value, "{{") {
+						textTemplate := template.New("impex_tmp").Funcs(ConversionFuncs)
+						textTemplate, err := textTemplate.Parse(value)
+						if err == nil {
+							var result bytes.Buffer
+
+							err = textTemplate.Execute(&result, exchange)
+							if err == nil {
+								if newValue := strings.TrimSpace(result.String()); newValue != "" {
+									value = newValue
+								}
+							}
+						}
+					}
 
 					// trying to convert string value to supposed type
 					var typedValue interface{}
@@ -366,17 +366,18 @@ func CSVToMap(csvReader *csv.Reader, processorFunc func(item map[string]interfac
 					}
 
 					// converting column value if converter was specified
-					if textTemplate := csvColumnConvertors[idx]; textTemplate != nil {
+					if textTemplate := csvColumnConvertors[columnIdx]; textTemplate != nil {
 						var result bytes.Buffer
 
-						exchange["typedValue"] = typedValue
+						exchange["tvalue"] = typedValue
 						exchange["value"] = value
+
 						err = textTemplate.Execute(&result, exchange)
 						if err == nil {
 							newValue := strings.TrimSpace(result.String())
 
-							if exchange["typedValue"] != typedValue {
-								typedValue = exchange["value"]
+							if exchange["tvalue"] != typedValue {
+								typedValue = exchange["tvalue"]
 							}
 
 							if newValue != "" && newValue != value {
@@ -453,6 +454,8 @@ func CSVToMap(csvReader *csv.Reader, processorFunc func(item map[string]interfac
 // ImportCSV imports csv data using command->data csv format
 func ImportCSV(csvReader *csv.Reader, output io.Writer, testMode bool) error {
 
+	exchangeDict := make(map[string]interface{})
+
 	// impex csv file should contain command preceding data
 	commandLine := ""
 	appendFlag := false
@@ -503,7 +506,6 @@ func ImportCSV(csvReader *csv.Reader, output io.Writer, testMode bool) error {
 
 		// looking for required commands and preparing them to process
 		//-------------------------------------------------------------
-		exchangeDict := make(map[string]interface{})
 		var commandsChain []InterfaceImpexImportCmd
 		var commandsRaw []string
 

@@ -408,7 +408,7 @@ func (it *ImportCmdStore) Init(args []string, exchange map[string]interface{}) e
 	return nil
 }
 
-// Process is a STORE command processor for test mode
+// Test is a STORE command processor for test mode
 func (it *ImportCmdStore) Test(itemData map[string]interface{}, input interface{}, exchange map[string]interface{}) (interface{}, error) {
 	return it.Process(itemData, input, exchange)
 }
@@ -439,6 +439,52 @@ func (it *ImportCmdStore) Process(itemData map[string]interface{}, input interfa
 	return input, nil
 }
 
+// Init is a ALIAS command initialization routines
+func (it *ImportCmdAlias) Init(args []string, exchange map[string]interface{}) error {
+	it.aliases = ArgsGetAsNamed(args, false)
+
+	return nil
+}
+
+// Test is a ALIAS command processor for test mode
+func (it *ImportCmdAlias) Test(itemData map[string]interface{}, input interface{}, exchange map[string]interface{}) (interface{}, error) {
+	return it.Process(itemData, input, exchange)
+}
+
+// Process is a ALIAS command processor
+func (it *ImportCmdAlias) Process(itemData map[string]interface{}, input interface{}, exchange map[string]interface{}) (interface{}, error) {
+
+	object, ok := input.(models.InterfaceObject)
+	if !ok {
+		return input, nil
+	}
+
+	var aliases map[string]interface{}
+
+	if aliasesValue, present := exchange["alias"]; present {
+		if currentAliases, ok := aliasesValue.(map[string]interface{}); ok {
+			aliases = currentAliases
+		}
+	}
+
+	if aliases == nil {
+		aliases = make(map[string]interface{})
+		exchange["alias"] = aliases
+	}
+
+	for alias, value := range it.aliases {
+		if itemValue, present := itemData[alias]; present {
+			alias = utils.InterfaceToString(itemValue)
+		}
+
+		value := object.Get(value)
+
+		aliases[alias] = value
+	}
+
+	return input, nil
+}
+
 // Init is a MEDIA command initialization routines
 func (it *ImportCmdMedia) Init(args []string, exchange map[string]interface{}) error {
 
@@ -461,7 +507,7 @@ func (it *ImportCmdMedia) Init(args []string, exchange map[string]interface{}) e
 	return nil
 }
 
-// Process is a MEDIA command processor for test mode
+// Test is a MEDIA command processor for test mode
 func (it *ImportCmdMedia) Test(itemData map[string]interface{}, input interface{}, exchange map[string]interface{}) (interface{}, error) {
 	return input, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "c6384ea9-08db-46aa-b49b-cb8ee28598fa", "MEDIA command is not allowed in test mode")
 }

@@ -49,7 +49,7 @@ var (
 	//		format: see (http://golang.org/pkg/text/template/)
 	ConstCSVColumnRegexp = regexp.MustCompile(`^\s*([~^?])?((?:@?\w+\.)*@?\w+)(\s+(?:=|>)\s*\w+)?(?:\s+<([^>]+)>)?\s*(.*)$`)
 
-	ConversionFuncs = map[string]interface{} {}
+	ConversionFuncs = map[string]interface{}{}
 
 	// set of service import commands
 	importCmd = make(map[string]InterfaceImpexImportCmd)
@@ -101,4 +101,10 @@ type ImportCmdStore struct {
 
 	prefix    string
 	prefixKey string
+}
+
+// ImportCmdAlias is a implementer of InterfaceImpexImportCmd
+//  - command allows to make record field alias to object attribute value
+type ImportCmdAlias struct {
+	aliases map[string]string
 }
