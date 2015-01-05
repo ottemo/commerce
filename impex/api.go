@@ -17,6 +17,11 @@ func setupAPI() error {
 
 	var err error
 
+	err = api.GetRestService().RegisterAPI("impex", "GET", "models", restImpexListModels)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
 	err = api.GetRestService().RegisterAPI("impex", "GET", "export/:model", restImpexExportModel)
 	if err != nil {
 		return env.ErrorDispatch(err)
@@ -34,7 +39,6 @@ func setupAPI() error {
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-
 	err = api.GetRestService().RegisterAPI("impex", "POST", "test/mapping", restImpexTestCsvToMap)
 	if err != nil {
 		return env.ErrorDispatch(err)
@@ -43,10 +47,41 @@ func setupAPI() error {
 	return nil
 }
 
+// WEB REST API used to list available models for Impex system
+func restImpexListModels(params *api.StructAPIHandlerParams) (interface{}, error) {
+	var result []string
+
+	for modelName, modelInstance := range models.GetDeclaredModels() {
+
+		if _, present := impexModels[modelName]; present {
+			continue
+		}
+
+		_, isObject := modelInstance.(models.InterfaceObject)
+		_, isStorable := modelInstance.(models.InterfaceStorable)
+
+		if isObject && isStorable {
+			result = append(result, modelName)
+		}
+	}
+
+	for modelName := range impexModels {
+		result = append(result, modelName)
+	}
+
+	return result, nil
+}
+
 // WEB REST API used export specific model data from system
 func restImpexExportModel(params *api.StructAPIHandlerParams) (interface{}, error) {
 
-	model, err := models.GetModel(params.RequestURLParams["model"])
+	modelName := params.RequestURLParams["model"]
+
+	// if model, present := impexModels[modelName]; present {
+	// 	model.Export()
+	// }
+
+	model, err := models.GetModel(modelName)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}

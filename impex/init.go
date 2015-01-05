@@ -15,6 +15,7 @@ import (
 func init() {
 	api.RegisterOnRestServiceStart(setupAPI)
 
+	RegisterImportCommand("IMPORT", new(ImportCmdImport))
 	RegisterImportCommand("INSERT", new(ImportCmdInsert))
 	RegisterImportCommand("UPDATE", new(ImportCmdUpdate))
 	RegisterImportCommand("DELETE", new(ImportCmdDelete))

@@ -2,6 +2,7 @@ package fsmedia
 
 import (
 	"bytes"
+	"fmt"
 	"image"
 	"io"
 	"os"
@@ -124,7 +125,7 @@ func (it *FilesystemMediaStorage) GetResizedMediaName(mediaName string, size str
 		return mediaName
 	}
 
-	//	return size + "_" + mediaName
+	// return size + "_" + mediaName
 
 	// checking file extension
 	var fileExtension string

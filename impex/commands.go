@@ -33,6 +33,8 @@ func CheckModelImplements(modelName string, neededInterfaces []string) (models.I
 			_, ok = cmdModel.(models.InterfaceCollection)
 		case "InterfaceCustomAttributes":
 			_, ok = cmdModel.(models.InterfaceCustomAttributes)
+		case "InterfaceImpexModel":
+			_, ok = cmdModel.(InterfaceImpexModel)
 		case "InterfaceMedia":
 			_, ok = cmdModel.(models.InterfaceMedia)
 		}
@@ -118,6 +120,70 @@ func ArgsFindWorkingAttributes(args []string) map[string]bool {
 		}
 	}
 	return result
+}
+
+// Init is a IMPORT command initialization routine
+func (it *ImportCmdImport) Init(args []string, exchange map[string]interface{}) error {
+
+	namedArgs := ArgsGetAsNamed(args, true)
+	for _, argKey := range []string{"model", "1"} {
+		if argValue, present := namedArgs[argKey]; present {
+			if workingModel, present := impexModels[argValue]; present {
+				it.model = workingModel
+				break
+			}
+		}
+	}
+
+	it.attributes = ArgsFindWorkingAttributes(args)
+
+	return nil
+}
+
+// Test is a IMPORT command processor
+func (it *ImportCmdImport) Test(itemData map[string]interface{}, input interface{}, exchange map[string]interface{}) (interface{}, error) {
+
+	// preparing model
+	//-----------------
+	if it.model == nil {
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "eb15163b-bca9-41a7-92bc-c646fe4eba53", "IMPORT command have no assigned model to work on")
+	}
+
+	// model attributes
+	//--------------------------
+	workingData := make(map[string]interface{})
+	for attribute, value := range itemData {
+		if useAttribute, wasMentioned := it.attributes[attribute]; !wasMentioned || useAttribute {
+			workingData[attribute] = value
+		}
+	}
+
+	_, err := it.model.Import(workingData, true)
+
+	return input, err
+}
+
+// Process is a IMPORT command processor
+func (it *ImportCmdImport) Process(itemData map[string]interface{}, input interface{}, exchange map[string]interface{}) (interface{}, error) {
+
+	// preparing model
+	//-----------------
+	if it.model == nil {
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "eb15163b-bca9-41a7-92bc-c646fe4eba53", "IMPORT command have no assigned model to work on")
+	}
+
+	// model attributes
+	//--------------------------
+	workingData := make(map[string]interface{})
+	for attribute, value := range itemData {
+		if useAttribute, wasMentioned := it.attributes[attribute]; !wasMentioned || useAttribute {
+			workingData[attribute] = value
+		}
+	}
+
+	_, err := it.model.Import(workingData, false)
+
+	return input, err
 }
 
 // Init is a INSERT command initialization routine

@@ -53,6 +53,8 @@ var (
 
 	// set of service import commands
 	importCmd = make(map[string]InterfaceImpexImportCmd)
+
+	impexModels = make(map[string]InterfaceImpexModel)
 )
 
 // ImportCmdAttributeAdd is a implementer of InterfaceImpexImportCmd
@@ -60,6 +62,13 @@ var (
 type ImportCmdAttributeAdd struct {
 	model     models.InterfaceModel
 	attribute models.StructAttributeInfo
+}
+
+// ImportCmdImport is a implementer of InterfaceImpexImportCmd
+//  - command allows to work with InterfaceImpexModel instances
+type ImportCmdImport struct {
+	model      InterfaceImpexModel
+	attributes map[string]bool
 }
 
 // ImportCmdInsert is a implementer of InterfaceImpexImportCmd

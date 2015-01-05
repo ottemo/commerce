@@ -25,3 +25,25 @@ func UnRegisterImportCommand(commandName string) error {
 
 	return nil
 }
+
+// RegisterImpexModel registers model instance which supports InterfaceImpexModel interface to import/export system
+func RegisterImpexModel(name string, instance InterfaceImpexModel) error {
+	if _, present := impexModels[name]; present {
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "8c5dba4f-6c54-4551-931a-a60d581252ab", name+" model already registered in impex")
+	}
+
+	impexModels[name] = instance
+
+	return nil
+}
+
+// UnRegisterImpexModel un-registers InterfaceImpexModel capable model from import/export system
+func UnRegisterImpexModel(name string) error {
+	if _, present := impexModels[name]; !present {
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "0b0863dd-f8ba-4a61-8438-603e649189e1", "can't find registered model "+name)
+	}
+
+	delete(impexModels, name)
+
+	return nil
+}
