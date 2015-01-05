@@ -13,6 +13,7 @@ import (
 	"image/jpeg"
 	"image/png"
 
+	"fmt"
 	"github.com/nfnt/resize"
 	"github.com/ottemo/foundation/env"
 )
@@ -123,25 +124,26 @@ func (it *FilesystemMediaStorage) GetResizedMediaName(mediaName string, size str
 		return mediaName
 	}
 
-	return size + "_" + mediaName
-	//	// checking file extension
-	//	var fileExtension string
-	//	fileName := mediaName
-	//
-	//	idx := strings.LastIndex(mediaName, ".")
-	//	if idx != -1 {
-	//		fileExtension = mediaName[idx:]
-	//		fileName = mediaName[0:idx]
-	//	}
-	//
-	//	// if we have predefined size
-	//	if _, present := it.imageSizes[size]; present {
-	//		return fmt.Sprintf("%s_%s%s", fileName, size, fileExtension)
-	//	}
-	//
-	//	// otherwise
-	//	width, height, _ := it.GetSizeDimensions(size)
-	//	return fmt.Sprintf("%s_%dx%d", fileName, width, height)
+	//	return size + "_" + mediaName
+
+	// checking file extension
+	var fileExtension string
+	fileName := mediaName
+
+	idx := strings.LastIndex(mediaName, ".")
+	if idx != -1 {
+		fileExtension = mediaName[idx:]
+		fileName = mediaName[0:idx]
+	}
+
+	// if we have predefined size
+	if _, present := it.imageSizes[size]; present {
+		return fmt.Sprintf("%s_%s%s", fileName, size, fileExtension)
+	}
+
+	// otherwise
+	width, height, _ := it.GetSizeDimensions(size)
+	return fmt.Sprintf("%s_%dx%d", fileName, width, height)
 }
 
 // TODO: need to refactor this method to several smaller methods to reduce complexity - jwv
