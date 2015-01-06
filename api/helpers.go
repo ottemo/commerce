@@ -162,7 +162,7 @@ func ApplyFilters(params *StructAPIHandlerParams, collection db.InterfaceDBColle
 
 				default:
 					attributeType := collection.GetColumnType(attributeName)
-					if attributeType != db.ConstDBBasetypeText && filterOperator == "like" {
+					if attributeType != db.ConstDBBasetypeText && attributeType != db.ConstDBBasetypeVarchar && filterOperator == "like" {
 						filterOperator = "="
 					}
 

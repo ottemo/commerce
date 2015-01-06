@@ -133,30 +133,29 @@ func (it *DefaultProduct) ApplyOptions(options map[string]interface{}) error {
 
 		// price modifier
 		if optionValue, present := optionToApply["price"]; present {
-
-			if optionValue, ok := optionValue.(string); ok {
+			if stringValue, ok := optionValue.(string); ok {
 
 				isDelta := false
 				isPercent := false
 
-				optionValue = strings.TrimSpace(optionValue)
-				if strings.HasSuffix(optionValue, "%") {
+				stringValue = strings.TrimSpace(stringValue)
+				if strings.HasSuffix(stringValue, "%") {
 					isPercent = true
-					optionValue = strings.TrimSuffix(optionValue, "%")
+					stringValue = strings.TrimSuffix(stringValue, "%")
 				}
 
 				var priceValue float64
 				switch {
-				case strings.HasPrefix(optionValue, "+"):
-					optionValue = strings.TrimPrefix(optionValue, "+")
+				case strings.HasPrefix(stringValue, "+"):
+					stringValue = strings.TrimPrefix(stringValue, "+")
 					isDelta = true
-					priceValue = utils.InterfaceToFloat64(optionValue)
-				case strings.HasPrefix(optionValue, "-"):
-					optionValue = strings.TrimPrefix(optionValue, "-")
+					priceValue = utils.InterfaceToFloat64(stringValue)
+				case strings.HasPrefix(stringValue, "-"):
+					stringValue = strings.TrimPrefix(stringValue, "-")
 					isDelta = true
-					priceValue = -1 * utils.InterfaceToFloat64(optionValue)
+					priceValue = -1 * utils.InterfaceToFloat64(stringValue)
 				default:
-					priceValue = utils.InterfaceToFloat64(optionValue)
+					priceValue = utils.InterfaceToFloat64(stringValue)
 				}
 
 				if isPercent {
