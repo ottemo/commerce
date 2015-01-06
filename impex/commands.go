@@ -353,25 +353,25 @@ func (it *ImportCmdUpdate) Process(itemData map[string]interface{}, input interf
 		if err != nil {
 			return nil, env.ErrorDispatch(err)
 		}
+	}
 
-		// filling model attributes
-		//--------------------------
-		for attribute, value := range itemData {
-			if attribute == it.idKey {
-				continue
-			}
-
-			if useAttribute, wasMentioned := it.attributes[attribute]; !wasMentioned || useAttribute {
-				modelAsObject.Set(attribute, value)
-			}
+	// filling model attributes
+	//--------------------------
+	for attribute, value := range itemData {
+		if attribute == it.idKey {
+			continue
 		}
 
-		// storing model
-		//---------------
-		err = modelAsStorable.Save()
-		if err != nil {
-			return nil, err
+		if useAttribute, wasMentioned := it.attributes[attribute]; !wasMentioned || useAttribute {
+			modelAsObject.Set(attribute, value)
 		}
+	}
+
+	// storing model
+	//---------------
+	err = modelAsStorable.Save()
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
 	}
 
 	return cmdModel, nil

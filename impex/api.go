@@ -77,55 +77,110 @@ func restImpexExportModel(params *api.StructAPIHandlerParams) (interface{}, erro
 
 	modelName := params.RequestURLParams["model"]
 
-	// if model, present := impexModels[modelName]; present {
-	// 	model.Export()
-	// }
+	var records []map[string]interface{}
 
-	model, err := models.GetModel(modelName)
-	if err != nil {
-		return nil, env.ErrorDispatch(err)
+	if model, present := impexModels[modelName]; present {
+		exportIterator := func(item map[string]interface{}) bool {
+			records = append(records, item)
+			return true
+		}
+		err := model.Export(exportIterator)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+
+		model, err := models.GetModel(modelName)
+		if err != nil {
+			return nil, env.ErrorDispatch(err)
+		}
+
+		listable, isListable := model.(models.InterfaceListable)
+		object, isObject := model.(models.InterfaceObject)
+
+		if isListable && isObject {
+			collection := listable.GetCollection()
+			if collection == nil {
+				return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "12f978f5-3a90-438b-a3f4-475b34a97884", "can't obtain model collection")
+			}
+
+			var attributes []string
+			for _, attribute := range object.GetAttributesInfo() {
+				attributes = append(attributes, attribute.Attribute)
+				collection.ListAddExtraAttribute(attribute.Attribute)
+			}
+
+			list, err := collection.List()
+			if err != nil {
+				return nil, err
+			}
+
+			for _, item := range list {
+				records = append(records, item.Extra)
+			}
+		}
 	}
 
-	listable, isListable := model.(models.InterfaceListable)
-	object, isObject := model.(models.InterfaceObject)
+	// preparing csv writer
+	csvWriter := csv.NewWriter(params.ResponseWriter)
+	csvWriter.Comma = ','
 
-	if isListable && isObject {
-		collection := listable.GetCollection()
+	exportFilename := strings.ToLower(modelName) + "_export_" + time.Now().Format(time.RFC3339) + ".csv"
 
-		var attributes []string
-		for _, attribute := range object.GetAttributesInfo() {
-			attributes = append(attributes, attribute.Attribute)
-			collection.ListAddExtraAttribute(attribute.Attribute)
-		}
+	params.ResponseWriter.Header().Set("Content-type", "text/csv")
+	params.ResponseWriter.Header().Set("Content-disposition", "attachment;filename="+exportFilename)
 
-		// preparing csv writer
-		csvWriter := csv.NewWriter(params.ResponseWriter)
-		csvWriter.Comma = ','
-
-		params.ResponseWriter.Header().Set("Content-type", "text/csv")
-		params.ResponseWriter.Header().Set("Content-disposition", "attachment;filename=export_"+time.Now().Format(time.RFC3339)+".csv")
-
-		// csvWriter.Write(attributes)
-		// csvWriter.Flush()
-
-		var records []map[string]interface{}
-
-		list, _ := collection.List()
-		for _, item := range list {
-			records = append(records, item.Extra)
-
-			/*record := make([]string, len(attributes))
-			for idx, attribute := range attributes {
-				record[idx] = utils.InterfaceToString(item.Extra[attribute])
-			}
-			csvWriter.Write(record)
-			csvWriter.Flush()*/
-		}
-
-		MapToCSV(records, csvWriter)
+	err := MapToCSV(records, csvWriter)
+	if err != nil {
+		env.ErrorDispatch(err)
 	}
 
 	return nil, nil
+}
+
+// WEB REST API used import data to system
+func restImpexImportModel(params *api.StructAPIHandlerParams) (interface{}, error) {
+
+	params.ResponseWriter.Header().Set("Content-Type", "text/plain")
+
+	var commandLine string
+	exchangeDict := make(map[string]interface{})
+
+	modelName := params.RequestURLParams["model"]
+
+	if _, present := impexModels[modelName]; present {
+		commandLine = "IMPORT " + modelName
+	} else {
+		commandLine = "UPDATE " + modelName
+	}
+
+	filesProcessed := 0
+	additionalMessage := ""
+	if params.Request != nil && params.Request.MultipartForm != nil && params.Request.MultipartForm.File != nil {
+		for _, fileInfoArray := range params.Request.MultipartForm.File {
+			for _, fileInfo := range fileInfoArray {
+
+				attachedFile, err := fileInfo.Open()
+				defer attachedFile.Close()
+				if err != nil {
+					return nil, env.ErrorDispatch(err)
+				}
+
+				csvReader := csv.NewReader(attachedFile)
+				csvReader.Comma = ','
+
+				err = ImportCSVData(commandLine, exchangeDict, csvReader, params.ResponseWriter, false)
+				if err != nil && additionalMessage == "" {
+					env.ErrorDispatch(err)
+					additionalMessage += "with errors"
+				}
+
+				filesProcessed++
+			}
+		}
+	}
+
+	return []byte(fmt.Sprintf("%d file(s) processed %s", filesProcessed, additionalMessage)), nil
 }
 
 // WEB REST API used to test csv file before import
@@ -134,6 +189,7 @@ func restImpexTestImport(params *api.StructAPIHandlerParams) (interface{}, error
 	params.ResponseWriter.Header().Set("Content-Type", "text/plain")
 
 	filesProcessed := 0
+	additionalMessage := ""
 	if params.Request != nil && params.Request.MultipartForm != nil && params.Request.MultipartForm.File != nil {
 		for _, fileInfoArray := range params.Request.MultipartForm.File {
 			for _, fileInfo := range fileInfoArray {
@@ -148,22 +204,24 @@ func restImpexTestImport(params *api.StructAPIHandlerParams) (interface{}, error
 				csvReader := csv.NewReader(attachedFile)
 				csvReader.Comma = ','
 
-				err = ImportCSV(csvReader, params.ResponseWriter, true)
-				if err != nil {
-					return nil, env.ErrorDispatch(err)
+				err = ImportCSVScript(csvReader, params.ResponseWriter, true)
+				if err != nil && additionalMessage == "" {
+					env.ErrorDispatch(err)
+					additionalMessage += "with errors"
 				}
 				filesProcessed++
 			}
 		}
 	}
 
-	return []byte(fmt.Sprintf("%d file(s) processed", filesProcessed)), nil
+	return []byte(fmt.Sprintf("%d file(s) processed %s", filesProcessed, additionalMessage)), nil
 }
 
 // WEB REST API used to process csv file script in impex format
 func restImpexImport(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	filesProcessed := 0
+	additionalMessage := ""
 	if params.Request != nil && params.Request.MultipartForm != nil && params.Request.MultipartForm.File != nil {
 		for _, fileInfoArray := range params.Request.MultipartForm.File {
 			for _, fileInfo := range fileInfoArray {
@@ -178,9 +236,10 @@ func restImpexImport(params *api.StructAPIHandlerParams) (interface{}, error) {
 				csvReader := csv.NewReader(attachedFile)
 				csvReader.Comma = ','
 
-				err = ImportCSV(csvReader, params.ResponseWriter, false)
-				if err != nil {
-					return nil, env.ErrorDispatch(err)
+				err = ImportCSVScript(csvReader, params.ResponseWriter, false)
+				if err != nil && additionalMessage == "" {
+					env.ErrorDispatch(err)
+					additionalMessage += "with errors"
 				}
 
 				filesProcessed++
@@ -188,60 +247,7 @@ func restImpexImport(params *api.StructAPIHandlerParams) (interface{}, error) {
 		}
 	}
 
-	return fmt.Sprintf("%d file(s) processed", filesProcessed), nil
-}
-
-// WEB REST API used import data to system
-func restImpexImportModel(params *api.StructAPIHandlerParams) (interface{}, error) {
-
-	modelName := params.RequestURLParams["model"]
-	model, err := models.GetModel(modelName)
-	if err != nil {
-		return nil, env.ErrorDispatch(err)
-	}
-
-	object, isObject := model.(models.InterfaceObject)
-	_, isStorable := model.(models.InterfaceStorable)
-	if !isObject || !isStorable {
-		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "e4a8bb15-7041-43ca-a29d-1c053409efef", modelName+" not implements InterfaceObject or InterfaceStorable interface")
-	}
-
-	attributes := make(map[string]models.StructAttributeInfo)
-	for _, attribute := range object.GetAttributesInfo() {
-		attributes[attribute.Attribute] = attribute
-	}
-
-	// start reading csv
-	csvFile, _, err := params.Request.FormFile("file")
-	if err != nil {
-		return nil, env.ErrorDispatch(err)
-	}
-
-	csvReader := csv.NewReader(csvFile)
-	csvReader.Comma = ','
-
-	// reading header
-	csvColumns, err := csvReader.Read()
-	if err != nil {
-		return nil, env.ErrorDispatch(err)
-	}
-
-	for _, csvColumn := range csvColumns {
-		if _, ok := attributes[csvColumn]; !ok {
-			return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "de647436-9f79-45d8-80f9-139b52d1ba23", "there is no attribute "+csvColumn)
-		}
-	}
-
-	for csvRecord, err := csvReader.Read(); err == nil; csvRecord, err = csvReader.Read() {
-		model, _ = model.New()
-		object, _ = model.(models.InterfaceObject)
-		for idx, value := range csvRecord {
-			object.Set(csvColumns[idx], value)
-		}
-		object.(models.InterfaceStorable).Save()
-	}
-
-	return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "0a00d776-4158-43a2-8451-02f4344380d6", "not implemented")
+	return []byte(fmt.Sprintf("%d file(s) processed %s", filesProcessed, additionalMessage)), nil
 }
 
 // WEB REST API to test conversion from csv to json / map[string]interface{}

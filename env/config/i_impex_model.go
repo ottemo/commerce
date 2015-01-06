@@ -31,7 +31,7 @@ func (it *DefaultConfig) Export(iterator func(map[string]interface{}) bool) erro
 	for _, itemPath := range it.ListPathes() {
 		itemInfo := it.GetItemsInfo(itemPath)
 		if len(itemInfo) > 0 {
-			if itemInfo[0].Type != env.ConstConfigItemGroupType {
+			if itemInfo[0].Type == env.ConstConfigItemGroupType {
 				continue
 			}
 		}

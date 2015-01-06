@@ -451,12 +451,12 @@ func CSVToMap(csvReader *csv.Reader, processorFunc func(item map[string]interfac
 	return nil
 }
 
-// ImportCSV imports csv data using command->data csv format
-func ImportCSV(csvReader *csv.Reader, output io.Writer, testMode bool) error {
+// ImportCSVScript imports csv impex script format
+func ImportCSVScript(csvReader *csv.Reader, output io.Writer, testMode bool) error {
 
 	exchangeDict := make(map[string]interface{})
 
-	// impex csv file should contain command preceding data
+	// impex script csv file should contain command preceding data
 	commandLine := ""
 	appendFlag := false
 	for csvRecord, err := csvReader.Read(); err == nil; csvRecord, err = csvReader.Read() { // csv records loop
@@ -500,86 +500,108 @@ func ImportCSV(csvReader *csv.Reader, output io.Writer, testMode bool) error {
 		commandLine = csvLine + " " + commandLine
 		commandLine = strings.TrimSpace(commandLine)
 
-		if ConstImpexLog || ConstDebugLog {
-			env.Log(ConstLogFileName, env.ConstLogPrefixDebug, fmt.Sprintf("Command line: %s", commandLine))
-		}
-
-		// looking for required commands and preparing them to process
-		//-------------------------------------------------------------
-		var commandsChain []InterfaceImpexImportCmd
-		var commandsRaw []string
-
-		for _, command := range utils.SplitQuotedStringBy(commandLine, '|') {
-			command = strings.TrimSpace(command)
-			args := utils.SplitQuotedStringBy(command, ' ', '\n', '\t')
-
-			if len(args) > 0 {
-				if cmd, present := importCmd[args[0]]; present {
-					if err := cmd.Init(args, exchangeDict); err == nil {
-						commandsChain = append(commandsChain, cmd)
-						commandsRaw = append(commandsRaw, strings.Join(args, " "))
-					} else {
-						return env.ErrorDispatch(err)
-					}
-				} else {
-					return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "004e9f7b-bb97-4356-bbc2-5e084736983b", "unknown cmd '"+args[0]+"'")
-				}
-			}
-		}
-
-		if len(commandsChain) == 0 {
-			return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "84ac22e2-c215-4375-af15-a9eed636b16c", "There are no commands for csv data processing")
-		}
-
-		// making csv data processor based on received commands
-		//------------------------------------------------------
-		dataProcessor := func(itemData map[string]interface{}) bool {
-			if ConstImpexLog || ConstDebugLog {
-				env.Log(ConstLogFileName, env.ConstLogPrefixDebug, fmt.Sprintf("Processing: %s", utils.EncodeToJSONString(itemData)))
-			}
-
-			var input interface{}
-			for chainIdx, command := range commandsChain {
-				if ConstDebugLog {
-					env.Log(ConstLogFileName, env.ConstLogPrefixDebug, fmt.Sprintf("Command: %s", commandsRaw[chainIdx]))
-					env.Log(ConstLogFileName, env.ConstLogPrefixDebug, fmt.Sprintf("Input: %#v", input))
-					env.Log(ConstLogFileName, env.ConstLogPrefixDebug, fmt.Sprintf("itemData: %s", utils.EncodeToJSONString(itemData)))
-					env.Log(ConstLogFileName, env.ConstLogPrefixDebug, fmt.Sprintf("Exchange: %s", utils.EncodeToJSONString(exchangeDict)))
-				}
-
-				if testMode {
-
-					io.WriteString(output, fmt.Sprintf("Command: %s", commandsRaw[chainIdx]))
-					io.WriteString(output, "\n")
-					io.WriteString(output, fmt.Sprintf("item: %s", utils.EncodeToJSONString(itemData)))
-					io.WriteString(output, "\n\n")
-
-					input, err = command.Test(itemData, input, exchangeDict)
-				} else {
-					input, err = command.Process(itemData, input, exchangeDict)
-				}
-				if err != nil {
-					if ConstImpexLog || ConstDebugLog {
-						env.Log(ConstLogFileName, env.ConstLogPrefixDebug, fmt.Sprintf("Error: %s", err.Error()))
-					}
-					env.ErrorDispatch(err)
-					return true
-				}
-				if ConstImpexLog || ConstDebugLog {
-					env.Log(ConstLogFileName, env.ConstLogPrefixDebug, "Finished ok")
-				}
-			}
-			return true
-		}
-
-		// passing control to data block reader
-		//--------------------------------------
-		err = CSVToMap(csvReader, dataProcessor, exchangeDict)
-		if err != nil && err != io.EOF {
+		// processing one command/data block
+		err := ImportCSVData(commandLine, exchangeDict, csvReader, output, testMode)
+		if err != nil {
 			return env.ErrorDispatch(err)
 		}
 
 		commandLine = ""
+	}
+
+	return nil
+}
+
+// ImportCSVData imports csv data block specified command line
+func ImportCSVData(commandLine string, exchangeDict map[string]interface{}, csvReader *csv.Reader, output io.Writer, testMode bool) error {
+	var err error
+
+	if ConstImpexLog || ConstDebugLog {
+		env.Log(ConstLogFileName, env.ConstLogPrefixDebug, fmt.Sprintf("Command line: %s", commandLine))
+	}
+
+	// looking for required commands and preparing them to process
+	//-------------------------------------------------------------
+	var commandsChain []InterfaceImpexImportCmd
+	var commandsRaw []string
+
+	for _, command := range utils.SplitQuotedStringBy(commandLine, '|') {
+		command = strings.TrimSpace(command)
+		args := utils.SplitQuotedStringBy(command, ' ', '\n', '\t')
+
+		if len(args) > 0 {
+			if cmd, present := importCmd[args[0]]; present {
+				if err := cmd.Init(args, exchangeDict); err == nil {
+					commandsChain = append(commandsChain, cmd)
+					commandsRaw = append(commandsRaw, strings.Join(args, " "))
+				} else {
+					return env.ErrorDispatch(err)
+				}
+			} else {
+				return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "004e9f7b-bb97-4356-bbc2-5e084736983b", "unknown cmd '"+args[0]+"'")
+			}
+		}
+	}
+
+	if len(commandsChain) == 0 {
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "84ac22e2-c215-4375-af15-a9eed636b16c", "There are no commands for csv data processing")
+	}
+
+	var errorsCount int
+
+	// making csv data processor based on received commands
+	//------------------------------------------------------
+	dataProcessor := func(itemData map[string]interface{}) bool {
+		if ConstImpexLog || ConstDebugLog {
+			env.Log(ConstLogFileName, env.ConstLogPrefixDebug, fmt.Sprintf("Processing: %s", utils.EncodeToJSONString(itemData)))
+		}
+
+		var input interface{}
+		for chainIdx, command := range commandsChain {
+			if ConstDebugLog {
+				env.Log(ConstLogFileName, env.ConstLogPrefixDebug, fmt.Sprintf("Command: %s", commandsRaw[chainIdx]))
+				env.Log(ConstLogFileName, env.ConstLogPrefixDebug, fmt.Sprintf("Input: %#v", input))
+				env.Log(ConstLogFileName, env.ConstLogPrefixDebug, fmt.Sprintf("itemData: %s", utils.EncodeToJSONString(itemData)))
+				env.Log(ConstLogFileName, env.ConstLogPrefixDebug, fmt.Sprintf("Exchange: %s", utils.EncodeToJSONString(exchangeDict)))
+			}
+
+			if testMode {
+				io.WriteString(output, fmt.Sprintf("Command: %s", commandsRaw[chainIdx]))
+				io.WriteString(output, "\n")
+				io.WriteString(output, fmt.Sprintf("item: %s", utils.EncodeToJSONString(itemData)))
+				io.WriteString(output, "\n\n")
+
+				input, err = command.Test(itemData, input, exchangeDict)
+			} else {
+				input, err = command.Process(itemData, input, exchangeDict)
+			}
+
+			if err != nil {
+				errorsCount++
+
+				if ConstImpexLog || ConstDebugLog {
+					env.Log(ConstLogFileName, env.ConstLogPrefixDebug, fmt.Sprintf("Error: %s", err.Error()))
+				}
+				env.ErrorDispatch(err)
+				return true
+			}
+
+			if ConstImpexLog || ConstDebugLog {
+				env.Log(ConstLogFileName, env.ConstLogPrefixDebug, "Finished ok")
+			}
+		}
+		return true
+	}
+
+	// passing control to data block reader
+	//--------------------------------------
+	err = CSVToMap(csvReader, dataProcessor, exchangeDict)
+	if err != nil && err != io.EOF {
+		return env.ErrorDispatch(err)
+	}
+
+	if errorsCount > 0 {
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "3399b13c-00b9-48d5-95e3-4b851d322387", fmt.Sprintf("%d error(s) untill processing", errorsCount))
 	}
 
 	return nil
