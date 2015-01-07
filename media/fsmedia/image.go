@@ -14,7 +14,6 @@ import (
 	"image/jpeg"
 	"image/png"
 
-	"fmt"
 	"github.com/nfnt/resize"
 	"github.com/ottemo/foundation/env"
 )
