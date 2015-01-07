@@ -102,10 +102,11 @@ func DecryptString(data string) string {
 	if cryptKey := GetKey(); len(cryptKey) > 0 {
 		salt += string(cryptKey[0])
 	}
-	if salt != string(decodedData[len(decodedData)-len(salt):]) {
+	saltIdx := len(decodedData) - len(salt)
+	if saltIdx < 0 || salt != string(decodedData[saltIdx:]) {
 		return data
 	}
-	decodedData = decodedData[0 : len(decodedData)-len(salt)]
+	decodedData = decodedData[0:saltIdx]
 
 	// making cypher decryption
 	result, err := DecryptData(decodedData)
