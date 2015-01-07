@@ -87,7 +87,7 @@ func setupConfig() error {
 		config.RegisterItem(env.StructConfigItem{
 			Path:        ConstConfigPathPassword,
 			Value:       "",
-			Type:        "string",
+			Type:        env.ConstConfigItemSecretType,
 			Editor:      "password",
 			Options:     nil,
 			Label:       "Account Password",

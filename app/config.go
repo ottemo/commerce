@@ -150,7 +150,7 @@ func setupConfig() error {
 	err = config.RegisterItem(env.StructConfigItem{
 		Path:        ConstConfigPathStoreRootPassword,
 		Value:       "admin",
-		Type:        "varchar(255)",
+		Type:        env.ConstConfigItemSecretType,
 		Editor:      "password",
 		Options:     nil,
 		Label:       "Root password",
@@ -315,7 +315,7 @@ func setupConfig() error {
 	err = config.RegisterItem(env.StructConfigItem{
 		Path:        ConstConfigPathMailPassword,
 		Value:       nil,
-		Type:        "varchar(100)",
+		Type:        env.ConstConfigItemSecretType,
 		Editor:      "password",
 		Options:     nil,
 		Label:       "Password",

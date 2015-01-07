@@ -69,27 +69,50 @@ func GetKey() []byte {
 	return cryptKey
 }
 
-// EncryptStringBase64 encrypts string with crypto/cipher and makes it base64.URLEncoded, returns "" on error
-func EncryptStringBase64(data string) string {
+// EncryptString encrypts string with crypto/cipher, salting it and makes base64.StdEncoding, returns blank string if encoding fails
+func EncryptString(data string) string {
+	// cypher encryption
 	result, err := EncryptData([]byte(data))
 	if err != nil {
 		return ""
 	}
-	return base64.URLEncoding.EncodeToString(result)
+
+	// salting
+	salt := []byte{':'}
+	if cryptKey := GetKey(); len(cryptKey) > 0 {
+		salt = append(salt, cryptKey[0])
+	}
+	result = append(result, salt...)
+
+	//base64 encoding
+	return base64.StdEncoding.EncodeToString(result)
 }
 
-// DecryptStringBase64 decodes base64.URLEncoded string and then decrypts it with crypto/cipher, returns "" on error
-func DecryptStringBase64(data string) string {
+// DecryptString decodes base64.StdEncoding string un-salting it and then decrypts it with crypto/cipher, returns original value or error
+func DecryptString(data string) string {
 
-	decodedData, err := base64.URLEncoding.DecodeString(data)
+	// base64 decoding
+	decodedData, err := base64.StdEncoding.DecodeString(data)
 	if err != nil {
-		decodedData = []byte(data)
+		return data
 	}
 
+	// checking and removing salt
+	salt := ":"
+	if cryptKey := GetKey(); len(cryptKey) > 0 {
+		salt += string(cryptKey[0])
+	}
+	if salt != string(decodedData[len(decodedData)-len(salt):]) {
+		return data
+	}
+	decodedData = decodedData[0 : len(decodedData)-len(salt)]
+
+	// making cypher decryption
 	result, err := DecryptData(decodedData)
 	if err != nil {
-		return ""
+		return data
 	}
+
 	return string(result)
 }
 

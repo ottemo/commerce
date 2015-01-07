@@ -110,7 +110,7 @@ func setupConfig() error {
 	err = config.RegisterItem(env.StructConfigItem{
 		Path:        ConstConfigPathPass,
 		Value:       "",
-		Type:        "string",
+		Type:        env.ConstConfigItemSecretType,
 		Editor:      "password",
 		Options:     nil,
 		Label:       "Password",
