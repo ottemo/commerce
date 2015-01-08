@@ -23,11 +23,20 @@ func (it *DefaultConfig) ListPathes() []string {
 // RegisterItem registers new config value in system
 func (it *DefaultConfig) RegisterItem(Item env.StructConfigItem, Validator env.FuncConfigValueValidator) error {
 
+	// registering new config item
 	if _, present := it.configValues[Item.Path]; !present {
 
 		collection, err := db.GetCollection(ConstCollectionNameConfig)
 		if err != nil {
 			return env.ErrorDispatch(err)
+		}
+
+		if Item.Type == env.ConstConfigItemSecretType {
+			stringValue := utils.InterfaceToString(Item.Value)
+
+			// it should not modify value if string was not encrypted
+			stringValue = utils.DecryptString(stringValue)
+			Item.Value = utils.EncryptString(stringValue)
 		}
 
 		recordValues := make(map[string]interface{})
@@ -49,8 +58,17 @@ func (it *DefaultConfig) RegisterItem(Item env.StructConfigItem, Validator env.F
 		it.configTypes[Item.Path] = Item.Type
 	}
 
+	// registering validator
 	if _, present := it.configValidators[Item.Path]; Validator != nil && !present {
 		it.configValidators[Item.Path] = Validator
+	}
+
+	// validating current set value
+	if validator, present := it.configValidators[Item.Path]; present && validator != nil {
+		newValue, err := validator(it.configValues[Item.Path])
+		if err != nil {
+			it.SetValue(Item.Path, newValue)
+		}
 	}
 
 	return nil
@@ -85,6 +103,13 @@ func (it *DefaultConfig) UnregisterItem(Path string) error {
 // GetValue returns value for config item of nil if not present
 func (it *DefaultConfig) GetValue(Path string) interface{} {
 	if value, present := it.configValues[Path]; present {
+
+		if it.configTypes[Path] == env.ConstConfigItemSecretType {
+			stringValue := utils.InterfaceToString(value)
+			println(Path + " = " + stringValue)
+			return utils.DecryptString(stringValue)
+		}
+
 		return value
 	}
 	return nil
@@ -107,6 +132,14 @@ func (it *DefaultConfig) SetValue(Path string, Value interface{}) error {
 
 		} else {
 			it.configValues[Path] = Value
+		}
+
+		if it.configTypes[Path] == env.ConstConfigItemSecretType {
+			stringValue := utils.InterfaceToString(it.configValues[Path])
+
+			// it should not modify value if string was not encrypted
+			stringValue = utils.DecryptString(stringValue)
+			it.configValues[Path] = utils.EncryptString(stringValue)
 		}
 
 		// updating value in DB
@@ -275,7 +308,11 @@ func (it *DefaultConfig) Reload() error {
 		valuePath := utils.InterfaceToString(record["path"])
 		valueType := utils.InterfaceToString(record["type"])
 
-		it.configValues[valuePath] = db.ConvertTypeFromDbToGo(record["value"], valueType)
+		if valueType == env.ConstConfigItemSecretType {
+			it.configValues[valuePath] = utils.InterfaceToString(record["value"])
+		} else {
+			it.configValues[valuePath] = db.ConvertTypeFromDbToGo(record["value"], valueType)
+		}
 		it.configTypes[valuePath] = valueType
 	}
 

@@ -52,7 +52,7 @@ func (it *DefaultErrorBus) process(ottemoErr *OttemoError) *OttemoError {
 		env.LogError(ottemoErr)
 	}
 
-	if ottemoErr.Level <= hideLevel {
+	if ottemoErr.Level < hideLevel {
 		ottemoErr.Message = hideMessage
 	}
 

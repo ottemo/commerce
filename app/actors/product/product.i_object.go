@@ -305,7 +305,7 @@ func (it *DefaultProduct) GetAttributesInfo() []models.StructAttributeInfo {
 			IsRequired: false,
 			IsStatic:   true,
 			Label:      "Options",
-			Group:      "Custom",
+			Group:      "Options",
 			Editors:    "product_options",
 			Options:    "",
 			Default:    "",

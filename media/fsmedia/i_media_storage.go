@@ -50,11 +50,6 @@ func (it *FilesystemMediaStorage) Save(model string, objID string, mediaType str
 		}
 	}
 
-	ioerr := ioutil.WriteFile(mediaFilePath, mediaData, os.ModePerm)
-	if ioerr != nil {
-		return env.ErrorDispatch(ioerr)
-	}
-
 	// we have image associated media, so making special treatment
 	if mediaType == ConstMediaTypeImage {
 
@@ -64,8 +59,30 @@ func (it *FilesystemMediaStorage) Save(model string, objID string, mediaType str
 			return env.ErrorDispatch(err)
 		}
 
-		// converting image to known format if needed
+		// making sure file extension is right
+		idx := strings.LastIndex(mediaName, ".")
+		fileExt := ""
+		if idx != -1 {
+			fileExt = mediaName[idx:]
+		}
+
+		if imageFormat == "jpeg" && fileExt != ".jpeg" && fileExt != ".jpg" {
+			mediaName += ".jpg"
+			mediaFilePath += ".jpg"
+		}
+
+		if imageFormat == "png" && fileExt != ".png" {
+			mediaName += ".png"
+			mediaFilePath += ".png"
+		}
+
+		// converting image to known format (jpeg) if needed
 		if imageFormat != "jpeg" && imageFormat != "png" {
+
+			if fileExt != ".jpeg" && fileExt != ".jpg" {
+				mediaName += ".jpg"
+				mediaFilePath += ".jpg"
+			}
 
 			newFile, err := os.Create(mediaFilePath)
 			defer newFile.Close()
@@ -73,16 +90,15 @@ func (it *FilesystemMediaStorage) Save(model string, objID string, mediaType str
 				return env.ErrorDispatch(err)
 			}
 
-			idx := strings.LastIndex(mediaName, ".")
-			if idx != -1 {
-				mediaFilePath = mediaName[idx:]
-			}
-			mediaFilePath += ".jpg"
-
 			err = jpeg.Encode(newFile, decodedImage, nil)
 			if err != nil {
 				return env.ErrorDispatch(err)
 			}
+		}
+
+		ioerr := ioutil.WriteFile(mediaFilePath, mediaData, os.ModePerm)
+		if ioerr != nil {
+			return env.ErrorDispatch(ioerr)
 		}
 
 		// ResizeMediaImage will check necessity of resize by it self
@@ -90,6 +106,13 @@ func (it *FilesystemMediaStorage) Save(model string, objID string, mediaType str
 			it.ResizeMediaImage(model, objID, mediaName, imageSize)
 		}
 		it.ResizeMediaImage(model, objID, mediaName, it.baseSize)
+
+	} else {
+
+		ioerr := ioutil.WriteFile(mediaFilePath, mediaData, os.ModePerm)
+		if ioerr != nil {
+			return env.ErrorDispatch(ioerr)
+		}
 	}
 
 	// making database record

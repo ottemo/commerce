@@ -4,6 +4,7 @@ import (
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/foundation/impex"
 )
 
 // init makes package self-initialization routine
@@ -19,6 +20,8 @@ func init() {
 	api.RegisterOnRestServiceStart(setupAPI)
 
 	env.RegisterConfig(instance)
+
+	impex.RegisterImpexModel("Config", instance)
 }
 
 // setupDB prepares system database for package usage

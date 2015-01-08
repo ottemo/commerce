@@ -91,7 +91,8 @@ func restConfigGet(params *api.StructAPIHandlerParams) (interface{}, error) {
 	if len(info) == 1 {
 		itemInfo := info[0]
 
-		if strings.Contains(itemInfo.Editor, "password") ||
+		if itemInfo.Type == env.ConstConfigItemSecretType ||
+			strings.Contains(itemInfo.Editor, "password") ||
 			strings.Contains(itemInfo.Type, "password") ||
 			strings.Contains(itemInfo.Path, "password") ||
 			strings.Contains(itemInfo.Path, "login") ||

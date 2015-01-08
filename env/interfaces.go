@@ -3,7 +3,8 @@ package env
 
 // Package global constants
 const (
-	ConstConfigItemGroupType = "group"
+	ConstConfigItemGroupType  = "group"
+	ConstConfigItemSecretType = "secret"
 
 	ConstLogPrefixError   = "ERROR"
 	ConstLogPrefixWarning = "WARNING"
