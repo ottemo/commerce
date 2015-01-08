@@ -3,6 +3,7 @@ package block
 import (
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/env"
+	"strings"
 
 	"github.com/ottemo/foundation/app/models/cms"
 	"github.com/ottemo/foundation/utils"
@@ -131,6 +132,13 @@ func restCMSBlockGet(params *api.StructAPIHandlerParams) (interface{}, error) {
 	cmsBlock, err := cms.LoadCMSBlockByID(blockID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
+	}
+
+	if content := cmsBlock.GetContent(); strings.Contains(content, "{{") {
+		newContent, err := utils.TextTemplate(content, cmsBlock.ToHashMap())
+		if err == nil {
+			cmsBlock.SetContent(newContent)
+		}
 	}
 
 	return cmsBlock.ToHashMap(), nil

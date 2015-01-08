@@ -1,5 +1,11 @@
 package block
 
+import (
+	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/foundation/utils"
+)
+
 // GetIdentifier returns cms block identifier
 func (it *DefaultCMSBlock) GetIdentifier() string {
 	return it.Identifier
@@ -19,5 +25,37 @@ func (it *DefaultCMSBlock) GetContent() string {
 // SetContent sets cms block content value
 func (it *DefaultCMSBlock) SetContent(newValue string) error {
 	it.Content = newValue
+	return nil
+}
+
+// LoadByIdentifier loads data of CMSBlock by its identifier
+func (it *DefaultCMSBlock) LoadByIdentifier(identifier string) error {
+	collection, err := db.GetCollection(ConstCmsBlockCollectionName)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	collection.AddFilter("identifier", "=", identifier)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	records, err := collection.Load()
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	if len(records) == 0 {
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "8890c17e-56cb-4a54-b37c-9ee787e15067", "not found")
+	}
+	record := records[0]
+
+	it.SetID(utils.InterfaceToString(record["_id"]))
+
+	it.Content = utils.InterfaceToString(record["content"])
+	it.Identifier = utils.InterfaceToString(record["identifier"])
+	it.CreatedAt = utils.InterfaceToTime(record["created_at"])
+	it.UpdatedAt = utils.InterfaceToTime(record["updated_at"])
+
 	return nil
 }

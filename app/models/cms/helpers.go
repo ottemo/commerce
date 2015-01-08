@@ -131,3 +131,35 @@ func LoadCMSBlockByID(csmBlockID string) (InterfaceCMSBlock, error) {
 
 	return csmBlockModel, nil
 }
+
+// LoadCMSBlockByIdentifier loads CMSBlock model by its identifier
+func LoadCMSBlockByIdentifier(identifier string) (InterfaceCMSBlock, error) {
+
+	csmBlockModel, err := GetCMSBlockModel()
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	err = csmBlockModel.LoadByIdentifier(identifier)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	return csmBlockModel, nil
+}
+
+// LoadCMSPageByIdentifier loads CMSPage model by its identifier
+func LoadCMSPageByIdentifier(identifier string) (InterfaceCMSPage, error) {
+
+	csmPageModel, err := GetCMSPageModel()
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	err = csmPageModel.LoadByIdentifier(identifier)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	return csmPageModel, nil
+}
