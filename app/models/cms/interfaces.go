@@ -33,6 +33,8 @@ type InterfaceCMSPage interface {
 	GetContent() string
 	SetContent(string) error
 
+	EvaluateContent() string
+
 	models.InterfaceModel
 	models.InterfaceObject
 	models.InterfaceStorable
@@ -55,6 +57,8 @@ type InterfaceCMSBlock interface {
 
 	GetContent() string
 	SetContent(string) error
+
+	EvaluateContent() string
 
 	models.InterfaceModel
 	models.InterfaceObject

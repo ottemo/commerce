@@ -59,3 +59,13 @@ func (it *DefaultCMSBlock) LoadByIdentifier(identifier string) error {
 
 	return nil
 }
+
+// EvaluateContent applying GO text template to content value
+func (it *DefaultCMSBlock) EvaluateContent() string {
+	evaluatedContent, err := utils.TextTemplate(it.GetContent(), it.ToHashMap())
+	if err == nil {
+		return evaluatedContent
+	}
+
+	return it.GetContent()
+}

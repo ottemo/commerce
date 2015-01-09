@@ -106,7 +106,6 @@ func (it *DefaultConfig) GetValue(Path string) interface{} {
 
 		if it.configTypes[Path] == env.ConstConfigItemSecretType {
 			stringValue := utils.InterfaceToString(value)
-			println(Path + " = " + stringValue)
 			return utils.DecryptString(stringValue)
 		}
 

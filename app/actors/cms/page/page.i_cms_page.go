@@ -85,3 +85,13 @@ func (it *DefaultCMSPage) LoadByIdentifier(identifier string) error {
 
 	return nil
 }
+
+// EvaluateContent applying GO text template to content value
+func (it *DefaultCMSPage) EvaluateContent() string {
+	evaluatedContent, err := utils.TextTemplate(it.GetContent(), it.ToHashMap())
+	if err == nil {
+		return evaluatedContent
+	}
+
+	return it.GetContent()
+}

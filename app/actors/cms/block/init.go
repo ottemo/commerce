@@ -1,10 +1,6 @@
 package block
 
 import (
-	"bytes"
-	"strings"
-	"text/template"
-
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/cms"
@@ -26,51 +22,7 @@ func init() {
 	db.RegisterOnDatabaseStart(setupDB)
 	api.RegisterOnRestServiceStart(setupAPI)
 
-	templateFunc := func(identifier string) string {
-		var recursionSaveFunc func(identifier string) string
-		var stack []string
-
-		recursionSaveFunc = func(identifier string) string {
-			// prevents infinite loop
-			for _, stackIdentifier := range stack {
-				if stackIdentifier == identifier {
-					return ""
-				}
-			}
-			stack = append(stack, identifier)
-
-			// processing new identifier
-			block, err := cms.LoadCMSBlockByIdentifier(identifier)
-			if err != nil {
-				return ""
-			}
-
-			blockContents := block.GetContent()
-			if strings.Contains("{{", blockContents) {
-				// we are replacing template "block" function with own to prevent recursion
-				templateFunctions := utils.GetTemplateFunctions()
-				templateFunctions["block"] = recursionSaveFunc
-
-				textTemplate, err := template.New("recursiveParsing").Funcs(templateFunctions).Parse(blockContents)
-				if err != nil {
-					return blockContents
-				}
-
-				var result bytes.Buffer
-				err = textTemplate.Execute(&result, block.ToHashMap())
-				if err != nil {
-					return blockContents
-				}
-
-				return result.String()
-			}
-
-			return blockContents
-		}
-
-		return recursionSaveFunc(identifier)
-	}
-	utils.RegisterTemplateFunction("block", templateFunc)
+	utils.RegisterTemplateFunction("block", blockTemplateDirective)
 
 }
 
@@ -87,4 +39,53 @@ func setupDB() error {
 	collection.AddColumn("updated_at", "datetime", false)
 
 	return nil
+}
+
+// blockTemplateDirective - text templates directive can be used to get block contents by identifier
+//   use {{block "Identifier" .}} for recursive template processing; {{block "Identifier"}} - one level only
+func blockTemplateDirective(identifier string, args ...interface{}) string {
+	const contextStackKey = "blockDirectiveStack"
+
+	var context map[string]interface{}
+	var stack []string
+
+	if len(args) == 1 {
+		if mapValue, ok := args[0].(map[string]interface{}); ok {
+			context = mapValue
+
+			if stackValue, present := context[contextStackKey]; present {
+				if arrayValue, ok := stackValue.([]string); ok {
+					stack = arrayValue
+				}
+			}
+		}
+	}
+
+	// processing new identifier
+	block, err := cms.LoadCMSBlockByIdentifier(identifier)
+	if err != nil {
+		return ""
+	}
+	blockContents := block.GetContent()
+
+	if context == nil {
+		return blockContents
+	}
+
+	// prevents infinite loop
+	for _, stackIdentifier := range stack {
+		if stackIdentifier == identifier {
+			context[contextStackKey] = []string{}
+			return ""
+		}
+	}
+	stack = append(stack, identifier)
+	context[contextStackKey] = stack
+
+	result, err := utils.TextTemplate(blockContents, context)
+	if err != nil {
+		return blockContents
+	}
+
+	return result
 }
