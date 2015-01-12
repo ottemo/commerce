@@ -148,7 +148,10 @@ func restCMSPageGet(params *api.StructAPIHandlerParams) (interface{}, error) {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "fa76f5ac-0cce-4670-9e62-197a600ec0b9", "cms page is not available")
 	}
 
-	return cmsPage.ToHashMap(), nil
+	result := cmsPage.ToHashMap()
+	result["evaluated"] = cmsPage.EvaluateContent()
+
+	return result, nil
 }
 
 // WEB REST API for adding new CMS page in system

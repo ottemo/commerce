@@ -2,9 +2,8 @@ package block
 
 import (
 	"github.com/ottemo/foundation/api"
-	"github.com/ottemo/foundation/env"
-
 	"github.com/ottemo/foundation/app/models/cms"
+	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
 )
 
@@ -133,7 +132,10 @@ func restCMSBlockGet(params *api.StructAPIHandlerParams) (interface{}, error) {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	return cmsBlock.ToHashMap(), nil
+	result := cmsBlock.ToHashMap()
+	result["evaluated"] = cmsBlock.EvaluateContent()
+
+	return result, nil
 }
 
 // WEB REST API for adding new CMS block in system

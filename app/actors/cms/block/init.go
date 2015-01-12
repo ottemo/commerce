@@ -6,6 +6,7 @@ import (
 	"github.com/ottemo/foundation/app/models/cms"
 	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/foundation/utils"
 )
 
 // init makes package self-initialization routine
@@ -20,6 +21,9 @@ func init() {
 
 	db.RegisterOnDatabaseStart(setupDB)
 	api.RegisterOnRestServiceStart(setupAPI)
+
+	utils.RegisterTemplateFunction("block", blockTemplateDirective)
+
 }
 
 // setupDB prepares system database for package usage
@@ -35,4 +39,53 @@ func setupDB() error {
 	collection.AddColumn("updated_at", "datetime", false)
 
 	return nil
+}
+
+// blockTemplateDirective - text templates directive can be used to get block contents by identifier
+//   use {{block "Identifier" .}} for recursive template processing; {{block "Identifier"}} - one level only
+func blockTemplateDirective(identifier string, args ...interface{}) string {
+	const contextStackKey = "blockDirectiveStack"
+
+	var context map[string]interface{}
+	var stack []string
+
+	if len(args) == 1 {
+		if mapValue, ok := args[0].(map[string]interface{}); ok {
+			context = mapValue
+
+			if stackValue, present := context[contextStackKey]; present {
+				if arrayValue, ok := stackValue.([]string); ok {
+					stack = arrayValue
+				}
+			}
+		}
+	}
+
+	// processing new identifier
+	block, err := cms.LoadCMSBlockByIdentifier(identifier)
+	if err != nil {
+		return ""
+	}
+	blockContents := block.GetContent()
+
+	if context == nil {
+		return blockContents
+	}
+
+	// prevents infinite loop
+	for _, stackIdentifier := range stack {
+		if stackIdentifier == identifier {
+			context[contextStackKey] = []string{}
+			return ""
+		}
+	}
+	stack = append(stack, identifier)
+	context[contextStackKey] = stack
+
+	result, err := utils.TextTemplate(blockContents, context)
+	if err != nil {
+		return blockContents
+	}
+
+	return result
 }
