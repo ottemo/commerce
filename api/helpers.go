@@ -110,7 +110,7 @@ func GetRequestContentAsMap(params *StructAPIHandlerParams) (map[string]interfac
 func ApplyFilters(params *StructAPIHandlerParams, collection db.InterfaceDBCollection) error {
 
 	// sets filter to particular attribute within collection
-	addFilterToCollection := func(attributeName string, attributeValue string) {
+	addFilterToCollection := func(attributeName string, attributeValue string, groupName string) {
 		if collection.HasColumn(attributeName) {
 
 			filterOperator := "="
@@ -128,20 +128,21 @@ func ApplyFilters(params *StructAPIHandlerParams, collection db.InterfaceDBColle
 			case strings.Contains(attributeValue, ".."):
 				rangeValues := strings.Split(attributeValue, "..")
 				if rangeValues[0] != "" {
-					collection.AddFilter(attributeName, ">=", rangeValues[0])
+					collection.AddGroupFilter(groupName, attributeName, ">=", rangeValues[0])
 				}
 				if rangeValues[1] != "" {
-					collection.AddFilter(attributeName, "<=", rangeValues[1])
+					collection.AddGroupFilter(groupName, attributeName, "<=", rangeValues[1])
 				}
 
 			case strings.Contains(attributeValue, ","):
 				options := strings.Split(attributeValue, ",")
 				if filterOperator == "=" {
-					collection.AddFilter(attributeName, "in", options)
+					collection.AddGroupFilter(groupName, attributeName, "in", options)
 				} else {
-					collection.SetupFilterGroup(attributeName, true, "")
+					filterGroupName := attributeName + "_inFilter"
+					collection.SetupFilterGroup(filterGroupName, true, groupName)
 					for _, optionValue := range options {
-						collection.AddGroupFilter(attributeName, attributeName, filterOperator, optionValue)
+						collection.AddGroupFilter(filterGroupName, attributeName, filterOperator, optionValue)
 					}
 				}
 
@@ -159,14 +160,14 @@ func ApplyFilters(params *StructAPIHandlerParams, collection db.InterfaceDBColle
 					if attributeType == db.ConstDBBasetypeBoolean && typedValue == false {
 						filterGroupName := attributeName + "_applyFilter"
 
-						collection.SetupFilterGroup(filterGroupName, true, "")
+						collection.SetupFilterGroup(filterGroupName, true, groupName)
 						collection.AddGroupFilter(filterGroupName, attributeName, filterOperator, typedValue)
 						collection.AddGroupFilter(filterGroupName, attributeName, "=", nil)
 					} else {
-						collection.AddFilter(attributeName, filterOperator, typedValue)
+						collection.AddGroupFilter(groupName, attributeName, filterOperator, typedValue)
 					}
 				} else {
-					collection.AddFilter(attributeName, filterOperator, attributeValue)
+					collection.AddGroupFilter(groupName, attributeName, filterOperator, attributeValue)
 				}
 			}
 		}
@@ -181,7 +182,7 @@ func ApplyFilters(params *StructAPIHandlerParams, collection db.InterfaceDBColle
 		case "limit":
 			collection.SetLimit(GetListLimit(params))
 
-		// collection sort required
+			// collection sort required
 		case "sort":
 			attributesList := strings.Split(attributeValue, ",")
 
@@ -194,10 +195,9 @@ func ApplyFilters(params *StructAPIHandlerParams, collection db.InterfaceDBColle
 				collection.AddSort(attributeName, descOrder)
 			}
 
-		// filter for any columns matches value required
+			// filter for any columns matches value required
 		case "any":
-			// TODO: "default" should be db.ConstFilterGroupDefault (move const from implementation to interface)
-			collection.SetupFilterGroup("default", true, "")
+			collection.SetupFilterGroup("any", true, "")
 
 			// checking value type we are working with
 			lookingFor := "text"
@@ -219,7 +219,7 @@ func ApplyFilters(params *StructAPIHandlerParams, collection db.InterfaceDBColle
 				switch {
 				case attributeType == db.ConstDBBasetypeText || strings.Contains(attributeType, db.ConstDBBasetypeVarchar):
 					if strings.Contains(lookingFor, "text") {
-						addFilterToCollection(attributeName, attributeValue)
+						addFilterToCollection(attributeName, attributeValue, "any")
 					}
 
 				case attributeType == db.ConstDBBasetypeFloat ||
@@ -228,13 +228,13 @@ func ApplyFilters(params *StructAPIHandlerParams, collection db.InterfaceDBColle
 					attributeType == db.ConstDBBasetypeInteger:
 
 					if strings.Contains(lookingFor, "number") {
-						addFilterToCollection(attributeName, attributeValue)
+						addFilterToCollection(attributeName, attributeValue, "any")
 					}
 				}
 			}
 
 		default:
-			addFilterToCollection(attributeName, attributeValue)
+			addFilterToCollection(attributeName, attributeValue, "default")
 		}
 	}
 	return nil
