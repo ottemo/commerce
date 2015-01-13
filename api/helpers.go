@@ -196,8 +196,8 @@ func ApplyFilters(params *StructAPIHandlerParams, collection db.InterfaceDBColle
 			}
 
 			// filter for any columns matches value required
-		case "any":
-			collection.SetupFilterGroup("any", true, "")
+		case "search":
+			collection.SetupFilterGroup("search", true, "")
 
 			// checking value type we are working with
 			lookingFor := "text"
@@ -219,7 +219,7 @@ func ApplyFilters(params *StructAPIHandlerParams, collection db.InterfaceDBColle
 				switch {
 				case attributeType == db.ConstDBBasetypeText || strings.Contains(attributeType, db.ConstDBBasetypeVarchar):
 					if strings.Contains(lookingFor, "text") {
-						addFilterToCollection(attributeName, attributeValue, "any")
+						addFilterToCollection(attributeName, attributeValue, "search")
 					}
 
 				case attributeType == db.ConstDBBasetypeFloat ||
@@ -228,7 +228,7 @@ func ApplyFilters(params *StructAPIHandlerParams, collection db.InterfaceDBColle
 					attributeType == db.ConstDBBasetypeInteger:
 
 					if strings.Contains(lookingFor, "number") {
-						addFilterToCollection(attributeName, attributeValue, "any")
+						addFilterToCollection(attributeName, attributeValue, "search")
 					}
 				}
 			}
