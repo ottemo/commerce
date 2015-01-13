@@ -109,10 +109,80 @@ func GetRequestContentAsMap(params *StructAPIHandlerParams) (map[string]interfac
 // ApplyFilters modifies collection with applying filters from request URL
 func ApplyFilters(params *StructAPIHandlerParams, collection db.InterfaceDBCollection) error {
 
+	// sets filter to particular attribute within collection
+	addFilterToCollection := func(attributeName string, attributeValue string, groupName string) {
+		if collection.HasColumn(attributeName) {
+
+			filterOperator := "="
+			for _, prefix := range []string{">=", "<=", "!=", ">", "<", "~"} {
+				if strings.HasPrefix(attributeValue, prefix) {
+					attributeValue = strings.TrimPrefix(attributeValue, prefix)
+					filterOperator = prefix
+				}
+			}
+			if filterOperator == "~" {
+				filterOperator = "like"
+			}
+
+			switch {
+			case strings.Contains(attributeValue, ".."):
+				rangeValues := strings.Split(attributeValue, "..")
+				if rangeValues[0] != "" {
+					collection.AddGroupFilter(groupName, attributeName, ">=", rangeValues[0])
+				}
+				if rangeValues[1] != "" {
+					collection.AddGroupFilter(groupName, attributeName, "<=", rangeValues[1])
+				}
+
+			case strings.Contains(attributeValue, ","):
+				options := strings.Split(attributeValue, ",")
+				if filterOperator == "=" {
+					collection.AddGroupFilter(groupName, attributeName, "in", options)
+				} else {
+					filterGroupName := attributeName + "_inFilter"
+					collection.SetupFilterGroup(filterGroupName, true, groupName)
+					for _, optionValue := range options {
+						collection.AddGroupFilter(filterGroupName, attributeName, filterOperator, optionValue)
+					}
+				}
+
+			default:
+				attributeType := collection.GetColumnType(attributeName)
+				if attributeType != db.ConstDBBasetypeText &&
+					!strings.Contains(attributeType, db.ConstDBBasetypeVarchar) &&
+					filterOperator == "like" {
+
+					filterOperator = "="
+				}
+
+				if typedValue, err := utils.StringToType(attributeValue, attributeType); err == nil {
+					// fix for NULL db boolean values filter (perhaps should be part of DB adapter)
+					if attributeType == db.ConstDBBasetypeBoolean && typedValue == false {
+						filterGroupName := attributeName + "_applyFilter"
+
+						collection.SetupFilterGroup(filterGroupName, true, groupName)
+						collection.AddGroupFilter(filterGroupName, attributeName, filterOperator, typedValue)
+						collection.AddGroupFilter(filterGroupName, attributeName, "=", nil)
+					} else {
+						collection.AddGroupFilter(groupName, attributeName, filterOperator, typedValue)
+					}
+				} else {
+					collection.AddGroupFilter(groupName, attributeName, filterOperator, attributeValue)
+				}
+			}
+		}
+
+	}
+
+	// checking arguments user set
 	for attributeName, attributeValue := range params.RequestGETParams {
 		switch attributeName {
+
+		// collection limit required
 		case "limit":
 			collection.SetLimit(GetListLimit(params))
+
+			// collection sort required
 		case "sort":
 			attributesList := strings.Split(attributeValue, ",")
 
@@ -125,63 +195,46 @@ func ApplyFilters(params *StructAPIHandlerParams, collection db.InterfaceDBColle
 				collection.AddSort(attributeName, descOrder)
 			}
 
-		default:
-			if collection.HasColumn(attributeName) {
+			// filter for any columns matches value required
+		case "search":
+			collection.SetupFilterGroup("search", true, "")
 
-				filterOperator := "="
-				for _, prefix := range []string{">=", "<=", "!=", ">", "<", "~"} {
-					if strings.HasPrefix(attributeValue, prefix) {
-						attributeValue = strings.TrimPrefix(attributeValue, prefix)
-						filterOperator = prefix
-					}
+			// checking value type we are working with
+			lookingFor := "text"
+			if strings.HasPrefix(attributeValue, ">") || strings.HasPrefix(attributeValue, "<") || strings.Contains(attributeValue, "..") {
+				lookingFor = "number"
+			}
+			if strings.HasPrefix(attributeValue, "~") {
+				lookingFor = "text"
+			}
+			if lookingFor != "number" {
+				searchValue := strings.TrimLeft(attributeValue, "><=~")
+				if strings.Trim(searchValue, "1234567890.") == "" {
+					lookingFor = "text,number"
 				}
-				if filterOperator == "~" {
-					filterOperator = "like"
-				}
+			}
 
+			// looking for possible attributes to filter
+			for attributeName, attributeType := range collection.ListColumns() {
 				switch {
-				case strings.Contains(attributeValue, ".."):
-					rangeValues := strings.Split(attributeValue, "..")
-					if rangeValues[0] != "" {
-						collection.AddFilter(attributeName, ">=", rangeValues[0])
-					}
-					if rangeValues[1] != "" {
-						collection.AddFilter(attributeName, "<=", rangeValues[1])
+				case attributeType == db.ConstDBBasetypeText || strings.Contains(attributeType, db.ConstDBBasetypeVarchar):
+					if strings.Contains(lookingFor, "text") {
+						addFilterToCollection(attributeName, attributeValue, "search")
 					}
 
-				case strings.Contains(attributeValue, ","):
-					options := strings.Split(attributeValue, ",")
-					if filterOperator == "=" {
-						collection.AddFilter(attributeName, "in", options)
-					} else {
-						collection.SetupFilterGroup(attributeName, true, "")
-						for _, optionValue := range options {
-							collection.AddGroupFilter(attributeName, attributeName, filterOperator, optionValue)
-						}
-					}
+				case attributeType == db.ConstDBBasetypeFloat ||
+					attributeType == db.ConstDBBasetypeDecimal ||
+					attributeType == db.ConstDBBasetypeMoney ||
+					attributeType == db.ConstDBBasetypeInteger:
 
-				default:
-					attributeType := collection.GetColumnType(attributeName)
-					if attributeType != db.ConstDBBasetypeText && attributeType != db.ConstDBBasetypeVarchar && filterOperator == "like" {
-						filterOperator = "="
-					}
-
-					if typedValue, err := utils.StringToType(attributeValue, attributeType); err == nil {
-						// fix for NULL db boolean values filter, perhaps should be part of DB adapter
-						if attributeType == db.ConstDBBasetypeBoolean && typedValue == false {
-							filterGroupName := attributeName + "_applyFilter"
-
-							collection.SetupFilterGroup(filterGroupName, true, "")
-							collection.AddGroupFilter(filterGroupName, attributeName, filterOperator, typedValue)
-							collection.AddGroupFilter(filterGroupName, attributeName, "=", nil)
-						} else {
-							collection.AddFilter(attributeName, filterOperator, typedValue)
-						}
-					} else {
-						collection.AddFilter(attributeName, filterOperator, attributeValue)
+					if strings.Contains(lookingFor, "number") {
+						addFilterToCollection(attributeName, attributeValue, "search")
 					}
 				}
 			}
+
+		default:
+			addFilterToCollection(attributeName, attributeValue, "default")
 		}
 	}
 	return nil

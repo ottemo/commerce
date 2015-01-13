@@ -34,8 +34,6 @@ func (it *DefaultVisitor) Get(attribute string) interface{} {
 		return it.FacebookID
 	case "google_id":
 		return it.GoogleID
-	case "birthday":
-		return it.Birthday
 	case "is_admin":
 		return it.Admin
 	case "created_at":
@@ -66,8 +64,6 @@ func (it *DefaultVisitor) Set(attribute string, value interface{}) error {
 		it.FacebookID = utils.InterfaceToString(value)
 	case "google_id":
 		it.GoogleID = utils.InterfaceToString(value)
-	case "birthday":
-		it.Birthday = utils.InterfaceToTime(value)
 	case "is_admin":
 		it.Admin = utils.InterfaceToBool(value)
 	case "created_at":
@@ -169,7 +165,6 @@ func (it *DefaultVisitor) ToHashMap() map[string]interface{} {
 	result["last_name"] = it.LastName
 
 	result["is_admin"] = it.Admin
-	result["birthday"] = it.Birthday
 	result["created_at"] = it.CreatedAt
 
 	result["billing_address"] = nil
@@ -283,19 +278,6 @@ func (it *DefaultVisitor) GetAttributesInfo() []models.StructAttributeInfo {
 			Group:      "General",
 			Editors:    "model_selector",
 			Options:    "model:VisitorAddress",
-			Default:    "",
-		},
-		models.StructAttributeInfo{
-			Model:      visitor.ConstModelNameVisitor,
-			Collection: ConstCollectionNameVisitor,
-			Attribute:  "birthday",
-			Type:       "datetime",
-			IsRequired: false,
-			IsStatic:   true,
-			Label:      "Birthday",
-			Group:      "General",
-			Editors:    "datetime",
-			Options:    "",
 			Default:    "",
 		},
 		models.StructAttributeInfo{

@@ -59,11 +59,6 @@ func (it *DefaultVisitor) GetLastName() string {
 	return it.LastName
 }
 
-// GetBirthday returns the Visitor's birthday
-func (it *DefaultVisitor) GetBirthday() time.Time {
-	return it.Birthday
-}
-
 // GetCreatedAt returns the Visitor creation date
 func (it *DefaultVisitor) GetCreatedAt() time.Time {
 	return it.CreatedAt
