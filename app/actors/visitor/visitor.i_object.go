@@ -5,6 +5,7 @@ import (
 
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/visitor"
+	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
 )
@@ -192,7 +193,7 @@ func (it *DefaultVisitor) GetAttributesInfo() []models.StructAttributeInfo {
 			Model:      visitor.ConstModelNameVisitor,
 			Collection: ConstCollectionNameVisitor,
 			Attribute:  "_id",
-			Type:       "id",
+			Type:       db.ConstTypeID,
 			IsRequired: false,
 			IsStatic:   true,
 			Label:      "ID",
@@ -205,7 +206,7 @@ func (it *DefaultVisitor) GetAttributesInfo() []models.StructAttributeInfo {
 			Model:      visitor.ConstModelNameVisitor,
 			Collection: ConstCollectionNameVisitor,
 			Attribute:  "email",
-			Type:       "text",
+			Type:       db.ConstTypeVarchar,
 			IsRequired: true,
 			IsStatic:   true,
 			Label:      "E-mail",
@@ -219,7 +220,7 @@ func (it *DefaultVisitor) GetAttributesInfo() []models.StructAttributeInfo {
 			Model:      visitor.ConstModelNameVisitor,
 			Collection: ConstCollectionNameVisitor,
 			Attribute:  "first_name",
-			Type:       "text",
+			Type:       db.ConstTypeVarchar,
 			IsRequired: true,
 			IsStatic:   true,
 			Label:      "First Name",
@@ -232,7 +233,7 @@ func (it *DefaultVisitor) GetAttributesInfo() []models.StructAttributeInfo {
 			Model:      visitor.ConstModelNameVisitor,
 			Collection: ConstCollectionNameVisitor,
 			Attribute:  "last_name",
-			Type:       "text",
+			Type:       db.ConstTypeVarchar,
 			IsRequired: true,
 			IsStatic:   true,
 			Label:      "Last Name",
@@ -245,7 +246,7 @@ func (it *DefaultVisitor) GetAttributesInfo() []models.StructAttributeInfo {
 			Model:      visitor.ConstModelNameVisitor,
 			Collection: ConstCollectionNameVisitor,
 			Attribute:  "password",
-			Type:       "text",
+			Type:       db.ConstTypeVarchar,
 			IsRequired: false,
 			IsStatic:   true,
 			Label:      "Password",
@@ -258,7 +259,7 @@ func (it *DefaultVisitor) GetAttributesInfo() []models.StructAttributeInfo {
 			Model:      visitor.ConstModelNameVisitor,
 			Collection: ConstCollectionNameVisitor,
 			Attribute:  "billing_address_id",
-			Type:       "text",
+			Type:       db.ConstTypeID,
 			IsRequired: false,
 			IsStatic:   true,
 			Label:      "Billing Address",
@@ -271,7 +272,7 @@ func (it *DefaultVisitor) GetAttributesInfo() []models.StructAttributeInfo {
 			Model:      visitor.ConstModelNameVisitor,
 			Collection: ConstCollectionNameVisitor,
 			Attribute:  "shipping_address_id",
-			Type:       "text",
+			Type:       db.ConstTypeID,
 			IsRequired: false,
 			IsStatic:   true,
 			Label:      "Shipping Address",
@@ -284,7 +285,7 @@ func (it *DefaultVisitor) GetAttributesInfo() []models.StructAttributeInfo {
 			Model:      visitor.ConstModelNameVisitor,
 			Collection: ConstCollectionNameVisitor,
 			Attribute:  "created_at",
-			Type:       "datetime",
+			Type:       db.ConstTypeDatetime,
 			IsRequired: false,
 			IsStatic:   true,
 			Label:      "Created at",
@@ -297,7 +298,7 @@ func (it *DefaultVisitor) GetAttributesInfo() []models.StructAttributeInfo {
 			Model:      visitor.ConstModelNameVisitor,
 			Collection: ConstCollectionNameVisitor,
 			Attribute:  "is_admin",
-			Type:       "bool",
+			Type:       db.ConstTypeBoolean,
 			IsRequired: true,
 			IsStatic:   true,
 			Label:      "Is admin",

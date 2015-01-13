@@ -21,23 +21,23 @@ func setupDB() error {
 	}
 
 	if collection, err := dbEngine.GetCollection("review"); err == nil {
-		collection.AddColumn("product_id", "id", true)
-		collection.AddColumn("visitor_id", "id", true)
-		collection.AddColumn("username", "varchar(100)", true)
-		collection.AddColumn("rating", "int", false)
-		collection.AddColumn("review", "text", false)
-		collection.AddColumn("created_at", "datetime", false)
+		collection.AddColumn("product_id", db.ConstTypeID, true)
+		collection.AddColumn("visitor_id", db.ConstTypeID, true)
+		collection.AddColumn("username", db.ConstTypeVarchar, true)
+		collection.AddColumn("rating", db.ConstTypeInteger, false)
+		collection.AddColumn("review", db.ConstTypeText, false)
+		collection.AddColumn("created_at", db.ConstTypeDatetime, false)
 	} else {
 		return env.ErrorDispatch(err)
 	}
 
 	if collection, err := dbEngine.GetCollection("rating"); err == nil {
-		collection.AddColumn("product_id", "id", true)
-		collection.AddColumn("stars_1", "int", false)
-		collection.AddColumn("stars_2", "int", false)
-		collection.AddColumn("stars_3", "int", false)
-		collection.AddColumn("stars_4", "int", false)
-		collection.AddColumn("stars_5", "int", false)
+		collection.AddColumn("product_id", db.ConstTypeID, true)
+		collection.AddColumn("stars_1", db.ConstTypeInteger, false)
+		collection.AddColumn("stars_2", db.ConstTypeInteger, false)
+		collection.AddColumn("stars_3", db.ConstTypeInteger, false)
+		collection.AddColumn("stars_4", db.ConstTypeInteger, false)
+		collection.AddColumn("stars_5", db.ConstTypeInteger, false)
 	} else {
 		return env.ErrorDispatch(err)
 	}

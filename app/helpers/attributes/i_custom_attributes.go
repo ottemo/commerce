@@ -211,16 +211,16 @@ func (it *CustomAttributes) AddNewAttribute(newAttribute models.StructAttributeI
 
 	// type validation
 	if !utils.IsAmongStr(strings.Trim(newAttribute.Type, "[]"),
-		db.ConstDBBasetypeID,
-		db.ConstDBBasetypeBoolean,
-		db.ConstDBBasetypeVarchar,
-		db.ConstDBBasetypeText,
-		db.ConstDBBasetypeInteger,
-		db.ConstDBBasetypeDecimal,
-		db.ConstDBBasetypeMoney,
-		db.ConstDBBasetypeFloat,
-		db.ConstDBBasetypeDatetime,
-		db.ConstDBBasetypeJSON) {
+		db.ConstTypeID,
+		db.ConstTypeBoolean,
+		db.ConstTypeVarchar,
+		db.ConstTypeText,
+		db.ConstTypeInteger,
+		db.ConstTypeDecimal,
+		db.ConstTypeMoney,
+		db.ConstTypeFloat,
+		db.ConstTypeDatetime,
+		db.ConstTypeJSON) {
 
 		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "26f15efc-8490-41f0-82f7-b677ea427af7", "unknown attribute type '"+newAttribute.Type+"'")
 	}

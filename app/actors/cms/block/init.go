@@ -33,10 +33,10 @@ func setupDB() error {
 		return env.ErrorDispatch(err)
 	}
 
-	collection.AddColumn("identifier", "varchar(255)", true)
-	collection.AddColumn("content", "text", false)
-	collection.AddColumn("created_at", "datetime", false)
-	collection.AddColumn("updated_at", "datetime", false)
+	collection.AddColumn("identifier", db.ConstTypeVarchar, true)
+	collection.AddColumn("content", db.ConstTypeText, false)
+	collection.AddColumn("created_at", db.ConstTypeDatetime, false)
+	collection.AddColumn("updated_at", db.ConstTypeDatetime, false)
 
 	return nil
 }

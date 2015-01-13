@@ -38,26 +38,26 @@ func ConvertTypeFromDbToGo(value interface{}, valueType string) interface{} {
 		}
 		return result
 
-	case strings.HasPrefix(valueType, ConstDBBasetypeBoolean):
+	case strings.HasPrefix(valueType, ConstTypeBoolean):
 		return utils.InterfaceToBool(value)
 
-	case strings.HasPrefix(valueType, ConstDBBasetypeInteger):
+	case strings.HasPrefix(valueType, ConstTypeInteger):
 		return utils.InterfaceToInt(value)
 
-	case strings.HasPrefix(valueType, ConstDBBasetypeDecimal),
-		strings.HasPrefix(valueType, ConstDBBasetypeFloat),
-		strings.HasPrefix(valueType, ConstDBBasetypeMoney):
+	case strings.HasPrefix(valueType, ConstTypeDecimal),
+		strings.HasPrefix(valueType, ConstTypeFloat),
+		strings.HasPrefix(valueType, ConstTypeMoney):
 
 		return utils.InterfaceToFloat64(value)
 
-	case valueType == ConstDBBasetypeDatetime:
+	case valueType == ConstTypeDatetime:
 		return utils.InterfaceToTime(value)
 
-	case valueType == ConstDBBasetypeJSON:
+	case valueType == ConstTypeJSON:
 		result, _ := utils.DecodeJSONToStringKeyMap(value)
 		return result
 
-	case strings.HasPrefix(valueType, ConstDBBasetypeVarchar), valueType == ConstDBBasetypeText, valueType == ConstDBBasetypeID:
+	case strings.HasPrefix(valueType, ConstTypeVarchar), valueType == ConstTypeText, valueType == ConstTypeID:
 		return utils.InterfaceToString(value)
 
 	}

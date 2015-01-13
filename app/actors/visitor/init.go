@@ -30,20 +30,20 @@ func setupDB() error {
 		return env.ErrorDispatch(err)
 	}
 
-	collection.AddColumn("email", "id", true)
-	collection.AddColumn("validate", "varchar(128)", false)
-	collection.AddColumn("password", "varchar(128)", false)
-	collection.AddColumn("first_name", "varchar(50)", true)
-	collection.AddColumn("last_name", "varchar(50)", true)
+	collection.AddColumn("email", db.ConstTypeVarchar, true)      // varchar(150)
+	collection.AddColumn("validate", db.ConstTypeVarchar, false)  // varchar(128)
+	collection.AddColumn("password", db.ConstTypeVarchar, false)  // varchar(128)
+	collection.AddColumn("first_name", db.ConstTypeVarchar, true) // varchar(50)
+	collection.AddColumn("last_name", db.ConstTypeVarchar, true)  // varchar(50)
 
-	collection.AddColumn("facebook_id", "varchar(100)", true)
-	collection.AddColumn("google_id", "varchar(100)", true)
+	collection.AddColumn("facebook_id", db.ConstTypeVarchar, true) // varchar(100)
+	collection.AddColumn("google_id", db.ConstTypeVarchar, true)   // varchar(100)
 
-	collection.AddColumn("billing_address_id", "id", false)
-	collection.AddColumn("shipping_address_id", "id", false)
+	collection.AddColumn("billing_address_id", db.ConstTypeID, false)
+	collection.AddColumn("shipping_address_id", db.ConstTypeID, false)
 
-	collection.AddColumn("is_admin", "bool", false)
-	collection.AddColumn("created_at", "datetime", false)
+	collection.AddColumn("is_admin", db.ConstTypeBoolean, false)
+	collection.AddColumn("created_at", db.ConstTypeDatetime, false)
 
 	return nil
 }

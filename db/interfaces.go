@@ -7,16 +7,16 @@ import (
 
 // Package global constants
 const (
-	ConstDBBasetypeID       = "id"
-	ConstDBBasetypeBoolean  = "bool"
-	ConstDBBasetypeVarchar  = "varchar"
-	ConstDBBasetypeText     = "text"
-	ConstDBBasetypeInteger  = "int"
-	ConstDBBasetypeDecimal  = "decimal"
-	ConstDBBasetypeMoney    = "money"
-	ConstDBBasetypeFloat    = "float"
-	ConstDBBasetypeDatetime = "datetime"
-	ConstDBBasetypeJSON     = "json"
+	ConstTypeID       = "id"
+	ConstTypeBoolean  = "bool"
+	ConstTypeVarchar  = "varchar"
+	ConstTypeText     = "text"
+	ConstTypeInteger  = "int"
+	ConstTypeDecimal  = "decimal"
+	ConstTypeMoney    = "money"
+	ConstTypeFloat    = "float"
+	ConstTypeDatetime = "datetime"
+	ConstTypeJSON     = "json"
 
 	ConstErrorModule = "db"
 	ConstErrorLevel  = env.ConstErrorLevelService

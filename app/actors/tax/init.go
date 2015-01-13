@@ -23,11 +23,11 @@ func setupDB() error {
 
 	if dbEngine := db.GetDBEngine(); dbEngine != nil {
 		if collection, err := dbEngine.GetCollection("Taxes"); err == nil {
-			collection.AddColumn("code", "text", true)
-			collection.AddColumn("country", "text", true)
-			collection.AddColumn("state", "text", true)
-			collection.AddColumn("zip", "text", false)
-			collection.AddColumn("rate", "text", false)
+			collection.AddColumn("code", db.ConstTypeVarchar, true)
+			collection.AddColumn("country", db.ConstTypeVarchar, true)
+			collection.AddColumn("state", db.ConstTypeVarchar, true)
+			collection.AddColumn("zip", db.ConstTypeVarchar, false)
+			collection.AddColumn("rate", db.ConstTypeDecimal, false)
 		} else {
 			return env.ErrorDispatch(err)
 		}
