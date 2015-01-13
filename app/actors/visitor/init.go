@@ -42,7 +42,6 @@ func setupDB() error {
 	collection.AddColumn("billing_address_id", "id", false)
 	collection.AddColumn("shipping_address_id", "id", false)
 
-	collection.AddColumn("birthday", "datetime", false)
 	collection.AddColumn("is_admin", "bool", false)
 	collection.AddColumn("created_at", "datetime", false)
 
