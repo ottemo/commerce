@@ -11,7 +11,7 @@ func setupConfig() error {
 		err := config.RegisterItem(env.StructConfigItem{
 			Path:        ConstConfigPathGroup,
 			Value:       nil,
-			Type:        env.ConstConfigItemGroupType,
+			Type:        env.ConstConfigTypeGroup,
 			Editor:      "",
 			Options:     nil,
 			Label:       "FedEx",
@@ -26,7 +26,7 @@ func setupConfig() error {
 		config.RegisterItem(env.StructConfigItem{
 			Path:        ConstConfigPathEnabled,
 			Value:       false,
-			Type:        "bool",
+			Type:        env.ConstConfigTypeBoolean,
 			Editor:      "boolean",
 			Options:     nil,
 			Label:       "Enabled",
@@ -41,7 +41,7 @@ func setupConfig() error {
 		config.RegisterItem(env.StructConfigItem{
 			Path:        ConstConfigPathTitle,
 			Value:       "Federal Express",
-			Type:        "string",
+			Type:        env.ConstConfigTypeVarchar,
 			Editor:      "line_text",
 			Options:     nil,
 			Label:       "Title",
@@ -57,7 +57,7 @@ func setupConfig() error {
 		config.RegisterItem(env.StructConfigItem{
 			Path:        ConstConfigPathGateway,
 			Value:       "https://wsbeta.fedex.com:443/web-services",
-			Type:        "string",
+			Type:        env.ConstConfigTypeVarchar,
 			Editor:      "line_text",
 			Options:     nil,
 			Label:       "Gateway",
@@ -72,7 +72,7 @@ func setupConfig() error {
 		config.RegisterItem(env.StructConfigItem{
 			Path:        ConstConfigPathKey,
 			Value:       "",
-			Type:        "string",
+			Type:        env.ConstConfigTypeVarchar,
 			Editor:      "line_text",
 			Options:     nil,
 			Label:       "Account Key",
@@ -87,7 +87,7 @@ func setupConfig() error {
 		config.RegisterItem(env.StructConfigItem{
 			Path:        ConstConfigPathPassword,
 			Value:       "",
-			Type:        env.ConstConfigItemSecretType,
+			Type:        env.ConstConfigTypeSecret,
 			Editor:      "password",
 			Options:     nil,
 			Label:       "Account Password",
@@ -102,7 +102,7 @@ func setupConfig() error {
 		config.RegisterItem(env.StructConfigItem{
 			Path:        ConstConfigPathNumber,
 			Value:       "",
-			Type:        "string",
+			Type:        env.ConstConfigTypeVarchar,
 			Editor:      "line_text",
 			Options:     nil,
 			Label:       "Account Number",
@@ -117,7 +117,7 @@ func setupConfig() error {
 		config.RegisterItem(env.StructConfigItem{
 			Path:        ConstConfigPathMeter,
 			Value:       "",
-			Type:        "string",
+			Type:        env.ConstConfigTypeVarchar,
 			Editor:      "line_text",
 			Options:     nil,
 			Label:       "Account Meter",
@@ -132,7 +132,7 @@ func setupConfig() error {
 		config.RegisterItem(env.StructConfigItem{
 			Path:        ConstConfigPathDefaultWeight,
 			Value:       0.1,
-			Type:        "decimal",
+			Type:        env.ConstConfigTypeDecimal,
 			Editor:      "decimal",
 			Options:     nil,
 			Label:       "Default weight",
@@ -147,7 +147,7 @@ func setupConfig() error {
 		config.RegisterItem(env.StructConfigItem{
 			Path:        ConstConfigPathAllowedMethods,
 			Value:       "",
-			Type:        "string",
+			Type:        env.ConstConfigTypeVarchar,
 			Editor:      "multi_select",
 			Options:     ConstShippingMethods,
 			Label:       "Allowed methods",
@@ -162,7 +162,7 @@ func setupConfig() error {
 		config.RegisterItem(env.StructConfigItem{
 			Path:        ConstConfigPathDropoff,
 			Value:       "REGULAR_PICKUP",
-			Type:        "string",
+			Type:        env.ConstConfigTypeVarchar,
 			Editor:      "select",
 			Options:     ConstShippingDropoff,
 			Label:       "Dropoff",
@@ -183,7 +183,7 @@ func setupConfig() error {
 		config.RegisterItem(env.StructConfigItem{
 			Path:        ConstConfigPathPackaging,
 			Value:       "FEDEX_PAK",
-			Type:        "string",
+			Type:        env.ConstConfigTypeVarchar,
 			Editor:      "select",
 			Options:     ConstShippingPackaging,
 			Label:       "Packing",
@@ -204,7 +204,7 @@ func setupConfig() error {
 		config.RegisterItem(env.StructConfigItem{
 			Path:        ConstConfigPathDebugLog,
 			Value:       false,
-			Type:        "bool",
+			Type:        env.ConstConfigTypeBoolean,
 			Editor:      "boolean",
 			Options:     nil,
 			Label:       "Debug log",

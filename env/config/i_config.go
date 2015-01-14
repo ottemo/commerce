@@ -31,7 +31,7 @@ func (it *DefaultConfig) RegisterItem(Item env.StructConfigItem, Validator env.F
 			return env.ErrorDispatch(err)
 		}
 
-		if Item.Type == env.ConstConfigItemSecretType {
+		if Item.Type == env.ConstConfigTypeSecret {
 			stringValue := utils.InterfaceToString(Item.Value)
 
 			// it should not modify value if string was not encrypted
@@ -104,7 +104,7 @@ func (it *DefaultConfig) UnregisterItem(Path string) error {
 func (it *DefaultConfig) GetValue(Path string) interface{} {
 	if value, present := it.configValues[Path]; present {
 
-		if it.configTypes[Path] == env.ConstConfigItemSecretType {
+		if it.configTypes[Path] == env.ConstConfigTypeSecret {
 			stringValue := utils.InterfaceToString(value)
 			return utils.DecryptString(stringValue)
 		}
@@ -133,7 +133,7 @@ func (it *DefaultConfig) SetValue(Path string, Value interface{}) error {
 			it.configValues[Path] = Value
 		}
 
-		if it.configTypes[Path] == env.ConstConfigItemSecretType {
+		if it.configTypes[Path] == env.ConstConfigTypeSecret {
 			stringValue := utils.InterfaceToString(it.configValues[Path])
 
 			// it should not modify value if string was not encrypted
@@ -178,7 +178,7 @@ func (it *DefaultConfig) SetValue(Path string, Value interface{}) error {
 	return nil
 }
 
-// GetGroupItems returns information about config items with type [ConstConfigItemGroupType]
+// GetGroupItems returns information about config items with type [ConstConfigTypeGroup]
 func (it *DefaultConfig) GetGroupItems() []env.StructConfigItem {
 
 	var result []env.StructConfigItem
@@ -188,7 +188,7 @@ func (it *DefaultConfig) GetGroupItems() []env.StructConfigItem {
 		return result
 	}
 
-	err = collection.AddFilter("type", "=", env.ConstConfigItemGroupType)
+	err = collection.AddFilter("type", "=", env.ConstConfigTypeGroup)
 	if err != nil {
 		return result
 	}
@@ -307,7 +307,7 @@ func (it *DefaultConfig) Reload() error {
 		valuePath := utils.InterfaceToString(record["path"])
 		valueType := utils.InterfaceToString(record["type"])
 
-		if valueType == env.ConstConfigItemSecretType {
+		if valueType == env.ConstConfigTypeSecret {
 			it.configValues[valuePath] = utils.InterfaceToString(record["value"])
 		} else {
 			it.configValues[valuePath] = db.ConvertTypeFromDbToGo(record["value"], valueType)

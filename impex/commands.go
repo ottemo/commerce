@@ -747,7 +747,7 @@ func (it *ImportCmdAttributeAdd) Init(args []string, exchange map[string]interfa
 		Model:      workingModel.GetModelName(),
 		Collection: modelAsCustomAttributesInterface.GetCustomAttributeCollectionName(),
 		Attribute:  attributeName,
-		Type:       "text",
+		Type:       utils.ConstDataTypeText,
 		IsRequired: false,
 		IsStatic:   false,
 		Label:      strings.Title(attributeName),

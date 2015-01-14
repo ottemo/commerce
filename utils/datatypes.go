@@ -139,27 +139,27 @@ func DataTypeParse(typeName string) DataType {
 		ConstDataTypeDecimal, ConstDataTypeMoney, ConstDataTypeFloat, ConstDataTypeDatetime, ConstDataTypeJSON) {
 
 		switch {
-		case IsAmongStr(typeName, "b", "boolean"):
+		case IsAmongStr(result.Name, "b", "boolean"):
 			result.Name = ConstDataTypeBoolean
 			result.IsKnown = true
 
-		case IsAmongStr(typeName, "i", "integer", "single"):
+		case IsAmongStr(result.Name, "i", "integer", "single"):
 			result.Name = ConstDataTypeInteger
 			result.IsKnown = true
 
-		case IsAmongStr(typeName, "f", "d", "flt", "dbl", "float", "double"):
+		case IsAmongStr(result.Name, "f", "d", "flt", "dbl", "float", "double"):
 			result.Name = ConstDataTypeFloat
 			result.IsKnown = true
 
-		case IsAmongStr(typeName, "str", "string"):
+		case IsAmongStr(result.Name, "str", "string"):
 			result.Name = ConstDataTypeText
 			result.IsKnown = true
 
-		case IsAmongStr(typeName, "time", "date", "calendar"):
+		case IsAmongStr(result.Name, "time", "date", "calendar"):
 			result.Name = ConstDataTypeDatetime
 			result.IsKnown = true
 
-		case IsAmongStr(typeName, "struct"):
+		case IsAmongStr(result.Name, "struct"):
 			result.Name = ConstDataTypeJSON
 			result.IsKnown = true
 		}

@@ -11,7 +11,7 @@ func setupConfig() error {
 		err := config.RegisterItem(env.StructConfigItem{
 			Path:        ConstConfigPathDPMGroup,
 			Value:       nil,
-			Type:        env.ConstConfigItemGroupType,
+			Type:        env.ConstConfigTypeGroup,
 			Editor:      "",
 			Options:     nil,
 			Label:       "Authorize.Net (Direct Post)",
@@ -26,7 +26,7 @@ func setupConfig() error {
 		config.RegisterItem(env.StructConfigItem{
 			Path:        ConstConfigPathDPMEnabled,
 			Value:       false,
-			Type:        "bool",
+			Type:        env.ConstConfigTypeBoolean,
 			Editor:      "boolean",
 			Options:     nil,
 			Label:       "Enabled",
@@ -41,7 +41,7 @@ func setupConfig() error {
 		config.RegisterItem(env.StructConfigItem{
 			Path:        ConstConfigPathDPMTitle,
 			Value:       "Authorize.Net (Direct Post)",
-			Type:        "string",
+			Type:        env.ConstConfigTypeVarchar,
 			Editor:      "line_text",
 			Options:     nil,
 			Label:       "Title",
@@ -61,7 +61,7 @@ func setupConfig() error {
 		config.RegisterItem(env.StructConfigItem{
 			Path:        ConstConfigPathDPMAction,
 			Value:       ConstDPMActionAuthorizeOnly,
-			Type:        "string",
+			Type:        env.ConstConfigTypeVarchar,
 			Editor:      "select",
 			Options:     map[string]string{ConstDPMActionAuthorizeOnly: "Authorize Only", ConstDPMActionAuthorizeAndCapture: "Authorize & Capture"},
 			Label:       "Action",
@@ -82,7 +82,7 @@ func setupConfig() error {
 		config.RegisterItem(env.StructConfigItem{
 			Path:        ConstConfigPathDPMLogin,
 			Value:       "",
-			Type:        "string",
+			Type:        env.ConstConfigTypeVarchar,
 			Editor:      "line_text",
 			Options:     nil,
 			Label:       "API Login ID",
@@ -97,7 +97,7 @@ func setupConfig() error {
 		config.RegisterItem(env.StructConfigItem{
 			Path:        ConstConfigPathDPMKey,
 			Value:       "",
-			Type:        env.ConstConfigItemSecretType,
+			Type:        env.ConstConfigTypeSecret,
 			Editor:      "password",
 			Options:     nil,
 			Label:       "Transaction Key",
@@ -112,7 +112,7 @@ func setupConfig() error {
 		config.RegisterItem(env.StructConfigItem{
 			Path:        ConstConfigPathDPMGateway,
 			Value:       "https://test.authorize.net/gateway/transact.dll",
-			Type:        "string",
+			Type:        env.ConstConfigTypeVarchar,
 			Editor:      "line_text",
 			Options:     nil,
 			Label:       "Gateway",
@@ -127,7 +127,7 @@ func setupConfig() error {
 		config.RegisterItem(env.StructConfigItem{
 			Path:        ConstConfigPathDPMTest,
 			Value:       false,
-			Type:        "bool",
+			Type:        env.ConstConfigTypeBoolean,
 			Editor:      "boolean",
 			Options:     nil,
 			Label:       "Test Mode",
@@ -142,7 +142,7 @@ func setupConfig() error {
 		config.RegisterItem(env.StructConfigItem{
 			Path:        ConstConfigPathDPMDebug,
 			Value:       false,
-			Type:        "bool",
+			Type:        env.ConstConfigTypeBoolean,
 			Editor:      "boolean",
 			Options:     nil,
 			Label:       "Debug",
@@ -157,7 +157,7 @@ func setupConfig() error {
 		config.RegisterItem(env.StructConfigItem{
 			Path:        ConstConfigPathDPMCheckout,
 			Value:       false,
-			Type:        "bool",
+			Type:        env.ConstConfigTypeBoolean,
 			Editor:      "boolean",
 			Options:     nil,
 			Label:       "Custom checkout page",

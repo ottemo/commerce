@@ -229,7 +229,7 @@ func restAddProductAttribute(params *api.StructAPIHandlerParams) (interface{}, e
 		Model:      product.ConstModelNameProduct,
 		Collection: ConstCollectionNameProduct,
 		Attribute:  utils.InterfaceToString(attributeName),
-		Type:       "text",
+		Type:       utils.ConstDataTypeText,
 		IsRequired: false,
 		IsStatic:   false,
 		Label:      utils.InterfaceToString(attributeLabel),

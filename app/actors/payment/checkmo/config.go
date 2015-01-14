@@ -15,7 +15,7 @@ func setupConfig() error {
 	err := config.RegisterItem(env.StructConfigItem{
 		Path:        ConstConfigPathGroup,
 		Value:       nil,
-		Type:        env.ConstConfigItemGroupType,
+		Type:        env.ConstConfigTypeGroup,
 		Editor:      "",
 		Options:     nil,
 		Label:       "Check / Money Order",
@@ -30,7 +30,7 @@ func setupConfig() error {
 	err = config.RegisterItem(env.StructConfigItem{
 		Path:        ConstConfigPathEnabled,
 		Value:       false,
-		Type:        "bool",
+		Type:        env.ConstConfigTypeBoolean,
 		Editor:      "boolean",
 		Options:     nil,
 		Label:       "Enabled",
@@ -45,7 +45,7 @@ func setupConfig() error {
 	err = config.RegisterItem(env.StructConfigItem{
 		Path:        ConstConfigPathTitle,
 		Value:       "Check/Money Order",
-		Type:        "string",
+		Type:        env.ConstConfigTypeVarchar,
 		Editor:      "line_text",
 		Options:     nil,
 		Label:       "Title",
