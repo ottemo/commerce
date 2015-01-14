@@ -23,7 +23,7 @@ func setupDB() error {
 	if collection, err := dbEngine.GetCollection("review"); err == nil {
 		collection.AddColumn("product_id", db.ConstTypeID, true)
 		collection.AddColumn("visitor_id", db.ConstTypeID, true)
-		collection.AddColumn("username", db.ConstTypeVarchar, true)
+		collection.AddColumn("username", db.TypeWPrecision(db.ConstTypeVarchar, 100), true)
 		collection.AddColumn("rating", db.ConstTypeInteger, false)
 		collection.AddColumn("review", db.ConstTypeText, false)
 		collection.AddColumn("created_at", db.ConstTypeDatetime, false)

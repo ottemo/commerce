@@ -246,7 +246,7 @@ func (it *DefaultCategory) GetAttributesInfo() []models.StructAttributeInfo {
 			Model:      category.ConstModelNameCategory,
 			Collection: ConstCollectionNameCategory,
 			Attribute:  "products",
-			Type:       "[]" + db.ConstTypeID,
+			Type:       db.TypeArrayOf(db.ConstTypeID),
 			IsRequired: false,
 			IsStatic:   true,
 			Label:      "Products",

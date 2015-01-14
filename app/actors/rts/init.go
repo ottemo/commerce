@@ -66,7 +66,7 @@ func setupDB() error {
 
 	collection.AddColumn("product_id", db.ConstTypeID, true)
 	collection.AddColumn("count", db.ConstTypeInteger, false)
-	collection.AddColumn("range", db.ConstTypeVarchar, false)
+	collection.AddColumn("range", db.TypeWPrecision(db.ConstTypeVarchar, 21), false)
 
 	collection, err = db.GetCollection(ConstCollectionNameRTSVisitors)
 	if err != nil {

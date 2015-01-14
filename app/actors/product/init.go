@@ -39,7 +39,7 @@ func setupDB() error {
 	collection.AddColumn("weight", db.ConstTypeFloat, false)
 	collection.AddColumn("options", db.ConstTypeJSON, false)
 
-	collection.AddColumn("related_pids", "[]"+db.ConstTypeID, false)
+	collection.AddColumn("related_pids", db.TypeArrayOf(db.ConstTypeID), false)
 
 	return nil
 }

@@ -71,10 +71,10 @@ func (it *FilesystemMediaStorage) setupOnDatabaseStart() error {
 		return env.ErrorDispatch(err)
 	}
 
-	dbCollection.AddColumn("model", "text", true)
-	dbCollection.AddColumn("object", "text", true)
-	dbCollection.AddColumn("type", "text", true)
-	dbCollection.AddColumn("media", "text", false)
+	dbCollection.AddColumn("model", db.ConstTypeVarchar, true)
+	dbCollection.AddColumn("object", db.ConstTypeVarchar, true)
+	dbCollection.AddColumn("type", db.ConstTypeVarchar, true)
+	dbCollection.AddColumn("media", db.ConstTypeVarchar, false)
 
 	it.setupCheckDone()
 

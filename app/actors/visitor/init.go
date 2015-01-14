@@ -30,14 +30,14 @@ func setupDB() error {
 		return env.ErrorDispatch(err)
 	}
 
-	collection.AddColumn("email", db.ConstTypeVarchar, true)      // varchar(150)
-	collection.AddColumn("validate", db.ConstTypeVarchar, false)  // varchar(128)
-	collection.AddColumn("password", db.ConstTypeVarchar, false)  // varchar(128)
-	collection.AddColumn("first_name", db.ConstTypeVarchar, true) // varchar(50)
-	collection.AddColumn("last_name", db.ConstTypeVarchar, true)  // varchar(50)
+	collection.AddColumn("email", db.TypeWPrecision(db.ConstTypeVarchar, 150), true)
+	collection.AddColumn("validate", db.TypeWPrecision(db.ConstTypeVarchar, 128), false)
+	collection.AddColumn("password", db.TypeWPrecision(db.ConstTypeVarchar, 128), false)
+	collection.AddColumn("first_name", db.TypeWPrecision(db.ConstTypeVarchar, 50), true)
+	collection.AddColumn("last_name", db.TypeWPrecision(db.ConstTypeVarchar, 50), true)
 
-	collection.AddColumn("facebook_id", db.ConstTypeVarchar, true) // varchar(100)
-	collection.AddColumn("google_id", db.ConstTypeVarchar, true)   // varchar(100)
+	collection.AddColumn("facebook_id", db.TypeWPrecision(db.ConstTypeVarchar, 100), true)
+	collection.AddColumn("google_id", db.TypeWPrecision(db.ConstTypeVarchar, 100), true)
 
 	collection.AddColumn("billing_address_id", db.ConstTypeID, false)
 	collection.AddColumn("shipping_address_id", db.ConstTypeID, false)

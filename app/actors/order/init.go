@@ -40,8 +40,8 @@ func setupDB() error {
 			return env.ErrorDispatch(err)
 		}
 
-		collection.AddColumn("increment_id", db.ConstTypeVarchar, true)
-		collection.AddColumn("status", db.ConstTypeVarchar, true)
+		collection.AddColumn("increment_id", db.TypeWPrecision(db.ConstTypeVarchar, 50), true)
+		collection.AddColumn("status", db.TypeWPrecision(db.ConstTypeVarchar, 50), true)
 
 		collection.AddColumn("visitor_id", db.ConstTypeID, true)
 		collection.AddColumn("cart_id", db.ConstTypeID, true)
@@ -49,17 +49,17 @@ func setupDB() error {
 		collection.AddColumn("billing_address", db.ConstTypeJSON, true)
 		collection.AddColumn("shipping_address", db.ConstTypeJSON, true)
 
-		collection.AddColumn("customer_email", db.ConstTypeVarchar, true)
-		collection.AddColumn("customer_name", db.ConstTypeVarchar, false)
+		collection.AddColumn("customer_email", db.TypeWPrecision(db.ConstTypeVarchar, 100), true)
+		collection.AddColumn("customer_name", db.TypeWPrecision(db.ConstTypeVarchar, 100), false)
 
-		collection.AddColumn("payment_method", db.ConstTypeVarchar, false)
-		collection.AddColumn("shipping_method", db.ConstTypeVarchar, false)
+		collection.AddColumn("payment_method", db.TypeWPrecision(db.ConstTypeVarchar, 100), false)
+		collection.AddColumn("shipping_method", db.TypeWPrecision(db.ConstTypeVarchar, 100), false)
 
-		collection.AddColumn("subtotal", db.ConstTypeDecimal, false)
-		collection.AddColumn("discount", db.ConstTypeDecimal, false)
-		collection.AddColumn("tax_amount", db.ConstTypeDecimal, false)
-		collection.AddColumn("shipping_amount", db.ConstTypeDecimal, false)
-		collection.AddColumn("grand_total", db.ConstTypeDecimal, false)
+		collection.AddColumn("subtotal", db.ConstTypeMoney, false)
+		collection.AddColumn("discount", db.ConstTypeMoney, false)
+		collection.AddColumn("tax_amount", db.ConstTypeMoney, false)
+		collection.AddColumn("shipping_amount", db.ConstTypeMoney, false)
+		collection.AddColumn("grand_total", db.ConstTypeMoney, false)
 
 		collection.AddColumn("created_at", db.ConstTypeDatetime, false)
 		collection.AddColumn("updated_at", db.ConstTypeDatetime, false)
@@ -79,13 +79,13 @@ func setupDB() error {
 
 		collection.AddColumn("qty", db.ConstTypeInteger, false)
 
-		collection.AddColumn("name", db.ConstTypeVarchar, false)
-		collection.AddColumn("sku", db.ConstTypeVarchar, false)
+		collection.AddColumn("name", db.TypeWPrecision(db.ConstTypeVarchar, 150), false)
+		collection.AddColumn("sku", db.TypeWPrecision(db.ConstTypeVarchar, 100), false)
 		collection.AddColumn("short_description", db.ConstTypeVarchar, false)
 
 		collection.AddColumn("options", db.ConstTypeJSON, false)
 
-		collection.AddColumn("price", db.ConstTypeDecimal, false)
+		collection.AddColumn("price", db.ConstTypeMoney, false)
 		collection.AddColumn("weight", db.ConstTypeDecimal, false)
 
 	} else {
