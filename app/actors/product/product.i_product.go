@@ -134,38 +134,38 @@ func (it *DefaultProduct) ApplyOptions(options map[string]interface{}) error {
 		// price modifier
 		if optionValue, present := optionToApply["price"]; present {
 			if stringValue, ok := optionValue.(string); ok {
+				if stringValue != "" && strings.Trim(stringValue, "1234567890+-%.") == "" {
+					isDelta := false
+					isPercent := false
 
-				isDelta := false
-				isPercent := false
+					stringValue = strings.TrimSpace(stringValue)
+					if strings.HasSuffix(stringValue, "%") {
+						isPercent = true
+						stringValue = strings.TrimSuffix(stringValue, "%")
+					}
 
-				stringValue = strings.TrimSpace(stringValue)
-				if strings.HasSuffix(stringValue, "%") {
-					isPercent = true
-					stringValue = strings.TrimSuffix(stringValue, "%")
+					var priceValue float64
+					switch {
+					case strings.HasPrefix(stringValue, "+"):
+						stringValue = strings.TrimPrefix(stringValue, "+")
+						isDelta = true
+						priceValue = utils.InterfaceToFloat64(stringValue)
+					case strings.HasPrefix(stringValue, "-"):
+						stringValue = strings.TrimPrefix(stringValue, "-")
+						isDelta = true
+						priceValue = -1 * utils.InterfaceToFloat64(stringValue)
+					default:
+						priceValue = utils.InterfaceToFloat64(stringValue)
+					}
+
+					if isPercent {
+						it.Price += startPrice * priceValue / 100
+					} else if isDelta {
+						it.Price += priceValue
+					} else {
+						it.Price = priceValue
+					}
 				}
-
-				var priceValue float64
-				switch {
-				case strings.HasPrefix(stringValue, "+"):
-					stringValue = strings.TrimPrefix(stringValue, "+")
-					isDelta = true
-					priceValue = utils.InterfaceToFloat64(stringValue)
-				case strings.HasPrefix(stringValue, "-"):
-					stringValue = strings.TrimPrefix(stringValue, "-")
-					isDelta = true
-					priceValue = -1 * utils.InterfaceToFloat64(stringValue)
-				default:
-					priceValue = utils.InterfaceToFloat64(stringValue)
-				}
-
-				if isPercent {
-					it.Price += startPrice * priceValue / 100
-				} else if isDelta {
-					it.Price += priceValue
-				} else {
-					it.Price = priceValue
-				}
-
 			} else {
 				it.Set("price", optionValue)
 			}
