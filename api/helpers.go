@@ -148,8 +148,8 @@ func ApplyFilters(params *StructAPIHandlerParams, collection db.InterfaceDBColle
 
 			default:
 				attributeType := collection.GetColumnType(attributeName)
-				if attributeType != db.ConstDBBasetypeText &&
-					!strings.Contains(attributeType, db.ConstDBBasetypeVarchar) &&
+				if attributeType != db.ConstTypeText &&
+					!strings.Contains(attributeType, db.ConstTypeVarchar) &&
 					filterOperator == "like" {
 
 					filterOperator = "="
@@ -157,7 +157,7 @@ func ApplyFilters(params *StructAPIHandlerParams, collection db.InterfaceDBColle
 
 				if typedValue, err := utils.StringToType(attributeValue, attributeType); err == nil {
 					// fix for NULL db boolean values filter (perhaps should be part of DB adapter)
-					if attributeType == db.ConstDBBasetypeBoolean && typedValue == false {
+					if attributeType == db.ConstTypeBoolean && typedValue == false {
 						filterGroupName := attributeName + "_applyFilter"
 
 						collection.SetupFilterGroup(filterGroupName, true, groupName)
@@ -217,15 +217,15 @@ func ApplyFilters(params *StructAPIHandlerParams, collection db.InterfaceDBColle
 			// looking for possible attributes to filter
 			for attributeName, attributeType := range collection.ListColumns() {
 				switch {
-				case attributeType == db.ConstDBBasetypeText || strings.Contains(attributeType, db.ConstDBBasetypeVarchar):
+				case attributeType == db.ConstTypeText || strings.Contains(attributeType, db.ConstTypeVarchar):
 					if strings.Contains(lookingFor, "text") {
 						addFilterToCollection(attributeName, attributeValue, "search")
 					}
 
-				case attributeType == db.ConstDBBasetypeFloat ||
-					attributeType == db.ConstDBBasetypeDecimal ||
-					attributeType == db.ConstDBBasetypeMoney ||
-					attributeType == db.ConstDBBasetypeInteger:
+				case attributeType == db.ConstTypeFloat ||
+					attributeType == db.ConstTypeDecimal ||
+					attributeType == db.ConstTypeMoney ||
+					attributeType == db.ConstTypeInteger:
 
 					if strings.Contains(lookingFor, "number") {
 						addFilterToCollection(attributeName, attributeValue, "search")

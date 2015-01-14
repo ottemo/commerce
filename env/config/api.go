@@ -49,14 +49,14 @@ func setupAPI() error {
 	return nil
 }
 
-// WEB REST API to get value information about config items with type [ConstConfigItemGroupType]
+// WEB REST API to get value information about config items with type [ConstConfigTypeGroup]
 func restConfigGroups(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	config := env.GetConfig()
 	return config.GetGroupItems(), nil
 }
 
-// WEB REST API to get value information about config items with type [ConstConfigItemGroupType]
+// WEB REST API to get value information about config items with type [ConstConfigTypeGroup]
 func restConfigList(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	// check rights
@@ -91,7 +91,7 @@ func restConfigGet(params *api.StructAPIHandlerParams) (interface{}, error) {
 	if len(info) == 1 {
 		itemInfo := info[0]
 
-		if itemInfo.Type == env.ConstConfigItemSecretType ||
+		if itemInfo.Type == env.ConstConfigTypeSecret ||
 			strings.Contains(itemInfo.Editor, "password") ||
 			strings.Contains(itemInfo.Type, "password") ||
 			strings.Contains(itemInfo.Path, "password") ||

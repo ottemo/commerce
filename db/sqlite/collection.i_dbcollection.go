@@ -485,23 +485,9 @@ func (it *DBCollection) AddColumn(columnName string, columnType string, indexed 
 		return nil
 	}
 
-	// updating physical table
-	//-------------------------
-	ColumnType, err := GetDBType(columnType)
-	if err != nil {
-		return env.ErrorDispatch(err)
-	}
-
-	SQL := "ALTER TABLE " + it.Name + " ADD COLUMN \"" + columnName + "\" " + ColumnType
-
-	err = connectionExec(SQL)
-	if err != nil {
-		return sqlError(SQL, err)
-	}
-
 	// updating collection info table
 	//--------------------------------
-	SQL = "INSERT INTO " + ConstCollectionNameColumnInfo + "(collection, column, type, indexed) VALUES (" +
+	SQL := "INSERT INTO " + ConstCollectionNameColumnInfo + "(collection, column, type, indexed) VALUES (" +
 		"'" + it.Name + "', " +
 		"'" + columnName + "', " +
 		"'" + columnType + "', "
@@ -511,11 +497,26 @@ func (it *DBCollection) AddColumn(columnName string, columnType string, indexed 
 		SQL += "0)"
 	}
 
+	err := connectionExec(SQL)
+	if err != nil {
+		return sqlError(SQL, err)
+	}
+
+	// updating physical table
+	//-------------------------
+	ColumnType, err := GetDBType(columnType)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	SQL = "ALTER TABLE " + it.Name + " ADD COLUMN \"" + columnName + "\" " + ColumnType
+
 	err = connectionExec(SQL)
 	if err != nil {
 		return sqlError(SQL, err)
 	}
 
+	// updating collection columns list
 	it.ListColumns()
 
 	return nil

@@ -25,7 +25,7 @@ func (it *FilesystemMediaStorage) setupConfig() error {
 	err := config.RegisterItem(env.StructConfigItem{
 		Path:        ConstConfigPathMediaImageSizes,
 		Value:       ConstDefaultImageSizes,
-		Type:        "string",
+		Type:        env.ConstConfigTypeVarchar,
 		Editor:      "line_text",
 		Options:     "",
 		Label:       "Image sizes",
@@ -53,7 +53,7 @@ func (it *FilesystemMediaStorage) setupConfig() error {
 	err = config.RegisterItem(env.StructConfigItem{
 		Path:        ConstConfigPathMediaImageSize,
 		Value:       ConstDefaultImageSize,
-		Type:        "string",
+		Type:        env.ConstConfigTypeVarchar,
 		Editor:      "line_text",
 		Options:     "",
 		Label:       "Base image size",

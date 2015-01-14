@@ -32,12 +32,12 @@ func setupDB() error {
 		return env.ErrorDispatch(err)
 	}
 
-	collection.AddColumn("enabled", db.ConstDBBasetypeBoolean, true)
-	collection.AddColumn("identifier", db.ConstDBBasetypeVarchar, true)
-	collection.AddColumn("title", db.ConstDBBasetypeVarchar, false)
-	collection.AddColumn("content", db.ConstDBBasetypeText, false)
-	collection.AddColumn("created_at", db.ConstDBBasetypeDatetime, false)
-	collection.AddColumn("updated_at", db.ConstDBBasetypeDatetime, false)
+	collection.AddColumn("enabled", db.ConstTypeBoolean, true)
+	collection.AddColumn("identifier", db.ConstTypeVarchar, true)
+	collection.AddColumn("title", db.ConstTypeVarchar, false)
+	collection.AddColumn("content", db.ConstTypeText, false)
+	collection.AddColumn("created_at", db.ConstTypeDatetime, false)
+	collection.AddColumn("updated_at", db.ConstTypeDatetime, false)
 
 	return nil
 }

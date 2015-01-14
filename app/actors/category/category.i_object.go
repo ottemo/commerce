@@ -6,6 +6,7 @@ import (
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/category"
 	"github.com/ottemo/foundation/app/models/product"
+	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
 )
@@ -193,7 +194,7 @@ func (it *DefaultCategory) GetAttributesInfo() []models.StructAttributeInfo {
 			Model:      category.ConstModelNameCategory,
 			Collection: ConstCollectionNameCategory,
 			Attribute:  "_id",
-			Type:       "id",
+			Type:       db.ConstTypeID,
 			IsRequired: false,
 			IsStatic:   true,
 			Label:      "ID",
@@ -206,7 +207,7 @@ func (it *DefaultCategory) GetAttributesInfo() []models.StructAttributeInfo {
 			Model:      category.ConstModelNameCategory,
 			Collection: ConstCollectionNameCategory,
 			Attribute:  "enabled",
-			Type:       "bool",
+			Type:       db.ConstTypeBoolean,
 			IsRequired: true,
 			IsStatic:   true,
 			Label:      "Enabled",
@@ -219,7 +220,7 @@ func (it *DefaultCategory) GetAttributesInfo() []models.StructAttributeInfo {
 			Model:      category.ConstModelNameCategory,
 			Collection: ConstCollectionNameCategory,
 			Attribute:  "name",
-			Type:       "text",
+			Type:       db.ConstTypeText,
 			IsRequired: true,
 			IsStatic:   true,
 			Label:      "Name",
@@ -232,7 +233,7 @@ func (it *DefaultCategory) GetAttributesInfo() []models.StructAttributeInfo {
 			Model:      category.ConstModelNameCategory,
 			Collection: ConstCollectionNameCategory,
 			Attribute:  "parent_id",
-			Type:       "id",
+			Type:       db.ConstTypeID,
 			IsRequired: false,
 			IsStatic:   true,
 			Label:      "Parent",
@@ -245,7 +246,7 @@ func (it *DefaultCategory) GetAttributesInfo() []models.StructAttributeInfo {
 			Model:      category.ConstModelNameCategory,
 			Collection: ConstCollectionNameCategory,
 			Attribute:  "products",
-			Type:       "id",
+			Type:       db.TypeArrayOf(db.ConstTypeID),
 			IsRequired: false,
 			IsStatic:   true,
 			Label:      "Products",

@@ -5,8 +5,8 @@ import (
 
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/cms"
+	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/env"
-
 	"github.com/ottemo/foundation/utils"
 )
 
@@ -85,7 +85,7 @@ func (it *DefaultCMSBlock) GetAttributesInfo() []models.StructAttributeInfo {
 			Model:      cms.ConstModelNameCMSBlock,
 			Collection: ConstCmsBlockCollectionName,
 			Attribute:  "_id",
-			Type:       "id",
+			Type:       db.ConstTypeID,
 			IsRequired: false,
 			IsStatic:   true,
 			Label:      "ID",
@@ -98,7 +98,7 @@ func (it *DefaultCMSBlock) GetAttributesInfo() []models.StructAttributeInfo {
 			Model:      cms.ConstModelNameCMSBlock,
 			Collection: ConstCmsBlockCollectionName,
 			Attribute:  "identifier",
-			Type:       "varchar(255)",
+			Type:       db.ConstTypeVarchar,
 			IsRequired: true,
 			IsStatic:   true,
 			Label:      "Identifier",
@@ -112,7 +112,7 @@ func (it *DefaultCMSBlock) GetAttributesInfo() []models.StructAttributeInfo {
 			Model:      cms.ConstModelNameCMSBlock,
 			Collection: ConstCmsBlockCollectionName,
 			Attribute:  "content",
-			Type:       "text",
+			Type:       db.ConstTypeText,
 			IsRequired: false,
 			IsStatic:   true,
 			Label:      "Content",
@@ -125,7 +125,7 @@ func (it *DefaultCMSBlock) GetAttributesInfo() []models.StructAttributeInfo {
 			Model:      cms.ConstModelNameCMSBlock,
 			Collection: ConstCmsBlockCollectionName,
 			Attribute:  "created_at",
-			Type:       "datetime",
+			Type:       db.ConstTypeDatetime,
 			IsRequired: true,
 			IsStatic:   true,
 			Label:      "Created At",
@@ -138,7 +138,7 @@ func (it *DefaultCMSBlock) GetAttributesInfo() []models.StructAttributeInfo {
 			Model:      cms.ConstModelNameCMSBlock,
 			Collection: ConstCmsBlockCollectionName,
 			Attribute:  "updated_at",
-			Type:       "datetime",
+			Type:       db.ConstTypeDatetime,
 			IsRequired: true,
 			IsStatic:   true,
 			Label:      "Updated At",

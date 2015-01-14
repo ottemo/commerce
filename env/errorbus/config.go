@@ -16,7 +16,7 @@ func setupConfig() error {
 	err := config.RegisterItem(env.StructConfigItem{
 		Path:        ConstConfigPatError,
 		Value:       nil,
-		Type:        env.ConstConfigItemGroupType,
+		Type:        env.ConstConfigTypeGroup,
 		Editor:      "",
 		Options:     nil,
 		Label:       "Error",
@@ -41,7 +41,7 @@ func setupConfig() error {
 	err = config.RegisterItem(env.StructConfigItem{
 		Path:        ConstConfigPathErrorLogLevel,
 		Value:       5,
-		Type:        "int",
+		Type:        env.ConstConfigTypeInteger,
 		Editor:      "integer",
 		Options:     nil,
 		Label:       "Log level",
@@ -66,7 +66,7 @@ func setupConfig() error {
 	err = config.RegisterItem(env.StructConfigItem{
 		Path:        ConstConfigPathErrorHideLevel,
 		Value:       5,
-		Type:        "int",
+		Type:        env.ConstConfigTypeInteger,
 		Editor:      "integer",
 		Options:     nil,
 		Label:       "Hide level",
@@ -90,7 +90,7 @@ func setupConfig() error {
 	err = config.RegisterItem(env.StructConfigItem{
 		Path:        ConstConfigPathErrorHideMessage,
 		Value:       "System error has occured",
-		Type:        "string",
+		Type:        env.ConstConfigTypeVarchar,
 		Editor:      "line_text",
 		Options:     nil,
 		Label:       "Hide message",

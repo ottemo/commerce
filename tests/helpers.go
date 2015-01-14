@@ -312,6 +312,7 @@ func MakeSureProductsCount(countShouldBe int) error {
 			return err
 		}
 
+		productModel.Set("enabled", true)
 		productModel.Set("sku", fmt.Sprintf("test-%d", i))
 		productModel.Set("name", fmt.Sprintf("Test Product %d", i))
 

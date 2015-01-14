@@ -384,7 +384,7 @@ func restAddVisitorAttribute(params *api.StructAPIHandlerParams) (interface{}, e
 		Model:      visitor.ConstModelNameVisitor,
 		Collection: ConstCollectionNameVisitor,
 		Attribute:  utils.InterfaceToString(attributeName),
-		Type:       "text",
+		Type:       utils.ConstDataTypeText,
 		IsRequired: false,
 		IsStatic:   false,
 		Label:      utils.InterfaceToString(attributeLabel),
