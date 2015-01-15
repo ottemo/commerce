@@ -107,3 +107,9 @@ func GetCurrentCheckout(params *api.StructAPIHandlerParams) (InterfaceCheckout, 
 
 	return checkoutInstance, nil
 }
+
+// SetCurrentCheckout assigns given checkout to current session
+func SetCurrentCheckout(params *api.StructAPIHandlerParams, checkout InterfaceCheckout) error {
+	params.Session.Set(ConstSessionKeyCurrentCheckout, checkout)
+	return nil
+}

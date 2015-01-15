@@ -194,6 +194,10 @@ func restCheckoutSetInfo(params *api.StructAPIHandlerParams) (interface{}, error
 			return nil, env.ErrorDispatch(err)
 		}
 	}
+
+	// updating session
+	checkout.SetCurrentCheckout(params, currentCheckout)
+
 	return "ok", nil
 }
 
@@ -264,6 +268,9 @@ func restCheckoutSetShippingAddress(params *api.StructAPIHandlerParams) (interfa
 		return nil, env.ErrorDispatch(err)
 	}
 
+	// updating session
+	checkout.SetCurrentCheckout(params, currentCheckout)
+
 	return address.ToHashMap(), nil
 }
 
@@ -283,6 +290,9 @@ func restCheckoutSetBillingAddress(params *api.StructAPIHandlerParams) (interfac
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
+
+	// updating session
+	checkout.SetCurrentCheckout(params, currentCheckout)
 
 	return address.ToHashMap(), nil
 }
@@ -314,6 +324,9 @@ func restCheckoutSetPaymentMethod(params *api.StructAPIHandlerParams) (interface
 
 				eventData := map[string]interface{}{"session": params.Session, "paymentMethod": paymentMethod, "checkout": currentCheckout}
 				env.Event("api.checkout.setPayment", eventData)
+
+				// updating session
+				checkout.SetCurrentCheckout(params, currentCheckout)
 
 				return "ok", nil
 			}
@@ -349,6 +362,9 @@ func restCheckoutSetShippingMethod(params *api.StructAPIHandlerParams) (interfac
 						if err != nil {
 							return nil, env.ErrorDispatch(err)
 						}
+
+						// updating session
+						checkout.SetCurrentCheckout(params, currentCheckout)
 
 						return "ok", nil
 					}

@@ -19,6 +19,8 @@ type InterfaceSession interface {
 	Get(key string) interface{}
 	Set(key string, value interface{})
 
+	SetModified()
+
 	Close() error
 
 	Load(id string) error

@@ -60,7 +60,13 @@ func (it *DefaultSession) Set(key string, value interface{}) {
 
 	// requested session operation
 	it.Data[key] = value
+
 	it.UpdatedAt = time.Now()
+
+	// checking case session was already flushed
+	if sessionInstance, present := sessionService.Sessions[it.GetID()]; !present || sessionInstance != it {
+		sessionService.Sessions[it.GetID()] = it
+	}
 
 	// immediate mode
 	if ConstSessionUpdateTime == 0 {
@@ -68,6 +74,16 @@ func (it *DefaultSession) Set(key string, value interface{}) {
 		if err != nil {
 			env.ErrorDispatch(err)
 		}
+	}
+}
+
+// SetModified updates last modification time to current moment
+func (it *DefaultSession) SetModified() {
+	it.UpdatedAt = time.Now()
+
+	// checking case session was already flushed
+	if sessionInstance, present := sessionService.Sessions[it.GetID()]; !present || sessionInstance != it {
+		sessionService.Sessions[it.GetID()] = it
 	}
 }
 
