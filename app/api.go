@@ -2,8 +2,10 @@ package app
 
 import (
 	"runtime"
+	"time"
 
 	"github.com/ottemo/foundation/api"
+	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
 )
@@ -95,7 +97,28 @@ func restRightsInfo(params *api.StructAPIHandlerParams) (interface{}, error) {
 func restStatusInfo(params *api.StructAPIHandlerParams) (interface{}, error) {
 	result := make(map[string]interface{})
 
-	result["Version"] = runtime.Version()
+	result["Ottemo"] = GetVerboseVersion()
+	if dbEngine := db.GetDBEngine(); dbEngine != nil {
+		result["Ottemo.DBEngine"] = dbEngine.GetName()
+	}
+	result["Ottemo.VersionMajor"] = ConstVersionMajor
+	result["Ottemo.VersionMainor"] = ConstVersionMinor
+	result["Ottemo.BuildTags"] = buildTags
+
+	result["StartTime"] = startTime
+	result["Uptime"] = (time.Now().Truncate(time.Second).Sub(startTime)).Seconds()
+
+	if buildNumber != "" {
+		result["Ottemo.BuildNumber"] = utils.InterfaceToInt(buildNumber)
+	}
+	if buildDate != "" {
+		result["Ottemo.BuildDate"] = utils.InterfaceToTime(buildDate).UTC()
+	}
+	if buildBranch != "" {
+		result["Ottemo.BuildBranch"] = buildBranch
+	}
+
+	result["GO"] = runtime.Version()
 	result["NumGoroutine"] = runtime.NumGoroutine()
 	result["NumCPU"] = runtime.NumCPU()
 
