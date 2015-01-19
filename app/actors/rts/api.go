@@ -67,19 +67,24 @@ func setupAPI() error {
 }
 
 // WEB REST API used for registering a new storefront visit and obtain referer info
-func restRegisterVisit(params *api.StructAPIHandlerParams) (interface{}, error) {
-	xReferrer := utils.InterfaceToString(params.Request.Header.Get("X-Referer"))
+func restRegisterVisit(context api.InterfaceApplicationContext) (interface{}, error) {
+	if httpRequest, ok := context.GetRequest().(*http.Request); ok && httpRequest != nil {
+		if httpResponseWriter, ok := context.GetResponseWriter().(http.ResponseWriter); ok && httpResponseWriter != nil {
+			xReferrer := utils.InterfaceToString(httpRequest.Header.Get("X-Referer"))
 
-	http.SetCookie(params.ResponseWriter, &http.Cookie{Name: "X_Referrer", Value: xReferrer, Path: "/"})
+			http.SetCookie(httpResponseWriter, &http.Cookie{Name: "X_Referrer", Value: xReferrer, Path: "/"})
 
-	eventData := map[string]interface{}{"session": params.Session, "context": params}
-	env.Event("api.rts.visit", eventData)
+			eventData := map[string]interface{}{"session": context.GetSession(), "context": context}
+			env.Event("api.rts.visit", eventData)
 
+			return nil, nil
+		}
+	}
 	return nil, nil
 }
 
 // WEB REST API used to obtain site referers list
-func restGetReferrers(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restGetReferrers(context api.InterfaceApplicationContext) (interface{}, error) {
 	result := make(map[string]int)
 
 	for url := range referrers {
@@ -90,7 +95,7 @@ func restGetReferrers(params *api.StructAPIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API used to obtain site visit information for current day
-func restGetVisits(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restGetVisits(context api.InterfaceApplicationContext) (interface{}, error) {
 	result := make(map[string]interface{})
 
 	err := GetTodayVisitorsData()
@@ -116,20 +121,20 @@ func restGetVisits(params *api.StructAPIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API used to obtain detailed site visit information for a specified period
-func restGetVisitsDetails(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restGetVisitsDetails(context api.InterfaceApplicationContext) (interface{}, error) {
 	result := make(map[string]int)
 
-	fromDatetmp, present := params.RequestURLParams["from"]
-	if !present {
-		fromDatetmp = time.Now().Format("2006-01-02")
+	requestFromDate := context.GetRequestArgument("from")
+	if requestFromDate == "" {
+		requestFromDate = time.Now().Format("2006-01-02")
 	}
-	fromDate, _ := time.Parse("2006-01-02", fromDatetmp)
+	fromDate, _ := time.Parse("2006-01-02", requestFromDate)
 
-	toDatetmp, present := params.RequestURLParams["to"]
-	if !present {
-		toDatetmp = time.Now().AddDate(0, 0, -1).Format("2006-01-02")
+	requestToDate := context.GetRequestArgument("to")
+	if requestToDate == "" {
+		requestToDate = time.Now().AddDate(0, 0, -1).Format("2006-01-02")
 	}
-	toDate, _ := time.Parse("2006-01-02", toDatetmp)
+	toDate, _ := time.Parse("2006-01-02", requestToDate)
 
 	delta := toDate.Sub(fromDate)
 	visitorInfoCollection, err := db.GetCollection(ConstCollectionNameRTSVisitors)
@@ -181,7 +186,7 @@ func restGetVisitsDetails(params *api.StructAPIHandlerParams) (interface{}, erro
 }
 
 // WEB REST API used to obtain site conversation information
-func restGetConversions(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restGetConversions(context api.InterfaceApplicationContext) (interface{}, error) {
 	result := make(map[string]interface{})
 
 	result["totalVisitors"] = visitorsInfoToday.Visitors
@@ -193,7 +198,7 @@ func restGetConversions(params *api.StructAPIHandlerParams) (interface{}, error)
 }
 
 // WEB REST API used to get information on site sales for today
-func restGetSales(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restGetSales(context api.InterfaceApplicationContext) (interface{}, error) {
 	result := make(map[string]interface{})
 
 	currDate, _ := time.Parse("2006-01-02", time.Now().Format("2006-01-02"))
@@ -221,27 +226,25 @@ func restGetSales(params *api.StructAPIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API used to get information on site sales for a specified period
-func restGetSalesDetails(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restGetSalesDetails(context api.InterfaceApplicationContext) (interface{}, error) {
 	result := make(map[string]int)
 	currentTime := time.Now()
-	// check request params
-	//---------------------
-	fromDatetmp, present := params.RequestURLParams["from"]
-	if !present {
-		fromDatetmp = currentTime.Format("2006-01-02")
-	}
-	fromDate, _ := time.Parse("2006-01-02", fromDatetmp)
-	// check request params
-	//---------------------
-	toDatetmp, present := params.RequestURLParams["to"]
-	if !present {
-		toDatetmp = currentTime.AddDate(0, 0, -1).Format("2006-01-02")
-	}
-	toDate, _ := time.Parse("2006-01-02", toDatetmp)
 
-	h := md5.New()
-	io.WriteString(h, fromDatetmp+"/"+toDatetmp)
-	periodHash := fmt.Sprintf("%x", h.Sum(nil))
+	requestFromDate := context.GetRequestArgument("from")
+	if requestFromDate == "" {
+		requestFromDate = currentTime.Format("2006-01-02")
+	}
+	fromDate, _ := time.Parse("2006-01-02", requestFromDate)
+
+	requestToDate := context.GetRequestArgument("to")
+	if requestToDate == "" {
+		requestToDate = currentTime.AddDate(0, 0, -1).Format("2006-01-02")
+	}
+	toDate, _ := time.Parse("2006-01-02", requestToDate)
+
+	hashCode := md5.New()
+	io.WriteString(hashCode, requestFromDate+"/"+requestToDate)
+	periodHash := fmt.Sprintf("%x", hashCode.Sum(nil))
 
 	if _, ok := salesDetail[periodHash]; !ok {
 		salesDetail[periodHash] = &SalesDetailData{Data: make(map[string]int)}
@@ -270,7 +273,7 @@ func restGetSalesDetails(params *api.StructAPIHandlerParams) (interface{}, error
 }
 
 // WEB REST API used to get information on site top sellers
-func restGetTopSellers(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restGetTopSellers(context api.InterfaceApplicationContext) (interface{}, error) {
 	result := make(map[string]*SellerInfo)
 
 	salesCollection, err := db.GetCollection(ConstCollectionNameRTSSales)
@@ -280,34 +283,29 @@ func restGetTopSellers(params *api.StructAPIHandlerParams) (interface{}, error) 
 	salesCollection.AddFilter("count", ">", 0)
 	salesCollection.AddSort("count", true)
 	salesCollection.SetLimit(0, 5)
-	items, _ := salesCollection.Load()
+	collectionRecords, _ := salesCollection.Load()
 
-	productModel, err := product.GetProductModel()
-	if err != nil {
-		return result, env.ErrorDispatch(err)
-	}
-
-	for _, item := range items {
+	for _, item := range collectionRecords {
 		productID := utils.InterfaceToString(item["product_id"])
 		result[productID] = &SellerInfo{}
+
 		if _, ok := topSellers.Data[productID]; !ok {
 
-			product, err := product.LoadProductByID(productID)
+			productInstance, err := product.LoadProductByID(productID)
 			if err != nil {
 				return nil, env.ErrorDispatch(err)
 			}
 
-			productModel.SetID(productID)
-			mediaPath, err := productModel.GetMediaPath("image")
+			mediaPath, err := productInstance.GetMediaPath("image")
 			if err != nil {
 				return result, env.ErrorDispatch(err)
 			}
 
-			if product.GetDefaultImage() != "" {
-				result[productID].Image = mediaPath + product.GetDefaultImage()
+			if productInstance.GetDefaultImage() != "" {
+				result[productID].Image = mediaPath + productInstance.GetDefaultImage()
 			}
 
-			result[productID].Name = product.GetName()
+			result[productID].Name = productInstance.GetName()
 		}
 
 		result[productID].Count = utils.InterfaceToInt(item["count"])
@@ -317,7 +315,7 @@ func restGetTopSellers(params *api.StructAPIHandlerParams) (interface{}, error) 
 }
 
 // WEB REST API used to get information on site real time visitors
-func restGetVisitsRealtime(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restGetVisitsRealtime(context api.InterfaceApplicationContext) (interface{}, error) {
 	result := make(map[string]interface{})
 	ratio := float64(0)
 

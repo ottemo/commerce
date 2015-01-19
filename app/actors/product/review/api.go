@@ -41,9 +41,9 @@ func setupAPI() error {
 }
 
 // WEB REST API function used to get list of reviews for particular product
-func restReviewList(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restReviewList(context api.InterfaceApplicationContext) (interface{}, error) {
 
-	productObject, err := product.LoadProductByID(params.RequestURLParams["pid"])
+	productObject, err := product.LoadProductByID(context.GetRequestArgument("pid"))
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -65,9 +65,9 @@ func restReviewList(params *api.StructAPIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API function used to add new review for a product
-func restReviewAdd(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restReviewAdd(context api.InterfaceApplicationContext) (interface{}, error) {
 
-	visitorObject, err := visitor.GetCurrentVisitor(params)
+	visitorObject, err := visitor.GetCurrentVisitor(context)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -76,7 +76,7 @@ func restReviewAdd(params *api.StructAPIHandlerParams) (interface{}, error) {
 		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "2e671776-659b-4c1d-8590-a61f00a9d969", "guest visitor is no allowed to add review")
 	}
 
-	productObject, err := product.LoadProductByID(params.RequestURLParams["pid"])
+	productObject, err := product.LoadProductByID(context.GetRequestArgument("pid"))
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -89,7 +89,7 @@ func restReviewAdd(params *api.StructAPIHandlerParams) (interface{}, error) {
 	// rating update if was set
 	//-------------------------
 	ratingValue := 0
-	if starsValue, present := params.RequestURLParams["stars"]; present {
+	if starsValue := context.GetRequestArgument("stars"); starsValue != "" {
 
 		starsNum := utils.InterfaceToInt(starsValue)
 		if starsNum <= 0 || starsNum > 5 {
@@ -151,7 +151,7 @@ func restReviewAdd(params *api.StructAPIHandlerParams) (interface{}, error) {
 		"visitor_id": visitorObject.GetID(),
 		"username":   visitorObject.GetFullName(),
 		"rating":     ratingValue,
-		"review":     params.RequestContent,
+		"review":     context.GetRequestContent(),
 		"created_at": time.Now(),
 	}
 
@@ -166,11 +166,11 @@ func restReviewAdd(params *api.StructAPIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API function used to remove review for a product
-func restReviewRemove(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restReviewRemove(context api.InterfaceApplicationContext) (interface{}, error) {
 
-	reviewID := params.RequestURLParams["reviewID"]
+	reviewID := context.GetRequestArgument("reviewID")
 
-	visitorObject, err := visitor.GetCurrentVisitor(params)
+	visitorObject, err := visitor.GetCurrentVisitor(context)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -192,7 +192,7 @@ func restReviewRemove(params *api.StructAPIHandlerParams) (interface{}, error) {
 	if visitorID, present := reviewRecord["visitor_id"]; present {
 
 		// check rights
-		if err := api.ValidateAdminRights(params); err != nil {
+		if err := api.ValidateAdminRights(context); err != nil {
 			if visitorID != visitorObject.GetID() {
 				return nil, env.ErrorDispatch(err)
 			}
@@ -234,9 +234,9 @@ func restReviewRemove(params *api.StructAPIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API function used to get product rating info
-func restRatingInfo(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restRatingInfo(context api.InterfaceApplicationContext) (interface{}, error) {
 
-	productObject, err := product.LoadProductByID(params.RequestURLParams["pid"])
+	productObject, err := product.LoadProductByID(context.GetRequestArgument("pid"))
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}

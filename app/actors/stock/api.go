@@ -42,7 +42,7 @@ func setupAPI() error {
 }
 
 // WEB REST API used obtain stock information on particular product-options pair
-func restStockInfo(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restStockInfo(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// receiving database information
 	dbCollection, err := db.GetCollection(ConstCollectionNameStock)
@@ -51,7 +51,7 @@ func restStockInfo(params *api.StructAPIHandlerParams) (interface{}, error) {
 		return nil, err
 	}
 
-	err = dbCollection.AddFilter("product_id", "=", params.RequestURLParams["productID"])
+	err = dbCollection.AddFilter("product_id", "=", context.GetRequestArgument("productID"))
 	if err != nil {
 		env.ErrorDispatch(err)
 		return nil, err
@@ -67,9 +67,9 @@ func restStockInfo(params *api.StructAPIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API used get available qty on particular product-options pair
-func restStockGet(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restStockGet(context api.InterfaceApplicationContext) (interface{}, error) {
 
-	requestData, err := api.GetRequestContentAsMap(params)
+	requestData, err := api.GetRequestContentAsMap(context)
 	if err != nil {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "a4d6f5ae-35be-44c4-a1ff-6b7c17e05a73", "unexpected request content")
 	}
@@ -79,7 +79,7 @@ func restStockGet(params *api.StructAPIHandlerParams) (interface{}, error) {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "0d7805ef-e13e-47c3-8873-5ccf29749863", "no registered stock manager")
 	}
 
-	productID := params.RequestURLParams["productID"]
+	productID := context.GetRequestArgument("productID")
 	options := make(map[string]interface{})
 	if requestedOptions, present := requestData["options"]; present {
 		options = utils.InterfaceToMap(requestedOptions)
@@ -89,8 +89,8 @@ func restStockGet(params *api.StructAPIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API used set available qty on particular product-options pair
-func restStockSet(params *api.StructAPIHandlerParams) (interface{}, error) {
-	requestData, err := api.GetRequestContentAsMap(params)
+func restStockSet(context api.InterfaceApplicationContext) (interface{}, error) {
+	requestData, err := api.GetRequestContentAsMap(context)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -100,8 +100,8 @@ func restStockSet(params *api.StructAPIHandlerParams) (interface{}, error) {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "b72e9050-cd30-4d9e-a3da-20b843fce518", "no registered stock manager")
 	}
 
-	productID := params.RequestURLParams["productID"]
-	qty := utils.InterfaceToInt(params.RequestURLParams["qty"])
+	productID := context.GetRequestArgument("productID")
+	qty := utils.InterfaceToInt(context.GetRequestArgument("qty"))
 
 	options := make(map[string]interface{})
 	if requestedOptions, present := requestData["options"]; present {
@@ -112,8 +112,8 @@ func restStockSet(params *api.StructAPIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API used to increase available qty on particular product-options pair for a delta value
-func restStockUpdate(params *api.StructAPIHandlerParams) (interface{}, error) {
-	requestData, err := api.GetRequestContentAsMap(params)
+func restStockUpdate(context api.InterfaceApplicationContext) (interface{}, error) {
+	requestData, err := api.GetRequestContentAsMap(context)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -123,8 +123,8 @@ func restStockUpdate(params *api.StructAPIHandlerParams) (interface{}, error) {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "c03d0b95-400e-415f-8c4a-26863993adbc", "no registered stock manager")
 	}
 
-	productID := params.RequestURLParams["productID"]
-	qty := utils.InterfaceToInt(params.RequestURLParams["delta"])
+	productID := context.GetRequestArgument("productID")
+	qty := utils.InterfaceToInt(context.GetRequestArgument("delta"))
 
 	options := make(map[string]interface{})
 	if requestedOptions, present := requestData["options"]; present {
@@ -135,8 +135,8 @@ func restStockUpdate(params *api.StructAPIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API used to remove product-options qty data from stock
-func restStockRemove(params *api.StructAPIHandlerParams) (interface{}, error) {
-	requestData, err := api.GetRequestContentAsMap(params)
+func restStockRemove(context api.InterfaceApplicationContext) (interface{}, error) {
+	requestData, err := api.GetRequestContentAsMap(context)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -146,7 +146,7 @@ func restStockRemove(params *api.StructAPIHandlerParams) (interface{}, error) {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "9a4ca9aa-a12f-4913-9505-e05802a94c32", "no registered stock manager")
 	}
 
-	productID := params.RequestURLParams["productID"]
+	productID := context.GetRequestArgument("productID")
 
 	options := make(map[string]interface{})
 	if requestedOptions, present := requestData["options"]; present {

@@ -50,7 +50,7 @@ func setupAPI() error {
 }
 
 // WEB REST API function to get CMS page available attributes information
-func restCMSPageAttributes(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restCMSPageAttributes(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	cmsPage, err := cms.GetCMSPageModel()
 	if err != nil {
@@ -61,16 +61,13 @@ func restCMSPageAttributes(params *api.StructAPIHandlerParams) (interface{}, err
 }
 
 // WEB REST API function used to obtain CMS pages list
-func restCMSPageList(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restCMSPageList(context api.InterfaceApplicationContext) (interface{}, error) {
 
-	// check request params
+	// check request context
 	//---------------------
-	reqData, ok := params.RequestContent.(map[string]interface{})
-	if !ok {
-		if params.Request.Method == "POST" {
-			return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "4813d3ab-67e4-4abf-b1f8-906e75cdd907", "unexpected request content")
-		}
-		reqData = make(map[string]interface{})
+	reqData, err := api.GetRequestContentAsMap(context)
+	if err != nil {
+		return nil, err
 	}
 
 	// operation start
@@ -81,13 +78,13 @@ func restCMSPageList(params *api.StructAPIHandlerParams) (interface{}, error) {
 	}
 
 	// limit parameter handle
-	cmsPageCollectionModel.ListLimit(api.GetListLimit(params))
+	cmsPageCollectionModel.ListLimit(api.GetListLimit(context))
 
 	// filters handle
-	api.ApplyFilters(params, cmsPageCollectionModel.GetDBCollection())
+	api.ApplyFilters(context, cmsPageCollectionModel.GetDBCollection())
 
 	// not allowing to see disabled if not admin
-	if err := api.ValidateAdminRights(params); err != nil {
+	if err := api.ValidateAdminRights(context); err != nil {
 		cmsPageCollectionModel.GetDBCollection().AddFilter("enabled", "=", true)
 	}
 
@@ -106,7 +103,7 @@ func restCMSPageList(params *api.StructAPIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API function used to obtain CMS pages count in model collection
-func restCMSPageCount(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restCMSPageCount(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	cmsPageCollectionModel, err := cms.GetCMSPageCollectionModel()
 	if err != nil {
@@ -115,10 +112,10 @@ func restCMSPageCount(params *api.StructAPIHandlerParams) (interface{}, error) {
 	dbCollection := cmsPageCollectionModel.GetDBCollection()
 
 	// filters handle
-	api.ApplyFilters(params, dbCollection)
+	api.ApplyFilters(context, dbCollection)
 
 	// not allowing to see disabled if not admin
-	if err := api.ValidateAdminRights(params); err != nil {
+	if err := api.ValidateAdminRights(context); err != nil {
 		dbCollection.AddFilter("enabled", "=", true)
 	}
 
@@ -126,15 +123,14 @@ func restCMSPageCount(params *api.StructAPIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API function to get CMS page information
-func restCMSPageGet(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restCMSPageGet(context api.InterfaceApplicationContext) (interface{}, error) {
 
-	// check request params
+	// check request context
 	//---------------------
-	reqPageID, present := params.RequestURLParams["id"]
-	if !present {
+	pageID := context.GetRequestArgument("id")
+	if pageID == "" {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "4c0a288a-03a4-4375-9fb3-1abd7981aecd", "cms page id should be specified")
 	}
-	pageID := utils.InterfaceToString(reqPageID)
 
 	// operation
 	//----------
@@ -144,7 +140,7 @@ func restCMSPageGet(params *api.StructAPIHandlerParams) (interface{}, error) {
 	}
 
 	// not allowing to see disabled if not admin
-	if api.ValidateAdminRights(params) != nil && !cmsPage.GetEnabled() {
+	if api.ValidateAdminRights(context) != nil && !cmsPage.GetEnabled() {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "fa76f5ac-0cce-4670-9e62-197a600ec0b9", "cms page is not available")
 	}
 
@@ -155,17 +151,17 @@ func restCMSPageGet(params *api.StructAPIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API for adding new CMS page in system
-func restCMSPageAdd(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restCMSPageAdd(context api.InterfaceApplicationContext) (interface{}, error) {
 
-	// check request params
+	// check request context
 	//---------------------
-	reqData, err := api.GetRequestContentAsMap(params)
+	reqData, err := api.GetRequestContentAsMap(context)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
 	// check rights
-	if err := api.ValidateAdminRights(params); err != nil {
+	if err := api.ValidateAdminRights(context); err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
@@ -187,22 +183,22 @@ func restCMSPageAdd(params *api.StructAPIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API for update existing CMS page in system
-func restCMSPageUpdate(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restCMSPageUpdate(context api.InterfaceApplicationContext) (interface{}, error) {
 
-	// check request params
+	// check request context
 	//---------------------
-	pageID, present := params.RequestURLParams["id"]
-	if !present {
+	pageID := context.GetRequestArgument("id")
+	if pageID == "" {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "f128b02f-4ca5-494b-920d-5f320d112636", "cms page id should be specified")
 	}
 
-	reqData, err := api.GetRequestContentAsMap(params)
+	reqData, err := api.GetRequestContentAsMap(context)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
 	// check rights
-	if err := api.ValidateAdminRights(params); err != nil {
+	if err := api.ValidateAdminRights(context); err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
@@ -224,17 +220,17 @@ func restCMSPageUpdate(params *api.StructAPIHandlerParams) (interface{}, error) 
 }
 
 // WEB REST API used to delete CMS page from system
-func restCMSPageDelete(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restCMSPageDelete(context api.InterfaceApplicationContext) (interface{}, error) {
 
-	// check request params
+	// check request context
 	//---------------------
-	pageID, present := params.RequestURLParams["id"]
-	if !present {
+	pageID := context.GetRequestArgument("id")
+	if pageID == "" {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "20545153-b171-4638-b47e-15317e85262c", "cms page id should be specified")
 	}
 
 	// check rights
-	if err := api.ValidateAdminRights(params); err != nil {
+	if err := api.ValidateAdminRights(context); err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 

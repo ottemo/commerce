@@ -1,6 +1,7 @@
 package product
 
 import (
+	"io/ioutil"
 	"math/rand"
 	"mime"
 	"strings"
@@ -121,7 +122,7 @@ func setupAPI() error {
 //----------------------
 
 // WEB REST API function used to obtain product attributes information
-func restListProductAttributes(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restListProductAttributes(context api.InterfaceApplicationContext) (interface{}, error) {
 	productModel, err := product.GetProductModel()
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
@@ -133,19 +134,19 @@ func restListProductAttributes(params *api.StructAPIHandlerParams) (interface{},
 }
 
 // WEB REST API function used to edit existing custom attribute fields (except id and name)
-func restEditProductAttribute(params *api.StructAPIHandlerParams) (interface{}, error) {
-	reqData, err := api.GetRequestContentAsMap(params)
+func restEditProductAttribute(context api.InterfaceApplicationContext) (interface{}, error) {
+	reqData, err := api.GetRequestContentAsMap(context)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	attributeName, isSpecified := params.RequestURLParams["attribute"]
-	if !isSpecified {
+	attributeName := context.GetRequestArgument("attribute")
+	if attributeName == "" {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "cb8f7251-e22b-4605-97bb-e239df6c7aac", "attribute name was not specified")
 	}
 
 	// check rights
-	if err := api.ValidateAdminRights(params); err != nil {
+	if err := api.ValidateAdminRights(context); err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
@@ -194,11 +195,11 @@ func restEditProductAttribute(params *api.StructAPIHandlerParams) (interface{}, 
 }
 
 // WEB REST API function used to add new one custom attribute
-func restAddProductAttribute(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restAddProductAttribute(context api.InterfaceApplicationContext) (interface{}, error) {
 
-	// check request params
+	// check request context
 	//---------------------
-	reqData, err := api.GetRequestContentAsMap(params)
+	reqData, err := api.GetRequestContentAsMap(context)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -214,7 +215,7 @@ func restAddProductAttribute(params *api.StructAPIHandlerParams) (interface{}, e
 	}
 
 	// check rights
-	if err := api.ValidateAdminRights(params); err != nil {
+	if err := api.ValidateAdminRights(context); err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
@@ -274,17 +275,17 @@ func restAddProductAttribute(params *api.StructAPIHandlerParams) (interface{}, e
 }
 
 // WEB REST API function used to remove custom attribute of product
-func restRemoveProductAttribute(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restRemoveProductAttribute(context api.InterfaceApplicationContext) (interface{}, error) {
 
-	// check request params
+	// check request context
 	//--------------------
-	attributeName, isSpecified := params.RequestURLParams["attribute"]
-	if !isSpecified {
+	attributeName := context.GetRequestArgument("attribute")
+	if attributeName == "" {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "cb8f7251-e22b-4605-97bb-e239df6c7aac", "attribute name was not specified")
 	}
 
 	// check rights
-	if err := api.ValidateAdminRights(params); err != nil {
+	if err := api.ValidateAdminRights(context); err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
@@ -305,12 +306,12 @@ func restRemoveProductAttribute(params *api.StructAPIHandlerParams) (interface{}
 
 // WEB REST API function used to obtain all product attributes
 //   - product id must be specified in request URI "http://[site:port]/product/get/:id"
-func restGetProduct(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restGetProduct(context api.InterfaceApplicationContext) (interface{}, error) {
 
-	// check request params
+	// check request context
 	//---------------------
-	productID, isSpecifiedID := params.RequestURLParams["id"]
-	if !isSpecifiedID {
+	productID := context.GetRequestArgument("id")
+	if productID == "" {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "feb3a463-622b-477e-a22d-c0a3fd1972dc", "product id was not specified")
 	}
 
@@ -322,7 +323,7 @@ func restGetProduct(params *api.StructAPIHandlerParams) (interface{}, error) {
 	}
 
 	// not allowing to see disabled products if not admin
-	if api.ValidateAdminRights(params) != nil && productModel.GetEnabled() == false {
+	if api.ValidateAdminRights(context) != nil && productModel.GetEnabled() == false {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "153673ac-1008-40b5-ada9-2286ad3f02b0", "product not available")
 	}
 
@@ -332,21 +333,21 @@ func restGetProduct(params *api.StructAPIHandlerParams) (interface{}, error) {
 // WEB REST API used to create new one product
 //   - product attributes must be included in POST form
 //   - sku and name attributes required
-func restCreateProduct(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restCreateProduct(context api.InterfaceApplicationContext) (interface{}, error) {
 
-	// check request params
+	// check request context
 	//---------------------
-	reqData, err := api.GetRequestContentAsMap(params)
+	reqData, err := api.GetRequestContentAsMap(context)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	if !utils.KeysInMapAndNotBlank(params.RequestURLParams, "sku", "name") {
+	if !utils.KeysInMapAndNotBlank(context.GetRequestArguments(), "sku", "name") {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "2a0cf2b0-215e-4b53-bf55-98fbfe22cd27", "product name and/or sku were not specified")
 	}
 
 	// check rights
-	if err := api.ValidateAdminRights(params); err != nil {
+	if err := api.ValidateAdminRights(context); err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
@@ -374,17 +375,17 @@ func restCreateProduct(params *api.StructAPIHandlerParams) (interface{}, error) 
 
 // WEB REST API used to delete product
 //   - product attributes must be included in POST form
-func restDeleteProduct(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restDeleteProduct(context api.InterfaceApplicationContext) (interface{}, error) {
 
-	// check request params
+	// check request context
 	//--------------------
-	productID, isSpecifiedID := params.RequestURLParams["id"]
-	if !isSpecifiedID {
+	productID := context.GetRequestArgument("id")
+	if productID == "" {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "f35af170-8172-4ec0-b30d-ab883231d222", "product id was not specified")
 	}
 
 	// check rights
-	if err := api.ValidateAdminRights(params); err != nil {
+	if err := api.ValidateAdminRights(context); err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
@@ -406,22 +407,22 @@ func restDeleteProduct(params *api.StructAPIHandlerParams) (interface{}, error) 
 // WEB REST API used to update existing product
 //   - product id must be specified in request URI
 //   - product attributes must be included in POST form
-func restUpdateProduct(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restUpdateProduct(context api.InterfaceApplicationContext) (interface{}, error) {
 
-	// check request params
+	// check request context
 	//---------------------
-	productID, isSpecifiedID := params.RequestURLParams["id"]
-	if !isSpecifiedID {
+	productID := context.GetRequestArgument("id")
+	if productID == "" {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "c91e8fc7-ca77-40d1-823c-e50f90b8b4b5", "product id was not specified")
 	}
 
-	reqData, err := api.GetRequestContentAsMap(params)
+	reqData, err := api.GetRequestContentAsMap(context)
 	if err != nil {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "fffccbad-455a-4fff-81d4-8919ae3a5c35", "unexpected request content")
 	}
 
 	// check rights
-	if err := api.ValidateAdminRights(params); err != nil {
+	if err := api.ValidateAdminRights(context); err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
@@ -449,17 +450,17 @@ func restUpdateProduct(params *api.StructAPIHandlerParams) (interface{}, error) 
 
 // WEB REST API used to add media for a product
 //   - product id, media type must be specified in request URI
-func restMediaPath(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restMediaPath(context api.InterfaceApplicationContext) (interface{}, error) {
 
-	// check request params
+	// check request context
 	//---------------------
-	productID, isIDSpecified := params.RequestURLParams["productID"]
-	if !isIDSpecified {
+	productID := context.GetRequestArgument("productID")
+	if productID == "" {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "6597ff92-f2ee-4233-bcf9-eb73b957fb05", "product id was not specified")
 	}
 
-	mediaType, isTypeSpecified := params.RequestURLParams["mediaType"]
-	if !isTypeSpecified {
+	mediaType := context.GetRequestArgument("mediaType")
+	if mediaType == "" {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "75c00741-5873-4be1-9fa0-df9d2956d3de", "media type was not specified")
 	}
 
@@ -480,17 +481,17 @@ func restMediaPath(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 // WEB REST API used to add media for a product
 //   - product id, media type must be specified in request URI
-func restMediaList(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restMediaList(context api.InterfaceApplicationContext) (interface{}, error) {
 
-	// check request params
+	// check request context
 	//---------------------
-	productID, isIDSpecified := params.RequestURLParams["productID"]
-	if !isIDSpecified {
+	productID := context.GetRequestArgument("productID")
+	if productID == "" {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "52677450-8a7f-49c9-a472-51d0e80bc7ca", "product id was not specified")
 	}
 
-	mediaType, isTypeSpecified := params.RequestURLParams["mediaType"]
-	if !isTypeSpecified {
+	mediaType := context.GetRequestArgument("mediaType")
+	if productID == "" {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "b8b31a9f-6fac-47b3-89e2-c9b3e589a8f6", "media type was not specified")
 	}
 
@@ -512,42 +513,41 @@ func restMediaList(params *api.StructAPIHandlerParams) (interface{}, error) {
 // WEB REST API used to add media for a product
 //   - product id, media type and media name must be specified in request URI
 //   - media contents must be included as file in POST form
-func restMediaAdd(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restMediaAdd(context api.InterfaceApplicationContext) (interface{}, error) {
 
-	// check request params
+	// check request context
 	//---------------------
-	productID, isIDSpecified := params.RequestURLParams["productID"]
-	if !isIDSpecified {
+	productID := context.GetRequestArgument("productID")
+	if productID == "" {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "a4696c5d-3276-4272-8d86-8061e57743a5", "product id was not specified")
 	}
 
-	mediaType, isTypeSpecified := params.RequestURLParams["mediaType"]
-	if !isTypeSpecified {
+	mediaType := context.GetRequestArgument("mediaType")
+	if mediaType == "" {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "f3ea9a01-412a-4af2-9496-cb58cdb8139d", "media type was not specified")
 	}
 
-	mediaName, isNameSpecified := params.RequestURLParams["mediaName"]
-	if !isNameSpecified {
+	mediaName := context.GetRequestArgument("mediaName")
+	if mediaName == "" {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "23fb7617-f19a-4505-b706-10f7898fd980", "media name was not specified")
 	}
 
 	// check rights
-	if err := api.ValidateAdminRights(params); err != nil {
+	if err := api.ValidateAdminRights(context); err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
 	// income file processing
 	//-----------------------
-	file, _, err := params.Request.FormFile("file")
+	file := context.GetRequestFile("file")
+	if file == nil {
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "75a2ddaf-b63d-4eed-b16d-4b32778f5fc1", "media file was not specified")
+	}
+
+	fileContents, err := ioutil.ReadAll(file)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
-
-	fileSize, _ := file.Seek(0, 2)
-	fileContents := make([]byte, fileSize)
-
-	file.Seek(0, 0)
-	file.Read(fileContents)
 
 	// add media operation
 	//--------------------
@@ -566,27 +566,27 @@ func restMediaAdd(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 // WEB REST API used to add media for a product
 //   - product id, media type and media name must be specified in request URI
-func restMediaRemove(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restMediaRemove(context api.InterfaceApplicationContext) (interface{}, error) {
 
-	// check request params
+	// check request context
 	//---------------------
-	productID, isIDSpecified := params.RequestURLParams["productID"]
-	if !isIDSpecified {
+	productID := context.GetRequestArgument("productID")
+	if productID == "" {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "f5f77b7f-6606-4bdd-a113-0a3b26f5759c", "product id was not specified")
 	}
 
-	mediaType, isTypeSpecified := params.RequestURLParams["mediaType"]
-	if !isTypeSpecified {
+	mediaType := context.GetRequestArgument("mediaType")
+	if mediaType == "" {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "e81b841f-8253-4b66-ac7d-2cc9a484044c", "media type was not specified")
 	}
 
-	mediaName, isNameSpecified := params.RequestURLParams["mediaName"]
-	if !isNameSpecified {
+	mediaName := context.GetRequestArgument("mediaName")
+	if mediaName == "" {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "63b37b08-3b21-48b7-9058-291bb7e635a1", "media name was not specified")
 	}
 
 	// check rights
-	if err := api.ValidateAdminRights(params); err != nil {
+	if err := api.ValidateAdminRights(context); err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
@@ -607,26 +607,26 @@ func restMediaRemove(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 // WEB REST API used to get media contents for a product
 //   - product id, media type and media name must be specified in request URI
-func restMediaGet(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restMediaGet(context api.InterfaceApplicationContext) (interface{}, error) {
 
-	// check request params
+	// check request context
 	//---------------------
-	productID, isIDSpecified := params.RequestURLParams["productID"]
-	if !isIDSpecified {
+	productID := context.GetRequestArgument("productID")
+	if productID == "" {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "d33b8a67-359f-4a3e-b626-f58b6c70f09f", "product id was not specified")
 	}
 
-	mediaType, isTypeSpecified := params.RequestURLParams["mediaType"]
-	if !isTypeSpecified {
+	mediaType := context.GetRequestArgument("mediaType")
+	if mediaType == "" {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "d081b726-caf4-4694-baaa-7b1801ca9713", "media type was not specified")
 	}
 
-	mediaName, isNameSpecified := params.RequestURLParams["mediaName"]
-	if !isNameSpecified {
+	mediaName := context.GetRequestArgument("mediaName")
+	if mediaName == "" {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "124c8b9d-1a6b-491c-97ba-a03e8c828337", "media name was not specified")
 	}
 
-	params.ResponseWriter.Header().Set("Content-Type", mime.TypeByExtension(mediaName))
+	context.SetResponseContentType(mime.TypeByExtension(mediaName))
 
 	// list media operation
 	//---------------------
@@ -638,17 +638,13 @@ func restMediaGet(params *api.StructAPIHandlerParams) (interface{}, error) {
 	return productModel.GetMedia(mediaType, mediaName)
 }
 
-//--------------------------------
-// 2. DefaultProductCollection API
-//--------------------------------
-
 // WEB REST API function used to obtain product list we have in database
 //   - only [_id, sku, name] attributes returns by default
-func restListProducts(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restListProducts(context api.InterfaceApplicationContext) (interface{}, error) {
 
-	// check request params
+	// check request context
 	//---------------------
-	reqData, err := api.GetRequestContentAsMap(params)
+	reqData, err := api.GetRequestContentAsMap(context)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -661,13 +657,13 @@ func restListProducts(params *api.StructAPIHandlerParams) (interface{}, error) {
 	}
 
 	// limit parameter handle
-	productCollectionModel.ListLimit(api.GetListLimit(params))
+	productCollectionModel.ListLimit(api.GetListLimit(context))
 
 	// filters handle
-	api.ApplyFilters(params, productCollectionModel.GetDBCollection())
+	api.ApplyFilters(context, productCollectionModel.GetDBCollection())
 
 	// not allowing to see disabled products if not admin
-	if err := api.ValidateAdminRights(params); err != nil {
+	if err := api.ValidateAdminRights(context); err != nil {
 		productCollectionModel.GetDBCollection().AddFilter("enabled", "=", true)
 	}
 
@@ -685,16 +681,16 @@ func restListProducts(params *api.StructAPIHandlerParams) (interface{}, error) {
 	return productCollectionModel.List()
 }
 
-func restRelatedList(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restRelatedList(context api.InterfaceApplicationContext) (interface{}, error) {
 
-	// check request params
+	// check request context
 	//---------------------
-	productID, isSpecifiedID := params.RequestURLParams["productID"]
-	if !isSpecifiedID {
+	productID := context.GetRequestArgument("productID")
+	if productID == "" {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "55aa2eee-0407-4094-a90a-5d69d8c1efcc", "product id was not specified")
 	}
 
-	reqData, err := api.GetRequestContentAsMap(params)
+	reqData, err := api.GetRequestContentAsMap(context)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -738,7 +734,7 @@ func restRelatedList(params *api.StructAPIHandlerParams) (interface{}, error) {
 				if productModel, err := product.LoadProductByID(productID); err == nil {
 
 					// not allowing to see disabled products if not admin
-					if err := api.ValidateAdminRights(params); err != nil {
+					if err := api.ValidateAdminRights(context); err != nil {
 						if productModel.GetEnabled() == false {
 							continue
 						}
@@ -815,7 +811,7 @@ func restRelatedList(params *api.StructAPIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API function used to obtain visitors count in model collection
-func restCountProducts(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restCountProducts(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	productCollectionModel, err := product.GetProductCollectionModel()
 	if err != nil {
@@ -824,10 +820,10 @@ func restCountProducts(params *api.StructAPIHandlerParams) (interface{}, error) 
 	dbCollection := productCollectionModel.GetDBCollection()
 
 	// filters handle
-	api.ApplyFilters(params, dbCollection)
+	api.ApplyFilters(context, dbCollection)
 
 	// not allowing to see disabled products if not admin
-	if err := api.ValidateAdminRights(params); err != nil {
+	if err := api.ValidateAdminRights(context); err != nil {
 		productCollectionModel.GetDBCollection().AddFilter("enabled", "=", true)
 	}
 
@@ -835,7 +831,7 @@ func restCountProducts(params *api.StructAPIHandlerParams) (interface{}, error) 
 }
 
 // WEB REST API function used to obtain more detailed list of products (optimized to storefront shop)
-func restShopList(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restShopList(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	productsCollection, err := product.GetProductCollectionModel()
 	if err != nil {
@@ -844,10 +840,10 @@ func restShopList(params *api.StructAPIHandlerParams) (interface{}, error) {
 	dbCollection := productsCollection.GetDBCollection()
 
 	// filters handle
-	api.ApplyFilters(params, dbCollection)
+	api.ApplyFilters(context, dbCollection)
 
 	// not allowing to see disabled products if not admin
-	if err := api.ValidateAdminRights(params); err != nil {
+	if err := api.ValidateAdminRights(context); err != nil {
 		productsCollection.GetDBCollection().AddFilter("enabled", "=", true)
 	}
 
@@ -869,7 +865,7 @@ func restShopList(params *api.StructAPIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API function used to obtain layered navigation options for shop list
-func restShopLayers(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restShopLayers(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	productsCollection, err := product.GetProductCollectionModel()
 	if err != nil {
@@ -885,10 +881,10 @@ func restShopLayers(params *api.StructAPIHandlerParams) (interface{}, error) {
 
 	result := make(map[string]interface{})
 
-	api.ApplyFilters(params, productsDBCollection)
+	api.ApplyFilters(context, productsDBCollection)
 
 	// not allowing to see disabled products if not admin
-	if err := api.ValidateAdminRights(params); err != nil {
+	if err := api.ValidateAdminRights(context); err != nil {
 		productsDBCollection.AddFilter("enabled", "=", true)
 	}
 

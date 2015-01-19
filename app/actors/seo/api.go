@@ -54,7 +54,7 @@ func setupAPI() error {
 }
 
 // WEB REST API function used to obtain url rewrites list
-func restURLRewritesList(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restURLRewritesList(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	collection, err := db.GetCollection(ConstCollectionNameURLRewrites)
 	if err != nil {
@@ -68,30 +68,30 @@ func restURLRewritesList(params *api.StructAPIHandlerParams) (interface{}, error
 }
 
 // WEB REST API function used to obtain rewrite for specified url
-func restURLRewritesGet(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restURLRewritesGet(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	collection, err := db.GetCollection(ConstCollectionNameURLRewrites)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	collection.AddFilter("url", "=", params.RequestURLParams["url"])
+	collection.AddFilter("url", "=", context.GetRequestArgument("url"))
 	records, err := collection.Load()
 
 	return records, env.ErrorDispatch(err)
 }
 
 // WEB REST API function used to update existing url rewrite
-func restURLRewritesUpdate(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restURLRewritesUpdate(context api.InterfaceApplicationContext) (interface{}, error) {
 
-	// check request params
+	// check request context
 	//---------------------
 	// check rights
-	if err := api.ValidateAdminRights(params); err != nil {
+	if err := api.ValidateAdminRights(context); err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	postValues, err := api.GetRequestContentAsMap(params)
+	postValues, err := api.GetRequestContentAsMap(context)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -101,7 +101,7 @@ func restURLRewritesUpdate(params *api.StructAPIHandlerParams) (interface{}, err
 		return nil, env.ErrorDispatch(err)
 	}
 
-	urlRewriteID := params.RequestURLParams["id"]
+	urlRewriteID := context.GetRequestArgument("id")
 	record, err := collection.LoadByID(urlRewriteID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
@@ -144,23 +144,23 @@ func restURLRewritesUpdate(params *api.StructAPIHandlerParams) (interface{}, err
 }
 
 // WEB REST API function used to add url rewrite
-func restURLRewritesAdd(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restURLRewritesAdd(context api.InterfaceApplicationContext) (interface{}, error) {
 
-	// checking request params
+	// checking request context
 	//------------------------
 
 	// check rights
-	if err := api.ValidateAdminRights(params); err != nil {
+	if err := api.ValidateAdminRights(context); err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	postValues, err := api.GetRequestContentAsMap(params)
+	postValues, err := api.GetRequestContentAsMap(context)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
 	if !utils.KeysInMapAndNotBlank(postValues, "url", "rewrite") {
-		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "1a3901a1-48d5-4055-bacb-2b02681bbb71", "'url' and 'rewrite' params should be specified")
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "1a3901a1-48d5-4055-bacb-2b02681bbb71", "'url' and 'rewrite' context should be specified")
 	}
 
 	valueURL := utils.InterfaceToString(postValues["url"])
@@ -211,9 +211,9 @@ func restURLRewritesAdd(params *api.StructAPIHandlerParams) (interface{}, error)
 }
 
 // WEB REST API function used to delete url rewrite
-func restURLRewritesDelete(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restURLRewritesDelete(context api.InterfaceApplicationContext) (interface{}, error) {
 	// check rights
-	if err := api.ValidateAdminRights(params); err != nil {
+	if err := api.ValidateAdminRights(context); err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
@@ -222,7 +222,7 @@ func restURLRewritesDelete(params *api.StructAPIHandlerParams) (interface{}, err
 		return nil, env.ErrorDispatch(err)
 	}
 
-	err = collection.DeleteByID(params.RequestURLParams["id"])
+	err = collection.DeleteByID(context.GetRequestArgument("id"))
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -231,12 +231,12 @@ func restURLRewritesDelete(params *api.StructAPIHandlerParams) (interface{}, err
 }
 
 // WEB REST API function used to get sitemap
-func restSitemap(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restSitemap(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// if sitemap expied - generating new one
 	info, err := os.Stat(ConstSitemapFilePath)
 	if err != nil || (time.Now().Unix()-info.ModTime().Unix() >= ConstSitemapExpireSec) {
-		return restSitemapGenerate(params)
+		return restSitemapGenerate(context)
 	}
 
 	// using generated otherwise
@@ -246,18 +246,20 @@ func restSitemap(params *api.StructAPIHandlerParams) (interface{}, error) {
 	}
 	defer sitemapFile.Close()
 
-	params.ResponseWriter.Header().Set("Content-Type", "text/xml")
+	if responseWriter := context.GetResponseWriter(); responseWriter != nil {
+		context.SetResponseContentType("text/xml")
 
-	buffer := make([]byte, 1024)
-	for {
-		n, err := sitemapFile.Read(buffer)
-		if err != nil || n == 0 {
-			break
-		}
+		buffer := make([]byte, 1024)
+		for {
+			n, err := sitemapFile.Read(buffer)
+			if err != nil || n == 0 {
+				break
+			}
 
-		n, err = params.ResponseWriter.Write(buffer[0:n])
-		if err != nil || n == 0 {
-			break
+			n, err = responseWriter.Write(buffer[0:n])
+			if err != nil || n == 0 {
+				break
+			}
 		}
 	}
 
@@ -265,9 +267,10 @@ func restSitemap(params *api.StructAPIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API function used to generate new sitemap
-func restSitemapGenerate(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restSitemapGenerate(context api.InterfaceApplicationContext) (interface{}, error) {
 
-	params.ResponseWriter.Header().Set("Content-Type", "text/xml")
+	context.SetResponseContentType("text/xml")
+	responseWriter := context.GetResponseWriter()
 
 	// creating sitemap file
 	sitemapFile, err := os.Create(ConstSitemapFilePath)
@@ -279,8 +282,10 @@ func restSitemapGenerate(params *api.StructAPIHandlerParams) (interface{}, error
 	// writer to write into HTTP and file simultaneously
 	newline := []byte("\n")
 	writeLine := func(line []byte) {
-		params.ResponseWriter.Write(line)
-		params.ResponseWriter.Write(newline)
+		if responseWriter != nil {
+			responseWriter.Write(line)
+			responseWriter.Write(newline)
+		}
 
 		sitemapFile.Write(line)
 		sitemapFile.Write(newline)

@@ -28,14 +28,14 @@ func setupAPI() error {
 }
 
 // WEB REST API function to download current tax rates in CSV format
-func restTaxCSVDownload(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restTaxCSVDownload(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check rights
-	if err := api.ValidateAdminRights(params); err != nil {
+	if err := api.ValidateAdminRights(context); err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	csvWriter := csv.NewWriter(params.ResponseWriter)
+	csvWriter := csv.NewWriter(context.GetResponseWriter())
 
 	if dbEngine := db.GetDBEngine(); dbEngine != nil {
 		if collection, err := dbEngine.GetCollection("Taxes"); err == nil {
@@ -49,8 +49,8 @@ func restTaxCSVDownload(params *api.StructAPIHandlerParams) (interface{}, error)
 				return nil, env.ErrorDispatch(err)
 			}
 
-			params.ResponseWriter.Header().Set("Content-type", "text/csv")
-			params.ResponseWriter.Header().Set("Content-disposition", "attachment;filename=tax_rates.csv")
+			context.SetResponseContentType("text/csv")
+			context.SetResponseSetting("Content-disposition", "attachment;filename=tax_rates.csv")
 
 			for _, record := range records {
 				csvWriter.Write([]string{
@@ -73,16 +73,16 @@ func restTaxCSVDownload(params *api.StructAPIHandlerParams) (interface{}, error)
 }
 
 // WEB REST API function to upload tax rates into CSV
-func restTaxCSVUpload(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restTaxCSVUpload(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check rights
-	if err := api.ValidateAdminRights(params); err != nil {
+	if err := api.ValidateAdminRights(context); err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	csvFile, _, err := params.Request.FormFile("file")
-	if err != nil {
-		return nil, env.ErrorDispatch(err)
+	csvFile := context.GetRequestFile("file")
+	if csvFile == nil {
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "033b69a0-d33d-4bfe-b670-b469d3e86f90", "file unspecified")
 	}
 
 	csvReader := csv.NewReader(csvFile)

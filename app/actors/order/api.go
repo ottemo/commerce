@@ -50,7 +50,7 @@ func setupAPI() error {
 }
 
 // WEB REST API function to get order available attributes information
-func restOrderAttributes(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restOrderAttributes(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	orderModel, err := order.GetOrderModel()
 	if err != nil {
@@ -61,20 +61,17 @@ func restOrderAttributes(params *api.StructAPIHandlerParams) (interface{}, error
 }
 
 // WEB REST API function used to obtain orders list
-func restOrderList(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restOrderList(context api.InterfaceApplicationContext) (interface{}, error) {
 
-	// check request params
+	// check request context
 	//---------------------
-	reqData, ok := params.RequestContent.(map[string]interface{})
-	if !ok {
-		if params.Request.Method == "POST" {
-			return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "d4a758dd-3f03-44c5-b95e-c28a10aadf3c", "unexpected request content")
-		}
-		reqData = make(map[string]interface{})
+	reqData, err := api.GetRequestContentAsMap(context)
+	if err != nil {
+		return nil, err
 	}
 
 	// check rights
-	if err := api.ValidateAdminRights(params); err != nil {
+	if err := api.ValidateAdminRights(context); err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
@@ -86,10 +83,10 @@ func restOrderList(params *api.StructAPIHandlerParams) (interface{}, error) {
 	}
 
 	// limit parameter handle
-	orderCollectionModel.ListLimit(api.GetListLimit(params))
+	orderCollectionModel.ListLimit(api.GetListLimit(context))
 
 	// filters handle
-	api.ApplyFilters(params, orderCollectionModel.GetDBCollection())
+	api.ApplyFilters(context, orderCollectionModel.GetDBCollection())
 
 	// extra parameter handle
 	if extra, isExtra := reqData["extra"]; isExtra {
@@ -106,10 +103,10 @@ func restOrderList(params *api.StructAPIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API function used to obtain orders count in model collection
-func restOrderCount(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restOrderCount(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check rights
-	if err := api.ValidateAdminRights(params); err != nil {
+	if err := api.ValidateAdminRights(context); err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
@@ -120,24 +117,23 @@ func restOrderCount(params *api.StructAPIHandlerParams) (interface{}, error) {
 	dbCollection := orderCollectionModel.GetDBCollection()
 
 	// filters handle
-	api.ApplyFilters(params, dbCollection)
+	api.ApplyFilters(context, dbCollection)
 
 	return dbCollection.Count()
 }
 
 // WEB REST API function to get order information
-func restOrderGet(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restOrderGet(context api.InterfaceApplicationContext) (interface{}, error) {
 
-	// check request params
+	// check request context
 	//---------------------
-	reqBlockID, present := params.RequestURLParams["id"]
-	if !present {
+	blockID := context.GetRequestArgument("id")
+	if blockID == "" {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "723ef443-f974-4455-9be0-a8af13916554", "order id should be specified")
 	}
-	blockID := utils.InterfaceToString(reqBlockID)
 
 	// check rights
-	if err := api.ValidateAdminRights(params); err != nil {
+	if err := api.ValidateAdminRights(context); err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
@@ -154,22 +150,22 @@ func restOrderGet(params *api.StructAPIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API for update existing order in system
-func restOrderUpdate(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restOrderUpdate(context api.InterfaceApplicationContext) (interface{}, error) {
 
-	// check request params
+	// check request context
 	//---------------------
-	blockID, present := params.RequestURLParams["id"]
-	if !present {
+	blockID := context.GetRequestArgument("id")
+	if blockID == "" {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "20a08638-e9e6-428b-b70c-a418d7821e4b", "order id should be specified")
 	}
 
-	reqData, err := api.GetRequestContentAsMap(params)
+	reqData, err := api.GetRequestContentAsMap(context)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
 	// check rights
-	if err := api.ValidateAdminRights(params); err != nil {
+	if err := api.ValidateAdminRights(context); err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
@@ -191,17 +187,17 @@ func restOrderUpdate(params *api.StructAPIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API used to delete order from system
-func restOrderDelete(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restOrderDelete(context api.InterfaceApplicationContext) (interface{}, error) {
 
-	// check request params
+	// check request context
 	//---------------------
-	blockID, present := params.RequestURLParams["id"]
-	if !present {
+	blockID := context.GetRequestArgument("id")
+	if blockID == "" {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "fc3011c7-e58c-4433-b9b0-881a7ba005cf", "order id should be specified")
 	}
 
 	// check rights
-	if err := api.ValidateAdminRights(params); err != nil {
+	if err := api.ValidateAdminRights(context); err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 

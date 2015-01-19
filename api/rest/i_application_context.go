@@ -1,6 +1,7 @@
 package rest
 
 import (
+	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/utils"
 	"io"
 )
@@ -110,7 +111,8 @@ func (it *RestApplicationContext) GetResponseContentType() string {
 
 // SetResponseContentType changes response content type, returns error if not possible
 func (it *RestApplicationContext) SetResponseContentType(mimeType string) error {
-	return it.ResponseWriter.Header().Get("Content-Type")
+	it.ResponseWriter.Header().Set("Content-Type", mimeType)
+	return nil
 }
 
 func (it *RestApplicationContext) GetResponseSetting(name string) interface{} {
@@ -141,7 +143,7 @@ func (it *RestApplicationContext) GetContextValues() map[string]interface{} {
 
 // GetContextValue returns particular context related value or nil if not set
 func (it *RestApplicationContext) GetContextValue(key string) interface{} {
-	if value, present := it.ContextValues; present {
+	if value, present := it.ContextValues[key]; present {
 		return value
 	}
 	return nil
@@ -150,4 +152,15 @@ func (it *RestApplicationContext) GetContextValue(key string) interface{} {
 // SetContextValue stores specified value in current context
 func (it *RestApplicationContext) SetContextValue(key string, value interface{}) {
 	it.ContextValues[key] = value
+}
+
+// SetSession assigns given session to current context
+func (it *RestApplicationContext) SetSession(session api.InterfaceSession) error {
+	it.Session = session
+	return nil
+}
+
+// GetSession returns session assigned to current context or nil if nothing was assigned
+func (it *RestApplicationContext) GetSession() api.InterfaceSession {
+	return it.Session
 }

@@ -59,9 +59,9 @@ func setupAPI() error {
 }
 
 // WEB REST API function to get current checkout process status
-func restCheckoutInfo(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restCheckoutInfo(context api.InterfaceApplicationContext) (interface{}, error) {
 
-	currentCheckout, err := checkout.GetCurrentCheckout(params)
+	currentCheckout, err := checkout.GetCurrentCheckout(context)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -128,9 +128,9 @@ func restCheckoutInfo(params *api.StructAPIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API function to get possible payment methods for checkout
-func restCheckoutPaymentMethods(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restCheckoutPaymentMethods(context api.InterfaceApplicationContext) (interface{}, error) {
 
-	currentCheckout, err := checkout.GetCurrentCheckout(params)
+	currentCheckout, err := checkout.GetCurrentCheckout(context)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -152,9 +152,9 @@ func restCheckoutPaymentMethods(params *api.StructAPIHandlerParams) (interface{}
 }
 
 // WEB REST API function to get possible shipping methods for checkout
-func restCheckoutShippingMethods(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restCheckoutShippingMethods(context api.InterfaceApplicationContext) (interface{}, error) {
 
-	currentCheckout, err := checkout.GetCurrentCheckout(params)
+	currentCheckout, err := checkout.GetCurrentCheckout(context)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -176,14 +176,14 @@ func restCheckoutShippingMethods(params *api.StructAPIHandlerParams) (interface{
 }
 
 // WEB REST API function to set checkout related extra information
-func restCheckoutSetInfo(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restCheckoutSetInfo(context api.InterfaceApplicationContext) (interface{}, error) {
 
-	currentCheckout, err := checkout.GetCurrentCheckout(params)
+	currentCheckout, err := checkout.GetCurrentCheckout(context)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	reqData, err := api.GetRequestContentAsMap(params)
+	reqData, err := api.GetRequestContentAsMap(context)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -196,15 +196,15 @@ func restCheckoutSetInfo(params *api.StructAPIHandlerParams) (interface{}, error
 	}
 
 	// updating session
-	checkout.SetCurrentCheckout(params, currentCheckout)
+	checkout.SetCurrentCheckout(context, currentCheckout)
 
 	return "ok", nil
 }
 
 // internal function for  restCheckoutSetShippingAddress() and restCheckoutSetBillingAddress()
-func checkoutObtainAddress(params *api.StructAPIHandlerParams) (visitor.InterfaceVisitorAddress, error) {
+func checkoutObtainAddress(context api.InterfaceApplicationContext) (visitor.InterfaceVisitorAddress, error) {
 
-	reqData, err := api.GetRequestContentAsMap(params)
+	reqData, err := api.GetRequestContentAsMap(context)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -217,7 +217,7 @@ func checkoutObtainAddress(params *api.StructAPIHandlerParams) (visitor.Interfac
 			return nil, env.ErrorDispatch(err)
 		}
 
-		currentVisitorID := utils.InterfaceToString(params.Session.Get(visitor.ConstSessionKeyVisitorID))
+		currentVisitorID := utils.InterfaceToString(context.GetSession().Get(visitor.ConstSessionKeyVisitorID))
 		if visitorAddress.GetVisitorID() != currentVisitorID {
 			return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "bef27714-4ac5-4705-b59a-47c8e0bc5aa4", "address id is not related to current visitor")
 		}
@@ -238,7 +238,7 @@ func checkoutObtainAddress(params *api.StructAPIHandlerParams) (visitor.Interfac
 		}
 	}
 
-	visitorID := utils.InterfaceToString(params.Session.Get(visitor.ConstSessionKeyVisitorID))
+	visitorID := utils.InterfaceToString(context.GetSession().Get(visitor.ConstSessionKeyVisitorID))
 	visitorAddressModel.Set("visitor_id", visitorID)
 
 	if visitorAddressModel.GetID() != "" {
@@ -252,13 +252,13 @@ func checkoutObtainAddress(params *api.StructAPIHandlerParams) (visitor.Interfac
 }
 
 // WEB REST API function to set shipping address
-func restCheckoutSetShippingAddress(params *api.StructAPIHandlerParams) (interface{}, error) {
-	currentCheckout, err := checkout.GetCurrentCheckout(params)
+func restCheckoutSetShippingAddress(context api.InterfaceApplicationContext) (interface{}, error) {
+	currentCheckout, err := checkout.GetCurrentCheckout(context)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	address, err := checkoutObtainAddress(params)
+	address, err := checkoutObtainAddress(context)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -269,19 +269,19 @@ func restCheckoutSetShippingAddress(params *api.StructAPIHandlerParams) (interfa
 	}
 
 	// updating session
-	checkout.SetCurrentCheckout(params, currentCheckout)
+	checkout.SetCurrentCheckout(context, currentCheckout)
 
 	return address.ToHashMap(), nil
 }
 
 // WEB REST API function to set billing address
-func restCheckoutSetBillingAddress(params *api.StructAPIHandlerParams) (interface{}, error) {
-	currentCheckout, err := checkout.GetCurrentCheckout(params)
+func restCheckoutSetBillingAddress(context api.InterfaceApplicationContext) (interface{}, error) {
+	currentCheckout, err := checkout.GetCurrentCheckout(context)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	address, err := checkoutObtainAddress(params)
+	address, err := checkoutObtainAddress(context)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -292,22 +292,22 @@ func restCheckoutSetBillingAddress(params *api.StructAPIHandlerParams) (interfac
 	}
 
 	// updating session
-	checkout.SetCurrentCheckout(params, currentCheckout)
+	checkout.SetCurrentCheckout(context, currentCheckout)
 
 	return address.ToHashMap(), nil
 }
 
 // WEB REST API function to set payment method
-func restCheckoutSetPaymentMethod(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restCheckoutSetPaymentMethod(context api.InterfaceApplicationContext) (interface{}, error) {
 
-	currentCheckout, err := checkout.GetCurrentCheckout(params)
+	currentCheckout, err := checkout.GetCurrentCheckout(context)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
 	// looking for payment method
 	for _, paymentMethod := range checkout.GetRegisteredPaymentMethods() {
-		if paymentMethod.GetCode() == params.RequestURLParams["method"] {
+		if paymentMethod.GetCode() == context.GetRequestArgument("method") {
 			if paymentMethod.IsAllowed(currentCheckout) {
 
 				// updating checkout payment method
@@ -317,16 +317,16 @@ func restCheckoutSetPaymentMethod(params *api.StructAPIHandlerParams) (interface
 				}
 
 				// checking for additional info
-				contentValues, _ := api.GetRequestContentAsMap(params)
+				contentValues, _ := api.GetRequestContentAsMap(context)
 				for key, value := range contentValues {
 					currentCheckout.SetInfo(key, value)
 				}
 
-				eventData := map[string]interface{}{"session": params.Session, "paymentMethod": paymentMethod, "checkout": currentCheckout}
+				eventData := map[string]interface{}{"session": context.GetSession(), "paymentMethod": paymentMethod, "checkout": currentCheckout}
 				env.Event("api.checkout.setPayment", eventData)
 
 				// updating session
-				checkout.SetCurrentCheckout(params, currentCheckout)
+				checkout.SetCurrentCheckout(context, currentCheckout)
 
 				return "ok", nil
 			}
@@ -338,20 +338,20 @@ func restCheckoutSetPaymentMethod(params *api.StructAPIHandlerParams) (interface
 }
 
 // WEB REST API function to set payment method
-func restCheckoutSetShippingMethod(params *api.StructAPIHandlerParams) (interface{}, error) {
-	currentCheckout, err := checkout.GetCurrentCheckout(params)
+func restCheckoutSetShippingMethod(context api.InterfaceApplicationContext) (interface{}, error) {
+	currentCheckout, err := checkout.GetCurrentCheckout(context)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
 	// looking for shipping method
 	for _, shippingMethod := range checkout.GetRegisteredShippingMethods() {
-		if shippingMethod.GetCode() == params.RequestURLParams["method"] {
+		if shippingMethod.GetCode() == context.GetRequestArgument("method") {
 			if shippingMethod.IsAllowed(currentCheckout) {
 
 				// looking for shipping rate
 				for _, shippingRate := range shippingMethod.GetRates(currentCheckout) {
-					if shippingRate.Code == params.RequestURLParams["rate"] {
+					if shippingRate.Code == context.GetRequestArgument("rate") {
 
 						err := currentCheckout.SetShippingMethod(shippingMethod)
 						if err != nil {
@@ -364,7 +364,7 @@ func restCheckoutSetShippingMethod(params *api.StructAPIHandlerParams) (interfac
 						}
 
 						// updating session
-						checkout.SetCurrentCheckout(params, currentCheckout)
+						checkout.SetCurrentCheckout(context, currentCheckout)
 
 						return "ok", nil
 					}
@@ -380,9 +380,9 @@ func restCheckoutSetShippingMethod(params *api.StructAPIHandlerParams) (interfac
 }
 
 // WEB REST API function to submit checkout information and make order
-func restSubmit(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restSubmit(context api.InterfaceApplicationContext) (interface{}, error) {
 
-	currentCheckout, err := checkout.GetCurrentCheckout(params)
+	currentCheckout, err := checkout.GetCurrentCheckout(context)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}

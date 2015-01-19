@@ -50,6 +50,7 @@ type InterfaceApplicationContext interface {
 	GetResponse() interface{}
 
 	GetSession() InterfaceSession
+	SetSession(session InterfaceSession) error
 
 	GetContextValues() map[string]interface{}
 	GetContextValue(key string) interface{}

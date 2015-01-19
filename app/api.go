@@ -39,18 +39,14 @@ func setupAPI() error {
 }
 
 // WEB REST API function login application with root rights
-func restLogin(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restLogin(context api.InterfaceApplicationContext) (interface{}, error) {
 
-	var requestLogin string
-	var requestPassword string
+	var requestLogin string = context.GetRequestParameter("login")
+	var requestPassword string = context.GetRequestParameter("password")
 
-	if params.Request.Method == "GET" && utils.KeysInMapAndNotBlank(params.RequestGETParams, "login", "password") {
-		requestLogin = params.RequestGETParams["login"]
-		requestPassword = params.RequestGETParams["password"]
+	if requestLogin == "" || requestPassword == "" {
 
-	} else {
-
-		reqData, err := api.GetRequestContentAsMap(params)
+		reqData, err := api.GetRequestContentAsMap(context)
 		if err != nil {
 			return nil, env.ErrorDispatch(err)
 		}
@@ -67,7 +63,7 @@ func restLogin(params *api.StructAPIHandlerParams) (interface{}, error) {
 	rootPassword := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathStoreRootPassword))
 
 	if requestLogin == rootLogin && requestPassword == rootPassword {
-		params.Session.Set(api.ConstSessionKeyAdminRights, true)
+		context.GetSession().Set(api.ConstSessionKeyAdminRights, true)
 
 		return "ok", nil
 	}
@@ -76,8 +72,8 @@ func restLogin(params *api.StructAPIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API function logout application - session data clear
-func restLogout(params *api.StructAPIHandlerParams) (interface{}, error) {
-	err := params.Session.Close()
+func restLogout(context api.InterfaceApplicationContext) (interface{}, error) {
+	err := context.GetSession().Close()
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -85,16 +81,16 @@ func restLogout(params *api.StructAPIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API function to get info about current rights
-func restRightsInfo(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restRightsInfo(context api.InterfaceApplicationContext) (interface{}, error) {
 	result := make(map[string]interface{})
 
-	result["is_admin"] = utils.InterfaceToBool(params.Session.Get(api.ConstSessionKeyAdminRights))
+	result["is_admin"] = utils.InterfaceToBool(context.GetSession().Get(api.ConstSessionKeyAdminRights))
 
 	return result, nil
 }
 
 // WEB REST API function to get info about current rights
-func restStatusInfo(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restStatusInfo(context api.InterfaceApplicationContext) (interface{}, error) {
 	result := make(map[string]interface{})
 
 	result["Ottemo"] = GetVerboseVersion()

@@ -49,7 +49,7 @@ func setupAPI() error {
 }
 
 // WEB REST API function to get CMS block available attributes information
-func restCMSBlockAttributes(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restCMSBlockAttributes(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	cmsBlock, err := cms.GetCMSBlockModel()
 	if err != nil {
@@ -60,16 +60,13 @@ func restCMSBlockAttributes(params *api.StructAPIHandlerParams) (interface{}, er
 }
 
 // WEB REST API function used to obtain CMS blocks list
-func restCMSBlockList(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restCMSBlockList(context api.InterfaceApplicationContext) (interface{}, error) {
 
-	// check request params
+	// check request context
 	//---------------------
-	reqData, ok := params.RequestContent.(map[string]interface{})
-	if !ok {
-		if params.Request.Method == "POST" {
-			return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "b61f75c4-2be1-4547-8764-d7040b1edb2f", "unexpected request content")
-		}
-		reqData = make(map[string]interface{})
+	reqData, err := api.GetRequestContentAsMap(context)
+	if err != nil {
+		return nil, err
 	}
 
 	// operation start
@@ -80,10 +77,10 @@ func restCMSBlockList(params *api.StructAPIHandlerParams) (interface{}, error) {
 	}
 
 	// limit parameter handle
-	cmsBlockCollectionModel.ListLimit(api.GetListLimit(params))
+	cmsBlockCollectionModel.ListLimit(api.GetListLimit(context))
 
 	// filters handle
-	api.ApplyFilters(params, cmsBlockCollectionModel.GetDBCollection())
+	api.ApplyFilters(context, cmsBlockCollectionModel.GetDBCollection())
 
 	// extra parameter handle
 	if extra, isExtra := reqData["extra"]; isExtra {
@@ -100,7 +97,7 @@ func restCMSBlockList(params *api.StructAPIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API function used to obtain CMS blocks count in model collection
-func restCMSBlockCount(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restCMSBlockCount(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	cmsBlockCollectionModel, err := cms.GetCMSBlockCollectionModel()
 	if err != nil {
@@ -109,18 +106,18 @@ func restCMSBlockCount(params *api.StructAPIHandlerParams) (interface{}, error) 
 	dbCollection := cmsBlockCollectionModel.GetDBCollection()
 
 	// filters handle
-	api.ApplyFilters(params, dbCollection)
+	api.ApplyFilters(context, dbCollection)
 
 	return dbCollection.Count()
 }
 
 // WEB REST API function to get CMS block information
-func restCMSBlockGet(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restCMSBlockGet(context api.InterfaceApplicationContext) (interface{}, error) {
 
-	// check request params
+	// check request context
 	//---------------------
-	reqBlockID, present := params.RequestURLParams["id"]
-	if !present {
+	reqBlockID := context.GetRequestArgument("id")
+	if reqBlockID != "" {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "a6dd2812-5070-4869-8ae2-90c4bd28bf69", "cms block id should be specified")
 	}
 	blockID := utils.InterfaceToString(reqBlockID)
@@ -139,17 +136,17 @@ func restCMSBlockGet(params *api.StructAPIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API for adding new CMS block in system
-func restCMSBlockAdd(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restCMSBlockAdd(context api.InterfaceApplicationContext) (interface{}, error) {
 
-	// check request params
+	// check request context
 	//---------------------
-	reqData, err := api.GetRequestContentAsMap(params)
+	reqData, err := api.GetRequestContentAsMap(context)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
 	// check rights
-	if err := api.ValidateAdminRights(params); err != nil {
+	if err := api.ValidateAdminRights(context); err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
@@ -171,22 +168,22 @@ func restCMSBlockAdd(params *api.StructAPIHandlerParams) (interface{}, error) {
 }
 
 // WEB REST API for update existing CMS block in system
-func restCMSBlockUpdate(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restCMSBlockUpdate(context api.InterfaceApplicationContext) (interface{}, error) {
 
-	// check request params
+	// check request context
 	//---------------------
-	blockID, present := params.RequestURLParams["id"]
-	if !present {
+	blockID := context.GetRequestArgument("id")
+	if blockID == "" {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "a7f8db95-7495-49ba-9307-baa7d5f7ecef", "cms block id should be specified")
 	}
 
-	reqData, err := api.GetRequestContentAsMap(params)
+	reqData, err := api.GetRequestContentAsMap(context)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
 	// check rights
-	if err := api.ValidateAdminRights(params); err != nil {
+	if err := api.ValidateAdminRights(context); err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
@@ -208,17 +205,17 @@ func restCMSBlockUpdate(params *api.StructAPIHandlerParams) (interface{}, error)
 }
 
 // WEB REST API used to delete CMS block from system
-func restCMSBlockDelete(params *api.StructAPIHandlerParams) (interface{}, error) {
+func restCMSBlockDelete(context api.InterfaceApplicationContext) (interface{}, error) {
 
-	// check request params
+	// check request context
 	//---------------------
-	blockID, present := params.RequestURLParams["id"]
-	if !present {
+	blockID := context.GetRequestArgument("id")
+	if blockID == "" {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "8dd275d4-efaf-4e67-b24d-67b28acd74e5", "cms block id should be specified")
 	}
 
 	// check rights
-	if err := api.ValidateAdminRights(params); err != nil {
+	if err := api.ValidateAdminRights(context); err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
