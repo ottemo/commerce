@@ -1,19 +1,17 @@
 package rest
 
 import (
+	"encoding/json"
+	"encoding/xml"
 	"fmt"
-	"strings"
-	"time"
-
+	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
-
-	"encoding/json"
-	"encoding/xml"
+	"strings"
+	"time"
 
 	"github.com/julienschmidt/httprouter"
-
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/env"
 )
@@ -49,17 +47,17 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 		//----------------------------------
 
 		// getting URL params of request
-		mappedParams := make(map[string]string)
+		reqArguments := make(map[string]string)
 		for _, param := range params {
-			mappedParams[param.Key] = param.Value
+			reqArguments[param.Key] = param.Value
 		}
 
 		// getting params from URL, those after "?"
-		urlGETParams := make(map[string]string)
+		reqParameters := make(map[string]string)
 		urlParsedParams, err := url.ParseQuery(req.URL.RawQuery)
 		if err == nil {
 			for key, value := range urlParsedParams {
-				urlGETParams[key] = value[0]
+				reqParameters[key] = value[0]
 			}
 		}
 
@@ -127,26 +125,40 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 		//------------------
 
 		// preparing struct for API handler
-		apiParams := new(api.StructAPIHandlerParams)
-		apiParams.Request = req
-		apiParams.RequestURLParams = mappedParams
-		apiParams.RequestGETParams = urlGETParams
-		apiParams.RequestContent = content
-		apiParams.ResponseWriter = resp
+		applicationContext := new(RestApplicationContext)
+		applicationContext.Request = req
+		applicationContext.RequestArguments = reqArguments
+		applicationContext.RequestParameters = reqParameters
+		applicationContext.RequestContent = content
+		applicationContext.RequestFiles = make(map[string]io.Reader)
+		applicationContext.ResponseWriter = resp
+		applicationContext.ContextValues = make(map[string]interface{})
+
+		// collecting request files
+		if req.MultipartForm != nil && req.MultipartForm.File != nil {
+			for _, fileInfoArray := range req.MultipartForm.File {
+				for _, fileInfo := range fileInfoArray {
+					attachedFile, err := fileInfo.Open()
+					if err == nil {
+						applicationContext.RequestFiles[fileInfo.Filename] = attachedFile
+					}
+				}
+			}
+		}
 
 		// starting session for request
-		currentSession, err := api.StartSession(apiParams)
+		currentSession, err := api.StartSession(applicationContext)
 		if err != nil {
 			env.ErrorNew(ConstErrorModule, ConstErrorLevel, "c8a3bbf8-215f-4dff-b0e7-3d0d102ad02d", "Session init fail: "+err.Error())
 		}
-		apiParams.Session = currentSession
+		applicationContext.Session = currentSession
 
 		if ConstUseDebugLog {
 			env.Log(ConstDebugLogStorage, "REQUEST_"+debugRequestIdentifier, fmt.Sprintf("%s [%s]\n%#v\n", req.RequestURI, currentSession.GetID(), content))
 		}
 
 		// event for request
-		eventData := map[string]interface{}{"session": currentSession, "apiParams": apiParams}
+		eventData := map[string]interface{}{"session": currentSession, "context": applicationContext}
 		cookieReferrer, err := req.Cookie("X_Referrer")
 		if err != nil {
 			eventData["referrer"] = ""
@@ -156,7 +168,11 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 		env.Event("api.request", eventData)
 
 		// API handler processing
-		result, err := handler(apiParams)
+		result, err := handler(applicationContext)
+
+		if err == nil {
+			applicationContext.Result = result
+		}
 
 		// event for response
 		eventData["response"] = result

@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"net/http"
-	"net/url"
 
 	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/env"
@@ -13,38 +12,61 @@ import (
 )
 
 // StartSession returns session object for request or creates new one
-func StartSession(params *StructAPIHandlerParams) (InterfaceSession, error) {
+func StartSession(context InterfaceApplicationContext) (InterfaceSession, error) {
 
-	request := params.Request
-	responseWriter := params.ResponseWriter
+	request := context.GetRequest()
 
-	// check session-cookie
-	cookie, err := request.Cookie(ConstSessionCookieName)
-	if err == nil {
-		// looking for cookie-based session
-		sessionID := cookie.Value
+	// old method - HTTP specific
+	if request, ok := request.(http.Request); ok {
+		responseWriter := context.GetResponseWriter()
+		if responseWriter, ok := responseWriter.(http.ResponseWriter); ok {
+			// check session-cookie
+			cookie, err := request.Cookie(ConstSessionCookieName)
+			if err == nil {
+				// looking for cookie-based session
+				sessionID := cookie.Value
 
+				sessionInstance, err := currentSessionService.Get(sessionID)
+				if err == nil {
+					return sessionInstance, nil
+				}
+			} else {
+				if err != http.ErrNoCookie {
+					return nil, err
+				}
+			}
+
+			// session cookie is not set or expired, making new
+			result, err := currentSessionService.New()
+			if err != nil {
+				return nil, env.ErrorDispatch(err)
+			}
+
+			// storing session id to cookie
+			cookie = &http.Cookie{Name: ConstSessionCookieName, Value: result.GetID(), Path: "/"}
+			http.SetCookie(responseWriter, cookie)
+
+			return result, nil
+		}
+	}
+
+	// new approach - not HTTP related
+	if sessionID := context.GetRequestSetting(ConstSessionCookieName); sessionID != nil {
+		sessionID := utils.InterfaceToString(sessionID)
 		sessionInstance, err := currentSessionService.Get(sessionID)
 		if err == nil {
+			context.SetResponseSetting(ConstSessionCookieName, sessionInstance.GetID())
 			return sessionInstance, nil
 		}
-	} else {
-		if err != http.ErrNoCookie {
-			return nil, err
-		}
 	}
 
-	// session cookie is not set or expired, making new
-	result, err := currentSessionService.New()
-	if err != nil {
-		return nil, env.ErrorDispatch(err)
+	// session id not found of was not specified - making new session
+	sessionInstance, err := currentSessionService.New()
+	if err == nil {
+		context.SetResponseSetting(ConstSessionCookieName, sessionInstance.GetID())
 	}
 
-	// storing session id to cookie
-	cookie = &http.Cookie{Name: ConstSessionCookieName, Value: result.GetID(), Path: "/"}
-	http.SetCookie(responseWriter, cookie)
-
-	return result, nil
+	return sessionInstance, err
 }
 
 // NewSession returns new session instance
@@ -65,9 +87,9 @@ func GetSessionByID(sessionID string) (InterfaceSession, error) {
 }
 
 // ValidateAdminRights returns nil if admin rights allowed for current session
-func ValidateAdminRights(params *StructAPIHandlerParams) error {
+func ValidateAdminRights(context InterfaceApplicationContext) error {
 
-	if value := params.Session.Get(ConstSessionKeyAdminRights); value != nil {
+	if value := context.GetSession().Get(ConstSessionKeyAdminRights); value != nil {
 		if value, ok := value.(bool); ok && value {
 			return nil
 		}
@@ -75,7 +97,7 @@ func ValidateAdminRights(params *StructAPIHandlerParams) error {
 
 	// it is un-secure as request can be intercepted by malefactor, so use it only if no other way to do auth
 	// (we are using it for "gulp build" local tool, so all data within one host)
-	if value, present := params.RequestGETParams[ConstGETAuthParamName]; present {
+	if value := context.GetRequestParameter(ConstGETAuthParamName); value != "" {
 		if splited := strings.Split(value, ":"); len(splited) > 1 {
 			login := splited[0]
 			password := splited[1]
@@ -93,13 +115,10 @@ func ValidateAdminRights(params *StructAPIHandlerParams) error {
 }
 
 // GetRequestContentAsMap tries to represent HTTP request content in map[string]interface{} format
-func GetRequestContentAsMap(params *StructAPIHandlerParams) (map[string]interface{}, error) {
+func GetRequestContentAsMap(context InterfaceApplicationContext) (map[string]interface{}, error) {
 
-	result, ok := params.RequestContent.(map[string]interface{})
+	result, ok := context.GetRequestContent().(map[string]interface{})
 	if !ok {
-		if params.Request.Method == "POST" {
-			return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "ab71d4a9-0304-4d48-ae78-556aa56ac53c", "unexpected request content")
-		}
 		result = make(map[string]interface{})
 	}
 
@@ -107,7 +126,7 @@ func GetRequestContentAsMap(params *StructAPIHandlerParams) (map[string]interfac
 }
 
 // ApplyFilters modifies collection with applying filters from request URL
-func ApplyFilters(params *StructAPIHandlerParams, collection db.InterfaceDBCollection) error {
+func ApplyFilters(context InterfaceApplicationContext, collection db.InterfaceDBCollection) error {
 
 	// sets filter to particular attribute within collection
 	addFilterToCollection := func(attributeName string, attributeValue string, groupName string) {
@@ -175,12 +194,12 @@ func ApplyFilters(params *StructAPIHandlerParams, collection db.InterfaceDBColle
 	}
 
 	// checking arguments user set
-	for attributeName, attributeValue := range params.RequestGETParams {
+	for attributeName, attributeValue := range context.GetRequestParameters() {
 		switch attributeName {
 
 		// collection limit required
 		case "limit":
-			collection.SetLimit(GetListLimit(params))
+			collection.SetLimit(GetListLimit(context))
 
 			// collection sort required
 		case "sort":
@@ -245,15 +264,13 @@ func ApplyFilters(params *StructAPIHandlerParams, collection db.InterfaceDBColle
 //   "1,2" will return offset: 1, limit: 2, error: nil
 //   "2" will return offset: 0, limit: 2, error: nil
 //   "something wrong" will return offset: 0, limit: 0, error: [error msg]
-func GetListLimit(params *StructAPIHandlerParams) (int, int) {
+func GetListLimit(context InterfaceApplicationContext) (int, int) {
 	limitValue := ""
 
-	if value, isLimit := params.RequestURLParams["limit"]; isLimit {
-		limitValue = value
-	} else if value, isLimit := params.RequestGETParams["limit"]; isLimit {
-		limitValue = value
+	if value := context.GetRequestParameter("limit"); value != "" {
+		limitValue = utils.InterfaceToString(value)
 	} else {
-		contentMap, err := GetRequestContentAsMap(params)
+		contentMap, err := GetRequestContentAsMap(context)
 		if err == nil {
 			if value, isLimit := contentMap["limit"]; isLimit {
 				if value, ok := value.(string); ok {
@@ -262,7 +279,7 @@ func GetListLimit(params *StructAPIHandlerParams) (int, int) {
 			}
 		}
 	}
-	limitValue, _ = url.QueryUnescape(limitValue)
+	// limitValue, _ = url.QueryUnescape(limitValue)
 
 	splitResult := strings.Split(limitValue, ",")
 	if len(splitResult) > 1 {

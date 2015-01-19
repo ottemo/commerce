@@ -72,7 +72,7 @@ func restRegisterVisit(params *api.StructAPIHandlerParams) (interface{}, error) 
 
 	http.SetCookie(params.ResponseWriter, &http.Cookie{Name: "X_Referrer", Value: xReferrer, Path: "/"})
 
-	eventData := map[string]interface{}{"session": params.Session, "apiParams": params}
+	eventData := map[string]interface{}{"session": params.Session, "context": params}
 	env.Event("api.rts.visit", eventData)
 
 	return nil, nil

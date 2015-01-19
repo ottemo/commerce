@@ -12,6 +12,8 @@ import (
 
 // init makes package self-initialization routine
 func init() {
+	var _ api.InterfaceApplicationContext = new(RestApplicationContext)
+
 	instance := new(DefaultRestService)
 
 	api.RegisterRestService(instance)

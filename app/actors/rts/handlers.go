@@ -13,7 +13,7 @@ import (
 
 func referrerHandler(event string, data map[string]interface{}) bool {
 
-	params := data["apiParams"].(*api.StructAPIHandlerParams)
+	params := data["context"].(*api.StructAPIHandlerParams)
 	xReferrer := utils.InterfaceToString(params.Request.Header.Get("X-Referer"))
 	if "" == xReferrer {
 		return true
@@ -188,7 +188,7 @@ func registerVisitorAsOnlineHandler(event string, data map[string]interface{}) b
 	referrerType := ConstReferrerTypeDirect
 	referrer := ""
 	if "api.rts.visit" == event {
-		params := data["apiParams"].(*api.StructAPIHandlerParams)
+		params := data["context"].(*api.StructAPIHandlerParams)
 		xRreferrer := params.Request.Header.Get("X-Referer") // api.rts.visit
 		referrer = utils.InterfaceToString(xRreferrer)
 	}
