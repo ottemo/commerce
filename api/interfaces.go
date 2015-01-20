@@ -33,7 +33,7 @@ type InterfaceRestService interface {
 	GetName() string
 
 	Run() error
-	RegisterAPI(service string, method string, uri string, handler FuncAPIHandler) error
+	RegisterAPI(resource string, operation string, handler FuncAPIHandler) error
 
 	http.Handler
 }

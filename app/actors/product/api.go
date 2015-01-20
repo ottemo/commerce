@@ -22,94 +22,94 @@ func setupAPI() error {
 	// 1. DefaultProduct API
 	//----------------------
 	//TODO: shorten endpoint to just 'product/:id' as GET verb is enough - jwv
-	err = api.GetRestService().RegisterAPI("product", "GET", "get/:id", restGetProduct)
+	err = api.GetRestService().RegisterAPI("product/get/:id", api.ConstRESTOperationGet, restGetProduct)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 	//TODO: shorten endpoint to just 'product' as POST verb assumes creation - jwv
-	err = api.GetRestService().RegisterAPI("product", "POST", "create", restCreateProduct)
+	err = api.GetRestService().RegisterAPI("product/create", api.ConstRESTOperationCreate, restCreateProduct)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 	//TODO: shorten endpoint to just 'product/:id' as PUT verb describes it as an update - jwv
-	err = api.GetRestService().RegisterAPI("product", "PUT", "update/:id", restUpdateProduct)
+	err = api.GetRestService().RegisterAPI("product/update/:id", api.ConstRESTOperationUpdate, restUpdateProduct)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 	//TODO: shorten endpoint to just 'product/:id' as verb DELETE describes delete action - jwv
-	err = api.GetRestService().RegisterAPI("product", "DELETE", "delete/:id", restDeleteProduct)
+	err = api.GetRestService().RegisterAPI("product/delete/:id", api.ConstRESTOperationDelete, restDeleteProduct)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
 	//TODO: shorten endpoint to just 'product/attribute/:attribute' as DELETE verb indicates purpose - jwv
 	//TODO: shorten endpoint to just 'product/attribute' - jwv
-	err = api.GetRestService().RegisterAPI("product", "GET", "attribute/list", restListProductAttributes)
+	err = api.GetRestService().RegisterAPI("product/attribute/list", api.ConstRESTOperationGet, restListProductAttributes)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("product", "DELETE", "attribute/remove/:attribute", restRemoveProductAttribute)
+	err = api.GetRestService().RegisterAPI("product/attribute/remove/:attribute", api.ConstRESTOperationDelete, restRemoveProductAttribute)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("product", "POST", "attribute/add", restAddProductAttribute)
+	err = api.GetRestService().RegisterAPI("product/attribute/add", api.ConstRESTOperationCreate, restAddProductAttribute)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("product", "POST", "attribute/edit/:attribute", restEditProductAttribute)
+	err = api.GetRestService().RegisterAPI("product/attribute/edit/:attribute", api.ConstRESTOperationCreate, restEditProductAttribute)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
 	//TODO: shorten endpoint to just 'product/media/:productID/"mediaType/:mediaName' - jwv
-	err = api.GetRestService().RegisterAPI("product", "GET", "media/get/:productID/:mediaType/:mediaName", restMediaGet)
+	err = api.GetRestService().RegisterAPI("product/media/get/:productID/:mediaType/:mediaName", api.ConstRESTOperationGet, restMediaGet)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("product", "GET", "media/list/:productID/:mediaType", restMediaList)
+	err = api.GetRestService().RegisterAPI("product/media/list/:productID/:mediaType", api.ConstRESTOperationGet, restMediaList)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("product", "GET", "media/path/:productID/:mediaType", restMediaPath)
+	err = api.GetRestService().RegisterAPI("product/media/path/:productID/:mediaType", api.ConstRESTOperationGet, restMediaPath)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 	//TODO: remove 'add' from endpoint URL - jwv
-	err = api.GetRestService().RegisterAPI("product", "POST", "media/add/:productID/:mediaType/:mediaName", restMediaAdd)
+	err = api.GetRestService().RegisterAPI("product/media/add/:productID/:mediaType/:mediaName", api.ConstRESTOperationCreate, restMediaAdd)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 	//TODO: remove 'remove' from endpoint URL - jwv
-	err = api.GetRestService().RegisterAPI("product", "DELETE", "media/remove/:productID/:mediaType/:mediaName", restMediaRemove)
+	err = api.GetRestService().RegisterAPI("product/media/remove/:productID/:mediaType/:mediaName", api.ConstRESTOperationDelete, restMediaRemove)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 	//TODO: change to a GET as we are retrieving a list not creating one - jwv
-	err = api.GetRestService().RegisterAPI("product", "POST", "related/:productID", restRelatedList)
+	err = api.GetRestService().RegisterAPI("product/related/:productID", api.ConstRESTOperationCreate, restRelatedList)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
 	// 2. DefaultProductCollection API
 	//--------------------------------
-	err = api.GetRestService().RegisterAPI("product", "GET", "list", restListProducts)
+	err = api.GetRestService().RegisterAPI("product/list", api.ConstRESTOperationGet, restListProducts)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("product", "POST", "list", restListProducts)
+	err = api.GetRestService().RegisterAPI("product/list", api.ConstRESTOperationCreate, restListProducts)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("product", "GET", "count", restCountProducts)
+	err = api.GetRestService().RegisterAPI("product/count", api.ConstRESTOperationGet, restCountProducts)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("product", "GET", "shop", restShopList)
+	err = api.GetRestService().RegisterAPI("product/shop", api.ConstRESTOperationGet, restShopList)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("product", "GET", "shop/layers", restShopLayers)
+	err = api.GetRestService().RegisterAPI("product/shop/layers", api.ConstRESTOperationGet, restShopLayers)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}

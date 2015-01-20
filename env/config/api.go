@@ -13,35 +13,35 @@ func setupAPI() error {
 
 	var err error
 
-	err = api.GetRestService().RegisterAPI("config", "GET", "groups", restConfigGroups)
+	err = api.GetRestService().RegisterAPI("config/groups", api.ConstRESTOperationGet, restConfigGroups)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("config", "GET", "info/:path", restConfigInfo)
+	err = api.GetRestService().RegisterAPI("config/info/:path", api.ConstRESTOperationGet, restConfigInfo)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("config", "GET", "list", restConfigList)
+	err = api.GetRestService().RegisterAPI("config/list", api.ConstRESTOperationGet, restConfigList)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("config", "GET", "get/:path", restConfigGet)
+	err = api.GetRestService().RegisterAPI("config/get/:path", api.ConstRESTOperationGet, restConfigGet)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("config", "POST", "set/:path", restConfigSet)
+	err = api.GetRestService().RegisterAPI("config/set/:path", api.ConstRESTOperationCreate, restConfigSet)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("config", "POST", "register", restConfigRegister)
+	err = api.GetRestService().RegisterAPI("config/register", api.ConstRESTOperationCreate, restConfigRegister)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("config", "DELETE", "unregister/:path", restConfigUnRegister)
+	err = api.GetRestService().RegisterAPI("config/unregister/:path", api.ConstRESTOperationDelete, restConfigUnRegister)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("config", "GET", "reload", restConfigReload)
+	err = api.GetRestService().RegisterAPI("config/reload", api.ConstRESTOperationGet, restConfigReload)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}

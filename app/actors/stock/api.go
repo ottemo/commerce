@@ -13,27 +13,27 @@ func setupAPI() error {
 
 	var err error
 
-	err = api.GetRestService().RegisterAPI("stock", "GET", "info/:productID", restStockInfo)
+	err = api.GetRestService().RegisterAPI("stock/info/:productID", api.ConstRESTOperationGet, restStockInfo)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("stock", "POST", "get/:productID", restStockGet)
+	err = api.GetRestService().RegisterAPI("stock/get/:productID", api.ConstRESTOperationCreate, restStockGet)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("stock", "POST", "set/:productID/:qty", restStockSet)
+	err = api.GetRestService().RegisterAPI("stock/set/:productID/:qty", api.ConstRESTOperationCreate, restStockSet)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("stock", "PUT", "update/:productID/:delta", restStockUpdate)
+	err = api.GetRestService().RegisterAPI("stock/update/:productID/:delta", api.ConstRESTOperationUpdate, restStockUpdate)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("stock", "DELETE", "remove/:productID", restStockRemove)
+	err = api.GetRestService().RegisterAPI("stock/remove/:productID", api.ConstRESTOperationDelete, restStockRemove)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}

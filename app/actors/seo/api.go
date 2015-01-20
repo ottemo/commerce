@@ -20,32 +20,32 @@ func setupAPI() error {
 
 	var err error
 
-	err = api.GetRestService().RegisterAPI("url_rewrite", "GET", "list", restURLRewritesList)
+	err = api.GetRestService().RegisterAPI("url_rewrite/list", api.ConstRESTOperationGet, restURLRewritesList)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("url_rewrite", "GET", "get/:url", restURLRewritesGet)
+	err = api.GetRestService().RegisterAPI("url_rewrite/get/:url", api.ConstRESTOperationGet, restURLRewritesGet)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("url_rewrite", "POST", "add", restURLRewritesAdd)
+	err = api.GetRestService().RegisterAPI("url_rewrite/add", api.ConstRESTOperationCreate, restURLRewritesAdd)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("url_rewrite", "PUT", "update/:id", restURLRewritesUpdate)
+	err = api.GetRestService().RegisterAPI("url_rewrite/update/:id", api.ConstRESTOperationUpdate, restURLRewritesUpdate)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("url_rewrite", "DELETE", "delete/:id", restURLRewritesDelete)
+	err = api.GetRestService().RegisterAPI("url_rewrite/delete/:id", api.ConstRESTOperationDelete, restURLRewritesDelete)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("sitemap", "GET", "", restSitemapGenerate)
+	err = api.GetRestService().RegisterAPI("sitemap", api.ConstRESTOperationGet , restSitemapGenerate)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("sitemap", "GET", "sitemap.xml", restSitemap)
+	err = api.GetRestService().RegisterAPI("sitemap/sitemap.xml", api.ConstRESTOperationGet, restSitemap)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}

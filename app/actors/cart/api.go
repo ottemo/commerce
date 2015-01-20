@@ -12,19 +12,19 @@ func setupAPI() error {
 
 	var err error
 
-	err = api.GetRestService().RegisterAPI("cart", "GET", "info", restCartInfo)
+	err = api.GetRestService().RegisterAPI("cart", api.ConstRESTOperationGet, APICartInfo)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("cart", "POST", "add/:productID/:qty", restCartAdd)
+	err = api.GetRestService().RegisterAPI("cart/item/:productID/:qty", api.ConstRESTOperationCreate, APICartItemAdd)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("cart", "PUT", "update/:itemIdx/:qty", restCartUpdate)
+	err = api.GetRestService().RegisterAPI("cart/item/:itemIdx/:qty", api.ConstRESTOperationUpdate, APICartItemUpdate)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("cart", "DELETE", "delete/:itemIdx", restCartDelete)
+	err = api.GetRestService().RegisterAPI("cart/item/:itemIdx", api.ConstRESTOperationDelete, APICartItemDelete)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -32,9 +32,8 @@ func setupAPI() error {
 	return nil
 }
 
-// WEB REST API function to get cart information
-//   - parent categories and categorys will not be present in list
-func restCartInfo(context api.InterfaceApplicationContext) (interface{}, error) {
+// APICartInfo returns get cart related information
+func APICartInfo(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	currentCart, err := cart.GetCurrentCart(context)
 	if err != nil {
@@ -84,10 +83,9 @@ func restCartInfo(context api.InterfaceApplicationContext) (interface{}, error) 
 	return result, nil
 }
 
-// WEB REST API for adding new item into cart
-//   - "pid" (product id) should be specified
-//   - "qty" and "options" are optional context
-func restCartAdd(context api.InterfaceApplicationContext) (interface{}, error) {
+// APICartItemAdd adds specified product to cart
+//   - "productID" and "qty" should be specified as arguments
+func APICartItemAdd(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check request context
 	//---------------------
@@ -135,9 +133,9 @@ func restCartAdd(context api.InterfaceApplicationContext) (interface{}, error) {
 	return "ok", nil
 }
 
-// WEB REST API used to update cart item qty
-//   - "itemIdx" and "qty" should be specified in request URI
-func restCartUpdate(context api.InterfaceApplicationContext) (interface{}, error) {
+// APICartItemUpdate changes qty and/or option for cart item
+//   - "itemIdx" and "qty" should be specified as arguments
+func APICartItemUpdate(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check request context
 	//---------------------
@@ -185,9 +183,9 @@ func restCartUpdate(context api.InterfaceApplicationContext) (interface{}, error
 	return "ok", nil
 }
 
-// WEB REST API used to delete cart item from cart
-//   - "itemIdx" should be specified in request URI
-func restCartDelete(context api.InterfaceApplicationContext) (interface{}, error) {
+// APICartItemDelete removes specified item from cart item from cart
+//   - "itemIdx" should be specified as argument (item index can be obtained from APICartInfo)
+func APICartItemDelete(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	reqItemIdx := context.GetRequestArgument("itemIdx")
 	if reqItemIdx == "" {

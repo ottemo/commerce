@@ -3,12 +3,12 @@ package api
 import (
 	"strconv"
 	"strings"
-
 	"net/http"
 
 	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
+	"github.com/ottemo/foundation/app/models"
 )
 
 // StartSession returns session object for request or creates new one
@@ -123,6 +123,35 @@ func GetRequestContentAsMap(context InterfaceApplicationContext) (map[string]int
 	}
 
 	return result, nil
+}
+
+// ApplyExtraAttributes modifies given model collection with adding extra attributes to list
+//   - default attributes are specified in models.StructListItem as static fields
+//   - models.StructListItem fields can be not a direct copy of model attribute,
+//   - extra attributes are taken from model directly
+func ApplyExtraAttributes(context InterfaceApplicationContext, collection models.InterfaceCollection) error {
+	extra := context.GetRequestParameter("extra")
+	if extra == "" {
+		contentMap, err := GetRequestContentAsMap(context)
+		if err != nil {
+			return env.ErrorDispatch(err)
+		}
+		if contentMapExtra, present := contentMap["extra"]; present && contentMapExtra != "" {
+			extra = utils.InterfaceToString(contentMapExtra)
+		} else {
+			return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "0bc07b3d-1443-4594-af82-9d15211ed179", "no extra attributes specified")
+		}
+	}
+
+	extraAttributes := utils.Explode(utils.InterfaceToString(extra), ",")
+	for _, attributeName := range extraAttributes {
+		err := collection.ListAddExtraAttribute(attributeName)
+		if err != nil {
+			return env.ErrorDispatch(err)
+		}
+	}
+
+	return nil
 }
 
 // ApplyFilters modifies collection with applying filters from request URL

@@ -15,22 +15,22 @@ import (
 func setupAPI() error {
 	var err error
 
-	err = api.GetRestService().RegisterAPI("discount", "GET", "apply/:code", restDiscountApply)
+	err = api.GetRestService().RegisterAPI("discount/apply/:code", api.ConstRESTOperationGet, restDiscountApply)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("discount", "GET", "neglect/:code", restDiscountNeglect)
+	err = api.GetRestService().RegisterAPI("discount/neglect/:code", api.ConstRESTOperationGet, restDiscountNeglect)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("discount", "GET", "download/csv", restDiscountCSVDownload)
+	err = api.GetRestService().RegisterAPI("discount/download/csv", api.ConstRESTOperationGet, restDiscountCSVDownload)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("discount", "POST", "upload/csv", restDiscountCSVUpload)
+	err = api.GetRestService().RegisterAPI("discount/upload/csv", api.ConstRESTOperationCreate, restDiscountCSVUpload)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}

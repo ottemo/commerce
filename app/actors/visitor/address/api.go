@@ -10,44 +10,44 @@ import (
 
 // setupAPI setups package related API endpoint routines
 func setupAPI() error {
-	err := api.GetRestService().RegisterAPI("visitor/address", "POST", "create", restCreateVisitorAddress)
+	err := api.GetRestService().RegisterAPI("visitor/address/create", api.ConstRESTOperationCreate, restCreateVisitorAddress)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("visitor/address", "PUT", "update/:id", restUpdateVisitorAddress)
+	err = api.GetRestService().RegisterAPI("visitor/address/update/:id", api.ConstRESTOperationUpdate, restUpdateVisitorAddress)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("visitor/address", "DELETE", "delete/:id", restDeleteVisitorAddress)
+	err = api.GetRestService().RegisterAPI("visitor/address/delete/:id", api.ConstRESTOperationDelete, restDeleteVisitorAddress)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("visitor/address", "GET", "attribute/list", restListVisitorAddressAttributes)
+	err = api.GetRestService().RegisterAPI("visitor/address/attribute/list", api.ConstRESTOperationGet, restListVisitorAddressAttributes)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("visitor/address", "GET", "list", restListVisitorAddress)
+	err = api.GetRestService().RegisterAPI("visitor/address/list", api.ConstRESTOperationGet, restListVisitorAddress)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("visitor/address", "POST", "list", restListVisitorAddress)
+	err = api.GetRestService().RegisterAPI("visitor/address/list", api.ConstRESTOperationCreate, restListVisitorAddress)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("visitor/address", "GET", "count", restCountVisitorAddresses)
+	err = api.GetRestService().RegisterAPI("visitor/address/count", api.ConstRESTOperationGet, restCountVisitorAddresses)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("visitor/address", "GET", "list/:visitorID", restListVisitorAddress)
+	err = api.GetRestService().RegisterAPI("visitor/address/list/:visitorID", api.ConstRESTOperationGet, restListVisitorAddress)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("visitor/address", "POST", "list/:visitorID", restListVisitorAddress)
+	err = api.GetRestService().RegisterAPI("visitor/address/list/:visitorID", api.ConstRESTOperationCreate, restListVisitorAddress)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("visitor/address", "GET", "load/:id", restGetVisitorAddress)
+	err = api.GetRestService().RegisterAPI("visitor/address/load/:id", api.ConstRESTOperationGet, restGetVisitorAddress)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}

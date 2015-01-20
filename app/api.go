@@ -14,23 +14,23 @@ import (
 func setupAPI() error {
 	var err error
 
-	err = api.GetRestService().RegisterAPI("app", "GET", "login", restLogin)
+	err = api.GetRestService().RegisterAPI("app/login", api.ConstRESTOperationGet, restLogin)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("app", "POST", "login", restLogin)
+	err = api.GetRestService().RegisterAPI("app/login", api.ConstRESTOperationCreate, restLogin)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("app", "GET", "logout", restLogout)
+	err = api.GetRestService().RegisterAPI("app/logout", api.ConstRESTOperationGet, restLogout)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("app", "GET", "rights", restRightsInfo)
+	err = api.GetRestService().RegisterAPI("app/rights", api.ConstRESTOperationGet, restRightsInfo)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("app", "GET", "status", restStatusInfo)
+	err = api.GetRestService().RegisterAPI("app/status", api.ConstRESTOperationGet, restStatusInfo)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}

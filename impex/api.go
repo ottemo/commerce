@@ -17,29 +17,29 @@ func setupAPI() error {
 
 	var err error
 
-	err = api.GetRestService().RegisterAPI("impex", "GET", "models", restImpexListModels)
+	err = api.GetRestService().RegisterAPI("impex/models", api.ConstRESTOperationGet, restImpexListModels)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("impex", "GET", "export/:model", restImpexExportModel)
+	err = api.GetRestService().RegisterAPI("impex/export/:model", api.ConstRESTOperationGet, restImpexExportModel)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("impex", "POST", "import/:model", restImpexImportModel)
+	err = api.GetRestService().RegisterAPI("impex/import/:model", api.ConstRESTOperationCreate, restImpexImportModel)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("impex", "POST", "import", restImpexImport)
+	err = api.GetRestService().RegisterAPI("impex/import", api.ConstRESTOperationCreate, restImpexImport)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("impex", "POST", "test/import", restImpexTestImport)
+	err = api.GetRestService().RegisterAPI("impex/test/import", api.ConstRESTOperationCreate, restImpexTestImport)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("impex", "POST", "test/mapping", restImpexTestCsvToMap)
+	err = api.GetRestService().RegisterAPI("impex/test/mapping", api.ConstRESTOperationCreate, restImpexTestCsvToMap)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}

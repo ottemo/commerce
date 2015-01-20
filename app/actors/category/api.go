@@ -9,7 +9,6 @@ import (
 
 	"github.com/ottemo/foundation/app/models/category"
 	"github.com/ottemo/foundation/app/models/product"
-	"github.com/ottemo/foundation/utils"
 )
 
 // setupAPI setups package related API endpoint routines
@@ -17,70 +16,58 @@ func setupAPI() error {
 
 	var err error
 
-	err = api.GetRestService().RegisterAPI("category", "GET", "list", restListCategories)
+	err = api.GetRestService().RegisterAPI("categories", api.ConstRESTOperationGet, APICategoriesList)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("category", "POST", "list", restListCategories)
+	err = api.GetRestService().RegisterAPI("categories/count", api.ConstRESTOperationGet, APICategoriesCount)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("category", "GET", "count", restCountCategories)
-	if err != nil {
-		return env.ErrorDispatch(err)
-	}
-	err = api.GetRestService().RegisterAPI("category", "POST", "create", restCreateCategory)
-	if err != nil {
-		return env.ErrorDispatch(err)
-	}
-	err = api.GetRestService().RegisterAPI("category", "PUT", "update/:id", restUpdateCategory)
-	if err != nil {
-		return env.ErrorDispatch(err)
-	}
-	err = api.GetRestService().RegisterAPI("category", "DELETE", "delete/:id", restDeleteCategory)
-	if err != nil {
-		return env.ErrorDispatch(err)
-	}
-	err = api.GetRestService().RegisterAPI("category", "GET", "get/:id", restGetCategory)
-	if err != nil {
-		return env.ErrorDispatch(err)
-	}
-	err = api.GetRestService().RegisterAPI("category", "GET", "layers/:id", restListCategoryLayers)
-	if err != nil {
-		return env.ErrorDispatch(err)
-	}
-	err = api.GetRestService().RegisterAPI("category", "POST", "layers/:id", restListCategoryLayers)
+	err = api.GetRestService().RegisterAPI("categories/tree", api.ConstRESTOperationGet, APICategoriesTree)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("category", "GET", "product/list/:categoryID", restListCategoryProducts)
+	err = api.GetRestService().RegisterAPI("category", api.ConstRESTOperationCreate, APICategoryCreate)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("category", "POST", "product/list/:categoryID", restListCategoryProducts)
+	err = api.GetRestService().RegisterAPI("category/:id", api.ConstRESTOperationUpdate, APICategoryUpdate)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("category", "GET", "product/count/:categoryID", restCategoryProductsCount)
+	err = api.GetRestService().RegisterAPI("category/:id", api.ConstRESTOperationDelete, APICategoryDelete)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("category", "GET", "product/add/:categoryID/:productID", restAddCategoryProduct)
+	err = api.GetRestService().RegisterAPI("category/:id", api.ConstRESTOperationGet, APICategoryGet)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("category", "GET", "product/remove/:categoryID/:productID", restRemoveCategoryProduct)
-	if err != nil {
-		return env.ErrorDispatch(err)
-	}
-
-	err = api.GetRestService().RegisterAPI("category", "GET", "attribute/list", restListCategoryAttributes)
+	err = api.GetRestService().RegisterAPI("category/:id/layers", api.ConstRESTOperationGet, APICategoryLayers)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("category", "GET", "tree", restGetCategoriesTree)
+	err = api.GetRestService().RegisterAPI("category/attributes", api.ConstRESTOperationGet, APICategoryAttributes)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	err = api.GetRestService().RegisterAPI("category/:categoryID/products", api.ConstRESTOperationGet, APICategoryProducts)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+	err = api.GetRestService().RegisterAPI("category/:categoryID/products/count", api.ConstRESTOperationGet, APICategoryProductsCount)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+	err = api.GetRestService().RegisterAPI("category/:categoryID/product/:productID", api.ConstRESTOperationCreate, APICategoryProductAdd)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+	err = api.GetRestService().RegisterAPI("category/:categoryID/product/:productID", api.ConstRESTOperationDelete, APICategoryProductRemove)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -88,16 +75,8 @@ func setupAPI() error {
 	return nil
 }
 
-// WEB REST API function used to obtain category list we have in database
-//   - parent categories and categorys will not be present in list
-func restListCategories(context api.InterfaceApplicationContext) (interface{}, error) {
-
-	// check request context
-	//---------------------
-	reqData, err := api.GetRequestContentAsMap(context)
-	if err != nil {
-		return nil, err
-	}
+// APICategoriesList returns list of existing categories
+func APICategoriesList(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// operation start
 	//----------------
@@ -118,21 +97,13 @@ func restListCategories(context api.InterfaceApplicationContext) (interface{}, e
 	}
 
 	// extra parameter handler
-	if extra, isExtra := reqData["extra"]; isExtra {
-		extra := utils.Explode(utils.InterfaceToString(extra), ",")
-		for _, value := range extra {
-			err := categoryCollectionModel.ListAddExtraAttribute(value)
-			if err != nil {
-				return nil, env.ErrorDispatch(err)
-			}
-		}
-	}
+	api.ApplyExtraAttributes(context, categoryCollectionModel)
 
 	return categoryCollectionModel.List()
 }
 
-// WEB REST API function used to obtain categories count in model collection
-func restCountCategories(context api.InterfaceApplicationContext) (interface{}, error) {
+// APICategoriesCount returns count of existing categories
+func APICategoriesCount(context api.InterfaceApplicationContext) (interface{}, error) {
 	categoryCollectionModel, err := category.GetCategoryCollectionModel()
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
@@ -150,10 +121,10 @@ func restCountCategories(context api.InterfaceApplicationContext) (interface{}, 
 	return dbCollection.Count()
 }
 
-// WEB REST API used to create new category
-//   - category attributes must be included in POST form
+// APICategoryCreate creates a new category
+//   - category attributes must be provided via content
 //   - name attribute required
-func restCreateCategory(context api.InterfaceApplicationContext) (interface{}, error) {
+func APICategoryCreate(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check request context
 	//---------------------
@@ -193,8 +164,9 @@ func restCreateCategory(context api.InterfaceApplicationContext) (interface{}, e
 	return categoryModel.ToHashMap(), nil
 }
 
-// WEB REST API used to delete category
-func restDeleteCategory(context api.InterfaceApplicationContext) (interface{}, error) {
+// APICategoryDelete removes category
+//   - category id must be specified as "id" argument
+func APICategoryDelete(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check request context
 	//--------------------
@@ -223,10 +195,10 @@ func restDeleteCategory(context api.InterfaceApplicationContext) (interface{}, e
 	return "ok", nil
 }
 
-// WEB REST API used to update existing category
-//   - category id must be specified in request URI
-//   - category attributes must be included in POST form
-func restUpdateCategory(context api.InterfaceApplicationContext) (interface{}, error) {
+// APICategoryUpdate modifies existing category
+//   - category id must be specified as "id" argument
+//   - category attributes must be specified in content
+func APICategoryUpdate(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check request context
 	//---------------------
@@ -267,8 +239,8 @@ func restUpdateCategory(context api.InterfaceApplicationContext) (interface{}, e
 	return categoryModel.ToHashMap(), nil
 }
 
-// WEB REST API function used to obtain category attributes information
-func restListCategoryAttributes(context api.InterfaceApplicationContext) (interface{}, error) {
+// APICategoryAttributes enumerates category attributes
+func APICategoryAttributes(context api.InterfaceApplicationContext) (interface{}, error) {
 	categoryModel, err := category.GetCategoryModel()
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
@@ -279,9 +251,9 @@ func restListCategoryAttributes(context api.InterfaceApplicationContext) (interf
 	return attrInfo, nil
 }
 
-// WEB REST API function used to obtain layered navigation options for products in category
-//   - category id must be specified in request URI
-func restListCategoryLayers(context api.InterfaceApplicationContext) (interface{}, error) {
+// APICategoryAttributes enumerates category attributes and their possible values which is used for layered navigation
+//   - category id should be specified in "id" argument
+func APICategoryLayers(context api.InterfaceApplicationContext) (interface{}, error) {
 	categoryID := context.GetRequestArgument("id")
 	if categoryID == "" {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "389975e7-611c-4d6c-8b4d-bca450f5f7e7", "category id was not specified")
@@ -324,9 +296,9 @@ func restListCategoryLayers(context api.InterfaceApplicationContext) (interface{
 	return result, nil
 }
 
-// WEB REST API function used to list product in category
-//   - category id must be specified in request URI
-func restListCategoryProducts(context api.InterfaceApplicationContext) (interface{}, error) {
+// APICategoryProducts returns category related products
+//   - category id should be specified in "categoryID" argument
+func APICategoryProducts(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check request context
 	//---------------------
@@ -372,9 +344,9 @@ func restListCategoryProducts(context api.InterfaceApplicationContext) (interfac
 	return result, nil
 }
 
-// WEB REST API function used to add product in category
-//   - category and product ids must be specified in request URI
-func restAddCategoryProduct(context api.InterfaceApplicationContext) (interface{}, error) {
+// APICategoryProductAdd adds product to category
+//   - category id and product id  should be specified in "categoryID" and "productID" arguments
+func APICategoryProductAdd(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check request context
 	//---------------------
@@ -407,9 +379,9 @@ func restAddCategoryProduct(context api.InterfaceApplicationContext) (interface{
 	return "ok", nil
 }
 
-// WEB REST API function used to remove product from category
-//   - category and product ids must be specified in request URI
-func restRemoveCategoryProduct(context api.InterfaceApplicationContext) (interface{}, error) {
+// APICategoryProductRemove removes product from category
+//   - category id and product id  should be specified in "categoryID" and "productID" arguments
+func APICategoryProductRemove(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check request context
 	//---------------------
@@ -442,9 +414,9 @@ func restRemoveCategoryProduct(context api.InterfaceApplicationContext) (interfa
 	return "ok", nil
 }
 
-// WEB REST API function used to obtain all product attributes
-//   - product id must be specified in request URI "http://[site:port]/product/get/:id"
-func restGetCategory(context api.InterfaceApplicationContext) (interface{}, error) {
+// APICategoryGet return category information
+//   - category id should be specified in "id" argument
+func APICategoryGet(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check request context
 	//---------------------
@@ -467,9 +439,8 @@ func restGetCategory(context api.InterfaceApplicationContext) (interface{}, erro
 	return categoryModel.ToHashMap(), nil
 }
 
-// WEB REST API function used to list product in category
-//   - category id must be specified in request URI
-func restCategoryProductsCount(context api.InterfaceApplicationContext) (interface{}, error) {
+// APICategoryProductsCount returns count of products within category
+func APICategoryProductsCount(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	categoryID := context.GetRequestArgument("categoryID")
 	if categoryID == "" {
@@ -498,8 +469,8 @@ func restCategoryProductsCount(context api.InterfaceApplicationContext) (interfa
 	return productsDBCollection.Count()
 }
 
-// WEB REST API function used to categories menu
-func restGetCategoriesTree(context api.InterfaceApplicationContext) (interface{}, error) {
+// APICategoriesTree returns categories parent/child relation map
+func APICategoriesTree(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	var result = make([]map[string]interface{}, 0)
 

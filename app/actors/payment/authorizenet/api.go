@@ -13,12 +13,12 @@ func setupAPI() error {
 
 	var err error
 
-	err = api.GetRestService().RegisterAPI("authorizenet", "POST", "receipt", restReceipt)
+	err = api.GetRestService().RegisterAPI("authorizenet/receipt", api.ConstRESTOperationCreate, restReceipt)
 	if err != nil {
 		return err
 	}
 
-	err = api.GetRestService().RegisterAPI("authorizenet", "POST", "relay", restRelay)
+	err = api.GetRestService().RegisterAPI("authorizenet/relay", api.ConstRESTOperationCreate, restRelay)
 	if err != nil {
 		return err
 	}

@@ -22,7 +22,7 @@ func (it *DefaultRestService) GetName() string {
 }
 
 // RegisterAPI is available for modules to call in order to provide their own REST API functionality
-func (it *DefaultRestService) RegisterAPI(service string, method string, uri string, handler api.FuncAPIHandler) error {
+func (it *DefaultRestService) RegisterAPI(resource string, operation string, handler api.FuncAPIHandler) error {
 
 	// httprouter supposes other format of handler than we use, so we need wrapper
 	wrappedHandler := func(resp http.ResponseWriter, req *http.Request, params httprouter.Params) {
@@ -236,11 +236,10 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 		resp.Write(result.([]byte))
 	}
 
+	path := "/" + resource
 	// registration of handler within httprouter
 	//-------------------------------------------
-	path := "/" + service + "/" + uri
-
-	switch method {
+	switch operation {
 	case "GET":
 		it.Router.GET(path, wrappedHandler)
 	case "PUT":
@@ -250,11 +249,12 @@ func (it *DefaultRestService) RegisterAPI(service string, method string, uri str
 	case "DELETE":
 		it.Router.DELETE(path, wrappedHandler)
 	default:
-		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "58228dcc-f5e4-4aae-b6df-9dd55041a21e", "unsupported method '"+method+"'")
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "58228dcc-f5e4-4aae-b6df-9dd55041a21e", "unsupported method '"+operation+"'")
 	}
 
-	key := path + " {" + method + "}"
+	key := path + " {" + operation + "}"
 	it.Handlers[key] = wrappedHandler
+	println(key)
 
 	return nil
 }

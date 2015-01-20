@@ -16,23 +16,23 @@ func setupAPI() error {
 
 	var err error
 
-	err = api.GetRestService().RegisterAPI("product", "GET", "review/list/:pid", restReviewList)
+	err = api.GetRestService().RegisterAPI("product/review/list/:pid", api.ConstRESTOperationGet, restReviewList)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("product", "POST", "review/add/:pid", restReviewAdd)
+	err = api.GetRestService().RegisterAPI("product/review/add/:pid", api.ConstRESTOperationCreate, restReviewAdd)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("product", "POST", "review/add/:pid/:stars", restReviewAdd)
+	err = api.GetRestService().RegisterAPI("product/review/add/:pid/:stars", api.ConstRESTOperationCreate, restReviewAdd)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("product", "DELETE", "review/remove/:reviewID", restReviewRemove)
+	err = api.GetRestService().RegisterAPI("product/review/remove/:reviewID", api.ConstRESTOperationDelete, restReviewRemove)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("product", "GET", "rating/info/:pid", restRatingInfo)
+	err = api.GetRestService().RegisterAPI("product/rating/info/:pid", api.ConstRESTOperationGet, restRatingInfo)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}

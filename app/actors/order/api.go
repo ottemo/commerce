@@ -13,35 +13,35 @@ func setupAPI() error {
 
 	var err error
 
-	err = api.GetRestService().RegisterAPI("order", "GET", "attributes", restOrderAttributes)
+	err = api.GetRestService().RegisterAPI("order/attributes", api.ConstRESTOperationGet, restOrderAttributes)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("order", "GET", "list", restOrderList)
+	err = api.GetRestService().RegisterAPI("order/list", api.ConstRESTOperationGet, restOrderList)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("order", "POST", "list", restOrderList)
+	err = api.GetRestService().RegisterAPI("order/list", api.ConstRESTOperationCreate, restOrderList)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("order", "GET", "count", restOrderCount)
+	err = api.GetRestService().RegisterAPI("order/count", api.ConstRESTOperationGet, restOrderCount)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("order", "GET", "get/:id", restOrderGet)
+	err = api.GetRestService().RegisterAPI("order/get/:id", api.ConstRESTOperationGet, restOrderGet)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	// err = api.GetRestService().RegisterAPI("order", "POST", "add", restOrderAdd)
+	// err = api.GetRestService().RegisterAPI("order/add", api.ConstRESTOperationCreate, restOrderAdd)
 	// if err != nil {
 	// 	return env.ErrorDispatch(err)
 	// }
-	err = api.GetRestService().RegisterAPI("order", "PUT", "update/:id", restOrderUpdate)
+	err = api.GetRestService().RegisterAPI("order/update/:id", api.ConstRESTOperationUpdate, restOrderUpdate)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("order", "DELETE", "delete/:id", restOrderDelete)
+	err = api.GetRestService().RegisterAPI("order/delete/:id", api.ConstRESTOperationDelete, restOrderDelete)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}

@@ -12,35 +12,35 @@ func setupAPI() error {
 
 	var err error
 
-	err = api.GetRestService().RegisterAPI("cms", "GET", "block/attributes", restCMSBlockAttributes)
+	err = api.GetRestService().RegisterAPI("cms/block/attributes", api.ConstRESTOperationCreate, restCMSBlockAttributes)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("cms", "GET", "block/list", restCMSBlockList)
+	err = api.GetRestService().RegisterAPI("cms/block/list", api.ConstRESTOperationGet, restCMSBlockList)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("cms", "POST", "block/list", restCMSBlockList)
+	err = api.GetRestService().RegisterAPI("cms/block/list", api.ConstRESTOperationCreate, restCMSBlockList)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("cms", "GET", "block/count", restCMSBlockCount)
+	err = api.GetRestService().RegisterAPI("cms/block/count", api.ConstRESTOperationGet, restCMSBlockCount)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("cms", "GET", "block/get/:id", restCMSBlockGet)
+	err = api.GetRestService().RegisterAPI("cms/block/get/:id", api.ConstRESTOperationGet, restCMSBlockGet)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("cms", "POST", "block/add", restCMSBlockAdd)
+	err = api.GetRestService().RegisterAPI("cms/block/add", api.ConstRESTOperationCreate, restCMSBlockAdd)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("cms", "PUT", "block/update/:id", restCMSBlockUpdate)
+	err = api.GetRestService().RegisterAPI("cms/block/update/:id", api.ConstRESTOperationUpdate, restCMSBlockUpdate)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("cms", "DELETE", "block/delete/:id", restCMSBlockDelete)
+	err = api.GetRestService().RegisterAPI("cms/block/delete/:id", api.ConstRESTOperationDelete, restCMSBlockDelete)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
