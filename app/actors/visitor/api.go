@@ -20,103 +20,95 @@ import (
 func setupAPI() error {
 
 	// Dashboard API
-	err := api.GetRestService().RegisterAPI("visitor/create", api.ConstRESTOperationCreate, restCreateVisitor)
+	err := api.GetRestService().RegisterAPI("visitor", api.ConstRESTOperationCreate, restCreateVisitor)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("visitor/update", api.ConstRESTOperationUpdate, restUpdateVisitor)
+	err = api.GetRestService().RegisterAPI("visitor/:visitorID", api.ConstRESTOperationUpdate, restUpdateVisitor)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("visitor/update/:id", api.ConstRESTOperationUpdate, restUpdateVisitor)
+	err = api.GetRestService().RegisterAPI("visitor/:visitorID", api.ConstRESTOperationDelete, restDeleteVisitor)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("visitor/delete/:id", api.ConstRESTOperationDelete, restDeleteVisitor)
+	err = api.GetRestService().RegisterAPI("visitor/:visitorID", api.ConstRESTOperationGet, restGetVisitor)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("visitor/load/:id", api.ConstRESTOperationGet, restGetVisitor)
+
+	err = api.GetRestService().RegisterAPI("visitors", api.ConstRESTOperationGet, restListVisitors)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("visitor/list", api.ConstRESTOperationGet, restListVisitors)
+	err = api.GetRestService().RegisterAPI("visitors/count", api.ConstRESTOperationGet, restCountVisitors)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	//TODO: why support POST only to push an error message?
-	err = api.GetRestService().RegisterAPI("visitor/list", api.ConstRESTOperationCreate, restListVisitors)
+	err = api.GetRestService().RegisterAPI("visitors/attributes", api.ConstRESTOperationGet, restListVisitorAttributes)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("visitor/count", api.ConstRESTOperationGet, restCountVisitors)
+	err = api.GetRestService().RegisterAPI("visitors/attribute/:attribute", api.ConstRESTOperationDelete, restRemoveVisitorAttribute)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("visitor/attribute/list", api.ConstRESTOperationGet, restListVisitorAttributes)
+	err = api.GetRestService().RegisterAPI("visitors/attribute/:attribute", api.ConstRESTOperationUpdate, restEditVisitorAttribute)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("visitor/attribute/remove/:attribute", api.ConstRESTOperationDelete, restRemoveVisitorAttribute)
-	if err != nil {
-		return env.ErrorDispatch(err)
-	}
-	//TODO: are we missing a PUT to modify an attribute
-	err = api.GetRestService().RegisterAPI("visitor/attribute/add", api.ConstRESTOperationCreate, restAddVisitorAttribute)
+	err = api.GetRestService().RegisterAPI("visitors/attribute", api.ConstRESTOperationCreate, restAddVisitorAttribute)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
 	// Storefront API
-	err = api.GetRestService().RegisterAPI("visitor/register", api.ConstRESTOperationCreate, restRegister)
+	err = api.GetRestService().RegisterAPI("visitors/register", api.ConstRESTOperationCreate, restRegister)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("visitor/validate/:key", api.ConstRESTOperationGet, restValidate)
+	err = api.GetRestService().RegisterAPI("visitors/validate/:key", api.ConstRESTOperationGet, restValidate)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("visitor/invalidate/:email", api.ConstRESTOperationGet, restInvalidate)
+	err = api.GetRestService().RegisterAPI("visitors/invalidate/:email", api.ConstRESTOperationGet, restInvalidate)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("visitor/forgot-password/:email", api.ConstRESTOperationGet, restForgotPassword)
+	err = api.GetRestService().RegisterAPI("visitors/forgot-password/:email", api.ConstRESTOperationGet, restForgotPassword)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("visitor/info", api.ConstRESTOperationGet, restInfo)
+	err = api.GetRestService().RegisterAPI("visitors/mail", api.ConstRESTOperationCreate, restVisitorSendMail)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("visitor/logout", api.ConstRESTOperationGet, restLogout)
+
+	err = api.GetRestService().RegisterAPI("visit", api.ConstRESTOperationGet, restInfo)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("visitor/login", api.ConstRESTOperationCreate, restLogin)
+	err = api.GetRestService().RegisterAPI("visit/logout", api.ConstRESTOperationGet, restLogout)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("visitor/login-facebook", api.ConstRESTOperationCreate, restLoginFacebook)
+	err = api.GetRestService().RegisterAPI("visit/login", api.ConstRESTOperationCreate, restLogin)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("visitor/login-google", api.ConstRESTOperationCreate, restLoginGoogle)
+	err = api.GetRestService().RegisterAPI("visit/login-facebook", api.ConstRESTOperationCreate, restLoginFacebook)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("visitor/order/list", api.ConstRESTOperationGet, restListVisitorOrders)
+	err = api.GetRestService().RegisterAPI("visit/login-google", api.ConstRESTOperationCreate, restLoginGoogle)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("visitor/order/list", api.ConstRESTOperationCreate, restListVisitorOrders)
+	err = api.GetRestService().RegisterAPI("visit/orders", api.ConstRESTOperationGet, restListVisitorOrders)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("visitor/order/details/:id", api.ConstRESTOperationGet, restVisitorOrderDetails)
-	if err != nil {
-		return env.ErrorDispatch(err)
-	}
-	err = api.GetRestService().RegisterAPI("visitor/sendmail", api.ConstRESTOperationCreate, restVisitorSendMail)
+	err = api.GetRestService().RegisterAPI("visit/order/:id", api.ConstRESTOperationGet, restVisitorOrderDetails)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -174,7 +166,7 @@ func restUpdateVisitor(context api.InterfaceApplicationContext) (interface{}, er
 
 	// check request context
 	//---------------------
-	visitorID := context.GetRequestArgument("id")
+	visitorID := context.GetRequestArgument("visitorID")
 	if visitorID == "" {
 		sessionValue := context.GetSession().Get(visitor.ConstSessionKeyVisitorID)
 		sessionVisitorID, ok := sessionValue.(string)
@@ -230,7 +222,7 @@ func restDeleteVisitor(context api.InterfaceApplicationContext) (interface{}, er
 		return nil, env.ErrorDispatch(err)
 	}
 
-	visitorID := context.GetRequestArgument("id")
+	visitorID := context.GetRequestArgument("visitorID")
 	if visitorID == "" {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "157df5fa-d775-4934-af94-b77ef8c826e9", "visitor id was not specified")
 	}
@@ -260,7 +252,7 @@ func restGetVisitor(context api.InterfaceApplicationContext) (interface{}, error
 		return nil, env.ErrorDispatch(err)
 	}
 
-	visitorID := context.GetRequestArgument("id")
+	visitorID := context.GetRequestArgument("visitorID")
 	if visitorID == "" {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "58630919-23f5-4406-8676-a7d1a629b35f", "visitor id was not specified")
 	}
@@ -302,11 +294,6 @@ func restListVisitors(context api.InterfaceApplicationContext) (interface{}, err
 		return nil, env.ErrorDispatch(err)
 	}
 
-	reqData, err := api.GetRequestContentAsMap(context)
-	if err != nil {
-		return nil, err
-	}
-
 	// operation start
 	//----------------
 	visitorCollectionModel, err := visitor.GetVisitorCollectionModel()
@@ -321,15 +308,7 @@ func restListVisitors(context api.InterfaceApplicationContext) (interface{}, err
 	api.ApplyFilters(context, visitorCollectionModel.GetDBCollection())
 
 	// extra parameter handle
-	if extra, isExtra := reqData["extra"]; isExtra {
-		extra := utils.Explode(utils.InterfaceToString(extra), ",")
-		for _, value := range extra {
-			err := visitorCollectionModel.ListAddExtraAttribute(value)
-			if err != nil {
-				return nil, env.ErrorDispatch(err)
-			}
-		}
-	}
+	api.ApplyExtraAttributes(context, visitorCollectionModel)
 
 	return visitorCollectionModel.List()
 }
@@ -419,6 +398,67 @@ func restAddVisitorAttribute(context api.InterfaceApplicationContext) (interface
 	}
 
 	return attribute, nil
+}
+
+// WEB REST API function used to edit existing custom attribute fields (except id and name)
+func restEditVisitorAttribute(context api.InterfaceApplicationContext) (interface{}, error) {
+	reqData, err := api.GetRequestContentAsMap(context)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	attributeName := context.GetRequestArgument("attribute")
+	if attributeName == "" {
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "cb8f7251-e22b-4605-97bb-e239df6c7aac", "attribute name was not specified")
+	}
+
+	// check rights
+	if err := api.ValidateAdminRights(context); err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	visitorModel, err := visitor.GetVisitorModel()
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	for _, attribute := range visitorModel.GetAttributesInfo() {
+		if attribute.Attribute == attributeName {
+			if attribute.IsStatic == true {
+				return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "2893262f-a61a-42f8-9c75-e763e0a5c8ca", "can't edit static attributes")
+			}
+
+			for key, value := range reqData {
+				switch strings.ToLower(key) {
+				case "label":
+					attribute.Label = utils.InterfaceToString(value)
+				case "group":
+					attribute.Group = utils.InterfaceToString(value)
+				case "editors":
+					attribute.Editors = utils.InterfaceToString(value)
+				case "options":
+					attribute.Options = utils.InterfaceToString(value)
+				case "default":
+					attribute.Default = utils.InterfaceToString(value)
+				case "validators":
+					attribute.Validators = utils.InterfaceToString(value)
+				case "isrequired", "required":
+					attribute.IsRequired = utils.InterfaceToBool(value)
+				case "islayered", "layered":
+					attribute.IsLayered = utils.InterfaceToBool(value)
+				case "ispublic", "public":
+					attribute.IsPublic = utils.InterfaceToBool(value)
+				}
+			}
+			err := visitorModel.EditAttribute(attributeName, attribute)
+			if err != nil {
+				return nil, err
+			}
+			return attribute, nil
+		}
+	}
+
+	return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "2893262f-a61a-42f8-9c75-e763e0a5c8ca", "attribute not found")
 }
 
 // WEB REST API function used to remove custom attribute of visitor model
@@ -905,13 +945,6 @@ func restVisitorOrderDetails(context api.InterfaceApplicationContext) (interface
 // WEB REST API function used to get visitor orders information
 func restListVisitorOrders(context api.InterfaceApplicationContext) (interface{}, error) {
 
-	// check request context
-	//---------------------
-	reqData, err := api.GetRequestContentAsMap(context)
-	if err != nil {
-		return nil, err
-	}
-
 	// list operation
 	//---------------
 	visitorID := visitor.GetCurrentVisitorID(context)
@@ -933,15 +966,7 @@ func restListVisitorOrders(context api.InterfaceApplicationContext) (interface{}
 	api.ApplyFilters(context, orderCollection.GetDBCollection())
 
 	// extra parameter handle
-	if extra, isExtra := reqData["extra"]; isExtra {
-		extra := utils.Explode(utils.InterfaceToString(extra), ",")
-		for _, value := range extra {
-			err := orderCollection.ListAddExtraAttribute(value)
-			if err != nil {
-				return nil, env.ErrorDispatch(err)
-			}
-		}
-	}
+	api.ApplyExtraAttributes(context, orderCollection)
 
 	result, err := orderCollection.List()
 

@@ -33,24 +33,24 @@ func setupAPI() error {
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("category/:id", api.ConstRESTOperationUpdate, APICategoryUpdate)
+	err = api.GetRestService().RegisterAPI("category/:categoryID", api.ConstRESTOperationUpdate, APICategoryUpdate)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("category/:id", api.ConstRESTOperationDelete, APICategoryDelete)
+	err = api.GetRestService().RegisterAPI("category/:categoryID", api.ConstRESTOperationDelete, APICategoryDelete)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("category/:id", api.ConstRESTOperationGet, APICategoryGet)
+	err = api.GetRestService().RegisterAPI("category/:categoryID", api.ConstRESTOperationGet, APICategoryGet)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("category/:id/layers", api.ConstRESTOperationGet, APICategoryLayers)
+	err = api.GetRestService().RegisterAPI("category/:categoryID/layers", api.ConstRESTOperationGet, APICategoryLayers)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("category/attributes", api.ConstRESTOperationGet, APICategoryAttributes)
+	err = api.GetRestService().RegisterAPI("categories/attributes", api.ConstRESTOperationGet, APICategoryAttributes)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -170,7 +170,7 @@ func APICategoryDelete(context api.InterfaceApplicationContext) (interface{}, er
 
 	// check request context
 	//--------------------
-	categoryID := context.GetRequestArgument("id")
+	categoryID := context.GetRequestArgument("categoryID")
 	if categoryID == "" {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "f1507b00-337e-4903-8244-5cf959dde3a4", "category id was not specified")
 	}
@@ -202,7 +202,7 @@ func APICategoryUpdate(context api.InterfaceApplicationContext) (interface{}, er
 
 	// check request context
 	//---------------------
-	categoryID := context.GetRequestArgument("id")
+	categoryID := context.GetRequestArgument("categoryID")
 	if categoryID == "" {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "389975e7-611c-4d6c-8b4d-bca450f5f7e7", "category id was not specified")
 	}
@@ -254,7 +254,7 @@ func APICategoryAttributes(context api.InterfaceApplicationContext) (interface{}
 // APICategoryAttributes enumerates category attributes and their possible values which is used for layered navigation
 //   - category id should be specified in "id" argument
 func APICategoryLayers(context api.InterfaceApplicationContext) (interface{}, error) {
-	categoryID := context.GetRequestArgument("id")
+	categoryID := context.GetRequestArgument("categoryID")
 	if categoryID == "" {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "389975e7-611c-4d6c-8b4d-bca450f5f7e7", "category id was not specified")
 	}
@@ -420,7 +420,7 @@ func APICategoryGet(context api.InterfaceApplicationContext) (interface{}, error
 
 	// check request context
 	//---------------------
-	categoryID := context.GetRequestArgument("id")
+	categoryID := context.GetRequestArgument("categoryID")
 	if categoryID == "" {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "3c336fd7-1a18-4aea-9eb0-460d746f8dfa", "category id was not specified")
 	}

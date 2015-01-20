@@ -10,44 +10,46 @@ import (
 
 // setupAPI setups package related API endpoint routines
 func setupAPI() error {
-	err := api.GetRestService().RegisterAPI("visitor/address/create", api.ConstRESTOperationCreate, restCreateVisitorAddress)
+	err := api.GetRestService().RegisterAPI("visitor/:visitorID/address", api.ConstRESTOperationCreate, restCreateVisitorAddress)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("visitor/address/update/:id", api.ConstRESTOperationUpdate, restUpdateVisitorAddress)
+	err = api.GetRestService().RegisterAPI("visitor/:visitorID/address/update/:addressID", api.ConstRESTOperationUpdate, restUpdateVisitorAddress)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("visitor/address/delete/:id", api.ConstRESTOperationDelete, restDeleteVisitorAddress)
+	err = api.GetRestService().RegisterAPI("visitor/:visitorID/address/delete/:addressID", api.ConstRESTOperationDelete, restDeleteVisitorAddress)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("visitor/address/attribute/list", api.ConstRESTOperationGet, restListVisitorAddressAttributes)
+	err = api.GetRestService().RegisterAPI("visitor/:visitorID/addresses", api.ConstRESTOperationGet, restListVisitorAddress)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("visitor/address/list", api.ConstRESTOperationGet, restListVisitorAddress)
+	err = api.GetRestService().RegisterAPI("visitor/:visitorID/addresses/count", api.ConstRESTOperationGet, restCountVisitorAddresses)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("visitor/address/list", api.ConstRESTOperationCreate, restListVisitorAddress)
+
+	err = api.GetRestService().RegisterAPI("visitors/addresses/count", api.ConstRESTOperationGet, restCountVisitorAddresses)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("visitor/address/count", api.ConstRESTOperationGet, restCountVisitorAddresses)
+	err = api.GetRestService().RegisterAPI("visitors/addresses/attributes", api.ConstRESTOperationGet, restListVisitorAddressAttributes)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("visitor/address/list/:visitorID", api.ConstRESTOperationGet, restListVisitorAddress)
+
+	err = api.GetRestService().RegisterAPI("visitors/address", api.ConstRESTOperationCreate, restListVisitorAddress)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("visitor/address/list/:visitorID", api.ConstRESTOperationCreate, restListVisitorAddress)
+	err = api.GetRestService().RegisterAPI("visitors/address/:addressID", api.ConstRESTOperationDelete, restDeleteVisitorAddress)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("visitor/address/load/:id", api.ConstRESTOperationGet, restGetVisitorAddress)
+	err = api.GetRestService().RegisterAPI("visitors/address/:addressID", api.ConstRESTOperationGet, restGetVisitorAddress)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -107,7 +109,7 @@ func restUpdateVisitorAddress(context api.InterfaceApplicationContext) (interfac
 
 	// check request context
 	//---------------------
-	addressID := context.GetRequestArgument("id")
+	addressID := context.GetRequestArgument("addressID")
 	if addressID == "" {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "fe7814c0-85fe-4d60-a134-415f7ac12075", "visitor address 'id' was not specified")
 	}
@@ -152,7 +154,7 @@ func restDeleteVisitorAddress(context api.InterfaceApplicationContext) (interfac
 
 	// check request context
 	//--------------------
-	addressID := context.GetRequestArgument("id")
+	addressID := context.GetRequestArgument("addressID")
 	if addressID == "" {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "eec1ef1b-25d9-4dbe-8bd2-b907a0897203", "visitor address id was not specified")
 	}
@@ -275,7 +277,7 @@ func restListVisitorAddress(context api.InterfaceApplicationContext) (interface{
 // WEB REST API used to get visitor address object
 //   - visitor address id must be specified in request URI
 func restGetVisitorAddress(context api.InterfaceApplicationContext) (interface{}, error) {
-	visitorAddressID := context.GetRequestArgument("id")
+	visitorAddressID := context.GetRequestArgument("addressID")
 	if visitorAddressID == "" {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "b94882c6-bbdd-428d-88b0-7ea5623d80f7", "visitor 'id' was not specified")
 	}

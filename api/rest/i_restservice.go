@@ -254,7 +254,6 @@ func (it *DefaultRestService) RegisterAPI(resource string, operation string, han
 
 	key := path + " {" + operation + "}"
 	it.Handlers[key] = wrappedHandler
-	println(key)
 
 	return nil
 }
