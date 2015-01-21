@@ -12,35 +12,28 @@ func setupAPI() error {
 
 	var err error
 
-	err = api.GetRestService().RegisterAPI("cms/block/attributes", api.ConstRESTOperationCreate, restCMSBlockAttributes)
+	err = api.GetRestService().RegisterAPI("cms/blocks", api.ConstRESTOperationGet, restCMSBlockList)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("cms/block/list", api.ConstRESTOperationGet, restCMSBlockList)
+	err = api.GetRestService().RegisterAPI("cms/blocks/attributes", api.ConstRESTOperationCreate, restCMSBlockAttributes)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("cms/block/list", api.ConstRESTOperationCreate, restCMSBlockList)
+
+	err = api.GetRestService().RegisterAPI("cms/block/:blockID", api.ConstRESTOperationGet, restCMSBlockGet)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("cms/block/count", api.ConstRESTOperationGet, restCMSBlockCount)
+	err = api.GetRestService().RegisterAPI("cms/block", api.ConstRESTOperationCreate, restCMSBlockAdd)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("cms/block/get/:id", api.ConstRESTOperationGet, restCMSBlockGet)
+	err = api.GetRestService().RegisterAPI("cms/block/:blockID", api.ConstRESTOperationUpdate, restCMSBlockUpdate)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("cms/block/add", api.ConstRESTOperationCreate, restCMSBlockAdd)
-	if err != nil {
-		return env.ErrorDispatch(err)
-	}
-	err = api.GetRestService().RegisterAPI("cms/block/update/:id", api.ConstRESTOperationUpdate, restCMSBlockUpdate)
-	if err != nil {
-		return env.ErrorDispatch(err)
-	}
-	err = api.GetRestService().RegisterAPI("cms/block/delete/:id", api.ConstRESTOperationDelete, restCMSBlockDelete)
+	err = api.GetRestService().RegisterAPI("cms/block/:blockID", api.ConstRESTOperationDelete, restCMSBlockDelete)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -60,55 +53,29 @@ func restCMSBlockAttributes(context api.InterfaceApplicationContext) (interface{
 }
 
 // WEB REST API function used to obtain CMS blocks list
+//   - if "count" parameter set to non blank value returns only amount
 func restCMSBlockList(context api.InterfaceApplicationContext) (interface{}, error) {
 
-	// check request context
-	//---------------------
-	reqData, err := api.GetRequestContentAsMap(context)
-	if err != nil {
-		return nil, err
-	}
-
-	// operation start
-	//----------------
 	cmsBlockCollectionModel, err := cms.GetCMSBlockCollectionModel()
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
+	}
+
+	// applying request filters
+	api.ApplyFilters(context, cmsBlockCollectionModel.GetDBCollection())
+
+	// checking for a "count" request
+	if context.GetRequestParameter("count") != "" {
+		return cmsBlockCollectionModel.GetDBCollection().Count()
 	}
 
 	// limit parameter handle
 	cmsBlockCollectionModel.ListLimit(api.GetListLimit(context))
 
-	// filters handle
-	api.ApplyFilters(context, cmsBlockCollectionModel.GetDBCollection())
-
 	// extra parameter handle
-	if extra, isExtra := reqData["extra"]; isExtra {
-		extra := utils.Explode(utils.InterfaceToString(extra), ",")
-		for _, value := range extra {
-			err := cmsBlockCollectionModel.ListAddExtraAttribute(value)
-			if err != nil {
-				return nil, env.ErrorDispatch(err)
-			}
-		}
-	}
+	api.ApplyExtraAttributes(context, cmsBlockCollectionModel)
 
 	return cmsBlockCollectionModel.List()
-}
-
-// WEB REST API function used to obtain CMS blocks count in model collection
-func restCMSBlockCount(context api.InterfaceApplicationContext) (interface{}, error) {
-
-	cmsBlockCollectionModel, err := cms.GetCMSBlockCollectionModel()
-	if err != nil {
-		return nil, env.ErrorDispatch(err)
-	}
-	dbCollection := cmsBlockCollectionModel.GetDBCollection()
-
-	// filters handle
-	api.ApplyFilters(context, dbCollection)
-
-	return dbCollection.Count()
 }
 
 // WEB REST API function to get CMS block information
@@ -116,7 +83,7 @@ func restCMSBlockGet(context api.InterfaceApplicationContext) (interface{}, erro
 
 	// check request context
 	//---------------------
-	reqBlockID := context.GetRequestArgument("id")
+	reqBlockID := context.GetRequestArgument("blockID")
 	if reqBlockID != "" {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "a6dd2812-5070-4869-8ae2-90c4bd28bf69", "cms block id should be specified")
 	}
@@ -172,7 +139,7 @@ func restCMSBlockUpdate(context api.InterfaceApplicationContext) (interface{}, e
 
 	// check request context
 	//---------------------
-	blockID := context.GetRequestArgument("id")
+	blockID := context.GetRequestArgument("blockID")
 	if blockID == "" {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "a7f8db95-7495-49ba-9307-baa7d5f7ecef", "cms block id should be specified")
 	}
@@ -209,7 +176,7 @@ func restCMSBlockDelete(context api.InterfaceApplicationContext) (interface{}, e
 
 	// check request context
 	//---------------------
-	blockID := context.GetRequestArgument("id")
+	blockID := context.GetRequestArgument("blockID")
 	if blockID == "" {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "8dd275d4-efaf-4e67-b24d-67b28acd74e5", "cms block id should be specified")
 	}

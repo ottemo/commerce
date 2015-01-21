@@ -125,7 +125,7 @@ func (it *DefaultRestService) RegisterAPI(resource string, operation string, han
 		//------------------
 
 		// preparing struct for API handler
-		applicationContext := new(RestApplicationContext)
+		applicationContext := new(DefaultRestApplicationContext)
 		applicationContext.Request = req
 		applicationContext.RequestArguments = reqArguments
 		applicationContext.RequestParameters = reqParameters

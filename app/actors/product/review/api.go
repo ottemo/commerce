@@ -16,23 +16,24 @@ func setupAPI() error {
 
 	var err error
 
-	err = api.GetRestService().RegisterAPI("product/review/list/:pid", api.ConstRESTOperationGet, restReviewList)
+	err = api.GetRestService().RegisterAPI("product/:productID/reviews", api.ConstRESTOperationGet, restReviewList)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("product/review/add/:pid", api.ConstRESTOperationCreate, restReviewAdd)
+	err = api.GetRestService().RegisterAPI("product/:productID/review", api.ConstRESTOperationCreate, restReviewAdd)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("product/review/add/:pid/:stars", api.ConstRESTOperationCreate, restReviewAdd)
+	err = api.GetRestService().RegisterAPI("product/:productID/ratedreview/:stars", api.ConstRESTOperationCreate, restReviewAdd)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("product/review/remove/:reviewID", api.ConstRESTOperationDelete, restReviewRemove)
+	err = api.GetRestService().RegisterAPI("product/:productID/review/:reviewID", api.ConstRESTOperationDelete, restReviewRemove)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("product/rating/info/:pid", api.ConstRESTOperationGet, restRatingInfo)
+
+	err = api.GetRestService().RegisterAPI("product/:productID/rating", api.ConstRESTOperationGet, restRatingInfo)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -43,7 +44,7 @@ func setupAPI() error {
 // WEB REST API function used to get list of reviews for particular product
 func restReviewList(context api.InterfaceApplicationContext) (interface{}, error) {
 
-	productObject, err := product.LoadProductByID(context.GetRequestArgument("pid"))
+	productObject, err := product.LoadProductByID(context.GetRequestArgument("productID"))
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -76,7 +77,7 @@ func restReviewAdd(context api.InterfaceApplicationContext) (interface{}, error)
 		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "2e671776-659b-4c1d-8590-a61f00a9d969", "guest visitor is no allowed to add review")
 	}
 
-	productObject, err := product.LoadProductByID(context.GetRequestArgument("pid"))
+	productObject, err := product.LoadProductByID(context.GetRequestArgument("productID"))
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -236,7 +237,7 @@ func restReviewRemove(context api.InterfaceApplicationContext) (interface{}, err
 // WEB REST API function used to get product rating info
 func restRatingInfo(context api.InterfaceApplicationContext) (interface{}, error) {
 
-	productObject, err := product.LoadProductByID(context.GetRequestArgument("pid"))
+	productObject, err := product.LoadProductByID(context.GetRequestArgument("productID"))
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}

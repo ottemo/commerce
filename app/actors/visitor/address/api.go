@@ -1,24 +1,23 @@
 package address
 
 import (
-	"github.com/ottemo/foundation/env"
-	"github.com/ottemo/foundation/utils"
-
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/app/models/visitor"
+	"github.com/ottemo/foundation/env"
 )
 
 // setupAPI setups package related API endpoint routines
+//   - if "count" parameter set to non blank value returns only amount
 func setupAPI() error {
 	err := api.GetRestService().RegisterAPI("visitor/:visitorID/address", api.ConstRESTOperationCreate, restCreateVisitorAddress)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("visitor/:visitorID/address/update/:addressID", api.ConstRESTOperationUpdate, restUpdateVisitorAddress)
+	err = api.GetRestService().RegisterAPI("visitor/:visitorID/address/:addressID", api.ConstRESTOperationUpdate, restUpdateVisitorAddress)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("visitor/:visitorID/address/delete/:addressID", api.ConstRESTOperationDelete, restDeleteVisitorAddress)
+	err = api.GetRestService().RegisterAPI("visitor/:visitorID/address/:addressID", api.ConstRESTOperationDelete, restDeleteVisitorAddress)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -27,21 +26,8 @@ func setupAPI() error {
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("visitor/:visitorID/addresses/count", api.ConstRESTOperationGet, restCountVisitorAddresses)
-	if err != nil {
-		return env.ErrorDispatch(err)
-	}
 
-	err = api.GetRestService().RegisterAPI("visitors/addresses/count", api.ConstRESTOperationGet, restCountVisitorAddresses)
-	if err != nil {
-		return env.ErrorDispatch(err)
-	}
 	err = api.GetRestService().RegisterAPI("visitors/addresses/attributes", api.ConstRESTOperationGet, restListVisitorAddressAttributes)
-	if err != nil {
-		return env.ErrorDispatch(err)
-	}
-
-	err = api.GetRestService().RegisterAPI("visitors/address", api.ConstRESTOperationCreate, restListVisitorAddress)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -50,6 +36,19 @@ func setupAPI() error {
 		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("visitors/address/:addressID", api.ConstRESTOperationGet, restGetVisitorAddress)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	err = api.GetRestService().RegisterAPI("visit/address", api.ConstRESTOperationCreate, restCreateVisitorAddress)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+	err = api.GetRestService().RegisterAPI("visit/address/:addressID", api.ConstRESTOperationUpdate, restUpdateVisitorAddress)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+	err = api.GetRestService().RegisterAPI("visit/address/:addressID", api.ConstRESTOperationGet, restDeleteVisitorAddress)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -197,37 +196,11 @@ func restListVisitorAddressAttributes(context api.InterfaceApplicationContext) (
 	return attrInfo, nil
 }
 
-// WEB REST API function used to obtain visitors addresses count in model collection
-func restCountVisitorAddresses(context api.InterfaceApplicationContext) (interface{}, error) {
-
-	// check rights
-	if err := api.ValidateAdminRights(context); err != nil {
-		return nil, env.ErrorDispatch(err)
-	}
-
-	visitorAddressCollectionModel, err := visitor.GetVisitorAddressCollectionModel()
-	if err != nil {
-		return nil, env.ErrorDispatch(err)
-	}
-	dbCollection := visitorAddressCollectionModel.GetDBCollection()
-
-	// filters handle
-	api.ApplyFilters(context, dbCollection)
-
-	return dbCollection.Count()
-}
-
 // WEB REST API function used to obtain visitor addresses list
 //   - visitor id must be specified in request URI
 func restListVisitorAddress(context api.InterfaceApplicationContext) (interface{}, error) {
 
-	// check request context
-	//---------------------
-	reqData, err := api.GetRequestContentAsMap(context)
-	if err != nil {
-		return nil, err
-	}
-
+	// if visitorID was specified - using this otherwise, taking current visitor
 	visitorID := context.GetRequestArgument("visitorID")
 	if visitorID == "" {
 
@@ -254,22 +227,19 @@ func restListVisitorAddress(context api.InterfaceApplicationContext) (interface{
 	dbCollection := visitorAddressCollectionModel.GetDBCollection()
 	dbCollection.AddStaticFilter("visitor_id", "=", visitorID)
 
-	// limit parameter handle
-	visitorAddressCollectionModel.ListLimit(api.GetListLimit(context))
-
 	// filters handle
 	api.ApplyFilters(context, dbCollection)
 
-	// extra parameter handle
-	if extra, isExtra := reqData["extra"]; isExtra {
-		extra := utils.Explode(utils.InterfaceToString(extra), ",")
-		for _, value := range extra {
-			err := visitorAddressCollectionModel.ListAddExtraAttribute(value)
-			if err != nil {
-				return nil, env.ErrorDispatch(err)
-			}
-		}
+	// checking for a "count" request
+	if context.GetRequestParameter("count") != "" {
+		return visitorAddressCollectionModel.GetDBCollection().Count()
 	}
+
+	// limit parameter handle
+	visitorAddressCollectionModel.ListLimit(api.GetListLimit(context))
+
+	// extra parameter handle
+	api.ApplyExtraAttributes(context, visitorAddressCollectionModel)
 
 	return visitorAddressCollectionModel.List()
 }

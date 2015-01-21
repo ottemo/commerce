@@ -18,7 +18,7 @@ import (
 func setupAPI() error {
 	var err error
 
-	err = api.GetRestService().RegisterAPI("rts/visit", api.ConstRESTOperationGet, restRegisterVisit)
+	err = api.GetRestService().RegisterAPI("rts/visit", api.ConstRESTOperationCreate, restRegisterVisit)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -33,7 +33,7 @@ func setupAPI() error {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("rts/visits/details/:from/:to", api.ConstRESTOperationGet, restGetVisitsDetails)
+	err = api.GetRestService().RegisterAPI("rts/visits/detail/:from/:to", api.ConstRESTOperationGet, restGetVisitsDetails)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -48,17 +48,17 @@ func setupAPI() error {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("rts/sales/details/:from/:to", api.ConstRESTOperationGet, restGetSalesDetails)
+	err = api.GetRestService().RegisterAPI("rts/sales/detail/:from/:to", api.ConstRESTOperationGet, restGetSalesDetails)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("rts/top_sellers", api.ConstRESTOperationGet, restGetTopSellers)
+	err = api.GetRestService().RegisterAPI("rts/bestsellers", api.ConstRESTOperationGet, restGetTopSellers)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("rts/visitors/realtime", api.ConstRESTOperationGet, restGetVisitsRealtime)
+	err = api.GetRestService().RegisterAPI("rts/visits/realtime", api.ConstRESTOperationGet, restGetVisitsRealtime)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}

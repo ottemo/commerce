@@ -5,14 +5,12 @@ import (
 	"time"
 
 	"github.com/ottemo/foundation/api"
-	"github.com/ottemo/foundation/db"
-	"github.com/ottemo/foundation/env"
-
-	"github.com/ottemo/foundation/utils"
-
 	"github.com/ottemo/foundation/app/models/category"
 	"github.com/ottemo/foundation/app/models/cms"
 	"github.com/ottemo/foundation/app/models/product"
+	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/foundation/utils"
 )
 
 // setupAPI setups package related API endpoint routines
@@ -20,32 +18,33 @@ func setupAPI() error {
 
 	var err error
 
-	err = api.GetRestService().RegisterAPI("url_rewrite/list", api.ConstRESTOperationGet, restURLRewritesList)
+	err = api.GetRestService().RegisterAPI("seo/items", api.ConstRESTOperationGet, restURLRewritesList)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("url_rewrite/get/:url", api.ConstRESTOperationGet, restURLRewritesGet)
+	err = api.GetRestService().RegisterAPI("seo/item", api.ConstRESTOperationCreate, restURLRewritesAdd)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("url_rewrite/add", api.ConstRESTOperationCreate, restURLRewritesAdd)
+	err = api.GetRestService().RegisterAPI("seo/item/:itemID", api.ConstRESTOperationUpdate, restURLRewritesUpdate)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("url_rewrite/update/:id", api.ConstRESTOperationUpdate, restURLRewritesUpdate)
-	if err != nil {
-		return env.ErrorDispatch(err)
-	}
-	err = api.GetRestService().RegisterAPI("url_rewrite/delete/:id", api.ConstRESTOperationDelete, restURLRewritesDelete)
+	err = api.GetRestService().RegisterAPI("seo/item/:itemID", api.ConstRESTOperationDelete, restURLRewritesDelete)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("sitemap", api.ConstRESTOperationGet , restSitemapGenerate)
+	err = api.GetRestService().RegisterAPI("seo/url/:url", api.ConstRESTOperationGet, restURLRewritesGet)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("sitemap/sitemap.xml", api.ConstRESTOperationGet, restSitemap)
+
+	err = api.GetRestService().RegisterAPI("seo/sitemap", api.ConstRESTOperationGet, restSitemapGenerate)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+	err = api.GetRestService().RegisterAPI("seo/sitemap/sitemap.xml", api.ConstRESTOperationGet, restSitemap)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -75,7 +74,7 @@ func restURLRewritesGet(context api.InterfaceApplicationContext) (interface{}, e
 		return nil, env.ErrorDispatch(err)
 	}
 
-	collection.AddFilter("url", "=", context.GetRequestArgument("url"))
+	collection.AddFilter("url", "=", context.GetRequestArgument("id"))
 	records, err := collection.Load()
 
 	return records, env.ErrorDispatch(err)
@@ -101,7 +100,7 @@ func restURLRewritesUpdate(context api.InterfaceApplicationContext) (interface{}
 		return nil, env.ErrorDispatch(err)
 	}
 
-	urlRewriteID := context.GetRequestArgument("id")
+	urlRewriteID := context.GetRequestArgument("itemID")
 	record, err := collection.LoadByID(urlRewriteID)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
@@ -222,7 +221,7 @@ func restURLRewritesDelete(context api.InterfaceApplicationContext) (interface{}
 		return nil, env.ErrorDispatch(err)
 	}
 
-	err = collection.DeleteByID(context.GetRequestArgument("id"))
+	err = collection.DeleteByID(context.GetRequestArgument("itemID"))
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}

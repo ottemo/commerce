@@ -41,10 +41,6 @@ func setupAPI() error {
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("visitors/count", api.ConstRESTOperationGet, restCountVisitors)
-	if err != nil {
-		return env.ErrorDispatch(err)
-	}
 	err = api.GetRestService().RegisterAPI("visitors/attributes", api.ConstRESTOperationGet, restListVisitorAttributes)
 	if err != nil {
 		return env.ErrorDispatch(err)
@@ -108,7 +104,7 @@ func setupAPI() error {
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("visit/order/:id", api.ConstRESTOperationGet, restVisitorOrderDetails)
+	err = api.GetRestService().RegisterAPI("visit/order/:orderID", api.ConstRESTOperationGet, restVisitorOrderDetails)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -267,9 +263,11 @@ func restGetVisitor(context api.InterfaceApplicationContext) (interface{}, error
 	return visitorModel.ToHashMap(), nil
 }
 
-// WEB REST API function used to obtain visitors count in model collection
-func restCountVisitors(context api.InterfaceApplicationContext) (interface{}, error) {
+// WEB REST API function used to get visitors list
+//   - if "count" parameter set to non blank value returns only amount
+func restListVisitors(context api.InterfaceApplicationContext) (interface{}, error) {
 
+	// check rights
 	if err := api.ValidateAdminRights(context); err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -278,34 +276,17 @@ func restCountVisitors(context api.InterfaceApplicationContext) (interface{}, er
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
-	dbCollection := visitorCollectionModel.GetDBCollection()
 
 	// filters handle
-	api.ApplyFilters(context, dbCollection)
+	api.ApplyFilters(context, visitorCollectionModel.GetDBCollection())
 
-	return dbCollection.Count()
-}
-
-// WEB REST API function used to get visitors list
-func restListVisitors(context api.InterfaceApplicationContext) (interface{}, error) {
-	// check request context
-	//---------------------
-	if err := api.ValidateAdminRights(context); err != nil {
-		return nil, env.ErrorDispatch(err)
-	}
-
-	// operation start
-	//----------------
-	visitorCollectionModel, err := visitor.GetVisitorCollectionModel()
-	if err != nil {
-		return nil, env.ErrorDispatch(err)
+	// checking for a "count" request
+	if context.GetRequestParameter("count") != "" {
+		return visitorCollectionModel.GetDBCollection().Count()
 	}
 
 	// limit parameter handle
 	visitorCollectionModel.ListLimit(api.GetListLimit(context))
-
-	// filters handle
-	api.ApplyFilters(context, visitorCollectionModel.GetDBCollection())
 
 	// extra parameter handle
 	api.ApplyExtraAttributes(context, visitorCollectionModel)
@@ -927,7 +908,7 @@ func restVisitorOrderDetails(context api.InterfaceApplicationContext) (interface
 		return "you are not logined in", nil
 	}
 
-	orderModel, err := order.LoadOrderByID(context.GetRequestArgument("id"))
+	orderModel, err := order.LoadOrderByID(context.GetRequestArgument("orderID"))
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}

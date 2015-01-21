@@ -7,28 +7,28 @@ import (
 )
 
 // GetRequest returns raw request object
-func (it *RestApplicationContext) GetRequest() interface{} {
+func (it *DefaultRestApplicationContext) GetRequest() interface{} {
 	return it.Request
 }
 
 // GetResponse returns raw response object
-func (it *RestApplicationContext) GetResponse() interface{} {
+func (it *DefaultRestApplicationContext) GetResponse() interface{} {
 	return it.ResponseWriter
 }
 
-// GetResponseWriter returns io.Writes for response (for RestApplicationContext it is clone to GetResponse)
-func (it *RestApplicationContext) GetResponseWriter() io.Writer {
+// GetResponseWriter returns io.Writes for response (for DefaultRestApplicationContext it is clone to GetResponse)
+func (it *DefaultRestApplicationContext) GetResponseWriter() io.Writer {
 	return it.ResponseWriter
 }
 
 // GetRequestArguments returns arguments required by API function
 //   - for REST API it is URI parameters "http://localhost/myfunc/:param1/get/:param2/:param3/"
-func (it *RestApplicationContext) GetRequestArguments() map[string]string {
+func (it *DefaultRestApplicationContext) GetRequestArguments() map[string]string {
 	return it.RequestArguments
 }
 
 // GetRequestArgument returns particular argument
-func (it *RestApplicationContext) GetRequestArgument(name string) string {
+func (it *DefaultRestApplicationContext) GetRequestArgument(name string) string {
 	if value, present := it.RequestArguments[name]; present {
 		return value
 	}
@@ -37,12 +37,12 @@ func (it *RestApplicationContext) GetRequestArgument(name string) string {
 
 // GetRequestParameters returns parameters specified in request
 //   - for REST API it is URI options "http://localhost/myfunc/:param1/?option1=1&option2=2"
-func (it *RestApplicationContext) GetRequestParameters() map[string]string {
+func (it *DefaultRestApplicationContext) GetRequestParameters() map[string]string {
 	return it.RequestParameters
 }
 
 // GetRequestParameter returns particular request parameter specified in request
-func (it *RestApplicationContext) GetRequestParameter(name string) string {
+func (it *DefaultRestApplicationContext) GetRequestParameter(name string) string {
 	if value, present := it.RequestParameters[name]; present {
 		return value
 	}
@@ -50,17 +50,17 @@ func (it *RestApplicationContext) GetRequestParameter(name string) string {
 }
 
 // GetRequestContent returns request contents of nil if not specified (HTTP request body)
-func (it *RestApplicationContext) GetRequestContent() interface{} {
+func (it *DefaultRestApplicationContext) GetRequestContent() interface{} {
 	return it.RequestContent
 }
 
 // GetRequestFiles returns files were attached to request
-func (it *RestApplicationContext) GetRequestFiles() map[string]io.Reader {
+func (it *DefaultRestApplicationContext) GetRequestFiles() map[string]io.Reader {
 	return it.RequestFiles
 }
 
 // GetRequestFile returns particular file attached to request or nil
-func (it *RestApplicationContext) GetRequestFile(name string) io.Reader {
+func (it *DefaultRestApplicationContext) GetRequestFile(name string) io.Reader {
 	if file, present := it.RequestFiles[name]; present {
 		return file
 	}
@@ -69,7 +69,7 @@ func (it *RestApplicationContext) GetRequestFile(name string) io.Reader {
 
 // GetRequestSettings returns request related settings
 //   - for REST API settings are HTTP headers and COOKIES
-func (it *RestApplicationContext) GetRequestSettings() map[string]interface{} {
+func (it *DefaultRestApplicationContext) GetRequestSettings() map[string]interface{} {
 	result := make(map[string]interface{})
 	for key, value := range it.Request.Header {
 		result[key] = value
@@ -83,8 +83,8 @@ func (it *RestApplicationContext) GetRequestSettings() map[string]interface{} {
 	return result
 }
 
-// GetRequestSettings returns particular request related setting or nil
-func (it *RestApplicationContext) GetRequestSetting(name string) interface{} {
+// GetRequestSetting returns particular request related setting or nil
+func (it *DefaultRestApplicationContext) GetRequestSetting(name string) interface{} {
 	if value, err := it.Request.Cookie(name); err == nil && value != nil {
 		return value.Value
 	}
@@ -100,49 +100,50 @@ func (it *RestApplicationContext) GetRequestSetting(name string) interface{} {
 }
 
 // GetRequestContentType returns MIME type of request content
-func (it *RestApplicationContext) GetRequestContentType() string {
+func (it *DefaultRestApplicationContext) GetRequestContentType() string {
 	return it.Request.Header.Get("Content-Type")
 }
 
 // GetResponseContentType returns MIME type of supposed response content
-func (it *RestApplicationContext) GetResponseContentType() string {
+func (it *DefaultRestApplicationContext) GetResponseContentType() string {
 	return it.ResponseWriter.Header().Get("Content-Type")
 }
 
 // SetResponseContentType changes response content type, returns error if not possible
-func (it *RestApplicationContext) SetResponseContentType(mimeType string) error {
+func (it *DefaultRestApplicationContext) SetResponseContentType(mimeType string) error {
 	it.ResponseWriter.Header().Set("Content-Type", mimeType)
 	return nil
 }
 
-func (it *RestApplicationContext) GetResponseSetting(name string) interface{} {
+// GetResponseSetting returns specified setting value (for REST API returns header as settings)
+func (it *DefaultRestApplicationContext) GetResponseSetting(name string) interface{} {
 	return it.ResponseWriter.Header().Get(name)
 }
 
 // SetResponseSetting specifies response setting (for REST API it just sets additional header)
-func (it *RestApplicationContext) SetResponseSetting(name string, value interface{}) error {
+func (it *DefaultRestApplicationContext) SetResponseSetting(name string, value interface{}) error {
 	it.ResponseWriter.Header().Set(name, utils.InterfaceToString(value))
 	return nil
 }
 
 // GetResponseResult returns result going to be written to response writer
-func (it *RestApplicationContext) GetResponseResult() interface{} {
+func (it *DefaultRestApplicationContext) GetResponseResult() interface{} {
 	return it.Result
 }
 
 // SetResponseResult changes result going to be written to response writer
-func (it *RestApplicationContext) SetResponseResult(value interface{}) error {
+func (it *DefaultRestApplicationContext) SetResponseResult(value interface{}) error {
 	it.Result = value
 	return nil
 }
 
 // GetContextValues returns current context related values map
-func (it *RestApplicationContext) GetContextValues() map[string]interface{} {
+func (it *DefaultRestApplicationContext) GetContextValues() map[string]interface{} {
 	return it.ContextValues
 }
 
 // GetContextValue returns particular context related value or nil if not set
-func (it *RestApplicationContext) GetContextValue(key string) interface{} {
+func (it *DefaultRestApplicationContext) GetContextValue(key string) interface{} {
 	if value, present := it.ContextValues[key]; present {
 		return value
 	}
@@ -150,17 +151,17 @@ func (it *RestApplicationContext) GetContextValue(key string) interface{} {
 }
 
 // SetContextValue stores specified value in current context
-func (it *RestApplicationContext) SetContextValue(key string, value interface{}) {
+func (it *DefaultRestApplicationContext) SetContextValue(key string, value interface{}) {
 	it.ContextValues[key] = value
 }
 
 // SetSession assigns given session to current context
-func (it *RestApplicationContext) SetSession(session api.InterfaceSession) error {
+func (it *DefaultRestApplicationContext) SetSession(session api.InterfaceSession) error {
 	it.Session = session
 	return nil
 }
 
 // GetSession returns session assigned to current context or nil if nothing was assigned
-func (it *RestApplicationContext) GetSession() api.InterfaceSession {
+func (it *DefaultRestApplicationContext) GetSession() api.InterfaceSession {
 	return it.Session
 }

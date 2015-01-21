@@ -1,14 +1,14 @@
 package api
 
 import (
+	"net/http"
 	"strconv"
 	"strings"
-	"net/http"
 
+	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
-	"github.com/ottemo/foundation/app/models"
 )
 
 // StartSession returns session object for request or creates new one
@@ -123,6 +123,56 @@ func GetRequestContentAsMap(context InterfaceApplicationContext) (map[string]int
 	}
 
 	return result, nil
+}
+
+// GetContentValue looks for a given name within request content (map only), returns value or nil if not found
+func GetContentValue(context InterfaceApplicationContext, name string) interface{} {
+	if contentMap, ok := context.GetRequestContent().(map[string]interface{}); ok {
+		if value, present := contentMap[name]; present {
+			return value
+		}
+	}
+
+	return nil
+}
+
+// GetParameterOrContent looks for a given name within request parameters and content (map only), returns first occurrence
+// according to mentioned sequence or nil if not found.
+func GetParameterOrContent(context InterfaceApplicationContext, name string) interface{} {
+
+	if value := context.GetRequestParameter(name); value != "" {
+		return value
+	}
+
+	if contentMap, ok := context.GetRequestContent().(map[string]interface{}); ok {
+		if value, present := contentMap[name]; present {
+			return value
+		}
+	}
+
+	return nil
+}
+
+// GetArgumentParameterOrContent looks for a given name within request arguments, parameters and content (map only),
+// returns first occurrence according to mentioned sequence or "" if not found.
+//   - if not a string found in content then value will be converted to string
+func GetArgumentParameterOrContent(context InterfaceApplicationContext, name string) string {
+
+	if value := context.GetRequestArgument(name); value != "" {
+		return value
+	}
+
+	if value := context.GetRequestParameter(name); value != "" {
+		return value
+	}
+
+	if contentMap, ok := context.GetRequestContent().(map[string]interface{}); ok {
+		if value, present := contentMap[name]; present {
+			return utils.InterfaceToString(value)
+		}
+	}
+
+	return ""
 }
 
 // ApplyExtraAttributes modifies given model collection with adding extra attributes to list

@@ -13,27 +13,24 @@ func setupAPI() error {
 
 	var err error
 
-	err = api.GetRestService().RegisterAPI("stock/info/:productID", api.ConstRESTOperationGet, restStockInfo)
+	err = api.GetRestService().RegisterAPI("stock/:productID", api.ConstRESTOperationGet, restStockInfo)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+	err = api.GetRestService().RegisterAPI("stock/:productID/:qty", api.ConstRESTOperationCreate, restStockSet)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+	err = api.GetRestService().RegisterAPI("stock/:productID/:qty", api.ConstRESTOperationUpdate, restStockUpdate)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+	err = api.GetRestService().RegisterAPI("stock/:productID", api.ConstRESTOperationDelete, restStockRemove)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("stock/get/:productID", api.ConstRESTOperationCreate, restStockGet)
-	if err != nil {
-		return env.ErrorDispatch(err)
-	}
-
-	err = api.GetRestService().RegisterAPI("stock/set/:productID/:qty", api.ConstRESTOperationCreate, restStockSet)
-	if err != nil {
-		return env.ErrorDispatch(err)
-	}
-
-	err = api.GetRestService().RegisterAPI("stock/update/:productID/:delta", api.ConstRESTOperationUpdate, restStockUpdate)
-	if err != nil {
-		return env.ErrorDispatch(err)
-	}
-
-	err = api.GetRestService().RegisterAPI("stock/remove/:productID", api.ConstRESTOperationDelete, restStockRemove)
+	err = api.GetRestService().RegisterAPI("product/:productID/stock", api.ConstRESTOperationCreate, restStockGet)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -124,7 +121,7 @@ func restStockUpdate(context api.InterfaceApplicationContext) (interface{}, erro
 	}
 
 	productID := context.GetRequestArgument("productID")
-	qty := utils.InterfaceToInt(context.GetRequestArgument("delta"))
+	qty := utils.InterfaceToInt(context.GetRequestArgument("qty"))
 
 	options := make(map[string]interface{})
 	if requestedOptions, present := requestData["options"]; present {

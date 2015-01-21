@@ -4,11 +4,10 @@ import (
 	"strings"
 
 	"github.com/ottemo/foundation/api"
-	"github.com/ottemo/foundation/db"
-	"github.com/ottemo/foundation/env"
-
 	"github.com/ottemo/foundation/app/models/category"
 	"github.com/ottemo/foundation/app/models/product"
+	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/foundation/env"
 )
 
 // setupAPI setups package related API endpoint routines
@@ -17,10 +16,6 @@ func setupAPI() error {
 	var err error
 
 	err = api.GetRestService().RegisterAPI("categories", api.ConstRESTOperationGet, APICategoriesList)
-	if err != nil {
-		return env.ErrorDispatch(err)
-	}
-	err = api.GetRestService().RegisterAPI("categories/count", api.ConstRESTOperationGet, APICategoriesCount)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -59,10 +54,6 @@ func setupAPI() error {
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("category/:categoryID/products/count", api.ConstRESTOperationGet, APICategoryProductsCount)
-	if err != nil {
-		return env.ErrorDispatch(err)
-	}
 	err = api.GetRestService().RegisterAPI("category/:categoryID/product/:productID", api.ConstRESTOperationCreate, APICategoryProductAdd)
 	if err != nil {
 		return env.ErrorDispatch(err)
@@ -76,49 +67,34 @@ func setupAPI() error {
 }
 
 // APICategoriesList returns list of existing categories
+//   - if "count" parameter set to non blank value returns only amount
 func APICategoriesList(context api.InterfaceApplicationContext) (interface{}, error) {
 
-	// operation start
-	//----------------
 	categoryCollectionModel, err := category.GetCategoryCollectionModel()
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	// limit parameter handler
-	categoryCollectionModel.ListLimit(api.GetListLimit(context))
-
-	// filters handle
+	// applying requested filters
 	api.ApplyFilters(context, categoryCollectionModel.GetDBCollection())
 
-	// not allowing to see disabled if not admin
+	// excluding disabled categories for a regular visitor
 	if err := api.ValidateAdminRights(context); err != nil {
 		categoryCollectionModel.GetDBCollection().AddFilter("enabled", "=", true)
 	}
 
-	// extra parameter handler
+	// checking for a "count" request
+	if context.GetRequestParameter("count") != "" {
+		return categoryCollectionModel.GetDBCollection().Count()
+	}
+
+	// limit parameter handle
+	categoryCollectionModel.ListLimit(api.GetListLimit(context))
+
+	// extra parameter handle
 	api.ApplyExtraAttributes(context, categoryCollectionModel)
 
 	return categoryCollectionModel.List()
-}
-
-// APICategoriesCount returns count of existing categories
-func APICategoriesCount(context api.InterfaceApplicationContext) (interface{}, error) {
-	categoryCollectionModel, err := category.GetCategoryCollectionModel()
-	if err != nil {
-		return nil, env.ErrorDispatch(err)
-	}
-	dbCollection := categoryCollectionModel.GetDBCollection()
-
-	// filters handle
-	api.ApplyFilters(context, dbCollection)
-
-	// not allowing to see disabled if not admin
-	if err := api.ValidateAdminRights(context); err != nil {
-		categoryCollectionModel.GetDBCollection().AddFilter("enabled", "=", true)
-	}
-
-	return dbCollection.Count()
 }
 
 // APICategoryCreate creates a new category
@@ -251,7 +227,7 @@ func APICategoryAttributes(context api.InterfaceApplicationContext) (interface{}
 	return attrInfo, nil
 }
 
-// APICategoryAttributes enumerates category attributes and their possible values which is used for layered navigation
+// APICategoryLayers enumerates category attributes and their possible values which is used for layered navigation
 //   - category id should be specified in "id" argument
 func APICategoryLayers(context api.InterfaceApplicationContext) (interface{}, error) {
 	categoryID := context.GetRequestArgument("categoryID")
@@ -326,6 +302,14 @@ func APICategoryProducts(context api.InterfaceApplicationContext) (interface{}, 
 	if err := api.ValidateAdminRights(context); err != nil {
 		productsCollection.GetDBCollection().AddFilter("enabled", "=", true)
 	}
+
+	// checking for a "count" request
+	if context.GetRequestParameter("count") != "" {
+		return productsCollection.GetDBCollection().Count()
+	}
+
+	// limit parameter handle
+	productsCollection.ListLimit(api.GetListLimit(context))
 
 	// preparing product information
 	var result []map[string]interface{}
@@ -437,36 +421,6 @@ func APICategoryGet(context api.InterfaceApplicationContext) (interface{}, error
 	}
 
 	return categoryModel.ToHashMap(), nil
-}
-
-// APICategoryProductsCount returns count of products within category
-func APICategoryProductsCount(context api.InterfaceApplicationContext) (interface{}, error) {
-
-	categoryID := context.GetRequestArgument("categoryID")
-	if categoryID == "" {
-		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "e1003839-d91c-4445-96c8-30e481b8347e", "category id was not specified")
-	}
-
-	// product list operation
-	//-----------------------
-	categoryModel, err := category.LoadCategoryByID(categoryID)
-	if err != nil {
-		return nil, env.ErrorDispatch(err)
-	}
-
-	if api.ValidateAdminRights(context) != nil && !categoryModel.GetEnabled() {
-		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "9c2efb6a-cd28-4dd2-ba7f-5c1fe7c0df30", "category is not available")
-	}
-
-	productsDBCollection := categoryModel.GetProductsCollection().GetDBCollection()
-	api.ApplyFilters(context, productsDBCollection)
-
-	// not allowing to see disabled products if not admin
-	if err := api.ValidateAdminRights(context); err != nil {
-		productsDBCollection.AddFilter("enabled", "=", true)
-	}
-
-	return productsDBCollection.Count()
 }
 
 // APICategoriesTree returns categories parent/child relation map

@@ -28,8 +28,8 @@ type DefaultRestService struct {
 	Handlers map[string]httprouter.Handle
 }
 
-// StructAPIHandlerParams is a structure to hold API request related information
-type RestApplicationContext struct {
+// DefaultRestApplicationContext is a structure to hold API request related information
+type DefaultRestApplicationContext struct {
 	ResponseWriter    http.ResponseWriter
 	Request           *http.Request
 	RequestParameters map[string]string

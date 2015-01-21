@@ -7,11 +7,10 @@ import (
 	"strings"
 
 	"github.com/ottemo/foundation/api"
-	"github.com/ottemo/foundation/env"
-	"github.com/ottemo/foundation/utils"
-
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/product"
+	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/foundation/utils"
 )
 
 // setupAPI setups package related API endpoint routines
@@ -19,97 +18,78 @@ func setupAPI() error {
 
 	var err error
 
-	// 1. DefaultProduct API
-	//----------------------
-	//TODO: shorten endpoint to just 'product/:id' as GET verb is enough - jwv
-	err = api.GetRestService().RegisterAPI("product/get/:id", api.ConstRESTOperationGet, restGetProduct)
+	err = api.GetRestService().RegisterAPI("product/:productID", api.ConstRESTOperationGet, restGetProduct)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	//TODO: shorten endpoint to just 'product' as POST verb assumes creation - jwv
-	err = api.GetRestService().RegisterAPI("product/create", api.ConstRESTOperationCreate, restCreateProduct)
+	err = api.GetRestService().RegisterAPI("product", api.ConstRESTOperationCreate, restCreateProduct)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	//TODO: shorten endpoint to just 'product/:id' as PUT verb describes it as an update - jwv
-	err = api.GetRestService().RegisterAPI("product/update/:id", api.ConstRESTOperationUpdate, restUpdateProduct)
+	err = api.GetRestService().RegisterAPI("product/:productID", api.ConstRESTOperationUpdate, restUpdateProduct)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	//TODO: shorten endpoint to just 'product/:id' as verb DELETE describes delete action - jwv
-	err = api.GetRestService().RegisterAPI("product/delete/:id", api.ConstRESTOperationDelete, restDeleteProduct)
+	err = api.GetRestService().RegisterAPI("product/:productID", api.ConstRESTOperationDelete, restDeleteProduct)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	//TODO: shorten endpoint to just 'product/attribute/:attribute' as DELETE verb indicates purpose - jwv
-	//TODO: shorten endpoint to just 'product/attribute' - jwv
-	err = api.GetRestService().RegisterAPI("product/attribute/list", api.ConstRESTOperationGet, restListProductAttributes)
+	err = api.GetRestService().RegisterAPI("product/:productID/media/:mediaType/:mediaName", api.ConstRESTOperationGet, restMediaGet)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("product/attribute/remove/:attribute", api.ConstRESTOperationDelete, restRemoveProductAttribute)
-	if err != nil {
-		return env.ErrorDispatch(err)
-	}
-	err = api.GetRestService().RegisterAPI("product/attribute/add", api.ConstRESTOperationCreate, restAddProductAttribute)
-	if err != nil {
-		return env.ErrorDispatch(err)
-	}
-	err = api.GetRestService().RegisterAPI("product/attribute/edit/:attribute", api.ConstRESTOperationCreate, restEditProductAttribute)
+	err = api.GetRestService().RegisterAPI("product/:productID/media/:mediaType", api.ConstRESTOperationGet, restMediaList)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	//TODO: shorten endpoint to just 'product/media/:productID/"mediaType/:mediaName' - jwv
-	err = api.GetRestService().RegisterAPI("product/media/get/:productID/:mediaType/:mediaName", api.ConstRESTOperationGet, restMediaGet)
+	err = api.GetRestService().RegisterAPI("product/:productID/media/:mediaType/:mediaName", api.ConstRESTOperationCreate, restMediaAdd)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("product/media/list/:productID/:mediaType", api.ConstRESTOperationGet, restMediaList)
-	if err != nil {
-		return env.ErrorDispatch(err)
-	}
-	err = api.GetRestService().RegisterAPI("product/media/path/:productID/:mediaType", api.ConstRESTOperationGet, restMediaPath)
-	if err != nil {
-		return env.ErrorDispatch(err)
-	}
-	//TODO: remove 'add' from endpoint URL - jwv
-	err = api.GetRestService().RegisterAPI("product/media/add/:productID/:mediaType/:mediaName", api.ConstRESTOperationCreate, restMediaAdd)
-	if err != nil {
-		return env.ErrorDispatch(err)
-	}
-	//TODO: remove 'remove' from endpoint URL - jwv
-	err = api.GetRestService().RegisterAPI("product/media/remove/:productID/:mediaType/:mediaName", api.ConstRESTOperationDelete, restMediaRemove)
-	if err != nil {
-		return env.ErrorDispatch(err)
-	}
-	//TODO: change to a GET as we are retrieving a list not creating one - jwv
-	err = api.GetRestService().RegisterAPI("product/related/:productID", api.ConstRESTOperationCreate, restRelatedList)
+	err = api.GetRestService().RegisterAPI("product/:productID/media/:mediaType/:mediaName", api.ConstRESTOperationDelete, restMediaRemove)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	// 2. DefaultProductCollection API
-	//--------------------------------
-	err = api.GetRestService().RegisterAPI("product/list", api.ConstRESTOperationGet, restListProducts)
-	if err != nil {
-		return env.ErrorDispatch(err)
-	}
-	err = api.GetRestService().RegisterAPI("product/list", api.ConstRESTOperationCreate, restListProducts)
-	if err != nil {
-		return env.ErrorDispatch(err)
-	}
-	err = api.GetRestService().RegisterAPI("product/count", api.ConstRESTOperationGet, restCountProducts)
+	err = api.GetRestService().RegisterAPI("product/:productID/mediapath/:mediaType", api.ConstRESTOperationGet, restMediaPath)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("product/shop", api.ConstRESTOperationGet, restShopList)
+	err = api.GetRestService().RegisterAPI("product/:productID/related", api.ConstRESTOperationCreate, restRelatedList)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("product/shop/layers", api.ConstRESTOperationGet, restShopLayers)
+
+	err = api.GetRestService().RegisterAPI("products", api.ConstRESTOperationGet, restListProducts)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	err = api.GetRestService().RegisterAPI("products/attributes", api.ConstRESTOperationGet, restListProductAttributes)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+	err = api.GetRestService().RegisterAPI("products/attribute", api.ConstRESTOperationCreate, restAddProductAttribute)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+	err = api.GetRestService().RegisterAPI("products/attribute/:attribute", api.ConstRESTOperationUpdate, restEditProductAttribute)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+	err = api.GetRestService().RegisterAPI("products/attribute/:attribute", api.ConstRESTOperationDelete, restRemoveProductAttribute)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	err = api.GetRestService().RegisterAPI("products/shop", api.ConstRESTOperationGet, restShopList)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+	err = api.GetRestService().RegisterAPI("products/shop/layers", api.ConstRESTOperationGet, restShopLayers)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -310,7 +290,7 @@ func restGetProduct(context api.InterfaceApplicationContext) (interface{}, error
 
 	// check request context
 	//---------------------
-	productID := context.GetRequestArgument("id")
+	productID := context.GetRequestArgument("productID")
 	if productID == "" {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "feb3a463-622b-477e-a22d-c0a3fd1972dc", "product id was not specified")
 	}
@@ -379,7 +359,7 @@ func restDeleteProduct(context api.InterfaceApplicationContext) (interface{}, er
 
 	// check request context
 	//--------------------
-	productID := context.GetRequestArgument("id")
+	productID := context.GetRequestArgument("productID")
 	if productID == "" {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "f35af170-8172-4ec0-b30d-ab883231d222", "product id was not specified")
 	}
@@ -411,7 +391,7 @@ func restUpdateProduct(context api.InterfaceApplicationContext) (interface{}, er
 
 	// check request context
 	//---------------------
-	productID := context.GetRequestArgument("id")
+	productID := context.GetRequestArgument("productID")
 	if productID == "" {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "c91e8fc7-ca77-40d1-823c-e50f90b8b4b5", "product id was not specified")
 	}
@@ -640,43 +620,32 @@ func restMediaGet(context api.InterfaceApplicationContext) (interface{}, error) 
 
 // WEB REST API function used to obtain product list we have in database
 //   - only [_id, sku, name] attributes returns by default
+//   - if "count" parameter set to non blank value returns only amount
 func restListProducts(context api.InterfaceApplicationContext) (interface{}, error) {
 
-	// check request context
-	//---------------------
-	reqData, err := api.GetRequestContentAsMap(context)
-	if err != nil {
-		return nil, env.ErrorDispatch(err)
-	}
-
-	// api function routine
-	//---------------------
 	productCollectionModel, err := product.GetProductCollectionModel()
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	// limit parameter handle
-	productCollectionModel.ListLimit(api.GetListLimit(context))
-
 	// filters handle
 	api.ApplyFilters(context, productCollectionModel.GetDBCollection())
 
-	// not allowing to see disabled products if not admin
+	// excluding disabled products for a regular visitor
 	if err := api.ValidateAdminRights(context); err != nil {
 		productCollectionModel.GetDBCollection().AddFilter("enabled", "=", true)
 	}
 
-	// extra parameter handle
-	if extra, isExtra := reqData["extra"]; isExtra {
-		extra := utils.Explode(utils.InterfaceToString(extra), ",")
-		for _, value := range extra {
-			err := productCollectionModel.ListAddExtraAttribute(value)
-			if err != nil {
-				return nil, env.ErrorDispatch(err)
-			}
-		}
+	// checking for a "count" request
+	if context.GetRequestParameter("count") != "" {
+		return productCollectionModel.GetDBCollection().Count()
 	}
+
+	// limit parameter handle
+	productCollectionModel.ListLimit(api.GetListLimit(context))
+
+	// extra parameter handle
+	api.ApplyExtraAttributes(context, productCollectionModel)
 
 	return productCollectionModel.List()
 }
@@ -808,26 +777,6 @@ func restRelatedList(context api.InterfaceApplicationContext) (interface{}, erro
 	}
 
 	return result, nil
-}
-
-// WEB REST API function used to obtain visitors count in model collection
-func restCountProducts(context api.InterfaceApplicationContext) (interface{}, error) {
-
-	productCollectionModel, err := product.GetProductCollectionModel()
-	if err != nil {
-		return nil, env.ErrorDispatch(err)
-	}
-	dbCollection := productCollectionModel.GetDBCollection()
-
-	// filters handle
-	api.ApplyFilters(context, dbCollection)
-
-	// not allowing to see disabled products if not admin
-	if err := api.ValidateAdminRights(context); err != nil {
-		productCollectionModel.GetDBCollection().AddFilter("enabled", "=", true)
-	}
-
-	return dbCollection.Count()
 }
 
 // WEB REST API function used to obtain more detailed list of products (optimized to storefront shop)

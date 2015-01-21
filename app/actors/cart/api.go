@@ -16,7 +16,7 @@ func setupAPI() error {
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("cart/item/:productID/:qty", api.ConstRESTOperationCreate, APICartItemAdd)
+	err = api.GetRestService().RegisterAPI("cart/item", api.ConstRESTOperationCreate, APICartItemAdd)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -89,27 +89,29 @@ func APICartItemAdd(context api.InterfaceApplicationContext) (interface{}, error
 
 	// check request context
 	//---------------------
-	reqData, err := api.GetRequestContentAsMap(context)
-	if err != nil {
-		return nil, env.ErrorDispatch(err)
-	}
-
-	pid := context.GetRequestArgument("productID")
+	pid := api.GetArgumentParameterOrContent(context, "productID")
 	if pid == "" {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "c21dac87-4f93-48dc-b997-bbbe558cfd29", "pid should be specified")
 	}
 
 	qty := 1
-	reqQty := context.GetRequestArgument("qty")
-	if reqQty != "" {
-		qty = utils.InterfaceToInt(reqQty)
+	requestedQty := api.GetArgumentParameterOrContent(context, "qty")
+	if requestedQty != "" {
+		qty = utils.InterfaceToInt(requestedQty)
 	}
 
-	options := reqData
-	reqOptions, present := reqData["options"]
-	if present {
-		if tmpOptions, ok := reqOptions.(map[string]interface{}); ok {
-			options = tmpOptions
+	// we are considering json content as product options unless it have specified options key
+	options, err := api.GetRequestContentAsMap(context)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	requestedOptions := api.GetParameterOrContent(context, "options")
+	if requestedOptions != nil {
+		if reqestedOptionsAsMap, ok := requestedOptions.(map[string]interface{}); ok {
+			options = reqestedOptionsAsMap
+		} else {
+			options = utils.InterfaceToMap(requestedOptions)
 		}
 	}
 
