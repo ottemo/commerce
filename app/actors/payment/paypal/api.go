@@ -20,12 +20,12 @@ func setupAPI() error {
 
 	var err error
 
-	err = api.GetRestService().RegisterAPI("paypal/success", api.ConstRESTOperationGet, restSuccess)
+	err = api.GetRestService().RegisterAPI("paypal/success", api.ConstRESTOperationGet, APIReceipt)
 	if err != nil {
 		return err
 	}
 
-	err = api.GetRestService().RegisterAPI("paypal/cancel", api.ConstRESTOperationGet, restCancel)
+	err = api.GetRestService().RegisterAPI("paypal/cancel", api.ConstRESTOperationGet, APIDecline)
 	if err != nil {
 		return err
 	}
@@ -33,8 +33,9 @@ func setupAPI() error {
 	return nil
 }
 
-// Completes will finalizie the PayPal transaction when provided an Order, Token and Payer ID.
-func Completes(orderInstance order.InterfaceOrder, token string, payerID string) (map[string]string, error) {
+// CompleteTransaction makes NVP request to PayPal for a given purchase order using PayPal token and payer id
+//   - refer to https://developer.paypal.com/docs/classic/api/NVPAPIOverview/ for details
+func CompleteTransaction(orderInstance order.InterfaceOrder, token string, payerID string) (map[string]string, error) {
 
 	// getting order information
 	//--------------------------
@@ -109,8 +110,10 @@ func Completes(orderInstance order.InterfaceOrder, token string, payerID string)
 	return urlGETParams, nil
 }
 
-// WEB REST API function to process PayPal receipt result
-func restSuccess(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIReceipt processes PayPal receipt response
+//   - "token" field should contain valid session ID
+//   - refer to https://developer.paypal.com/docs/classic/api/NVPAPIOverview/ for details
+func APIReceipt(context api.InterfaceApplicationContext) (interface{}, error) {
 	requestData := context.GetRequestParameters()
 	if !utils.KeysInMapAndNotBlank(requestData, "token", "PayerID") {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "4b0fcede-8ce7-4f4d-bee4-9cf75a427f59", "tocken or payerID are not set")
@@ -143,7 +146,7 @@ func restSuccess(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	if checkoutOrder != nil {
 
-		completeData, err := Completes(checkoutOrder, requestData["token"], requestData["PayerID"])
+		completeData, err := CompleteTransaction(checkoutOrder, requestData["token"], requestData["PayerID"])
 		if err != nil {
 			env.Log("paypal.log", env.ConstLogPrefixInfo, "TRANSACTION NOT COMPLETED: "+
 				"VisitorID - "+utils.InterfaceToString(checkoutOrder.Get("visitor_id"))+", "+
@@ -180,8 +183,9 @@ func restSuccess(context api.InterfaceApplicationContext) (interface{}, error) {
 	return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "8d449c1c-ca34-4260-a93b-8af999c1ff04", "Checkout not exist")
 }
 
-// WEB REST API function to process PayPal decline result
-func restCancel(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIDecline processes PayPal decline response
+//   - refer to https://developer.paypal.com/docs/classic/api/NVPAPIOverview/ for details
+func APIDecline(context api.InterfaceApplicationContext) (interface{}, error) {
 	requestData := context.GetRequestParameters()
 	if !utils.KeysInMapAndNotBlank(requestData, "token", "PayerID") {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "4b0fcede-8ce7-4f4d-bee4-9cf75a427f59", "tocken or payerID are not set")

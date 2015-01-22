@@ -123,12 +123,12 @@ func restCreateVisitor(context api.InterfaceApplicationContext) (interface{}, er
 		return nil, env.ErrorDispatch(err)
 	}
 
-	reqData, err := api.GetRequestContentAsMap(context)
+	requestData, err := api.GetRequestContentAsMap(context)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	if !utils.KeysInMapAndNotBlank(reqData, "email") {
+	if !utils.KeysInMapAndNotBlank(requestData, "email") {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "a9610b78-add9-4ae5-b757-59462b646d2b", "'email' was not specified")
 	}
 
@@ -139,7 +139,7 @@ func restCreateVisitor(context api.InterfaceApplicationContext) (interface{}, er
 		return nil, env.ErrorDispatch(err)
 	}
 
-	for attribute, value := range reqData {
+	for attribute, value := range requestData {
 		err := visitorModel.Set(attribute, value)
 		if err != nil {
 			return nil, env.ErrorDispatch(err)
@@ -172,7 +172,7 @@ func restUpdateVisitor(context api.InterfaceApplicationContext) (interface{}, er
 		visitorID = sessionVisitorID
 	}
 
-	reqData, err := api.GetRequestContentAsMap(context)
+	requestData, err := api.GetRequestContentAsMap(context)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -181,7 +181,7 @@ func restUpdateVisitor(context api.InterfaceApplicationContext) (interface{}, er
 		if visitor.GetCurrentVisitorID(context) != visitorID {
 			return nil, env.ErrorDispatch(err)
 		}
-		if _, present := reqData["is_admin"]; present {
+		if _, present := requestData["is_admin"]; present {
 			return nil, env.ErrorDispatch(err)
 		}
 	}
@@ -193,7 +193,7 @@ func restUpdateVisitor(context api.InterfaceApplicationContext) (interface{}, er
 		return nil, env.ErrorDispatch(err)
 	}
 
-	for attribute, value := range reqData {
+	for attribute, value := range requestData {
 		err := visitorModel.Set(attribute, value)
 		if err != nil {
 			return nil, env.ErrorDispatch(err)
@@ -314,17 +314,17 @@ func restAddVisitorAttribute(context api.InterfaceApplicationContext) (interface
 		return nil, env.ErrorDispatch(err)
 	}
 
-	reqData, err := api.GetRequestContentAsMap(context)
+	requestData, err := api.GetRequestContentAsMap(context)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	attributeName, isSpecified := reqData["Attribute"]
+	attributeName, isSpecified := requestData["Attribute"]
 	if !isSpecified {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "f91e2342-d19d-4d83-8c6d-f7dc4237a49f", "attribute name was not specified")
 	}
 
-	attributeLabel, isSpecified := reqData["Label"]
+	attributeLabel, isSpecified := requestData["Label"]
 	if !isSpecified {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "23c7d427-ab41-4183-b446-bf5ffef2e8fc", "attribute label was not specified")
 	}
@@ -352,7 +352,7 @@ func restAddVisitorAttribute(context api.InterfaceApplicationContext) (interface
 		IsLayered:  false,
 	}
 
-	for key, value := range reqData {
+	for key, value := range requestData {
 		switch strings.ToLower(key) {
 		case "type":
 			attribute.Type = utils.InterfaceToString(value)
@@ -383,7 +383,7 @@ func restAddVisitorAttribute(context api.InterfaceApplicationContext) (interface
 
 // WEB REST API function used to edit existing custom attribute fields (except id and name)
 func restEditVisitorAttribute(context api.InterfaceApplicationContext) (interface{}, error) {
-	reqData, err := api.GetRequestContentAsMap(context)
+	requestData, err := api.GetRequestContentAsMap(context)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -409,7 +409,7 @@ func restEditVisitorAttribute(context api.InterfaceApplicationContext) (interfac
 				return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "2893262f-a61a-42f8-9c75-e763e0a5c8ca", "can't edit static attributes")
 			}
 
-			for key, value := range reqData {
+			for key, value := range requestData {
 				switch strings.ToLower(key) {
 				case "label":
 					attribute.Label = utils.InterfaceToString(value)
@@ -478,12 +478,12 @@ func restRegister(context api.InterfaceApplicationContext) (interface{}, error) 
 
 	// check request context
 	//---------------------
-	reqData, err := api.GetRequestContentAsMap(context)
+	requestData, err := api.GetRequestContentAsMap(context)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	if !utils.KeysInMapAndNotBlank(reqData, "email") {
+	if !utils.KeysInMapAndNotBlank(requestData, "email") {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "a37ff1e8-68e3-4201-a7b4-c9b4356dcbeb", "email was not specified")
 	}
 
@@ -494,7 +494,7 @@ func restRegister(context api.InterfaceApplicationContext) (interface{}, error) 
 		return nil, env.ErrorDispatch(err)
 	}
 
-	for attribute, value := range reqData {
+	for attribute, value := range requestData {
 		err := visitorModel.Set(attribute, value)
 		if err != nil {
 			return nil, env.ErrorDispatch(err)
@@ -642,17 +642,17 @@ func restLogin(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check request context
 	//---------------------
-	reqData, err := api.GetRequestContentAsMap(context)
+	requestData, err := api.GetRequestContentAsMap(context)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	if !utils.KeysInMapAndNotBlank(reqData, "email", "password") {
+	if !utils.KeysInMapAndNotBlank(requestData, "email", "password") {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "02b0583b-28c3-4072-afe2-f392a163ed87", "email and/or password were not specified")
 	}
 
-	requestLogin := utils.InterfaceToString(reqData["email"])
-	requestPassword := utils.InterfaceToString(reqData["password"])
+	requestLogin := utils.InterfaceToString(requestData["email"])
+	requestPassword := utils.InterfaceToString(requestData["password"])
 
 	if !strings.Contains(requestLogin, "@") {
 		rootLogin := utils.InterfaceToString(env.ConfigGetValue(app.ConstConfigPathStoreRootLogin))
@@ -703,16 +703,16 @@ func restLogin(context api.InterfaceApplicationContext) (interface{}, error) {
 func restLoginFacebook(context api.InterfaceApplicationContext) (interface{}, error) {
 	// check request context
 	//---------------------
-	reqData, err := api.GetRequestContentAsMap(context)
+	requestData, err := api.GetRequestContentAsMap(context)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	if !utils.KeysInMapAndNotBlank(reqData, "access_token") {
+	if !utils.KeysInMapAndNotBlank(requestData, "access_token") {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "b4b0356d-6c17-4b63-bc72-0cfc943535e2", "access_token was not specified")
 	}
 
-	if !utils.KeysInMapAndNotBlank(reqData, "user_id") {
+	if !utils.KeysInMapAndNotBlank(requestData, "user_id") {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "17b8481d-cf78-4edb-b866-f067d496915d", "user_id was not specified")
 	}
 
@@ -720,7 +720,7 @@ func restLoginFacebook(context api.InterfaceApplicationContext) (interface{}, er
 	//-------------------------
 
 	// using access token to get user information
-	url := "https://graph.facebook.com/" + reqData["user_id"].(string) + "?access_token=" + reqData["access_token"].(string)
+	url := "https://graph.facebook.com/" + requestData["user_id"].(string) + "?access_token=" + requestData["access_token"].(string)
 	facebookResponse, err := http.Get(url)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
@@ -758,7 +758,7 @@ func restLoginFacebook(context api.InterfaceApplicationContext) (interface{}, er
 	}
 
 	// trying to load visitor by facebook_id
-	err = visitorModel.LoadByFacebookID(reqData["user_id"].(string))
+	err = visitorModel.LoadByFacebookID(requestData["user_id"].(string))
 	if err != nil && strings.Contains(err.Error(), "not found") {
 
 		// there is no such facebook_id in DB, trying to find by e-mail
@@ -806,12 +806,12 @@ func restLoginFacebook(context api.InterfaceApplicationContext) (interface{}, er
 func restLoginGoogle(context api.InterfaceApplicationContext) (interface{}, error) {
 	// check request context
 	//---------------------
-	reqData, err := api.GetRequestContentAsMap(context)
+	requestData, err := api.GetRequestContentAsMap(context)
 	if err != nil {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "03a6782e-e34f-4621-8e1a-0d5d5d0dc0c3", "unexpected request content")
 	}
 
-	if !utils.KeysInMapAndNotBlank(reqData, "access_token") {
+	if !utils.KeysInMapAndNotBlank(requestData, "access_token") {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "6838cf4f-c1bc-41fb-b73e-426be0ee6f17", "access_token was not specified")
 	}
 
@@ -819,7 +819,7 @@ func restLoginGoogle(context api.InterfaceApplicationContext) (interface{}, erro
 	//-------------------------
 
 	// using access token to get user information
-	url := "https://www.googleapis.com/oauth2/v1/userinfo?access_token=" + reqData["access_token"].(string)
+	url := "https://www.googleapis.com/oauth2/v1/userinfo?access_token=" + requestData["access_token"].(string)
 	googleResponse, err := http.Get(url)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
@@ -956,18 +956,18 @@ func restListVisitorOrders(context api.InterfaceApplicationContext) (interface{}
 
 // WEB REST API function used to send email to a Visitor
 func restVisitorSendMail(context api.InterfaceApplicationContext) (interface{}, error) {
-	reqData, err := api.GetRequestContentAsMap(context)
+	requestData, err := api.GetRequestContentAsMap(context)
 	if err != nil {
 		return nil, err
 	}
 
-	if !utils.StrKeysInMap(reqData, "subject", "content", "visitor_ids") {
+	if !utils.StrKeysInMap(requestData, "subject", "content", "visitor_ids") {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "21ac9f9d-956f-4963-b37d-fbd0469b8890", "'visitor_ids', 'subject' or 'content' field was not set")
 	}
 
-	subject := utils.InterfaceToString(reqData["subject"])
-	content := utils.InterfaceToString(reqData["content"])
-	visitorIDs := utils.InterfaceToArray(reqData["visitor_ids"])
+	subject := utils.InterfaceToString(requestData["subject"])
+	content := utils.InterfaceToString(requestData["content"])
+	visitorIDs := utils.InterfaceToArray(requestData["visitor_ids"])
 
 	for _, visitorID := range visitorIDs {
 		visitorModel, err := visitor.LoadVisitorByID(utils.InterfaceToString(visitorID))

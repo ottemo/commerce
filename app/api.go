@@ -46,17 +46,17 @@ func restLogin(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	if requestLogin == "" || requestPassword == "" {
 
-		reqData, err := api.GetRequestContentAsMap(context)
+		requestData, err := api.GetRequestContentAsMap(context)
 		if err != nil {
 			return nil, env.ErrorDispatch(err)
 		}
 
-		if !utils.KeysInMapAndNotBlank(reqData, "login", "password") {
+		if !utils.KeysInMapAndNotBlank(requestData, "login", "password") {
 			return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "fee28a56-adb1-44b9-a0e2-1c9be6bd6fdb", "login and password should be specified")
 		}
 
-		requestLogin = utils.InterfaceToString(reqData["login"])
-		requestPassword = utils.InterfaceToString(reqData["password"])
+		requestLogin = utils.InterfaceToString(requestData["login"])
+		requestPassword = utils.InterfaceToString(requestData["password"])
 	}
 
 	rootLogin := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathStoreRootLogin))

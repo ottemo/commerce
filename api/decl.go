@@ -9,10 +9,12 @@ import (
 
 // Package global constants
 const (
-	ConstRESTOperationGet = "GET"
+	ConstRESTOperationGet    = "GET"
 	ConstRESTOperationUpdate = "PUT"
 	ConstRESTOperationCreate = "POST"
 	ConstRESTOperationDelete = "DELETE"
+
+	ConstRESTActionParameter = "action"
 
 	ConstSessionKeyAdminRights = "adminRights"   // session key used to flag that user have admin rights
 	ConstSessionCookieName     = "OTTEMOSESSION" // cookie name which should contain sessionID

@@ -15,50 +15,49 @@ func setupAPI() error {
 
 	var err error
 
-	err = api.GetRestService().RegisterAPI("categories", api.ConstRESTOperationGet, APICategoriesList)
+	err = api.GetRestService().RegisterAPI("categories", api.ConstRESTOperationGet, APIListCategories)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("categories/tree", api.ConstRESTOperationGet, APICategoriesTree)
+	err = api.GetRestService().RegisterAPI("categories/tree", api.ConstRESTOperationGet, APIGetCategoriesTree)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-
-	err = api.GetRestService().RegisterAPI("category", api.ConstRESTOperationCreate, APICategoryCreate)
-	if err != nil {
-		return env.ErrorDispatch(err)
-	}
-	err = api.GetRestService().RegisterAPI("category/:categoryID", api.ConstRESTOperationUpdate, APICategoryUpdate)
-	if err != nil {
-		return env.ErrorDispatch(err)
-	}
-	err = api.GetRestService().RegisterAPI("category/:categoryID", api.ConstRESTOperationDelete, APICategoryDelete)
-	if err != nil {
-		return env.ErrorDispatch(err)
-	}
-	err = api.GetRestService().RegisterAPI("category/:categoryID", api.ConstRESTOperationGet, APICategoryGet)
-	if err != nil {
-		return env.ErrorDispatch(err)
-	}
-	err = api.GetRestService().RegisterAPI("category/:categoryID/layers", api.ConstRESTOperationGet, APICategoryLayers)
+	err = api.GetRestService().RegisterAPI("categories/attributes", api.ConstRESTOperationGet, APIGetCategoryAttributes)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("categories/attributes", api.ConstRESTOperationGet, APICategoryAttributes)
+	err = api.GetRestService().RegisterAPI("category", api.ConstRESTOperationCreate, APICreateCategory)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+	err = api.GetRestService().RegisterAPI("category/:categoryID", api.ConstRESTOperationUpdate, APIUpdateCategory)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+	err = api.GetRestService().RegisterAPI("category/:categoryID", api.ConstRESTOperationDelete, APIDeleteCategory)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+	err = api.GetRestService().RegisterAPI("category/:categoryID", api.ConstRESTOperationGet, APIGetCategory)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+	err = api.GetRestService().RegisterAPI("category/:categoryID/layers", api.ConstRESTOperationGet, APIGetCategoryLayers)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("category/:categoryID/products", api.ConstRESTOperationGet, APICategoryProducts)
+	err = api.GetRestService().RegisterAPI("category/:categoryID/products", api.ConstRESTOperationGet, APIGetCategoryProducts)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("category/:categoryID/product/:productID", api.ConstRESTOperationCreate, APICategoryProductAdd)
+	err = api.GetRestService().RegisterAPI("category/:categoryID/product/:productID", api.ConstRESTOperationCreate, APIAddProductToCategory)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("category/:categoryID/product/:productID", api.ConstRESTOperationDelete, APICategoryProductRemove)
+	err = api.GetRestService().RegisterAPI("category/:categoryID/product/:productID", api.ConstRESTOperationDelete, APIRemoveProductFromCategory)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -66,9 +65,10 @@ func setupAPI() error {
 	return nil
 }
 
-// APICategoriesList returns list of existing categories
-//   - if "count" parameter set to non blank value returns only amount
-func APICategoriesList(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIListCategories returns a list of available categories
+//   - if "action" parameter is set to "count" result value will be just a number of list items
+//   - for a not admins available categories are limited to enabled ones
+func APIListCategories(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	categoryCollectionModel, err := category.GetCategoryCollectionModel()
 	if err != nil {
@@ -84,7 +84,7 @@ func APICategoriesList(context api.InterfaceApplicationContext) (interface{}, er
 	}
 
 	// checking for a "count" request
-	if context.GetRequestParameter("count") != "" {
+	if context.GetRequestParameter(api.ConstRESTActionParameter) == "count" {
 		return categoryCollectionModel.GetDBCollection().Count()
 	}
 
@@ -97,19 +97,19 @@ func APICategoriesList(context api.InterfaceApplicationContext) (interface{}, er
 	return categoryCollectionModel.List()
 }
 
-// APICategoryCreate creates a new category
-//   - category attributes must be provided via content
-//   - name attribute required
-func APICategoryCreate(context api.InterfaceApplicationContext) (interface{}, error) {
+// APICreateCategory creates a new category
+//   - category attributes must be provided in request content
+//   - "name" attribute required
+func APICreateCategory(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check request context
 	//---------------------
-	reqData, err := api.GetRequestContentAsMap(context)
+	requestData, err := api.GetRequestContentAsMap(context)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	if _, present := reqData["name"]; !present {
+	if _, present := requestData["name"]; !present {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "521b50d6-0d98-491a-8e3a-37678fbbccfe", "category name was not specified")
 	}
 
@@ -125,7 +125,7 @@ func APICategoryCreate(context api.InterfaceApplicationContext) (interface{}, er
 		return nil, env.ErrorDispatch(err)
 	}
 
-	for attribute, value := range reqData {
+	for attribute, value := range requestData {
 		err := categoryModel.Set(attribute, value)
 		if err != nil {
 			return nil, env.ErrorDispatch(err)
@@ -140,9 +140,9 @@ func APICategoryCreate(context api.InterfaceApplicationContext) (interface{}, er
 	return categoryModel.ToHashMap(), nil
 }
 
-// APICategoryDelete removes category
-//   - category id must be specified as "id" argument
-func APICategoryDelete(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIDeleteCategory deletes existing category
+//   - category id should be specified in "categoryID" argument
+func APIDeleteCategory(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check request context
 	//--------------------
@@ -171,10 +171,10 @@ func APICategoryDelete(context api.InterfaceApplicationContext) (interface{}, er
 	return "ok", nil
 }
 
-// APICategoryUpdate modifies existing category
+// APIUpdateCategory modifies existing category
 //   - category id must be specified as "id" argument
 //   - category attributes must be specified in content
-func APICategoryUpdate(context api.InterfaceApplicationContext) (interface{}, error) {
+func APIUpdateCategory(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check request context
 	//---------------------
@@ -183,7 +183,7 @@ func APICategoryUpdate(context api.InterfaceApplicationContext) (interface{}, er
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "389975e7-611c-4d6c-8b4d-bca450f5f7e7", "category id was not specified")
 	}
 
-	reqData, err := api.GetRequestContentAsMap(context)
+	requestData, err := api.GetRequestContentAsMap(context)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -200,7 +200,7 @@ func APICategoryUpdate(context api.InterfaceApplicationContext) (interface{}, er
 		return nil, env.ErrorDispatch(err)
 	}
 
-	for attrName, attrVal := range reqData {
+	for attrName, attrVal := range requestData {
 		err = categoryModel.Set(attrName, attrVal)
 		if err != nil {
 			return nil, env.ErrorDispatch(err)
@@ -215,8 +215,8 @@ func APICategoryUpdate(context api.InterfaceApplicationContext) (interface{}, er
 	return categoryModel.ToHashMap(), nil
 }
 
-// APICategoryAttributes enumerates category attributes
-func APICategoryAttributes(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIGetCategoryAttributes returns a list of category attributes
+func APIGetCategoryAttributes(context api.InterfaceApplicationContext) (interface{}, error) {
 	categoryModel, err := category.GetCategoryModel()
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
@@ -227,9 +227,9 @@ func APICategoryAttributes(context api.InterfaceApplicationContext) (interface{}
 	return attrInfo, nil
 }
 
-// APICategoryLayers enumerates category attributes and their possible values which is used for layered navigation
+// APIGetCategoryLayers enumerates category attributes and their possible values which is used for layered navigation
 //   - category id should be specified in "id" argument
-func APICategoryLayers(context api.InterfaceApplicationContext) (interface{}, error) {
+func APIGetCategoryLayers(context api.InterfaceApplicationContext) (interface{}, error) {
 	categoryID := context.GetRequestArgument("categoryID")
 	if categoryID == "" {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "389975e7-611c-4d6c-8b4d-bca450f5f7e7", "category id was not specified")
@@ -272,9 +272,9 @@ func APICategoryLayers(context api.InterfaceApplicationContext) (interface{}, er
 	return result, nil
 }
 
-// APICategoryProducts returns category related products
+// APIGetCategoryProducts returns category related products
 //   - category id should be specified in "categoryID" argument
-func APICategoryProducts(context api.InterfaceApplicationContext) (interface{}, error) {
+func APIGetCategoryProducts(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check request context
 	//---------------------
@@ -328,9 +328,9 @@ func APICategoryProducts(context api.InterfaceApplicationContext) (interface{}, 
 	return result, nil
 }
 
-// APICategoryProductAdd adds product to category
+// APIAddProductToCategory adds product to category
 //   - category id and product id  should be specified in "categoryID" and "productID" arguments
-func APICategoryProductAdd(context api.InterfaceApplicationContext) (interface{}, error) {
+func APIAddProductToCategory(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check request context
 	//---------------------
@@ -363,9 +363,9 @@ func APICategoryProductAdd(context api.InterfaceApplicationContext) (interface{}
 	return "ok", nil
 }
 
-// APICategoryProductRemove removes product from category
+// APIRemoveProductFromCategory removes product from category
 //   - category id and product id  should be specified in "categoryID" and "productID" arguments
-func APICategoryProductRemove(context api.InterfaceApplicationContext) (interface{}, error) {
+func APIRemoveProductFromCategory(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check request context
 	//---------------------
@@ -398,9 +398,9 @@ func APICategoryProductRemove(context api.InterfaceApplicationContext) (interfac
 	return "ok", nil
 }
 
-// APICategoryGet return category information
-//   - category id should be specified in "id" argument
-func APICategoryGet(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIGetCategory return specified category information
+//   - category id should be specified in "categoryID" argument
+func APIGetCategory(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check request context
 	//---------------------
@@ -423,8 +423,8 @@ func APICategoryGet(context api.InterfaceApplicationContext) (interface{}, error
 	return categoryModel.ToHashMap(), nil
 }
 
-// APICategoriesTree returns categories parent/child relation map
-func APICategoriesTree(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIGetCategoriesTree returns categories parent/child relation map
+func APIGetCategoriesTree(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	var result = make([]map[string]interface{}, 0)
 

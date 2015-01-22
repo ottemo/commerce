@@ -13,12 +13,12 @@ func setupAPI() error {
 
 	var err error
 
-	err = api.GetRestService().RegisterAPI("authorizenet/receipt", api.ConstRESTOperationCreate, restReceipt)
+	err = api.GetRestService().RegisterAPI("authorizenet/receipt", api.ConstRESTOperationCreate, APIReceipt)
 	if err != nil {
 		return err
 	}
 
-	err = api.GetRestService().RegisterAPI("authorizenet/relay", api.ConstRESTOperationCreate, restRelay)
+	err = api.GetRestService().RegisterAPI("authorizenet/relay", api.ConstRESTOperationCreate, APIRelay)
 	if err != nil {
 		return err
 	}
@@ -26,17 +26,19 @@ func setupAPI() error {
 	return nil
 }
 
-// WEB REST API function to process Authorize.Net receipt result
-func restReceipt(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIReceipt processes Authorize.net receipt response
+//   - "x_session" should be specified in request contents with id of existing session
+//   - refer to http://www.authorize.net/support/DirectPost_guide.pdf for other fields receipt response should contain
+func APIReceipt(context api.InterfaceApplicationContext) (interface{}, error) {
 
-	reqData, err := api.GetRequestContentAsMap(context)
+	requestData, err := api.GetRequestContentAsMap(context)
 	if err != nil {
 		return nil, err
 	}
 
-	status := reqData["x_response_code"]
+	status := requestData["x_response_code"]
 
-	session, err := api.GetSessionByID(utils.InterfaceToString(reqData["x_session"]))
+	session, err := api.GetSessionByID(utils.InterfaceToString(requestData["x_session"]))
 	if err != nil {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "48f70911-836f-41ba-9ed9-b2afcb7ca462", "Wrong session ID")
 	}
@@ -60,7 +62,7 @@ func restReceipt(context api.InterfaceApplicationContext) (interface{}, error) {
 				checkoutOrder.NewIncrementID()
 
 				checkoutOrder.Set("status", "pending")
-				checkoutOrder.Set("payment_info", reqData)
+				checkoutOrder.Set("payment_info", requestData)
 
 				err = currentCheckout.CheckoutSuccess(checkoutOrder, context.GetSession())
 				if err != nil {
@@ -76,9 +78,9 @@ func restReceipt(context api.InterfaceApplicationContext) (interface{}, error) {
 				env.Log("authorizenet.log", env.ConstLogPrefixInfo, "TRANSACTION APPROVED: "+
 					"VisitorID - "+utils.InterfaceToString(checkoutOrder.Get("visitor_id"))+", "+
 					"OrderID - "+checkoutOrder.GetID()+", "+
-					"Card  - "+utils.InterfaceToString(reqData["x_card_type"])+" "+utils.InterfaceToString(reqData["x_account_number"])+", "+
-					"Total - "+utils.InterfaceToString(reqData["x_amount"])+", "+
-					"Transaction ID - "+utils.InterfaceToString(reqData["x_trans_id"]))
+					"Card  - "+utils.InterfaceToString(requestData["x_card_type"])+" "+utils.InterfaceToString(requestData["x_account_number"])+", "+
+					"Total - "+utils.InterfaceToString(requestData["x_amount"])+", "+
+					"Transaction ID - "+utils.InterfaceToString(requestData["x_trans_id"]))
 
 				return api.StructRestRedirect{Location: app.GetStorefrontURL("account/order/" + checkoutOrder.GetID()), DoRedirect: true}, nil
 			}
@@ -91,9 +93,9 @@ func restReceipt(context api.InterfaceApplicationContext) (interface{}, error) {
 				env.Log("authorizenet.log", env.ConstLogPrefixError, "TRANSACTION NOT APPROVED: "+
 					"VisitorID - "+utils.InterfaceToString(checkoutOrder.Get("visitor_id"))+", "+
 					"OrderID - "+checkoutOrder.GetID()+", "+
-					"Card  - "+utils.InterfaceToString(reqData["x_card_type"])+" "+utils.InterfaceToString(reqData["x_account_number"])+", "+
-					"Total - "+utils.InterfaceToString(reqData["x_amount"])+", "+
-					"Transaction ID - "+utils.InterfaceToString(reqData["x_trans_id"]))
+					"Card  - "+utils.InterfaceToString(requestData["x_card_type"])+" "+utils.InterfaceToString(requestData["x_account_number"])+", "+
+					"Total - "+utils.InterfaceToString(requestData["x_amount"])+", "+
+					"Transaction ID - "+utils.InterfaceToString(requestData["x_trans_id"]))
 			}
 
 			return []byte(`<html>
@@ -104,7 +106,7 @@ func restReceipt(context api.InterfaceApplicationContext) (interface{}, error) {
 					 </head>
 					 <body>
 					 	<h1>Something went wrong</h1>
-					 	<p>` + utils.InterfaceToString(reqData["x_response_reason_text"]) + `</p>
+					 	<p>` + utils.InterfaceToString(requestData["x_response_reason_text"]) + `</p>
 
 						<p><a href="` + app.GetStorefrontURL("checkout") + `">Back to store</a></p>
 
@@ -116,15 +118,17 @@ func restReceipt(context api.InterfaceApplicationContext) (interface{}, error) {
 		env.Log("authorizenet.log", env.ConstLogPrefixError, "TRANSACTION NOT APPROVED: (can't process authorize.net response) "+
 			"VisitorID - "+utils.InterfaceToString(checkoutOrder.Get("visitor_id"))+", "+
 			"OrderID - "+checkoutOrder.GetID()+", "+
-			"Card  - "+utils.InterfaceToString(reqData["x_card_type"])+" "+utils.InterfaceToString(reqData["x_account_number"])+", "+
-			"Total - "+utils.InterfaceToString(reqData["x_amount"])+", "+
-			"Transaction ID - "+utils.InterfaceToString(reqData["x_trans_id"]))
+			"Card  - "+utils.InterfaceToString(requestData["x_card_type"])+" "+utils.InterfaceToString(requestData["x_account_number"])+", "+
+			"Total - "+utils.InterfaceToString(requestData["x_amount"])+", "+
+			"Transaction ID - "+utils.InterfaceToString(requestData["x_trans_id"]))
 	}
 	return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "770e9dec-8f59-4e98-857f-e8124bf6771e", "can't process authorize.net response")
 }
 
-// WEB REST API function to process Authorize.Net relay result
-func restRelay(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIRelay processes Authorize.net relay response
+//   - "x_session" should be specified in request contents with id of existing session
+//   - refer to http://www.authorize.net/support/DirectPost_guide.pdf for other fields relay response should contain
+func APIRelay(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	requestData, err := api.GetRequestContentAsMap(context)
 	if err != nil {

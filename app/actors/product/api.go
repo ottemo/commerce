@@ -18,52 +18,52 @@ func setupAPI() error {
 
 	var err error
 
-	err = api.GetRestService().RegisterAPI("product/:productID", api.ConstRESTOperationGet, restGetProduct)
+	err = api.GetRestService().RegisterAPI("product/:productID", api.ConstRESTOperationGet, APIGetProduct)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("product", api.ConstRESTOperationCreate, restCreateProduct)
+	err = api.GetRestService().RegisterAPI("product", api.ConstRESTOperationCreate, APICreateProduct)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("product/:productID", api.ConstRESTOperationUpdate, restUpdateProduct)
+	err = api.GetRestService().RegisterAPI("product/:productID", api.ConstRESTOperationUpdate, APIUpdateProduct)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("product/:productID", api.ConstRESTOperationDelete, restDeleteProduct)
-	if err != nil {
-		return env.ErrorDispatch(err)
-	}
-
-	err = api.GetRestService().RegisterAPI("product/:productID/media/:mediaType/:mediaName", api.ConstRESTOperationGet, restMediaGet)
-	if err != nil {
-		return env.ErrorDispatch(err)
-	}
-	err = api.GetRestService().RegisterAPI("product/:productID/media/:mediaType", api.ConstRESTOperationGet, restMediaList)
+	err = api.GetRestService().RegisterAPI("product/:productID", api.ConstRESTOperationDelete, APIDeleteProduct)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("product/:productID/media/:mediaType/:mediaName", api.ConstRESTOperationCreate, restMediaAdd)
+	err = api.GetRestService().RegisterAPI("product/:productID/media/:mediaType/:mediaName", api.ConstRESTOperationGet, APIGetMedia)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("product/:productID/media/:mediaType/:mediaName", api.ConstRESTOperationDelete, restMediaRemove)
-	if err != nil {
-		return env.ErrorDispatch(err)
-	}
-
-	err = api.GetRestService().RegisterAPI("product/:productID/mediapath/:mediaType", api.ConstRESTOperationGet, restMediaPath)
+	err = api.GetRestService().RegisterAPI("product/:productID/media/:mediaType", api.ConstRESTOperationGet, APIListMedia)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("product/:productID/related", api.ConstRESTOperationCreate, restRelatedList)
+	err = api.GetRestService().RegisterAPI("product/:productID/media/:mediaType/:mediaName", api.ConstRESTOperationCreate, APIAddMediaForProduct)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+	err = api.GetRestService().RegisterAPI("product/:productID/media/:mediaType/:mediaName", api.ConstRESTOperationDelete, APIRemoveMediaForProduct)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("products", api.ConstRESTOperationGet, restListProducts)
+	err = api.GetRestService().RegisterAPI("product/:productID/mediapath/:mediaType", api.ConstRESTOperationGet, APIGetMediaPath)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	err = api.GetRestService().RegisterAPI("product/:productID/related", api.ConstRESTOperationCreate, APIListRelatedProducts)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	err = api.GetRestService().RegisterAPI("products", api.ConstRESTOperationGet, APIListProducts)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -72,24 +72,24 @@ func setupAPI() error {
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("products/attribute", api.ConstRESTOperationCreate, restAddProductAttribute)
+	err = api.GetRestService().RegisterAPI("products/attribute", api.ConstRESTOperationCreate, APIAddProductsAttribute)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("products/attribute/:attribute", api.ConstRESTOperationUpdate, restEditProductAttribute)
+	err = api.GetRestService().RegisterAPI("products/attribute/:attribute", api.ConstRESTOperationUpdate, APIUpdateProductAttribute)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("products/attribute/:attribute", api.ConstRESTOperationDelete, restRemoveProductAttribute)
+	err = api.GetRestService().RegisterAPI("products/attribute/:attribute", api.ConstRESTOperationDelete, APIRemoveProductsAttribute)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("products/shop", api.ConstRESTOperationGet, restShopList)
+	err = api.GetRestService().RegisterAPI("products/shop", api.ConstRESTOperationGet, APIListShopProducts)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("products/shop/layers", api.ConstRESTOperationGet, restShopLayers)
+	err = api.GetRestService().RegisterAPI("products/shop/layers", api.ConstRESTOperationGet, APIGetShopLayers)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -113,9 +113,13 @@ func restListProductAttributes(context api.InterfaceApplicationContext) (interfa
 	return attrInfo, nil
 }
 
-// WEB REST API function used to edit existing custom attribute fields (except id and name)
-func restEditProductAttribute(context api.InterfaceApplicationContext) (interface{}, error) {
-	reqData, err := api.GetRequestContentAsMap(context)
+// APIUpdateProductAttribute updates existing custom attribute of product model
+//   - attribute name/code should be provided in "attribute" argument
+//   - attribute parameters should be provided in request content
+//   - attribute parameters "id" and "name" will be ignored
+//   - static attributes can not be changed
+func APIUpdateProductAttribute(context api.InterfaceApplicationContext) (interface{}, error) {
+	requestData, err := api.GetRequestContentAsMap(context)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -141,7 +145,7 @@ func restEditProductAttribute(context api.InterfaceApplicationContext) (interfac
 				return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "2893262f-a61a-42f8-9c75-e763e0a5c8ca", "can't edit static attributes")
 			}
 
-			for key, value := range reqData {
+			for key, value := range requestData {
 				switch strings.ToLower(key) {
 				case "label":
 					attribute.Label = utils.InterfaceToString(value)
@@ -174,22 +178,23 @@ func restEditProductAttribute(context api.InterfaceApplicationContext) (interfac
 	return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "2893262f-a61a-42f8-9c75-e763e0a5c8ca", "attribute not found")
 }
 
-// WEB REST API function used to add new one custom attribute
-func restAddProductAttribute(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIAddProductsAttribute creates a new custom attribute for a product model
+//   - attribute parameters "Attribute" and "Label" are required
+func APIAddProductsAttribute(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check request context
 	//---------------------
-	reqData, err := api.GetRequestContentAsMap(context)
+	requestData, err := api.GetRequestContentAsMap(context)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	attributeName, isSpecified := reqData["Attribute"]
+	attributeName, isSpecified := requestData["Attribute"]
 	if !isSpecified {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "2f7aec81-dba8-4cad-b683-23c5d0a08cf5", "attribute name was not specified")
 	}
 
-	attributeLabel, isSpecified := reqData["Label"]
+	attributeLabel, isSpecified := requestData["Label"]
 	if !isSpecified {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "93457847-8e4d-4536-8985-43f340a1abc4", "attribute label was not specified")
 	}
@@ -223,7 +228,7 @@ func restAddProductAttribute(context api.InterfaceApplicationContext) (interface
 		IsPublic:   false,
 	}
 
-	for key, value := range reqData {
+	for key, value := range requestData {
 		switch strings.ToLower(key) {
 		case "type":
 			attribute.Type = utils.InterfaceToString(value)
@@ -254,8 +259,9 @@ func restAddProductAttribute(context api.InterfaceApplicationContext) (interface
 	return attribute, nil
 }
 
-// WEB REST API function used to remove custom attribute of product
-func restRemoveProductAttribute(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIRemoveProductsAttribute removes existing custom attribute of a product model
+//   - attribute name/code should be provided in "attribute" argument
+func APIRemoveProductsAttribute(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check request context
 	//--------------------
@@ -284,9 +290,9 @@ func restRemoveProductAttribute(context api.InterfaceApplicationContext) (interf
 	return "ok", nil
 }
 
-// WEB REST API function used to obtain all product attributes
-//   - product id must be specified in request URI "http://[site:port]/product/get/:id"
-func restGetProduct(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIGetProduct return specified product information
+//   - product id should be specified in "productID" argument
+func APIGetProduct(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check request context
 	//---------------------
@@ -310,14 +316,14 @@ func restGetProduct(context api.InterfaceApplicationContext) (interface{}, error
 	return productModel.ToHashMap(), nil
 }
 
-// WEB REST API used to create new one product
-//   - product attributes must be included in POST form
-//   - sku and name attributes required
-func restCreateProduct(context api.InterfaceApplicationContext) (interface{}, error) {
+// APICreateProduct creates a new product
+//   - product attributes must be provided in request content
+//   - "sku" and "name" attributes are required
+func APICreateProduct(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check request context
 	//---------------------
-	reqData, err := api.GetRequestContentAsMap(context)
+	requestData, err := api.GetRequestContentAsMap(context)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -338,7 +344,7 @@ func restCreateProduct(context api.InterfaceApplicationContext) (interface{}, er
 		return nil, env.ErrorDispatch(err)
 	}
 
-	for attribute, value := range reqData {
+	for attribute, value := range requestData {
 		err := productModel.Set(attribute, value)
 		if err != nil {
 			return nil, env.ErrorDispatch(err)
@@ -353,9 +359,9 @@ func restCreateProduct(context api.InterfaceApplicationContext) (interface{}, er
 	return productModel.ToHashMap(), nil
 }
 
-// WEB REST API used to delete product
-//   - product attributes must be included in POST form
-func restDeleteProduct(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIDeleteProduct deletes existing product
+//   - product id must be specified in "productID" argument
+func APIDeleteProduct(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check request context
 	//--------------------
@@ -384,10 +390,10 @@ func restDeleteProduct(context api.InterfaceApplicationContext) (interface{}, er
 	return "ok", nil
 }
 
-// WEB REST API used to update existing product
-//   - product id must be specified in request URI
-//   - product attributes must be included in POST form
-func restUpdateProduct(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIUpdateProduct updates existing product
+//   - product id should be specified in "productID" argument
+//   - product attributes should be specified in content
+func APIUpdateProduct(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check request context
 	//---------------------
@@ -396,7 +402,7 @@ func restUpdateProduct(context api.InterfaceApplicationContext) (interface{}, er
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "c91e8fc7-ca77-40d1-823c-e50f90b8b4b5", "product id was not specified")
 	}
 
-	reqData, err := api.GetRequestContentAsMap(context)
+	requestData, err := api.GetRequestContentAsMap(context)
 	if err != nil {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "fffccbad-455a-4fff-81d4-8919ae3a5c35", "unexpected request content")
 	}
@@ -413,7 +419,7 @@ func restUpdateProduct(context api.InterfaceApplicationContext) (interface{}, er
 		return nil, env.ErrorDispatch(err)
 	}
 
-	for attrName, attrVal := range reqData {
+	for attrName, attrVal := range requestData {
 		err = productModel.Set(attrName, attrVal)
 		if err != nil {
 			return nil, env.ErrorDispatch(err)
@@ -428,9 +434,9 @@ func restUpdateProduct(context api.InterfaceApplicationContext) (interface{}, er
 	return productModel.ToHashMap(), nil
 }
 
-// WEB REST API used to add media for a product
-//   - product id, media type must be specified in request URI
-func restMediaPath(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIGetMediaPath returns relative path to product media files within media library
+//   - product id, media type must be specified in "productID" and "mediaType" arguments
+func APIGetMediaPath(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check request context
 	//---------------------
@@ -459,9 +465,9 @@ func restMediaPath(context api.InterfaceApplicationContext) (interface{}, error)
 	return mediaList, nil
 }
 
-// WEB REST API used to add media for a product
-//   - product id, media type must be specified in request URI
-func restMediaList(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIListMedia returns lost of media files assigned to specified product
+//   - product id, media type must be specified in "productID" and "mediaType" arguments
+func APIListMedia(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check request context
 	//---------------------
@@ -490,10 +496,10 @@ func restMediaList(context api.InterfaceApplicationContext) (interface{}, error)
 	return mediaList, nil
 }
 
-// WEB REST API used to add media for a product
-//   - product id, media type and media name must be specified in request URI
-//   - media contents must be included as file in POST form
-func restMediaAdd(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIAddMediaForProduct uploads and assigns media file send in request for a specified product
+//   - product id, media type and media name should be specified in "productID", "mediaType" and "mediaName" arguments
+//   - media file should be provided in "file" field
+func APIAddMediaForProduct(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check request context
 	//---------------------
@@ -544,9 +550,9 @@ func restMediaAdd(context api.InterfaceApplicationContext) (interface{}, error) 
 	return "ok", nil
 }
 
-// WEB REST API used to add media for a product
-//   - product id, media type and media name must be specified in request URI
-func restMediaRemove(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIRemoveMediaForProduct removes media content from specified product
+//   - product id, media type and media name should be specified in "productID", "mediaType" and "mediaName" arguments
+func APIRemoveMediaForProduct(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check request context
 	//---------------------
@@ -585,9 +591,10 @@ func restMediaRemove(context api.InterfaceApplicationContext) (interface{}, erro
 	return "ok", nil
 }
 
-// WEB REST API used to get media contents for a product
-//   - product id, media type and media name must be specified in request URI
-func restMediaGet(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIGetMedia returns media contents for a product (file assigned to a product)
+//   - product id, media type and media name must be specified in "productID", "mediaType" and "mediaName" arguments
+//   - on success case not a JSON data returns, but media file
+func APIGetMedia(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check request context
 	//---------------------
@@ -618,10 +625,10 @@ func restMediaGet(context api.InterfaceApplicationContext) (interface{}, error) 
 	return productModel.GetMedia(mediaType, mediaName)
 }
 
-// WEB REST API function used to obtain product list we have in database
-//   - only [_id, sku, name] attributes returns by default
-//   - if "count" parameter set to non blank value returns only amount
-func restListProducts(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIListProducts returns a list of available products
+//   - if "action" parameter is set to "count" result value will be just a number of list items
+//   - for a not admins available products are limited to enabled ones
+func APIListProducts(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	productCollectionModel, err := product.GetProductCollectionModel()
 	if err != nil {
@@ -637,7 +644,7 @@ func restListProducts(context api.InterfaceApplicationContext) (interface{}, err
 	}
 
 	// checking for a "count" request
-	if context.GetRequestParameter("count") != "" {
+	if context.GetRequestParameter(api.ConstRESTActionParameter) == "count" {
 		return productCollectionModel.GetDBCollection().Count()
 	}
 
@@ -650,7 +657,8 @@ func restListProducts(context api.InterfaceApplicationContext) (interface{}, err
 	return productCollectionModel.List()
 }
 
-func restRelatedList(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIListRelatedProducts returns related products list for a given product
+func APIListRelatedProducts(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check request context
 	//---------------------
@@ -659,14 +667,14 @@ func restRelatedList(context api.InterfaceApplicationContext) (interface{}, erro
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "55aa2eee-0407-4094-a90a-5d69d8c1efcc", "product id was not specified")
 	}
 
-	reqData, err := api.GetRequestContentAsMap(context)
+	requestData, err := api.GetRequestContentAsMap(context)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
 	count := 5
-	if utils.InterfaceToInt(reqData["count"]) > 0 {
-		count = utils.InterfaceToInt(reqData["count"])
+	if utils.InterfaceToInt(requestData["count"]) > 0 {
+		count = utils.InterfaceToInt(requestData["count"])
 	}
 
 	// load product operation
@@ -726,7 +734,7 @@ func restRelatedList(context api.InterfaceApplicationContext) (interface{}, erro
 							resultItem.Image = mediaPath + productModel.GetDefaultImage()
 						}
 
-						if extra, isExtra := reqData["extra"]; isExtra {
+						if extra, isExtra := requestData["extra"]; isExtra {
 							resultItem.Extra = make(map[string]interface{})
 							extra := utils.Explode(utils.InterfaceToString(extra), ",")
 							for _, value := range extra {
@@ -763,7 +771,7 @@ func restRelatedList(context api.InterfaceApplicationContext) (interface{}, erro
 					resultItem.Image = mediaPath + productModel.GetDefaultImage()
 				}
 
-				if extra, isExtra := reqData["extra"]; isExtra {
+				if extra, isExtra := requestData["extra"]; isExtra {
 					resultItem.Extra = make(map[string]interface{})
 					extra := utils.Explode(utils.InterfaceToString(extra), ",")
 					for _, value := range extra {
@@ -779,8 +787,9 @@ func restRelatedList(context api.InterfaceApplicationContext) (interface{}, erro
 	return result, nil
 }
 
-// WEB REST API function used to obtain more detailed list of products (optimized to storefront shop)
-func restShopList(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIListShopProducts returns a list of available products for a shop
+//   - for a not admins available products are limited to enabled ones
+func APIListShopProducts(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	productsCollection, err := product.GetProductCollectionModel()
 	if err != nil {
@@ -813,8 +822,9 @@ func restShopList(context api.InterfaceApplicationContext) (interface{}, error) 
 	return result, nil
 }
 
-// WEB REST API function used to obtain layered navigation options for shop list
-func restShopLayers(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIGetShopLayers returns layered navigation options for a shop products list
+//   - for a not admins available products are limited to enabled ones
+func APIGetShopLayers(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	productsCollection, err := product.GetProductCollectionModel()
 	if err != nil {

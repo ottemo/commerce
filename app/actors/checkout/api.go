@@ -14,40 +14,40 @@ func setupAPI() error {
 
 	var err error
 
-	err = api.GetRestService().RegisterAPI("checkout", api.ConstRESTOperationGet, restCheckoutInfo)
+	err = api.GetRestService().RegisterAPI("checkout", api.ConstRESTOperationGet, APIGetCheckout)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("checkout/payment/methods", api.ConstRESTOperationGet, restCheckoutPaymentMethods)
+	err = api.GetRestService().RegisterAPI("checkout/payment/methods", api.ConstRESTOperationGet, APIGetPaymentMethods)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("checkout/shipping/methods", api.ConstRESTOperationGet, restCheckoutShippingMethods)
+	err = api.GetRestService().RegisterAPI("checkout/shipping/methods", api.ConstRESTOperationGet, APIGetShippingMethods)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("checkout/shipping/address", api.ConstRESTOperationUpdate, restCheckoutSetShippingAddress)
+	err = api.GetRestService().RegisterAPI("checkout/shipping/address", api.ConstRESTOperationUpdate, APISetShippingAddress)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("checkout/billing/address", api.ConstRESTOperationUpdate, restCheckoutSetBillingAddress)
+	err = api.GetRestService().RegisterAPI("checkout/billing/address", api.ConstRESTOperationUpdate, APISetBillingAddress)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("checkout/payment/method/:method", api.ConstRESTOperationUpdate, restCheckoutSetPaymentMethod)
+	err = api.GetRestService().RegisterAPI("checkout/payment/method/:method", api.ConstRESTOperationUpdate, APISetPaymentMethod)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("checkout/shipping/method/:method/:rate", api.ConstRESTOperationUpdate, restCheckoutSetShippingMethod)
+	err = api.GetRestService().RegisterAPI("checkout/shipping/method/:method/:rate", api.ConstRESTOperationUpdate, APISetShippingMethod)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("checkout", api.ConstRESTOperationUpdate, restCheckoutSetInfo)
+	err = api.GetRestService().RegisterAPI("checkout", api.ConstRESTOperationUpdate, APISetCheckoutInfo)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("checkout/submit", api.ConstRESTOperationCreate, restSubmit)
+	err = api.GetRestService().RegisterAPI("checkout/submit", api.ConstRESTOperationCreate, APISubmitCheckout)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -55,8 +55,8 @@ func setupAPI() error {
 	return nil
 }
 
-// WEB REST API function to get current checkout process status
-func restCheckoutInfo(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIGetCheckout returns information related to current checkkout
+func APIGetCheckout(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	currentCheckout, err := checkout.GetCurrentCheckout(context)
 	if err != nil {
@@ -124,8 +124,8 @@ func restCheckoutInfo(context api.InterfaceApplicationContext) (interface{}, err
 	return result, nil
 }
 
-// WEB REST API function to get possible payment methods for checkout
-func restCheckoutPaymentMethods(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIGetPaymentMethods returns currently available payment methods
+func APIGetPaymentMethods(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	currentCheckout, err := checkout.GetCurrentCheckout(context)
 	if err != nil {
@@ -148,8 +148,8 @@ func restCheckoutPaymentMethods(context api.InterfaceApplicationContext) (interf
 	return result, nil
 }
 
-// WEB REST API function to get possible shipping methods for checkout
-func restCheckoutShippingMethods(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIGetShippingMethods returns currently available shipping methods
+func APIGetShippingMethods(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	currentCheckout, err := checkout.GetCurrentCheckout(context)
 	if err != nil {
@@ -172,20 +172,20 @@ func restCheckoutShippingMethods(context api.InterfaceApplicationContext) (inter
 	return result, nil
 }
 
-// WEB REST API function to set checkout related extra information
-func restCheckoutSetInfo(context api.InterfaceApplicationContext) (interface{}, error) {
+// APISetCheckoutInfo allows to specify and assign to checkout extra information
+func APISetCheckoutInfo(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	currentCheckout, err := checkout.GetCurrentCheckout(context)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	reqData, err := api.GetRequestContentAsMap(context)
+	requestData, err := api.GetRequestContentAsMap(context)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	for key, value := range reqData {
+	for key, value := range requestData {
 		err := currentCheckout.SetInfo(key, value)
 		if err != nil {
 			return nil, env.ErrorDispatch(err)
@@ -198,22 +198,26 @@ func restCheckoutSetInfo(context api.InterfaceApplicationContext) (interface{}, 
 	return "ok", nil
 }
 
-// internal function for  restCheckoutSetShippingAddress() and restCheckoutSetBillingAddress()
+// checkoutObtainAddress is an internal usage function used create and validate address
+//   - address data supposed to be in request content
 func checkoutObtainAddress(context api.InterfaceApplicationContext) (visitor.InterfaceVisitorAddress, error) {
 
-	reqData, err := api.GetRequestContentAsMap(context)
+	// taking request content
+	requestData, err := api.GetRequestContentAsMap(context)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	if addressID, present := reqData["id"]; present {
+	// checking for address id was specified, if it was - making sure it correct
+	if addressID, present := requestData["id"]; present {
 
-		// Address id was specified - trying to load
+		// loading specified address by id
 		visitorAddress, err := visitor.LoadVisitorAddressByID(utils.InterfaceToString(addressID))
 		if err != nil {
 			return nil, env.ErrorDispatch(err)
 		}
 
+		// checking address owner is current visitor
 		currentVisitorID := utils.InterfaceToString(context.GetSession().Get(visitor.ConstSessionKeyVisitorID))
 		if visitorAddress.GetVisitorID() != currentVisitorID {
 			return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "bef27714-4ac5-4705-b59a-47c8e0bc5aa4", "address id is not related to current visitor")
@@ -222,22 +226,26 @@ func checkoutObtainAddress(context api.InterfaceApplicationContext) (visitor.Int
 		return visitorAddress, nil
 	}
 
-	// supposedly address data was specified
+	// creating new address model instance
 	visitorAddressModel, err := visitor.GetVisitorAddressModel()
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	for attribute, value := range reqData {
+	// filling new instance with request provided data
+	for attribute, value := range requestData {
 		err := visitorAddressModel.Set(attribute, value)
 		if err != nil {
 			return nil, env.ErrorDispatch(err)
 		}
 	}
 
+	// setting address owner to current visitor (for sure)
 	visitorID := utils.InterfaceToString(context.GetSession().Get(visitor.ConstSessionKeyVisitorID))
 	visitorAddressModel.Set("visitor_id", visitorID)
 
+	// if address id was specified it means that address was changed, so saving it
+	// new address we are not saving as if could be temporary address
 	if visitorAddressModel.GetID() != "" {
 		err = visitorAddressModel.Save()
 		if err != nil {
@@ -248,8 +256,8 @@ func checkoutObtainAddress(context api.InterfaceApplicationContext) (visitor.Int
 	return visitorAddressModel, nil
 }
 
-// WEB REST API function to set shipping address
-func restCheckoutSetShippingAddress(context api.InterfaceApplicationContext) (interface{}, error) {
+// APISetShippingAddress specifies shipping address for a current checkout
+func APISetShippingAddress(context api.InterfaceApplicationContext) (interface{}, error) {
 	currentCheckout, err := checkout.GetCurrentCheckout(context)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
@@ -271,8 +279,8 @@ func restCheckoutSetShippingAddress(context api.InterfaceApplicationContext) (in
 	return address.ToHashMap(), nil
 }
 
-// WEB REST API function to set billing address
-func restCheckoutSetBillingAddress(context api.InterfaceApplicationContext) (interface{}, error) {
+// APISetBillingAddress specifies billing address for a current checkout
+func APISetBillingAddress(context api.InterfaceApplicationContext) (interface{}, error) {
 	currentCheckout, err := checkout.GetCurrentCheckout(context)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
@@ -294,8 +302,9 @@ func restCheckoutSetBillingAddress(context api.InterfaceApplicationContext) (int
 	return address.ToHashMap(), nil
 }
 
-// WEB REST API function to set payment method
-func restCheckoutSetPaymentMethod(context api.InterfaceApplicationContext) (interface{}, error) {
+// APISetPaymentMethod assigns payment method to current checkout
+//   - "method" argument specifies requested payment method (it should be available for a meaning time)
+func APISetPaymentMethod(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	currentCheckout, err := checkout.GetCurrentCheckout(context)
 	if err != nil {
@@ -334,8 +343,11 @@ func restCheckoutSetPaymentMethod(context api.InterfaceApplicationContext) (inte
 	return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "b8384a47-8806-4a54-90fc-cccb5e958b4e", "payment method not found")
 }
 
-// WEB REST API function to set payment method
-func restCheckoutSetShippingMethod(context api.InterfaceApplicationContext) (interface{}, error) {
+// APISetShippingMethod assigns shipping method and shipping rate to current checkout
+//   - "method" argument specifies requested shipping method (it should be available for a meaning time)
+//   - "rate" argument specifies requested shipping rate (it should be available and belongs to shipping method)
+func APISetShippingMethod(context api.InterfaceApplicationContext) (interface{}, error) {
+
 	currentCheckout, err := checkout.GetCurrentCheckout(context)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
@@ -376,8 +388,8 @@ func restCheckoutSetShippingMethod(context api.InterfaceApplicationContext) (int
 	return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "279a645c-6a03-44de-95c0-2651a51440fa", "shipping method and/or rate were not found")
 }
 
-// WEB REST API function to submit checkout information and make order
-func restSubmit(context api.InterfaceApplicationContext) (interface{}, error) {
+// APISubmitCheckout submits current checkout and creates a new order base on it
+func APISubmitCheckout(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	currentCheckout, err := checkout.GetCurrentCheckout(context)
 	if err != nil {

@@ -15,22 +15,22 @@ import (
 func setupAPI() error {
 	var err error
 
-	err = api.GetRestService().RegisterAPI("discount/:code/apply", api.ConstRESTOperationGet, restDiscountApply)
+	err = api.GetRestService().RegisterAPI("discount/:coupon/apply", api.ConstRESTOperationGet, APIApplyDiscount)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("discount/:code/neglect", api.ConstRESTOperationGet, restDiscountNeglect)
+	err = api.GetRestService().RegisterAPI("discount/:coupon/neglect", api.ConstRESTOperationGet, APINeglectDiscount)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("discounts/csv", api.ConstRESTOperationGet, restDiscountCSVDownload)
+	err = api.GetRestService().RegisterAPI("discounts/csv", api.ConstRESTOperationGet, APIDownloadDiscountCSV)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("discounts/csv", api.ConstRESTOperationCreate, restDiscountCSVUpload)
+	err = api.GetRestService().RegisterAPI("discounts/csv", api.ConstRESTOperationCreate, APIUploadDiscountCSV)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -38,10 +38,11 @@ func setupAPI() error {
 	return nil
 }
 
-// WEB REST API function to apply discount code to current checkout
-func restDiscountApply(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIApplyDiscount applies discount code promotion to current checkout
+//   - coupon code should be specified in "coupon" argument
+func APIApplyDiscount(context api.InterfaceApplicationContext) (interface{}, error) {
 
-	couponCode := context.GetRequestArgument("code")
+	couponCode := context.GetRequestArgument("coupon")
 
 	// getting applied coupons array for current session
 	var appliedCoupons []string
@@ -109,11 +110,12 @@ func restDiscountApply(context api.InterfaceApplicationContext) (interface{}, er
 	return "ok", nil
 }
 
-// WEB REST API function to neglect(un-apply) discount code to current checkout
-//   - use "*" as code to neglect all discounts
-func restDiscountNeglect(context api.InterfaceApplicationContext) (interface{}, error) {
+// APINeglectDiscount neglects (un-apply) discount code promotion to current checkout
+//   - coupon code should be specified in "coupon" argument
+//   - use "*" as coupon code to neglect all discounts
+func APINeglectDiscount(context api.InterfaceApplicationContext) (interface{}, error) {
 
-	couponCode := context.GetRequestArgument("code")
+	couponCode := context.GetRequestArgument("coupon")
 
 	if couponCode == "*" {
 		context.GetSession().Set(ConstSessionKeyAppliedDiscountCodes, make([]string, 0))
@@ -158,8 +160,9 @@ func restDiscountNeglect(context api.InterfaceApplicationContext) (interface{}, 
 	return "ok", nil
 }
 
-// WEB REST API function to download current tax rates in CSV format
-func restDiscountCSVDownload(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIDownloadDiscountCSV returns csv file with current tax rates
+//   - not a JSON data returns, but csv file
+func APIDownloadDiscountCSV(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check rights
 	if err := api.ValidateAdminRights(context); err != nil {
@@ -199,8 +202,9 @@ func restDiscountCSVDownload(context api.InterfaceApplicationContext) (interface
 	return nil, nil
 }
 
-// WEB REST API function to upload tax rates into CSV
-func restDiscountCSVUpload(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIUploadDiscountCSV replaces current tax rates with tax rates from provided csv file
+//   - csv file should be provided in "file" field
+func APIUploadDiscountCSV(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check rights
 	if err := api.ValidateAdminRights(context); err != nil {

@@ -63,18 +63,18 @@ func restCreateVisitorAddress(context api.InterfaceApplicationContext) (interfac
 
 	// check request context
 	//---------------------
-	reqData, err := api.GetRequestContentAsMap(context)
+	requestData, err := api.GetRequestContentAsMap(context)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	if _, ok := reqData["visitor_id"]; !ok {
+	if _, ok := requestData["visitor_id"]; !ok {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "a9da4ac4-d073-48f3-b062-2ba536d2c577", "visitor id was not specified")
 	}
 
 	// check rights
 	if err := api.ValidateAdminRights(context); err != nil {
-		if reqData["visitor_id"] != visitor.GetCurrentVisitorID(context) {
+		if requestData["visitor_id"] != visitor.GetCurrentVisitorID(context) {
 			return nil, env.ErrorDispatch(err)
 		}
 	}
@@ -86,7 +86,7 @@ func restCreateVisitorAddress(context api.InterfaceApplicationContext) (interfac
 		return nil, env.ErrorDispatch(err)
 	}
 
-	for attribute, value := range reqData {
+	for attribute, value := range requestData {
 		err := visitorAddressModel.Set(attribute, value)
 		if err != nil {
 			return nil, env.ErrorDispatch(err)
@@ -113,7 +113,7 @@ func restUpdateVisitorAddress(context api.InterfaceApplicationContext) (interfac
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "fe7814c0-85fe-4d60-a134-415f7ac12075", "visitor address 'id' was not specified")
 	}
 
-	reqData, err := api.GetRequestContentAsMap(context)
+	requestData, err := api.GetRequestContentAsMap(context)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -132,7 +132,7 @@ func restUpdateVisitorAddress(context api.InterfaceApplicationContext) (interfac
 
 	// update operation
 	//-----------------
-	for attribute, value := range reqData {
+	for attribute, value := range requestData {
 		err := visitorAddressModel.Set(attribute, value)
 		if err != nil {
 			return nil, env.ErrorDispatch(err)

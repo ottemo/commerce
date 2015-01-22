@@ -11,28 +11,28 @@ func setupAPI() error {
 
 	var err error
 
-	err = api.GetRestService().RegisterAPI("cms/pages", api.ConstRESTOperationGet, restCMSPageList)
+	err = api.GetRestService().RegisterAPI("cms/pages", api.ConstRESTOperationGet, APIListCMSPages)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("cms/pages/attributes", api.ConstRESTOperationGet, restCMSPageAttributes)
+	err = api.GetRestService().RegisterAPI("cms/pages/attributes", api.ConstRESTOperationGet, APIListCMSPageAttributes)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("cms/page/:pageID", api.ConstRESTOperationGet, restCMSPageGet)
+	err = api.GetRestService().RegisterAPI("cms/page/:pageID", api.ConstRESTOperationGet, APIGetCMSPage)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("cms/page", api.ConstRESTOperationCreate, restCMSPageAdd)
+	err = api.GetRestService().RegisterAPI("cms/page", api.ConstRESTOperationCreate, APICreateCMSPage)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("cms/page/:pageID", api.ConstRESTOperationUpdate, restCMSPageUpdate)
+	err = api.GetRestService().RegisterAPI("cms/page/:pageID", api.ConstRESTOperationUpdate, APIUpdateCMSPage)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("cms/page/:pageID", api.ConstRESTOperationDelete, restCMSPageDelete)
+	err = api.GetRestService().RegisterAPI("cms/page/:pageID", api.ConstRESTOperationDelete, APIDeleteCMSPage)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -40,8 +40,8 @@ func setupAPI() error {
 	return nil
 }
 
-// WEB REST API function to get CMS page available attributes information
-func restCMSPageAttributes(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIListCMSPageAttributes returns a list of CMS block attributes
+func APIListCMSPageAttributes(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	cmsPage, err := cms.GetCMSPageModel()
 	if err != nil {
@@ -51,9 +51,9 @@ func restCMSPageAttributes(context api.InterfaceApplicationContext) (interface{}
 	return cmsPage.GetAttributesInfo(), nil
 }
 
-// WEB REST API function used to obtain CMS pages list
-//   - if "count" parameter set to non blank value returns only amount
-func restCMSPageList(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIListCMSPages returns a list of existing CMS pages
+//   - if "action" parameter is set to "count" result value will be just a number of list items
+func APIListCMSPages(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	cmsPageCollectionModel, err := cms.GetCMSPageCollectionModel()
 	if err != nil {
@@ -69,7 +69,7 @@ func restCMSPageList(context api.InterfaceApplicationContext) (interface{}, erro
 	}
 
 	// checking for a "count" request
-	if context.GetRequestParameter("count") != "" {
+	if context.GetRequestParameter(api.ConstRESTActionParameter) == "count" {
 		return cmsPageCollectionModel.GetDBCollection().Count()
 	}
 
@@ -82,8 +82,10 @@ func restCMSPageList(context api.InterfaceApplicationContext) (interface{}, erro
 	return cmsPageCollectionModel.List()
 }
 
-// WEB REST API function to get CMS page information
-func restCMSPageGet(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIGetCMSPage return specified CMS page information
+//   - CMS page id should be specified in "pageID" argument
+//   - CMS page content can be a text template, so "evaluated" field in response is that template evaluation result 
+func APIGetCMSPage(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check request context
 	//---------------------
@@ -110,12 +112,13 @@ func restCMSPageGet(context api.InterfaceApplicationContext) (interface{}, error
 	return result, nil
 }
 
-// WEB REST API for adding new CMS page in system
-func restCMSPageAdd(context api.InterfaceApplicationContext) (interface{}, error) {
+// APICreateCMSPage creates a new CMS block
+//   - CMS page attributes should be specified in request content
+func APICreateCMSPage(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check request context
 	//---------------------
-	reqData, err := api.GetRequestContentAsMap(context)
+	requestData, err := api.GetRequestContentAsMap(context)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -132,7 +135,7 @@ func restCMSPageAdd(context api.InterfaceApplicationContext) (interface{}, error
 		return nil, env.ErrorDispatch(err)
 	}
 
-	for attribute, value := range reqData {
+	for attribute, value := range requestData {
 		cmsPageModel.Set(attribute, value)
 	}
 
@@ -142,8 +145,9 @@ func restCMSPageAdd(context api.InterfaceApplicationContext) (interface{}, error
 	return cmsPageModel.ToHashMap(), nil
 }
 
-// WEB REST API for update existing CMS page in system
-func restCMSPageUpdate(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIUpdateCMSPage updates existing CMS page
+//   - CMS page id should be specified in "pageID" argument
+func APIUpdateCMSPage(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check request context
 	//---------------------
@@ -152,7 +156,7 @@ func restCMSPageUpdate(context api.InterfaceApplicationContext) (interface{}, er
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "f128b02f-4ca5-494b-920d-5f320d112636", "cms page id should be specified")
 	}
 
-	reqData, err := api.GetRequestContentAsMap(context)
+	requestData, err := api.GetRequestContentAsMap(context)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -169,7 +173,7 @@ func restCMSPageUpdate(context api.InterfaceApplicationContext) (interface{}, er
 		return nil, env.ErrorDispatch(err)
 	}
 
-	for attribute, value := range reqData {
+	for attribute, value := range requestData {
 		cmsPageModel.Set(attribute, value)
 	}
 
@@ -179,8 +183,9 @@ func restCMSPageUpdate(context api.InterfaceApplicationContext) (interface{}, er
 	return cmsPageModel.ToHashMap(), nil
 }
 
-// WEB REST API used to delete CMS page from system
-func restCMSPageDelete(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIDeleteCMSPage deletes specified CMS page
+//   - CMS page id should be specified in "pageID" argument
+func APIDeleteCMSPage(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check request context
 	//---------------------
