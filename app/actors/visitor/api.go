@@ -20,91 +20,91 @@ import (
 func setupAPI() error {
 
 	// Dashboard API
-	err := api.GetRestService().RegisterAPI("visitor", api.ConstRESTOperationCreate, restCreateVisitor)
+	err := api.GetRestService().RegisterAPI("visitor", api.ConstRESTOperationCreate, APICreateVisitor)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("visitor/:visitorID", api.ConstRESTOperationUpdate, restUpdateVisitor)
+	err = api.GetRestService().RegisterAPI("visitor/:visitorID", api.ConstRESTOperationUpdate, APIUpdateVisitor)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("visitor/:visitorID", api.ConstRESTOperationDelete, restDeleteVisitor)
+	err = api.GetRestService().RegisterAPI("visitor/:visitorID", api.ConstRESTOperationDelete, APIDeleteVisitor)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("visitor/:visitorID", api.ConstRESTOperationGet, restGetVisitor)
+	err = api.GetRestService().RegisterAPI("visitor/:visitorID", api.ConstRESTOperationGet, APIGetVisitor)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("visitors", api.ConstRESTOperationGet, restListVisitors)
+	err = api.GetRestService().RegisterAPI("visitors", api.ConstRESTOperationGet, APIListVisitors)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("visitors/attributes", api.ConstRESTOperationGet, restListVisitorAttributes)
+	err = api.GetRestService().RegisterAPI("visitors/attributes", api.ConstRESTOperationGet, APIListVisitorAttributes)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("visitors/attribute/:attribute", api.ConstRESTOperationDelete, restRemoveVisitorAttribute)
+	err = api.GetRestService().RegisterAPI("visitors/attribute/:attribute", api.ConstRESTOperationDelete, APIDeleteVisitorAttribute)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("visitors/attribute/:attribute", api.ConstRESTOperationUpdate, restEditVisitorAttribute)
+	err = api.GetRestService().RegisterAPI("visitors/attribute/:attribute", api.ConstRESTOperationUpdate, APIUpdateVisitorAttribute)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("visitors/attribute", api.ConstRESTOperationCreate, restAddVisitorAttribute)
+	err = api.GetRestService().RegisterAPI("visitors/attribute", api.ConstRESTOperationCreate, APICreateVisitorAttribute)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
 	// Storefront API
-	err = api.GetRestService().RegisterAPI("visitors/register", api.ConstRESTOperationCreate, restRegister)
+	err = api.GetRestService().RegisterAPI("visitors/register", api.ConstRESTOperationCreate, APIRegisterVisitor)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("visitors/validate/:key", api.ConstRESTOperationGet, restValidate)
+	err = api.GetRestService().RegisterAPI("visitors/validate/:key", api.ConstRESTOperationGet, APIValidateVisitors)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("visitors/invalidate/:email", api.ConstRESTOperationGet, restInvalidate)
+	err = api.GetRestService().RegisterAPI("visitors/invalidate/:email", api.ConstRESTOperationGet, APIInvalidateVisitor)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("visitors/forgot-password/:email", api.ConstRESTOperationGet, restForgotPassword)
+	err = api.GetRestService().RegisterAPI("visitors/forgot-password/:email", api.ConstRESTOperationGet, APIForgotPassword)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("visitors/mail", api.ConstRESTOperationCreate, restVisitorSendMail)
+	err = api.GetRestService().RegisterAPI("visitors/mail", api.ConstRESTOperationCreate, APIMailToVisitor)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("visit", api.ConstRESTOperationGet, restInfo)
+	err = api.GetRestService().RegisterAPI("visit", api.ConstRESTOperationGet, APIGetVisit)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("visit/logout", api.ConstRESTOperationGet, restLogout)
+	err = api.GetRestService().RegisterAPI("visit/logout", api.ConstRESTOperationGet, APILogout)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("visit/login", api.ConstRESTOperationCreate, restLogin)
+	err = api.GetRestService().RegisterAPI("visit/login", api.ConstRESTOperationCreate, APILogin)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("visit/login-facebook", api.ConstRESTOperationCreate, restLoginFacebook)
+	err = api.GetRestService().RegisterAPI("visit/login-facebook", api.ConstRESTOperationCreate, APIFacebookLogin)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("visit/login-google", api.ConstRESTOperationCreate, restLoginGoogle)
+	err = api.GetRestService().RegisterAPI("visit/login-google", api.ConstRESTOperationCreate, APIGoogleLogin)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("visit/orders", api.ConstRESTOperationGet, restListVisitorOrders)
+	err = api.GetRestService().RegisterAPI("visit/orders", api.ConstRESTOperationGet, APIGetOrders)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("visit/order/:orderID", api.ConstRESTOperationGet, restVisitorOrderDetails)
+	err = api.GetRestService().RegisterAPI("visit/order/:orderID", api.ConstRESTOperationGet, APIGetOrder)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -112,10 +112,10 @@ func setupAPI() error {
 	return nil
 }
 
-// WEB REST API used to create new visitor
-//   - visitor attributes must be included in POST form
-//   - email attribute required
-func restCreateVisitor(context api.InterfaceApplicationContext) (interface{}, error) {
+// APICreateVisitor creates a new visitor
+//   - visitor attributes should be specified in content
+//   - "email" attribute required
+func APICreateVisitor(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check request context
 	//---------------------
@@ -155,10 +155,10 @@ func restCreateVisitor(context api.InterfaceApplicationContext) (interface{}, er
 	return visitorModel.ToHashMap(), nil
 }
 
-// WEB REST API used to update existing visitor
-//   - visitor id must be specified in request URI
-//   - visitor attributes must be included in POST form
-func restUpdateVisitor(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIUpdateVisitor updates existing visitor
+//   - visitor id should be specified in "visitorID" argument
+//   - visitor attributes should be specified in content
+func APIUpdateVisitor(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check request context
 	//---------------------
@@ -208,9 +208,9 @@ func restUpdateVisitor(context api.InterfaceApplicationContext) (interface{}, er
 	return visitorModel.ToHashMap(), nil
 }
 
-// WEB REST API used to delete visitor
-//   - visitor id must be specified in request URI
-func restDeleteVisitor(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIDeleteVisitor deletes existing visitor
+//   - visitor id should be specified in "visitorID" argument
+func APIDeleteVisitor(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check request context
 	//---------------------
@@ -238,9 +238,9 @@ func restDeleteVisitor(context api.InterfaceApplicationContext) (interface{}, er
 	return "ok", nil
 }
 
-// WEB REST API function used to obtain visitor information
-//   - visitor id must be specified in request URI
-func restGetVisitor(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIGetVisitor returns visitor information
+//   - visitor id should be specified in "visitorID" argument
+func APIGetVisitor(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check request context
 	//---------------------
@@ -263,9 +263,9 @@ func restGetVisitor(context api.InterfaceApplicationContext) (interface{}, error
 	return visitorModel.ToHashMap(), nil
 }
 
-// WEB REST API function used to get visitors list
-//   - if "count" parameter set to non blank value returns only amount
-func restListVisitors(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIListVisitors returns a list of existing visitors
+//   - if "action" parameter is set to "count" result value will be just a number of list items
+func APIListVisitors(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check rights
 	if err := api.ValidateAdminRights(context); err != nil {
@@ -281,7 +281,7 @@ func restListVisitors(context api.InterfaceApplicationContext) (interface{}, err
 	api.ApplyFilters(context, visitorCollectionModel.GetDBCollection())
 
 	// checking for a "count" request
-	if context.GetRequestParameter("count") != "" {
+	if context.GetRequestParameter(api.ConstRESTActionParameter) == "count" {
 		return visitorCollectionModel.GetDBCollection().Count()
 	}
 
@@ -294,8 +294,8 @@ func restListVisitors(context api.InterfaceApplicationContext) (interface{}, err
 	return visitorCollectionModel.List()
 }
 
-// WEB REST API function used to obtain visitor attributes information
-func restListVisitorAttributes(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIListVisitorAttributes returns a list of visitor attributes
+func APIListVisitorAttributes(context api.InterfaceApplicationContext) (interface{}, error) {
 	visitorModel, err := visitor.GetVisitorModel()
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
@@ -305,8 +305,9 @@ func restListVisitorAttributes(context api.InterfaceApplicationContext) (interfa
 	return attrInfo, nil
 }
 
-// WEB REST API function used to add new custom attribute to visitor model
-func restAddVisitorAttribute(context api.InterfaceApplicationContext) (interface{}, error) {
+// APICreateVisitorAttribute creates a new custom attribute for a visitor model
+//   - attribute parameters "Attribute" and "Label" are required
+func APICreateVisitorAttribute(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check request context
 	//---------------------
@@ -381,8 +382,12 @@ func restAddVisitorAttribute(context api.InterfaceApplicationContext) (interface
 	return attribute, nil
 }
 
-// WEB REST API function used to edit existing custom attribute fields (except id and name)
-func restEditVisitorAttribute(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIUpdateVisitorAttribute updates existing custom attribute of visitor model
+//   - attribute name/code should be provided in "attribute" argument
+//   - attribute parameters should be provided in request content
+//   - attribute parameters "id" and "name" will be ignored
+//   - static attributes can not be changed
+func APIUpdateVisitorAttribute(context api.InterfaceApplicationContext) (interface{}, error) {
 	requestData, err := api.GetRequestContentAsMap(context)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
@@ -442,8 +447,9 @@ func restEditVisitorAttribute(context api.InterfaceApplicationContext) (interfac
 	return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "2893262f-a61a-42f8-9c75-e763e0a5c8ca", "attribute not found")
 }
 
-// WEB REST API function used to remove custom attribute of visitor model
-func restRemoveVisitorAttribute(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIDeleteVisitorAttribute removes existing custom attribute of a visitor model
+//   - attribute name/code should be provided in "attribute" argument
+func APIDeleteVisitorAttribute(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check request context
 	//--------------------
@@ -471,10 +477,10 @@ func restRemoveVisitorAttribute(context api.InterfaceApplicationContext) (interf
 	return "ok", nil
 }
 
-// WEB REST API used to register new visitor (same as create but with email validation)
-//   - visitor attributes must be included in POST form
-//   - email attribute required
-func restRegister(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIRegisterVisitor creates a new visitor, sends validation link to visitor email
+//   - visitor attributes should be included contents
+//   - "email" attribute required
+func APIRegisterVisitor(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check request context
 	//---------------------
@@ -516,8 +522,9 @@ func restRegister(context api.InterfaceApplicationContext) (interface{}, error) 
 	return visitorModel.ToHashMap(), nil
 }
 
-// WEB REST API used to validate e-mail address by key sent after registration
-func restValidate(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIValidateVisitors validates visitors by a key which sends after registration
+//   - validation key should be provided in "key" argument
+func APIValidateVisitors(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	validationKey := context.GetRequestArgument("key")
 	if validationKey == "" {
@@ -537,8 +544,9 @@ func restValidate(context api.InterfaceApplicationContext) (interface{}, error) 
 	return api.StructRestRedirect{Result: "ok", Location: app.GetStorefrontURL("login")}, nil
 }
 
-// WEB REST API used to invalidate customer e-mail
-func restInvalidate(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIInvalidateVisitor invalidate visitor by email, sends a new validation key to email
+//   - visitor email should be specified in "email" argument
+func APIInvalidateVisitor(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	visitorModel, err := visitor.GetVisitorModel()
 	if err != nil {
@@ -567,8 +575,8 @@ func restInvalidate(context api.InterfaceApplicationContext) (interface{}, error
 	return "ok", nil
 }
 
-// WEB REST API used to sent new password to customer e-mail
-func restForgotPassword(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIForgotPassword changes and sends a new password to visitor e-mail
+func APIForgotPassword(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	visitorModel, err := visitor.GetVisitorModel()
 	if err != nil {
@@ -590,9 +598,8 @@ func restForgotPassword(context api.InterfaceApplicationContext) (interface{}, e
 	return "ok", nil
 }
 
-// WEB REST API function used to obtain visitor information
-//   - visitor id must be specified in request URI
-func restInfo(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIGetVisit returns current visit related information
+func APIGetVisit(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// so if user was logged to app as admin, we want to reflect this
 	isAdmin := false
@@ -628,17 +635,17 @@ func restInfo(context api.InterfaceApplicationContext) (interface{}, error) {
 	return result, nil
 }
 
-// WEB REST API function used to make visitor logout
-func restLogout(context api.InterfaceApplicationContext) (interface{}, error) {
+// APILogout makes logout for current visit
+func APILogout(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	context.GetSession().Close()
 
 	return "ok", nil
 }
 
-// WEB REST API function used to make visitor login
-//   - email and password information needed
-func restLogin(context api.InterfaceApplicationContext) (interface{}, error) {
+// APILogin makes login for a current visit
+//   - "email" and "password" attributes required
+func APILogin(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check request context
 	//---------------------
@@ -697,10 +704,10 @@ func restLogin(context api.InterfaceApplicationContext) (interface{}, error) {
 	return "ok", nil
 }
 
-// WEB REST API function used to make login/registration via Facebook
-//   - access_token and user_id context needed
-//   - user needed information will be taken from Facebook
-func restLoginFacebook(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIFacebookLogin makes login and/or registration via Facebook
+//   - "access_token" and "user_id" arguments required needed
+//   - visitor attributes will be taken from Facebook
+func APIFacebookLogin(context api.InterfaceApplicationContext) (interface{}, error) {
 	// check request context
 	//---------------------
 	requestData, err := api.GetRequestContentAsMap(context)
@@ -800,10 +807,10 @@ func restLoginFacebook(context api.InterfaceApplicationContext) (interface{}, er
 	return "ok", nil
 }
 
-// WEB REST API function used to make login/registration via Google
-//   - access_token param needed
-//   - user needed information will be taken from Google
-func restLoginGoogle(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIGoogleLogin makes login and/or registration via Google
+//   - "access_token" attribute needed
+//   - visitor attributes will be taken from Google
+func APIGoogleLogin(context api.InterfaceApplicationContext) (interface{}, error) {
 	// check request context
 	//---------------------
 	requestData, err := api.GetRequestContentAsMap(context)
@@ -901,8 +908,9 @@ func restLoginGoogle(context api.InterfaceApplicationContext) (interface{}, erro
 	return "ok", nil
 }
 
-// WEB REST API function used to get visitor order details information
-func restVisitorOrderDetails(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIGetOrder returns current visitor order details for specified order
+//   - orderID should be specified in arguments
+func APIGetOrder(context api.InterfaceApplicationContext) (interface{}, error) {
 	visitorID := visitor.GetCurrentVisitorID(context)
 	if visitorID == "" {
 		return "you are not logined in", nil
@@ -923,8 +931,8 @@ func restVisitorOrderDetails(context api.InterfaceApplicationContext) (interface
 	return result, nil
 }
 
-// WEB REST API function used to get visitor orders information
-func restListVisitorOrders(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIGetOrders returns list of orders related to current vivitor
+func APIGetOrders(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// list operation
 	//---------------
@@ -954,8 +962,9 @@ func restListVisitorOrders(context api.InterfaceApplicationContext) (interface{}
 	return result, env.ErrorDispatch(err)
 }
 
-// WEB REST API function used to send email to a Visitor
-func restVisitorSendMail(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIMailToVisitor sends email to specified visitors
+//   - "subject", "content", "visitor_ids" arguments required
+func APIMailToVisitor(context api.InterfaceApplicationContext) (interface{}, error) {
 	requestData, err := api.GetRequestContentAsMap(context)
 	if err != nil {
 		return nil, err

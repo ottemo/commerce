@@ -160,8 +160,8 @@ func APINeglectDiscount(context api.InterfaceApplicationContext) (interface{}, e
 	return "ok", nil
 }
 
-// APIDownloadDiscountCSV returns csv file with current tax rates
-//   - not a JSON data returns, but csv file
+// APIDownloadDiscountCSV returns csv file with currently used discount coupons
+//   - returns not a JSON, but csv file
 func APIDownloadDiscountCSV(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check rights
@@ -202,7 +202,7 @@ func APIDownloadDiscountCSV(context api.InterfaceApplicationContext) (interface{
 	return nil, nil
 }
 
-// APIUploadDiscountCSV replaces current tax rates with tax rates from provided csv file
+// APIUploadDiscountCSV replaces currently used discount coupons with data from provided in csv file
 //   - csv file should be provided in "file" field
 func APIUploadDiscountCSV(context api.InterfaceApplicationContext) (interface{}, error) {
 

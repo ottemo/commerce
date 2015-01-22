@@ -14,12 +14,12 @@ import (
 func setupAPI() error {
 	var err error
 
-	err = api.GetRestService().RegisterAPI("taxes/csv", api.ConstRESTOperationGet, restTaxCSVDownload)
+	err = api.GetRestService().RegisterAPI("taxes/csv", api.ConstRESTOperationGet, APIDownloadTaxCSV)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("taxes/csv", api.ConstRESTOperationCreate, restTaxCSVUpload)
+	err = api.GetRestService().RegisterAPI("taxes/csv", api.ConstRESTOperationCreate, APIUploadTaxCSV)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -27,8 +27,9 @@ func setupAPI() error {
 	return nil
 }
 
-// WEB REST API function to download current tax rates in CSV format
-func restTaxCSVDownload(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIDownloadTaxCSV returns csv file with currently used tax rates
+//   - returns not a JSON, but csv file
+func APIDownloadTaxCSV(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check rights
 	if err := api.ValidateAdminRights(context); err != nil {
@@ -72,8 +73,9 @@ func restTaxCSVDownload(context api.InterfaceApplicationContext) (interface{}, e
 	return nil, nil
 }
 
-// WEB REST API function to upload tax rates into CSV
-func restTaxCSVUpload(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIUploadTaxCSV replaces currently used discount coupons with data from provided in csv file
+//   - csv file should be provided in "file" field
+func APIUploadTaxCSV(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check rights
 	if err := api.ValidateAdminRights(context); err != nil {

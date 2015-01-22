@@ -16,24 +16,24 @@ func setupAPI() error {
 
 	var err error
 
-	err = api.GetRestService().RegisterAPI("product/:productID/reviews", api.ConstRESTOperationGet, restReviewList)
+	err = api.GetRestService().RegisterAPI("product/:productID/reviews", api.ConstRESTOperationGet, APIListProductReviews)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("product/:productID/review", api.ConstRESTOperationCreate, restReviewAdd)
+	err = api.GetRestService().RegisterAPI("product/:productID/review", api.ConstRESTOperationCreate, APICreateProductReview)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("product/:productID/ratedreview/:stars", api.ConstRESTOperationCreate, restReviewAdd)
+	err = api.GetRestService().RegisterAPI("product/:productID/ratedreview/:stars", api.ConstRESTOperationCreate, APICreateProductReview)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("product/:productID/review/:reviewID", api.ConstRESTOperationDelete, restReviewRemove)
+	err = api.GetRestService().RegisterAPI("product/:productID/review/:reviewID", api.ConstRESTOperationDelete, APIDeleteProductReview)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("product/:productID/rating", api.ConstRESTOperationGet, restRatingInfo)
+	err = api.GetRestService().RegisterAPI("product/:productID/rating", api.ConstRESTOperationGet, APIGetProductRating)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -41,8 +41,9 @@ func setupAPI() error {
 	return nil
 }
 
-// WEB REST API function used to get list of reviews for particular product
-func restReviewList(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIListProductReviews returns a list of reviews for specified products
+//   - product id should be specified in "productID" argument
+func APIListProductReviews(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	productObject, err := product.LoadProductByID(context.GetRequestArgument("productID"))
 	if err != nil {
@@ -65,8 +66,10 @@ func restReviewList(context api.InterfaceApplicationContext) (interface{}, error
 	return records, nil
 }
 
-// WEB REST API function used to add new review for a product
-func restReviewAdd(context api.InterfaceApplicationContext) (interface{}, error) {
+// APICreateProductReview creates a new review for a specified product
+//   - product id should be specified in "productID" argument
+//   - if "stars" argument specified and is not blank rating mark will be also created
+func APICreateProductReview(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	visitorObject, err := visitor.GetCurrentVisitor(context)
 	if err != nil {
@@ -166,8 +169,9 @@ func restReviewAdd(context api.InterfaceApplicationContext) (interface{}, error)
 	return storingValues, nil
 }
 
-// WEB REST API function used to remove review for a product
-func restReviewRemove(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIDeleteProductReview  deletes existing review
+//   - review if should be specified in "reviewID" argiment
+func APIDeleteProductReview(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	reviewID := context.GetRequestArgument("reviewID")
 
@@ -234,8 +238,9 @@ func restReviewRemove(context api.InterfaceApplicationContext) (interface{}, err
 	return "ok", nil
 }
 
-// WEB REST API function used to get product rating info
-func restRatingInfo(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIGetProductRating returns rating info for a specified product
+//   - product id should be specified in "productID" argument
+func APIGetProductRating(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	productObject, err := product.LoadProductByID(context.GetRequestArgument("productID"))
 	if err != nil {

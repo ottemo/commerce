@@ -68,11 +68,11 @@ func setupAPI() error {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("products/attributes", api.ConstRESTOperationGet, restListProductAttributes)
+	err = api.GetRestService().RegisterAPI("products/attributes", api.ConstRESTOperationGet, APIListProductAttributes)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("products/attribute", api.ConstRESTOperationCreate, APIAddProductsAttribute)
+	err = api.GetRestService().RegisterAPI("products/attribute", api.ConstRESTOperationCreate, APICreateProductAttribute)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -80,7 +80,7 @@ func setupAPI() error {
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("products/attribute/:attribute", api.ConstRESTOperationDelete, APIRemoveProductsAttribute)
+	err = api.GetRestService().RegisterAPI("products/attribute/:attribute", api.ConstRESTOperationDelete, APIDeleteProductsAttribute)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -97,12 +97,8 @@ func setupAPI() error {
 	return nil
 }
 
-//----------------------
-// 1. DefaultProduct API
-//----------------------
-
-// WEB REST API function used to obtain product attributes information
-func restListProductAttributes(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIListProductAttributes returns a list of product attributes
+func APIListProductAttributes(context api.InterfaceApplicationContext) (interface{}, error) {
 	productModel, err := product.GetProductModel()
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
@@ -178,9 +174,9 @@ func APIUpdateProductAttribute(context api.InterfaceApplicationContext) (interfa
 	return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "2893262f-a61a-42f8-9c75-e763e0a5c8ca", "attribute not found")
 }
 
-// APIAddProductsAttribute creates a new custom attribute for a product model
+// APICreateProductAttribute creates a new custom attribute for a product model
 //   - attribute parameters "Attribute" and "Label" are required
-func APIAddProductsAttribute(context api.InterfaceApplicationContext) (interface{}, error) {
+func APICreateProductAttribute(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check request context
 	//---------------------
@@ -259,9 +255,9 @@ func APIAddProductsAttribute(context api.InterfaceApplicationContext) (interface
 	return attribute, nil
 }
 
-// APIRemoveProductsAttribute removes existing custom attribute of a product model
+// APIDeleteProductsAttribute removes existing custom attribute of a product model
 //   - attribute name/code should be provided in "attribute" argument
-func APIRemoveProductsAttribute(context api.InterfaceApplicationContext) (interface{}, error) {
+func APIDeleteProductsAttribute(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check request context
 	//--------------------

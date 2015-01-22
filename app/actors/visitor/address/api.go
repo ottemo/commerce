@@ -7,48 +7,47 @@ import (
 )
 
 // setupAPI setups package related API endpoint routines
-//   - if "count" parameter set to non blank value returns only amount
 func setupAPI() error {
-	err := api.GetRestService().RegisterAPI("visitor/:visitorID/address", api.ConstRESTOperationCreate, restCreateVisitorAddress)
+	err := api.GetRestService().RegisterAPI("visitor/:visitorID/address", api.ConstRESTOperationCreate, APICreateVisitorAddress)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("visitor/:visitorID/address/:addressID", api.ConstRESTOperationUpdate, restUpdateVisitorAddress)
+	err = api.GetRestService().RegisterAPI("visitor/:visitorID/address/:addressID", api.ConstRESTOperationUpdate, APIUpdateVisitorAddress)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("visitor/:visitorID/address/:addressID", api.ConstRESTOperationDelete, restDeleteVisitorAddress)
-	if err != nil {
-		return env.ErrorDispatch(err)
-	}
-
-	err = api.GetRestService().RegisterAPI("visitor/:visitorID/addresses", api.ConstRESTOperationGet, restListVisitorAddress)
+	err = api.GetRestService().RegisterAPI("visitor/:visitorID/address/:addressID", api.ConstRESTOperationDelete, APIDeleteVisitorAddress)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("visitors/addresses/attributes", api.ConstRESTOperationGet, restListVisitorAddressAttributes)
-	if err != nil {
-		return env.ErrorDispatch(err)
-	}
-	err = api.GetRestService().RegisterAPI("visitors/address/:addressID", api.ConstRESTOperationDelete, restDeleteVisitorAddress)
-	if err != nil {
-		return env.ErrorDispatch(err)
-	}
-	err = api.GetRestService().RegisterAPI("visitors/address/:addressID", api.ConstRESTOperationGet, restGetVisitorAddress)
+	err = api.GetRestService().RegisterAPI("visitor/:visitorID/addresses", api.ConstRESTOperationGet, APIListVisitorAddresses)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("visit/address", api.ConstRESTOperationCreate, restCreateVisitorAddress)
+	err = api.GetRestService().RegisterAPI("visitors/addresses/attributes", api.ConstRESTOperationGet, APIListVisitorAddressAttributes)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("visit/address/:addressID", api.ConstRESTOperationUpdate, restUpdateVisitorAddress)
+	err = api.GetRestService().RegisterAPI("visitors/address/:addressID", api.ConstRESTOperationDelete, APIDeleteVisitorAddress)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("visit/address/:addressID", api.ConstRESTOperationGet, restDeleteVisitorAddress)
+	err = api.GetRestService().RegisterAPI("visitors/address/:addressID", api.ConstRESTOperationGet, APIGetVisitorAddress)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	err = api.GetRestService().RegisterAPI("visit/address", api.ConstRESTOperationCreate, APICreateVisitorAddress)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+	err = api.GetRestService().RegisterAPI("visit/address/:addressID", api.ConstRESTOperationUpdate, APIUpdateVisitorAddress)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+	err = api.GetRestService().RegisterAPI("visit/address/:addressID", api.ConstRESTOperationGet, APIDeleteVisitorAddress)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -56,10 +55,10 @@ func setupAPI() error {
 	return nil
 }
 
-// WEB REST API used to create new visitor address
-//   - visitor address attributes must be included in POST form
-//   - visitor id required
-func restCreateVisitorAddress(context api.InterfaceApplicationContext) (interface{}, error) {
+// APICreateVisitorAddress creates a new visitor address
+//   - visitor address attributes should be specified in content
+//   - "visitor_id" attribute required
+func APICreateVisitorAddress(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check request context
 	//---------------------
@@ -101,10 +100,10 @@ func restCreateVisitorAddress(context api.InterfaceApplicationContext) (interfac
 	return visitorAddressModel.ToHashMap(), nil
 }
 
-// WEB REST API used to update existing visitor address
-//   - visitor address id must be specified in request URI
-//   - visitor address attributes must be included in POST form
-func restUpdateVisitorAddress(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIUpdateVisitorAddress updates existing visitor address
+//   - visitor address id must be specified in "addressID" argument
+//   - visitor address attributes should be specified in content
+func APIUpdateVisitorAddress(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check request context
 	//---------------------
@@ -147,9 +146,9 @@ func restUpdateVisitorAddress(context api.InterfaceApplicationContext) (interfac
 	return visitorAddressModel.ToHashMap(), nil
 }
 
-// WEB REST API used to delete visitor address
-//   - visitor address attributes must be included in POST form
-func restDeleteVisitorAddress(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIDeleteVisitorAddress deletes existing visitor address
+//   - visitor address id must be specified in "addressID" argument
+func APIDeleteVisitorAddress(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check request context
 	//--------------------
@@ -179,8 +178,8 @@ func restDeleteVisitorAddress(context api.InterfaceApplicationContext) (interfac
 	return "ok", nil
 }
 
-// WEB REST API function used to obtain visitor address attributes information
-func restListVisitorAddressAttributes(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIListVisitorAddressAttributes returns a list of visitor address attributes
+func APIListVisitorAddressAttributes(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check rights
 	if err := api.ValidateAdminRights(context); err != nil {
@@ -196,9 +195,9 @@ func restListVisitorAddressAttributes(context api.InterfaceApplicationContext) (
 	return attrInfo, nil
 }
 
-// WEB REST API function used to obtain visitor addresses list
-//   - visitor id must be specified in request URI
-func restListVisitorAddress(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIListVisitorAddresses returns visitor addresses list
+//   - visitor id must be specified in "visitorID" argument
+func APIListVisitorAddresses(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// if visitorID was specified - using this otherwise, taking current visitor
 	visitorID := context.GetRequestArgument("visitorID")
@@ -244,9 +243,9 @@ func restListVisitorAddress(context api.InterfaceApplicationContext) (interface{
 	return visitorAddressCollectionModel.List()
 }
 
-// WEB REST API used to get visitor address object
-//   - visitor address id must be specified in request URI
-func restGetVisitorAddress(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIGetVisitorAddress returns visitor address information
+//   - visitor address id must be specified in "addressID" argument
+func APIGetVisitorAddress(context api.InterfaceApplicationContext) (interface{}, error) {
 	visitorAddressID := context.GetRequestArgument("addressID")
 	if visitorAddressID == "" {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "b94882c6-bbdd-428d-88b0-7ea5623d80f7", "visitor 'id' was not specified")

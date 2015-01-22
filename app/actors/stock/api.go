@@ -13,24 +13,24 @@ func setupAPI() error {
 
 	var err error
 
-	err = api.GetRestService().RegisterAPI("stock/:productID", api.ConstRESTOperationGet, restStockInfo)
+	err = api.GetRestService().RegisterAPI("stock/:productID", api.ConstRESTOperationGet, APIGetProductStock)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("stock/:productID/:qty", api.ConstRESTOperationCreate, restStockSet)
+	err = api.GetRestService().RegisterAPI("stock/:productID/:qty", api.ConstRESTOperationCreate, APISetStockQty)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("stock/:productID/:qty", api.ConstRESTOperationUpdate, restStockUpdate)
+	err = api.GetRestService().RegisterAPI("stock/:productID/:qty", api.ConstRESTOperationUpdate, APIUpdateStockQty)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("stock/:productID", api.ConstRESTOperationDelete, restStockRemove)
+	err = api.GetRestService().RegisterAPI("stock/:productID", api.ConstRESTOperationDelete, APIDeleteStockQty)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("product/:productID/stock", api.ConstRESTOperationCreate, restStockGet)
+	err = api.GetRestService().RegisterAPI("product/:productID/stock", api.ConstRESTOperationCreate, APIGetProductQty)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -38,8 +38,10 @@ func setupAPI() error {
 	return nil
 }
 
-// WEB REST API used obtain stock information on particular product-options pair
-func restStockInfo(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIGetProductStock returns stock information for particular product
+//   - returns qty for all specified product-option pairs
+//   - product id should be specified in "productID" argument
+func APIGetProductStock(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// receiving database information
 	dbCollection, err := db.GetCollection(ConstCollectionNameStock)
@@ -63,8 +65,10 @@ func restStockInfo(context api.InterfaceApplicationContext) (interface{}, error)
 	return dbRecords, nil
 }
 
-// WEB REST API used get available qty on particular product-options pair
-func restStockGet(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIGetProductQty returns available stock qty for particular product-options pair
+//   - product id should be specified in "productID" argument
+//   - product options should be specified in "options" field of content
+func APIGetProductQty(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	requestData, err := api.GetRequestContentAsMap(context)
 	if err != nil {
@@ -85,8 +89,10 @@ func restStockGet(context api.InterfaceApplicationContext) (interface{}, error) 
 	return stockManager.GetProductQty(productID, options), nil
 }
 
-// WEB REST API used set available qty on particular product-options pair
-func restStockSet(context api.InterfaceApplicationContext) (interface{}, error) {
+// APISetStockQty sets amount qty for a particular product-options pair
+//   - product id and qty should be specified in "productID" and "qty" arguments
+//   - product options should be specified in "options" field of content
+func APISetStockQty(context api.InterfaceApplicationContext) (interface{}, error) {
 	requestData, err := api.GetRequestContentAsMap(context)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
@@ -108,8 +114,11 @@ func restStockSet(context api.InterfaceApplicationContext) (interface{}, error) 
 	return stockManager.SetProductQty(productID, options, qty), nil
 }
 
-// WEB REST API used to increase available qty on particular product-options pair for a delta value
-func restStockUpdate(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIUpdateStockQty increases qty on particular product-options pair for a delta value
+//   - product id and delta should be specified in "productID" and "qty" arguments
+//   - negative delta will decrease amount
+//   - product options should be specified in "options" field of content
+func APIUpdateStockQty(context api.InterfaceApplicationContext) (interface{}, error) {
 	requestData, err := api.GetRequestContentAsMap(context)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
@@ -131,8 +140,10 @@ func restStockUpdate(context api.InterfaceApplicationContext) (interface{}, erro
 	return stockManager.UpdateProductQty(productID, options, qty), nil
 }
 
-// WEB REST API used to remove product-options qty data from stock
-func restStockRemove(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIDeleteStockQty deletes stock records for a product-options pair
+//   - product id should be specified in "productID" argument
+//   - product options should be specified in "options" field of content
+func APIDeleteStockQty(context api.InterfaceApplicationContext) (interface{}, error) {
 	requestData, err := api.GetRequestContentAsMap(context)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)

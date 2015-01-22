@@ -18,47 +18,47 @@ import (
 func setupAPI() error {
 	var err error
 
-	err = api.GetRestService().RegisterAPI("rts/visit", api.ConstRESTOperationCreate, restRegisterVisit)
+	err = api.GetRestService().RegisterAPI("rts/visit", api.ConstRESTOperationCreate, APIRegisterVisit)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("rts/referrers", api.ConstRESTOperationGet, restGetReferrers)
+	err = api.GetRestService().RegisterAPI("rts/referrers", api.ConstRESTOperationGet, APIGetReferrers)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("rts/visits", api.ConstRESTOperationGet, restGetVisits)
+	err = api.GetRestService().RegisterAPI("rts/visits", api.ConstRESTOperationGet, APIGetVisits)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("rts/visits/detail/:from/:to", api.ConstRESTOperationGet, restGetVisitsDetails)
+	err = api.GetRestService().RegisterAPI("rts/visits/detail/:from/:to", api.ConstRESTOperationGet, APIGetVisitsDetails)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("rts/conversions", api.ConstRESTOperationGet, restGetConversions)
+	err = api.GetRestService().RegisterAPI("rts/conversion", api.ConstRESTOperationGet, APIGetConversion)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("rts/sales", api.ConstRESTOperationGet, restGetSales)
+	err = api.GetRestService().RegisterAPI("rts/sales", api.ConstRESTOperationGet, APIGetSales)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("rts/sales/detail/:from/:to", api.ConstRESTOperationGet, restGetSalesDetails)
+	err = api.GetRestService().RegisterAPI("rts/sales/detail/:from/:to", api.ConstRESTOperationGet, APIGetSalesDetails)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("rts/bestsellers", api.ConstRESTOperationGet, restGetTopSellers)
+	err = api.GetRestService().RegisterAPI("rts/bestsellers", api.ConstRESTOperationGet, APIGetBestsellers)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("rts/visits/realtime", api.ConstRESTOperationGet, restGetVisitsRealtime)
+	err = api.GetRestService().RegisterAPI("rts/visits/realtime", api.ConstRESTOperationGet, APIGetVisitsRealtime)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -66,8 +66,8 @@ func setupAPI() error {
 	return nil
 }
 
-// WEB REST API used for registering a new storefront visit and obtain referer info
-func restRegisterVisit(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIRegisterVisit registers request for a statistics
+func APIRegisterVisit(context api.InterfaceApplicationContext) (interface{}, error) {
 	if httpRequest, ok := context.GetRequest().(*http.Request); ok && httpRequest != nil {
 		if httpResponseWriter, ok := context.GetResponseWriter().(http.ResponseWriter); ok && httpResponseWriter != nil {
 			xReferrer := utils.InterfaceToString(httpRequest.Header.Get("X-Referer"))
@@ -83,19 +83,19 @@ func restRegisterVisit(context api.InterfaceApplicationContext) (interface{}, er
 	return nil, nil
 }
 
-// WEB REST API used to obtain site referers list
-func restGetReferrers(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIGetReferrers returns list of unique referrers were registered
+func APIGetReferrers(context api.InterfaceApplicationContext) (interface{}, error) {
 	result := make(map[string]int)
 
-	for url := range referrers {
-		result[utils.InterfaceToString(url)] = referrers[utils.InterfaceToString(url)]
+	for url, count := range referrers {
+		result[url] = count
 	}
 
 	return result, nil
 }
 
-// WEB REST API used to obtain site visit information for current day
-func restGetVisits(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIGetVisits returns site visit information for current day
+func APIGetVisits(context api.InterfaceApplicationContext) (interface{}, error) {
 	result := make(map[string]interface{})
 
 	err := GetTodayVisitorsData()
@@ -120,8 +120,9 @@ func restGetVisits(context api.InterfaceApplicationContext) (interface{}, error)
 	return result, nil
 }
 
-// WEB REST API used to obtain detailed site visit information for a specified period
-func restGetVisitsDetails(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIGetVisitsDetails returns detailed site visit information for a specified period
+//   - period start and end dates should be specified in "from" and "to" attributes in DD-MM-YYY format
+func APIGetVisitsDetails(context api.InterfaceApplicationContext) (interface{}, error) {
 	result := make(map[string]int)
 
 	requestFromDate := context.GetRequestArgument("from")
@@ -185,8 +186,8 @@ func restGetVisitsDetails(context api.InterfaceApplicationContext) (interface{},
 	return result, nil
 }
 
-// WEB REST API used to obtain site conversation information
-func restGetConversions(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIGetConversion returns site conversion information
+func APIGetConversion(context api.InterfaceApplicationContext) (interface{}, error) {
 	result := make(map[string]interface{})
 
 	result["totalVisitors"] = visitorsInfoToday.Visitors
@@ -197,8 +198,8 @@ func restGetConversions(context api.InterfaceApplicationContext) (interface{}, e
 	return result, nil
 }
 
-// WEB REST API used to get information on site sales for today
-func restGetSales(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIGetSales returns information on site sales for today
+func APIGetSales(context api.InterfaceApplicationContext) (interface{}, error) {
 	result := make(map[string]interface{})
 
 	currDate, _ := time.Parse("2006-01-02", time.Now().Format("2006-01-02"))
@@ -225,8 +226,9 @@ func restGetSales(context api.InterfaceApplicationContext) (interface{}, error) 
 	return result, nil
 }
 
-// WEB REST API used to get information on site sales for a specified period
-func restGetSalesDetails(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIGetSalesDetails returns site sales information for a specified period
+//   - period start and end dates should be specified in "from" and "to" attributes in DD-MM-YYY format
+func APIGetSalesDetails(context api.InterfaceApplicationContext) (interface{}, error) {
 	result := make(map[string]int)
 	currentTime := time.Now()
 
@@ -272,8 +274,8 @@ func restGetSalesDetails(context api.InterfaceApplicationContext) (interface{}, 
 	return result, nil
 }
 
-// WEB REST API used to get information on site top sellers
-func restGetTopSellers(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIGetBestsellers returns information on site bestsellers
+func APIGetBestsellers(context api.InterfaceApplicationContext) (interface{}, error) {
 	result := make(map[string]*SellerInfo)
 
 	salesCollection, err := db.GetCollection(ConstCollectionNameRTSSales)
@@ -314,8 +316,8 @@ func restGetTopSellers(context api.InterfaceApplicationContext) (interface{}, er
 	return result, nil
 }
 
-// WEB REST API used to get information on site real time visitors
-func restGetVisitsRealtime(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIGetVisitsRealtime returns real-time information on current visits
+func APIGetVisitsRealtime(context api.InterfaceApplicationContext) (interface{}, error) {
 	result := make(map[string]interface{})
 	ratio := float64(0)
 
