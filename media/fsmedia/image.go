@@ -3,10 +3,10 @@ package fsmedia
 import (
 	"fmt"
 	"image"
+	"io/ioutil"
 	"os"
 	"strconv"
 	"strings"
-	"io/ioutil"
 
 	"github.com/disintegration/imaging"
 	"github.com/ottemo/foundation/env"
@@ -92,10 +92,12 @@ func (it *FilesystemMediaStorage) GetSizeDimensions(size string) (int, int, erro
 		size = sizeValue
 	}
 
-	if size == "" && it.baseSize != "" {
-		size = it.baseSize
-	} else {
-		return 0, 0, nil
+	if size == "" {
+		if it.baseSize != "" {
+			size = it.baseSize
+		} else {
+			return 0, 0, nil
+		}
 	}
 
 	value := strings.Split(size, "x")
@@ -186,8 +188,8 @@ func (it *FilesystemMediaStorage) ResizeMediaImage(model string, objID string, m
 			// checking that both image dimension are not equals to required or
 			// that one of dimension equals required but other not fits required box
 			if (requiredWidth != 0 && requiredWidth != destinationImageSize.X && requiredHeight != 0 && requiredHeight != destinationImageSize.Y) ||
-				(destinationImageSize.Y == requiredHeight && requiredWidth != 0 && destinationImageSize.X > requiredWidth) ||
-				(destinationImageSize.X == requiredWidth && requiredHeight != 0 && destinationImageSize.Y > requiredHeight) {
+				(destinationImageSize.Y == requiredHeight && requiredWidth != 0 && destinationImageSize.X != requiredWidth) ||
+				(destinationImageSize.X == requiredWidth && requiredHeight != 0 && destinationImageSize.Y != requiredHeight) {
 
 				flagResizeRequired = true
 			}
@@ -195,7 +197,7 @@ func (it *FilesystemMediaStorage) ResizeMediaImage(model string, objID string, m
 			// images with background should exactly match for both dimensions
 			if ConstResizeOnBackground &&
 				((requiredWidth != 0 && requiredWidth != destinationImageSize.X) ||
-				requiredHeight != 0 && requiredHeight != destinationImageSize.Y) {
+					requiredHeight != 0 && requiredHeight != destinationImageSize.Y) {
 
 				flagResizeRequired = true
 			}
@@ -222,7 +224,23 @@ func (it *FilesystemMediaStorage) ResizeMediaImage(model string, objID string, m
 		resizedImage := sourceImage
 
 		if requiredWidth != 0 || requiredHeight != 0 {
-			resizedImage = imaging.Thumbnail(sourceImage, requiredWidth, requiredHeight, imaging.Linear)
+			// imaging.Thumbnail works bad imaging.Fit - only reduces dimensions
+			// so, using making imaging.Resize with own dimensions detect
+			resizeWidth := requiredWidth
+			resizeHeight := requiredHeight
+			if requiredWidth != 0 && requiredHeight != 0 {
+				bounds := sourceImage.Bounds()
+				srcAspect := float64(bounds.Dx()) / float64(bounds.Dy())
+				dstAspect := float64(requiredWidth) / float64(requiredHeight)
+
+				if srcAspect > dstAspect {
+					resizeHeight = 0
+				} else {
+					resizeWidth = 0
+				}
+			}
+
+			resizedImage = imaging.Resize(sourceImage, resizeWidth, resizeHeight, imaging.Linear)
 
 			if ConstResizeOnBackground {
 				background := imaging.New(requiredWidth, requiredHeight, image.White)
