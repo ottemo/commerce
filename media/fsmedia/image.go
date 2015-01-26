@@ -1,20 +1,14 @@
 package fsmedia
 
 import (
-	"bytes"
 	"fmt"
 	"image"
-	"io"
 	"os"
 	"strconv"
 	"strings"
-
 	"io/ioutil"
 
-	"image/jpeg"
-	"image/png"
-
-	"github.com/nfnt/resize"
+	"github.com/disintegration/imaging"
 	"github.com/ottemo/foundation/env"
 )
 
@@ -90,7 +84,8 @@ func (it *FilesystemMediaStorage) UpdateSizeNames(newValue string) error {
 }
 
 // GetSizeDimensions returns width and height for specified size or error if size is ot valid
-func (it *FilesystemMediaStorage) GetSizeDimensions(size string) (uint, uint, error) {
+//   - supposed that 32-bit integer positive part (up to 2147483647) will be enough to reflect width/height dimension
+func (it *FilesystemMediaStorage) GetSizeDimensions(size string) (int, int, error) {
 	var height uint64
 
 	if sizeValue, present := it.imageSizes[size]; present {
@@ -113,7 +108,7 @@ func (it *FilesystemMediaStorage) GetSizeDimensions(size string) (uint, uint, er
 		height, _ = strconv.ParseUint(value[1], 10, 0)
 	}
 
-	return uint(width), uint(height), nil
+	return int(width), int(height), nil
 }
 
 // GetResizedMediaName returns media filename for a specified size, or error ir size is invalid
@@ -156,9 +151,11 @@ func (it *FilesystemMediaStorage) ResizeMediaImage(model string, objID string, m
 	path = it.storageFolder + path
 
 	sourceFileName := path + it.GetResizedMediaName(mediaName, "")
-	resizedFileName := path + it.GetResizedMediaName(mediaName, size)
+	destinationFileName := path + it.GetResizedMediaName(mediaName, size)
 
-	// using biggest resolution file if it exists, otherwise - default
+	// determination of source image for resizing
+	//   - checking higher quality file existence (biggest resolution)
+	//   - if not exists we will use default image as source
 	biggestFileName := path + it.GetResizedMediaName(mediaName, it.biggestSize)
 	if _, err := os.Stat(biggestFileName); !os.IsNotExist(err) {
 		sourceFileName = biggestFileName
@@ -172,90 +169,68 @@ func (it *FilesystemMediaStorage) ResizeMediaImage(model string, objID string, m
 	}
 
 	// checking destination file
-	flagResizeNeeded := false
-	if _, err := os.Stat(resizedFileName); !os.IsNotExist(err) {
-		resizedFile, err := os.Open(resizedFileName)
-		defer resizedFile.Close()
+	//   - if file not exists then resizing is required
+	//   - if file exists, opening it and checking if current dimensions fits requested
+	flagResizeRequired := false
+	if _, err := os.Stat(destinationFileName); !os.IsNotExist(err) {
+
+		destinationImage, err := imaging.Open(destinationFileName)
 		if err != nil {
 			return env.ErrorDispatch(err)
 		}
 
-		resizedImage, _, err := image.Decode(resizedFile)
-		if err != nil {
-			return env.ErrorDispatch(err)
-		}
-
-		resizedImageSize := resizedImage.Bounds().Size()
-		width, height, err := it.GetSizeDimensions(size)
+		// reading and checking destination image sizes
+		destinationImageSize := destinationImage.Bounds().Size()
+		requiredWidth, requiredHeight, err := it.GetSizeDimensions(size)
 		if err == nil {
-			if (int(width) != resizedImageSize.X && int(height) != resizedImageSize.Y) ||
-				resizedImageSize.X > int(width) ||
-				resizedImageSize.Y > int(height) {
+			// checking that both image dimension are not equals to required or
+			// that one of dimension equals required but other not fits required box
+			if (requiredWidth != 0 && requiredWidth != destinationImageSize.X && requiredHeight != 0 && requiredHeight != destinationImageSize.Y) ||
+				(destinationImageSize.Y == requiredHeight && requiredWidth != 0 && destinationImageSize.X > requiredWidth) ||
+				(destinationImageSize.X == requiredWidth && requiredHeight != 0 && destinationImageSize.Y > requiredHeight) {
 
-				flagResizeNeeded = true
+				flagResizeRequired = true
 			}
-		}
 
-		if width == 0 && height == 0 {
-			flagResizeNeeded = false
+			// images with background should exactly match for both dimensions
+			if ConstResizeOnBackground &&
+				((requiredWidth != 0 && requiredWidth != destinationImageSize.X) ||
+				requiredHeight != 0 && requiredHeight != destinationImageSize.Y) {
+
+				flagResizeRequired = true
+			}
 		}
 
 	} else {
-		flagResizeNeeded = true
+		flagResizeRequired = true
 	}
 
-	// so, current file not exists or have wrong size
-	if flagResizeNeeded {
-		var sourceReader io.Reader
+	// making resize if it was requested
+	if flagResizeRequired {
 
-		// we can't read and write from same file
-		if sourceFileName == resizedFileName {
-			sourceContent, err := ioutil.ReadFile(sourceFileName)
-			if err != nil {
-				return env.ErrorDispatch(err)
-			}
-			sourceReader = bytes.NewReader(sourceContent)
-		} else {
-			sourceReader = sourceFile
-		}
-
-		// resizing stuff
-		width, height, err := it.GetSizeDimensions(size)
+		// resize routine
+		requiredWidth, requiredHeight, err := it.GetSizeDimensions(size)
 		if err != nil {
 			return env.ErrorDispatch(err)
 		}
 
-		resizedFile, err := os.Create(resizedFileName)
-		defer resizedFile.Close()
+		sourceImage, err := imaging.Open(sourceFileName)
 		if err != nil {
 			return env.ErrorDispatch(err)
 		}
 
-		sourceImage, imageFormat, err := image.Decode(sourceReader)
-		if err != nil {
-			return env.ErrorDispatch(err)
-		}
+		resizedImage := sourceImage
 
-		originalSize := sourceImage.Bounds().Size()
-		if width != 0 && height != 0 {
-			if originalSize.X > originalSize.Y {
-				height = 0
-			} else {
-				width = 0
+		if requiredWidth != 0 || requiredHeight != 0 {
+			resizedImage = imaging.Thumbnail(sourceImage, requiredWidth, requiredHeight, imaging.Linear)
+
+			if ConstResizeOnBackground {
+				background := imaging.New(requiredWidth, requiredHeight, image.White)
+				resizedImage = imaging.PasteCenter(background, resizedImage)
 			}
 		}
-		resizedImage := resize.Resize(width, height, sourceImage, resize.Bilinear)
 
-		// encoding re-sized image
-		switch imageFormat {
-		case "jpeg":
-			err = jpeg.Encode(resizedFile, resizedImage, nil)
-		case "png":
-			err = png.Encode(resizedFile, resizedImage)
-		default:
-			return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "42f0cbb3-9187-4e16-8953-5829ea8d2da8", "Unknown image format to encode")
-		}
-
+		err = imaging.Save(resizedImage, destinationFileName)
 		if err != nil {
 			return env.ErrorDispatch(err)
 		}
