@@ -89,13 +89,13 @@ func APICartItemAdd(context api.InterfaceApplicationContext) (interface{}, error
 
 	// check request context
 	//---------------------
-	pid := api.GetArgumentParameterOrContent(context, "productID")
+	pid := utils.InterfaceToString(api.GetArgumentOrContentValue(context, "productID"))
 	if pid == "" {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "c21dac87-4f93-48dc-b997-bbbe558cfd29", "pid should be specified")
 	}
 
 	qty := 1
-	requestedQty := api.GetArgumentParameterOrContent(context, "qty")
+	requestedQty := api.GetArgumentOrContentValue(context, "qty")
 	if requestedQty != "" {
 		qty = utils.InterfaceToInt(requestedQty)
 	}
@@ -106,7 +106,7 @@ func APICartItemAdd(context api.InterfaceApplicationContext) (interface{}, error
 		return nil, env.ErrorDispatch(err)
 	}
 
-	requestedOptions := api.GetParameterOrContent(context, "options")
+	requestedOptions := api.GetArgumentOrContentValue(context, "options")
 	if requestedOptions != nil {
 		if reqestedOptionsAsMap, ok := requestedOptions.(map[string]interface{}); ok {
 			options = reqestedOptionsAsMap

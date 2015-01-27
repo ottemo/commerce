@@ -97,7 +97,7 @@ func ValidateAdminRights(context InterfaceApplicationContext) error {
 
 	// it is un-secure as request can be intercepted by malefactor, so use it only if no other way to do auth
 	// (we are using it for "gulp build" local tool, so all data within one host)
-	if value := context.GetRequestParameter(ConstGETAuthParamName); value != "" {
+	if value := context.GetRequestArgument(ConstGETAuthParamName); value != "" {
 		if splited := strings.Split(value, ":"); len(splited) > 1 {
 			login := splited[0]
 			password := splited[1]
@@ -136,11 +136,11 @@ func GetContentValue(context InterfaceApplicationContext, name string) interface
 	return nil
 }
 
-// GetParameterOrContent looks for a given name within request parameters and content (map only), returns first occurrence
+// GetArgumentOrContentValue looks for a given name within request parameters and content (map only), returns first occurrence
 // according to mentioned sequence or nil if not found.
-func GetParameterOrContent(context InterfaceApplicationContext, name string) interface{} {
+func GetArgumentOrContentValue(context InterfaceApplicationContext, name string) interface{} {
 
-	if value := context.GetRequestParameter(name); value != "" {
+	if value := context.GetRequestArgument(name); value != "" {
 		return value
 	}
 
@@ -153,34 +153,12 @@ func GetParameterOrContent(context InterfaceApplicationContext, name string) int
 	return nil
 }
 
-// GetArgumentParameterOrContent looks for a given name within request arguments, parameters and content (map only),
-// returns first occurrence according to mentioned sequence or "" if not found.
-//   - if not a string found in content then value will be converted to string
-func GetArgumentParameterOrContent(context InterfaceApplicationContext, name string) string {
-
-	if value := context.GetRequestArgument(name); value != "" {
-		return value
-	}
-
-	if value := context.GetRequestParameter(name); value != "" {
-		return value
-	}
-
-	if contentMap, ok := context.GetRequestContent().(map[string]interface{}); ok {
-		if value, present := contentMap[name]; present {
-			return utils.InterfaceToString(value)
-		}
-	}
-
-	return ""
-}
-
 // ApplyExtraAttributes modifies given model collection with adding extra attributes to list
 //   - default attributes are specified in models.StructListItem as static fields
 //   - models.StructListItem fields can be not a direct copy of model attribute,
 //   - extra attributes are taken from model directly
 func ApplyExtraAttributes(context InterfaceApplicationContext, collection models.InterfaceCollection) error {
-	extra := context.GetRequestParameter("extra")
+	extra := context.GetRequestArgument("extra")
 	if extra == "" {
 		contentMap, err := GetRequestContentAsMap(context)
 		if err != nil {
@@ -273,7 +251,7 @@ func ApplyFilters(context InterfaceApplicationContext, collection db.InterfaceDB
 	}
 
 	// checking arguments user set
-	for attributeName, attributeValue := range context.GetRequestParameters() {
+	for attributeName, attributeValue := range context.GetRequestArguments() {
 		switch attributeName {
 
 		// collection limit required
@@ -346,7 +324,7 @@ func ApplyFilters(context InterfaceApplicationContext, collection db.InterfaceDB
 func GetListLimit(context InterfaceApplicationContext) (int, int) {
 	limitValue := ""
 
-	if value := context.GetRequestParameter("limit"); value != "" {
+	if value := context.GetRequestArgument("limit"); value != "" {
 		limitValue = utils.InterfaceToString(value)
 	} else {
 		contentMap, err := GetRequestContentAsMap(context)

@@ -41,8 +41,8 @@ func setupAPI() error {
 // WEB REST API function login application with root rights
 func restLogin(context api.InterfaceApplicationContext) (interface{}, error) {
 
-	requestLogin := context.GetRequestParameter("login")
-	requestPassword := context.GetRequestParameter("password")
+	requestLogin := context.GetRequestArgument("login")
+	requestPassword := context.GetRequestArgument("password")
 
 	if requestLogin == "" || requestPassword == "" {
 

@@ -114,7 +114,7 @@ func CompleteTransaction(orderInstance order.InterfaceOrder, token string, payer
 //   - "token" field should contain valid session ID
 //   - refer to https://developer.paypal.com/docs/classic/api/NVPAPIOverview/ for details
 func APIReceipt(context api.InterfaceApplicationContext) (interface{}, error) {
-	requestData := context.GetRequestParameters()
+	requestData := context.GetRequestArguments()
 	if !utils.KeysInMapAndNotBlank(requestData, "token", "PayerID") {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "4b0fcede-8ce7-4f4d-bee4-9cf75a427f59", "tocken or payerID are not set")
 	}
@@ -186,7 +186,7 @@ func APIReceipt(context api.InterfaceApplicationContext) (interface{}, error) {
 // APIDecline processes PayPal decline response
 //   - refer to https://developer.paypal.com/docs/classic/api/NVPAPIOverview/ for details
 func APIDecline(context api.InterfaceApplicationContext) (interface{}, error) {
-	requestData := context.GetRequestParameters()
+	requestData := context.GetRequestArguments()
 	if !utils.KeysInMapAndNotBlank(requestData, "token", "PayerID") {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "4b0fcede-8ce7-4f4d-bee4-9cf75a427f59", "tocken or payerID are not set")
 	}

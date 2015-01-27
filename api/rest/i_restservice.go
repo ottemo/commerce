@@ -46,24 +46,26 @@ func (it *DefaultRestService) RegisterAPI(resource string, operation string, han
 		// Request URL parameters detection
 		//----------------------------------
 
-		// getting URL params of request
+		// getting URL arguments of request
+		//   example: http://localhost:3000/category/:categoryID/product/:productID
+		//   so, ":categoryID" and ":productID" are these arguments
 		reqArguments := make(map[string]string)
 		for _, param := range params {
 			reqArguments[param.Key] = param.Value
 		}
 
-		// getting params from URL, those after "?"
-		reqParameters := make(map[string]string)
+		// getting params from URL (after "?")
+		//   example: http://localhost:3000/category/:categoryID/products?limit=10&extra=55
+		//   so, "limit" and "extra" are these params
 		urlParsedParams, err := url.ParseQuery(req.URL.RawQuery)
 		if err == nil {
 			for key, value := range urlParsedParams {
-				reqParameters[key] = value[0]
+				reqArguments[key] = value[0]
 			}
 		}
 
 		// Request content detection
 		//----------------------------
-
 		var content interface{}
 		contentType := req.Header.Get("Content-Type")
 
@@ -128,7 +130,6 @@ func (it *DefaultRestService) RegisterAPI(resource string, operation string, han
 		applicationContext := new(DefaultRestApplicationContext)
 		applicationContext.Request = req
 		applicationContext.RequestArguments = reqArguments
-		applicationContext.RequestParameters = reqParameters
 		applicationContext.RequestContent = content
 		applicationContext.RequestFiles = make(map[string]io.Reader)
 		applicationContext.ResponseWriter = resp

@@ -66,7 +66,7 @@ func APIListCMSBlocks(context api.InterfaceApplicationContext) (interface{}, err
 	api.ApplyFilters(context, cmsBlockCollectionModel.GetDBCollection())
 
 	// checking for a "count" request
-	if context.GetRequestParameter(api.ConstRESTActionParameter) == "count" {
+	if context.GetRequestArgument(api.ConstRESTActionParameter) == "count" {
 		return cmsBlockCollectionModel.GetDBCollection().Count()
 	}
 

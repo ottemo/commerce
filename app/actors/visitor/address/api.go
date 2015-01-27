@@ -230,7 +230,7 @@ func APIListVisitorAddresses(context api.InterfaceApplicationContext) (interface
 	api.ApplyFilters(context, dbCollection)
 
 	// checking for a "count" request
-	if context.GetRequestParameter("count") != "" {
+	if context.GetRequestArgument("count") != "" {
 		return visitorAddressCollectionModel.GetDBCollection().Count()
 	}
 

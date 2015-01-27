@@ -21,29 +21,15 @@ func (it *DefaultRestApplicationContext) GetResponseWriter() io.Writer {
 	return it.ResponseWriter
 }
 
-// GetRequestArguments returns arguments required by API function
+// GetRequestArguments returns all arguments provided to API function
 //   - for REST API it is URI parameters "http://localhost/myfunc/:param1/get/:param2/:param3/"
 func (it *DefaultRestApplicationContext) GetRequestArguments() map[string]string {
 	return it.RequestArguments
 }
 
-// GetRequestArgument returns particular argument
+// GetRequestArgument returns particular argument provided to API function or ""
 func (it *DefaultRestApplicationContext) GetRequestArgument(name string) string {
 	if value, present := it.RequestArguments[name]; present {
-		return value
-	}
-	return ""
-}
-
-// GetRequestParameters returns parameters specified in request
-//   - for REST API it is URI options "http://localhost/myfunc/:param1/?option1=1&option2=2"
-func (it *DefaultRestApplicationContext) GetRequestParameters() map[string]string {
-	return it.RequestParameters
-}
-
-// GetRequestParameter returns particular request parameter specified in request
-func (it *DefaultRestApplicationContext) GetRequestParameter(name string) string {
-	if value, present := it.RequestParameters[name]; present {
 		return value
 	}
 	return ""

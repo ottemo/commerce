@@ -60,8 +60,6 @@ type InterfaceApplicationContext interface {
 
 	GetRequestArguments() map[string]string
 	GetRequestArgument(name string) string
-	GetRequestParameters() map[string]string
-	GetRequestParameter(name string) string
 	GetRequestFiles() map[string]io.Reader
 	GetRequestFile(name string) io.Reader
 	GetRequestSettings() map[string]interface{}

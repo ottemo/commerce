@@ -70,7 +70,7 @@ func APIListOrders(context api.InterfaceApplicationContext) (interface{}, error)
 	api.ApplyFilters(context, orderCollectionModel.GetDBCollection())
 
 	// checking for a "count" request
-	if context.GetRequestParameter(api.ConstRESTActionParameter) == "count" {
+	if context.GetRequestArgument(api.ConstRESTActionParameter) == "count" {
 		return orderCollectionModel.GetDBCollection().Count()
 	}
 

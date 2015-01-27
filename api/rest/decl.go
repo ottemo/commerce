@@ -20,8 +20,8 @@ const (
 	ConstErrorLevel  = env.ConstErrorLevelService
 )
 
-// DefaultRestService is a default implementer of InterfaceRestService declared in
-// "github.com/ottemo/foundation/api" package
+// DefaultRestService is a default implementer of InterfaceRestService
+// declared in "github.com/ottemo/foundation/api" package
 type DefaultRestService struct {
 	ListenOn string
 	Router   *httprouter.Router

@@ -281,7 +281,7 @@ func APIListVisitors(context api.InterfaceApplicationContext) (interface{}, erro
 	api.ApplyFilters(context, visitorCollectionModel.GetDBCollection())
 
 	// checking for a "count" request
-	if context.GetRequestParameter(api.ConstRESTActionParameter) == "count" {
+	if context.GetRequestArgument(api.ConstRESTActionParameter) == "count" {
 		return visitorCollectionModel.GetDBCollection().Count()
 	}
 

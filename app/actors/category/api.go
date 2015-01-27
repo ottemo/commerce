@@ -84,7 +84,7 @@ func APIListCategories(context api.InterfaceApplicationContext) (interface{}, er
 	}
 
 	// checking for a "count" request
-	if context.GetRequestParameter(api.ConstRESTActionParameter) == "count" {
+	if context.GetRequestArgument(api.ConstRESTActionParameter) == "count" {
 		return categoryCollectionModel.GetDBCollection().Count()
 	}
 
@@ -304,7 +304,7 @@ func APIGetCategoryProducts(context api.InterfaceApplicationContext) (interface{
 	}
 
 	// checking for a "count" request
-	if context.GetRequestParameter("count") != "" {
+	if context.GetRequestArgument("count") != "" {
 		return productsCollection.GetDBCollection().Count()
 	}
 

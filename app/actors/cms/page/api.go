@@ -69,7 +69,7 @@ func APIListCMSPages(context api.InterfaceApplicationContext) (interface{}, erro
 	}
 
 	// checking for a "count" request
-	if context.GetRequestParameter(api.ConstRESTActionParameter) == "count" {
+	if context.GetRequestArgument(api.ConstRESTActionParameter) == "count" {
 		return cmsPageCollectionModel.GetDBCollection().Count()
 	}
 
@@ -84,7 +84,7 @@ func APIListCMSPages(context api.InterfaceApplicationContext) (interface{}, erro
 
 // APIGetCMSPage return specified CMS page information
 //   - CMS page id should be specified in "pageID" argument
-//   - CMS page content can be a text template, so "evaluated" field in response is that template evaluation result 
+//   - CMS page content can be a text template, so "evaluated" field in response is that template evaluation result
 func APIGetCMSPage(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check request context

@@ -640,7 +640,7 @@ func APIListProducts(context api.InterfaceApplicationContext) (interface{}, erro
 	}
 
 	// checking for a "count" request
-	if context.GetRequestParameter(api.ConstRESTActionParameter) == "count" {
+	if context.GetRequestArgument(api.ConstRESTActionParameter) == "count" {
 		return productCollectionModel.GetDBCollection().Count()
 	}
 
