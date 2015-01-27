@@ -632,7 +632,7 @@ func APIListProducts(context api.InterfaceApplicationContext) (interface{}, erro
 	}
 
 	// filters handle
-	api.ApplyFilters(context, productCollectionModel.GetDBCollection())
+	models.ApplyFilters(context, productCollectionModel.GetDBCollection())
 
 	// excluding disabled products for a regular visitor
 	if err := api.ValidateAdminRights(context); err != nil {
@@ -645,10 +645,10 @@ func APIListProducts(context api.InterfaceApplicationContext) (interface{}, erro
 	}
 
 	// limit parameter handle
-	productCollectionModel.ListLimit(api.GetListLimit(context))
+	productCollectionModel.ListLimit(models.GetListLimit(context))
 
 	// extra parameter handle
-	api.ApplyExtraAttributes(context, productCollectionModel)
+	models.ApplyExtraAttributes(context, productCollectionModel)
 
 	return productCollectionModel.List()
 }
@@ -794,7 +794,7 @@ func APIListShopProducts(context api.InterfaceApplicationContext) (interface{}, 
 	dbCollection := productsCollection.GetDBCollection()
 
 	// filters handle
-	api.ApplyFilters(context, dbCollection)
+	models.ApplyFilters(context, dbCollection)
 
 	// not allowing to see disabled products if not admin
 	if err := api.ValidateAdminRights(context); err != nil {
@@ -836,7 +836,7 @@ func APIGetShopLayers(context api.InterfaceApplicationContext) (interface{}, err
 
 	result := make(map[string]interface{})
 
-	api.ApplyFilters(context, productsDBCollection)
+	models.ApplyFilters(context, productsDBCollection)
 
 	// not allowing to see disabled products if not admin
 	if err := api.ValidateAdminRights(context); err != nil {

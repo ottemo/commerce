@@ -2,6 +2,7 @@ package order
 
 import (
 	"github.com/ottemo/foundation/api"
+	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/order"
 	"github.com/ottemo/foundation/env"
 )
@@ -67,7 +68,7 @@ func APIListOrders(context api.InterfaceApplicationContext) (interface{}, error)
 	}
 
 	// filters handle
-	api.ApplyFilters(context, orderCollectionModel.GetDBCollection())
+	models.ApplyFilters(context, orderCollectionModel.GetDBCollection())
 
 	// checking for a "count" request
 	if context.GetRequestArgument(api.ConstRESTActionParameter) == "count" {
@@ -75,10 +76,10 @@ func APIListOrders(context api.InterfaceApplicationContext) (interface{}, error)
 	}
 
 	// limit parameter handle
-	orderCollectionModel.ListLimit(api.GetListLimit(context))
+	orderCollectionModel.ListLimit(models.GetListLimit(context))
 
 	// extra parameter handle
-	api.ApplyExtraAttributes(context, orderCollectionModel)
+	models.ApplyExtraAttributes(context, orderCollectionModel)
 
 	return orderCollectionModel.List()
 }

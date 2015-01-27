@@ -2,6 +2,7 @@ package block
 
 import (
 	"github.com/ottemo/foundation/api"
+	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/cms"
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
@@ -63,7 +64,7 @@ func APIListCMSBlocks(context api.InterfaceApplicationContext) (interface{}, err
 	}
 
 	// applying request filters
-	api.ApplyFilters(context, cmsBlockCollectionModel.GetDBCollection())
+	models.ApplyFilters(context, cmsBlockCollectionModel.GetDBCollection())
 
 	// checking for a "count" request
 	if context.GetRequestArgument(api.ConstRESTActionParameter) == "count" {
@@ -71,10 +72,10 @@ func APIListCMSBlocks(context api.InterfaceApplicationContext) (interface{}, err
 	}
 
 	// limit parameter handle
-	cmsBlockCollectionModel.ListLimit(api.GetListLimit(context))
+	cmsBlockCollectionModel.ListLimit(models.GetListLimit(context))
 
 	// extra parameter handle
-	api.ApplyExtraAttributes(context, cmsBlockCollectionModel)
+	models.ApplyExtraAttributes(context, cmsBlockCollectionModel)
 
 	return cmsBlockCollectionModel.List()
 }

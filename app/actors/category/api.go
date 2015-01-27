@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/ottemo/foundation/api"
+	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/category"
 	"github.com/ottemo/foundation/app/models/product"
 	"github.com/ottemo/foundation/db"
@@ -76,7 +77,7 @@ func APIListCategories(context api.InterfaceApplicationContext) (interface{}, er
 	}
 
 	// applying requested filters
-	api.ApplyFilters(context, categoryCollectionModel.GetDBCollection())
+	models.ApplyFilters(context, categoryCollectionModel.GetDBCollection())
 
 	// excluding disabled categories for a regular visitor
 	if err := api.ValidateAdminRights(context); err != nil {
@@ -89,10 +90,10 @@ func APIListCategories(context api.InterfaceApplicationContext) (interface{}, er
 	}
 
 	// limit parameter handle
-	categoryCollectionModel.ListLimit(api.GetListLimit(context))
+	categoryCollectionModel.ListLimit(models.GetListLimit(context))
 
 	// extra parameter handle
-	api.ApplyExtraAttributes(context, categoryCollectionModel)
+	models.ApplyExtraAttributes(context, categoryCollectionModel)
 
 	return categoryCollectionModel.List()
 }
@@ -255,7 +256,7 @@ func APIGetCategoryLayers(context api.InterfaceApplicationContext) (interface{},
 
 	result := make(map[string]interface{})
 
-	api.ApplyFilters(context, productsDBCollection)
+	models.ApplyFilters(context, productsDBCollection)
 
 	// not allowing to see disabled products if not admin
 	if err := api.ValidateAdminRights(context); err != nil {
@@ -296,7 +297,7 @@ func APIGetCategoryProducts(context api.InterfaceApplicationContext) (interface{
 
 	productsCollection := categoryModel.GetProductsCollection()
 
-	api.ApplyFilters(context, productsCollection.GetDBCollection())
+	models.ApplyFilters(context, productsCollection.GetDBCollection())
 
 	// not allowing to see disabled products if not admin
 	if err := api.ValidateAdminRights(context); err != nil {
@@ -309,7 +310,7 @@ func APIGetCategoryProducts(context api.InterfaceApplicationContext) (interface{
 	}
 
 	// limit parameter handle
-	productsCollection.ListLimit(api.GetListLimit(context))
+	productsCollection.ListLimit(models.GetListLimit(context))
 
 	// preparing product information
 	var result []map[string]interface{}

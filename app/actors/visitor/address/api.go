@@ -2,6 +2,7 @@ package address
 
 import (
 	"github.com/ottemo/foundation/api"
+	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/visitor"
 	"github.com/ottemo/foundation/env"
 )
@@ -227,7 +228,7 @@ func APIListVisitorAddresses(context api.InterfaceApplicationContext) (interface
 	dbCollection.AddStaticFilter("visitor_id", "=", visitorID)
 
 	// filters handle
-	api.ApplyFilters(context, dbCollection)
+	models.ApplyFilters(context, dbCollection)
 
 	// checking for a "count" request
 	if context.GetRequestArgument("count") != "" {
@@ -235,10 +236,10 @@ func APIListVisitorAddresses(context api.InterfaceApplicationContext) (interface
 	}
 
 	// limit parameter handle
-	visitorAddressCollectionModel.ListLimit(api.GetListLimit(context))
+	visitorAddressCollectionModel.ListLimit(models.GetListLimit(context))
 
 	// extra parameter handle
-	api.ApplyExtraAttributes(context, visitorAddressCollectionModel)
+	models.ApplyExtraAttributes(context, visitorAddressCollectionModel)
 
 	return visitorAddressCollectionModel.List()
 }

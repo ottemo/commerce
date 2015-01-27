@@ -278,7 +278,7 @@ func APIListVisitors(context api.InterfaceApplicationContext) (interface{}, erro
 	}
 
 	// filters handle
-	api.ApplyFilters(context, visitorCollectionModel.GetDBCollection())
+	models.ApplyFilters(context, visitorCollectionModel.GetDBCollection())
 
 	// checking for a "count" request
 	if context.GetRequestArgument(api.ConstRESTActionParameter) == "count" {
@@ -286,10 +286,10 @@ func APIListVisitors(context api.InterfaceApplicationContext) (interface{}, erro
 	}
 
 	// limit parameter handle
-	visitorCollectionModel.ListLimit(api.GetListLimit(context))
+	visitorCollectionModel.ListLimit(models.GetListLimit(context))
 
 	// extra parameter handle
-	api.ApplyExtraAttributes(context, visitorCollectionModel)
+	models.ApplyExtraAttributes(context, visitorCollectionModel)
 
 	return visitorCollectionModel.List()
 }
@@ -952,10 +952,10 @@ func APIGetOrders(context api.InterfaceApplicationContext) (interface{}, error) 
 	}
 
 	// filters handle
-	api.ApplyFilters(context, orderCollection.GetDBCollection())
+	models.ApplyFilters(context, orderCollection.GetDBCollection())
 
 	// extra parameter handle
-	api.ApplyExtraAttributes(context, orderCollection)
+	models.ApplyExtraAttributes(context, orderCollection)
 
 	result, err := orderCollection.List()
 

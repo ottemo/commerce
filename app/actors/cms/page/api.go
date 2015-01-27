@@ -2,6 +2,7 @@ package page
 
 import (
 	"github.com/ottemo/foundation/api"
+	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/cms"
 	"github.com/ottemo/foundation/env"
 )
@@ -61,7 +62,7 @@ func APIListCMSPages(context api.InterfaceApplicationContext) (interface{}, erro
 	}
 
 	// applying requested filters
-	api.ApplyFilters(context, cmsPageCollectionModel.GetDBCollection())
+	models.ApplyFilters(context, cmsPageCollectionModel.GetDBCollection())
 
 	// excluding disabled pages for a regular visitor
 	if err := api.ValidateAdminRights(context); err != nil {
@@ -74,10 +75,10 @@ func APIListCMSPages(context api.InterfaceApplicationContext) (interface{}, erro
 	}
 
 	// limit parameter handle
-	cmsPageCollectionModel.ListLimit(api.GetListLimit(context))
+	cmsPageCollectionModel.ListLimit(models.GetListLimit(context))
 
 	// extra parameter handle
-	api.ApplyExtraAttributes(context, cmsPageCollectionModel)
+	models.ApplyExtraAttributes(context, cmsPageCollectionModel)
 
 	return cmsPageCollectionModel.List()
 }
