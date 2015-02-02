@@ -14,7 +14,7 @@ func StartSession(context InterfaceApplicationContext) (InterfaceSession, error)
 	request := context.GetRequest()
 
 	// old method - HTTP specific
-	if request, ok := request.(http.Request); ok {
+	if request, ok := request.(*http.Request); ok {
 		responseWriter := context.GetResponseWriter()
 		if responseWriter, ok := responseWriter.(http.ResponseWriter); ok {
 			// check session-cookie
