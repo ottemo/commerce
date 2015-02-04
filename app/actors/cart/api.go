@@ -89,7 +89,7 @@ func APICartItemAdd(context api.InterfaceApplicationContext) (interface{}, error
 
 	// check request context
 	//---------------------
-	pid := utils.InterfaceToString(api.GetArgumentOrContentValue(context, "productID"))
+	pid := utils.InterfaceToString(api.GetArgumentOrContentValue(context, "pid"))
 	if pid == "" {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "c21dac87-4f93-48dc-b997-bbbe558cfd29", "pid should be specified")
 	}

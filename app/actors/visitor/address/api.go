@@ -48,6 +48,10 @@ func setupAPI() error {
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
+	err = api.GetRestService().RegisterAPI("visit/addresses", api.ConstRESTOperationGet, APIListVisitorAddresses)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
 	err = api.GetRestService().RegisterAPI("visit/address/:addressID", api.ConstRESTOperationGet, APIDeleteVisitorAddress)
 	if err != nil {
 		return env.ErrorDispatch(err)
