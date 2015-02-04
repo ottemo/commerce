@@ -84,6 +84,10 @@ func setupAPI() error {
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
+	err = api.GetRestService().RegisterAPI("visit", api.ConstRESTOperationUpdate, APIUpdateVisitor)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
 	err = api.GetRestService().RegisterAPI("visit/logout", api.ConstRESTOperationGet, APILogout)
 	if err != nil {
 		return env.ErrorDispatch(err)

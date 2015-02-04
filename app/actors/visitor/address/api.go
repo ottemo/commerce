@@ -48,11 +48,15 @@ func setupAPI() error {
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
+	err = api.GetRestService().RegisterAPI("visit/address/:addressID", api.ConstRESTOperationDelete, APIDeleteVisitorAddress)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
 	err = api.GetRestService().RegisterAPI("visit/addresses", api.ConstRESTOperationGet, APIListVisitorAddresses)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("visit/address/:addressID", api.ConstRESTOperationGet, APIDeleteVisitorAddress)
+	err = api.GetRestService().RegisterAPI("visit/address/:addressID", api.ConstRESTOperationGet, APIGetVisitorAddress)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
