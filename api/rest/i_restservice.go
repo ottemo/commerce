@@ -253,6 +253,10 @@ func (it DefaultRestService) ServeHTTP(responseWriter http.ResponseWriter, reque
 	responseWriter.Header().Set("Access-Control-Allow-Credentials", "true")
 	responseWriter.Header().Set("Access-Control-Allow-Headers", "Content-Type, Cookie, X-Referer, Content-Length, Accept-Encoding, X-CSRF-Token")
 
+	responseWriter.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate") // HTTP 1.1.
+	responseWriter.Header().Set("Pragma", "no-cache") // HTTP 1.0.
+	responseWriter.Header().Set("Expires", "0") // Proxies
+
 	if request.Method == "GET" || request.Method == "POST" || request.Method == "PUT" || request.Method == "DELETE" {
 
 		// default output format
