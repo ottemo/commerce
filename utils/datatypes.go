@@ -407,7 +407,7 @@ func InterfaceToTime(value interface{}) time.Time {
 		}
 	}
 
-	return time.Unix(0, 0)
+	return time.Time{} //Unix(0, 0)
 }
 
 // IsZeroTime checks time for zero value

@@ -17,7 +17,7 @@ func setupAPI() error {
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("cms/blocks/attributes", api.ConstRESTOperationCreate, APIListCMSBlockAttributes)
+	err = api.GetRestService().RegisterAPI("cms/blocks/attributes", api.ConstRESTOperationGet, APIListCMSBlockAttributes)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -88,7 +88,7 @@ func APIGetCMSBlock(context api.InterfaceApplicationContext) (interface{}, error
 	// check request context
 	//---------------------
 	reqBlockID := context.GetRequestArgument("blockID")
-	if reqBlockID != "" {
+	if reqBlockID == "" {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "a6dd2812-5070-4869-8ae2-90c4bd28bf69", "cms block id should be specified")
 	}
 	blockID := utils.InterfaceToString(reqBlockID)

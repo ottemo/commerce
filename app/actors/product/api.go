@@ -521,14 +521,19 @@ func APIAddMediaForProduct(context api.InterfaceApplicationContext) (interface{}
 
 	// income file processing
 	//-----------------------
-	file := context.GetRequestFile("file")
-	if file == nil {
+	files := context.GetRequestFiles()
+	if len(files) == 0 {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "75a2ddaf-b63d-4eed-b16d-4b32778f5fc1", "media file was not specified")
 	}
 
-	fileContents, err := ioutil.ReadAll(file)
-	if err != nil {
-		return nil, env.ErrorDispatch(err)
+	var fileContents []byte
+	for _, fileReader := range files {
+		contents, err := ioutil.ReadAll(fileReader)
+		if err != nil {
+			return nil, env.ErrorDispatch(err)
+		}
+		fileContents = contents
+		break
 	}
 
 	// add media operation
