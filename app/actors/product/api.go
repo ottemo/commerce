@@ -58,7 +58,7 @@ func setupAPI() error {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("product/:productID/related", api.ConstRESTOperationCreate, APIListRelatedProducts)
+	err = api.GetRestService().RegisterAPI("product/:productID/related", api.ConstRESTOperationGet, APIListRelatedProducts)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -668,14 +668,9 @@ func APIListRelatedProducts(context api.InterfaceApplicationContext) (interface{
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "55aa2eee-0407-4094-a90a-5d69d8c1efcc", "product id was not specified")
 	}
 
-	requestData, err := api.GetRequestContentAsMap(context)
-	if err != nil {
-		return nil, env.ErrorDispatch(err)
-	}
-
 	count := 5
-	if utils.InterfaceToInt(requestData["count"]) > 0 {
-		count = utils.InterfaceToInt(requestData["count"])
+	if countValue := utils.InterfaceToInt(api.GetArgumentOrContentValue(context, "count")); countValue > 0 {
+		count = countValue
 	}
 
 	// load product operation
@@ -735,7 +730,8 @@ func APIListRelatedProducts(context api.InterfaceApplicationContext) (interface{
 							resultItem.Image = mediaPath + productModel.GetDefaultImage()
 						}
 
-						if extra, isExtra := requestData["extra"]; isExtra {
+						extra := utils.InterfaceToString(api.GetArgumentOrContentValue(context, "extra"))
+						if extra != "" {
 							resultItem.Extra = make(map[string]interface{})
 							extra := utils.Explode(utils.InterfaceToString(extra), ",")
 							for _, value := range extra {
@@ -772,7 +768,8 @@ func APIListRelatedProducts(context api.InterfaceApplicationContext) (interface{
 					resultItem.Image = mediaPath + productModel.GetDefaultImage()
 				}
 
-				if extra, isExtra := requestData["extra"]; isExtra {
+				extra := utils.InterfaceToString(api.GetArgumentOrContentValue(context, "extra"))
+				if extra != "" {
 					resultItem.Extra = make(map[string]interface{})
 					extra := utils.Explode(utils.InterfaceToString(extra), ",")
 					for _, value := range extra {

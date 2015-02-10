@@ -75,7 +75,7 @@ func APIGetSEOItem(context api.InterfaceApplicationContext) (interface{}, error)
 		return nil, env.ErrorDispatch(err)
 	}
 
-	collection.AddFilter("url", "=", context.GetRequestArgument("id"))
+	collection.AddFilter("url", "=", context.GetRequestArgument("url"))
 	records, err := collection.Load()
 
 	return records, env.ErrorDispatch(err)
