@@ -1,6 +1,7 @@
 package api
 
 import (
+	"io"
 	"net/http"
 )
 
@@ -32,7 +33,44 @@ type InterfaceRestService interface {
 	GetName() string
 
 	Run() error
-	RegisterAPI(service string, method string, uri string, handler FuncAPIHandler) error
+	RegisterAPI(resource string, operation string, handler FuncAPIHandler) error
 
 	http.Handler
+}
+
+// InterfaceApplicationContextSupport is an interface to assign/get application context to object
+type InterfaceApplicationContextSupport interface {
+	GetApplicationContext() InterfaceApplicationContext
+	SetApplicationContext(context InterfaceApplicationContext) error
+}
+
+// InterfaceApplicationContext is an interface representing context where current execution happens
+type InterfaceApplicationContext interface {
+	GetRequest() interface{}
+	GetResponse() interface{}
+
+	GetSession() InterfaceSession
+	SetSession(session InterfaceSession) error
+
+	GetContextValues() map[string]interface{}
+	GetContextValue(key string) interface{}
+	SetContextValue(key string, value interface{})
+
+	GetResponseWriter() io.Writer
+
+	GetRequestArguments() map[string]string
+	GetRequestArgument(name string) string
+	GetRequestFiles() map[string]io.Reader
+	GetRequestFile(name string) io.Reader
+	GetRequestSettings() map[string]interface{}
+	GetRequestSetting(name string) interface{}
+	GetRequestContent() interface{}
+	GetRequestContentType() string
+
+	GetResponseContentType() string
+	SetResponseContentType(mimeType string) error
+	GetResponseSetting(name string) interface{}
+	SetResponseSetting(name string, value interface{}) error
+	GetResponseResult() interface{}
+	SetResponseResult(value interface{}) error
 }

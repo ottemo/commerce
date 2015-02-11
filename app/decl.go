@@ -60,5 +60,5 @@ var (
 	buildNumber string
 	buildBranch string
 
-	startTime time.Time = time.Now().UTC().Truncate(time.Second)
+	startTime = time.Now().UTC().Truncate(time.Second)
 )
