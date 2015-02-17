@@ -4,6 +4,7 @@ import (
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/app"
 	"github.com/ottemo/foundation/app/models/checkout"
+	"github.com/ottemo/foundation/app/models/order"
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
 )
@@ -61,7 +62,7 @@ func APIReceipt(context api.InterfaceApplicationContext) (interface{}, error) {
 			if checkoutOrder != nil {
 				checkoutOrder.NewIncrementID()
 
-				checkoutOrder.Set("status", "pending")
+				checkoutOrder.SetStatus(order.ConstOrderStatusPending)
 				checkoutOrder.Set("payment_info", requestData)
 
 				err = currentCheckout.CheckoutSuccess(checkoutOrder, context.GetSession())
@@ -75,7 +76,7 @@ func APIReceipt(context api.InterfaceApplicationContext) (interface{}, error) {
 					return nil, err
 				}
 
-				env.Log("authorizenet.log", env.ConstLogPrefixInfo, "TRANSACTION APPROVED: "+
+				env.Log(ConstLogStorage, env.ConstLogPrefixInfo, "TRANSACTION APPROVED: "+
 					"VisitorID - "+utils.InterfaceToString(checkoutOrder.Get("visitor_id"))+", "+
 					"OrderID - "+checkoutOrder.GetID()+", "+
 					"Card  - "+utils.InterfaceToString(requestData["x_card_type"])+" "+utils.InterfaceToString(requestData["x_account_number"])+", "+
@@ -90,7 +91,7 @@ func APIReceipt(context api.InterfaceApplicationContext) (interface{}, error) {
 	default:
 		{
 			if checkoutOrder != nil {
-				env.Log("authorizenet.log", env.ConstLogPrefixError, "TRANSACTION NOT APPROVED: "+
+				env.Log(ConstLogStorage, env.ConstLogPrefixError, "TRANSACTION NOT APPROVED: "+
 					"VisitorID - "+utils.InterfaceToString(checkoutOrder.Get("visitor_id"))+", "+
 					"OrderID - "+checkoutOrder.GetID()+", "+
 					"Card  - "+utils.InterfaceToString(requestData["x_card_type"])+" "+utils.InterfaceToString(requestData["x_account_number"])+", "+
@@ -115,7 +116,7 @@ func APIReceipt(context api.InterfaceApplicationContext) (interface{}, error) {
 		}
 	}
 	if checkoutOrder != nil {
-		env.Log("authorizenet.log", env.ConstLogPrefixError, "TRANSACTION NOT APPROVED: (can't process authorize.net response) "+
+		env.Log(ConstLogStorage, env.ConstLogPrefixError, "TRANSACTION NOT APPROVED: (can't process authorize.net response) "+
 			"VisitorID - "+utils.InterfaceToString(checkoutOrder.Get("visitor_id"))+", "+
 			"OrderID - "+checkoutOrder.GetID()+", "+
 			"Card  - "+utils.InterfaceToString(requestData["x_card_type"])+" "+utils.InterfaceToString(requestData["x_account_number"])+", "+
@@ -158,9 +159,7 @@ func APIRelay(context api.InterfaceApplicationContext) (interface{}, error) {
 				return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "6244e778-a837-4425-849b-fbce26d5b095", "Cart is not specified")
 			}
 			if checkoutOrder != nil {
-				checkoutOrder.NewIncrementID()
-
-				checkoutOrder.Set("status", "pending")
+				checkoutOrder.SetStatus(order.ConstOrderStatusPending)
 				checkoutOrder.Set("payment_info", requestData)
 
 				err = currentCheckout.CheckoutSuccess(checkoutOrder, context.GetSession())
@@ -168,15 +167,9 @@ func APIRelay(context api.InterfaceApplicationContext) (interface{}, error) {
 					return nil, err
 				}
 
-				// Send confirmation email
-				err = currentCheckout.SendOrderConfirmationMail()
-				if err != nil {
-					return nil, err
-				}
-
 				context.SetResponseContentType("text/plain")
 
-				env.Log("authorizenet.log", env.ConstLogPrefixInfo, "TRANSACTION APPROVED: "+
+				env.Log(ConstLogStorage, env.ConstLogPrefixInfo, "TRANSACTION APPROVED: "+
 					"VisitorID - "+utils.InterfaceToString(checkoutOrder.Get("visitor_id"))+", "+
 					"OrderID - "+checkoutOrder.GetID()+", "+
 					"Card  - "+utils.InterfaceToString(requestData["x_card_type"])+" "+utils.InterfaceToString(requestData["x_account_number"])+", "+
@@ -215,7 +208,7 @@ func APIRelay(context api.InterfaceApplicationContext) (interface{}, error) {
 	default:
 		{
 			if checkoutOrder != nil {
-				env.Log("authorizenet.log", env.ConstLogPrefixError, "TRANSACTION NOT APPROVED: "+
+				env.Log(ConstLogStorage, env.ConstLogPrefixError, "TRANSACTION NOT APPROVED: "+
 					"VisitorID - "+utils.InterfaceToString(checkoutOrder.Get("visitor_id"))+", "+
 					"OrderID - "+checkoutOrder.GetID()+", "+
 					"Card  - "+utils.InterfaceToString(requestData["x_card_type"])+" "+utils.InterfaceToString(requestData["x_account_number"])+", "+
@@ -239,7 +232,7 @@ func APIRelay(context api.InterfaceApplicationContext) (interface{}, error) {
 		}
 	}
 	if checkoutOrder != nil {
-		env.Log("authorizenet.log", env.ConstLogPrefixError, "TRANSACTION NOT APPROVED: (can't process authorize.net response) "+
+		env.Log(ConstLogStorage, env.ConstLogPrefixError, "TRANSACTION NOT APPROVED: (can't process authorize.net response) "+
 			"VisitorID - "+utils.InterfaceToString(checkoutOrder.Get("visitor_id"))+", "+
 			"OrderID - "+checkoutOrder.GetID()+", "+
 			"Card  - "+utils.InterfaceToString(requestData["x_card_type"])+" "+utils.InterfaceToString(requestData["x_account_number"])+", "+
