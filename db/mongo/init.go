@@ -2,6 +2,7 @@ package mongo
 
 import (
 	"gopkg.in/mgo.v2"
+	"time"
 
 	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/env"
@@ -45,6 +46,17 @@ func (it *DBEngine) Startup() error {
 		mgo.SetDebug(true)
 		mgo.SetLogger(it)
 	}
+
+	// timer routine to check connection state and reconnect by perforce
+	ticker := time.NewTicker(ConstConnectionValidateInterval)
+	go func() {
+		for _ = range ticker.C {
+			err := it.session.Ping()
+			if err != nil {
+				it.session.Refresh()
+			}
+		}
+	}()
 
 	if collectionsList, err := it.database.CollectionNames(); err == nil {
 		for _, collection := range collectionsList {
