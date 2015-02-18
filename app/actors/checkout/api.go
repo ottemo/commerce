@@ -200,16 +200,27 @@ func APISetCheckoutInfo(context api.InterfaceApplicationContext) (interface{}, e
 
 // checkoutObtainAddress is an internal usage function used create and validate address
 //   - address data supposed to be in request content
-func checkoutObtainAddress(context api.InterfaceApplicationContext) (visitor.InterfaceVisitorAddress, error) {
+func checkoutObtainAddress(data interface{}) (visitor.InterfaceVisitorAddress, error) {
 
-	// taking request content
-	requestData, err := api.GetRequestContentAsMap(context)
-	if err != nil {
-		return nil, env.ErrorDispatch(err)
+	var err error
+	var currentVisitorID string
+	var addressData map[string]interface{}
+
+	switch context := data.(type) {
+	case api.InterfaceApplicationContext:
+		currentVisitorID = utils.InterfaceToString(context.GetSession().Get(visitor.ConstSessionKeyVisitorID))
+		addressData, err = api.GetRequestContentAsMap(context)
+		if err != nil {
+			return nil, env.ErrorDispatch(err)
+		}
+	case map[string]interface{}:
+		addressData = context
+	default:
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "995c0d71-5465-4003-9ed2-347bcf6255c5", "unknown address data type")
 	}
 
 	// checking for address id was specified, if it was - making sure it correct
-	if addressID, present := requestData["id"]; present {
+	if addressID, present := addressData["id"]; present {
 
 		// loading specified address by id
 		visitorAddress, err := visitor.LoadVisitorAddressByID(utils.InterfaceToString(addressID))
@@ -218,8 +229,8 @@ func checkoutObtainAddress(context api.InterfaceApplicationContext) (visitor.Int
 		}
 
 		// checking address owner is current visitor
-		currentVisitorID := utils.InterfaceToString(context.GetSession().Get(visitor.ConstSessionKeyVisitorID))
-		if visitorAddress.GetVisitorID() != currentVisitorID {
+
+		if currentVisitorID != "" && visitorAddress.GetVisitorID() != currentVisitorID {
 			return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "bef27714-4ac5-4705-b59a-47c8e0bc5aa4", "address id is not related to current visitor")
 		}
 
@@ -233,7 +244,7 @@ func checkoutObtainAddress(context api.InterfaceApplicationContext) (visitor.Int
 	}
 
 	// filling new instance with request provided data
-	for attribute, value := range requestData {
+	for attribute, value := range addressData {
 		err := visitorAddressModel.Set(attribute, value)
 		if err != nil {
 			return nil, env.ErrorDispatch(err)
@@ -241,8 +252,9 @@ func checkoutObtainAddress(context api.InterfaceApplicationContext) (visitor.Int
 	}
 
 	// setting address owner to current visitor (for sure)
-	visitorID := utils.InterfaceToString(context.GetSession().Get(visitor.ConstSessionKeyVisitorID))
-	visitorAddressModel.Set("visitor_id", visitorID)
+	if currentVisitorID != "" {
+		visitorAddressModel.Set("visitor_id", currentVisitorID)
+	}
 
 	// if address id was specified it means that address was changed, so saving it
 	// new address we are not saving as if could be temporary address
@@ -391,9 +403,112 @@ func APISetShippingMethod(context api.InterfaceApplicationContext) (interface{},
 // APISubmitCheckout submits current checkout and creates a new order base on it
 func APISubmitCheckout(context api.InterfaceApplicationContext) (interface{}, error) {
 
+	// preparations
+	//--------------
 	currentCheckout, err := checkout.GetCurrentCheckout(context)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
+	}
+
+	requestData, err := api.GetRequestContentAsMap(context)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	currentVisitorID := utils.InterfaceToString(context.GetSession().Get(visitor.ConstSessionKeyVisitorID))
+
+	addressInfoToAddress := func(addressInfo interface{}) (visitor.InterfaceVisitorAddress, error) {
+		var addressData map[string]interface{}
+
+		switch typedValue := addressInfo.(type) {
+		case map[string]interface{}:
+			typedValue["visitor_id"] = currentVisitorID
+			addressData = typedValue
+		case string:
+			addressData = map[string]interface{}{"visitor_id": currentVisitorID, "id": typedValue}
+		}
+		return checkoutObtainAddress(addressData)
+	}
+
+	// checking for specified shipping address
+	//-----------------------------------------
+	if shippingAddressInfo := utils.GetFirstMapValue(requestData, "shipping_address", "shippingAddress", "ShippingAddress"); shippingAddressInfo != nil {
+		address, err := addressInfoToAddress(shippingAddressInfo)
+		if err != nil {
+			return nil, env.ErrorDispatch(err)
+		}
+		currentCheckout.SetShippingAddress(address)
+	}
+
+	// checking for specified billing address
+	//----------------------------------------
+	if billingAddressInfo := utils.GetFirstMapValue(requestData, "billing_address", "billingAddress", "BillingAddress"); billingAddressInfo != nil {
+		address, err := addressInfoToAddress(billingAddressInfo)
+		if err != nil {
+			return nil, env.ErrorDispatch(err)
+		}
+		currentCheckout.SetBillingAddress(address)
+	}
+
+	// checking for specified payment method
+	//---------------------------------------
+	if specifiedPaymentMethod := utils.GetFirstMapValue(requestData, "payment_method", "paymentMethod"); specifiedPaymentMethod != nil {
+		var found bool
+		for _, paymentMethod := range checkout.GetRegisteredPaymentMethods() {
+			if paymentMethod.GetCode() == specifiedPaymentMethod {
+				if paymentMethod.IsAllowed(currentCheckout) {
+					err := currentCheckout.SetPaymentMethod(paymentMethod)
+					if err != nil {
+						return nil, env.ErrorDispatch(err)
+					}
+					found = true
+					break
+				}
+				return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "bd07849e-8789-4316-924c-9c754efbc348", "payment method not allowed")
+			}
+		}
+
+		if !found {
+			return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "b8384a47-8806-4a54-90fc-cccb5e958b4e", "payment method not found")
+		}
+	}
+
+	// checking for specified shipping method
+	//----------------------------------------
+	specifiedShippingMethod := utils.GetFirstMapValue(requestData, "shipping_method", "shipppingMethod")
+	specifiedShippingMethodRate := utils.GetFirstMapValue(requestData, "shipppingRate", "shipping_rate")
+
+	if specifiedShippingMethod != nil && specifiedShippingMethodRate != nil {
+		var methodFound, rateFound bool
+
+		for _, shippingMethod := range checkout.GetRegisteredShippingMethods() {
+			if shippingMethod.GetCode() == context.GetRequestArgument("method") {
+				if shippingMethod.IsAllowed(currentCheckout) {
+					methodFound = true
+
+					for _, shippingRate := range shippingMethod.GetRates(currentCheckout) {
+						if shippingRate.Code == context.GetRequestArgument("rate") {
+							err = currentCheckout.SetShippingMethod(shippingMethod)
+							if err != nil {
+								return nil, env.ErrorDispatch(err)
+							}
+							currentCheckout.SetShippingRate(shippingRate)
+							if err != nil {
+								return nil, env.ErrorDispatch(err)
+							}
+
+							rateFound = true
+							break
+						}
+					}
+					break
+				}
+			}
+		}
+
+		if !methodFound || !rateFound {
+			return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "279a645c-6a03-44de-95c0-2651a51440fa", "shipping method and/or rate were not found")
+		}
 	}
 
 	return currentCheckout.Submit()

@@ -148,7 +148,7 @@ func APIReceipt(context api.InterfaceApplicationContext) (interface{}, error) {
 
 		completeData, err := CompleteTransaction(checkoutOrder, requestData["token"], requestData["PayerID"])
 		if err != nil {
-			env.Log("paypal.log", env.ConstLogPrefixInfo, "TRANSACTION NOT COMPLETED: "+
+			env.Log(ConstLogStorage, env.ConstLogPrefixInfo, "TRANSACTION NOT COMPLETED: "+
 				"VisitorID - "+utils.InterfaceToString(checkoutOrder.Get("visitor_id"))+", "+
 				"OrderID - "+checkoutOrder.GetID()+", "+
 				"TOKEN - : "+completeData["TOKEN"])
@@ -158,7 +158,7 @@ func APIReceipt(context api.InterfaceApplicationContext) (interface{}, error) {
 
 		checkoutOrder.NewIncrementID()
 
-		checkoutOrder.Set("status", "pending_shipping")
+		checkoutOrder.SetStatus(order.ConstOrderStatusPending)
 		checkoutOrder.Set("payment_info", completeData)
 
 		err = currentCheckout.CheckoutSuccess(checkoutOrder, context.GetSession())
@@ -166,13 +166,7 @@ func APIReceipt(context api.InterfaceApplicationContext) (interface{}, error) {
 			return nil, err
 		}
 
-		// Send confirmation email
-		err = currentCheckout.SendOrderConfirmationMail()
-		if err != nil {
-			return nil, err
-		}
-
-		env.Log("paypal.log", env.ConstLogPrefixInfo, "TRANSACTION COMPLETED: "+
+		env.Log(ConstLogStorage, env.ConstLogPrefixInfo, "TRANSACTION COMPLETED: "+
 			"VisitorID - "+utils.InterfaceToString(checkoutOrder.Get("visitor_id"))+", "+
 			"OrderID - "+checkoutOrder.GetID()+", "+
 			"TOKEN - : "+completeData["TOKEN"])
@@ -212,7 +206,7 @@ func APIDecline(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	checkoutOrder := currentCheckout.GetOrder()
 
-	env.Log("paypal.log", env.ConstLogPrefixInfo, "CANCELED: "+
+	env.Log(ConstLogStorage, env.ConstLogPrefixInfo, "CANCELED: "+
 		"VisitorID - "+utils.InterfaceToString(checkoutOrder.Get("visitor_id"))+", "+
 		"OrderID - "+checkoutOrder.GetID()+", "+
 		"TOKEN - : "+requestData["token"])
