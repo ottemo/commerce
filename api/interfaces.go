@@ -9,8 +9,16 @@ import (
 type InterfaceSessionService interface {
 	GetName() string
 
+	GC() error
+
 	New() (InterfaceSession, error)
 	Get(sessionID string) (InterfaceSession, error)
+
+	Touch(sessionID string) error
+	Close(sessionID string) error
+
+	GetKey(sessionID string, key string) interface{}
+	SetKey(sessionID string, key string, value interface{})
 }
 
 // InterfaceSession is an interface represents private storage for particular API request
@@ -20,12 +28,8 @@ type InterfaceSession interface {
 	Get(key string) interface{}
 	Set(key string, value interface{})
 
-	SetModified()
-
+	Touch() error
 	Close() error
-
-	Load(id string) error
-	Save() error
 }
 
 // InterfaceRestService is an interface to interact with RESTFul API service
