@@ -1,14 +1,13 @@
 package mongo
 
 import (
+	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 	"sort"
 	"strings"
 
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
-
-	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
 )
 
 // converts value from GO representation to DB before usage in queries
@@ -54,11 +53,11 @@ func (it *DBCollection) getSelectorValue(columnName string, operator string, val
 	case ">":
 		return bson.D{bson.DocElem{Name: "$gt", Value: value}}, nil
 	case ">=":
-		return bson.D{bson.DocElem{Name: "$gt", Value: value}}, nil
+		return bson.D{bson.DocElem{Name: "$gte", Value: value}}, nil
 	case "<":
-		return bson.D{bson.DocElem{Name: "$gt", Value: value}}, nil
+		return bson.D{bson.DocElem{Name: "$lt", Value: value}}, nil
 	case "<=":
-		return bson.D{bson.DocElem{Name: "$gt", Value: value}}, nil
+		return bson.D{bson.DocElem{Name: "$lte", Value: value}}, nil
 	case "like":
 		stringValue := utils.InterfaceToString(value)
 		stringValue = strings.Replace(stringValue, "%", ".*", -1)
@@ -208,7 +207,11 @@ func (it *DBCollection) makeSelector() bson.D {
 
 // returns bson.Query struct with applied Sort, Offset, Limit parameters, and executed subqueries
 func (it *DBCollection) prepareQuery() *mgo.Query {
-	query := it.collection.Find(it.makeSelector())
+	selector := it.makeSelector()
+	if ConstMongoDebug {
+		env.Log("mongo.log", env.ConstLogPrefixDebug, it.Name+": "+BsonDToString(selector))
+	}
+	query := it.collection.Find(selector)
 
 	if len(it.Sort) > 0 {
 		query.Sort(it.Sort...)

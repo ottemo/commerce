@@ -42,10 +42,10 @@ func (it *DBEngine) Startup() error {
 	it.DBName = DBName
 	it.collections = map[string]bool{}
 
-	if ConstMongoDebug {
-		mgo.SetDebug(true)
-		mgo.SetLogger(it)
-	}
+	// if ConstMongoDebug {
+	// 	mgo.SetDebug(true)
+	// 	mgo.SetLogger(it)
+	// }
 
 	// timer routine to check connection state and reconnect by perforce
 	ticker := time.NewTicker(ConstConnectionValidateInterval)
