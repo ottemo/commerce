@@ -123,63 +123,64 @@ func APIGetVisits(context api.InterfaceApplicationContext) (interface{}, error) 
 // APIGetVisitsDetails returns detailed site visit information for a specified period
 //   - period start and end dates should be specified in "from" and "to" attributes in DD-MM-YYY format
 func APIGetVisitsDetails(context api.InterfaceApplicationContext) (interface{}, error) {
+
 	result := make(map[string]int)
 
-	requestFromDate := context.GetRequestArgument("from")
-	if requestFromDate == "" {
-		requestFromDate = time.Now().Format("2006-01-02")
-	}
-	fromDate, _ := time.Parse("2006-01-02", requestFromDate)
+	dateFrom := utils.InterfaceToTime(context.GetRequestArgument("from"))
+	dateTo := utils.InterfaceToTime(context.GetRequestArgument("to"))
 
-	requestToDate := context.GetRequestArgument("to")
-	if requestToDate == "" {
-		requestToDate = time.Now().AddDate(0, 0, -1).Format("2006-01-02")
+	// checking if user specified correct from and to dates
+	if dateFrom.IsZero() {
+		dateFrom = time.Now()
 	}
-	toDate, _ := time.Parse("2006-01-02", requestToDate)
 
-	delta := toDate.Sub(fromDate)
+	if dateTo.IsZero() {
+		dateTo = time.Now()
+	}
+
+	dateFrom.Truncate(time.Hour*24)
+	dateTo.Truncate(time.Hour*24)
+
+	// determining required scope
+	delta := dateTo.Sub(dateFrom)
+
+	timeScope := time.Hour
+	if delta.Hours() > 48 {
+		timeScope = timeScope * 24
+	}
+
+	// making database request
 	visitorInfoCollection, err := db.GetCollection(ConstCollectionNameRTSVisitors)
-	if err == nil {
-		visitorInfoCollection.AddFilter("day", ">=", fromDate)
-		visitorInfoCollection.AddFilter("day", "<", toDate)
-		visitorInfoCollection.AddSort("day", false)
-		dbRecord, _ := visitorInfoCollection.Load()
-		dbResult := make(map[string]int)
-		if delta.Hours() > 48 {
-			if len(dbRecord) > 0 {
-				for _, item := range dbRecord {
-					timestamp := fmt.Sprintf("%v", int32(utils.InterfaceToTime(item["day"]).Unix()))
-					dbResult[timestamp] = utils.InterfaceToInt(item["visitors"])
-				}
-			}
-			// group by days
-			for date := fromDate; int32(date.Unix()) < int32(toDate.Unix()); date = date.AddDate(0, 0, 1) {
-				timestamp := fmt.Sprintf("%v", int32(date.Unix()))
-				result[timestamp] = dbResult[timestamp]
-			}
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
 
-		} else {
-			if len(dbRecord) > 0 {
-				details := DecodeDetails(utils.InterfaceToString(dbRecord[0]["details"]))
-				for _, item := range details {
-					timestamp := fmt.Sprintf("%v", int32(utils.InterfaceToTime(item.Time).Unix()))
-					dbResult[timestamp]++
-				}
-			}
-			//	group by hours
-			for date := fromDate; int32(date.Unix()) < int32(toDate.Unix()); date = date.AddDate(0, 0, 1) {
+	visitorInfoCollection.AddFilter("day", ">=", dateFrom)
+	visitorInfoCollection.AddFilter("day", "<", dateTo)
+	visitorInfoCollection.AddSort("day", false)
 
-				timestamp := int32(date.Unix())
-				currentTime := time.Unix(int64(timestamp), 0)
-				for hour := 0; hour < 24; hour++ {
-					timeGroup := time.Date(currentTime.Year(), currentTime.Month(), currentTime.Day(), hour, 0, 0, 0, currentTime.Location())
-					if timeGroup.Unix() > time.Now().Unix() {
-						break
-					}
-					timestamp := fmt.Sprintf("%v", int32(timeGroup.Unix()))
-					result[timestamp] = dbResult[timestamp]
-				}
-			}
+	dbRecords, err := visitorInfoCollection.Load()
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+	println("get in time iterator")
+
+	// filling requested period
+	timeIterator := dateFrom
+	for timeIterator.Before(dateTo) {
+		result[fmt.Sprint(timeIterator.Unix())] = 0
+		println("time iterator is = " + fmt.Sprint(timeIterator.Unix()))
+		timeIterator = timeIterator.Add(timeScope)
+	}
+	println("get out of time iterator ")
+	// grouping database records
+	for _, item := range dbRecords {
+		timestamp := fmt.Sprint(utils.InterfaceToTime(item["day"]).Truncate(timeScope).Unix())
+		visits := utils.InterfaceToInt(item["visitors"])
+
+		println("gogo in range of records " + fmt.Sprint(timestamp))
+		if value, present := result[timestamp]; present {
+			result[timestamp] = value + visits
 		}
 	}
 
