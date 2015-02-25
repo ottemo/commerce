@@ -305,7 +305,7 @@ func APIGetCategoryProducts(context api.InterfaceApplicationContext) (interface{
 	}
 
 	// checking for a "count" request
-	if context.GetRequestArgument("count") != "" {
+	if context.GetRequestArgument(api.ConstRESTActionParameter) == "count" {
 		return productsCollection.GetDBCollection().Count()
 	}
 
