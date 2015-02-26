@@ -124,12 +124,9 @@ func APIGetVisits(context api.InterfaceApplicationContext) (interface{}, error) 
 //   - period start and end dates should be specified in "from" and "to" attributes in DD-MM-YYY format
 func APIGetVisitsDetails(context api.InterfaceApplicationContext) (interface{}, error) {
 
+	// getting initial values
 	result := make(map[string]int)
 	timeZone := context.GetRequestArgument("tz")
-
-	// time zone recognize routines
-
-
 	dateFrom := utils.InterfaceToTime(context.GetRequestArgument("from"))
 	dateTo := utils.InterfaceToTime(context.GetRequestArgument("to"))
 
@@ -142,17 +139,16 @@ func APIGetVisitsDetails(context api.InterfaceApplicationContext) (interface{}, 
 		dateTo = time.Now()
 	}
 
-	dateFrom = utils.ApplyTimeZone(dateFrom, timeZone)
-	dateTo = utils.ApplyTimeZone(dateTo, timeZone)
-
-	fmt.Println("after function :", dateFrom, dateTo)
-
-	dateFrom = dateFrom.Truncate(time.Hour*24)
-	dateTo = dateTo.Truncate(time.Hour*24)
-
 	if dateFrom == dateTo {
 		dateTo = dateTo.Add(time.Hour*24)
 	}
+
+	// time zone recognize routines
+	dateFrom = utils.ApplyTimeZone(dateFrom, timeZone)
+	dateTo = utils.ApplyTimeZone(dateTo, timeZone)
+
+	dateFrom = dateFrom.Truncate(time.Hour*24)
+	dateTo = dateTo.Truncate(time.Hour*24)
 
 	// determining required scope
 	delta := dateTo.Sub(dateFrom)
@@ -240,44 +236,44 @@ func APIGetSales(context api.InterfaceApplicationContext) (interface{}, error) {
 // APIGetSalesDetails returns site sales information for a specified period
 //   - period start and end dates should be specified in "from" and "to" attributes in DD-MM-YYY format
 func APIGetSalesDetails(context api.InterfaceApplicationContext) (interface{}, error) {
+
+	// getting initial values
 	result := make(map[string]int)
+	timeZone := context.GetRequestArgument("tz")
+	dateFrom := utils.InterfaceToTime(context.GetRequestArgument("from"))
+	dateTo := utils.InterfaceToTime(context.GetRequestArgument("to"))
+
 	currentTime := time.Now()
-
-	requestFromDate := context.GetRequestArgument("from")
-	if requestFromDate == "" {
-		requestFromDate = currentTime.Format("2006-01-02")
-	}
-	fromDate, _ := time.Parse("2006-01-02", requestFromDate)
-
-	requestToDate := context.GetRequestArgument("to")
-	if requestToDate == "" {
-		requestToDate = currentTime.AddDate(0, 0, -1).Format("2006-01-02")
-	}
-	toDate, _ := time.Parse("2006-01-02", requestToDate)
-
 	hashCode := md5.New()
-	io.WriteString(hashCode, requestFromDate+"/"+requestToDate)
+	io.WriteString(hashCode, fmt.Sprint(dateFrom) + "/" + fmt.Sprint(dateTo))
 	periodHash := fmt.Sprintf("%x", hashCode.Sum(nil))
 
+	// checking if user specified correct from and to dates
+	if dateFrom.IsZero() {
+		dateFrom = currentTime
+	}
+
+	if dateTo.IsZero() {
+		dateTo = currentTime
+	}
+
+	if dateFrom == dateTo {
+		dateTo = dateTo.Add(time.Hour*24)
+	}
+
+	// time zone recognize routines
+	dateFrom = utils.ApplyTimeZone(dateFrom, timeZone)
+	dateTo = utils.ApplyTimeZone(dateTo, timeZone)
+
+	dateFrom = dateFrom.Truncate(time.Hour*24)
+	dateTo = dateTo.Truncate(time.Hour*24)
+
+	// GetSalesDetail included function
 	if _, ok := salesDetail[periodHash]; !ok {
 		salesDetail[periodHash] = &SalesDetailData{Data: make(map[string]int)}
 
-		GetSalesDetail(fromDate, toDate, periodHash)
+		GetSalesDetail(dateFrom, dateTo, periodHash)
 
-	} else {
-		// check last updates
-		if salesDetail[periodHash].lastUpdate == 0 {
-
-			GetSalesDetail(fromDate, toDate, periodHash)
-
-		} else {
-			currDate, _ := time.Parse("2006-01-02", time.Now().Format("2006-01-02"))
-			lastUpdate, _ := time.Parse("2006-01-02", time.Unix(int64(salesDetail[periodHash].lastUpdate), 0).Format("2006-01-02"))
-			delta := currDate.Sub(lastUpdate)
-			if delta > 1 { // Updates the sales data if they older than 1 hour
-				GetSalesDetail(fromDate, toDate, periodHash)
-			}
-		}
 	}
 
 	result = salesDetail[periodHash].Data

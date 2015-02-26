@@ -321,7 +321,7 @@ func GetTotalSales(fromDate time.Time, toDate time.Time) error {
 }
 
 // GetSalesDetail will return the sale data for the given time period
-func GetSalesDetail(fromDate time.Time, toDate time.Time, hash string) error {
+func GetSalesDetail(dateFrom time.Time, dateTo time.Time, hash string) error {
 
 	orderCollectionModelT, err := order.GetOrderCollectionModel()
 	if err != nil {
@@ -331,55 +331,39 @@ func GetSalesDetail(fromDate time.Time, toDate time.Time, hash string) error {
 	dbCollection := orderCollectionModelT.GetDBCollection()
 	dbCollection.SetResultColumns("_id", "created_at")
 	dbCollection.AddSort("created_at", false)
-
-	dateFrom := time.Date(fromDate.Year(), fromDate.Month(), fromDate.Day(), 0, 0, 0, 0, fromDate.Location())
 	dbCollection.AddFilter("created_at", ">=", dateFrom)
-
-	dateTo := time.Date(toDate.Year(), toDate.Month(), toDate.Day(), 0, 0, 0, 0, toDate.Location())
 	dbCollection.AddFilter("created_at", "<=", dateTo)
 
-	// filters handle for yesterday
-	list, err := dbCollection.Load()
+	// get database records
+	dbRecords, err := dbCollection.Load()
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	delta := toDate.Sub(fromDate)
+	// determining required scope
+	delta := dateTo.Sub(dateFrom)
+
+	timeScope := time.Hour
+	if delta.Hours() > 48 {
+		timeScope = timeScope * 24
+	}
+
 	salesDetail[hash] = &SalesDetailData{Data: make(map[string]int)}
-	if delta.Hours() > 48 { // group by days
-		// fills the data a zero
-		for date := fromDate; int32(date.Unix()) < int32(toDate.Unix()); date = date.AddDate(0, 0, 1) {
-			timestamp := int64(date.Unix())
-			mapIndex := GetDayForTimestamp(timestamp, false)
 
-			salesDetail[hash].Data[mapIndex] = 0
-		}
-		// counts items
-		for _, order := range list {
-			timestamp := int64(utils.InterfaceToTime(order["created_at"]).Unix())
-			mapIndex := GetDayForTimestamp(timestamp, false)
+	// filling requested period
+	timeIterator := dateFrom
+	for timeIterator.Before(dateTo) {
+		salesDetail[hash].Data[fmt.Sprint(timeIterator.Unix())] = 0
+		timeIterator = timeIterator.Add(timeScope)
+	}
 
-			salesDetail[hash].Data[mapIndex]++
-		}
-	} else { // group by hours
+	// grouping database records
+	for _, order := range dbRecords {
+		timestamp := fmt.Sprint(utils.InterfaceToTime(order["created_at"]).Truncate(timeScope).Unix())
 
-		for date := fromDate; int32(date.Unix()) < int32(toDate.Unix()); date = date.AddDate(0, 0, 1) {
-			timestamp := int64(date.Unix())
-			currentTime := time.Unix(int64(timestamp), 0)
-			for hour := 0; hour < 24; hour++ {
-				timeGroup := time.Date(currentTime.Year(), currentTime.Month(), currentTime.Day(), hour, 0, 0, 0, currentTime.Location())
-				if timeGroup.Unix() > time.Now().Unix() {
-					break
-				}
-				mapIndex := fmt.Sprintf("%v", int32(timeGroup.Unix()))
-				salesDetail[hash].Data[mapIndex] = 0
-			}
-		}
-		for _, order := range list {
-			timestamp := int64(utils.InterfaceToTime(order["created_at"]).Unix())
-			mapIndex := GetDayForTimestamp(timestamp, true)
 
-			salesDetail[hash].Data[mapIndex]++
+		if _, present := salesDetail[hash].Data[timestamp]; present {
+			salesDetail[hash].Data[timestamp]++
 		}
 	}
 
