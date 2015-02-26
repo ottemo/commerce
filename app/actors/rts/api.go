@@ -125,6 +125,10 @@ func APIGetVisits(context api.InterfaceApplicationContext) (interface{}, error) 
 func APIGetVisitsDetails(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	result := make(map[string]int)
+	timeZone := context.GetRequestArgument("tz")
+
+	// time zone recognize routines
+
 
 	dateFrom := utils.InterfaceToTime(context.GetRequestArgument("from"))
 	dateTo := utils.InterfaceToTime(context.GetRequestArgument("to"))
@@ -138,8 +142,17 @@ func APIGetVisitsDetails(context api.InterfaceApplicationContext) (interface{}, 
 		dateTo = time.Now()
 	}
 
-	dateFrom.Truncate(time.Hour*24)
-	dateTo.Truncate(time.Hour*24)
+	dateFrom = utils.ApplyTimeZone(dateFrom, timeZone)
+	dateTo = utils.ApplyTimeZone(dateTo, timeZone)
+
+	fmt.Println("after function :", dateFrom, dateTo)
+
+	dateFrom = dateFrom.Truncate(time.Hour*24)
+	dateTo = dateTo.Truncate(time.Hour*24)
+
+	if dateFrom == dateTo {
+		dateTo = dateTo.Add(time.Hour*24)
+	}
 
 	// determining required scope
 	delta := dateTo.Sub(dateFrom)
@@ -163,22 +176,19 @@ func APIGetVisitsDetails(context api.InterfaceApplicationContext) (interface{}, 
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
-	println("get in time iterator")
 
 	// filling requested period
 	timeIterator := dateFrom
 	for timeIterator.Before(dateTo) {
 		result[fmt.Sprint(timeIterator.Unix())] = 0
-		println("time iterator is = " + fmt.Sprint(timeIterator.Unix()))
 		timeIterator = timeIterator.Add(timeScope)
 	}
-	println("get out of time iterator ")
+
 	// grouping database records
 	for _, item := range dbRecords {
 		timestamp := fmt.Sprint(utils.InterfaceToTime(item["day"]).Truncate(timeScope).Unix())
 		visits := utils.InterfaceToInt(item["visitors"])
 
-		println("gogo in range of records " + fmt.Sprint(timestamp))
 		if value, present := result[timestamp]; present {
 			result[timestamp] = value + visits
 		}
