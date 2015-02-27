@@ -321,7 +321,7 @@ func GetTotalSales(fromDate time.Time, toDate time.Time) error {
 }
 
 // GetSalesDetail will return the sale data for the given time period
-func GetSalesDetail(dateFrom time.Time, dateTo time.Time, hash string) error {
+func GetSalesDetail(dateFrom time.Time, dateTo time.Time, periodHash string) error {
 
 	orderCollectionModelT, err := order.GetOrderCollectionModel()
 	if err != nil {
@@ -348,12 +348,12 @@ func GetSalesDetail(dateFrom time.Time, dateTo time.Time, hash string) error {
 		timeScope = timeScope * 24
 	}
 
-	salesDetail[hash] = &SalesDetailData{Data: make(map[string]int)}
+	salesDetail[periodHash] = &SalesDetailData{Data: make(map[string]int)}
 
 	// filling requested period
 	timeIterator := dateFrom
 	for timeIterator.Before(dateTo) {
-		salesDetail[hash].Data[fmt.Sprint(timeIterator.Unix())] = 0
+		salesDetail[periodHash].Data[fmt.Sprint(timeIterator.Unix())] = 0
 		timeIterator = timeIterator.Add(timeScope)
 	}
 
@@ -361,13 +361,12 @@ func GetSalesDetail(dateFrom time.Time, dateTo time.Time, hash string) error {
 	for _, order := range dbRecords {
 		timestamp := fmt.Sprint(utils.InterfaceToTime(order["created_at"]).Truncate(timeScope).Unix())
 
-
-		if _, present := salesDetail[hash].Data[timestamp]; present {
-			salesDetail[hash].Data[timestamp]++
+		if _, present := salesDetail[periodHash].Data[timestamp]; present {
+			salesDetail[periodHash].Data[timestamp]++
 		}
 	}
 
-	salesDetail[hash].lastUpdate = time.Now().Unix()
+	salesDetail[periodHash].lastUpdate = time.Now().Unix()
 
 	return nil
 }
@@ -389,13 +388,15 @@ func GetDayForTimestamp(timestamp int64, byHour bool) string {
 // GetTodayVisitorsData will return Visitor data for Today
 func GetTodayVisitorsData() error {
 	currentTime := time.Now()
-	today := time.Date(currentTime.Year(), currentTime.Month(), currentTime.Day(), currentTime.Hour(), 0, 0, 0, currentTime.Location())
+
+	today := currentTime.Truncate(time.Hour * 24)
 
 	if visitorsInfoToday.Day == today.In(time.UTC) {
 		return nil
 	}
 
-	yesterday := time.Date(currentTime.AddDate(0, 0, -1).Year(), currentTime.AddDate(0, 0, -1).Month(), currentTime.AddDate(0, 0, -1).Day(), currentTime.AddDate(0, 0, -1).Hour(), 0, 0, 0, currentTime.Location())
+	yesterday := today.AddDate(0, 0, -1)
+
 	if visitorsInfoToday.Day == yesterday {
 		SaveVisitorData()
 		visitorsInfoYesterday = visitorsInfoToday
@@ -499,4 +500,30 @@ func DecodeDetails(detailsString string) map[string]*VisitorDetail {
 	_ = json.Unmarshal([]byte(detailsString), &details)
 
 	return details
+}
+
+// Transfer current time to local and get visits for that period
+// input timezone in format: "PCT+2", "UTC-02", "EET+112345".
+func visitsSummariseForLocalDay(currentDay time.Time, timeZone string) (int, int) {
+
+	// Convert period to requested time zone
+	today := utils.ApplyTimeZone(currentDay, timeZone)
+	today = today.Truncate(time.Hour)
+	yesterday := today.AddDate(0, 0, -1)
+
+	visitsToday := 0
+	visitsYesterday := 0
+
+	// Go thru one day and summarise a visits
+	for i := time.Hour; i < 24*time.Hour; i = i + time.Hour {
+
+		if visit, present := visits[(today.Add(i * time.Hour)).Unix()]; present {
+			visitsToday = visitsToday + visit
+		}
+
+		if visit, present := visits[(yesterday.Add(i * time.Hour)).Unix()]; present {
+			visitsYesterday = visitsYesterday + visit
+		}
+	}
+	return visitsToday, visitsYesterday
 }

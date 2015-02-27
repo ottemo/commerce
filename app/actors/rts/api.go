@@ -103,17 +103,39 @@ func APIGetVisits(context api.InterfaceApplicationContext) (interface{}, error) 
 		return result, nil
 	}
 
-	result["visitsToday"] = visitorsInfoToday.Visitors
-	result["ratio"] = 1
-
 	err = GetYesterdayVisitorsData()
 	if err != nil {
 		return result, nil
 	}
-	countYesterday := visitorsInfoYesterday.Visitors
+
 	countToday := visitorsInfoToday.Visitors
-	if countYesterday != 0 {
+	countYesterday := visitorsInfoYesterday.Visitors
+
+	result["visitsToday"] = countToday
+	result["visitsYesterday"] = countYesterday
+	result["ratio"] = 1
+
+	if countYesterday > 0 {
 		ratio := float64(countToday)/float64(countYesterday) - float64(1)
+		result["ratio"] = utils.Round(ratio, 0.5, 2)
+	}
+
+	return result, nil
+}
+
+// APIGetVisits returns site visit information for a day _ver 2
+func APIGetVisitsVerTwo(context api.InterfaceApplicationContext) (interface{}, error) {
+	result := make(map[string]interface{})
+	timeZone := context.GetRequestArgument("tz")
+
+	visitsToday, visitsYesterday := visitsSummariseForLocalDay(time.Now(), timeZone)
+
+	result["visitsToday"] = visitsToday
+	result["visitsYesterday"] = visitsYesterday
+	result["ratio"] = 1
+
+	if visitsYesterday > 0 {
+		ratio := float64(visitsToday)/float64(visitsYesterday) - float64(1)
 		result["ratio"] = utils.Round(ratio, 0.5, 2)
 	}
 
@@ -140,15 +162,15 @@ func APIGetVisitsDetails(context api.InterfaceApplicationContext) (interface{}, 
 	}
 
 	if dateFrom == dateTo {
-		dateTo = dateTo.Add(time.Hour*24)
+		dateTo = dateTo.Add(time.Hour * 24)
 	}
 
 	// time zone recognize routines
 	dateFrom = utils.ApplyTimeZone(dateFrom, timeZone)
 	dateTo = utils.ApplyTimeZone(dateTo, timeZone)
 
-	dateFrom = dateFrom.Truncate(time.Hour*24)
-	dateTo = dateTo.Truncate(time.Hour*24)
+	dateFrom = dateFrom.Truncate(time.Hour * 24)
+	dateTo = dateTo.Truncate(time.Hour * 24)
 
 	// determining required scope
 	delta := dateTo.Sub(dateFrom)
@@ -245,7 +267,7 @@ func APIGetSalesDetails(context api.InterfaceApplicationContext) (interface{}, e
 
 	currentTime := time.Now()
 	hashCode := md5.New()
-	io.WriteString(hashCode, fmt.Sprint(dateFrom) + "/" + fmt.Sprint(dateTo))
+	io.WriteString(hashCode, fmt.Sprint(dateFrom)+"/"+fmt.Sprint(dateTo))
 	periodHash := fmt.Sprintf("%x", hashCode.Sum(nil))
 
 	// checking if user specified correct from and to dates
@@ -258,15 +280,15 @@ func APIGetSalesDetails(context api.InterfaceApplicationContext) (interface{}, e
 	}
 
 	if dateFrom == dateTo {
-		dateTo = dateTo.Add(time.Hour*24)
+		dateTo = dateTo.Add(time.Hour * 24)
 	}
 
 	// time zone recognize routines
 	dateFrom = utils.ApplyTimeZone(dateFrom, timeZone)
 	dateTo = utils.ApplyTimeZone(dateTo, timeZone)
 
-	dateFrom = dateFrom.Truncate(time.Hour*24)
-	dateTo = dateTo.Truncate(time.Hour*24)
+	dateFrom = dateFrom.Truncate(time.Hour * 24)
+	dateTo = dateTo.Truncate(time.Hour * 24)
 
 	// GetSalesDetail included function
 	if _, ok := salesDetail[periodHash]; !ok {
