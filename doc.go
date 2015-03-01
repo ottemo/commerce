@@ -33,7 +33,10 @@ Project structure and convections outline:
 	    decl.go              | declarations of structures/variables/constants package wants to share
 	    init.go              | package initialization routines, i.e. init() function
 	                         | (refer http://golang.org/ref/spec#Package_initialization)
+                             |
+	    doc.go               | package description for GO doc
 	                         |
+	    config.go            | configuration values and their validators declaration
 	    interfaces.go        | declaration of interfaces provided by package
 	    manager.go           | routines for register/unregister package interface implementations
 	                         |

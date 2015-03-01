@@ -9,6 +9,20 @@ with concrete database engine (as Ottemo supposing ability to work with differen
 
 Providing Ottemo with a new database engine supposes implementation of "InterfaceDBEngine" with following registration
 for db package.
+
+For database type specification you should refer this package for possible types.
+
+	Example:
+	--------
+	collection, err := db.GetCollection( myCollectionName )
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	collection.AddColumn("customer_id", db.ConstTypeID, false)
+	collection.AddColumn("customer_email", db.TypeWPrecision(db.ConstTypeVarchar, 100), true)
+	collection.AddColumn("bonus_code", db.ConstTypeInteger, false)
+	collection.AddColumn("bonus_amount", db.ConstTypeInteger, false)
+
 */
 package db
-
