@@ -320,57 +320,6 @@ func GetTotalSales(fromDate time.Time, toDate time.Time) error {
 	return nil
 }
 
-// GetSalesDetail will return the sale data for the given time period
-func GetSalesDetail(dateFrom time.Time, dateTo time.Time, periodHash string) error {
-
-	orderCollectionModelT, err := order.GetOrderCollectionModel()
-	if err != nil {
-		return env.ErrorDispatch(err)
-	}
-
-	dbCollection := orderCollectionModelT.GetDBCollection()
-	dbCollection.SetResultColumns("_id", "created_at")
-	dbCollection.AddSort("created_at", false)
-	dbCollection.AddFilter("created_at", ">=", dateFrom)
-	dbCollection.AddFilter("created_at", "<=", dateTo)
-
-	// get database records
-	dbRecords, err := dbCollection.Load()
-	if err != nil {
-		return env.ErrorDispatch(err)
-	}
-
-	// determining required scope
-	delta := dateTo.Sub(dateFrom)
-
-	timeScope := time.Hour
-	if delta.Hours() > 48 {
-		timeScope = timeScope * 24
-	}
-
-	salesDetail[periodHash] = &SalesDetailData{Data: make(map[string]int)}
-
-	// filling requested period
-	timeIterator := dateFrom
-	for timeIterator.Before(dateTo) {
-		salesDetail[periodHash].Data[fmt.Sprint(timeIterator.Unix())] = 0
-		timeIterator = timeIterator.Add(timeScope)
-	}
-
-	// grouping database records
-	for _, order := range dbRecords {
-		timestamp := fmt.Sprint(utils.InterfaceToTime(order["created_at"]).Truncate(timeScope).Unix())
-
-		if _, present := salesDetail[periodHash].Data[timestamp]; present {
-			salesDetail[periodHash].Data[timestamp]++
-		}
-	}
-
-	salesDetail[periodHash].lastUpdate = time.Now().Unix()
-
-	return nil
-}
-
 // GetDayForTimestamp returns the day or hour for the given time
 func GetDayForTimestamp(timestamp int64, byHour bool) string {
 	currentTime := time.Unix(timestamp, 0)
@@ -504,7 +453,46 @@ func DecodeDetails(detailsString string) map[string]*VisitorDetail {
 
 // Transfer current time to local and get visits for that period
 // input timezone in format: "PCT+2", "UTC-02", "EET+112345".
-func visitsSummariseForLocalDay(currentDay time.Time, timeZone string) (int, int) {
+
+
+// Get pasted hours of current local day using time zone
+func GetLocalOneDayBefore(todayTo time.Time, timeZone string) (time.Time, time.Time) {
+
+	// Convert period to requested time zone
+	dateTo := utils.ApplyTimeZone(todayTo, timeZone)
+
+	// Get it current size in hours
+	daySize := dateTo.Sub(dateTo.Truncate(time.Hour*24))
+
+	todayFrom := dateTo.Add(-daySize)
+	yesterdayFrom := todayFrom.AddDate(0, 0, -1)
+
+	return todayFrom, yesterdayFrom
+}
+
+// Get Sales for range
+func GetRangeSales(dateFrom, dateTo  time.Time ) (int, error) {
+
+	orderCollectionModelT, err := order.GetOrderCollectionModel()
+	if err != nil {
+		return 0, env.ErrorDispatch(err)
+	}
+
+	dbCollection := orderCollectionModelT.GetDBCollection()
+
+	dbCollection.AddFilter("created_at", ">=", dateFrom)
+	dbCollection.AddFilter("created_at", "<=", dateTo)
+
+	// filters handle for today
+	sales, err := dbCollection.Count()
+	if err != nil {
+		return 0, env.ErrorDispatch(err)
+	}
+
+	return sales, nil
+}
+
+func GetRangeVisits(dateFrom, dateTo  time.Time) (int, int) {
 
 	// Convert period to requested time zone
 	today := utils.ApplyTimeZone(currentDay, timeZone)

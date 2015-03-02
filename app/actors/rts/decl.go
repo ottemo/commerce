@@ -34,7 +34,6 @@ var (
 
 	sales       = new(Sales)                        // amount of sales for today (created orders)
 	salesDetail = make(map[string]*SalesDetailData) // sales details on day/hour basis (used for dashboard graphs)
-	topSellers  = new(TopSellers)                   // top sellers information
 	visits      = make(map[int64]int)
 
 	// OnlineSessions holds session based information about referer type on first visit

@@ -1,13 +1,12 @@
 package rts
 
 import (
-	"crypto/md5"
 	"fmt"
-	"io"
 	"net/http"
 	"time"
 
 	"github.com/ottemo/foundation/api"
+	"github.com/ottemo/foundation/app/models/order"
 	"github.com/ottemo/foundation/app/models/product"
 	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/env"
@@ -128,16 +127,31 @@ func APIGetVisitsVerTwo(context api.InterfaceApplicationContext) (interface{}, e
 	result := make(map[string]interface{})
 	timeZone := context.GetRequestArgument("tz")
 
-	visitsToday, visitsYesterday := visitsSummariseForLocalDay(time.Now(), timeZone)
+	// get a hours pasted for local day
+	todayTo := time.Now().Truncate(time.Hour)
+	todayFrom, yesterdayFrom := GetLocalOneDayBefore(todayTo, timeZone)
 
-	result["visitsToday"] = visitsToday
-	result["visitsYesterday"] = visitsYesterday
-	result["ratio"] = 1
-
-	if visitsYesterday > 0 {
-		ratio := float64(visitsToday)/float64(visitsYesterday) - float64(1)
-		result["ratio"] = utils.Round(ratio, 0.5, 2)
+	// get data for visits
+	todayVisits, err := GetRangeVisits(todayFrom, todayTo)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
 	}
+
+	yesterdayVisits, _ := GetRangeVisits(yesterdayFrom, todayFrom)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	// count ratio for current data
+	ratio := float64(1)
+	if yesterdayVisits !=0 {
+		ratio = float64(todayVisits)/float64(yesterdayVisits) - float64(1)
+	}
+
+	// Returns the data
+	result["visitsToday"] = todayVisits
+	result["visitsYesterday"] = yesterdayVisits
+	result["ratio"] = ratio
 
 	return result, nil
 }
@@ -166,8 +180,10 @@ func APIGetVisitsDetails(context api.InterfaceApplicationContext) (interface{}, 
 	}
 
 	// time zone recognize routines
-	dateFrom = utils.ApplyTimeZone(dateFrom, timeZone)
-	dateTo = utils.ApplyTimeZone(dateTo, timeZone)
+	if timeZone != "" {
+		dateFrom = utils.ApplyTimeZone(dateFrom, timeZone)
+		dateTo = utils.ApplyTimeZone(dateTo, timeZone)
+	}
 
 	dateFrom = dateFrom.Truncate(time.Hour * 24)
 	dateTo = dateTo.Truncate(time.Hour * 24)
@@ -227,33 +243,43 @@ func APIGetConversion(context api.InterfaceApplicationContext) (interface{}, err
 	return result, nil
 }
 
-// APIGetSales returns information on site sales for today
+
+// NEW type of get sales
 func APIGetSales(context api.InterfaceApplicationContext) (interface{}, error) {
+
 	result := make(map[string]interface{})
+	timeZone := context.GetRequestArgument("tz")
 
-	currDate, _ := time.Parse("2006-01-02", time.Now().Format("2006-01-02"))
-	yesterdayDate, _ := time.Parse("2006-01-02", currDate.AddDate(0, 0, -1).Format("2006-01-02"))
+	// get a hours pasted for local day
+	todayTo := time.Now().Truncate(time.Hour)
+	todayFrom, yesterdayFrom := GetLocalOneDayBefore(todayTo, timeZone)
 
-	if sales.lastUpdate == 0 { // Init sales data
-		GetTotalSales(currDate, yesterdayDate)
-		result["today"] = sales.today
-		result["ratio"] = sales.ratio
-	} else {
-		lastUpdate, _ := time.Parse("2006-01-02", time.Unix(int64(sales.lastUpdate), 0).Format("2006-01-02"))
-		delta := currDate.Sub(lastUpdate)
-		if delta > 1 { // Updates the sales data if they older 1 hour
-			GetTotalSales(currDate, yesterdayDate)
-			result["today"] = sales.today
-			result["ratio"] = sales.ratio
-		} else {
-			// Returns the  existing data
-			result["today"] = sales.today
-			result["ratio"] = sales.ratio
-		}
+	// get data for sales
+
+	todaySales, err := GetRangeSales(todayFrom, todayTo)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
 	}
+
+	yesterdaySales, _ := GetRangeSales(yesterdayFrom, todayFrom)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	// count ratio for current data
+	ratio := float64(1)
+	if yesterdaySales !=0 {
+		ratio = float64(todaySales)/float64(yesterdaySales) - float64(1)
+	}
+
+	// Returns the data
+	result["today"] = todaySales
+	result["yesterday"] = yesterdaySales
+	result["ratio"] = ratio
 
 	return result, nil
 }
+
 
 // APIGetSalesDetails returns site sales information for a specified period
 //   - period start and end dates should be specified in "from" and "to" attributes in DD-MM-YYY format
@@ -266,9 +292,6 @@ func APIGetSalesDetails(context api.InterfaceApplicationContext) (interface{}, e
 	dateTo := utils.InterfaceToTime(context.GetRequestArgument("to"))
 
 	currentTime := time.Now()
-	hashCode := md5.New()
-	io.WriteString(hashCode, fmt.Sprint(dateFrom)+"/"+fmt.Sprint(dateTo))
-	periodHash := fmt.Sprintf("%x", hashCode.Sum(nil))
 
 	// checking if user specified correct from and to dates
 	if dateFrom.IsZero() {
@@ -290,15 +313,47 @@ func APIGetSalesDetails(context api.InterfaceApplicationContext) (interface{}, e
 	dateFrom = dateFrom.Truncate(time.Hour * 24)
 	dateTo = dateTo.Truncate(time.Hour * 24)
 
-	// GetSalesDetail included function
-	if _, ok := salesDetail[periodHash]; !ok {
-		salesDetail[periodHash] = &SalesDetailData{Data: make(map[string]int)}
+	// determining required scope
+	delta := dateTo.Sub(dateFrom)
 
-		GetSalesDetail(dateFrom, dateTo, periodHash)
-
+	timeScope := time.Hour
+	if delta.Hours() > 48 {
+		timeScope = timeScope * 24
 	}
 
-	result = salesDetail[periodHash].Data
+	// set database request settings
+	orderCollectionModelT, err := order.GetOrderCollectionModel()
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	dbCollection := orderCollectionModelT.GetDBCollection()
+	dbCollection.SetResultColumns("_id", "created_at")
+	dbCollection.AddSort("created_at", false)
+	dbCollection.AddFilter("created_at", ">=", dateFrom)
+	dbCollection.AddFilter("created_at", "<=", dateTo)
+
+	// get database records
+	dbRecords, err := dbCollection.Load()
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	// filling requested period
+	timeIterator := dateFrom
+	for timeIterator.Before(dateTo) {
+		result[fmt.Sprint(timeIterator.Unix())] = 0
+		timeIterator = timeIterator.Add(timeScope)
+	}
+
+	// grouping database records
+	for _, order := range dbRecords {
+		timestamp := fmt.Sprint(utils.InterfaceToTime(order["created_at"]).Truncate(timeScope).Unix())
+
+		if _, present := result[timestamp]; present {
+			result[timestamp]++
+		}
+	}
 
 	return result, nil
 }
@@ -320,25 +375,21 @@ func APIGetBestsellers(context api.InterfaceApplicationContext) (interface{}, er
 		productID := utils.InterfaceToString(item["product_id"])
 		result[productID] = &SellerInfo{}
 
-		if _, ok := topSellers.Data[productID]; !ok {
-
-			productInstance, err := product.LoadProductByID(productID)
-			if err != nil {
-				return nil, env.ErrorDispatch(err)
-			}
-
-			mediaPath, err := productInstance.GetMediaPath("image")
-			if err != nil {
-				return result, env.ErrorDispatch(err)
-			}
-
-			if productInstance.GetDefaultImage() != "" {
-				result[productID].Image = mediaPath + productInstance.GetDefaultImage()
-			}
-
-			result[productID].Name = productInstance.GetName()
+		productInstance, err := product.LoadProductByID(productID)
+		if err != nil {
+			return nil, env.ErrorDispatch(err)
 		}
 
+		mediaPath, err := productInstance.GetMediaPath("image")
+		if err != nil {
+			return result, env.ErrorDispatch(err)
+		}
+
+		if productInstance.GetDefaultImage() != "" {
+			result[productID].Image = mediaPath + productInstance.GetDefaultImage()
+		}
+
+		result[productID].Name = productInstance.GetName()
 		result[productID].Count = utils.InterfaceToInt(item["count"])
 	}
 
