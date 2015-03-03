@@ -226,6 +226,8 @@ var timeZones = map[string]time.Duration {
 	"Z":      0 * time.Hour + 00 * time.Minute,
 }
 
+
+// ApplyTimeZone adds timeZone offset to a given time (given time considered as UTC timezone time)
 func ApplyTimeZone(inTime time.Time, timeZone string) time.Time {
 	result := time.Date(inTime.Year(), inTime.Month(), inTime.Day(), inTime.Hour(), inTime.Minute(), inTime.Second(), inTime.Nanosecond(), time.UTC)
 
@@ -267,6 +269,7 @@ func ApplyTimeZone(inTime time.Time, timeZone string) time.Time {
 	return result
 }
 
+// ConvertTimeToUTC returns a given time in UTC timezone (converts timezone to offset for UTC)
 func ConvertTimeToUTC(inTime time.Time) time.Time {
 	result := time.Date(inTime.Year(), inTime.Month(), inTime.Day(), inTime.Hour(), inTime.Minute(), inTime.Second(), inTime.Nanosecond(), time.UTC)
 

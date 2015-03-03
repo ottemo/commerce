@@ -1,7 +1,6 @@
 package rts
 
 import (
-	"encoding/json"
 	"fmt"
 	"regexp"
 	"strings"
@@ -272,54 +271,6 @@ func GetSalesRange() string {
 	return _range
 }
 
-// GetTotalSales will create the totals for current sales data
-func GetTotalSales(fromDate time.Time, toDate time.Time) error {
-
-	orderCollectionModelT, err := order.GetOrderCollectionModel()
-	if err != nil {
-		return env.ErrorDispatch(err)
-	}
-
-	dbCollection := orderCollectionModelT.GetDBCollection()
-
-	todayFrom := time.Date(fromDate.Year(), fromDate.Month(), fromDate.Day(), 0, 0, 0, 0, fromDate.Location())
-	todayTo := time.Date(fromDate.Year(), fromDate.Month(), fromDate.Day(), 23, 59, 59, 0, fromDate.Location())
-
-	dbCollection.AddFilter("created_at", ">=", todayFrom)
-	dbCollection.AddFilter("created_at", "<=", todayTo)
-
-	// filters handle for today
-	today, err := dbCollection.Count()
-	if err != nil {
-		return env.ErrorDispatch(err)
-	}
-
-	dbCollection.ClearFilters()
-	yesterdayFrom := time.Date(toDate.Year(), toDate.Month(), toDate.Day(), 0, 0, 0, 0, toDate.Location())
-	yesterdayTo := time.Date(toDate.Year(), toDate.Month(), toDate.Day(), 23, 59, 59, 0, toDate.Location())
-
-	dbCollection.AddFilter("created_at", ">=", yesterdayFrom)
-	dbCollection.AddFilter("created_at", "<=", yesterdayTo)
-
-	// filters handle for yesterday
-	yesterday, err := dbCollection.Count()
-	if err != nil {
-		return env.ErrorDispatch(err)
-	}
-
-	ratio := float64(1)
-	if 0 != yesterday {
-		ratio = float64(today)/float64(yesterday) - float64(1)
-	}
-
-	sales.ratio = ratio
-	sales.today = today
-	sales.lastUpdate = time.Now().Unix()
-	sales.yesterday = yesterday
-
-	return nil
-}
-
 // GetDayForTimestamp returns the day or hour for the given time
 func GetDayForTimestamp(timestamp int64, byHour bool) string {
 	currentTime := time.Unix(timestamp, 0)
@@ -334,135 +285,17 @@ func GetDayForTimestamp(timestamp int64, byHour bool) string {
 	return mapIndex
 }
 
-// GetTodayVisitorsData will return Visitor data for Today
-func GetTodayVisitorsData() error {
-	currentTime := time.Now()
-
-	today := currentTime.Truncate(time.Hour * 24)
-
-	if visitorsInfoToday.Day == today.In(time.UTC) {
-		return nil
-	}
-
-	yesterday := today.AddDate(0, 0, -1)
-
-	if visitorsInfoToday.Day == yesterday {
-		SaveVisitorData()
-		visitorsInfoYesterday = visitorsInfoToday
-	}
-	visitorInfoCollection, err := db.GetCollection(ConstCollectionNameRTSVisitors)
-	if err == nil {
-		visitorInfoCollection.AddFilter("day", "=", today)
-		dbRecord, _ := visitorInfoCollection.Load()
-
-		if len(dbRecord) > 0 {
-			visitorsInfoToday.ID = utils.InterfaceToString(dbRecord[0]["_id"])
-			visitorsInfoToday.Day = utils.InterfaceToTime(dbRecord[0]["day"])
-			visitorsInfoToday.Visitors = utils.InterfaceToInt(dbRecord[0]["visitors"])
-			visitorsInfoToday.Cart = utils.InterfaceToInt(dbRecord[0]["cart"])
-			visitorsInfoToday.Checkout = utils.InterfaceToInt(dbRecord[0]["checkout"])
-			visitorsInfoToday.Sales = utils.InterfaceToInt(dbRecord[0]["sales"])
-			visitorsInfoToday.Details = DecodeDetails(utils.InterfaceToString(dbRecord[0]["details"]))
-
-			return nil
-		}
-	}
-
-	visitorsInfoToday = new(dbVisitorsRow)
-	visitorsInfoToday.ID = ""
-	visitorsInfoToday.Day = today
-	visitorsInfoToday.Details = make(map[string]*VisitorDetail)
-
-	return nil
-}
-
-// GetYesterdayVisitorsData will build a collection of data representing yesterdays Visitor statistics
-func GetYesterdayVisitorsData() error {
-	currentTime := time.Now().AddDate(0, 0, -1)
-	yesterday := time.Date(currentTime.Year(), currentTime.Month(), currentTime.Day(), 0, 0, 0, 0, currentTime.Location())
-
-	if visitorsInfoYesterday.Day == yesterday {
-		return nil
-	}
-
-	visitorInfoCollection, err := db.GetCollection(ConstCollectionNameRTSVisitors)
-	if err == nil {
-		visitorInfoCollection.AddFilter("day", "=", yesterday)
-		dbRecord, _ := visitorInfoCollection.Load()
-
-		if len(dbRecord) > 0 {
-			visitorsInfoYesterday.ID = utils.InterfaceToString(dbRecord[0]["_id"])
-			visitorsInfoYesterday.Day = utils.InterfaceToTime(dbRecord[0]["day"])
-			visitorsInfoYesterday.Visitors = utils.InterfaceToInt(dbRecord[0]["visitors"])
-			visitorsInfoYesterday.Cart = utils.InterfaceToInt(dbRecord[0]["cart"])
-			visitorsInfoYesterday.Checkout = utils.InterfaceToInt(dbRecord[0]["checkout"])
-			visitorsInfoYesterday.Sales = utils.InterfaceToInt(dbRecord[0]["sales"])
-			visitorsInfoYesterday.Details = DecodeDetails(utils.InterfaceToString(dbRecord[0]["details"]))
-
-			return nil
-		}
-	}
-
-	visitorsInfoYesterday = new(dbVisitorsRow)
-	visitorsInfoYesterday.ID = ""
-	visitorsInfoYesterday.Day = yesterday
-	visitorsInfoYesterday.Details = make(map[string]*VisitorDetail)
-
-	return nil
-}
-
-// SaveVisitorData will persist the Visitor data to the database
-func SaveVisitorData() error {
-	visitorInfoCollection, err := db.GetCollection(ConstCollectionNameRTSVisitors)
-	if err == nil {
-		visitorInfoRow := make(map[string]interface{})
-		if "" != visitorsInfoToday.ID {
-			visitorInfoRow["_id"] = visitorsInfoToday.ID
-		}
-
-		visitorInfoRow["day"] = visitorsInfoToday.Day
-		visitorInfoRow["visitors"] = visitorsInfoToday.Visitors
-		visitorInfoRow["cart"] = visitorsInfoToday.Cart
-		visitorInfoRow["checkout"] = visitorsInfoToday.Checkout
-		visitorInfoRow["sales"] = visitorsInfoToday.Sales
-		visitorInfoRow["details"] = EncodeDetails(visitorsInfoToday.Details)
-
-		_, err = visitorInfoCollection.Save(visitorInfoRow)
-		if err != nil {
-			return env.ErrorDispatch(err)
-		}
-	}
-
-	return nil
-}
-
-// EncodeDetails returns the Visitor data in a string when provided a VisitorDetail map[string]*
-func EncodeDetails(details map[string]*VisitorDetail) string {
-	jsonString, _ := json.Marshal(details)
-
-	return string(jsonString)
-}
-
-// DecodeDetails returns the Visitor data in a VisitorDetail map[string]* when provieded an encoded string
-func DecodeDetails(detailsString string) map[string]*VisitorDetail {
-	var details map[string]*VisitorDetail
-	_ = json.Unmarshal([]byte(detailsString), &details)
-
-	return details
-}
-
 // Transfer current time to local and get visits for that period
 // input timezone in format: "PCT+2", "UTC-02", "EET+112345".
 
-
-// Get pasted hours of current local day using time zone
+// GetLocalOneDayBefore Get pasted hours of current local day using time zone
 func GetLocalOneDayBefore(todayTo time.Time, timeZone string) (time.Time, time.Time) {
 
 	// Convert period to requested time zone
 	dateTo := utils.ApplyTimeZone(todayTo, timeZone)
 
 	// Get it current size in hours
-	daySize := dateTo.Sub(dateTo.Truncate(time.Hour*24))
+	daySize := dateTo.Sub(dateTo.Truncate(time.Hour * 24))
 
 	todayFrom := dateTo.Add(-daySize)
 	yesterdayFrom := todayFrom.AddDate(0, 0, -1)
@@ -470,48 +303,151 @@ func GetLocalOneDayBefore(todayTo time.Time, timeZone string) (time.Time, time.T
 	return todayFrom, yesterdayFrom
 }
 
-// Get Sales for range
-func GetRangeSales(dateFrom, dateTo  time.Time ) (int, error) {
+// GetRangeSales returns Get Sales for range
+func GetRangeSales(dateFrom, dateTo time.Time) (int, error) {
 
-	orderCollectionModelT, err := order.GetOrderCollectionModel()
-	if err != nil {
-		return 0, env.ErrorDispatch(err)
-	}
+	sales := 0
 
-	dbCollection := orderCollectionModelT.GetDBCollection()
+	// Go thrue period and summarise a visits
+	for dateFrom.Before(dateTo) {
 
-	dbCollection.AddFilter("created_at", ">=", dateFrom)
-	dbCollection.AddFilter("created_at", "<=", dateTo)
+		if _, present := statistic[dateFrom.Unix()]; present {
+			sales = sales + statistic[dateFrom.Unix()].Sales
+		}
 
-	// filters handle for today
-	sales, err := dbCollection.Count()
-	if err != nil {
-		return 0, env.ErrorDispatch(err)
+		dateFrom = dateFrom.Add(time.Hour)
 	}
 
 	return sales, nil
 }
 
-func GetRangeVisits(dateFrom, dateTo  time.Time) (int, int) {
+// GetRangeVisits get visits for determinated range
+func GetRangeVisits(dateFrom, dateTo time.Time) (int, error) {
 
-	// Convert period to requested time zone
-	today := utils.ApplyTimeZone(currentDay, timeZone)
-	today = today.Truncate(time.Hour)
-	yesterday := today.AddDate(0, 0, -1)
+	visits := 0
 
-	visitsToday := 0
-	visitsYesterday := 0
+	// Go thrue period and summarise a visits
+	for dateFrom.Before(dateTo) {
 
-	// Go thru one day and summarise a visits
-	for i := time.Hour; i < 24*time.Hour; i = i + time.Hour {
-
-		if visit, present := visits[(today.Add(i * time.Hour)).Unix()]; present {
-			visitsToday = visitsToday + visit
+		if _, present := statistic[dateFrom.Unix()]; present {
+			visits = visits + statistic[dateFrom.Unix()].Visit
 		}
 
-		if visit, present := visits[(yesterday.Add(i * time.Hour)).Unix()]; present {
-			visitsYesterday = visitsYesterday + visit
+		dateFrom = dateFrom.Add(time.Hour)
+	}
+	return visits, nil
+}
+
+// initStatistic get info from visitor database for 60 hours
+func initStatistic() error {
+	// convert to utc time and work with variables
+	time.Local = time.UTC
+	timeScope := time.Hour
+	dateTo := time.Now().Add(time.Hour).Truncate(timeScope)
+	dateFrom := dateTo.Add(-60 * time.Hour)
+
+	visitorInfoCollection, err := db.GetCollection(ConstCollectionNameRTSVisitors)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+	visitorInfoCollection.SetResultColumns("day", "visitors", "cart", "sales")
+	visitorInfoCollection.AddSort("day", false)
+
+	for dateFrom.Before(dateTo) {
+
+		timeIterator := dateFrom.Unix()
+		// get database records for every hour
+		visitorInfoCollection.ClearFilters()
+		visitorInfoCollection.AddFilter("day", "=", timeIterator)
+		dbRecords, err := visitorInfoCollection.Load()
+		if err != nil {
+			return env.ErrorDispatch(err)
+		}
+
+		// add info from db record if not null to variable
+		for _, item := range dbRecords {
+
+			// create record for non existing hour
+			if _, present := statistic[timeIterator]; !present {
+				statistic[timeIterator] = new(ActionsMade)
+			}
+
+			// add info to hour
+			statistic[timeIterator].Visit = statistic[timeIterator].Visit + utils.InterfaceToInt(item["visitors"])
+			statistic[timeIterator].Sales = statistic[timeIterator].Sales + utils.InterfaceToInt(item["sales"])
+			statistic[timeIterator].Cart = statistic[timeIterator].Cart + utils.InterfaceToInt(item["cart"])
+
+		}
+
+		dateFrom = dateFrom.Add(timeScope)
+	}
+
+	return nil
+}
+
+// SaveStatisticsData make save a statistic data row to databese from last updated record in database to current hour
+func SaveStatisticsData() error {
+	visitorInfoCollection, err := db.GetCollection(ConstCollectionNameRTSVisitors)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	// find last saved record time to start saving from it
+	visitorInfoCollection.SetResultColumns("day")
+	visitorInfoCollection.AddSort("day", true)
+	visitorInfoCollection.SetLimit(0, 1)
+	dbRecord, err := visitorInfoCollection.Load()
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	lastRecordTime := utils.InterfaceToTime(dbRecord[0]["day"])
+
+	// delete last record from database to prevent dublicates and update it
+	visitorInfoCollection.ClearFilters()
+	visitorInfoCollection.ClearSort()
+	visitorInfoCollection.SetLimit(0, 100)
+	visitorInfoCollection.SetResultColumns("day", "_id")
+	visitorInfoCollection.AddFilter("day", "=", lastRecordTime.Unix())
+	dbLastRecord, err := visitorInfoCollection.Load()
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	// deleting all records with the same hour
+	for _, item := range dbLastRecord {
+		err = visitorInfoCollection.DeleteByID(utils.InterfaceToString(item["_id"]))
+		if err != nil {
+			return env.ErrorDispatch(err)
 		}
 	}
-	return visitsToday, visitsYesterday
+
+	// begin process of writing to database
+	visitorInfoCollection.ClearFilters()
+	visitorInfoRow := make(map[string]interface{})
+	dateTo := time.Now().Add(time.Hour).Truncate(time.Hour)
+
+	// to be sure that all time is in hour format
+	dateFrom := lastRecordTime.Truncate(time.Hour)
+
+	// save data to databese for every hour that data for present in statistic
+	// begining from last database record to current time
+	for dateFrom.Before(dateTo) {
+		if value, present := statistic[dateFrom.Unix()]; present {
+			visitorInfoRow["day"] = dateFrom.Unix()
+			visitorInfoRow["visitors"] = value.Visit
+			visitorInfoRow["cart"] = value.Cart
+			visitorInfoRow["sales"] = value.Sales
+
+			// save data to databese
+			_, err = visitorInfoCollection.Save(visitorInfoRow)
+			if err != nil {
+				return env.ErrorDispatch(err)
+			}
+		}
+
+		dateFrom = dateFrom.Add(time.Hour)
+	}
+
+	return nil
 }

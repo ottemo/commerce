@@ -93,42 +93,13 @@ func APIGetReferrers(context api.InterfaceApplicationContext) (interface{}, erro
 	return result, nil
 }
 
-// APIGetVisits returns site visit information for current day
+// APIGetVisits returns site visit information for a specified local day
 func APIGetVisits(context api.InterfaceApplicationContext) (interface{}, error) {
-	result := make(map[string]interface{})
-
-	err := GetTodayVisitorsData()
-	if err != nil {
-		return result, nil
-	}
-
-	err = GetYesterdayVisitorsData()
-	if err != nil {
-		return result, nil
-	}
-
-	countToday := visitorsInfoToday.Visitors
-	countYesterday := visitorsInfoYesterday.Visitors
-
-	result["visitsToday"] = countToday
-	result["visitsYesterday"] = countYesterday
-	result["ratio"] = 1
-
-	if countYesterday > 0 {
-		ratio := float64(countToday)/float64(countYesterday) - float64(1)
-		result["ratio"] = utils.Round(ratio, 0.5, 2)
-	}
-
-	return result, nil
-}
-
-// APIGetVisits returns site visit information for a day _ver 2
-func APIGetVisitsVerTwo(context api.InterfaceApplicationContext) (interface{}, error) {
 	result := make(map[string]interface{})
 	timeZone := context.GetRequestArgument("tz")
 
 	// get a hours pasted for local day
-	todayTo := time.Now().Truncate(time.Hour)
+	todayTo := time.Now().Truncate(time.Hour).Add(time.Hour)
 	todayFrom, yesterdayFrom := GetLocalOneDayBefore(todayTo, timeZone)
 
 	// get data for visits
@@ -137,14 +108,14 @@ func APIGetVisitsVerTwo(context api.InterfaceApplicationContext) (interface{}, e
 		return nil, env.ErrorDispatch(err)
 	}
 
-	yesterdayVisits, _ := GetRangeVisits(yesterdayFrom, todayFrom)
+	yesterdayVisits, err := GetRangeVisits(yesterdayFrom, todayFrom)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
 	// count ratio for current data
 	ratio := float64(1)
-	if yesterdayVisits !=0 {
+	if yesterdayVisits != 0 {
 		ratio = float64(todayVisits)/float64(yesterdayVisits) - float64(1)
 	}
 
@@ -235,40 +206,60 @@ func APIGetVisitsDetails(context api.InterfaceApplicationContext) (interface{}, 
 func APIGetConversion(context api.InterfaceApplicationContext) (interface{}, error) {
 	result := make(map[string]interface{})
 
-	result["totalVisitors"] = visitorsInfoToday.Visitors
-	result["addedToCart"] = visitorsInfoToday.Cart
-	result["reachedCheckout"] = visitorsInfoToday.Checkout
-	result["purchased"] = visitorsInfoToday.Sales
+	timeZone := context.GetRequestArgument("tz")
+
+	// get a hours pasted for local day
+	todayTo := time.Now().Truncate(time.Hour).Add(time.Hour)
+	todayFrom, _ := GetLocalOneDayBefore(todayTo, timeZone)
+
+	visits := 0
+	sales := 0
+	addToCart := 0
+
+	// Go thrue period and summarise a visits
+	for todayFrom.Before(todayTo) {
+
+		if _, ok := statistic[todayFrom.Unix()]; ok {
+			visits = visits + statistic[todayFrom.Unix()].Visit
+			sales = sales + statistic[todayFrom.Unix()].Sales
+			addToCart = addToCart + statistic[todayFrom.Unix()].Cart
+		}
+
+		todayFrom = todayFrom.Add(time.Hour)
+	}
+
+	result["totalVisitors"] = visits
+	result["addedToCart"] = addToCart
+	result["reachedCheckout"] = sales
+	result["purchased"] = sales
 
 	return result, nil
 }
 
-
-// NEW type of get sales
+//APIGetSales NEW type of get sales
 func APIGetSales(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	result := make(map[string]interface{})
 	timeZone := context.GetRequestArgument("tz")
 
 	// get a hours pasted for local day
-	todayTo := time.Now().Truncate(time.Hour)
+	todayTo := time.Now().Truncate(time.Hour).Add(time.Hour)
 	todayFrom, yesterdayFrom := GetLocalOneDayBefore(todayTo, timeZone)
 
 	// get data for sales
-
 	todaySales, err := GetRangeSales(todayFrom, todayTo)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	yesterdaySales, _ := GetRangeSales(yesterdayFrom, todayFrom)
+	yesterdaySales, err := GetRangeSales(yesterdayFrom, todayFrom)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
 	// count ratio for current data
 	ratio := float64(1)
-	if yesterdaySales !=0 {
+	if yesterdaySales != 0 {
 		ratio = float64(todaySales)/float64(yesterdaySales) - float64(1)
 	}
 
@@ -279,7 +270,6 @@ func APIGetSales(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	return result, nil
 }
-
 
 // APIGetSalesDetails returns site sales information for a specified period
 //   - period start and end dates should be specified in "from" and "to" attributes in DD-MM-YYY format
