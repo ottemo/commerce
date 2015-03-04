@@ -9,6 +9,7 @@ import (
 	"github.com/ottemo/foundation/app/models/cart"
 	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/utils"
+	"github.com/ottemo/foundation/env"
 )
 
 func referrerHandler(event string, eventData map[string]interface{}) bool {
@@ -43,16 +44,15 @@ func visitsHandler(event string, eventData map[string]interface{}) bool {
 		sessionID := sessionInstance.GetID()
 
 		currentHour := time.Now().Truncate(time.Hour).Unix()
+		CheckHourUpdateForStatistic()
 
 		if _, present := visitState[sessionID]; !present {
 			visitState[sessionID] = false
-			if _, ok := statistic[currentHour]; !ok {
-				statistic[currentHour] = new(ActionsMade)
-			}
 			statistic[currentHour].Visit++
+
 			err := SaveStatisticsData()
 			if err != nil {
-				println("err in handler")
+				env.LogError(err)
 			}
 		}
 	}
@@ -66,32 +66,29 @@ func addToCartHandler(event string, eventData map[string]interface{}) bool {
 		sessionID := sessionInstance.GetID()
 
 		currentHour := time.Now().Truncate(time.Hour).Unix()
+		CheckHourUpdateForStatistic()
 
 		// Add cart counter if it's a visitor that work in this hour
-		if _, present := visitState[sessionID]; present {
-			if !visitState[sessionID] {
+		if haveCard, present := visitState[sessionID]; present {
+			if !haveCard {
 				visitState[sessionID] = true
-				if _, ok := statistic[currentHour]; !ok {
-					statistic[currentHour] = new(ActionsMade)
-				}
 				statistic[currentHour].Cart++
+
 				err := SaveStatisticsData()
 				if err != nil {
-					println("err in handler")
+					env.LogError(err)
 				}
 			}
 
 			// Add cart and visit counter if it's a visitor that work for a past hour
 		} else {
 			visitState[sessionID] = true
-			if _, ok := statistic[currentHour]; !ok {
-				statistic[currentHour] = new(ActionsMade)
-			}
 			statistic[currentHour].Visit++
 			statistic[currentHour].Cart++
+
 			err := SaveStatisticsData()
 			if err != nil {
-				println("err in handler")
+				env.LogError(err)
 			}
 		}
 	}
@@ -105,33 +102,30 @@ func purchasedHandler(event string, eventData map[string]interface{}) bool {
 		sessionID := sessionInstance.GetID()
 
 		currentHour := time.Now().Truncate(time.Hour).Unix()
+		CheckHourUpdateForStatistic()
 
 		// Add sales counter if it's a visitor that work in this hour
 		if _, present := visitState[sessionID]; present {
 			if visitState[sessionID] {
 				visitState[sessionID] = false
-				if _, ok := statistic[currentHour]; !ok {
-					statistic[currentHour] = new(ActionsMade)
-				}
 				statistic[currentHour].Sales++
+
 				err := SaveStatisticsData()
 				if err != nil {
-					println("err in handler")
+					env.LogError(err)
 				}
 			}
 
 			// Add sales, cart and visit counter if it's a visitor that work for a past hour
 		} else {
 			visitState[sessionID] = false
-			if _, ok := statistic[currentHour]; !ok {
-				statistic[currentHour] = new(ActionsMade)
-			}
 			statistic[currentHour].Visit++
 			statistic[currentHour].Cart++
 			statistic[currentHour].Sales++
+
 			err := SaveStatisticsData()
 			if err != nil {
-				println("err in handler")
+				env.LogError(err)
 			}
 		}
 	}
@@ -179,12 +173,14 @@ func salesHandler(event string, eventData map[string]interface{}) bool {
 			}
 
 			// saving new history record
-			salesHistoryRecord["product_id"] = productID
-			salesHistoryRecord["created_at"] = currentDate
-			salesHistoryRecord["count"] = newCount
-			_, err = salesHistoryCollection.Save(salesHistoryRecord)
-			if err != nil {
-				return true
+			if newCount > 0 {
+				salesHistoryRecord["product_id"] = productID
+				salesHistoryRecord["created_at"] = currentDate
+				salesHistoryRecord["count"] = newCount
+				_, err = salesHistoryCollection.Save(salesHistoryRecord)
+				if err != nil {
+					return true
+				}
 			}
 		}
 

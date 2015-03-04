@@ -32,8 +32,6 @@ var (
 	referrers             = make(map[string]int) // collects and counts refers from external sites
 	statistic      = make(map[int64]*ActionsMade) 	// information about per hour site activity
 
-	salesDetail = make(map[string]*SalesDetailData) // sales details on day/hour basis (used for dashboard graphs)
-
 	visitState      = make(map[string]bool)			//checks a buying status of visitor by it sessionID
 
 	// OnlineSessions holds session based information about referer type on first visit
@@ -62,12 +60,6 @@ type ActionsMade struct {
 	Visit 	int       	// count site visits
 	Cart     int       // count times products was added to cart
 	Sales    int       // count of orders visitors made
-}
-
-// SalesDetailData holds hour/day detailed information about sales
-type SalesDetailData struct {
-	Data       map[string]int // count of sales for specified in key time
-	lastUpdate int64          // timestamp used to update struct once in a hour
 }
 
 // TopSellers holds information about best sellers

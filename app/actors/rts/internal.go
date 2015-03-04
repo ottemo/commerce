@@ -209,13 +209,15 @@ func initSalesHistory() error {
 			}
 
 			// Add history row
-			salesHistoryRow := make(map[string]interface{})
-			salesHistoryRow["product_id"] = productID
-			salesHistoryRow["created_at"] = date
-			salesHistoryRow["count"] = count
-			_, err = salesHistoryCollection.Save(salesHistoryRow)
-			if err != nil {
-				return env.ErrorDispatch(err)
+			if count > 0 {
+				salesHistoryRow := make(map[string]interface{})
+				salesHistoryRow["product_id"] = productID
+				salesHistoryRow["created_at"] = date
+				salesHistoryRow["count"] = count
+				_, err = salesHistoryCollection.Save(salesHistoryRow)
+				if err != nil {
+					return env.ErrorDispatch(err)
+				}
 			}
 			sales[productID] += count
 		}
@@ -266,7 +268,7 @@ func SaveSalesData(data map[string]int) error {
 
 // GetSalesRange will return the date range for the sales data
 func GetSalesRange() string {
-	_range := "2014-01-01:"
+	_range := "2015-01-01:"
 
 	return _range
 }
@@ -450,4 +452,31 @@ func SaveStatisticsData() error {
 	}
 
 	return nil
+}
+
+// CheckHourUpdateForStatistic if it's a new hour action we need renew all session as a new in this hour
+// and remove old record from statistic
+func CheckHourUpdateForStatistic () {
+	currentHour := time.Now().Truncate(time.Hour).Unix()
+	lastHour := time.Now().Add(-time.Hour*60).Truncate(time.Hour).Unix()
+
+	if _, present := statistic[currentHour]; !present {
+
+		cartCreatedPersons := make(map[string]bool)
+		for sessionID, addToCartPresent := range visitState {
+			if addToCartPresent {
+				cartCreatedPersons[sessionID] = addToCartPresent
+			}
+		}
+
+		visitState = cartCreatedPersons
+		statistic[currentHour] = new(ActionsMade)
+	}
+
+	for timeIn, _ := range statistic {
+		if timeIn <= lastHour {
+			delete(statistic, timeIn)
+		}
+	}
+
 }
