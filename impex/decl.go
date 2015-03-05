@@ -20,6 +20,8 @@ var (
 	ConstImpexLog = true  // flag indicates to make log of values going to be processed
 	ConstDebugLog = false // flag indicates to have extra log information
 
+	impexFile  interface{} // pointer to currently processing file, used to show progressbar
+
 	// ConstCSVColumnRegexp is a regular expression used to grab csv column information
 	//
 	//	column format: [flags]path [memorize] [type] [convertors]
