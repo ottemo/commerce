@@ -21,10 +21,7 @@ func setupAPI() error {
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("impex/importstatus", api.ConstRESTOperationGet, restImpexImportStatus)
-	if err != nil {
-		return env.ErrorDispatch(err)
-	}
+
 	err = api.GetRestService().RegisterAPI("impex/export/:model", api.ConstRESTOperationGet, restImpexExportModel)
 	if err != nil {
 		return env.ErrorDispatch(err)
@@ -141,31 +138,6 @@ func restImpexExportModel(context api.InterfaceApplicationContext) (interface{},
 	return nil, nil
 }
 
-// WEB REST API for getting status of current import
-func restImpexImportStatus(context api.InterfaceApplicationContext) (interface{}, error) {
-
-	result := make(map[string]int64)
-
-	if seeker, ok := impexFile.(io.Seeker); ok {
-		// get current position
-		position, err := seeker.Seek(0, 1)
-		if err == nil {
-			// move to end to get file size
-			fileSize, err := seeker.Seek(0, 2)
-			if(err == nil){
-				// move back to current position
-				seeker.Seek(position, 0)
-				result["size"] = fileSize
-				result["position"] = position
-			}
-		}
-	}
-
-	return result, nil
-}
-
-
-
 // WEB REST API used import data to system
 func restImpexImportModel(context api.InterfaceApplicationContext) (interface{}, error) {
 
@@ -186,8 +158,6 @@ func restImpexImportModel(context api.InterfaceApplicationContext) (interface{},
 	additionalMessage := ""
 
 	for _, attachedFile := range context.GetRequestFiles() {
-		impexFile = attachedFile
-
 		csvReader := csv.NewReader(attachedFile)
 		csvReader.Comma = ','
 
@@ -199,7 +169,6 @@ func restImpexImportModel(context api.InterfaceApplicationContext) (interface{},
 
 		filesProcessed++
 	}
-	impexFile = nil
 
 	return []byte(fmt.Sprintf("%d file(s) processed %s", filesProcessed, additionalMessage)), nil
 }
@@ -212,8 +181,6 @@ func restImpexTestImport(context api.InterfaceApplicationContext) (interface{}, 
 	filesProcessed := 0
 	additionalMessage := ""
 	for _, attachedFile := range context.GetRequestFiles() {
-		impexFile = attachedFile
-
 		csvReader := csv.NewReader(attachedFile)
 		csvReader.Comma = ','
 
@@ -224,7 +191,6 @@ func restImpexTestImport(context api.InterfaceApplicationContext) (interface{}, 
 		}
 		filesProcessed++
 	}
-	impexFile = nil
 
 	return []byte(fmt.Sprintf("%d file(s) processed %s", filesProcessed, additionalMessage)), nil
 }
@@ -235,8 +201,6 @@ func restImpexImport(context api.InterfaceApplicationContext) (interface{}, erro
 	filesProcessed := 0
 	additionalMessage := ""
 	for _, attachedFile := range context.GetRequestFiles() {
-		impexFile = attachedFile
-
 		csvReader := csv.NewReader(attachedFile)
 		csvReader.Comma = ','
 
@@ -248,7 +212,6 @@ func restImpexImport(context api.InterfaceApplicationContext) (interface{}, erro
 
 		filesProcessed++
 	}
-	impexFile = nil
 
 	return []byte(fmt.Sprintf("%d file(s) processed %s", filesProcessed, additionalMessage)), nil
 }
