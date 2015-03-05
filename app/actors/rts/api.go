@@ -98,9 +98,12 @@ func APIGetVisits(context api.InterfaceApplicationContext) (interface{}, error) 
 	result := make(map[string]interface{})
 	timeZone := context.GetRequestArgument("tz")
 
-	// get a hours pasted for local day
+	// get a hours pasted for local day and count for them and for previous day
 	todayTo := time.Now().Truncate(time.Hour).Add(time.Hour)
-	todayFrom, yesterdayFrom := GetLocalOneDayBefore(todayTo, timeZone)
+	todayFrom, _ := utils.ApplyTimeZone(todayTo, timeZone)
+	todayHoursPast := todayFrom.Sub(todayFrom.Truncate(time.Hour*24))
+	todayFrom = todayTo.Add(-todayHoursPast)
+	yesterdayFrom := todayFrom.AddDate(0, 0, -1)
 
 	// get data for visits
 	todayVisits, err := GetRangeVisits(todayFrom, todayTo)
@@ -139,25 +142,24 @@ func APIGetVisitsDetails(context api.InterfaceApplicationContext) (interface{}, 
 
 	// checking if user specified correct from and to dates
 	if dateFrom.IsZero() {
-		dateFrom = time.Now()
+		dateFrom = time.Now().Truncate(time.Hour * 24)
 	}
 
 	if dateTo.IsZero() {
-		dateTo = time.Now()
+		dateTo = time.Now().Truncate(time.Hour * 24)
 	}
 
 	if dateFrom == dateTo {
 		dateTo = dateTo.Add(time.Hour * 24)
 	}
 
-	// time zone recognize routines
-	if timeZone != "" {
-		dateFrom = utils.ApplyTimeZone(dateFrom, timeZone)
-		dateTo = utils.ApplyTimeZone(dateTo, timeZone)
-	}
+	// time zone recognize routines save time difference to show in graph by local time
+	hoursOffset := time.Hour * 0
 
-	dateFrom = dateFrom.Truncate(time.Hour * 24)
-	dateTo = dateTo.Truncate(time.Hour * 24)
+	if timeZone != "" {
+		dateFrom, hoursOffset = utils.ApplyTimeZone(dateFrom, timeZone)
+		dateTo, _ = utils.ApplyTimeZone(dateTo, timeZone)
+	}
 
 	// determining required scope
 	delta := dateTo.Sub(dateFrom)
@@ -166,6 +168,8 @@ func APIGetVisitsDetails(context api.InterfaceApplicationContext) (interface{}, 
 	if delta.Hours() > 48 {
 		timeScope = timeScope * 24
 	}
+	dateFrom = dateFrom.Truncate(time.Hour)
+	dateTo = dateTo.Truncate(time.Hour)
 
 	// making database request
 	visitorInfoCollection, err := db.GetCollection(ConstCollectionNameRTSVisitors)
@@ -185,7 +189,7 @@ func APIGetVisitsDetails(context api.InterfaceApplicationContext) (interface{}, 
 	// filling requested period
 	timeIterator := dateFrom
 	for timeIterator.Before(dateTo) {
-		result[fmt.Sprint(timeIterator.Unix())] = 0
+		result[fmt.Sprint(timeIterator.Add(hoursOffset).Unix())] = 0
 		timeIterator = timeIterator.Add(timeScope)
 	}
 
@@ -208,9 +212,11 @@ func APIGetConversion(context api.InterfaceApplicationContext) (interface{}, err
 
 	timeZone := context.GetRequestArgument("tz")
 
-	// get a hours pasted for local day
+	// get a hours pasted for local day and count only for them
 	todayTo := time.Now().Truncate(time.Hour).Add(time.Hour)
-	todayFrom, _ := GetLocalOneDayBefore(todayTo, timeZone)
+	todayFrom, _ := utils.ApplyTimeZone(todayTo, timeZone)
+	todayHoursPast := todayFrom.Sub(todayFrom.Truncate(time.Hour*24))
+	todayFrom = todayTo.Add(-todayHoursPast)
 
 	visits := 0
 	sales := 0
@@ -242,9 +248,12 @@ func APIGetSales(context api.InterfaceApplicationContext) (interface{}, error) {
 	result := make(map[string]interface{})
 	timeZone := context.GetRequestArgument("tz")
 
-	// get a hours pasted for local day
+	// get a hours pasted for local day and count for them and for previous day
 	todayTo := time.Now().Truncate(time.Hour).Add(time.Hour)
-	todayFrom, yesterdayFrom := GetLocalOneDayBefore(todayTo, timeZone)
+	todayFrom, _ := utils.ApplyTimeZone(todayTo, timeZone)
+	todayHoursPast := todayFrom.Sub(todayFrom.Truncate(time.Hour*24))
+	todayFrom = todayTo.Add(-todayHoursPast)
+	yesterdayFrom := todayFrom.AddDate(0, 0, -1)
 
 	// get data for sales
 	todaySales, err := GetRangeSales(todayFrom, todayTo)
@@ -281,27 +290,26 @@ func APIGetSalesDetails(context api.InterfaceApplicationContext) (interface{}, e
 	dateFrom := utils.InterfaceToTime(context.GetRequestArgument("from"))
 	dateTo := utils.InterfaceToTime(context.GetRequestArgument("to"))
 
-	currentTime := time.Now()
-
 	// checking if user specified correct from and to dates
 	if dateFrom.IsZero() {
-		dateFrom = currentTime
+		dateFrom = time.Now().Truncate(time.Hour)
 	}
 
 	if dateTo.IsZero() {
-		dateTo = currentTime
+		dateTo = time.Now().Truncate(time.Hour)
 	}
 
 	if dateFrom == dateTo {
 		dateTo = dateTo.Add(time.Hour * 24)
 	}
 
-	// time zone recognize routines
-	dateFrom = utils.ApplyTimeZone(dateFrom, timeZone)
-	dateTo = utils.ApplyTimeZone(dateTo, timeZone)
+	// time zone recognize routines save time difference to show in graph by local time
+	hoursOffset := time.Hour * 0
 
-	dateFrom = dateFrom.Truncate(time.Hour * 24)
-	dateTo = dateTo.Truncate(time.Hour * 24)
+	if timeZone != "" {
+		dateFrom, hoursOffset = utils.ApplyTimeZone(dateFrom, timeZone)
+		dateTo, _ = utils.ApplyTimeZone(dateTo, timeZone)
+	}
 
 	// determining required scope
 	delta := dateTo.Sub(dateFrom)
@@ -310,6 +318,8 @@ func APIGetSalesDetails(context api.InterfaceApplicationContext) (interface{}, e
 	if delta.Hours() > 48 {
 		timeScope = timeScope * 24
 	}
+	dateFrom = dateFrom.Truncate(time.Hour)
+	dateTo = dateTo.Truncate(time.Hour)
 
 	// set database request settings
 	orderCollectionModelT, err := order.GetOrderCollectionModel()
@@ -332,7 +342,7 @@ func APIGetSalesDetails(context api.InterfaceApplicationContext) (interface{}, e
 	// filling requested period
 	timeIterator := dateFrom
 	for timeIterator.Before(dateTo) {
-		result[fmt.Sprint(timeIterator.Unix())] = 0
+		result[fmt.Sprint(timeIterator.Add(hoursOffset).Unix())] = 0
 		timeIterator = timeIterator.Add(timeScope)
 	}
 

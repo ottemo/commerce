@@ -1,7 +1,6 @@
 package rts
 
 import (
-	"fmt"
 	"regexp"
 	"strings"
 	"time"
@@ -273,38 +272,6 @@ func GetSalesRange() string {
 	return _range
 }
 
-// GetDayForTimestamp returns the day or hour for the given time
-func GetDayForTimestamp(timestamp int64, byHour bool) string {
-	currentTime := time.Unix(timestamp, 0)
-	hour := 0
-	if byHour {
-		hour = currentTime.Hour()
-	}
-
-	timeGroup := time.Date(currentTime.Year(), currentTime.Month(), currentTime.Day(), hour, 0, 0, 0, currentTime.Location())
-	mapIndex := fmt.Sprintf("%v", int32(timeGroup.Unix()))
-
-	return mapIndex
-}
-
-// Transfer current time to local and get visits for that period
-// input timezone in format: "PCT+2", "UTC-02", "EET+112345".
-
-// GetLocalOneDayBefore Get pasted hours of current local day using time zone
-func GetLocalOneDayBefore(todayTo time.Time, timeZone string) (time.Time, time.Time) {
-
-	// Convert period to requested time zone
-	dateTo := utils.ApplyTimeZone(todayTo, timeZone)
-
-	// Get it current size in hours
-	daySize := dateTo.Sub(dateTo.Truncate(time.Hour * 24))
-
-	todayFrom := dateTo.Add(-daySize)
-	yesterdayFrom := todayFrom.AddDate(0, 0, -1)
-
-	return todayFrom, yesterdayFrom
-}
-
 // GetRangeSales returns Get Sales for range
 func GetRangeSales(dateFrom, dateTo time.Time) (int, error) {
 
@@ -337,6 +304,7 @@ func GetRangeVisits(dateFrom, dateTo time.Time) (int, error) {
 
 		dateFrom = dateFrom.Add(time.Hour)
 	}
+
 	return visits, nil
 }
 
@@ -405,31 +373,34 @@ func SaveStatisticsData() error {
 
 	lastRecordTime := utils.InterfaceToTime(dbRecord[0]["day"])
 
-	// delete last record from database to prevent dublicates and update it
-	visitorInfoCollection.ClearFilters()
-	visitorInfoCollection.ClearSort()
-	visitorInfoCollection.SetLimit(0, 100)
-	visitorInfoCollection.SetResultColumns("day", "_id")
-	visitorInfoCollection.AddFilter("day", "=", lastRecordTime.Unix())
-	dbLastRecord, err := visitorInfoCollection.Load()
-	if err != nil {
-		return env.ErrorDispatch(err)
-	}
-
-	// deleting all records with the same hour
-	for _, item := range dbLastRecord {
-		err = visitorInfoCollection.DeleteByID(utils.InterfaceToString(item["_id"]))
+		// delete last record from database to prevent dublicates
+	if _, present := statistic[lastRecordTime.Unix()]; present {
+		visitorInfoCollection.ClearFilters()
+		visitorInfoCollection.ClearSort()
+		visitorInfoCollection.SetLimit(0, 100)
+		visitorInfoCollection.SetResultColumns("day", "_id")
+		visitorInfoCollection.AddFilter("day", "=", lastRecordTime.Unix())
+		dbLastRecord, err := visitorInfoCollection.Load()
 		if err != nil {
 			return env.ErrorDispatch(err)
 		}
+
+		// deleting all records with the same hour
+		for _, item := range dbLastRecord {
+			err = visitorInfoCollection.DeleteByID(utils.InterfaceToString(item["_id"]))
+			if err != nil {
+				return env.ErrorDispatch(err)
+			}
+		}
+
 	}
 
 	// begin process of writing to database
 	visitorInfoCollection.ClearFilters()
 	visitorInfoRow := make(map[string]interface{})
-	dateTo := time.Now().Add(time.Hour).Truncate(time.Hour)
 
 	// to be sure that all time is in hour format
+	dateTo := time.Now().Add(time.Hour).Truncate(time.Hour)
 	dateFrom := lastRecordTime.Truncate(time.Hour)
 
 	// save data to databese for every hour that data for present in statistic
