@@ -407,12 +407,12 @@ func InterfaceToTime(value interface{}) time.Time {
 		}
 	}
 
-	return time.Time{} //Unix(0, 0)
+	return (time.Time{})
 }
 
 // IsZeroTime checks time for zero value
 func IsZeroTime(value time.Time) bool {
-	zeroTime := time.Unix(0, 0)
+	zeroTime := (time.Time{})
 	return value == zeroTime
 }
 
@@ -498,7 +498,8 @@ func StringToInterface(value string) interface{} {
 			return result
 		}
 	}
-	if result := InterfaceToTime(trimmedValue); result != time.Unix(0, 0) {
+	if result := InterfaceToTime(trimmedValue); result != (time.Time{}) {
+		println(trimmedValue)
 		return result
 	}
 
