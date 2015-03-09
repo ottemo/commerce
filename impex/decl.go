@@ -5,6 +5,7 @@ import (
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/env"
 	"regexp"
+	"io"
 )
 
 // Package global constants
@@ -20,7 +21,7 @@ var (
 	ConstImpexLog = true  // flag indicates to make log of values going to be processed
 	ConstDebugLog = false // flag indicates to have extra log information
 
-	impexFile  interface{} // pointer to currently processing file, used to show progressbar
+	importFile ImportFile // keep data about currently importing file, used to show progressbar
 
 	// ConstCSVColumnRegexp is a regular expression used to grab csv column information
 	//
@@ -118,4 +119,11 @@ type ImportCmdStore struct {
 //  - command allows to make record field alias to object attribute value
 type ImportCmdAlias struct {
 	aliases map[string]string
+}
+
+// Used for global variable to keep data about importing file
+type ImportFile struct {
+	file io.Reader		// io.Reader || nil, other fields values not actual when file == nil
+	size int64
+	name string
 }
