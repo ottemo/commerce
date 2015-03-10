@@ -83,6 +83,8 @@ func (it *DefaultCMSPage) Save() error {
 
 	if it.CreatedAt.IsZero() {
 		storingValues["created_at"] = currentTime
+	} else {
+		storingValues["created_at"] = it.CreatedAt
 	}
 	storingValues["updated_at"] = currentTime
 
