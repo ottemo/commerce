@@ -82,10 +82,10 @@ func (it *DefaultCMSPage) Save() error {
 	storingValues["content"] = it.GetContent()
 
 	if it.CreatedAt.IsZero() {
-		storingValues["created_at"] = currentTime
-	} else {
-		storingValues["created_at"] = it.CreatedAt
+		it.CreatedAt = currentTime
 	}
+
+	storingValues["created_at"] = it.CreatedAt
 	storingValues["updated_at"] = currentTime
 
 	newID, err := collection.Save(storingValues)
