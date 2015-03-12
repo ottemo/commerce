@@ -123,7 +123,7 @@ type ImportCmdAlias struct {
 
 // Used for global variable to keep data about importing file
 type ImportFile struct {
-	file io.Reader		// io.Reader || nil, other fields values not actual when file == nil
+	reader io.Reader
 	size int64
 	name string
 }

@@ -146,7 +146,7 @@ func restImpexImportStatus(context api.InterfaceApplicationContext) (interface{}
 
 	result := make(map[string]interface{})
 
-	if seeker, ok := importFile.file.(io.Seeker); ok {
+	if seeker, ok := importFile.reader.(io.Seeker); ok {
 		position, err := seeker.Seek(0, 1)
 		if err == nil {
 			result["size"] = importFile.size
@@ -163,7 +163,7 @@ func restImpexImportStatus(context api.InterfaceApplicationContext) (interface{}
 // WEB REST API used import data to system
 func restImpexImportModel(context api.InterfaceApplicationContext) (interface{}, error) {
 
-	if importFile.file != nil {
+	if importFile.reader != nil {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "12f978f5-3a90-438b-a3f4-475b34a97457", "Another import is in progres. Currently processing " + importFile.name)
 	}
 
@@ -183,11 +183,10 @@ func restImpexImportModel(context api.InterfaceApplicationContext) (interface{},
 
 	for fileName, attachedFile := range context.GetRequestFiles() {
 
-		importFile.file = attachedFile
+		importFile.reader = attachedFile
 		importFile.name = fileName
 		if seeker, ok := attachedFile.(io.Seeker); ok {
-			fileSize, err := seeker.Seek(0, 2)
-			if (err == nil) {
+			if fileSize, err := seeker.Seek(0, 2); err == nil {
 				importFile.size = fileSize
 				seeker.Seek(0, 0)
 			}
@@ -205,7 +204,7 @@ func restImpexImportModel(context api.InterfaceApplicationContext) (interface{},
 		filesProcessed++
 	}
 
-	importFile.file = nil
+	importFile.reader = nil
 
 	return fmt.Sprintf("%d file(s) processed %s", filesProcessed, additionalMessage), nil
 }
@@ -213,23 +212,11 @@ func restImpexImportModel(context api.InterfaceApplicationContext) (interface{},
 // WEB REST API used to test csv file before import
 func restImpexTestImport(context api.InterfaceApplicationContext) (interface{}, error) {
 
-	if importFile.file != nil {
-		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "12f978f5-3a90-438b-a3f4-475b34a97888", "Another import is in progres. Currently processing " + importFile.name)
-	}
+	context.SetResponseContentType("text/plain")
 
 	filesProcessed := 0
 	additionalMessage := ""
-	for fileName, attachedFile := range context.GetRequestFiles() {
-
-		importFile.file = attachedFile
-		importFile.name = fileName
-		if seeker, ok := attachedFile.(io.Seeker); ok {
-			fileSize, err := seeker.Seek(0, 2)
-			if (err == nil) {
-				importFile.size = fileSize
-				seeker.Seek(0, 0)
-			}
-		}
+	for _, attachedFile := range context.GetRequestFiles() {
 
 		csvReader := csv.NewReader(attachedFile)
 		csvReader.Comma = ','
@@ -241,15 +228,14 @@ func restImpexTestImport(context api.InterfaceApplicationContext) (interface{}, 
 		}
 		filesProcessed++
 	}
-	importFile.file = nil
 
-	return fmt.Sprintf("%d file(s) processed %s", filesProcessed, additionalMessage), nil
+	return []byte(fmt.Sprintf("%d file(s) processed %s", filesProcessed, additionalMessage)), nil
 }
 
 // WEB REST API used to process csv file script in impex format
 func restImpexImport(context api.InterfaceApplicationContext) (interface{}, error) {
 
-	if importFile.file != nil {
+	if importFile.reader != nil {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "12f978f5-3a90-438b-a3f4-475b34a97888", "Another import is in progres. Currently processing " + importFile.name)
 	}
 
@@ -257,11 +243,10 @@ func restImpexImport(context api.InterfaceApplicationContext) (interface{}, erro
 	additionalMessage := ""
 	for fileName, attachedFile := range context.GetRequestFiles() {
 
-		importFile.file = attachedFile
+		importFile.reader = attachedFile
 		importFile.name = fileName
 		if seeker, ok := attachedFile.(io.Seeker); ok {
-			fileSize, err := seeker.Seek(0, 2)
-			if (err == nil) {
+			if fileSize, err := seeker.Seek(0, 2); err == nil {
 				importFile.size = fileSize
 				seeker.Seek(0, 0)
 			}
@@ -278,7 +263,7 @@ func restImpexImport(context api.InterfaceApplicationContext) (interface{}, erro
 
 		filesProcessed++
 	}
-	importFile.file = nil
+	importFile.reader = nil
 
 	return fmt.Sprintf("%d file(s) processed %s", filesProcessed, additionalMessage), nil
 }
