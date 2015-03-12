@@ -195,7 +195,7 @@ func restImpexImportModel(context api.InterfaceApplicationContext) (interface{},
 		csvReader := csv.NewReader(attachedFile)
 		csvReader.Comma = ','
 
-		err := ImportCSVData(commandLine, exchangeDict, csvReader, context.GetResponseWriter(), false)
+		err := ImportCSVData(commandLine, exchangeDict, csvReader, nil, false)
 		if err != nil && additionalMessage == "" {
 			env.ErrorDispatch(err)
 			additionalMessage += "with errors"
@@ -255,7 +255,7 @@ func restImpexImport(context api.InterfaceApplicationContext) (interface{}, erro
 		csvReader := csv.NewReader(attachedFile)
 		csvReader.Comma = ','
 
-		err := ImportCSVScript(csvReader, context.GetResponseWriter(), false)
+		err := ImportCSVScript(csvReader, nil, false)
 		if err != nil && additionalMessage == "" {
 			env.ErrorDispatch(err)
 			additionalMessage += "with errors"
