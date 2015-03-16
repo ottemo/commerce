@@ -195,9 +195,8 @@ func APIUpdateVisitor(context api.InterfaceApplicationContext) (interface{}, err
 		}
 		// check when not admin try to change password, validate old password
 		if _, present := requestData["password"]; present {
-			if old_pass, present := requestData["old_password"]; present {
-				ok := visitorModel.CheckPassword(utils.InterfaceToString(old_pass))
-				if !ok {
+			if oldPass, present := requestData["old_password"]; present {
+				if ok := visitorModel.CheckPassword(utils.InterfaceToString(oldPass)); !ok {
 					return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "13a80ab1-d44e-4a90-979c-ea6914d9c012", "wrong password")
 				}
 				delete(requestData, "old_password")
@@ -205,22 +204,24 @@ func APIUpdateVisitor(context api.InterfaceApplicationContext) (interface{}, err
 				return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "157df5fa-d775-4934-af94-b77ef8c826e9", "please specify old password")
 			}
 		}
+		// When admin user change password from storefront we will validate it
+	} else if oldPass, present := requestData["old_password"]; present {
+		if ok := visitorModel.CheckPassword(utils.InterfaceToString(oldPass)); !ok {
+			return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "13a80ab1-d44e-4a90-979c-ea6914d9c012", "wrong password")
+		}
+		delete(requestData, "old_password")
 	}
 
 	// update operation
 	//-----------------
 
-
-
 	for attribute, value := range requestData {
-		err := visitorModel.Set(attribute, value)
-		if err != nil {
+		if err := visitorModel.Set(attribute, value); err != nil {
 			return nil, env.ErrorDispatch(err)
 		}
 	}
 
-	err = visitorModel.Save()
-	if err != nil {
+	if err = visitorModel.Save(); err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
