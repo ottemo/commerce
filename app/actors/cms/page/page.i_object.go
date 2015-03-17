@@ -141,7 +141,7 @@ func (it *DefaultCMSPage) GetAttributesInfo() []models.StructAttributeInfo {
 			Type:       db.ConstTypeVarchar,
 			IsRequired: false,
 			IsStatic:   true,
-			Label:      "Page_title",
+			Label:      "Title",
 			Group:      "General",
 			Editors:    "line_text",
 			Options:    "",
