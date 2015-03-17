@@ -101,7 +101,7 @@ func APIGetVisits(context api.InterfaceApplicationContext) (interface{}, error) 
 	// get a hours pasted for local day and count for them and for previous day
 	todayTo := time.Now().Truncate(time.Hour).Add(time.Hour)
 	todayFrom, _ := utils.ApplyTimeZone(todayTo, timeZone)
-	todayHoursPast := todayFrom.Sub(todayFrom.Truncate(time.Hour*24))
+	todayHoursPast := todayFrom.Sub(todayFrom.Truncate(time.Hour * 24))
 	todayFrom = todayTo.Add(-todayHoursPast)
 	yesterdayFrom := todayFrom.AddDate(0, 0, -1)
 
@@ -117,9 +117,11 @@ func APIGetVisits(context api.InterfaceApplicationContext) (interface{}, error) 
 	}
 
 	// count ratio for current data
-	ratio := float64(1)
+	ratio := float64(0)
 	if yesterdayVisits != 0 {
 		ratio = float64(todayVisits)/float64(yesterdayVisits) - float64(1)
+	} else if todayVisits != 0 {
+		ratio = float64(1)
 	}
 
 	// Returns the data
@@ -215,7 +217,7 @@ func APIGetConversion(context api.InterfaceApplicationContext) (interface{}, err
 	// get a hours pasted for local day and count only for them
 	todayTo := time.Now().Truncate(time.Hour).Add(time.Hour)
 	todayFrom, _ := utils.ApplyTimeZone(todayTo, timeZone)
-	todayHoursPast := todayFrom.Sub(todayFrom.Truncate(time.Hour*24))
+	todayHoursPast := todayFrom.Sub(todayFrom.Truncate(time.Hour * 24))
 	todayFrom = todayTo.Add(-todayHoursPast)
 
 	visits := 0
@@ -251,7 +253,7 @@ func APIGetSales(context api.InterfaceApplicationContext) (interface{}, error) {
 	// get a hours pasted for local day and count for them and for previous day
 	todayTo := time.Now().Truncate(time.Hour).Add(time.Hour)
 	todayFrom, _ := utils.ApplyTimeZone(todayTo, timeZone)
-	todayHoursPast := todayFrom.Sub(todayFrom.Truncate(time.Hour*24))
+	todayHoursPast := todayFrom.Sub(todayFrom.Truncate(time.Hour * 24))
 	todayFrom = todayTo.Add(-todayHoursPast)
 	yesterdayFrom := todayFrom.AddDate(0, 0, -1)
 
@@ -267,9 +269,11 @@ func APIGetSales(context api.InterfaceApplicationContext) (interface{}, error) {
 	}
 
 	// count ratio for current data
-	ratio := float64(1)
+	ratio := float64(0)
 	if yesterdaySales != 0 {
 		ratio = float64(todaySales)/float64(yesterdaySales) - float64(1)
+	} else if todaySales != 0 {
+		ratio = float64(1)
 	}
 
 	// Returns the data
