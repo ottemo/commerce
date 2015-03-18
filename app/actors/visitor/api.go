@@ -557,7 +557,7 @@ func APIInvalidateVisitor(context api.InterfaceApplicationContext) (interface{},
 		return nil, env.ErrorDispatch(err)
 	}
 
-	visitorEmail := context.GetRequestArgument("email")
+	visitorEmail := strings.ToLower(context.GetRequestArgument("email"))
 
 	err = visitorModel.LoadByEmail(visitorEmail)
 	if err != nil {
@@ -587,7 +587,7 @@ func APIForgotPassword(context api.InterfaceApplicationContext) (interface{}, er
 		return nil, env.ErrorDispatch(err)
 	}
 
-	visitorEmail := context.GetRequestArgument("email")
+	visitorEmail := strings.ToLower(context.GetRequestArgument("email"))
 
 	err = visitorModel.LoadByEmail(visitorEmail)
 	if err != nil {
@@ -662,7 +662,7 @@ func APILogin(context api.InterfaceApplicationContext) (interface{}, error) {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "02b0583b-28c3-4072-afe2-f392a163ed87", "email and/or password were not specified")
 	}
 
-	requestLogin := utils.InterfaceToString(requestData["email"])
+	requestLogin := strings.ToLower(utils.InterfaceToString(requestData["email"]))
 	requestPassword := utils.InterfaceToString(requestData["password"])
 
 	if !strings.Contains(requestLogin, "@") {
