@@ -43,12 +43,7 @@ func setupAPI() error {
 // APIGetGalleryPath returns relative path to gallery library
 //   - product id, media type must be specified in "productID" and "mediaType" arguments
 func APIGetGalleryPath(context api.InterfaceApplicationContext) (interface{}, error) {
-
-	//	// check rights
-	//	if err := api.ValidateAdminRights(context); err != nil {
-	//		return nil, env.ErrorDispatch(err)
-	//	}
-
+	
 	mediaStorage, err := media.GetMediaStorage()
 	if err != nil {
 		return "", env.ErrorDispatch(err)
