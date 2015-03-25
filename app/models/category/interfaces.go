@@ -24,6 +24,10 @@ type InterfaceCategory interface {
 
 	GetParent() InterfaceCategory
 
+	GetDescription() string
+
+	GetImage() string
+
 	GetProductIds() []string
 	GetProductsCollection() product.InterfaceProductCollection
 	GetProducts() []product.InterfaceProduct

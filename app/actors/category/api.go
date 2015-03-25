@@ -1,6 +1,8 @@
 package category
 
 import (
+	"io/ioutil"
+	"mime"
 	"strings"
 
 	"github.com/ottemo/foundation/api"
@@ -9,6 +11,7 @@ import (
 	"github.com/ottemo/foundation/app/models/product"
 	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/foundation/media"
 )
 
 // setupAPI setups package related API endpoint routines
@@ -59,6 +62,23 @@ func setupAPI() error {
 		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("category/:categoryID/product/:productID", api.ConstRESTOperationDelete, APIRemoveProductFromCategory)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	err = api.GetRestService().RegisterAPI("category/:categoryID/image", api.ConstRESTOperationGet, APIGetCategoryImage)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+	err = api.GetRestService().RegisterAPI("category/:categoryID/image", api.ConstRESTOperationCreate, APIUpdateCategoryImage)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+	err = api.GetRestService().RegisterAPI("category/:categoryID/image", api.ConstRESTOperationDelete, APIRemoveCategoryImage)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+	err = api.GetRestService().RegisterAPI("category/:categoryID/image/path", api.ConstRESTOperationGet, APIGetCategoryImagePath)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -496,4 +516,197 @@ func APIGetCategoriesTree(context api.InterfaceApplicationContext) (interface{},
 	}
 
 	return result, nil
+}
+
+// APIGetCategoryImagePath returns relative path to category image file or directory if no file in
+//   - category id must be specified in "categoryID" argument
+func APIGetCategoryImagePath(context api.InterfaceApplicationContext) (interface{}, error) {
+
+	// check request context
+	//---------------------
+	categoryID := context.GetRequestArgument("categoryID")
+	if categoryID == "" {
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "6597ff92-f2ee-4233-bcf9-eb73b957fb05", "category id was not specified")
+	}
+
+	// geting image path operation
+	//---------------------
+	categoryModel, err := category.GetCategoryModelAndSetID(categoryID)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	mediaStorage, err := media.GetMediaStorage()
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	imagePath, err := mediaStorage.GetMediaPath(categoryModel.GetModelName(), categoryID, ConstMediaType)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	categoryImages, err := mediaStorage.ListMedia(categoryModel.GetModelName(), categoryID, ConstMediaType)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	for _, image := range categoryImages {
+		imagePath = imagePath + image
+		break
+	}
+
+	return imagePath, nil
+}
+
+// APIUpdateCategoryImage uploads and assigns media file send in request for a specified category
+//   - category id should be specified in "categoryID" argument
+//   - media file should be provided in "file" field
+func APIUpdateCategoryImage(context api.InterfaceApplicationContext) (interface{}, error) {
+
+	// check request context
+	//---------------------
+	categoryID := context.GetRequestArgument("categoryID")
+	if categoryID == "" {
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "a4696c5d-3276-4272-8d86-8061e57743a5", "category id was not specified")
+	}
+
+	// check rights
+	if err := api.ValidateAdminRights(context); err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	// income file processing
+	//-----------------------
+	files := context.GetRequestFiles()
+	if len(files) == 0 {
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "75a2ddaf-b63d-4eed-b16d-4b32778f5fc1", "image was not specified")
+	}
+
+	imageName := ""
+	var fileContent []byte
+	for fileName, fileReader := range files {
+		contents, err := ioutil.ReadAll(fileReader)
+		if err != nil {
+			return nil, env.ErrorDispatch(err)
+		}
+		fileContent = contents
+		imageName = fileName
+		break
+	}
+
+	// add media operation
+	//--------------------
+	categoryModel, err := category.GetCategoryModelAndSetID(categoryID)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	mediaStorage, err := media.GetMediaStorage()
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	categoryImages, err := mediaStorage.ListMedia(categoryModel.GetModelName(), categoryID, ConstMediaType)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	for _, image := range categoryImages {
+		err := mediaStorage.Remove(categoryModel.GetModelName(), categoryID, ConstMediaType, image)
+		if err != nil {
+			return nil, env.ErrorDispatch(err)
+		}
+	}
+
+	err = mediaStorage.Save(categoryModel.GetModelName(), categoryID, ConstMediaType, imageName, fileContent)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	return "ok", nil
+}
+
+// APIRemoveCategoryImage removes image from specified category
+//   - category id should be specified in "categoryID" argument
+func APIRemoveCategoryImage(context api.InterfaceApplicationContext) (interface{}, error) {
+
+	// check request context
+	//---------------------
+	categoryID := context.GetRequestArgument("categoryID")
+	if categoryID == "" {
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "f5f77b7f-6606-4bdd-a113-0a3b26f5759c", "category id was not specified")
+	}
+
+	// check rights
+	if err := api.ValidateAdminRights(context); err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	// removing image operation
+	//---------------------
+	categoryModel, err := category.GetCategoryModelAndSetID(categoryID)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	mediaStorage, err := media.GetMediaStorage()
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	imageName, err := mediaStorage.ListMedia(categoryModel.GetModelName(), categoryID, ConstMediaType)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	for _, image := range imageName {
+		err := mediaStorage.Remove(categoryModel.GetModelName(), categoryID, ConstMediaType, image)
+		if err != nil {
+			return nil, env.ErrorDispatch(err)
+		}
+	}
+
+	return "ok", nil
+}
+
+// APIGetCategoryImage returns media contents for a category (file assigned to a category)
+//   - category id must be specified in "categoryID" argument
+//   - on success case not a JSON data returns, but media file
+func APIGetCategoryImage(context api.InterfaceApplicationContext) (interface{}, error) {
+
+	// check request context
+	//---------------------
+	categoryID := context.GetRequestArgument("categoryID")
+	if categoryID == "" {
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "d33b8a67-359f-4a3e-b626-f58b6c70f09f", "category id was not specified")
+	}
+
+	// list media operation
+	//---------------------
+	categoryModel, err := category.GetCategoryModelAndSetID(categoryID)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	mediaStorage, err := media.GetMediaStorage()
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	imageName, err := mediaStorage.ListMedia(categoryModel.GetModelName(), categoryID, ConstMediaType)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	} else if imageName == nil {
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "d33b8a67-359f-4a3e-b626-f58b6c70f09f", "category have no image")
+	}
+
+	image, err := mediaStorage.Load(categoryModel.GetModelName(), categoryID, ConstMediaType, imageName[0])
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	context.SetResponseContentType(mime.TypeByExtension(imageName[0]))
+
+	return image, nil
 }
