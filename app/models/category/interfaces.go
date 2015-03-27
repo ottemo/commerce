@@ -38,6 +38,7 @@ type InterfaceCategory interface {
 	models.InterfaceModel
 	models.InterfaceObject
 	models.InterfaceStorable
+	models.InterfaceMedia
 	models.InterfaceListable
 }
 
