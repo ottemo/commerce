@@ -73,11 +73,11 @@ func setupAPI() error {
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("category/:categoryID/media/:mediaType/:mediaName", api.ConstRESTOperationCreate, APIAddMediaForProduct)
+	err = api.GetRestService().RegisterAPI("category/:categoryID/media/:mediaType/:mediaName", api.ConstRESTOperationCreate, APIAddMediaForCategory)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("category/:categoryID/media/:mediaType/:mediaName", api.ConstRESTOperationDelete, APIRemoveMediaForProduct)
+	err = api.GetRestService().RegisterAPI("category/:categoryID/media/:mediaType/:mediaName", api.ConstRESTOperationDelete, APIRemoveMediaForCategory)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -582,10 +582,10 @@ func APIListMedia(context api.InterfaceApplicationContext) (interface{}, error) 
 	return mediaList, nil
 }
 
-// APIAddMediaForProduct uploads and assigns media file send in request for a specified category
+// APIAddMediaForCategory uploads and assigns media file send in request for a specified category
 //   - category id, media type and media name should be specified in "categoryID", "mediaType" and "mediaName" arguments
 //   - media file should be provided in "file" field
-func APIAddMediaForProduct(context api.InterfaceApplicationContext) (interface{}, error) {
+func APIAddMediaForCategory(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check request context
 	//---------------------
@@ -641,9 +641,9 @@ func APIAddMediaForProduct(context api.InterfaceApplicationContext) (interface{}
 	return "ok", nil
 }
 
-// APIRemoveMediaForProduct removes media content from specified category
+// APIRemoveMediaForCategory removes media content from specified category
 //   - category id, media type and media name should be specified in "categoryID", "mediaType" and "mediaName" arguments
-func APIRemoveMediaForProduct(context api.InterfaceApplicationContext) (interface{}, error) {
+func APIRemoveMediaForCategory(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check request context
 	//---------------------
