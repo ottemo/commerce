@@ -20,8 +20,3 @@ const (
 var (
 	mediaStorage media.InterfaceMediaStorage
 )
-
-// DefaultCMSGallery is a default implementer of InterfaceMediaStorage
-type DefaultCMSGallery struct {
-	mediaStorage media.InterfaceMediaStorage
-}
