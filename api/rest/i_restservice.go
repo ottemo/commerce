@@ -112,6 +112,22 @@ func (it *DefaultRestService) RegisterAPI(resource string, operation string, han
 
 			content = newContent
 
+			// request contains POST text
+		case strings.Contains(contentType, "text/plain"):
+			var body []byte
+
+			if req.ContentLength > 0 {
+				body = make([]byte, req.ContentLength)
+				req.Body.Read(body)
+			} else {
+				body, err = ioutil.ReadAll(req.Body)
+				if err != nil {
+					env.ErrorDispatch(err)
+				}
+			}
+
+			content = string(body)
+
 		default:
 			content = req.Body
 		}
