@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"mime"
 	"net/http"
 	"net/url"
 	"strings"
@@ -145,7 +146,16 @@ func (it *DefaultRestService) RegisterAPI(resource string, operation string, han
 				for _, fileInfo := range fileInfoArray {
 					attachedFile, err := fileInfo.Open()
 					if err == nil {
-						applicationContext.RequestFiles[fileInfo.Filename] = attachedFile
+						mediaFileName := fileInfo.Filename
+						if contentDisposition, present := fileInfo.Header["Content-Disposition"]; present && len(contentDisposition) > 0 {
+							if _, mediaParams, err := mime.ParseMediaType(contentDisposition[0]); err == nil {
+								if value, present := mediaParams["name"]; present {
+									mediaFileName = value
+								}
+							}
+
+						}
+						applicationContext.RequestFiles[mediaFileName] = attachedFile
 					}
 				}
 			}
