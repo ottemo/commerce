@@ -28,7 +28,7 @@ func (it *DefaultDiscount) CalculateDiscount(checkoutInstance checkout.Interface
 		if appliedCodes, ok := currentSession.Get(ConstSessionKeyAppliedDiscountCodes).([]string); ok && len(appliedCodes) > 0 {
 
 			// getting order information will use in calculations
-			discountableAmount := checkoutInstance.GetGrandTotal()
+			discountableAmount := checkoutInstance.GetSubtotal()
 			grandTotalAmount := checkoutInstance.GetGrandTotal()
 
 			// loading information about applied discounts
