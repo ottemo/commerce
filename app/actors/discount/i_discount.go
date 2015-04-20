@@ -29,7 +29,7 @@ func (it *DefaultDiscount) CalculateDiscount(checkoutInstance checkout.Interface
 
 			// getting order information will use in calculations
 			discountableAmount := checkoutInstance.GetSubtotal()
-			grandTotalAmount := checkoutInstance.GetGrandTotal()
+			subtotalAmount := checkoutInstance.GetSubtotal()
 
 			// loading information about applied discounts
 			collection, err := db.GetCollection(ConstCollectionNameCouponDiscounts)
@@ -74,7 +74,7 @@ func (it *DefaultDiscount) CalculateDiscount(checkoutInstance checkout.Interface
 						discountAmount := utils.InterfaceToFloat64(discountCoupon["amount"])
 						discountPercent := utils.InterfaceToFloat64(discountCoupon["percent"])
 
-						discountAmount = utils.RoundPrice(discountAmount) + utils.RoundPrice(grandTotalAmount/100*discountPercent)
+						discountAmount = utils.RoundPrice(discountAmount) + utils.RoundPrice(subtotalAmount/100*discountPercent)
 
 						if discountableAmount > discountAmount {
 							discountableAmount -= discountAmount
