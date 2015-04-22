@@ -25,8 +25,9 @@ func (it *DefaultDiscount) CalculateDiscount(checkoutInstance checkout.Interface
 
 	// checking session for applied coupon codes
 	if currentSession := checkoutInstance.GetSession(); currentSession != nil {
-		if appliedCodes, ok := currentSession.Get(ConstSessionKeyAppliedDiscountCodes).([]string); ok && len(appliedCodes) > 0 {
 
+		appliedCodes := utils.InterfaceToStringArray(currentSession.Get(ConstSessionKeyAppliedDiscountCodes))
+		if len(appliedCodes) > 0 {
 			// getting order information will use in calculations
 			discountableAmount := checkoutInstance.GetSubtotal()
 			subtotalAmount := checkoutInstance.GetSubtotal()
