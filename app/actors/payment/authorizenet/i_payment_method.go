@@ -114,7 +114,7 @@ func (it *DirectPostMethod) Authorize(orderInstance order.InterfaceOrder, paymen
 	htmlText += "<input type='submit' value='Submit' />"
 	htmlText += "</form>"
 
-	env.Log(ConstLogStorage, env.ConstLogPrefixInfo, "FORM: " + htmlText)
+	env.Log(ConstLogStorage, env.ConstLogPrefixInfo, "FORM: "+htmlText)
 
 	env.Log(ConstLogStorage, env.ConstLogPrefixInfo, "NEW TRANSACTION: "+
 		"Visitor ID - "+utils.InterfaceToString(orderInstance.Get("visitor_id"))+", "+
