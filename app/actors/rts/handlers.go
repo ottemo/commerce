@@ -8,8 +8,8 @@ import (
 	"github.com/ottemo/foundation/app"
 	"github.com/ottemo/foundation/app/models/cart"
 	"github.com/ottemo/foundation/db"
-	"github.com/ottemo/foundation/utils"
 	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/foundation/utils"
 )
 
 func referrerHandler(event string, eventData map[string]interface{}) bool {

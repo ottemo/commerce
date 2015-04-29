@@ -17,9 +17,9 @@ const (
 	ConstReferrerTypeSite   = 1
 	ConstReferrerTypeSearch = 2
 
-	ConstVisitorAddToCart     = 1
-	ConstVisitorCheckout      = 2
-	ConstVisitorSales         = 3
+	ConstVisitorAddToCart = 1
+	ConstVisitorCheckout  = 2
+	ConstVisitorSales     = 3
 
 	ConstVisitorOnlineSeconds = 10
 
@@ -29,10 +29,10 @@ const (
 
 // Package global variables
 var (
-	referrers             = make(map[string]int) // collects and counts refers from external sites
-	statistic      = make(map[int64]*ActionsMade) 	// information about per hour site activity
+	referrers = make(map[string]int)         // collects and counts refers from external sites
+	statistic = make(map[int64]*ActionsMade) // information about per hour site activity
 
-	visitState      = make(map[string]bool)			//checks a buying status of visitor by it sessionID
+	visitState = make(map[string]bool) //checks a buying status of visitor by it sessionID
 
 	// OnlineSessions holds session based information about referer type on first visit
 	OnlineSessions = make(map[string]*OnlineReferrer)
@@ -57,9 +57,9 @@ var (
 
 // ActionsMade contains info of visits, cart create and sales made for a hour
 type ActionsMade struct {
-	Visit 	int       	// count site visits
-	Cart     int       // count times products was added to cart
-	Sales    int       // count of orders visitors made
+	Visit int // count site visits
+	Cart  int // count times products was added to cart
+	Sales int // count of orders visitors made
 }
 
 // TopSellers holds information about best sellers
