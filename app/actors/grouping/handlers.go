@@ -55,12 +55,12 @@ func getApplyTimesCount(currentCart cart.InterfaceCart, groupProductsArray []int
 						ruleMultiplier = possibleAppliesCount
 					}
 					cartItemFoundFlag = true
-				} else {
-					return 0
+					break
 				}
 			}
 		}
-		if !cartItemFoundFlag {
+		if ruleMultiplier < 1 || !cartItemFoundFlag {
+			println("ruleMultiplier < 1")
 			return 0
 		}
 	}
@@ -73,6 +73,7 @@ func applyGroupRule(currentCart cart.InterfaceCart, groupProductsArray []interfa
 	// checking how many times rule could be applied
 	ruleMultiplier := getApplyTimesCount(currentCart, groupProductsArray)
 	if ruleMultiplier > 0 {
+
 
 		// modifying current cart with removing items from rule group key element
 		for _, groupProductValue := range groupProductsArray {
