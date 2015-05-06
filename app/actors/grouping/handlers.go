@@ -60,7 +60,6 @@ func getApplyTimesCount(currentCart cart.InterfaceCart, groupProductsArray []int
 			}
 		}
 		if ruleMultiplier < 1 || !cartItemFoundFlag {
-			println("ruleMultiplier < 1")
 			return 0
 		}
 	}
