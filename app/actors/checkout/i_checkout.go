@@ -387,11 +387,14 @@ func (it *DefaultCheckout) Submit() (interface{}, error) {
 	checkoutOrder.Set("payment_method", it.GetPaymentMethod().GetCode())
 	checkoutOrder.Set("shipping_method", it.GetShippingMethod().GetCode()+"/"+it.GetShippingRate().Code)
 
-	discountAmount, _ := it.GetDiscounts()
-	taxAmount, _ := it.GetTaxes()
-
+	discountAmount, discounts := it.GetDiscounts()
 	checkoutOrder.Set("discount", discountAmount)
+	checkoutOrder.Set("discounts", discounts)
+
+	taxAmount, taxes := it.GetTaxes()
 	checkoutOrder.Set("tax_amount", taxAmount)
+	checkoutOrder.Set("taxes", taxes)
+
 	checkoutOrder.Set("shipping_amount", it.GetShippingRate().Price)
 
 	generateDescriptionFlag := false
