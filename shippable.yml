@@ -1,0 +1,21 @@
+language: go
+go:
+    - 1.2
+
+build_image: shippableimages/ubuntu1404_go
+
+before_install:
+    - go get
+    - mkdir src
+    - mkdir src/github.com
+    - mkdir src/github.com/ottemo/
+    - mkdir src/github.com/ottemo/foundation
+    - cp -r . src/github.com/ottemo/foundation
+
+install:
+    - go build github.com/ottemo/foundation
+
+script:
+    - export $GOPATH=$PWD
+    - export PATH=$PATH:$GOPATH/bin
+    - go get github.com/ottemo/foundation
