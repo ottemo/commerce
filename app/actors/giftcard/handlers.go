@@ -35,6 +35,28 @@ func orderProceedHandler(event string, eventData map[string]interface{}) bool {
 	cartProducts := orderProceed.GetItems()
 	giftCardsSKUElement := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathGiftCardSKU))
 
+	// check is operations with this order was already done
+	giftCardCollection.AddFilter("order_id", "=", orderID)
+
+	orderGiftCardCreation, err := giftCardCollection.Load()
+	if err != nil {
+		env.LogError(err)
+		return false
+	}
+
+	giftCardCollection.ClearFilters()
+	giftCardCollection.AddFilter("orders_used", "LIKE", orderID)
+
+	orderGiftCardApplying, err := giftCardCollection.Load()
+	if err != nil {
+		env.LogError(err)
+		return false
+	}
+
+	if len(orderGiftCardCreation) > 0 || len(orderGiftCardApplying) > 0 {
+		return true
+	}
+
 	// check cart for gift card's and save in table if they present
 	for _, cartItem := range cartProducts {
 		giftCardSKU := cartItem.GetSku()
