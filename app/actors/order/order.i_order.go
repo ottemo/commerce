@@ -240,14 +240,6 @@ func (it *DefaultOrder) SetStatus(newStatus string) error {
 		}
 
 	} else {
-		// checking order's incrementID, if not set - assigning new one
-		if newStatus != order.ConstOrderStatusNew && it.GetIncrementID() == "" {
-			err = it.NewIncrementID()
-			if err != nil {
-				return env.ErrorDispatch(err)
-			}
-			it.Save()
-		}
 
 		// taking items from stock
 		if oldStatus == order.ConstOrderStatusCancelled || oldStatus == "" {
@@ -285,6 +277,14 @@ func (it *DefaultOrder) Proceed() error {
 				}
 			}
 
+		}
+	}
+
+	// checking order's incrementID, if not set - assigning new one
+	if it.GetIncrementID() == "" {
+		err = it.NewIncrementID()
+		if err != nil {
+			return env.ErrorDispatch(err)
 		}
 	}
 
