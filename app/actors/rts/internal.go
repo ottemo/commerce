@@ -278,40 +278,24 @@ func GetSalesRange() string {
 	return _range
 }
 
-// GetRangeSales returns Get Sales for range
-func GetRangeSales(dateFrom, dateTo time.Time) (int, error) {
+// GetRangeStats returns stats for range
+func GetRangeStats(dateFrom, dateTo time.Time) (ActionsMade, error) {
 
-	sales := 0
+	var stats ActionsMade
 
-	// Go thrue period and summarise a visits
+	// Go thru period and summarise a visits
 	for dateFrom.Before(dateTo) {
 
 		if _, present := statistic[dateFrom.Unix()]; present {
-			sales = sales + statistic[dateFrom.Unix()].Sales
+			stats.Visit = statistic[dateFrom.Unix()].Visit + stats.Visit
+			stats.Sales = statistic[dateFrom.Unix()].Sales + stats.Sales
+			stats.Cart = statistic[dateFrom.Unix()].Cart + stats.Cart
 		}
 
 		dateFrom = dateFrom.Add(time.Hour)
 	}
 
-	return sales, nil
-}
-
-// GetRangeVisits get visits for determinated range
-func GetRangeVisits(dateFrom, dateTo time.Time) (int, error) {
-
-	visits := 0
-
-	// Go thrue period and summarise a visits
-	for dateFrom.Before(dateTo) {
-
-		if _, present := statistic[dateFrom.Unix()]; present {
-			visits = visits + statistic[dateFrom.Unix()].Visit
-		}
-
-		dateFrom = dateFrom.Add(time.Hour)
-	}
-
-	return visits, nil
+	return stats, nil
 }
 
 // initStatistic get info from visitor database for 60 hours

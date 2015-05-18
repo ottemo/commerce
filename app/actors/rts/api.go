@@ -106,15 +106,17 @@ func APIGetVisits(context api.InterfaceApplicationContext) (interface{}, error) 
 	yesterdayFrom := todayFrom.AddDate(0, 0, -1)
 
 	// get data for visits
-	todayVisits, err := GetRangeVisits(todayFrom, todayTo)
+	todayStats, err := GetRangeStats(todayFrom, todayTo)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
+	todayVisits := todayStats.Visit
 
-	yesterdayVisits, err := GetRangeVisits(yesterdayFrom, todayFrom)
+	yesterdayStats, err := GetRangeStats(yesterdayFrom, todayFrom)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
+	yesterdayVisits := yesterdayStats.Visit
 
 	// count ratio for current data
 	ratio := float64(0)
@@ -258,15 +260,17 @@ func APIGetSales(context api.InterfaceApplicationContext) (interface{}, error) {
 	yesterdayFrom := todayFrom.AddDate(0, 0, -1)
 
 	// get data for sales
-	todaySales, err := GetRangeSales(todayFrom, todayTo)
+	todayStats, err := GetRangeStats(todayFrom, todayTo)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
+	todaySales := todayStats.Sales
 
-	yesterdaySales, err := GetRangeSales(yesterdayFrom, todayFrom)
+	yesterdayStats, err := GetRangeStats(yesterdayFrom, todayFrom)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
+	yesterdaySales := yesterdayStats.Sales
 
 	// count ratio for current data
 	ratio := float64(0)

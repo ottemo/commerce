@@ -63,12 +63,6 @@ type ActionsMade struct {
 	Sales int // count of orders visitors made
 }
 
-// TopSellers holds information about best sellers
-type TopSellers struct {
-	Data       map[string]*SellerInfo // product id based map holds best sellers
-	lastUpdate int64                  // timestamp used to update struct once in a hour
-}
-
 // SellerInfo represents particular product in TopSellers struct
 type SellerInfo struct {
 	Name  string // product name
