@@ -441,23 +441,31 @@ func CheckHourUpdateForStatistic() {
 	currentHour := time.Now().Truncate(time.Hour).Unix()
 	lastHour := time.Now().Add(-time.Hour * 60).Truncate(time.Hour).Unix()
 
+	// if last our not present in statistic we need to update visitState
+	// if it's a new day so we make clear a visitor state stats
+	// and create clear record for this hour
 	if _, present := statistic[currentHour]; !present {
 
-		cartCreatedPersons := make(map[string]bool)
-		for sessionID, addToCartPresent := range visitState {
-			if addToCartPresent {
-				cartCreatedPersons[sessionID] = addToCartPresent
-			}
-		}
+		if lastUpdate.Truncate(time.Hour*24) != time.Now().Truncate(time.Hour*24) {
+			visitState = make(map[string]bool)
+		} else {
+			cartCreatedPersons := make(map[string]bool)
 
-		visitState = cartCreatedPersons
+			for sessionID, addToCartPresent := range visitState {
+				if addToCartPresent {
+					cartCreatedPersons[sessionID] = addToCartPresent
+				}
+			}
+			visitState = cartCreatedPersons
+		}
 		statistic[currentHour] = new(ActionsMade)
 	}
 
 	for timeIn := range statistic {
-		if timeIn <= lastHour {
+		if timeIn < lastHour {
 			delete(statistic, timeIn)
 		}
 	}
 
+	lastUpdate = time.Now()
 }

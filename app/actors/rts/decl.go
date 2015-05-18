@@ -32,6 +32,7 @@ var (
 	referrers = make(map[string]int)         // collects and counts refers from external sites
 	statistic = make(map[int64]*ActionsMade) // information about per hour site activity
 
+	lastUpdate = time.Now()            // last update timer for day reset
 	visitState = make(map[string]bool) //checks a buying status of visitor by it sessionID
 
 	// OnlineSessions holds session based information about referer type on first visit
