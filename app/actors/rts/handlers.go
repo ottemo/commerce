@@ -142,34 +142,35 @@ func salesHandler(event string, eventData map[string]interface{}) bool {
 			return true
 		}
 
-		productQtys := make(map[string]interface{})
-		for i := range cartProducts {
-			productQtys[cartProducts[i].GetProductID()] = cartProducts[i].GetQty()
+		productQtys := make(map[string]int)
+		for _, cartItem := range cartProducts {
+			productQtys[cartItem.GetProductID()] = cartItem.GetQty()
 		}
-
-		salesData := make(map[string]int)
 
 		salesHistoryCollection, err := db.GetCollection(ConstCollectionNameRTSSalesHistory)
 		if err != nil {
+			env.LogError(err)
 			return true
 		}
 
 		for productID, count := range productQtys {
-			currentDate := time.Now().Truncate(time.Hour * 24)
+			currentDate := time.Now().Truncate(time.Hour * 24).Unix()
 
 			salesHistoryRecord := make(map[string]interface{})
-			salesData[productID] = utils.InterfaceToInt(count)
 
 			salesHistoryCollection.ClearFilters()
 			salesHistoryCollection.AddFilter("created_at", "=", currentDate)
 			salesHistoryCollection.AddFilter("product_id", "=", productID)
-			dbSaleRow, _ := salesHistoryCollection.Load()
+			dbSaleRow, err := salesHistoryCollection.Load()
+			if err != nil {
+				env.LogError(err)
+				return true
+			}
 
 			newCount := utils.InterfaceToInt(count)
 			if len(dbSaleRow) > 0 {
-				salesHistoryRecord["_id"] = utils.InterfaceToString(dbSaleRow[0]["_id"])
-				oldCount := utils.InterfaceToInt(dbSaleRow[0]["count"])
-				newCount += oldCount
+				salesHistoryRecord["_id"] = dbSaleRow[0]["_id"]
+				newCount = newCount + utils.InterfaceToInt(dbSaleRow[0]["count"])
 			}
 
 			// saving new history record
@@ -179,12 +180,13 @@ func salesHandler(event string, eventData map[string]interface{}) bool {
 				salesHistoryRecord["count"] = newCount
 				_, err = salesHistoryCollection.Save(salesHistoryRecord)
 				if err != nil {
+					env.LogError(err)
 					return true
 				}
 			}
 		}
 
-		SaveSalesData(salesData)
+		SaveSalesData(productQtys)
 	}
 
 	return true

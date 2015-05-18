@@ -106,15 +106,17 @@ func APIGetVisits(context api.InterfaceApplicationContext) (interface{}, error) 
 	yesterdayFrom := todayFrom.AddDate(0, 0, -1)
 
 	// get data for visits
-	todayVisits, err := GetRangeVisits(todayFrom, todayTo)
+	todayStats, err := GetRangeStats(todayFrom, todayTo)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
+	todayVisits := todayStats.Visit
 
-	yesterdayVisits, err := GetRangeVisits(yesterdayFrom, todayFrom)
+	yesterdayStats, err := GetRangeStats(yesterdayFrom, todayFrom)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
+	yesterdayVisits := yesterdayStats.Visit
 
 	// count ratio for current data
 	ratio := float64(0)
@@ -258,15 +260,17 @@ func APIGetSales(context api.InterfaceApplicationContext) (interface{}, error) {
 	yesterdayFrom := todayFrom.AddDate(0, 0, -1)
 
 	// get data for sales
-	todaySales, err := GetRangeSales(todayFrom, todayTo)
+	todayStats, err := GetRangeStats(todayFrom, todayTo)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
+	todaySales := todayStats.Sales
 
-	yesterdaySales, err := GetRangeSales(yesterdayFrom, todayFrom)
+	yesterdayStats, err := GetRangeStats(yesterdayFrom, todayFrom)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
+	yesterdaySales := yesterdayStats.Sales
 
 	// count ratio for current data
 	ratio := float64(0)
@@ -362,39 +366,48 @@ func APIGetSalesDetails(context api.InterfaceApplicationContext) (interface{}, e
 	return result, nil
 }
 
-// APIGetBestsellers returns information on site bestsellers
+// APIGetBestsellers returns information on site bestsellers top five existing products
 func APIGetBestsellers(context api.InterfaceApplicationContext) (interface{}, error) {
 	result := make(map[string]*SellerInfo)
 
 	salesCollection, err := db.GetCollection(ConstCollectionNameRTSSales)
 	if err != nil {
-		return nil, env.ErrorDispatch(err)
+		return result, env.ErrorDispatch(err)
 	}
 	salesCollection.AddFilter("count", ">", 0)
 	salesCollection.AddSort("count", true)
-	salesCollection.SetLimit(0, 5)
-	collectionRecords, _ := salesCollection.Load()
+	salesCollection.SetLimit(0, 25)
+	collectionRecords, err := salesCollection.Load()
+	if err != nil {
+		return result, env.ErrorDispatch(err)
+	}
 
+	topFiveCounter := 0
 	for _, item := range collectionRecords {
 		productID := utils.InterfaceToString(item["product_id"])
-		result[productID] = &SellerInfo{}
 
 		productInstance, err := product.LoadProductByID(productID)
 		if err != nil {
-			return nil, env.ErrorDispatch(err)
+			continue
 		}
 
 		mediaPath, err := productInstance.GetMediaPath("image")
 		if err != nil {
-			return result, env.ErrorDispatch(err)
+			continue
 		}
 
+		result[productID] = &SellerInfo{}
 		if productInstance.GetDefaultImage() != "" {
 			result[productID].Image = mediaPath + productInstance.GetDefaultImage()
 		}
 
 		result[productID].Name = productInstance.GetName()
 		result[productID].Count = utils.InterfaceToInt(item["count"])
+		topFiveCounter++
+
+		if topFiveCounter == 5 {
+			break
+		}
 	}
 
 	return result, nil
