@@ -135,7 +135,7 @@ func initSalesHistory() error {
 	}
 	dbOrderCollection := orderCollectionModel.GetDBCollection()
 	dbOrderCollection.SetResultColumns("_id", "created_at")
-	dbOrderCollection.AddFilter("created_at", ">=", dateFrom.Truncate(timeStamp).Unix())
+	dbOrderCollection.AddFilter("created_at", ">=", dateFrom.Add(time.Hour*24).Truncate(timeStamp))
 
 	ordersForPeriod, err := dbOrderCollection.Load()
 	if err != nil {
@@ -163,7 +163,7 @@ func initSalesHistory() error {
 			return env.ErrorDispatch(err)
 		}
 
-		currentDateUnix := utils.InterfaceToTime(order["created_at"]).Truncate(timeStamp).Unix()
+		currentDateUnix := utils.InterfaceToTime(order["created_at"]).Unix()
 
 		for _, orderItem := range orderItems {
 			currentProductID := utils.InterfaceToString(orderItem["product_id"])
@@ -225,7 +225,6 @@ func initSalesHistory() error {
 	}
 
 	SaveSalesData(salesData)
-
 	return nil
 }
 
@@ -274,7 +273,6 @@ func SaveSalesData(data map[string]int) error {
 // GetSalesRange will return the date range for the sales data
 func GetSalesRange() string {
 	_range := "2015-01-01:"
-
 	return _range
 }
 
@@ -301,7 +299,6 @@ func GetRangeStats(dateFrom, dateTo time.Time) (ActionsMade, error) {
 // initStatistic get info from visitor database for 60 hours
 func initStatistic() error {
 	// convert to utc time and work with variables
-	time.Local = time.UTC
 	timeScope := time.Hour
 	dateTo := time.Now().Add(time.Hour).Truncate(timeScope)
 	dateFrom := dateTo.Add(-60 * time.Hour)
