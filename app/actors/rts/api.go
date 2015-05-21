@@ -375,6 +375,7 @@ func APIGetBestsellers(context api.InterfaceApplicationContext) (interface{}, er
 		return result, env.ErrorDispatch(err)
 	}
 	salesCollection.AddFilter("count", ">", 0)
+	salesCollection.AddFilter("range", "=", GetSalesRange())
 	salesCollection.AddSort("count", true)
 	salesCollection.SetLimit(0, 25)
 	collectionRecords, err := salesCollection.Load()

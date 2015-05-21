@@ -34,11 +34,10 @@ func init() {
 
 // DB preparations for current model implementation
 func initListners() error {
-
+	time.Local = time.UTC
 	env.EventRegisterListener("api.rts.visit", referrerHandler)
 	env.EventRegisterListener("api.rts.visit", visitsHandler)
 	env.EventRegisterListener("api.cart.addToCart", addToCartHandler)
-	//env.EventRegisterListener("api.checkout.setPayment", reachedCheckoutHandler)
 	env.EventRegisterListener("checkout.success", purchasedHandler)
 	env.EventRegisterListener("checkout.success", salesHandler)
 	env.EventRegisterListener("api.rts.visit", registerVisitorAsOnlineHandler)
