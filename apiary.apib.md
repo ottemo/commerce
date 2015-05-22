@@ -147,8 +147,8 @@ app/actors/category/api.go
 ## app/actors/rts/api.go
 
 - [POST]     rts/visit
-- [GET]      rts/referrers
 - [GET]      rts/visits
+- [GET]      rts/referrers
 - [GET]      rts/visits/detail/:from/:to
 - [GET]      rts/conversion
 - [GET]      rts/sales
