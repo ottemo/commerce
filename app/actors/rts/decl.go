@@ -12,14 +12,11 @@ const (
 	ConstCollectionNameRTSSalesHistory = "rts_sales_history"
 	ConstCollectionNameRTSSales        = "rts_sales"
 	ConstCollectionNameRTSVisitors     = "rts_visitors"
+	ConstCollectionNameRTSReferrals    = "rts_referrals"
 
 	ConstReferrerTypeDirect = 0
 	ConstReferrerTypeSite   = 1
 	ConstReferrerTypeSearch = 2
-
-	ConstVisitorAddToCart = 1
-	ConstVisitorCheckout  = 2
-	ConstVisitorSales     = 3
 
 	ConstVisitorOnlineSeconds = 10
 
@@ -58,9 +55,11 @@ var (
 
 // ActionsMade contains info of visits, cart create and sales made for a hour
 type ActionsMade struct {
-	Visit int // count site visits
-	Cart  int // count times products was added to cart
-	Sales int // count of orders visitors made
+	Visit       int     // count site visits
+	Cart        int     // count times products was added to cart
+	Sales       int     // count of orders visitors made
+	TotalVisits int     // total visits count
+	SalesAmount float64 // count sales
 }
 
 // SellerInfo represents particular product in TopSellers struct

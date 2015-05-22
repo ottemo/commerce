@@ -288,6 +288,8 @@ func GetRangeStats(dateFrom, dateTo time.Time) (ActionsMade, error) {
 			stats.Visit = statistic[dateFrom.Unix()].Visit + stats.Visit
 			stats.Sales = statistic[dateFrom.Unix()].Sales + stats.Sales
 			stats.Cart = statistic[dateFrom.Unix()].Cart + stats.Cart
+			stats.TotalVisits = statistic[dateFrom.Unix()].TotalVisits + stats.TotalVisits
+			stats.SalesAmount = statistic[dateFrom.Unix()].SalesAmount + stats.SalesAmount
 		}
 
 		dateFrom = dateFrom.Add(time.Hour)
@@ -301,13 +303,12 @@ func initStatistic() error {
 	// convert to utc time and work with variables
 	timeScope := time.Hour
 	dateTo := time.Now().Add(time.Hour).Truncate(timeScope)
-	dateFrom := dateTo.Add(-60 * time.Hour)
+	dateFrom := dateTo.Add(-168 * time.Hour)
 
 	visitorInfoCollection, err := db.GetCollection(ConstCollectionNameRTSVisitors)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	visitorInfoCollection.SetResultColumns("day", "visitors", "cart", "sales")
 	visitorInfoCollection.AddSort("day", false)
 
 	for dateFrom.Before(dateTo) {
@@ -370,6 +371,8 @@ func SaveStatisticsData() error {
 			lastRecord["visitors"] = statisticValue.Visit
 			lastRecord["cart"] = statisticValue.Cart
 			lastRecord["sales"] = statisticValue.Sales
+			visitorInfoRow["sales_amount"] = statisticValue.SalesAmount
+			visitorInfoRow["total_visits"] = statisticValue.TotalVisits
 
 			// save data to database
 			_, err = visitorInfoCollection.Save(lastRecord)
@@ -388,6 +391,8 @@ func SaveStatisticsData() error {
 				visitorInfoRow["visitors"] = statisticValue.Visit
 				visitorInfoRow["cart"] = statisticValue.Cart
 				visitorInfoRow["sales"] = statisticValue.Sales
+				visitorInfoRow["sales_amount"] = statisticValue.SalesAmount
+				visitorInfoRow["total_visits"] = statisticValue.TotalVisits
 
 				// save data to database
 				_, err = visitorInfoCollection.Save(visitorInfoRow)
@@ -404,6 +409,8 @@ func SaveStatisticsData() error {
 			visitorInfoRow["visitors"] = actions.Visit
 			visitorInfoRow["cart"] = actions.Cart
 			visitorInfoRow["sales"] = actions.Sales
+			visitorInfoRow["sales_amount"] = actions.SalesAmount
+			visitorInfoRow["total_visits"] = actions.TotalVisits
 
 			// save data to database
 			_, err = visitorInfoCollection.Save(visitorInfoRow)
@@ -420,7 +427,7 @@ func SaveStatisticsData() error {
 // and remove old record from statistic
 func CheckHourUpdateForStatistic() {
 	currentHour := time.Now().Truncate(time.Hour).Unix()
-	lastHour := time.Now().Add(-time.Hour * 60).Truncate(time.Hour).Unix()
+	lastHour := time.Now().Add(-time.Hour * 168).Truncate(time.Hour).Unix()
 
 	// if last our not present in statistic we need to update visitState
 	// if it's a new day so we make clear a visitor state stats
@@ -449,4 +456,56 @@ func CheckHourUpdateForStatistic() {
 	}
 
 	lastUpdate = time.Now()
+}
+
+// saveNewReferrer make save a new referral to data base
+func saveNewReferrer(referrer string) error {
+	visitorInfoCollection, err := db.GetCollection(ConstCollectionNameRTSReferrals)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	// rewrite existing referral with new count
+	visitorInfoCollection.AddFilter("referrer", "=", referrer)
+	visitorInfoCollection.SetLimit(0, 1)
+	dbRecord, err := visitorInfoCollection.Load()
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	newRecord := make(map[string]interface{})
+
+	if len(dbRecord) > 0 {
+		newRecord["_id"] = dbRecord[0]["_id"]
+	}
+	newRecord["referrer"] = referrer
+	newRecord["count"] = referrers[referrer]
+
+	// save data to database
+	_, err = visitorInfoCollection.Save(newRecord)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	return nil
+}
+
+// initReferrals get info from referrals database to variable
+func initReferrals() error {
+
+	visitorInfoCollection, err := db.GetCollection(ConstCollectionNameRTSReferrals)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	dbRecords, err := visitorInfoCollection.Load()
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	for _, record := range dbRecords {
+		referrers[utils.InterfaceToString(record["referrer"])] = utils.InterfaceToInt(record["count"])
+	}
+
+	return nil
 }

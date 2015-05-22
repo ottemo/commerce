@@ -16,6 +16,7 @@ func init() {
 	app.OnAppStart(initListners)
 	app.OnAppStart(initSalesHistory)
 	app.OnAppStart(initStatistic)
+	app.OnAppStart(initReferrals)
 
 	seconds := time.Millisecond * ConstVisitorOnlineSeconds * 1000
 	ticker := time.NewTicker(seconds)
@@ -75,10 +76,18 @@ func setupDB() error {
 
 	collection.AddColumn("day", db.ConstTypeDatetime, false)
 	collection.AddColumn("visitors", db.ConstTypeInteger, false)
+	collection.AddColumn("total_visits", db.ConstTypeInteger, false)
 	collection.AddColumn("cart", db.ConstTypeInteger, false)
-	collection.AddColumn("checkout", db.ConstTypeInteger, false)
 	collection.AddColumn("sales", db.ConstTypeInteger, false)
-	collection.AddColumn("details", db.ConstTypeText, false)
+	collection.AddColumn("sales_amount", db.ConstTypeFloat, false)
+
+	collection, err = db.GetCollection(ConstCollectionNameRTSReferrals)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	collection.AddColumn("referral", db.TypeWPrecision(db.ConstTypeVarchar, 150), false)
+	collection.AddColumn("count", db.ConstTypeInteger, false)
 
 	return nil
 }
