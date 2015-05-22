@@ -85,7 +85,7 @@ func APIRegisterVisit(context api.InterfaceApplicationContext) (interface{}, err
 // APIGetReferrers returns list of unique referrers were registered
 func APIGetReferrers(context api.InterfaceApplicationContext) (interface{}, error) {
 	result := make(map[string]int)
-	limit := 20
+	limit := 0
 
 	for url, count := range referrers {
 		result[url] = count
