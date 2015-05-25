@@ -7,7 +7,7 @@ import (
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/media"
 	"github.com/ottemo/foundation/utils"
-	
+
 	"bytes"
 	"encoding/base64"
 	"io/ioutil"
@@ -31,23 +31,23 @@ func sendOrderInfo(checkoutOrder order.InterfaceOrder, currentCart cart.Interfac
 		trustPilotBusinessUnitID := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathTrustPilotBusinessUnitID))
 		trustPilotUsername := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathTrustPilotUsername))
 		trustPilotPassword := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathTrustPilotPassword))
+		trustPilotAccessTokenURL := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathTrustPilotAccessTokenURL))
+		trustPilotProductReviewURL := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathTrustPilotProductReviewURL))
 
 		// check config data for presence
-		if trustPilotAPIKey != "" && trustPilotAPISecret != "" && trustPilotBusinessUnitID != "" &&
-			trustPilotBusinessUnitID != "" && trustPilotUsername != "" && trustPilotPassword != "" {
+		if trustPilotAPIKey != "" && trustPilotAPISecret != "" && trustPilotBusinessUnitID != "" && trustPilotBusinessUnitID != "" &&
+			trustPilotUsername != "" && trustPilotPassword != "" && trustPilotAccessTokenURL != "" && trustPilotProductReviewURL != "" {
 			currentToken := make(map[string]interface{})
 
 			// do request to get token for authentication
 			// create request with all necessary info
-			requestURL := "https://api.trustpilot.com/v1/oauth/oauth-business-users-for-applications/accesstoken"
-
 			bodyString := "grant_type=password&username=" + trustPilotUsername + "&password=" + trustPilotPassword
 			buffer := bytes.NewBuffer([]byte(bodyString))
 
 			valueAMIKeySecret := []byte(trustPilotAPIKey + ":" + trustPilotAPISecret)
 			encodedString := base64.StdEncoding.EncodeToString(valueAMIKeySecret)
 
-			request, err := http.NewRequest("POST", requestURL, buffer)
+			request, err := http.NewRequest("POST", trustPilotAccessTokenURL, buffer)
 			request.Header.Set("Authorization", "Basic "+encodedString)
 			request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
@@ -138,13 +138,12 @@ func sendOrderInfo(checkoutOrder order.InterfaceOrder, currentCart cart.Interfac
 
 				requestData["products"] = productsOrdered
 
-				requestURL := "https://api.trustpilot.com/v1/private/product-reviews/business-units/{businessUnitId}/invitation-links"
-				requestURL = strings.Replace(requestURL, "{businessUnitId}", trustPilotBusinessUnitID, 1)
+				trustPilotProductReviewURL = strings.Replace(trustPilotProductReviewURL, "{businessUnitId}", trustPilotBusinessUnitID, 1)
 
 				jsonString := utils.EncodeToJSONString(requestData)
 				buffer := bytes.NewBuffer([]byte(jsonString))
 
-				request, err := http.NewRequest("POST", requestURL, buffer)
+				request, err := http.NewRequest("POST", trustPilotProductReviewURL, buffer)
 				request.Header.Set("Content-Type", "application/json")
 				request.Header.Set("Authorization", "Bearer "+utils.InterfaceToString(accessToken))
 

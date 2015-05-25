@@ -119,5 +119,35 @@ func setupConfig() error {
 		return env.ErrorDispatch(err)
 	}
 
+	err = config.RegisterItem(env.StructConfigItem{
+		Path:        ConstConfigPathTrustPilotAccessTokenURL,
+		Value:       "https://api.trustpilot.com/v1/oauth/oauth-business-users-for-applications/accesstoken",
+		Type:        env.ConstConfigTypeVarchar,
+		Editor:      "line_text",
+		Options:     "",
+		Label:       "Access token URL",
+		Description: `Trustpilot URL for getting access token and appending it to product review request`,
+		Image:       "",
+	}, nil)
+
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	err = config.RegisterItem(env.StructConfigItem{
+		Path:        ConstConfigPathTrustPilotProductReviewURL,
+		Value:       "https://api.trustpilot.com/v1/private/product-reviews/business-units/{businessUnitId}/invitation-links",
+		Type:        env.ConstConfigTypeVarchar,
+		Editor:      "line_text",
+		Options:     "",
+		Label:       "Product review URL",
+		Description: `Trustpilot product review URL, {businessUnitId} - will be rewrited by "Business Unit ID" config value`,
+		Image:       "",
+	}, nil)
+
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
 	return nil
 }
