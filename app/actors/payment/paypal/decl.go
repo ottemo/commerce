@@ -12,6 +12,8 @@ const (
 	ConstPaymentCode = "paypal_express"
 	ConstPaymentName = "PayPal Express"
 
+	ConstPaymentPayFlowURL = "https://pilot-payflowpro.paypal.com/"
+
 	ConstLogStorage = "paypal.log"
 
 	ConstPaymentActionSale          = "Sale"
@@ -46,3 +48,6 @@ type Express struct{}
 
 // RestAPI is a implementer of InterfacePaymentMethod for a PayPal REST API method (currently not working)
 type RestAPI struct{}
+
+// PayFlowAPI is a implementer of InterfacePaymentMethod for a PayPal PayFlow API method
+type PayFlowAPI struct{}
