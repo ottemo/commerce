@@ -375,8 +375,8 @@ func SaveStatisticsData() error {
 			lastRecord["visitors"] = statisticValue.Visit
 			lastRecord["cart"] = statisticValue.Cart
 			lastRecord["sales"] = statisticValue.Sales
-			visitorInfoRow["sales_amount"] = statisticValue.SalesAmount
-			visitorInfoRow["total_visits"] = statisticValue.TotalVisits
+			lastRecord["sales_amount"] = statisticValue.SalesAmount
+			lastRecord["total_visits"] = statisticValue.TotalVisits
 
 			// save data to database
 			_, err = visitorInfoCollection.Save(lastRecord)
