@@ -52,7 +52,7 @@ func setupConfig() error {
 	//----------------------------
 	err := config.RegisterItem(env.StructConfigItem{
 		Path:    ConstGroupingConfigPath,
-		Value:   "",
+		Value:   `[]`,
 		Type:    env.ConstConfigTypeText,
 		Editor:  "multiline_text",
 		Options: "",

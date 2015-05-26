@@ -32,6 +32,10 @@ func referrerHandler(event string, eventData map[string]interface{}) bool {
 			}
 
 			referrers[referrer]++
+
+			if err := saveNewReferrer(referrer); err != nil {
+				env.LogError(err)
+			}
 		}
 	}
 
@@ -45,6 +49,7 @@ func visitsHandler(event string, eventData map[string]interface{}) bool {
 
 		currentHour := time.Now().Truncate(time.Hour).Unix()
 		CheckHourUpdateForStatistic()
+		statistic[currentHour].TotalVisits++
 
 		if _, present := visitState[sessionID]; !present {
 			visitState[sessionID] = false
@@ -84,6 +89,7 @@ func addToCartHandler(event string, eventData map[string]interface{}) bool {
 		} else {
 			visitState[sessionID] = true
 			statistic[currentHour].Visit++
+			statistic[currentHour].TotalVisits++
 			statistic[currentHour].Cart++
 
 			err := SaveStatisticsData()
@@ -101,32 +107,28 @@ func purchasedHandler(event string, eventData map[string]interface{}) bool {
 	if sessionInstance, ok := eventData["session"].(api.InterfaceSession); ok {
 		sessionID := sessionInstance.GetID()
 
+		saleAmount := float64(0)
+		if cartInstance, ok := eventData["cart"].(cart.InterfaceCart); ok {
+			saleAmount = cartInstance.GetSubtotal()
+		}
+
 		currentHour := time.Now().Truncate(time.Hour).Unix()
 		CheckHourUpdateForStatistic()
 
-		// Add sales counter if it's a visitor that work in this hour
-		if _, present := visitState[sessionID]; present {
-			if visitState[sessionID] {
-				visitState[sessionID] = false
-				statistic[currentHour].Sales++
-
-				err := SaveStatisticsData()
-				if err != nil {
-					env.LogError(err)
-				}
-			}
-
-			// Add sales, cart and visit counter if it's a visitor that work for a past hour
-		} else {
-			visitState[sessionID] = false
+		if _, present := visitState[sessionID]; !present {
+			// Increasing sales, cart and visit counters for visitor of a past
 			statistic[currentHour].Visit++
+			statistic[currentHour].TotalVisits++
 			statistic[currentHour].Cart++
-			statistic[currentHour].Sales++
+		}
 
-			err := SaveStatisticsData()
-			if err != nil {
-				env.LogError(err)
-			}
+		visitState[sessionID] = false
+		statistic[currentHour].Sales++
+		statistic[currentHour].SalesAmount = statistic[currentHour].SalesAmount + saleAmount
+
+		err := SaveStatisticsData()
+		if err != nil {
+			env.LogError(err)
 		}
 	}
 

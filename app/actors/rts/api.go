@@ -85,9 +85,15 @@ func APIRegisterVisit(context api.InterfaceApplicationContext) (interface{}, err
 // APIGetReferrers returns list of unique referrers were registered
 func APIGetReferrers(context api.InterfaceApplicationContext) (interface{}, error) {
 	result := make(map[string]int)
+	itemsCount := 0
 
 	for url, count := range referrers {
 		result[url] = count
+
+		itemsCount++
+		if itemsCount == 20 {
+			break
+		}
 	}
 
 	return result, nil
@@ -102,8 +108,10 @@ func APIGetVisits(context api.InterfaceApplicationContext) (interface{}, error) 
 	todayTo := time.Now().Truncate(time.Hour).Add(time.Hour)
 	todayFrom, _ := utils.ApplyTimeZone(todayTo, timeZone)
 	todayHoursPast := todayFrom.Sub(todayFrom.Truncate(time.Hour * 24))
+
 	todayFrom = todayTo.Add(-todayHoursPast)
 	yesterdayFrom := todayFrom.AddDate(0, 0, -1)
+	weekFrom := yesterdayFrom.AddDate(0, 0, -5)
 
 	// get data for visits
 	todayStats, err := GetRangeStats(todayFrom, todayTo)
@@ -111,25 +119,32 @@ func APIGetVisits(context api.InterfaceApplicationContext) (interface{}, error) 
 		return nil, env.ErrorDispatch(err)
 	}
 	todayVisits := todayStats.Visit
+	todayTotalVisits := todayStats.TotalVisits
 
 	yesterdayStats, err := GetRangeStats(yesterdayFrom, todayFrom)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 	yesterdayVisits := yesterdayStats.Visit
+	yesterdayTotalVisits := yesterdayStats.TotalVisits
 
-	// count ratio for current data
-	ratio := float64(0)
-	if yesterdayVisits != 0 {
-		ratio = float64(todayVisits)/float64(yesterdayVisits) - float64(1)
-	} else if todayVisits != 0 {
-		ratio = float64(1)
+	weekStats, err := GetRangeStats(weekFrom, yesterdayFrom)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
 	}
+	weekVisits := yesterdayVisits + todayVisits + weekStats.Visit
+	weekTotalVisits := yesterdayVisits + todayVisits + weekStats.TotalVisits
 
-	// Returns the data
-	result["visitsToday"] = todayVisits
-	result["visitsYesterday"] = yesterdayVisits
-	result["ratio"] = ratio
+	result["total"] = map[string]int{
+		"today":     todayTotalVisits,
+		"yesterday": yesterdayTotalVisits,
+		"week":      weekTotalVisits,
+	}
+	result["unique"] = map[string]int{
+		"today":     todayVisits,
+		"yesterday": yesterdayVisits,
+		"week":      weekVisits,
+	}
 
 	return result, nil
 }
@@ -207,7 +222,13 @@ func APIGetVisitsDetails(context api.InterfaceApplicationContext) (interface{}, 
 		}
 	}
 
-	return result, nil
+	var arrayResult [][]int
+
+	for key, item := range result {
+		arrayResult = append(arrayResult, []int{utils.InterfaceToInt(key), item})
+	}
+
+	return arrayResult, nil
 }
 
 // APIGetConversion returns site conversion information
@@ -230,7 +251,7 @@ func APIGetConversion(context api.InterfaceApplicationContext) (interface{}, err
 	for todayFrom.Before(todayTo) {
 
 		if _, ok := statistic[todayFrom.Unix()]; ok {
-			visits = visits + statistic[todayFrom.Unix()].Visit
+			visits = visits + statistic[todayFrom.Unix()].TotalVisits
 			sales = sales + statistic[todayFrom.Unix()].Sales
 			addToCart = addToCart + statistic[todayFrom.Unix()].Cart
 		}
@@ -246,7 +267,7 @@ func APIGetConversion(context api.InterfaceApplicationContext) (interface{}, err
 	return result, nil
 }
 
-//APIGetSales NEW type of get sales
+//APIGetSales returns information about sales in the recent period, taking into account time zone
 func APIGetSales(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	result := make(map[string]interface{})
@@ -256,8 +277,10 @@ func APIGetSales(context api.InterfaceApplicationContext) (interface{}, error) {
 	todayTo := time.Now().Truncate(time.Hour).Add(time.Hour)
 	todayFrom, _ := utils.ApplyTimeZone(todayTo, timeZone)
 	todayHoursPast := todayFrom.Sub(todayFrom.Truncate(time.Hour * 24))
+
 	todayFrom = todayTo.Add(-todayHoursPast)
 	yesterdayFrom := todayFrom.AddDate(0, 0, -1)
+	weekFrom := yesterdayFrom.AddDate(0, 0, -5)
 
 	// get data for sales
 	todayStats, err := GetRangeStats(todayFrom, todayTo)
@@ -265,25 +288,32 @@ func APIGetSales(context api.InterfaceApplicationContext) (interface{}, error) {
 		return nil, env.ErrorDispatch(err)
 	}
 	todaySales := todayStats.Sales
+	todaySalesAmount := todayStats.SalesAmount
 
 	yesterdayStats, err := GetRangeStats(yesterdayFrom, todayFrom)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 	yesterdaySales := yesterdayStats.Sales
+	yesterdaySalesAmount := yesterdayStats.SalesAmount
 
-	// count ratio for current data
-	ratio := float64(0)
-	if yesterdaySales != 0 {
-		ratio = float64(todaySales)/float64(yesterdaySales) - float64(1)
-	} else if todaySales != 0 {
-		ratio = float64(1)
+	weekStats, err := GetRangeStats(weekFrom, yesterdayFrom)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
 	}
+	weekSales := todaySales + yesterdaySales + weekStats.Sales
+	weekSalesAmount := todaySalesAmount + yesterdaySalesAmount + weekStats.SalesAmount
 
-	// Returns the data
-	result["today"] = todaySales
-	result["yesterday"] = yesterdaySales
-	result["ratio"] = ratio
+	result["sales"] = map[string]float64{
+		"today":     todaySalesAmount,
+		"yesterday": yesterdaySalesAmount,
+		"week":      weekSalesAmount,
+	}
+	result["orders"] = map[string]int{
+		"today":     todaySales,
+		"yesterday": yesterdaySales,
+		"week":      weekSales,
+	}
 
 	return result, nil
 }
@@ -363,12 +393,18 @@ func APIGetSalesDetails(context api.InterfaceApplicationContext) (interface{}, e
 		}
 	}
 
-	return result, nil
+	var arrayResult [][]int
+
+	for key, item := range result {
+		arrayResult = append(arrayResult, []int{utils.InterfaceToInt(key), item})
+	}
+
+	return arrayResult, nil
 }
 
 // APIGetBestsellers returns information on site bestsellers top five existing products
 func APIGetBestsellers(context api.InterfaceApplicationContext) (interface{}, error) {
-	result := make(map[string]*SellerInfo)
+	result := make([]map[string]interface{}, 0)
 
 	salesCollection, err := db.GetCollection(ConstCollectionNameRTSSales)
 	if err != nil {
@@ -377,13 +413,11 @@ func APIGetBestsellers(context api.InterfaceApplicationContext) (interface{}, er
 	salesCollection.AddFilter("count", ">", 0)
 	salesCollection.AddFilter("range", "=", GetSalesRange())
 	salesCollection.AddSort("count", true)
-	salesCollection.SetLimit(0, 25)
 	collectionRecords, err := salesCollection.Load()
 	if err != nil {
 		return result, env.ErrorDispatch(err)
 	}
 
-	topFiveCounter := 0
 	for _, item := range collectionRecords {
 		productID := utils.InterfaceToString(item["product_id"])
 
@@ -397,16 +431,19 @@ func APIGetBestsellers(context api.InterfaceApplicationContext) (interface{}, er
 			continue
 		}
 
-		result[productID] = &SellerInfo{}
+		bestsellerItem := make(map[string]interface{})
+
+		bestsellerItem["pid"] = productID
 		if productInstance.GetDefaultImage() != "" {
-			result[productID].Image = mediaPath + productInstance.GetDefaultImage()
+			bestsellerItem["image"] = mediaPath + productInstance.GetDefaultImage()
 		}
 
-		result[productID].Name = productInstance.GetName()
-		result[productID].Count = utils.InterfaceToInt(item["count"])
-		topFiveCounter++
+		bestsellerItem["name"] = productInstance.GetName()
+		bestsellerItem["count"] = utils.InterfaceToInt(item["count"])
 
-		if topFiveCounter == 5 {
+		result = append(result, bestsellerItem)
+
+		if len(result) >= 10 {
 			break
 		}
 	}
