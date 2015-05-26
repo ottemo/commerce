@@ -333,6 +333,8 @@ func initStatistic() error {
 			}
 
 			// add info to hour
+			statistic[timeIterator].TotalVisits = statistic[timeIterator].TotalVisits + utils.InterfaceToInt(item["total_visits"])
+			statistic[timeIterator].SalesAmount = statistic[timeIterator].SalesAmount + utils.InterfaceToFloat64(item["sales_amount"])
 			statistic[timeIterator].Visit = statistic[timeIterator].Visit + utils.InterfaceToInt(item["visitors"])
 			statistic[timeIterator].Sales = statistic[timeIterator].Sales + utils.InterfaceToInt(item["sales"])
 			statistic[timeIterator].Cart = statistic[timeIterator].Cart + utils.InterfaceToInt(item["cart"])

@@ -251,7 +251,7 @@ func APIGetConversion(context api.InterfaceApplicationContext) (interface{}, err
 	for todayFrom.Before(todayTo) {
 
 		if _, ok := statistic[todayFrom.Unix()]; ok {
-			visits = visits + statistic[todayFrom.Unix()].Visit
+			visits = visits + statistic[todayFrom.Unix()].TotalVisits
 			sales = sales + statistic[todayFrom.Unix()].Sales
 			addToCart = addToCart + statistic[todayFrom.Unix()].Cart
 		}
@@ -404,7 +404,7 @@ func APIGetSalesDetails(context api.InterfaceApplicationContext) (interface{}, e
 
 // APIGetBestsellers returns information on site bestsellers top five existing products
 func APIGetBestsellers(context api.InterfaceApplicationContext) (interface{}, error) {
-	result := make([]map[string]interface{})
+	result := make([]map[string]interface{}, 0)
 
 	salesCollection, err := db.GetCollection(ConstCollectionNameRTSSales)
 	if err != nil {
@@ -439,7 +439,7 @@ func APIGetBestsellers(context api.InterfaceApplicationContext) (interface{}, er
 		}
 
 		bestsellerItem["name"] = productInstance.GetName()
-		bestsellerItem["count"] = utils.InterfaceToInt(bestsellerItem["count"])
+		bestsellerItem["count"] = utils.InterfaceToInt(item["count"])
 
 		result = append(result, bestsellerItem)
 
