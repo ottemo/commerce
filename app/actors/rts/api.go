@@ -85,13 +85,13 @@ func APIRegisterVisit(context api.InterfaceApplicationContext) (interface{}, err
 // APIGetReferrers returns list of unique referrers were registered
 func APIGetReferrers(context api.InterfaceApplicationContext) (interface{}, error) {
 	result := make(map[string]int)
-	limit := 0
+	itemsCount := 0
 
 	for url, count := range referrers {
 		result[url] = count
 
-		limit++
-		if limit == 20 {
+		itemsCount++
+		if itemsCount == 20 {
 			break
 		}
 	}
@@ -404,7 +404,7 @@ func APIGetSalesDetails(context api.InterfaceApplicationContext) (interface{}, e
 
 // APIGetBestsellers returns information on site bestsellers top five existing products
 func APIGetBestsellers(context api.InterfaceApplicationContext) (interface{}, error) {
-	result := make([]map[string]interface{}, 5)
+	result := make([]map[string]interface{})
 
 	salesCollection, err := db.GetCollection(ConstCollectionNameRTSSales)
 	if err != nil {
@@ -418,7 +418,6 @@ func APIGetBestsellers(context api.InterfaceApplicationContext) (interface{}, er
 		return result, env.ErrorDispatch(err)
 	}
 
-	topFiveCounter := 0
 	for _, item := range collectionRecords {
 		productID := utils.InterfaceToString(item["product_id"])
 
@@ -432,18 +431,19 @@ func APIGetBestsellers(context api.InterfaceApplicationContext) (interface{}, er
 			continue
 		}
 
-		result[topFiveCounter] = make(map[string]interface{})
+		bestsellerItem := make(map[string]interface{})
 
-		result[topFiveCounter]["pid"] = productID
+		bestsellerItem["pid"] = productID
 		if productInstance.GetDefaultImage() != "" {
-			result[topFiveCounter]["image"] = mediaPath + productInstance.GetDefaultImage()
+			bestsellerItem["image"] = mediaPath + productInstance.GetDefaultImage()
 		}
 
-		result[topFiveCounter]["name"] = productInstance.GetName()
-		result[topFiveCounter]["count"] = utils.InterfaceToInt(item["count"])
-		topFiveCounter++
+		bestsellerItem["name"] = productInstance.GetName()
+		bestsellerItem["count"] = utils.InterfaceToInt(bestsellerItem["count"])
 
-		if topFiveCounter == 10 {
+		result = append(result, bestsellerItem)
+
+		if len(result) >= 10 {
 			break
 		}
 	}

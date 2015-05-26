@@ -35,7 +35,6 @@ func init() {
 
 // DB preparations for current model implementation
 func initListners() error {
-	time.Local = time.UTC
 	env.EventRegisterListener("api.rts.visit", referrerHandler)
 	env.EventRegisterListener("api.rts.visit", visitsHandler)
 	env.EventRegisterListener("api.cart.addToCart", addToCartHandler)
@@ -74,7 +73,7 @@ func setupDB() error {
 		return env.ErrorDispatch(err)
 	}
 
-	collection.AddColumn("day", db.ConstTypeDatetime, false)
+	collection.AddColumn("day", db.ConstTypeDatetime, true)
 	collection.AddColumn("visitors", db.ConstTypeInteger, false)
 	collection.AddColumn("total_visits", db.ConstTypeInteger, false)
 	collection.AddColumn("cart", db.ConstTypeInteger, false)

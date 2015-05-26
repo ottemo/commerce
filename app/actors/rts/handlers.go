@@ -115,32 +115,20 @@ func purchasedHandler(event string, eventData map[string]interface{}) bool {
 		currentHour := time.Now().Truncate(time.Hour).Unix()
 		CheckHourUpdateForStatistic()
 
-		// Add sales counter if it's a visitor that work in this hour
-		if state, present := visitState[sessionID]; present {
-			if state {
-				visitState[sessionID] = false
-				statistic[currentHour].Sales++
-				statistic[currentHour].SalesAmount = statistic[currentHour].SalesAmount + saleAmount
-
-				err := SaveStatisticsData()
-				if err != nil {
-					env.LogError(err)
-				}
-			}
-
-			// Add sales, cart and visit counter if it's a visitor that work for a past hour
-		} else {
-			visitState[sessionID] = false
+		if _, present := visitState[sessionID]; !present {
+			// Increasing sales, cart and visit counters for visitor of a past
 			statistic[currentHour].Visit++
 			statistic[currentHour].TotalVisits++
 			statistic[currentHour].Cart++
-			statistic[currentHour].Sales++
-			statistic[currentHour].SalesAmount = statistic[currentHour].SalesAmount + saleAmount
+		}
 
-			err := SaveStatisticsData()
-			if err != nil {
-				env.LogError(err)
-			}
+		visitState[sessionID] = false
+		statistic[currentHour].Sales++
+		statistic[currentHour].SalesAmount = statistic[currentHour].SalesAmount + saleAmount
+
+		err := SaveStatisticsData()
+		if err != nil {
+			env.LogError(err)
 		}
 	}
 

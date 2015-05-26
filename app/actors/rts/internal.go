@@ -120,7 +120,7 @@ func GetDateFrom() (time.Time, error) {
 
 func initSalesHistory() error {
 
-	timeStamp := time.Hour * 24
+	durationDay := time.Hour * 24
 
 	// GetDateFrom return data from where need to update our rts_sales_history
 	dateFrom, err := GetDateFrom()
@@ -135,7 +135,7 @@ func initSalesHistory() error {
 	}
 	dbOrderCollection := orderCollectionModel.GetDBCollection()
 	dbOrderCollection.SetResultColumns("_id", "created_at")
-	dbOrderCollection.AddFilter("created_at", ">=", dateFrom.Add(time.Hour*24).Truncate(timeStamp))
+	dbOrderCollection.AddFilter("created_at", ">=", dateFrom.Add(time.Hour*24).Truncate(durationDay))
 
 	ordersForPeriod, err := dbOrderCollection.Load()
 	if err != nil {
@@ -302,8 +302,10 @@ func GetRangeStats(dateFrom, dateTo time.Time) (ActionsMade, error) {
 func initStatistic() error {
 	// convert to utc time and work with variables
 	timeScope := time.Hour
+	durationWeek := time.Hour * 168
+
 	dateTo := time.Now().Add(time.Hour).Truncate(timeScope)
-	dateFrom := dateTo.Add(-168 * time.Hour)
+	dateFrom := dateTo.Add(-durationWeek)
 
 	visitorInfoCollection, err := db.GetCollection(ConstCollectionNameRTSVisitors)
 	if err != nil {
@@ -427,7 +429,9 @@ func SaveStatisticsData() error {
 // and remove old record from statistic
 func CheckHourUpdateForStatistic() {
 	currentHour := time.Now().Truncate(time.Hour).Unix()
-	lastHour := time.Now().Add(-time.Hour * 168).Truncate(time.Hour).Unix()
+	durationWeek := time.Hour * 168
+
+	lastHour := time.Now().Add(-durationWeek).Truncate(time.Hour).Unix()
 
 	// if last our not present in statistic we need to update visitState
 	// if it's a new day so we make clear a visitor state stats

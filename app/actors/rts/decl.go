@@ -30,7 +30,7 @@ var (
 	statistic = make(map[int64]*ActionsMade) // information about per hour site activity
 
 	lastUpdate = time.Now()            // last update timer for day reset
-	visitState = make(map[string]bool) //checks a buying status of visitor by it sessionID
+	visitState = make(map[string]bool) // reflects session state: 1) not present - new visit, 2) false - addToCart not happened, 3) true - addToCart happened
 
 	// OnlineSessions holds session based information about referer type on first visit
 	OnlineSessions = make(map[string]*OnlineReferrer)
