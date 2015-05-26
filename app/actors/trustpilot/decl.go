@@ -7,6 +7,8 @@ import (
 
 // Package global constants
 const (
+	ConstTestMode = false
+
 	ConstErrorModule = "trustpilot"
 	ConstErrorLevel  = env.ConstErrorLevelActor
 
