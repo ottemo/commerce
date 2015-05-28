@@ -272,7 +272,7 @@ func SaveSalesData(data map[string]int) error {
 
 // GetSalesRange will return the date range for the sales data
 func GetSalesRange() string {
-	_range := "2015-01-01:"
+	_range := utils.InterfaceToString(time.Now().Truncate(24*time.Hour))
 	return _range
 }
 
