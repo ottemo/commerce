@@ -155,6 +155,8 @@ func APIGetVisitsDetails(context api.InterfaceApplicationContext) (interface{}, 
 
 	// getting initial values
 	result := make(map[string]int)
+	var arrayResult [][]int
+
 	timeZone := context.GetRequestArgument("tz")
 	dateFrom := utils.InterfaceToTime(context.GetRequestArgument("from"))
 	dateTo := utils.InterfaceToTime(context.GetRequestArgument("to"))
@@ -208,6 +210,7 @@ func APIGetVisitsDetails(context api.InterfaceApplicationContext) (interface{}, 
 	// filling requested period
 	timeIterator := dateFrom
 	for timeIterator.Before(dateTo) {
+		arrayResult = append(arrayResult, []int{utils.InterfaceToInt(timeIterator.Add(hoursOffset).Unix()), 0})
 		result[fmt.Sprint(timeIterator.Add(hoursOffset).Unix())] = 0
 		timeIterator = timeIterator.Add(timeScope)
 	}
@@ -222,10 +225,8 @@ func APIGetVisitsDetails(context api.InterfaceApplicationContext) (interface{}, 
 		}
 	}
 
-	var arrayResult [][]int
-
-	for key, item := range result {
-		arrayResult = append(arrayResult, []int{utils.InterfaceToInt(key), item})
+	for _, item := range arrayResult {
+		item[1] = result[utils.InterfaceToString(item[0])]
 	}
 
 	return arrayResult, nil
@@ -324,6 +325,8 @@ func APIGetSalesDetails(context api.InterfaceApplicationContext) (interface{}, e
 
 	// getting initial values
 	result := make(map[string]int)
+	var arrayResult [][]int
+
 	timeZone := context.GetRequestArgument("tz")
 	dateFrom := utils.InterfaceToTime(context.GetRequestArgument("from"))
 	dateTo := utils.InterfaceToTime(context.GetRequestArgument("to"))
@@ -380,6 +383,7 @@ func APIGetSalesDetails(context api.InterfaceApplicationContext) (interface{}, e
 	// filling requested period
 	timeIterator := dateFrom
 	for timeIterator.Before(dateTo) {
+		arrayResult = append(arrayResult, []int{utils.InterfaceToInt(timeIterator.Add(hoursOffset).Unix()), 0})
 		result[fmt.Sprint(timeIterator.Add(hoursOffset).Unix())] = 0
 		timeIterator = timeIterator.Add(timeScope)
 	}
@@ -393,10 +397,8 @@ func APIGetSalesDetails(context api.InterfaceApplicationContext) (interface{}, e
 		}
 	}
 
-	var arrayResult [][]int
-
-	for key, item := range result {
-		arrayResult = append(arrayResult, []int{utils.InterfaceToInt(key), item})
+	for _, item := range arrayResult {
+		item[1] = result[utils.InterfaceToString(item[0])]
 	}
 
 	return arrayResult, nil
@@ -404,7 +406,7 @@ func APIGetSalesDetails(context api.InterfaceApplicationContext) (interface{}, e
 
 // APIGetBestsellers returns information on site bestsellers top five existing products
 func APIGetBestsellers(context api.InterfaceApplicationContext) (interface{}, error) {
-	result := make([]map[string]interface{}, 0)
+	var result []map[string]interface{}
 
 	salesCollection, err := db.GetCollection(ConstCollectionNameRTSSales)
 	if err != nil {
