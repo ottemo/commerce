@@ -272,7 +272,7 @@ func SaveSalesData(data map[string]int) error {
 
 // GetSalesRange will return the date range for the sales data
 func GetSalesRange() string {
-	_range := utils.InterfaceToString(time.Now().Truncate(24*time.Hour))
+	_range := utils.InterfaceToString(time.Now().Truncate(24 * time.Hour))
 	return _range
 }
 
@@ -514,4 +514,25 @@ func initReferrals() error {
 	}
 
 	return nil
+}
+
+// sortArrayOfMapByKey sort array from biggest to lowest value of map[key] element
+func sortArrayOfMapByKey(data []map[string]interface{}, key string) []map[string]interface{} {
+
+	var result[]map[string]interface{}
+	var indexOfMaxValueItem int
+	var maxValue float64
+
+	for len(data) > 0 {
+		for index, item := range data {
+			if utils.InterfaceToFloat64(item[key]) > maxValue {
+				maxValue = utils.InterfaceToFloat64(item[key])
+				indexOfMaxValueItem = index
+			}
+		}
+		result = append(result, data[indexOfMaxValueItem])
+		data = append(data[:indexOfMaxValueItem], data[indexOfMaxValueItem+1:]...)
+		maxValue = 0
+	}
+	return result
 }

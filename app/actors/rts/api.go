@@ -107,7 +107,7 @@ func APIGetVisits(context api.InterfaceApplicationContext) (interface{}, error) 
 	// get a hours pasted for local day and count for them and for previous day
 	todayTo := time.Now().Truncate(time.Hour).Add(time.Hour)
 	todayFrom, _ := utils.ApplyTimeZone(todayTo, timeZone)
-	todayHoursPast := todayFrom.Sub(todayFrom.Truncate(time.Hour * 24))
+	todayHoursPast := todayFrom.Sub(todayFrom.Truncate(ConstTimeDay))
 
 	todayFrom = todayTo.Add(-todayHoursPast)
 	yesterdayFrom := todayFrom.AddDate(0, 0, -1)
@@ -163,15 +163,15 @@ func APIGetVisitsDetails(context api.InterfaceApplicationContext) (interface{}, 
 
 	// checking if user specified correct from and to dates
 	if dateFrom.IsZero() {
-		dateFrom = time.Now().Truncate(time.Hour * 24)
+		dateFrom = time.Now().Truncate(ConstTimeDay)
 	}
 
 	if dateTo.IsZero() {
-		dateTo = time.Now().Truncate(time.Hour * 24)
+		dateTo = time.Now().Truncate(ConstTimeDay)
 	}
 
 	if dateFrom == dateTo {
-		dateTo = dateTo.Add(time.Hour * 24)
+		dateTo = dateTo.Add(ConstTimeDay)
 	}
 
 	// time zone recognize routines save time difference to show in graph by local time
@@ -241,7 +241,7 @@ func APIGetConversion(context api.InterfaceApplicationContext) (interface{}, err
 	// get a hours pasted for local day and count only for them
 	todayTo := time.Now().Truncate(time.Hour).Add(time.Hour)
 	todayFrom, _ := utils.ApplyTimeZone(todayTo, timeZone)
-	todayHoursPast := todayFrom.Sub(todayFrom.Truncate(time.Hour * 24))
+	todayHoursPast := todayFrom.Sub(todayFrom.Truncate(ConstTimeDay))
 	todayFrom = todayTo.Add(-todayHoursPast)
 
 	visits := 0
@@ -277,7 +277,7 @@ func APIGetSales(context api.InterfaceApplicationContext) (interface{}, error) {
 	// get a hours pasted for local day and count for them and for previous day
 	todayTo := time.Now().Truncate(time.Hour).Add(time.Hour)
 	todayFrom, _ := utils.ApplyTimeZone(todayTo, timeZone)
-	todayHoursPast := todayFrom.Sub(todayFrom.Truncate(time.Hour * 24))
+	todayHoursPast := todayFrom.Sub(todayFrom.Truncate(ConstTimeDay))
 
 	todayFrom = todayTo.Add(-todayHoursPast)
 	yesterdayFrom := todayFrom.AddDate(0, 0, -1)
@@ -341,7 +341,7 @@ func APIGetSalesDetails(context api.InterfaceApplicationContext) (interface{}, e
 	}
 
 	if dateFrom == dateTo {
-		dateTo = dateTo.Add(time.Hour * 24)
+		dateTo = dateTo.Add(ConstTimeDay)
 	}
 
 	// time zone recognize routines save time difference to show in graph by local time
@@ -404,24 +404,66 @@ func APIGetSalesDetails(context api.InterfaceApplicationContext) (interface{}, e
 	return arrayResult, nil
 }
 
-// APIGetBestsellers returns information on site bestsellers top five existing products
+// APIGetBestsellers returns information about bestsellers for some period
+// 	possible periods: "today", "yesterday", "week", "month"
 func APIGetBestsellers(context api.InterfaceApplicationContext) (interface{}, error) {
 	var result []map[string]interface{}
 
-	salesCollection, err := db.GetCollection(ConstCollectionNameRTSSales)
-	if err != nil {
-		return result, env.ErrorDispatch(err)
+	bestsellersRange := utils.InterfaceToString(context.GetRequestArgument("period"))
+	timeZone := context.GetRequestArgument("tz")
+
+	// get a hours pasted for local day and base from it
+	todayTo := time.Now().Truncate(time.Hour).Add(time.Hour) // last hour of current day
+	todayFrom, _ := utils.ApplyTimeZone(todayTo, timeZone)
+	todayHoursPast := todayFrom.Sub(todayFrom.Truncate(ConstTimeDay))
+
+	todayFrom = todayTo.Add(-todayHoursPast) // beginning of current day
+
+	rangeFrom := todayFrom
+	rangeTo := todayTo
+
+	switch bestsellersRange {
+
+	case "yesterday", "2":
+		rangeTo = todayTo.AddDate(0, 0, -1)
+		rangeFrom = todayFrom.AddDate(0, 0, -1)
+		break
+
+	case "week", "7":
+		rangeFrom = todayFrom.AddDate(0, 0, -6)
+		break
+
+	case "month", "30":
+		rangeFrom = todayFrom.AddDate(0, 0, -30)
+		break
+
+	default:
+		rangeFrom = todayFrom
+		rangeTo = todayTo
 	}
-	salesCollection.AddFilter("count", ">", 0)
-	salesCollection.AddFilter("range", "=", GetSalesRange())
-	salesCollection.AddSort("count", true)
-	collectionRecords, err := salesCollection.Load()
+
+	salesHistoryCollection, err := db.GetCollection(ConstCollectionNameRTSSalesHistory)
 	if err != nil {
 		return result, env.ErrorDispatch(err)
 	}
 
+	salesHistoryCollection.AddFilter("count", ">", 0)
+	salesHistoryCollection.AddFilter("created_at", ">=", rangeFrom.Unix())
+	salesHistoryCollection.AddFilter("created_at", "<", rangeTo.Unix())
+
+	collectionRecords, err := salesHistoryCollection.Load()
+	if err != nil {
+		return result, env.ErrorDispatch(err)
+	}
+
+	productsSold := make(map[string]int)
+
 	for _, item := range collectionRecords {
-		productID := utils.InterfaceToString(item["product_id"])
+		productsSold[utils.InterfaceToString(item["product_id"])] = utils.InterfaceToInt(item["count"]) + productsSold[utils.InterfaceToString(item["product_id"])]
+	}
+
+	for productID, count := range productsSold {
+		productID := utils.InterfaceToString(productID)
 
 		productInstance, err := product.LoadProductByID(productID)
 		if err != nil {
@@ -441,7 +483,7 @@ func APIGetBestsellers(context api.InterfaceApplicationContext) (interface{}, er
 		}
 
 		bestsellerItem["name"] = productInstance.GetName()
-		bestsellerItem["count"] = utils.InterfaceToInt(item["count"])
+		bestsellerItem["count"] = count
 
 		result = append(result, bestsellerItem)
 
@@ -449,6 +491,8 @@ func APIGetBestsellers(context api.InterfaceApplicationContext) (interface{}, er
 			break
 		}
 	}
+
+	result = sortArrayOfMapByKey(result, "count")
 
 	return result, nil
 }

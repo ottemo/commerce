@@ -20,6 +20,8 @@ const (
 
 	ConstVisitorOnlineSeconds = 10
 
+	ConstTimeDay = time.Hour * 24
+
 	ConstErrorModule = "rts"
 	ConstErrorLevel  = env.ConstErrorLevelActor
 )
