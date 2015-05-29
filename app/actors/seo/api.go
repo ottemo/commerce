@@ -30,12 +30,18 @@ func setupAPI() error {
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
+
 	err = api.GetRestService().RegisterAPI("seo/item/:itemID", api.ConstRESTOperationDelete, APIDeleteSEOItem)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
 	err = api.GetRestService().RegisterAPI("seo/url/:url", api.ConstRESTOperationGet, APIGetSEOItem)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	err = api.GetRestService().RegisterAPI("seo/:id", api.ConstRESTOperationGet, APIGetSEOItemById)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -77,6 +83,20 @@ func APIGetSEOItem(context api.InterfaceApplicationContext) (interface{}, error)
 
 	collection.AddFilter("url", "=", context.GetRequestArgument("url"))
 	records, err := collection.Load()
+
+	return records, env.ErrorDispatch(err)
+}
+
+// APIGetSEOItemById returns SEO item for a specified id
+func APIGetSEOItemById(context api.InterfaceApplicationContext) (interface{}, error) {
+
+	collection, err := db.GetCollection(ConstCollectionNameURLRewrites)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	id := context.GetRequestArgument("id")
+	record, err := collection.LoadByID(id)
 
 	return records, env.ErrorDispatch(err)
 }
