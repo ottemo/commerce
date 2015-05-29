@@ -465,14 +465,14 @@ func CheckHourUpdateForStatistic() {
 }
 
 // saveNewReferrer make save a new referral to data base
-func saveNewReferrer(referrer string) error {
+func saveNewReferrer(referral string) error {
 	visitorInfoCollection, err := db.GetCollection(ConstCollectionNameRTSReferrals)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
 	// rewrite existing referral with new count
-	visitorInfoCollection.AddFilter("referrer", "=", referrer)
+	visitorInfoCollection.AddFilter("referral", "=", referral)
 	visitorInfoCollection.SetLimit(0, 1)
 	dbRecord, err := visitorInfoCollection.Load()
 	if err != nil {
@@ -484,8 +484,8 @@ func saveNewReferrer(referrer string) error {
 	if len(dbRecord) > 0 {
 		newRecord["_id"] = dbRecord[0]["_id"]
 	}
-	newRecord["referrer"] = referrer
-	newRecord["count"] = referrers[referrer]
+	newRecord["referral"] = referral
+	newRecord["count"] = referrers[referral]
 
 	// save data to database
 	_, err = visitorInfoCollection.Save(newRecord)
