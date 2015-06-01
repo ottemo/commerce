@@ -18,32 +18,50 @@ func setupAPI() error {
 
 	var err error
 
+	// Get Many
 	err = api.GetRestService().RegisterAPI("seo/items", api.ConstRESTOperationGet, APIListSEOItems)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
+	err = api.GetRestService().RegisterAPI("seo", api.ConstRESTOperationGet, APIListSEOItemsAlt)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	// Create
 	err = api.GetRestService().RegisterAPI("seo/item", api.ConstRESTOperationCreate, APICreateSEOItem)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
+
+	// Update
 	err = api.GetRestService().RegisterAPI("seo/item/:itemID", api.ConstRESTOperationUpdate, APIUpdateSEOItem)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
+
+	// Delete
 	err = api.GetRestService().RegisterAPI("seo/item/:itemID", api.ConstRESTOperationDelete, APIDeleteSEOItem)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
+	// Get One
 	err = api.GetRestService().RegisterAPI("seo/url/:url", api.ConstRESTOperationGet, APIGetSEOItem)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
+	err = api.GetRestService().RegisterAPI("seo/:id", api.ConstRESTOperationGet, APIGetSEOItemById)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
 
+	// Other
 	err = api.GetRestService().RegisterAPI("seo/sitemap", api.ConstRESTOperationGet, APIGenerateSitemap)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
+
 	err = api.GetRestService().RegisterAPI("seo/sitemap/sitemap.xml", api.ConstRESTOperationGet, APIGetSitemap)
 	if err != nil {
 		return env.ErrorDispatch(err)
@@ -66,6 +84,28 @@ func APIListSEOItems(context api.InterfaceApplicationContext) (interface{}, erro
 	return records, env.ErrorDispatch(err)
 }
 
+// APIListSEOItems returns a list registered SEO records
+func APIListSEOItemsAlt(context api.InterfaceApplicationContext) (interface{}, error) {
+
+	collection, err := db.GetCollection(ConstCollectionNameURLRewrites)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	// If you give us a url to match we are only going to return one item
+	requestData, err := api.GetRequestContentAsMap(context)
+	for key, value := range requestData {
+		switch key {
+			case "url":
+				collection.AddFilter("url", "=", context.GetRequestArgument("url"))
+		}
+	}
+
+	records, err := collection.Load()
+
+	return records, env.ErrorDispatch(err)
+}
+
 // APIGetSEOItem returns SEO item for a specified url
 //   - SEO url should be specified in "url" argument
 func APIGetSEOItem(context api.InterfaceApplicationContext) (interface{}, error) {
@@ -77,6 +117,20 @@ func APIGetSEOItem(context api.InterfaceApplicationContext) (interface{}, error)
 
 	collection.AddFilter("url", "=", context.GetRequestArgument("url"))
 	records, err := collection.Load()
+
+	return records, env.ErrorDispatch(err)
+}
+
+// APIGetSEOItemById returns SEO item for a specified id
+func APIGetSEOItemById(context api.InterfaceApplicationContext) (interface{}, error) {
+
+	collection, err := db.GetCollection(ConstCollectionNameURLRewrites)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	id := context.GetRequestArgument("id")
+	record, err := collection.LoadByID(id)
 
 	return records, env.ErrorDispatch(err)
 }
