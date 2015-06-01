@@ -94,7 +94,11 @@ func APIListSEOItemsAlt(context api.InterfaceApplicationContext) (interface{}, e
 
 	// If you give us a url to match we are only going to return one item
 	requestData, err := api.GetRequestContentAsMap(context)
-	for key, value := range requestData {
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	for key := range requestData {
 		switch key {
 		case "url":
 			collection.AddFilter("url", "=", context.GetRequestArgument("url"))
