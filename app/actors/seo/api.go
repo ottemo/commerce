@@ -18,35 +18,23 @@ func setupAPI() error {
 
 	var err error
 
-	// Get Many
 	err = api.GetRestService().RegisterAPI("seo/items", api.ConstRESTOperationGet, APIListSEOItems)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("seo", api.ConstRESTOperationGet, APIListSEOItemsAlt)
-	if err != nil {
-		return env.ErrorDispatch(err)
-	}
-
-	// Create
 	err = api.GetRestService().RegisterAPI("seo/item", api.ConstRESTOperationCreate, APICreateSEOItem)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-
-	// Update
 	err = api.GetRestService().RegisterAPI("seo/item/:itemID", api.ConstRESTOperationUpdate, APIUpdateSEOItem)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-
-	// Delete
 	err = api.GetRestService().RegisterAPI("seo/item/:itemID", api.ConstRESTOperationDelete, APIDeleteSEOItem)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	// Get One
 	err = api.GetRestService().RegisterAPI("seo/url/:url", api.ConstRESTOperationGet, APIGetSEOItem)
 	if err != nil {
 		return env.ErrorDispatch(err)
@@ -56,12 +44,10 @@ func setupAPI() error {
 		return env.ErrorDispatch(err)
 	}
 
-	// Other
 	err = api.GetRestService().RegisterAPI("seo/sitemap", api.ConstRESTOperationGet, APIGenerateSitemap)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-
 	err = api.GetRestService().RegisterAPI("seo/sitemap/sitemap.xml", api.ConstRESTOperationGet, APIGetSitemap)
 	if err != nil {
 		return env.ErrorDispatch(err)
