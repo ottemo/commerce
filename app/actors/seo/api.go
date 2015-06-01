@@ -51,7 +51,7 @@ func setupAPI() error {
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("seo/:id", api.ConstRESTOperationGet, APIGetSEOItemById)
+	err = api.GetRestService().RegisterAPI("seo/:id", api.ConstRESTOperationGet, APIGetSEOItemByID)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -84,7 +84,7 @@ func APIListSEOItems(context api.InterfaceApplicationContext) (interface{}, erro
 	return records, env.ErrorDispatch(err)
 }
 
-// APIListSEOItems returns a list registered SEO records
+// APIListSEOItemsAlt returns a list registered SEO records
 func APIListSEOItemsAlt(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	collection, err := db.GetCollection(ConstCollectionNameURLRewrites)
@@ -96,8 +96,8 @@ func APIListSEOItemsAlt(context api.InterfaceApplicationContext) (interface{}, e
 	requestData, err := api.GetRequestContentAsMap(context)
 	for key, value := range requestData {
 		switch key {
-			case "url":
-				collection.AddFilter("url", "=", context.GetRequestArgument("url"))
+		case "url":
+			collection.AddFilter("url", "=", context.GetRequestArgument("url"))
 		}
 	}
 
@@ -121,8 +121,8 @@ func APIGetSEOItem(context api.InterfaceApplicationContext) (interface{}, error)
 	return records, env.ErrorDispatch(err)
 }
 
-// APIGetSEOItemById returns SEO item for a specified id
-func APIGetSEOItemById(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIGetSEOItemByID returns SEO item for a specified id
+func APIGetSEOItemByID(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	collection, err := db.GetCollection(ConstCollectionNameURLRewrites)
 	if err != nil {
@@ -130,7 +130,7 @@ func APIGetSEOItemById(context api.InterfaceApplicationContext) (interface{}, er
 	}
 
 	id := context.GetRequestArgument("id")
-	record, err := collection.LoadByID(id)
+	records, err := collection.LoadByID(id)
 
 	return records, env.ErrorDispatch(err)
 }
