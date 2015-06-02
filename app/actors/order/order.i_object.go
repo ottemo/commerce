@@ -88,7 +88,19 @@ func (it *DefaultOrder) Get(attribute string) interface{} {
 
 // Set sets attribute to Order object, returns error on problems
 func (it *DefaultOrder) Set(attribute string, value interface{}) error {
+
 	attribute = strings.ToLower(attribute)
+
+	// attributes can have index like { "note[1]": "my note" }
+	attributeIdx := ""
+	idx1 := strings.LastIndex(attribute, "[")
+	if idx1 >= 0 {
+		idx2 := strings.LastIndex(attribute, "]")
+		if idx1 < idx2 {
+			attributeIdx = attribute[idx1+1 : idx2]
+			attribute = attribute[0:idx1]
+		}
+	}
 
 	switch attribute {
 	case "_id", "id":
@@ -192,7 +204,14 @@ func (it *DefaultOrder) Set(attribute string, value interface{}) error {
 
 	case "note":
 		if stringValue := utils.InterfaceToString(value); value != "" {
-			it.Notes = append(it.Notes, stringValue)
+			if attributeIdx != "" {
+				noteIdx := utils.InterfaceToInt(attributeIdx)
+				if len(it.Notes) > noteIdx {
+					it.Notes[noteIdx] = stringValue
+				}
+			} else {
+				it.Notes = append(it.Notes, stringValue)
+			}
 		}
 
 	default:
