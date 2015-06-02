@@ -34,6 +34,26 @@ func setupAPI() error {
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
+//
+//	err = api.GetRestService().RegisterAPI("discount/:coupon", api.ConstRESTOperationGet, APIGetDiscount)
+//	if err != nil {
+//		return env.ErrorDispatch(err)
+//	}
+
+	err = api.GetRestService().RegisterAPI("discount", api.ConstRESTOperationCreate, APICreateDiscount)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+//
+//	err = api.GetRestService().RegisterAPI("discount/:coupon", api.ConstRESTOperationUpdate, APIUpdateDiscount)
+//	if err != nil {
+//		return env.ErrorDispatch(err)
+//	}
+//
+//	err = api.GetRestService().RegisterAPI("discount/:coupon", api.ConstRESTOperationDelete, APIDeleteDiscount)
+//	if err != nil {
+//		return env.ErrorDispatch(err)
+//	}
 
 	return nil
 }
@@ -252,4 +272,47 @@ func APIUploadDiscountCSV(context api.InterfaceApplicationContext) (interface{},
 	}
 
 	return "ok", nil
+}
+
+// APICreateDiscount - creates new discount
+func APICreateDiscount(context api.InterfaceApplicationContext) (interface{}, error) {
+
+	// check rights
+	if err := api.ValidateAdminRights(context); err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	content, err := api.GetRequestContentAsMap(context)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	if utils.KeysInMapAndNotBlank(content,"code", "name", "amount", "percent", "times", "since", "until") {
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "842d3ba9-3354-4470-a85f-cbaf909c3827", "some value is not specified")
+	}
+
+	collection, err := db.GetCollection(ConstCollectionNameCouponDiscounts)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	record := make(map[string]interface{})
+
+	code := utils.InterfaceToString(content["code"])
+	name := utils.InterfaceToString(content["name"])
+
+	times := utils.InterfaceToInt(content["times"])
+	if utils.InterfaceToString(content["times"]) == "" {
+		times = -1
+	}
+
+	record["code"] = code
+	record["name"] = name
+	record["amount"] = utils.InterfaceToFloat64(content["amount"])
+	record["percent"] = utils.InterfaceToFloat64(content["percent"])
+	record["times"] = times
+	record["since"] = utils.InterfaceToTime(content["since"])
+	record["until"] = utils.InterfaceToTime(content["until"])
+
+	return collection.Save(record)
 }
