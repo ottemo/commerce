@@ -34,26 +34,31 @@ func setupAPI() error {
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-//
-//	err = api.GetRestService().RegisterAPI("discount/:coupon", api.ConstRESTOperationGet, APIGetDiscount)
-//	if err != nil {
-//		return env.ErrorDispatch(err)
-//	}
 
-	err = api.GetRestService().RegisterAPI("discount", api.ConstRESTOperationCreate, APICreateDiscount)
+	err = api.GetRestService().RegisterAPI("coupon", api.ConstRESTOperationCreate, APICreateDiscount)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-//
-//	err = api.GetRestService().RegisterAPI("discount/:coupon", api.ConstRESTOperationUpdate, APIUpdateDiscount)
-//	if err != nil {
-//		return env.ErrorDispatch(err)
-//	}
-//
-//	err = api.GetRestService().RegisterAPI("discount/:coupon", api.ConstRESTOperationDelete, APIDeleteDiscount)
-//	if err != nil {
-//		return env.ErrorDispatch(err)
-//	}
+
+	err = api.GetRestService().RegisterAPI("coupon/:couponID", api.ConstRESTOperationGet, APIGetDiscount)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	err = api.GetRestService().RegisterAPI("coupon/:couponID", api.ConstRESTOperationUpdate, APIUpdateDiscount)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	err = api.GetRestService().RegisterAPI("coupon/:couponID", api.ConstRESTOperationDelete, APIDeleteDiscount)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	err = api.GetRestService().RegisterAPI("coupons", api.ConstRESTOperationGet, APIListDiscounts)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
 
 	return nil
 }
@@ -274,21 +279,12 @@ func APIUploadDiscountCSV(context api.InterfaceApplicationContext) (interface{},
 	return "ok", nil
 }
 
-// APICreateDiscount - creates new discount
-func APICreateDiscount(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIListDiscounts returns a list registered discounts
+func APIListDiscounts(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check rights
 	if err := api.ValidateAdminRights(context); err != nil {
 		return nil, env.ErrorDispatch(err)
-	}
-
-	content, err := api.GetRequestContentAsMap(context)
-	if err != nil {
-		return nil, env.ErrorDispatch(err)
-	}
-
-	if utils.KeysInMapAndNotBlank(content,"code", "name", "amount", "percent", "times", "since", "until") {
-		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "842d3ba9-3354-4470-a85f-cbaf909c3827", "some value is not specified")
 	}
 
 	collection, err := db.GetCollection(ConstCollectionNameCouponDiscounts)
@@ -296,23 +292,194 @@ func APICreateDiscount(context api.InterfaceApplicationContext) (interface{}, er
 		return nil, env.ErrorDispatch(err)
 	}
 
-	record := make(map[string]interface{})
+	records, err := collection.Load()
 
-	code := utils.InterfaceToString(content["code"])
-	name := utils.InterfaceToString(content["name"])
+	return records, env.ErrorDispatch(err)
+}
 
-	times := utils.InterfaceToInt(content["times"])
-	if utils.InterfaceToString(content["times"]) == "" {
-		times = -1
+// APIGetDiscount - returns discount item for a specified id
+func APIGetDiscount(context api.InterfaceApplicationContext) (interface{}, error) {
+
+	// check rights
+	if err := api.ValidateAdminRights(context); err != nil {
+		return nil, env.ErrorDispatch(err)
 	}
 
-	record["code"] = code
-	record["name"] = name
-	record["amount"] = utils.InterfaceToFloat64(content["amount"])
-	record["percent"] = utils.InterfaceToFloat64(content["percent"])
-	record["times"] = times
-	record["since"] = utils.InterfaceToTime(content["since"])
-	record["until"] = utils.InterfaceToTime(content["until"])
+	collection, err := db.GetCollection(ConstCollectionNameCouponDiscounts)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
 
-	return collection.Save(record)
+	id := context.GetRequestArgument("couponID")
+	records, err := collection.LoadByID(id)
+
+	return records, env.ErrorDispatch(err)
+}
+
+// APICreateDiscount - creates new discount item
+//   - "code" and "name" attributes are required
+func APICreateDiscount(context api.InterfaceApplicationContext) (interface{}, error) {
+
+	// check rights
+	if err := api.ValidateAdminRights(context); err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	// checking request context
+	//------------------------
+	postValues, err := api.GetRequestContentAsMap(context)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	if !utils.KeysInMapAndNotBlank(postValues, "code", "name") {
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "842d3ba9-3354-4470-a85f-cbaf909c3827", "'code' or 'name' value is not specified")
+	}
+
+	valueCode := utils.InterfaceToString(postValues["code"])
+	valueName := utils.InterfaceToString(postValues["name"])
+
+	valueUntil := time.Now()
+	if value, present := postValues["until"]; present {
+		valueUntil = utils.InterfaceToTime(value)
+	}
+
+	valueSince := time.Now()
+	if value, present := postValues["since"]; present {
+		valueSince = utils.InterfaceToTime(value)
+	}
+
+	collection, err := db.GetCollection(ConstCollectionNameCouponDiscounts)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	collection.AddFilter("code", "=", valueCode)
+	recordsNumber, err := collection.Count()
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+	if recordsNumber > 0 {
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "34cb6cfe-fba3-4c1f-afc5-1ff7266a9a86", "discount with such code: '"+valueCode+"', already exists")
+	}
+
+	// making new record and storing it
+	//---------------------------------
+	newRecord := map[string]interface{}{
+		"code":    valueCode,
+		"name":    valueName,
+		"amount":  0,
+		"percent": 0,
+		"times":   -1,
+		"since":   valueSince,
+		"until":   valueUntil,
+	}
+
+	attributes := []string{"amount", "percent", "times"}
+	for _, attribute := range attributes {
+		if value, present := postValues[attribute]; present {
+			newRecord[attribute] = value
+		}
+	}
+
+	newID, err := collection.Save(newRecord)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	newRecord["_id"] = newID
+
+	return newRecord, nil
+}
+
+// APIUpdateDiscount updates existing discount
+//   - discount id should be specified in "couponID" argument
+func APIUpdateDiscount(context api.InterfaceApplicationContext) (interface{}, error) {
+
+	// check request context
+	//---------------------
+	// check rights
+	if err := api.ValidateAdminRights(context); err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	postValues, err := api.GetRequestContentAsMap(context)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	collection, err := db.GetCollection(ConstCollectionNameCouponDiscounts)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	couponID := context.GetRequestArgument("couponID")
+	record, err := collection.LoadByID(couponID)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	// if discount 'code' was changed - checking new value for duplicates
+	//-----------------------------------------------------------------
+	if codeValue, present := postValues["code"]; present && codeValue != record["code"] {
+		codeValue := utils.InterfaceToString(codeValue)
+
+		collection.AddFilter("code", "=", codeValue)
+		recordsNumber, err := collection.Count()
+		if err != nil {
+			return nil, env.ErrorDispatch(err)
+		}
+		if recordsNumber > 0 {
+			return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "e49e5e01-4f6f-4ff0-bd28-dfb616308aa7", "discount with such code: '"+codeValue+"', already exists")
+		}
+
+		record["code"] = codeValue
+	}
+
+	// updating other attributes
+	//--------------------------
+	attributes := []string{"amount", "percent", "times"}
+	for _, attribute := range attributes {
+		if value, present := postValues[attribute]; present {
+			record[attribute] = value
+		}
+	}
+
+	if value, present := postValues["until"]; present {
+		record["until"] = utils.InterfaceToTime(value)
+	}
+
+	if value, present := postValues["since"]; present {
+		record["since"] = utils.InterfaceToTime(value)
+	}
+
+	// saving updates
+	//---------------
+	_, err = collection.Save(record)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	return record, nil
+}
+
+// APIDeleteDiscount deletes specified SEO item
+//   - discount id should be specified in "couponID" argument
+func APIDeleteDiscount(context api.InterfaceApplicationContext) (interface{}, error) {
+	// check rights
+	if err := api.ValidateAdminRights(context); err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	collection, err := db.GetCollection(ConstCollectionNameCouponDiscounts)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	err = collection.DeleteByID(context.GetRequestArgument("couponID"))
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	return "ok", nil
 }
