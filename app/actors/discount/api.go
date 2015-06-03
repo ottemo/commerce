@@ -35,22 +35,22 @@ func setupAPI() error {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("coupon", api.ConstRESTOperationCreate, APICreateDiscount)
+	err = api.GetRestService().RegisterAPI("coupons", api.ConstRESTOperationCreate, APICreateDiscount)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("coupon/:couponID", api.ConstRESTOperationGet, APIGetDiscount)
+	err = api.GetRestService().RegisterAPI("coupons/:couponID", api.ConstRESTOperationGet, APIGetDiscount)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("coupon/:couponID", api.ConstRESTOperationUpdate, APIUpdateDiscount)
+	err = api.GetRestService().RegisterAPI("coupons/:couponID", api.ConstRESTOperationUpdate, APIUpdateDiscount)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("coupon/:couponID", api.ConstRESTOperationDelete, APIDeleteDiscount)
+	err = api.GetRestService().RegisterAPI("coupons/:couponID", api.ConstRESTOperationDelete, APIDeleteDiscount)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
