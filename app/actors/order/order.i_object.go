@@ -78,6 +78,9 @@ func (it *DefaultOrder) Get(attribute string) interface{} {
 
 	case "payment_info":
 		return it.PaymentInfo
+
+	case "notes":
+		return it.Notes
 	}
 
 	return nil
@@ -85,7 +88,19 @@ func (it *DefaultOrder) Get(attribute string) interface{} {
 
 // Set sets attribute to Order object, returns error on problems
 func (it *DefaultOrder) Set(attribute string, value interface{}) error {
+
 	attribute = strings.ToLower(attribute)
+
+	// attributes can have index like { "note[1]": "my note" }
+	attributeIdx := ""
+	idx1 := strings.LastIndex(attribute, "[")
+	if idx1 >= 0 {
+		idx2 := strings.LastIndex(attribute, "]")
+		if idx1 < idx2 {
+			attributeIdx = attribute[idx1+1 : idx2]
+			attribute = attribute[0:idx1]
+		}
+	}
 
 	switch attribute {
 	case "_id", "id":
@@ -184,6 +199,21 @@ func (it *DefaultOrder) Set(attribute string, value interface{}) error {
 	case "payment_info":
 		it.PaymentInfo = utils.InterfaceToMap(value)
 
+	case "notes":
+		it.Notes = utils.InterfaceToStringArray(value)
+
+	case "note":
+		if stringValue := utils.InterfaceToString(value); value != "" {
+			if attributeIdx != "" {
+				noteIdx := utils.InterfaceToInt(attributeIdx)
+				if len(it.Notes) > noteIdx {
+					it.Notes[noteIdx] = stringValue
+				}
+			} else {
+				it.Notes = append(it.Notes, stringValue)
+			}
+		}
+
 	default:
 		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "5a0efabf-9169-42e9-9d78-8e8374998ad6", "unknown attribute: "+attribute)
 	}
@@ -239,6 +269,8 @@ func (it *DefaultOrder) ToHashMap() map[string]interface{} {
 
 	result["description"] = it.Get("description")
 	result["payment_info"] = it.Get("payment_info")
+
+	result["notes"] = it.Get("notes")
 
 	return result
 }
@@ -510,6 +542,19 @@ func (it *DefaultOrder) GetAttributesInfo() []models.StructAttributeInfo {
 			Label:      "Description",
 			Group:      "General",
 			Editors:    "not_editable",
+			Options:    "",
+			Default:    "",
+		},
+		models.StructAttributeInfo{
+			Model:      order.ConstModelNameOrder,
+			Collection: ConstCollectionNameOrder,
+			Attribute:  "notes",
+			Type:       db.TypeArrayOf(db.ConstTypeText),
+			IsRequired: false,
+			IsStatic:   true,
+			Label:      "Notes",
+			Group:      "General",
+			Editors:    "string_array",
 			Options:    "",
 			Default:    "",
 		},

@@ -83,6 +83,8 @@ type DefaultOrder struct {
 	Taxes     []order.StructTaxRate
 	Discounts []order.StructDiscount
 
+	Notes []string
+
 	CreatedAt time.Time
 	UpdatedAt time.Time
 
