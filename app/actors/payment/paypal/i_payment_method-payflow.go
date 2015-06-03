@@ -11,6 +11,7 @@ import (
 	"github.com/ottemo/foundation/app/models/order"
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
+	"time"
 )
 
 func (it *PayFlowAPI) GetName() string {
@@ -29,11 +30,28 @@ func (it *PayFlowAPI) IsAllowed(checkoutInstance checkout.InterfaceCheckout) boo
 	return true
 }
 
+// Authorize	TRXTYPE=S&TENDER=C&USER=paypal-facilitator_api1.ottemo.io&PWD=CRR8GX34BMEVMS3B&PARTNER=PayPal&ACCT=5105105105105100&EXPDATE=1215&AMT=0&COMMENT1=Airport+Shuttle&BILLTOFIRSTNAME=Jamie&BILLTOLASTNAME=Miller&BILLTOSTREET=123+Main+St.&BILLTOCITY=San+Jose&BILLTOSTATE=CA&BILLTOZIP=951311234&BILLTOCOUNTRY=840&CVV2=123&CUSTIP=0.0.0.0&VERBOSITY=HIGH&CREATESECURETOKEN=Y&SILENTTRAN=TRUE&SECURETOKENID=9a9ea8208de1413abc3d60c86cb1f4c5
+// TRXTYPE=S&TENDER=C&USER=xom94ok&PWD=KOL78963&PARTNER=PayPal&ACCT=5105105105105100&EXPDATE=1215&AMT=10&COMMENT1=Airport+Shuttle&BILLTOFIRSTNAME=Jamie&BILLTOLASTNAME=Miller&BILLTOSTREET=123+Main+St.&BILLTOCITY=San+Jose&BILLTOSTATE=CA&BILLTOZIP=951311234&BILLTOCOUNTRY=840&&SILENTTRAN=TRUE&SECURETOKENID=1a9ea8208de1413abc3d60c86cb1f4c5&SECURETOKEN=9eZ53i5WnH0WMTC6Ur6oobQUb
+
 func (it *PayFlowAPI) Authorize(orderInstance order.InterfaceOrder, paymentInfo map[string]interface{}) (interface{}, error) {
 
-	//	if !utils.StrKeysInMap(paymentInfo, "type", "number", "expire_month", "expire_year", "cvv") {
-	//		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "ce41da6b-6051-4b3a-883a-4dd37c1c7a1a", "credit card info was not specified")
-	//	}
+	if ccInfo, present := paymentInfo["cc"]; !present || !utils.StrKeysInMap(utils.InterfaceToMap(ccInfo), "type", "number", "expire_month", "expire_year") {
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "0aff2b85-0db7-4b38-a7d7-d30faee88357", "credit card info was not specified")
+	}
+
+	ccInfo := utils.InterfaceToMap(paymentInfo["cc"])
+
+	// getting order information
+	//--------------------------
+	grandTotal := orderInstance.GetGrandTotal()
+	shippingPrice := orderInstance.GetShippingAmount()
+	taxesPrice := orderInstance.GetTaxAmount()
+	discountAmount := orderInstance.GetDiscountAmount()
+	discount :=fmt.Sprintf("%.2f", discountAmount)
+	amount := fmt.Sprintf("%.2f", grandTotal)
+	shippingAmount := fmt.Sprintf("%.2f", shippingPrice)
+	taxesAmount := fmt.Sprintf("%.2f", taxesPrice)
+	itemAmount := fmt.Sprintf("%.2f", grandTotal-shippingPrice-taxesPrice+discountAmount)
 
 	billingAddress := orderInstance.GetBillingAddress()
 	if billingAddress == nil {
@@ -44,80 +62,61 @@ func (it *PayFlowAPI) Authorize(orderInstance order.InterfaceOrder, paymentInfo 
 		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "6219944f-d62b-40d7-8495-f844be0e562d", "no created order")
 	}
 
-	user := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathUser))
-	password := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathPass))
+	user := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathPayPalPayflowUser))
+	password := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathPayPalPayflowPass))
+	vendor := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathPayPalPayflowVendor))
 
-	//	templateValues := map[string]string{
-	//		// https://developer.paypal.com/webapps/developer/docs/classic/payflow/integration-guide/#paypal-credit-card-transaction-request-parameters
-	//		// If you set up one or more additional users on the account, this value is the ID of the user authorized to process transactions.
-	//		// If, however, you have not set up additional users on the account, USER has the same value as VENDOR.
-	//		"USER":    user,
-	//		"TENDER":  "C",      // The method of payment, such as C for credit card
-	//		"VENDOR":  user,     // Your merchant login ID that you created when you registered for the account.
-	//		"PWD":     password, // The password that you defined while registering for the account.
-	//		"PARTNER": "PayPal",
-	//
-	//		"ACCT":    utils.InterfaceToString("4417119669820331"), // The buyer’s credit card number
-	//		"EXPDATE": utils.InterfaceToString(11) + utils.InterfaceToString(18), // The expiration date of the credit card
-	//		"CVV2":    utils.InterfaceToString(874),
-	//
-	//		"BILLTOFIRSTNAME": billingAddress.GetFirstName(),
-	//		"BILLTOLASTNAME":  billingAddress.GetLastName(),
-	//		"BILLTOSTREET":    billingAddress.GetAddressLine1(),
-	//		"BILLTOCITY":      billingAddress.GetCity(),
-	//		"BILLTOSTATE":     billingAddress.GetState(),
-	//		"BILLTOZIP":       billingAddress.GetZipCode(),
-	//		"BILLTOCOUNTRY":   "US", // https://developer.paypal.com/webapps/developer/docs/classic/api/country_codes/
-	//		// TODO: Check is it proper values for request
-	//
-	//		"AMT":      fmt.Sprintf("%.2f", orderInstance.GetGrandTotal()), // The amount of the sale, including two decimal places and without a comma separator
-	//		"CURRENCY": "USD",                                              // AUD - Australian dollar, CAD - Canadian dollar, EUR - Euro, GBP - British pound, JPY - Japanese Yen, USD - US dollar
-	//
-	//		"INVNUM": "order id - " + orderInstance.GetID(),
-	//
-	//		"CUSTIP": "0.0.0.0", // (Optional) Account holder’s IP address.
-	//	}
+	accessTokenInfo, err := it.GetAccessToken()
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	// PayFlow Request Fields
 	requestParams := "USER=" + user +
-		"&PWD=" + password +
-		"&VENDOR=" + user +
-		"&PARTNER=PayPal" +
-		"&ACCT=78" +
-		"&EXPDATE=" + utils.InterfaceToString(11) + utils.InterfaceToString(18) +
-		"&CVV2=" + utils.InterfaceToString(874) +
-		"&BILLTOFIRSTNAME=" + billingAddress.GetFirstName() +
-		"&BILLTOLASTNAME=" + billingAddress.GetLastName() +
-		"&BILLTOSTREET=" + billingAddress.GetAddressLine1() +
-		"&BILLTOCITY=" + billingAddress.GetCity() +
-		"&BILLTOSTATE=" + billingAddress.GetState() +
-		"&BILLTOZIP=" + billingAddress.GetZipCode() +
-		"&BILLTOCOUNTRY=US" +
-		"&AMT=" + fmt.Sprintf("%.2f", orderInstance.GetGrandTotal()) +
-		"&CURRENCY=USD" +
-		"&INVNUM=" + orderInstance.GetID()
+			"&PWD=" + password +
+			"&VENDOR=" + vendor +
+			"&PARTNER=PayPal" +
+			"&VERSION=122" +
+			"&TRXTYPE=S" + // Sale
+
+			// Credit Card Details Fields
+			"&TENDER=C" +
+			"&ACCT=" + utils.InterfaceToString(ccInfo["number"]) +
+			"&EXPDATE=" + utils.InterfaceToString(ccInfo["expire_month"]) + utils.InterfaceToString(ccInfo["expire_year"]) +
+
+			// Payer Information Fields
+			"&EMAIL=" + utils.InterfaceToString(orderInstance.Get("customer_email")) +
+			"&BILLTOFIRSTNAME=" + billingAddress.GetFirstName() +
+			"&BILLTOLASTNAME=" + billingAddress.GetLastName() +
+
+			// Payment Details Fields
+			"&AMT=" + amount +
+			"&CURRENCY=USD" +
+			"&ITEMAMT=" + itemAmount +
+			"&FREIGHTAMT=" + shippingAmount +
+			"&TAXAMT=" + taxesAmount +
+			"&DISCOUNT=" + discount +
+
+			"&INVNUM=" + orderInstance.GetID()+
+			"&" + accessTokenInfo
 
 	fmt.Println(requestParams)
 
-	request, err := http.NewRequest("POST", ConstPaymentPayFlowURL, bytes.NewBufferString(requestParams))
+	nvpGateway := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathPayPalPayflowURL))
+	request, err := http.NewRequest("POST", nvpGateway, bytes.NewBufferString(requestParams))
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
-	accessToken, err := it.GetAccessToken()
-	if err != nil {
-		return nil, env.ErrorDispatch(err)
-	}
-
-	fmt.Println(accessToken)
 
 	request.Header.Add("Content-Type", "text/name value")
-	request.Header.Add("Host", "pilot-payflowpro.paypal.com")
-	request.Header.Add("X-VPS-CLIENT-TIMEOUT", "45")
-	request.Header.Add("X-VPS-REQUEST-ID", "unique-id123123")
+	request.Header.Add("Host", utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathPayPalPayflowHost)))
 
 	response, err := http.DefaultClient.Do(request)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
-	//	TRXTYPE=S&TENDER=C&USER=paypal-facilitator_api1.ottemo.io&PWD=CRR8GX34BMEVMS3B&PARTNER=PayPal&ACCT=5105105105105100&EXPDATE=1215&AMT=0&COMMENT1=Airport+Shuttle&BILLTOFIRSTNAME=Jamie&BILLTOLASTNAME=Miller&BILLTOSTREET=123+Main+St.&BILLTOCITY=San+Jose&BILLTOSTATE=CA&BILLTOZIP=951311234&BILLTOCOUNTRY=840&CVV2=123&CUSTIP=0.0.0.0&VERBOSITY=HIGH&CREATESECURETOKEN=Y&SILENTTRAN=TRUE&SECURETOKENID=9a9ea8208de1413abc3d60c86cb1f4c5
+
+	defer response.Body.Close()
 
 	buf, err := ioutil.ReadAll(response.Body)
 	if err != nil {
@@ -126,6 +125,7 @@ func (it *PayFlowAPI) Authorize(orderInstance order.InterfaceOrder, paymentInfo 
 
 	// https://developer.paypal.com/webapps/developer/docs/classic/payflow/integration-guide/#credit-card-transaction-responses
 	fmt.Println(string(buf))
+	// PNREF - Transaction ID
 
 	result := make(map[string]interface{})
 	err = json.Unmarshal(buf, &result)
@@ -142,8 +142,6 @@ func (it *PayFlowAPI) Authorize(orderInstance order.InterfaceOrder, paymentInfo 
 		}
 		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "741e875d-0ab5-4e8f-81f9-8abbff10cf78", "payment was not processed")
 	}
-
-	//TODO: should store information to order
 
 	return nil, nil
 }
@@ -163,20 +161,34 @@ func (it *PayFlowAPI) Void(orderInstance order.InterfaceOrder, paymentInfo map[s
 // returns application access token needed for all other requests
 func (it *PayFlowAPI) GetAccessToken() (string, error) {
 
-	// TODO:change body
-	body := "grant_type=client_credentials"
+	// TRXTYPE=S&AMT=0&USER=xom94ok&PWD=KOL78963&PARTNER=PayPal&SILENTTRAN=TRUE&SECURETOKENID=123448308de1413abc3d60c86cb1f4c5&CREATESECURETOKEN=Y
+	user := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathPayPalPayflowUser))
+	password := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathPayPalPayflowPass))
+	vendor := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathPayPalPayflowVendor))
 
-	request, err := http.NewRequest("POST", "https://api.sandbox.paypal.com/v1/oauth2/token", bytes.NewBufferString(body))
+	secureTokenID := utils.InterfaceToString(time.Now().UnixNano())
+	// making NVP request
+	//-------------------.
+	// PayFlow Request Fields
+	requestParams := "USER=" + user +
+			"&PWD=" + password +
+			"&VENDOR=" + vendor +
+			"&PARTNER=PayPal" +
+			"&VERSION=122" +
+			"&TRXTYPE=S" + // Sale
+			"&CREATESECURETOKEN=Y" +
+			"&SILENTTRAN=TRUE"+
+			"&SECURETOKENID=" + secureTokenID
+
+	nvpGateway := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathPayPalPayflowURL))
+
+	request, err := http.NewRequest("POST", nvpGateway, bytes.NewBufferString(requestParams))
 	if err != nil {
 		return "", env.ErrorDispatch(err)
 	}
 
-	request.SetBasicAuth("AbrcnhDi238ke9aG2NIQqVkW90oMJVg3B1QsjC68d2xRBLDq8boIrCaigPli", "EPcLWBCmfM_AwSOO1jC6TEDLCg-xZhFrUmXQnvTQ9yZV5_786xc5OkQ4Gx2-")
-
 	request.Header.Add("Content-Type", "text/name value")
-	request.Header.Add("Host", "pilot-payflowpro.paypal.com")
-	request.Header.Add("X-VPS-CLIENT-TIMEOUT", "45")
-	request.Header.Add("X-VPS-REQUEST-ID", "unique-id123123")
+	request.Header.Add("Host", utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathPayPalPayflowHost)))
 
 	resp, err := http.DefaultClient.Do(request)
 	if err != nil {
@@ -194,12 +206,14 @@ func (it *PayFlowAPI) GetAccessToken() (string, error) {
 		return "", env.ErrorDispatch(err)
 	}
 
-	// TODO:check response and getting token
 	token, present := result["SECURETOKEN"]
 	tokenID, ok := result["SECURETOKENID"]
+	if tokenID != secureTokenID {
+		return "", env.ErrorNew(ConstErrorModule, ConstErrorLevel, "9b095f62-b371-4eaf-965f-98eb24206e53", "unexpected response, SECURETOKENID value changed")
+	}
 
 	if present && ok {
-		return utils.InterfaceToString(token) + utils.InterfaceToString(tokenID), nil
+		return "SECURETOKEN=" + utils.InterfaceToString(token) +"&SECURETOKENID="+ utils.InterfaceToString(tokenID), nil
 	}
 
 	return "", env.ErrorNew(ConstErrorModule, ConstErrorLevel, "96d95546-1595-4fe1-9156-ef8d6e43f172", "unexpected response - without access_token")
