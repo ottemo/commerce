@@ -10,6 +10,7 @@ import (
 // Package global constants
 const (
 	// PayPal general constants
+
 	ConstLogStorage = "paypal.log"
 
 	ConstErrorModule = "payment/paypal"
@@ -19,6 +20,7 @@ const (
 	ConstPaymentActionAuthorization = "Authorization"
 
 	// PayPal express constants
+
 	ConstPaymentCode = "paypal_express"
 	ConstPaymentName = "PayPal Express"
 
@@ -37,21 +39,20 @@ const (
 	ConstConfigPathAction    = "payment.paypal.action"
 
 	// PayPal pro API constants
+
 	ConstPaymentPayPalPayflowCode = "paypal_payflow"
-	ConstPaymentPayPalPayflowName = "PayPal Pro Payflow API"
 
 	ConstConfigPathPayPalPayflowGroup = "payment.paypalpayflow"
 
 	ConstConfigPathPayPalPayflowEnabled = "payment.paypalpayflow.enabled"
 	ConstConfigPathPayPalPayflowTitle   = "payment.paypalpayflow.title"
 
-	ConstConfigPathPayPalPayflowURL = "payment.paypalpayflow.url"
+	ConstConfigPathPayPalPayflowURL  = "payment.paypalpayflow.url"
 	ConstConfigPathPayPalPayflowHost = "payment.paypalpayflow.host"
 
-	ConstConfigPathPayPalPayflowUser = "payment.paypalpayflow.user"
-	ConstConfigPathPayPalPayflowPass = "payment.paypalpayflow.password"
+	ConstConfigPathPayPalPayflowUser   = "payment.paypalpayflow.user"
+	ConstConfigPathPayPalPayflowPass   = "payment.paypalpayflow.password"
 	ConstConfigPathPayPalPayflowVendor = "payment.paypalpayflow.vendor"
-
 )
 
 // Package global variables
