@@ -20,7 +20,7 @@ func (it *DBCollection) convertValueToType(columnType string, value interface{})
 			result[idx] = it.convertValueToType(columnType, listValue)
 		}
 		value = result
-	default:
+	case string:
 		switch {
 		case columnType == "string" || columnType == "text" || strings.Contains(columnType, "char"):
 			return utils.InterfaceToString(value)
