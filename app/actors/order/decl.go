@@ -82,6 +82,11 @@ type DefaultOrder struct {
 	ShippingAmount float64
 	GrandTotal     float64
 
+	Taxes     []order.StructTaxRate
+	Discounts []order.StructDiscount
+
+	Notes []string
+
 	CreatedAt time.Time
 	UpdatedAt time.Time
 

@@ -177,9 +177,19 @@ func (it *DefaultOrder) GetDiscountAmount() float64 {
 	return it.Discount
 }
 
+// GetDiscounts returns discount applied to order
+func (it *DefaultOrder) GetDiscounts() []order.StructDiscount {
+	return it.Discounts
+}
+
 // GetTaxAmount returns tax amount applied to order
 func (it *DefaultOrder) GetTaxAmount() float64 {
 	return it.TaxAmount
+}
+
+// GetTaxes returns taxes applied to order
+func (it *DefaultOrder) GetTaxes() []order.StructTaxRate {
+	return it.Taxes
 }
 
 // GetShippingAmount returns order shipping cost
@@ -293,6 +303,9 @@ func (it *DefaultOrder) Proceed() error {
 		return env.ErrorDispatch(err)
 	}
 
+	eventData := map[string]interface{}{"order": it}
+	env.Event("order.proceed", eventData)
+
 	return nil
 }
 
@@ -330,6 +343,9 @@ func (it *DefaultOrder) Rollback() error {
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
+
+	eventData := map[string]interface{}{"order": it}
+	env.Event("order.rollback", eventData)
 
 	return nil
 }

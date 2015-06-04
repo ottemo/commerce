@@ -320,6 +320,7 @@ func InterfaceToArray(value interface{}) []interface{} {
 		splitValues := strings.Split(typedValue, ",")
 		result = make([]interface{}, len(splitValues))
 		for idx, value := range splitValues {
+			value = strings.Replace(value, "#2C;", ",", -1)
 			result[idx] = strings.Trim(value, " \t\n")
 		}
 
