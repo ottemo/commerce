@@ -75,7 +75,6 @@ func setupDB() error {
 
 		collection.AddColumn("notes", db.TypeArrayOf(db.ConstTypeVarchar), false)
 
-
 		collection, err = dbEngine.GetCollection(ConstCollectionNameOrderItems)
 		if err != nil {
 			return env.ErrorDispatch(err)

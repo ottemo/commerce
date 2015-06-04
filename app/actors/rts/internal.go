@@ -519,7 +519,7 @@ func initReferrals() error {
 // sortArrayOfMapByKey sort array from biggest to lowest value of map[key] element
 func sortArrayOfMapByKey(data []map[string]interface{}, key string) []map[string]interface{} {
 
-	var result[]map[string]interface{}
+	var result []map[string]interface{}
 	var indexOfMaxValueItem int
 	var maxValue float64
 

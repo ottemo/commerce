@@ -79,16 +79,15 @@ func (it *DefaultOrder) Get(attribute string) interface{} {
 	case "payment_info":
 		return it.PaymentInfo
 
-<<<<<<< HEAD
 	case "custom_info":
 		return it.CustomInfo
 
 	case "shipping_info":
 		return it.ShippingInfo
-=======
+
 	case "notes":
 		return it.Notes
->>>>>>> develop
+
 	}
 
 	return nil

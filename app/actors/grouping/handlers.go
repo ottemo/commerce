@@ -73,7 +73,6 @@ func applyGroupRule(currentCart cart.InterfaceCart, groupProductsArray []interfa
 	ruleMultiplier := getApplyTimesCount(currentCart, groupProductsArray)
 	if ruleMultiplier > 0 {
 
-
 		// modifying current cart with removing items from rule group key element
 		for _, groupProductValue := range groupProductsArray {
 			groupProductElement := utils.InterfaceToMap(groupProductValue)
