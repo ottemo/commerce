@@ -154,7 +154,6 @@ func (it *DBCollection) AddStaticFilter(ColumnName string, Operator string, Valu
 
 // AddFilter adds selection filter to current collection object
 func (it *DBCollection) AddFilter(ColumnName string, Operator string, Value interface{}) error {
-	Value = it.convertValueToType(it.GetColumnType(ColumnName), Value)
 	err := it.updateFilterGroup(ConstFilterGroupDefault, ColumnName, Operator, Value)
 	if err != nil {
 		return err
