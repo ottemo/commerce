@@ -102,6 +102,21 @@ func addToCartHandler(event string, eventData map[string]interface{}) bool {
 	return true
 }
 
+func reachedCheckoutHandler(event string, eventData map[string]interface{}) bool {
+
+	currentHour := time.Now().Truncate(time.Hour).Unix()
+	CheckHourUpdateForStatistic()
+
+	statistic[currentHour].Checkout++
+
+	err := SaveStatisticsData()
+	if err != nil {
+		env.LogError(err)
+	}
+
+	return true
+}
+
 func purchasedHandler(event string, eventData map[string]interface{}) bool {
 
 	if sessionInstance, ok := eventData["session"].(api.InterfaceSession); ok {
@@ -120,6 +135,7 @@ func purchasedHandler(event string, eventData map[string]interface{}) bool {
 			statistic[currentHour].Visit++
 			statistic[currentHour].TotalVisits++
 			statistic[currentHour].Cart++
+			statistic[currentHour].Checkout++
 		}
 
 		visitState[sessionID] = false

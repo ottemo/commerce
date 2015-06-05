@@ -38,6 +38,7 @@ func initListners() error {
 	env.EventRegisterListener("api.rts.visit", referrerHandler)
 	env.EventRegisterListener("api.rts.visit", visitsHandler)
 	env.EventRegisterListener("api.cart.addToCart", addToCartHandler)
+	env.EventRegisterListener("api.checkout.setPayment", reachedCheckoutHandler)
 	env.EventRegisterListener("checkout.success", purchasedHandler)
 	env.EventRegisterListener("checkout.success", salesHandler)
 	env.EventRegisterListener("api.rts.visit", registerVisitorAsOnlineHandler)
@@ -77,6 +78,7 @@ func setupDB() error {
 	collection.AddColumn("visitors", db.ConstTypeInteger, false)
 	collection.AddColumn("total_visits", db.ConstTypeInteger, false)
 	collection.AddColumn("cart", db.ConstTypeInteger, false)
+	collection.AddColumn("checkout", db.ConstTypeInteger, false)
 	collection.AddColumn("sales", db.ConstTypeInteger, false)
 	collection.AddColumn("sales_amount", db.ConstTypeFloat, false)
 

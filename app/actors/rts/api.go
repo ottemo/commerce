@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/ottemo/foundation/api"
-	"github.com/ottemo/foundation/app/models/order"
 	"github.com/ottemo/foundation/app/models/product"
 	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/env"
@@ -105,7 +104,7 @@ func APIGetVisits(context api.InterfaceApplicationContext) (interface{}, error) 
 	timeZone := context.GetRequestArgument("tz")
 
 	// get a hours pasted for local day and count for them and for previous day
-	todayTo := time.Now().Truncate(time.Hour).Add(time.Hour)
+	todayTo := time.Now().Truncate(time.Hour)
 	todayFrom, _ := utils.ApplyTimeZone(todayTo, timeZone)
 	todayHoursPast := todayFrom.Sub(todayFrom.Truncate(ConstTimeDay))
 
@@ -199,8 +198,7 @@ func APIGetVisitsDetails(context api.InterfaceApplicationContext) (interface{}, 
 	}
 
 	visitorInfoCollection.AddFilter("day", ">=", dateFrom)
-	visitorInfoCollection.AddFilter("day", "<", dateTo)
-	visitorInfoCollection.AddSort("day", false)
+	visitorInfoCollection.AddFilter("day", "<=", dateTo)
 
 	dbRecords, err := visitorInfoCollection.Load()
 	if err != nil {
@@ -217,11 +215,13 @@ func APIGetVisitsDetails(context api.InterfaceApplicationContext) (interface{}, 
 
 	// grouping database records
 	for _, item := range dbRecords {
-		timestamp := fmt.Sprint(utils.InterfaceToTime(item["day"]).Truncate(timeScope).Unix())
+		timestamp := fmt.Sprint(utils.InterfaceToTime(item["day"]).Truncate(timeScope).Add(hoursOffset).Unix())
 		visits := utils.InterfaceToInt(item["visitors"])
 
 		if value, present := result[timestamp]; present {
 			result[timestamp] = value + visits
+		} else {
+			env.LogError(env.ErrorNew(ConstErrorModule, ConstErrorLevel, "80666c27-e67a-420d-9625-004122523451", "error in calculating detail visits hours"))
 		}
 	}
 
@@ -246,6 +246,7 @@ func APIGetConversion(context api.InterfaceApplicationContext) (interface{}, err
 
 	visits := 0
 	sales := 0
+	checkout := 0
 	addToCart := 0
 
 	// Go thrue period and summarise a visits
@@ -255,6 +256,7 @@ func APIGetConversion(context api.InterfaceApplicationContext) (interface{}, err
 			visits = visits + statistic[todayFrom.Unix()].TotalVisits
 			sales = sales + statistic[todayFrom.Unix()].Sales
 			addToCart = addToCart + statistic[todayFrom.Unix()].Cart
+			checkout = checkout + statistic[todayFrom.Unix()].Checkout
 		}
 
 		todayFrom = todayFrom.Add(time.Hour)
@@ -262,7 +264,7 @@ func APIGetConversion(context api.InterfaceApplicationContext) (interface{}, err
 
 	result["totalVisitors"] = visits
 	result["addedToCart"] = addToCart
-	result["reachedCheckout"] = sales
+	result["reachedCheckout"] = checkout
 	result["purchased"] = sales
 
 	return result, nil
@@ -363,37 +365,36 @@ func APIGetSalesDetails(context api.InterfaceApplicationContext) (interface{}, e
 	dateTo = dateTo.Truncate(time.Hour)
 
 	// set database request settings
-	orderCollectionModelT, err := order.GetOrderCollectionModel()
+	// making database request
+	visitorInfoCollection, err := db.GetCollection(ConstCollectionNameRTSVisitors)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	dbCollection := orderCollectionModelT.GetDBCollection()
-	dbCollection.SetResultColumns("_id", "created_at")
-	dbCollection.AddSort("created_at", false)
-	dbCollection.AddFilter("created_at", ">=", dateFrom)
-	dbCollection.AddFilter("created_at", "<=", dateTo)
+	visitorInfoCollection.AddFilter("day", ">=", dateFrom)
+	visitorInfoCollection.AddFilter("day", "<=", dateTo)
 
-	// get database records
-	dbRecords, err := dbCollection.Load()
+	dbRecords, err := visitorInfoCollection.Load()
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
 	// filling requested period
-	timeIterator := dateFrom
-	for timeIterator.Before(dateTo) {
-		arrayResult = append(arrayResult, []int{utils.InterfaceToInt(timeIterator.Add(hoursOffset).Unix()), 0})
-		result[fmt.Sprint(timeIterator.Add(hoursOffset).Unix())] = 0
-		timeIterator = timeIterator.Add(timeScope)
+	for dateFrom.Before(dateTo) {
+		arrayResult = append(arrayResult, []int{utils.InterfaceToInt(dateFrom.Add(hoursOffset).Unix()), 0})
+		result[fmt.Sprint(dateFrom.Add(hoursOffset).Unix())] = 0
+		dateFrom = dateFrom.Add(timeScope)
 	}
 
 	// grouping database records
-	for _, order := range dbRecords {
-		timestamp := fmt.Sprint(utils.InterfaceToTime(order["created_at"]).Truncate(timeScope).Unix())
+	for _, item := range dbRecords {
+		timestamp := fmt.Sprint(utils.InterfaceToTime(item["day"]).Truncate(timeScope).Add(hoursOffset).Unix())
+		subtotal := utils.InterfaceToInt(item["sales_amount"])
 
-		if _, present := result[timestamp]; present {
-			result[timestamp]++
+		if value, present := result[timestamp]; present {
+			result[timestamp] = value + subtotal
+		} else {
+			env.LogError(env.ErrorNew(ConstErrorModule, ConstErrorLevel, "e8d31584-2ef2-4f00-9510-4913b4b1d6e6", "error in calculating detail sales hours"))
 		}
 	}
 
