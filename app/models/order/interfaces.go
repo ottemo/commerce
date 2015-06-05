@@ -65,7 +65,7 @@ type InterfaceOrder interface {
 	GetTaxAmount() float64
 	GetShippingAmount() float64
 
-	GetTaxes()  []StructTaxRate
+	GetTaxes() []StructTaxRate
 	GetDiscounts() []StructDiscount
 
 	GetShippingAddress() visitor.InterfaceVisitorAddress

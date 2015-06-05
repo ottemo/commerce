@@ -251,6 +251,7 @@ func orderRollbackHandler(event string, eventData map[string]interface{}) bool {
 
 	return true
 }
+
 // checkoutSuccessHandler send email to customer that purchased a gift cards with codes of them
 func checkoutSuccessHandler(event string, eventData map[string]interface{}) bool {
 
@@ -265,7 +266,7 @@ func checkoutSuccessHandler(event string, eventData map[string]interface{}) bool
 		env.LogError(err)
 		return false
 	}
-	
+
 	// set a customer mail as addressee
 	giftCardRecipientEmail := utils.InterfaceToString(orderPlaced.Get("customer_email"))
 	orderID := orderPlaced.GetID()
@@ -299,9 +300,9 @@ func checkoutSuccessHandler(event string, eventData map[string]interface{}) bool
 
 		giftCardsEmail, err := utils.TextTemplate(giftCardsEmail,
 			map[string]interface{}{
-			"Visitor":   visitorMap,
-			"GiftCards": giftCardsInfo,
-		})
+				"Visitor":   visitorMap,
+				"GiftCards": giftCardsInfo,
+			})
 
 		if err != nil {
 			env.LogError(err)

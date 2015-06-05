@@ -437,6 +437,7 @@ func (it *DefaultCheckout) Submit() (interface{}, error) {
 	//--------------------------
 	paymentInfo := make(map[string]interface{})
 	paymentInfo["sessionID"] = it.GetSession().GetID()
+	paymentInfo["cc"] = it.GetInfo("cc")
 
 	result, err := it.GetPaymentMethod().Authorize(checkoutOrder, paymentInfo)
 	if err != nil {

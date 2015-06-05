@@ -70,6 +70,9 @@ func setupDB() error {
 		collection.AddColumn("description", db.ConstTypeText, false)
 		collection.AddColumn("payment_info", db.ConstTypeJSON, false)
 
+		collection.AddColumn("custom_info", db.ConstTypeJSON, false)
+		collection.AddColumn("shipping_info", db.ConstTypeJSON, false)
+
 		collection.AddColumn("notes", db.TypeArrayOf(db.ConstTypeVarchar), false)
 
 		collection, err = dbEngine.GetCollection(ConstCollectionNameOrderItems)
