@@ -332,7 +332,7 @@ func InterfaceToArray(value interface{}) []interface{} {
 		result = make([]interface{}, len(typedValue))
 		for idx, value := range typedValue {
 			result[idx] = value
-	}
+		}
 	case []time.Time:
 		result = make([]interface{}, len(typedValue))
 		for idx, value := range typedValue {
