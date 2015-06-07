@@ -39,6 +39,7 @@ func initListners() error {
 	env.EventRegisterListener("api.rts.visit", visitsHandler)
 	env.EventRegisterListener("api.cart.addToCart", addToCartHandler)
 	env.EventRegisterListener("api.checkout.enter", reachedCheckoutHandler)
+	env.EventRegisterListener("api.checkout.setPayment", setPaymentHandler)
 	env.EventRegisterListener("checkout.success", purchasedHandler)
 	env.EventRegisterListener("checkout.success", salesHandler)
 	env.EventRegisterListener("api.rts.visit", registerVisitorAsOnlineHandler)

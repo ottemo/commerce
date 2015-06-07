@@ -63,6 +63,7 @@ type ActionsMade struct {
 	TotalVisits int     // total visits count
 	SalesAmount float64 // count sales
 	Checkout    int     // count visitors reached checkout
+	SetPayment  int     // count payment methods used
 }
 
 // SellerInfo represents particular product in TopSellers struct

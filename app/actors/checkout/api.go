@@ -64,7 +64,7 @@ func APIGetCheckout(context api.InterfaceApplicationContext) (interface{}, error
 	}
 
 	// record rts event for raching checkout
-	eventData := map[string]interface{}{"session": context.GetSession(), "paymentMethod": paymentMethod, "checkout": currentCheckout}
+	eventData := map[string]interface{}{"session": context.GetSession(), "checkout": currentCheckout}
 	env.Event("api.checkout.enter", eventData)
 
 	result := map[string]interface{}{
@@ -343,6 +343,10 @@ func APISetPaymentMethod(context api.InterfaceApplicationContext) (interface{}, 
 				for key, value := range contentValues {
 					currentCheckout.SetInfo(key, value)
 				}
+
+				// visitor event for setting payment method
+				eventData := map[string]interface{}{"session": context.GetSession(), "paymentMethod": paymentMethod, "checkout": currentCheckout}
+				env.Event("api.checkout.setPayment", eventData)
 
 				// updating session
 				checkout.SetCurrentCheckout(context, currentCheckout)
