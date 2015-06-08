@@ -79,7 +79,8 @@ func setupDB() error {
 	collection.AddColumn("visitors", db.ConstTypeInteger, false)
 	collection.AddColumn("total_visits", db.ConstTypeInteger, false)
 	collection.AddColumn("cart", db.ConstTypeInteger, false)
-	collection.AddColumn("checkout", db.ConstTypeInteger, false)
+	collection.AddColumn("visit_checkout", db.ConstTypeInteger, false)
+	collection.AddColumn("set_payment", db.ConstTypeInteger, false)
 	collection.AddColumn("sales", db.ConstTypeInteger, false)
 	collection.AddColumn("sales_amount", db.ConstTypeFloat, false)
 

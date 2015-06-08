@@ -367,8 +367,8 @@ func SaveStatisticsData() error {
 		visitorInfoRow["visitors"] = lastActions.Visit
 		visitorInfoRow["cart"] = lastActions.Cart
 		visitorInfoRow["sales"] = lastActions.Sales
-		visitorInfoRow["visit_checkout"] = lastActions.Checkout
-		visitorInfoRow["set_payment"] = lastActions.Checkout
+		visitorInfoRow["visit_checkout"] = lastActions.VisitCheckout
+		visitorInfoRow["set_payment"] = lastActions.SetPayment
 		visitorInfoRow["sales_amount"] = lastActions.SalesAmount
 		visitorInfoRow["total_visits"] = lastActions.TotalVisits
 
