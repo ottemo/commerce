@@ -245,18 +245,20 @@ func APIGetConversion(context api.InterfaceApplicationContext) (interface{}, err
 	todayFrom = todayTo.Add(-todayHoursPast)
 
 	visits := 0
-	sales := 0
-	checkout := 0
 	addToCart := 0
+	visitCheckout := 0
+	setPayment := 0
+	sales := 0
 
 	// Go thrue period and summarise a visits
 	for todayFrom.Before(todayTo) {
 
 		if _, ok := statistic[todayFrom.Unix()]; ok {
 			visits = visits + statistic[todayFrom.Unix()].TotalVisits
-			sales = sales + statistic[todayFrom.Unix()].Sales
 			addToCart = addToCart + statistic[todayFrom.Unix()].Cart
-			checkout = checkout + statistic[todayFrom.Unix()].Checkout
+			visitCheckout = visitCheckout + statistic[todayFrom.Unix()].VisitCheckout
+			setPayment = setPayment + statistic[todayFrom.Unix()].SetPayment
+			sales = sales + statistic[todayFrom.Unix()].Sales
 		}
 
 		todayFrom = todayFrom.Add(time.Hour)
@@ -264,7 +266,8 @@ func APIGetConversion(context api.InterfaceApplicationContext) (interface{}, err
 
 	result["totalVisitors"] = visits
 	result["addedToCart"] = addToCart
-	result["reachedCheckout"] = checkout
+	result["visitCheckout"] = visitCheckout
+	result["setPayment"] = setPayment
 	result["purchased"] = sales
 
 	return result, nil

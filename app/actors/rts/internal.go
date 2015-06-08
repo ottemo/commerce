@@ -331,7 +331,8 @@ func initStatistic() error {
 		statistic[timeIterator].SalesAmount = statistic[timeIterator].SalesAmount + utils.InterfaceToFloat64(item["sales_amount"])
 		statistic[timeIterator].Visit = statistic[timeIterator].Visit + utils.InterfaceToInt(item["visitors"])
 		statistic[timeIterator].Sales = statistic[timeIterator].Sales + utils.InterfaceToInt(item["sales"])
-		statistic[timeIterator].Checkout = statistic[timeIterator].Checkout + utils.InterfaceToInt(item["checkout"])
+		statistic[timeIterator].VisitCheckout = statistic[timeIterator].VisitCheckout + utils.InterfaceToInt(item["visit_checkout"])
+		statistic[timeIterator].SetPayment = statistic[timeIterator].SetPayment + utils.InterfaceToInt(item["set_payment"])
 		statistic[timeIterator].Cart = statistic[timeIterator].Cart + utils.InterfaceToInt(item["cart"])
 	}
 
@@ -366,7 +367,8 @@ func SaveStatisticsData() error {
 		visitorInfoRow["visitors"] = lastActions.Visit
 		visitorInfoRow["cart"] = lastActions.Cart
 		visitorInfoRow["sales"] = lastActions.Sales
-		visitorInfoRow["checkout"] = lastActions.Checkout
+		visitorInfoRow["visit_checkout"] = lastActions.Checkout
+		visitorInfoRow["set_payment"] = lastActions.Checkout
 		visitorInfoRow["sales_amount"] = lastActions.SalesAmount
 		visitorInfoRow["total_visits"] = lastActions.TotalVisits
 

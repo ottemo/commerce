@@ -63,9 +63,9 @@ func APIGetCheckout(context api.InterfaceApplicationContext) (interface{}, error
 		return nil, env.ErrorDispatch(err)
 	}
 
-	// record rts event for raching checkout
+	// record rts event for  checkout
 	eventData := map[string]interface{}{"session": context.GetSession(), "checkout": currentCheckout}
-	env.Event("api.checkout.enter", eventData)
+	env.Event("api.checkout.visit", eventData)
 
 	result := map[string]interface{}{
 		"billing_address":  nil,
