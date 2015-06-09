@@ -3,6 +3,7 @@ package api
 import (
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
@@ -39,8 +40,18 @@ func StartSession(context InterfaceApplicationContext) (InterfaceSession, error)
 				return nil, env.ErrorDispatch(err)
 			}
 
-			// storing session id to cookie
-			cookie = &http.Cookie{Name: ConstSessionCookieName, Value: result.GetID(), Path: "/"}
+			// Session Cookie Declaration
+			// - expires in 1 year
+			// - Domain defaults to the full subdomain path
+			cookieExpires := time.Now().Add(365 * 24 * time.Hour)
+			cookie = &http.Cookie{
+				Name: ConstSessionCookieName,
+				Value: result.GetID(),
+				Path: "/",
+				// Secure: true, // TODO: dependent on env, needs to be true for production
+				HttpOnly: true,
+				Expires: cookieExpires,
+			}
 			http.SetCookie(responseWriter, cookie)
 
 			return result, nil
