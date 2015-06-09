@@ -6,6 +6,8 @@ import (
 	"github.com/ottemo/foundation/app/models/cart"
 	"github.com/ottemo/foundation/app/models/checkout"
 	"github.com/ottemo/foundation/app/models/order"
+	"github.com/ottemo/foundation/app/actors/discount"
+	"github.com/ottemo/foundation/app/actors/giftcard"
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
 )
@@ -109,6 +111,8 @@ func (it *DefaultCheckout) CheckoutSuccess(checkoutOrder order.InterfaceOrder, s
 
 	session.Set(cart.ConstSessionKeyCurrentCart, nil)
 	session.Set(checkout.ConstSessionKeyCurrentCheckout, nil)
+	session.Set(discount.ConstSessionKeyAppliedDiscountCodes, make([]string, 0))
+	session.Set(giftcard.ConstSessionKeyAppliedGiftCardCodes, make([]string, 0))
 
 	// sending notifications
 	//----------------------

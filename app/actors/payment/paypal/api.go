@@ -176,7 +176,7 @@ func APIReceipt(context api.InterfaceApplicationContext) (interface{}, error) {
 			"OrderID - "+checkoutOrder.GetID()+", "+
 			"TOKEN - : "+completeData["TOKEN"])
 
-		return api.StructRestRedirect{Location: app.GetStorefrontURL("account/order/" + checkoutOrder.GetID()), DoRedirect: true}, nil
+		return api.StructRestRedirect{Location: app.GetStorefrontURL("checkout/success/" + checkoutOrder.GetID()), DoRedirect: true}, nil
 	}
 
 	return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "8d449c1c-ca34-4260-a93b-8af999c1ff04", "Checkout not exist")

@@ -435,18 +435,20 @@ func (it *DefaultCheckout) Submit() (interface{}, error) {
 
 	// trying to process payment
 	//--------------------------
-	paymentInfo := make(map[string]interface{})
-	paymentInfo["sessionID"] = it.GetSession().GetID()
-	paymentInfo["cc"] = it.GetInfo("cc")
+	if it.GetGrandTotal() > 0 {
+		paymentInfo := make(map[string]interface{})
+		paymentInfo["sessionID"] = it.GetSession().GetID()
+		paymentInfo["cc"] = it.GetInfo("cc")
 
-	result, err := it.GetPaymentMethod().Authorize(checkoutOrder, paymentInfo)
-	if err != nil {
-		return nil, env.ErrorDispatch(err)
-	}
+		result, err := it.GetPaymentMethod().Authorize(checkoutOrder, paymentInfo)
+		if err != nil {
+			return nil, env.ErrorDispatch(err)
+		}
 
-	// if payment.Authorize returns non nil result, that supposing additional operations to complete payment
-	if result != nil {
-		return result, nil
+		// if payment.Authorize returns non nil result, that supposing additional operations to complete payment
+		if result != nil {
+			return result, nil
+		}
 	}
 
 	err = it.CheckoutSuccess(checkoutOrder, it.GetSession())
