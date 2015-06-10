@@ -15,19 +15,19 @@ import (
 )
 
 // SetShippingAddress sets shipping address for checkout
-func (it *DefaultCheckout) SetShippingAddress(address visitor.InterfaceVisitorAddress) error {
+func (dc *DefaultCheckout) SetShippingAddress(address visitor.InterfaceVisitorAddress) error {
 	if address == nil {
-		it.ShippingAddress = nil
+		dc.ShippingAddress = nil
 		return nil
 	}
 
-	it.ShippingAddress = address.ToHashMap()
+	dc.ShippingAddress = address.ToHashMap()
 	return nil
 }
 
 // GetShippingAddress returns checkout shipping address
-func (it *DefaultCheckout) GetShippingAddress() visitor.InterfaceVisitorAddress {
-	if it.ShippingAddress == nil {
+func (dc *DefaultCheckout) GetShippingAddress() visitor.InterfaceVisitorAddress {
+	if dc.ShippingAddress == nil {
 		return nil
 	}
 
@@ -37,7 +37,7 @@ func (it *DefaultCheckout) GetShippingAddress() visitor.InterfaceVisitorAddress 
 		return nil
 	}
 
-	err = shippingAddress.FromHashMap(it.ShippingAddress)
+	err = shippingAddress.FromHashMap(dc.ShippingAddress)
 	if err != nil {
 		env.ErrorDispatch(err)
 		return nil
@@ -47,19 +47,19 @@ func (it *DefaultCheckout) GetShippingAddress() visitor.InterfaceVisitorAddress 
 }
 
 // SetBillingAddress sets billing address for checkout
-func (it *DefaultCheckout) SetBillingAddress(address visitor.InterfaceVisitorAddress) error {
+func (dc *DefaultCheckout) SetBillingAddress(address visitor.InterfaceVisitorAddress) error {
 	if address == nil {
-		it.BillingAddress = nil
+		dc.BillingAddress = nil
 		return nil
 	}
 
-	it.BillingAddress = address.ToHashMap()
+	dc.BillingAddress = address.ToHashMap()
 	return nil
 }
 
 // GetBillingAddress returns checkout billing address
-func (it *DefaultCheckout) GetBillingAddress() visitor.InterfaceVisitorAddress {
-	if it.BillingAddress == nil {
+func (dc *DefaultCheckout) GetBillingAddress() visitor.InterfaceVisitorAddress {
+	if dc.BillingAddress == nil {
 		return nil
 	}
 
@@ -69,7 +69,7 @@ func (it *DefaultCheckout) GetBillingAddress() visitor.InterfaceVisitorAddress {
 		return nil
 	}
 
-	err = billingAddress.FromHashMap(it.BillingAddress)
+	err = billingAddress.FromHashMap(dc.BillingAddress)
 	if err != nil {
 		env.ErrorDispatch(err)
 		return nil
@@ -79,16 +79,16 @@ func (it *DefaultCheckout) GetBillingAddress() visitor.InterfaceVisitorAddress {
 }
 
 // SetPaymentMethod sets payment method for checkout
-func (it *DefaultCheckout) SetPaymentMethod(paymentMethod checkout.InterfacePaymentMethod) error {
-	it.PaymentMethodCode = paymentMethod.GetCode()
+func (dc *DefaultCheckout) SetPaymentMethod(paymentMethod checkout.InterfacePaymentMethod) error {
+	dc.PaymentMethodCode = paymentMethod.GetCode()
 	return nil
 }
 
 // GetPaymentMethod returns checkout payment method
-func (it *DefaultCheckout) GetPaymentMethod() checkout.InterfacePaymentMethod {
+func (dc *DefaultCheckout) GetPaymentMethod() checkout.InterfacePaymentMethod {
 	if paymentMethods := checkout.GetRegisteredPaymentMethods(); paymentMethods != nil {
 		for _, paymentMethod := range paymentMethods {
-			if paymentMethod.GetCode() == it.PaymentMethodCode {
+			if paymentMethod.GetCode() == dc.PaymentMethodCode {
 				return paymentMethod
 			}
 		}
@@ -97,16 +97,16 @@ func (it *DefaultCheckout) GetPaymentMethod() checkout.InterfacePaymentMethod {
 }
 
 // SetShippingMethod sets payment method for checkout
-func (it *DefaultCheckout) SetShippingMethod(shippingMethod checkout.InterfaceShippingMethod) error {
-	it.ShippingMethodCode = shippingMethod.GetCode()
+func (dc *DefaultCheckout) SetShippingMethod(shippingMethod checkout.InterfaceShippingMethod) error {
+	dc.ShippingMethodCode = shippingMethod.GetCode()
 	return nil
 }
 
 // GetShippingMethod returns a checkout shipping method
-func (it *DefaultCheckout) GetShippingMethod() checkout.InterfaceShippingMethod {
+func (dc *DefaultCheckout) GetShippingMethod() checkout.InterfaceShippingMethod {
 	if shippingMethods := checkout.GetRegisteredShippingMethods(); shippingMethods != nil {
 		for _, shippingMethod := range shippingMethods {
-			if shippingMethod.GetCode() == it.ShippingMethodCode {
+			if shippingMethod.GetCode() == dc.ShippingMethodCode {
 				return shippingMethod
 			}
 		}
@@ -115,50 +115,50 @@ func (it *DefaultCheckout) GetShippingMethod() checkout.InterfaceShippingMethod 
 }
 
 // SetShippingRate sets shipping rate for checkout
-func (it *DefaultCheckout) SetShippingRate(shippingRate checkout.StructShippingRate) error {
-	it.ShippingRate = shippingRate
+func (dc *DefaultCheckout) SetShippingRate(shippingRate checkout.StructShippingRate) error {
+	dc.ShippingRate = shippingRate
 	return nil
 }
 
 // GetShippingRate returns a checkout shipping rate
-func (it *DefaultCheckout) GetShippingRate() *checkout.StructShippingRate {
-	return &it.ShippingRate
+func (dc *DefaultCheckout) GetShippingRate() *checkout.StructShippingRate {
+	return &dc.ShippingRate
 }
 
 // SetCart sets cart for checkout
-func (it *DefaultCheckout) SetCart(checkoutCart cart.InterfaceCart) error {
-	it.CartID = checkoutCart.GetID()
+func (dc *DefaultCheckout) SetCart(checkoutCart cart.InterfaceCart) error {
+	dc.CartID = checkoutCart.GetID()
 	return nil
 }
 
 // GetCart returns a shopping cart
-func (it *DefaultCheckout) GetCart() cart.InterfaceCart {
-	cartInstance, _ := cart.LoadCartByID(it.CartID)
+func (dc *DefaultCheckout) GetCart() cart.InterfaceCart {
+	cartInstance, _ := cart.LoadCartByID(dc.CartID)
 	return cartInstance
 }
 
 // SetVisitor sets visitor for checkout
-func (it *DefaultCheckout) SetVisitor(checkoutVisitor visitor.InterfaceVisitor) error {
-	it.VisitorID = checkoutVisitor.GetID()
+func (dc *DefaultCheckout) SetVisitor(checkoutVisitor visitor.InterfaceVisitor) error {
+	dc.VisitorID = checkoutVisitor.GetID()
 
-	if it.BillingAddress == nil && checkoutVisitor.GetBillingAddress() != nil {
-		it.BillingAddress = checkoutVisitor.GetBillingAddress().ToHashMap()
+	if dc.BillingAddress == nil && checkoutVisitor.GetBillingAddress() != nil {
+		dc.BillingAddress = checkoutVisitor.GetBillingAddress().ToHashMap()
 	}
 
-	if it.ShippingAddress == nil && checkoutVisitor.GetShippingAddress() != nil {
-		it.ShippingAddress = checkoutVisitor.GetShippingAddress().ToHashMap()
+	if dc.ShippingAddress == nil && checkoutVisitor.GetShippingAddress() != nil {
+		dc.ShippingAddress = checkoutVisitor.GetShippingAddress().ToHashMap()
 	}
 
 	return nil
 }
 
 // GetVisitor return checkout visitor
-func (it *DefaultCheckout) GetVisitor() visitor.InterfaceVisitor {
-	if it.VisitorID == "" {
+func (dc *DefaultCheckout) GetVisitor() visitor.InterfaceVisitor {
+	if dc.VisitorID == "" {
 		return nil
 	}
 
-	visitorInstance, err := visitor.LoadVisitorByID(it.VisitorID)
+	visitorInstance, err := visitor.LoadVisitorByID(dc.VisitorID)
 	if err != nil {
 		return nil
 	}
@@ -167,72 +167,72 @@ func (it *DefaultCheckout) GetVisitor() visitor.InterfaceVisitor {
 }
 
 // SetSession sets visitor for checkout
-func (it *DefaultCheckout) SetSession(checkoutSession api.InterfaceSession) error {
-	it.SessionID = checkoutSession.GetID()
+func (dc *DefaultCheckout) SetSession(checkoutSession api.InterfaceSession) error {
+	dc.SessionID = checkoutSession.GetID()
 	return nil
 }
 
 // GetSession return checkout visitor
-func (it *DefaultCheckout) GetSession() api.InterfaceSession {
-	sessionInstance, _ := api.GetSessionByID(it.SessionID)
+func (dc *DefaultCheckout) GetSession() api.InterfaceSession {
+	sessionInstance, _ := api.GetSessionByID(dc.SessionID)
 	return sessionInstance
 }
 
 // GetTaxes collects taxes applied for current checkout
-func (it *DefaultCheckout) GetTaxes() (float64, []checkout.StructTaxRate) {
+func (dc *DefaultCheckout) GetTaxes() (float64, []checkout.StructTaxRate) {
 
 	var amount float64
 
-	if !it.taxesCalculateFlag {
-		it.taxesCalculateFlag = true
+	if !dc.taxesCalculateFlag {
+		dc.taxesCalculateFlag = true
 
-		it.Taxes = make([]checkout.StructTaxRate, 0)
+		dc.Taxes = make([]checkout.StructTaxRate, 0)
 		for _, tax := range checkout.GetRegisteredTaxes() {
-			for _, taxRate := range tax.CalculateTax(it) {
-				it.Taxes = append(it.Taxes, taxRate)
+			for _, taxRate := range tax.CalculateTax(dc) {
+				dc.Taxes = append(dc.Taxes, taxRate)
 				amount += taxRate.Amount
 			}
 		}
 
-		it.taxesCalculateFlag = false
+		dc.taxesCalculateFlag = false
 	} else {
-		for _, taxRate := range it.Taxes {
+		for _, taxRate := range dc.Taxes {
 			amount += taxRate.Amount
 		}
 	}
 
-	return amount, it.Taxes
+	return amount, dc.Taxes
 }
 
 // GetDiscounts collects discounts applied for current checkout
-func (it *DefaultCheckout) GetDiscounts() (float64, []checkout.StructDiscount) {
+func (dc *DefaultCheckout) GetDiscounts() (float64, []checkout.StructDiscount) {
 
 	var amount float64
 
-	if !it.discountsCalculateFlag {
-		it.discountsCalculateFlag = true
+	if !dc.discountsCalculateFlag {
+		dc.discountsCalculateFlag = true
 
-		it.Discounts = make([]checkout.StructDiscount, 0)
+		dc.Discounts = make([]checkout.StructDiscount, 0)
 		for _, discount := range checkout.GetRegisteredDiscounts() {
-			for _, discountValue := range discount.CalculateDiscount(it) {
-				it.Discounts = append(it.Discounts, discountValue)
+			for _, discountValue := range discount.CalculateDiscount(dc) {
+				dc.Discounts = append(dc.Discounts, discountValue)
 				amount += discountValue.Amount
 			}
 		}
 
-		it.discountsCalculateFlag = false
+		dc.discountsCalculateFlag = false
 	} else {
-		for _, discount := range it.Discounts {
+		for _, discount := range dc.Discounts {
 			amount += discount.Amount
 		}
 	}
 
-	return amount, it.Discounts
+	return amount, dc.Discounts
 }
 
 // GetSubtotal returns subtotal total for current checkout
-func (it *DefaultCheckout) GetSubtotal() float64 {
-	currentCart := it.GetCart()
+func (dc *DefaultCheckout) GetSubtotal() float64 {
+	currentCart := dc.GetCart()
 	if currentCart != nil {
 		return currentCart.GetSubtotal()
 	}
@@ -241,30 +241,30 @@ func (it *DefaultCheckout) GetSubtotal() float64 {
 }
 
 // GetGrandTotal returns grand total for current checkout: [cart subtotal] + [shipping rate] + [taxes] - [discounts]
-func (it *DefaultCheckout) GetGrandTotal() float64 {
-	amount := it.GetSubtotal()
+func (dc *DefaultCheckout) GetGrandTotal() float64 {
+	amount := dc.GetSubtotal()
 
-	if shippingRate := it.GetShippingRate(); shippingRate != nil {
+	if shippingRate := dc.GetShippingRate(); shippingRate != nil {
 		amount += shippingRate.Price
 	}
 
-	taxAmount, _ := it.GetTaxes()
+	taxAmount, _ := dc.GetTaxes()
 	amount += taxAmount
 
-	discountAmount, _ := it.GetDiscounts()
+	discountAmount, _ := dc.GetDiscounts()
 	amount -= discountAmount
 
 	return amount
 }
 
 // SetInfo sets additional info for checkout - any values related to checkout process
-func (it *DefaultCheckout) SetInfo(key string, value interface{}) error {
+func (dc *DefaultCheckout) SetInfo(key string, value interface{}) error {
 	if value == nil {
-		if _, present := it.Info[key]; present {
-			delete(it.Info, key)
+		if _, present := dc.Info[key]; present {
+			delete(dc.Info, key)
 		}
 	} else {
-		it.Info[key] = value
+		dc.Info[key] = value
 	}
 
 	return nil
@@ -272,12 +272,12 @@ func (it *DefaultCheckout) SetInfo(key string, value interface{}) error {
 
 // GetInfo returns additional checkout info value or nil,
 //   - use "*" as a key to get all keys and values currently set
-func (it *DefaultCheckout) GetInfo(key string) interface{} {
+func (dc *DefaultCheckout) GetInfo(key string) interface{} {
 	if key == "*" {
-		return it.Info
+		return dc.Info
 	}
 
-	if value, present := it.Info[key]; present {
+	if value, present := dc.Info[key]; present {
 		return value
 	}
 
@@ -285,15 +285,15 @@ func (it *DefaultCheckout) GetInfo(key string) interface{} {
 }
 
 // SetOrder sets order for current checkout
-func (it *DefaultCheckout) SetOrder(checkoutOrder order.InterfaceOrder) error {
-	it.OrderID = checkoutOrder.GetID()
+func (dc *DefaultCheckout) SetOrder(checkoutOrder order.InterfaceOrder) error {
+	dc.OrderID = checkoutOrder.GetID()
 	return nil
 }
 
 // GetOrder returns current checkout related order or nil if not created yet
-func (it *DefaultCheckout) GetOrder() order.InterfaceOrder {
-	if it.OrderID != "" {
-		orderInstance, err := order.LoadOrderByID(it.OrderID)
+func (dc *DefaultCheckout) GetOrder() order.InterfaceOrder {
+	if dc.OrderID != "" {
+		orderInstance, err := order.LoadOrderByID(dc.OrderID)
 		if err == nil {
 			return orderInstance
 		}
@@ -302,25 +302,25 @@ func (it *DefaultCheckout) GetOrder() order.InterfaceOrder {
 }
 
 // Submit creates the order with provided information
-func (it *DefaultCheckout) Submit() (interface{}, error) {
+func (dc *DefaultCheckout) Submit() (interface{}, error) {
 
-	if it.GetBillingAddress() == nil {
+	if dc.GetBillingAddress() == nil {
 		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "080db3c0-dbb5-4398-b1f1-4c3fefef79b4", "Billing address is not set")
 	}
 
-	if it.GetShippingAddress() == nil {
+	if dc.GetShippingAddress() == nil {
 		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "1c069d54-2847-46cb-bccd-76fc13d229ea", "Shipping address is not set")
 	}
 
-	if it.GetPaymentMethod() == nil {
+	if dc.GetPaymentMethod() == nil {
 		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "c0628038-3e06-47e9-9252-480351d903c0", "Payment method is not set")
 	}
 
-	if it.GetShippingMethod() == nil {
+	if dc.GetShippingMethod() == nil {
 		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "e22877fe-248d-4b5e-ad2f-10843cb9890c", "Shipping method is not set")
 	}
 
-	currentCart := it.GetCart()
+	currentCart := dc.GetCart()
 	if currentCart == nil {
 		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "ea211827-2025-46ca-be47-d09841021890", "Cart is not specified")
 	}
@@ -330,8 +330,8 @@ func (it *DefaultCheckout) Submit() (interface{}, error) {
 		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "84ad4db5-29e9-430c-aecf-b675cbafbcec", "Cart is empty")
 	}
 
-	currentVisitor := it.GetVisitor()
-	if (it.VisitorID == "" || currentVisitor == nil) && utils.InterfaceToString(it.GetInfo("customer_email")) == "" {
+	currentVisitor := dc.GetVisitor()
+	if (dc.VisitorID == "" || currentVisitor == nil) && utils.InterfaceToString(dc.GetInfo("customer_email")) == "" {
 		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "c5f53ede-63b7-40ea-952d-4d4c04337563", "customer e-mail was not specified")
 	}
 
@@ -343,7 +343,7 @@ func (it *DefaultCheckout) Submit() (interface{}, error) {
 	//---------------------------
 	currentTime := time.Now()
 
-	checkoutOrder := it.GetOrder()
+	checkoutOrder := dc.GetOrder()
 	if checkoutOrder == nil {
 		newOrder, err := order.GetOrderModel()
 		if err != nil {
@@ -368,37 +368,37 @@ func (it *DefaultCheckout) Submit() (interface{}, error) {
 		checkoutOrder.Set("customer_name", currentVisitor.GetFullName())
 	}
 
-	if it.GetInfo("customer_email") != nil {
-		orderCustomerEmail := utils.InterfaceToString(it.GetInfo("customer_email"))
+	if dc.GetInfo("customer_email") != nil {
+		orderCustomerEmail := utils.InterfaceToString(dc.GetInfo("customer_email"))
 		checkoutOrder.Set("customer_email", orderCustomerEmail)
 	}
-	if it.GetInfo("customer_name") != nil {
-		orderCustomerName := utils.InterfaceToString(it.GetInfo("customer_name"))
+	if dc.GetInfo("customer_name") != nil {
+		orderCustomerName := utils.InterfaceToString(dc.GetInfo("customer_name"))
 		checkoutOrder.Set("customer_name", orderCustomerName)
 	}
 
-	billingAddress := it.GetBillingAddress().ToHashMap()
+	billingAddress := dc.GetBillingAddress().ToHashMap()
 	checkoutOrder.Set("billing_address", billingAddress)
 
-	shippingAddress := it.GetShippingAddress().ToHashMap()
+	shippingAddress := dc.GetShippingAddress().ToHashMap()
 	checkoutOrder.Set("shipping_address", shippingAddress)
 
 	checkoutOrder.Set("cart_id", currentCart.GetID())
-	checkoutOrder.Set("payment_method", it.GetPaymentMethod().GetCode())
-	checkoutOrder.Set("shipping_method", it.GetShippingMethod().GetCode()+"/"+it.GetShippingRate().Code)
+	checkoutOrder.Set("payment_method", dc.GetPaymentMethod().GetCode())
+	checkoutOrder.Set("shipping_method", dc.GetShippingMethod().GetCode()+"/"+dc.GetShippingRate().Code)
 
-	discountAmount, discounts := it.GetDiscounts()
+	discountAmount, discounts := dc.GetDiscounts()
 	checkoutOrder.Set("discount", discountAmount)
 	checkoutOrder.Set("discounts", discounts)
 
-	taxAmount, taxes := it.GetTaxes()
+	taxAmount, taxes := dc.GetTaxes()
 	checkoutOrder.Set("tax_amount", taxAmount)
 	checkoutOrder.Set("taxes", taxes)
 
-	checkoutOrder.Set("shipping_amount", it.GetShippingRate().Price)
+	checkoutOrder.Set("shipping_amount", dc.GetShippingRate().Price)
 
 	generateDescriptionFlag := false
-	orderDescription := utils.InterfaceToString(it.GetInfo("order_description"))
+	orderDescription := utils.InterfaceToString(dc.GetInfo("order_description"))
 	if orderDescription == "" {
 		generateDescriptionFlag = true
 	}
@@ -428,19 +428,19 @@ func (it *DefaultCheckout) Submit() (interface{}, error) {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	it.SetOrder(checkoutOrder)
+	dc.SetOrder(checkoutOrder)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
 	// trying to process payment
 	//--------------------------
-	if it.GetGrandTotal() > 0 {
+	if dc.GetGrandTotal() > 0 {
 		paymentInfo := make(map[string]interface{})
-		paymentInfo["sessionID"] = it.GetSession().GetID()
-		paymentInfo["cc"] = it.GetInfo("cc")
+		paymentInfo["sessionID"] = dc.GetSession().GetID()
+		paymentInfo["cc"] = dc.GetInfo("cc")
 
-		result, err := it.GetPaymentMethod().Authorize(checkoutOrder, paymentInfo)
+		result, err := dc.GetPaymentMethod().Authorize(checkoutOrder, paymentInfo)
 		if err != nil {
 			return nil, env.ErrorDispatch(err)
 		}
@@ -451,7 +451,7 @@ func (it *DefaultCheckout) Submit() (interface{}, error) {
 		}
 	}
 
-	err = it.CheckoutSuccess(checkoutOrder, it.GetSession())
+	err = dc.CheckoutSuccess(checkoutOrder, dc.GetSession())
 
 	return checkoutOrder.ToHashMap(), err
 }
