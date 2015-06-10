@@ -102,12 +102,27 @@ func addToCartHandler(event string, eventData map[string]interface{}) bool {
 	return true
 }
 
-func reachedCheckoutHandler(event string, eventData map[string]interface{}) bool {
+func visitCheckoutHandler(event string, eventData map[string]interface{}) bool {
 
 	currentHour := time.Now().Truncate(time.Hour).Unix()
 	CheckHourUpdateForStatistic()
 
-	statistic[currentHour].Checkout++
+	statistic[currentHour].VisitCheckout++
+
+	err := SaveStatisticsData()
+	if err != nil {
+		env.LogError(err)
+	}
+
+	return true
+}
+
+func setPaymentHandler(event string, eventData map[string]interface{}) bool {
+
+	currentHour := time.Now().Truncate(time.Hour).Unix()
+	CheckHourUpdateForStatistic()
+
+	statistic[currentHour].SetPayment++
 
 	err := SaveStatisticsData()
 	if err != nil {
@@ -131,11 +146,12 @@ func purchasedHandler(event string, eventData map[string]interface{}) bool {
 		CheckHourUpdateForStatistic()
 
 		if _, present := visitState[sessionID]; !present {
-			// Increasing sales, cart and visit counters for visitor of a past
+			// Increasing sales, cart and visit counters for visitor of a purchase
 			statistic[currentHour].Visit++
 			statistic[currentHour].TotalVisits++
 			statistic[currentHour].Cart++
-			statistic[currentHour].Checkout++
+			statistic[currentHour].VisitCheckout++
+			statistic[currentHour].SetPayment++
 		}
 
 		visitState[sessionID] = false
