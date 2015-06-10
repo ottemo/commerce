@@ -38,6 +38,17 @@ const (
 	ConstErrorLevel  = ConstErrorLevelService
 )
 
+// InterfaceScheduler is an interface to system scheduler service
+type InterfaceScheduler interface {
+	ListTasks() []string
+	RegisterTask(name string, task FuncCronTask) error
+
+	ScheduleTask(cronExpr string, taskName string, params map[string]interface{}) error
+
+	ListSchedules() []string
+	RemoveSchedule(idx int) error
+}
+
 // InterfaceEventBus is an interface to system event processor
 type InterfaceEventBus interface {
 	RegisterListener(event string, listener FuncEventListener)
@@ -118,6 +129,9 @@ type FuncEventListener func(string, map[string]interface{}) bool
 
 // FuncErrorListener is an error listener callback function prototype
 type FuncErrorListener func(error) bool
+
+// FuncCronTask is a callback function prototype executes by scheduler
+type FuncCronTask func(params map[string]interface{}) error
 
 // StructConfigItem is a structure to hold information about particular configuration value
 type StructConfigItem struct {
