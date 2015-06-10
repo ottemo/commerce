@@ -14,16 +14,16 @@ func getCreditCardName(creditCardType string) string {
 	case "1", "MC", "Master Card", "MasterCard":
 		return "MasterCard"
 
-	case "2", "Discover":
+	case "2", "DS", "Discover":
 		return "Discover"
 
-	case "3", "AE", "AmericanExpress", "American Express":
+	case "3", "AX", "AE", "AmericanExpress", "American Express":
 		return "AmericanExpress"
 
 	case "4", "DC", "Diner’s Club", "Diner’sClub", "DinersClub":
 		return "DinersClub"
 
-	case "5", "JCB":
+	case "5", "JC", "JCB":
 		return "JCB"
 	}
 
