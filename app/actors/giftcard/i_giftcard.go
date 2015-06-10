@@ -27,7 +27,7 @@ func (it *DefaultDiscount) CalculateDiscount(checkoutInstance checkout.Interface
 		if len(appliedCodes) > 0 {
 
 			// getting order information will use in calculations
-			discountableAmount := checkoutInstance.GetSubtotal()
+			discountableAmount := checkoutInstance.GetGrandTotal()
 
 			// loading information about applied discounts
 			collection, err := db.GetCollection(ConstCollectionNameGiftCard)
