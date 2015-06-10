@@ -118,7 +118,7 @@ func (dc *DefaultCheckout) CheckoutSuccess(checkoutOrder order.InterfaceOrder, s
 
 	// sending notifications
 	//----------------------
-	eventData := map[string]interface{}{"checkout": it, "order": checkoutOrder, "session": session, "cart": currentCart}
+	eventData := map[string]interface{}{"checkout": dc, "order": checkoutOrder, "session": session, "cart": currentCart}
 	env.Event("checkout.success", eventData)
 
 	err = dc.SendOrderConfirmationMail()
