@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"reflect"
 )
 
 var (
@@ -356,7 +357,15 @@ func InterfaceToArray(value interface{}) []interface{} {
 		}
 
 	default:
-		result = append(result, value)
+		reflectValue := reflect.ValueOf(value)
+		kind := reflectValue.Kind()
+		if kind == reflect.Slice || kind == reflect.Array  {
+			for i := 0; i < reflectValue.Len(); i++ {
+				result = append(result, reflectValue.Index(i).Interface())
+			}
+		} else {
+			result = append(result, value)
+		}
 	}
 
 	return result
@@ -372,6 +381,13 @@ func InterfaceToMap(value interface{}) map[string]interface{} {
 		value, err := DecodeJSONToStringKeyMap(value)
 		if err == nil {
 			return value
+		}
+	default:
+		reflectValue := reflect.ValueOf(value)
+		if reflectValue.Kind() == reflect.Struct {
+			if result, err := DecodeJSONToStringKeyMap(EncodeToJSONString(value)); err == nil {
+				return result
+			}
 		}
 	}
 
