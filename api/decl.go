@@ -10,7 +10,6 @@ const (
 	ConstRESTOperationUpdate = "PUT"
 	ConstRESTOperationCreate = "POST"
 	ConstRESTOperationDelete = "DELETE"
-
 	ConstRESTActionParameter = "action"
 
 	ConstSessionKeyAdminRights = "adminRights"   // session key used to flag that user have admin rights
