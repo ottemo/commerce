@@ -2,16 +2,27 @@ package api
 
 import (
 	"net/http"
+	"os"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
 )
 
-// StartSession returns session object for request or creates new one
+// StartSession returns session object for request or creates new one.  To use
+// a secure session cookie in HTTPS, please set the environment variable
+// OTTEMOCOOKIE.  It accepts 1, t, T, TRUE, true, True, 0, f, F, FALSE, false,
+// False. Any other value returns an error.
 func StartSession(context InterfaceApplicationContext) (InterfaceSession, error) {
 
 	request := context.GetRequest()
+	// use secure cookies if OTTEMOCOOKIE is set to a valid true value
+	flagSecure, err := strconv.ParseBool(os.Getenv("OTTEMO_SECURE_COOKIE"))
+	if err != nil {
+		flagSecure = false
+	}
 
 	// old method - HTTP specific
 	if request, ok := request.(*http.Request); ok {
@@ -39,8 +50,18 @@ func StartSession(context InterfaceApplicationContext) (InterfaceSession, error)
 				return nil, env.ErrorDispatch(err)
 			}
 
-			// storing session id to cookie
-			cookie = &http.Cookie{Name: ConstSessionCookieName, Value: result.GetID(), Path: "/"}
+			// Session Cookie Declaration
+			// - expires in 1 year
+			// - Domain defaults to the full subdomain path
+			cookieExpires := time.Now().Add(365 * 24 * time.Hour)
+			cookie = &http.Cookie{
+				Name:     ConstSessionCookieName,
+				Value:    result.GetID(),
+				Path:     "/",
+				Secure:   flagSecure,
+				HttpOnly: true,
+				Expires:  cookieExpires,
+			}
 			http.SetCookie(responseWriter, cookie)
 
 			return result, nil
