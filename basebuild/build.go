@@ -6,6 +6,7 @@ import (
 	_ "github.com/ottemo/foundation/env/eventbus" // event bus service
 	_ "github.com/ottemo/foundation/env/ini"      // ini configuration service
 	_ "github.com/ottemo/foundation/env/logger"   // file-based logger service
+	_ "github.com/ottemo/foundation/env/cron"     // scheduler service
 
 	_ "github.com/ottemo/foundation/api/rest"      // RESTful API service
 	_ "github.com/ottemo/foundation/api/session"   // API session management service

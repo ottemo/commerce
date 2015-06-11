@@ -29,9 +29,7 @@ func (it *DefaultCronScheduler) appInitEvent() error {
 
 	// TODO: load manually specified tasks from DB
 
-	for _, schedule := range it.schedules {
-		go it.execute(schedule)
-	}
+	it.appStarted = true
 
 	return nil
 }

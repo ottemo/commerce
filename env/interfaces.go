@@ -2,6 +2,7 @@ package env
 
 import (
 	"github.com/ottemo/foundation/utils"
+	"time"
 )
 
 // Package global constants
@@ -43,7 +44,9 @@ type InterfaceScheduler interface {
 	ListTasks() []string
 	RegisterTask(name string, task FuncCronTask) error
 
-	ScheduleTask(cronExpr string, taskName string, params map[string]interface{}) error
+	ScheduleAtTime(scheduledTime time.Time, taskName string, params map[string]interface{}) error
+	ScheduleRepeat(cronExpr string, taskName string, params map[string]interface{}) error
+	ScheduleOnce(cronExpr string, taskName string, params map[string]interface{}) error
 
 	ListSchedules() []string
 	RemoveSchedule(idx int) error

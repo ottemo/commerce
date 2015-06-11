@@ -9,13 +9,28 @@ import (
 
 // execute is a go routine function for a task (calls as separate go routine for each task)
 func (it *DefaultCronScheduler) execute(schedule StructCronSchedule) {
-	nextTime := schedule.expr.Next()
 
-	c := time.Tick(time.Now().Sub(nextTime))
-	_ = <-c
+	currentTime := time.Now()
 
-	schedule.task(schedule.Params)
-	it.execute(schedule)
+	if schedule.Time.Before(currentTime) && schedule.expr != nil {
+		schedule.Time = schedule.expr.Next(currentTime)
+	}
+	nextTime := schedule.expr.Next(schedule.Time)
+
+	if it.appStarted {
+		if currentTime.Before(schedule.Time) {
+			c := time.Tick(nextTime.Sub(currentTime))
+			_ = <-c
+		}
+
+		schedule.task(schedule.Params)
+
+		if schedule.Repeat {
+			it.execute(schedule)
+		}
+	} else {
+		it.execute(schedule)
+	}
 }
 
 // ListTasks returns a list of task names currently available
@@ -39,8 +54,63 @@ func (it *DefaultCronScheduler) RegisterTask(name string, task env.FuncCronTask)
 	return nil
 }
 
-// ScheduleTask schedules task execution with a given params
-func (it *DefaultCronScheduler) ScheduleTask(cronExpr string, taskName string, params map[string]interface{}) error {
+// ScheduleOnce schedules task execution with a given params
+func (it *DefaultCronScheduler) ScheduleAtTime(scheduleTime time.Time, taskName string, params map[string]interface{}) error {
+	expr, err := cronexpr.Parse("*/1 * * * *")
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	task, present := it.tasks[taskName]
+	if !present {
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "ee521c4f-b84c-4238-bdac-ce61a37267a3", "unexistent task")
+	}
+
+	schedule := StructCronSchedule{
+		CronExpr: "*/1 * * * *",
+		TaskName: taskName,
+		Params:   params,
+		Repeat:   false,
+		Time: 	  scheduleTime,
+		task:     task,
+		expr:     expr}
+
+	it.schedules = append(it.schedules, schedule)
+
+	go it.execute(schedule)
+
+	return nil
+}
+
+// ScheduleOnce schedules task execution with a given params
+func (it *DefaultCronScheduler) ScheduleOnce(cronExpr string, taskName string, params map[string]interface{}) error {
+	expr, err := cronexpr.Parse(cronExpr)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	task, present := it.tasks[taskName]
+	if !present {
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "ee521c4f-b84c-4238-bdac-ce61a37267a3", "unexistent task")
+	}
+
+	schedule := StructCronSchedule{
+		CronExpr: cronExpr,
+		TaskName: taskName,
+		Params:   params,
+		Repeat:   false,
+		task:     task,
+		expr:     expr}
+
+	it.schedules = append(it.schedules, schedule)
+
+	go it.execute(schedule)
+
+	return nil
+}
+
+// ScheduleRepeat schedules task execution with a given params
+func (it *DefaultCronScheduler) ScheduleRepeat(cronExpr string, taskName string, params map[string]interface{}) error {
 
 	expr, err := cronexpr.Parse(cronExpr)
 	if err != nil {
@@ -52,12 +122,17 @@ func (it *DefaultCronScheduler) ScheduleTask(cronExpr string, taskName string, p
 		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "ee521c4f-b84c-4238-bdac-ce61a37267a3", "unexistent task")
 	}
 
-	it.schedules = append(it.schedules, StructCronSchedule{
+	schedule := StructCronSchedule{
 		CronExpr: cronExpr,
 		TaskName: taskName,
 		Params:   params,
+		Repeat:   true,
 		task:     task,
-		expr:     expr})
+		expr:     expr}
+
+	it.schedules = append(it.schedules, schedule)
+
+	go it.execute(schedule)
 
 	return nil
 }
@@ -80,7 +155,13 @@ func (it *DefaultCronScheduler) RemoveSchedule(idx int) error {
 		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "ee521c4f-b84c-4238-bdac-ce61a37267a3", "invalid index")
 	}
 
-	delete(it.schedules, idx)
+	var result [] StructCronSchedule
+	for i, item := range it.schedules {
+		if i != idx {
+			result = append(result, item)
+		}
+	}
+	it.schedules = result
 
 	return nil
 }

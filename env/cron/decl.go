@@ -3,6 +3,7 @@ package cron
 import (
 	"github.com/gorhill/cronexpr"
 	"github.com/ottemo/foundation/env"
+	"time"
 )
 
 // Package global constants
@@ -15,6 +16,8 @@ const (
 type DefaultCronScheduler struct {
 	tasks     map[string]env.FuncCronTask
 	schedules []StructCronSchedule
+
+	appStarted bool
 }
 
 // StructCronSchedule structure to hold schedule information (for internal usage)
@@ -22,7 +25,9 @@ type StructCronSchedule struct {
 	CronExpr string
 	TaskName string
 	Params   map[string]interface{}
+	Repeat   bool
+	Time	 time.Time
 
 	task env.FuncCronTask
-	expr cronexpr.Expression
+	expr *cronexpr.Expression
 }
