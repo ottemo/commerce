@@ -63,7 +63,7 @@ func schedulerFunc(params map[string]interface{}) error {
 			customInfo[ConstOrderCustomInfoSentKey] = true
 
 			order["custom_info"] = customInfo
-			_, err := dbOrderCollection.Save(order)
+			_, err = dbOrderCollection.Save(order)
 			if err != nil {
 				return env.ErrorDispatch(err)
 			}
