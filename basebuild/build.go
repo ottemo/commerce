@@ -2,11 +2,11 @@ package basebuild
 
 import (
 	_ "github.com/ottemo/foundation/env/config"   // system configuration service
+	_ "github.com/ottemo/foundation/env/cron"     // scheduler service
 	_ "github.com/ottemo/foundation/env/errorbus" // error bus service
 	_ "github.com/ottemo/foundation/env/eventbus" // event bus service
 	_ "github.com/ottemo/foundation/env/ini"      // ini configuration service
 	_ "github.com/ottemo/foundation/env/logger"   // file-based logger service
-	_ "github.com/ottemo/foundation/env/cron"     // scheduler service
 
 	_ "github.com/ottemo/foundation/api/rest"      // RESTful API service
 	_ "github.com/ottemo/foundation/api/session"   // API session management service
@@ -22,11 +22,11 @@ import (
 
 	_ "github.com/ottemo/foundation/app/actors/cart"     // checkout cart model implementation
 	_ "github.com/ottemo/foundation/app/actors/checkout" // checkout model implementation
+	_ "github.com/ottemo/foundation/app/actors/grouping" // grouping cart items model implementation
 	_ "github.com/ottemo/foundation/app/actors/order"    // purchase order model implementation
 	_ "github.com/ottemo/foundation/app/actors/stock"    // stock management model implementation
-	_ "github.com/ottemo/foundation/app/actors/grouping"    // grouping cart items model implementation
 
-	_ "github.com/ottemo/foundation/app/actors/trustpilot"    // trust pilot module implementation
+	_ "github.com/ottemo/foundation/app/actors/trustpilot" // trust pilot module implementation
 
 	_ "github.com/ottemo/foundation/app/actors/payment/authorizenet" // Authorize.Net payment method
 	_ "github.com/ottemo/foundation/app/actors/payment/checkmo"      // "Check Money Order" payment method
@@ -36,8 +36,8 @@ import (
 	_ "github.com/ottemo/foundation/app/actors/shipping/flatrate" // "Flat Rate" shipping method
 	_ "github.com/ottemo/foundation/app/actors/shipping/usps"     // USPS shipping method
 
-	_ "github.com/ottemo/foundation/app/actors/giftcard" // gift card for discounts
 	_ "github.com/ottemo/foundation/app/actors/discount" // coupon based discounts
+	_ "github.com/ottemo/foundation/app/actors/giftcard" // gift card for discounts
 	_ "github.com/ottemo/foundation/app/actors/tax"      // shipping tax rates
 
 	_ "github.com/ottemo/foundation/app/actors/rts" // real time statictic service

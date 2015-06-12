@@ -39,17 +39,29 @@ const (
 	ConstErrorLevel  = ConstErrorLevelService
 )
 
+// InterfaceSchedule is an interface to system schedule service
+type InterfaceSchedule interface {
+	Execute()
+
+	Enable() error
+	Disable() error
+
+	Set(param string, value interface{}) error
+	Get(param string) interface{}
+
+	GetInfo() map[string]interface{}
+}
+
 // InterfaceScheduler is an interface to system scheduler service
 type InterfaceScheduler interface {
 	ListTasks() []string
 	RegisterTask(name string, task FuncCronTask) error
 
-	ScheduleAtTime(scheduledTime time.Time, taskName string, params map[string]interface{}) error
-	ScheduleRepeat(cronExpr string, taskName string, params map[string]interface{}) error
-	ScheduleOnce(cronExpr string, taskName string, params map[string]interface{}) error
+	ScheduleAtTime(scheduleTime time.Time, taskName string, taskParams map[string]interface{}) (InterfaceSchedule, error)
+	ScheduleRepeat(cronExpr string, taskName string, taskParams map[string]interface{}) (InterfaceSchedule, error)
+	ScheduleOnce(cronExpr string, taskName string, taskParams map[string]interface{}) (InterfaceSchedule, error)
 
-	ListSchedules() []string
-	RemoveSchedule(idx int) error
+	ListSchedules() []InterfaceSchedule
 }
 
 // InterfaceEventBus is an interface to system event processor

@@ -6,6 +6,7 @@ import (
 	"github.com/ottemo/foundation/app/models/checkout"
 	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/utils"
+	"math"
 )
 
 // GetName returns name of current discount implementation
@@ -29,8 +30,8 @@ func (it *DefaultDiscount) CalculateDiscount(checkoutInstance checkout.Interface
 		appliedCodes := utils.InterfaceToStringArray(currentSession.Get(ConstSessionKeyAppliedDiscountCodes))
 		if len(appliedCodes) > 0 {
 			// getting order information will use in calculations
-			discountableAmount := checkoutInstance.GetSubtotal()
-			subtotalAmount := checkoutInstance.GetSubtotal()
+			discountableAmount := math.Min(checkoutInstance.GetSubtotal(), checkoutInstance.GetGrandTotal())
+			subtotalAmount := discountableAmount
 
 			// loading information about applied discounts
 			collection, err := db.GetCollection(ConstCollectionNameCouponDiscounts)

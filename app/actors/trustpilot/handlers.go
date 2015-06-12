@@ -172,7 +172,8 @@ func sendOrderInfo(checkoutOrder order.InterfaceOrder, currentCart cart.Interfac
 					return env.ErrorDispatch(err)
 				}
 
-				if _, ok := jsonResponse["reviewUrl"]; !ok {
+				_, ok := jsonResponse["reviewUrl"]
+				if !ok {
 					errorMessage := "Review link empty, "
 					if jsonMessage, present := jsonResponse["message"]; present {
 						errorMessage += "error message: " + utils.InterfaceToString(jsonMessage)

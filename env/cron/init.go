@@ -9,9 +9,10 @@ import (
 func init() {
 	instance := new(DefaultCronScheduler)
 	var _ env.InterfaceScheduler = instance
+	var _ env.InterfaceSchedule = new(DefaultCronSchedule)
 
 	instance.tasks = make(map[string]env.FuncCronTask)
-	instance.schedules = make([]StructCronSchedule, 0)
+	instance.schedules = make([]*DefaultCronSchedule, 0)
 
 	app.OnAppInit(instance.appInitEvent)
 	app.OnAppEnd(instance.appEndEvent)
