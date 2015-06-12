@@ -27,7 +27,7 @@ func (it *DefaultCronScheduler) RegisterTask(name string, task env.FuncCronTask)
 	return nil
 }
 
-// ScheduleOnce schedules task execution with a given params
+// ScheduleAtTime schedules task execution once with a given params
 func (it *DefaultCronScheduler) ScheduleAtTime(scheduleTime time.Time, taskName string, params map[string]interface{}) (env.InterfaceSchedule, error) {
 
 	task, present := it.tasks[taskName]

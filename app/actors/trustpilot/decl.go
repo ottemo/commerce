@@ -12,6 +12,9 @@ const (
 	ConstErrorModule = "trustpilot"
 	ConstErrorLevel  = env.ConstErrorLevelActor
 
+	ConstOrderCustomInfoLinkKey = "trustpilot_link"
+	ConstOrderCustomInfoSentKey = "trustpilot_sent"
+
 	ConstConfigPathTrustPilot                 = "general.trustpilot"
 	ConstConfigPathTrustPilotEnabled          = "general.trustpilot.enabled"
 	ConstConfigPathTrustPilotAPIKey           = "general.trustpilot.apiKey"
@@ -21,4 +24,5 @@ const (
 	ConstConfigPathTrustPilotPassword         = "general.trustpilot.password"
 	ConstConfigPathTrustPilotAccessTokenURL   = "general.trustpilot.accessTokenURL"
 	ConstConfigPathTrustPilotProductReviewURL = "general.trustpilot.productReviewURL"
+	ConstConfigPathTrustPilotEmailTemplate    = "general.trustpilot.emailTemplate"
 )

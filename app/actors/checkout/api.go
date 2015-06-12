@@ -125,8 +125,8 @@ func APIGetCheckout(context api.InterfaceApplicationContext) (interface{}, error
 	result["grandtotal"] = currentCheckout.GetGrandTotal()
 
 	// TODO: remove check cc part after swithc to secure payment method
-	infoMap := currentCheckout.GetInfo("*")
-	if _, present := utils.InterfaceToMap(infoMap)["cc"]; present {
+	infoMap := utils.InterfaceToMap(currentCheckout.GetInfo("*"))
+	if _, present := infoMap["cc"]; present {
 		delete(infoMap, "cc")
 	}
 	result["info"] = infoMap

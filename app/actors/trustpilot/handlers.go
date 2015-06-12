@@ -172,7 +172,7 @@ func sendOrderInfo(checkoutOrder order.InterfaceOrder, currentCart cart.Interfac
 					return env.ErrorDispatch(err)
 				}
 
-				_, ok := jsonResponse["reviewUrl"]
+				reviewLink, ok := jsonResponse["reviewUrl"]
 				if !ok {
 					errorMessage := "Review link empty, "
 					if jsonMessage, present := jsonResponse["message"]; present {
@@ -181,6 +181,19 @@ func sendOrderInfo(checkoutOrder order.InterfaceOrder, currentCart cart.Interfac
 						errorMessage += "no error message provided"
 					}
 					return env.ErrorNew(ConstErrorModule, env.ConstErrorLevelActor, "c53fd02f-2f5d-4111-8318-69a2cc2d2259", errorMessage)
+				}
+				orderCustomInfo := utils.InterfaceToMap(checkoutOrder.Get("custom_info"))
+				orderCustomInfo[ConstOrderCustomInfoLinkKey] = reviewLink
+				orderCustomInfo[ConstOrderCustomInfoSentKey] = false
+
+				err = checkoutOrder.Set("custom_info", orderCustomInfo)
+				if err != nil {
+					return env.ErrorDispatch(err)
+				}
+
+				checkoutOrder.Save()
+				if err != nil {
+					return env.ErrorDispatch(err)
 				}
 
 			} else {

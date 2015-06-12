@@ -149,5 +149,23 @@ func setupConfig() error {
 		return env.ErrorDispatch(err)
 	}
 
+	err = config.RegisterItem(env.StructConfigItem{
+		Path: ConstConfigPathTrustPilotEmailTemplate,
+		Value: `Dear {{.Emailinfo.name}},
+		please provide your feedback on recently purchase
+		<br />
+		{{.Emailinfo.link}}`,
+		Type:        env.ConstConfigTypeText,
+		Editor:      "multiline_text",
+		Options:     "",
+		Label:       "Trustpilot data send e-mail: ",
+		Description: "contents of email will be sent to cutomers two weeks after purchase",
+		Image:       "",
+	}, nil)
+
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
 	return nil
 }
