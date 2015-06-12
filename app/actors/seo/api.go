@@ -1,7 +1,6 @@
 package seo
 
 import (
-	"net/http"
 	"os"
 	"strings"
 	"time"
@@ -10,7 +9,6 @@ import (
 	"github.com/ottemo/foundation/app/models/category"
 	"github.com/ottemo/foundation/app/models/cms"
 	"github.com/ottemo/foundation/app/models/product"
-	"github.com/ottemo/foundation/app/models/seo"
 	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
