@@ -3,7 +3,7 @@ go:
     - 1.4
 env:
     global:
-        - SLACK_ORG=Ottemo PROJECT=Foundation
+        - SLACK_ORG=Ottemo PROJECT=Foundation REMOTE_HOST=blitz.ottemo.io
         - secure: IgdstVqJgSEKc/DjAhAiySFT43+GFxnm5Vejtb2fToZtMO+D1CFxn3tmFk3DOlHqBlBQPm6ADgW9lUbg/x1G7Kn2RyfMvbV2AkzRJzqfaHc5lXfUw+d5dniVyqcet/nC3Lul5C2fEsuHLsB1dTKunzGXJowHMTU/ZG4BdcgA9zM6h7XuGWO6euJylDpNfZ9nz9V9r14Wbxx2ndeaXgVtWXNpSdu85R1DaAKRzmuObtYmsnoKS5F6mL+v6UuM2A/4q08DRtD52jZwavrVOksAZynmLgjm2/wB2Ew6lZgPlRfCGdzRzCgIP5RenJd7jfrW2Q9tNrOGPpP8BEGjjBg7KQ==
 before_install:
     - shippable_retry sudo apt-get update
@@ -16,15 +16,16 @@ install:
     - go get -t
     - go get -t gopkg.in/mgo.v2 && go get -t github.com/Pallinder/go-randomdata && go get -t github.com/drhodes/golorem
     - go get -t github.com/mxk/go-sqlite/sqlite3
-    - go build -tags sqlite
+    - go build -tags mongo 
 
 script:
     - go version
-    - go test -tags sqlite -v ./...
 
 after_failure:
     - python slack_notifier.py --org $SLACK_ORG --project $PROJECT --token $SLACK_TOKEN
 
 after_success:
     - python slack_notifier.py --org $SLACK_ORG --project $PROJECT --token $SLACK_TOKEN -s
+    - bash deploy.sh
+    - ssh ottemo@REMOTE_HOST "bash /home/ottemo/bin/foundation-updater.sh"
 
