@@ -27,5 +27,4 @@ after_failure:
 after_success:
     - python slack_notifier.py --org $SLACK_ORG --project $PROJECT --token $SLACK_TOKEN -s
     - bash deploy.sh
-    - ssh ottemo@REMOTE_HOST "bash /home/ottemo/bin/foundation-updater.sh"
 
