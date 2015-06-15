@@ -123,7 +123,13 @@ func APIGetCheckout(context api.InterfaceApplicationContext) (interface{}, error
 	result["tax_amount"], result["taxes"] = currentCheckout.GetTaxes()
 
 	result["grandtotal"] = currentCheckout.GetGrandTotal()
-	result["info"] = currentCheckout.GetInfo("*")
+
+	// TODO: remove check cc part after swithc to secure payment method
+	infoMap := utils.InterfaceToMap(currentCheckout.GetInfo("*"))
+	if _, present := infoMap["cc"]; present {
+		delete(infoMap, "cc")
+	}
+	result["info"] = infoMap
 
 	return result, nil
 }

@@ -2,11 +2,11 @@ package utils
 
 import (
 	"errors"
+	"reflect"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
-	"reflect"
 )
 
 var (
@@ -359,7 +359,7 @@ func InterfaceToArray(value interface{}) []interface{} {
 	default:
 		reflectValue := reflect.ValueOf(value)
 		kind := reflectValue.Kind()
-		if kind == reflect.Slice || kind == reflect.Array  {
+		if kind == reflect.Slice || kind == reflect.Array {
 			for i := 0; i < reflectValue.Len(); i++ {
 				result = append(result, reflectValue.Index(i).Interface())
 			}
@@ -375,7 +375,9 @@ func InterfaceToArray(value interface{}) []interface{} {
 func InterfaceToMap(value interface{}) map[string]interface{} {
 	switch typedValue := value.(type) {
 	case map[string]interface{}:
-		return typedValue
+		if typedValue != nil {
+			return typedValue
+		}
 
 	case string:
 		value, err := DecodeJSONToStringKeyMap(value)
