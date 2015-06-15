@@ -312,7 +312,7 @@ func (dc *DefaultCheckout) Submit() (interface{}, error) {
 		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "1c069d54-2847-46cb-bccd-76fc13d229ea", "Shipping address is not set")
 	}
 
-	if dc.GetPaymentMethod() == nil {
+	if dc.GetPaymentMethod() == nil && dc.GetGrandTotal() > 0 {
 		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "c0628038-3e06-47e9-9252-480351d903c0", "Payment method is not set")
 	}
 

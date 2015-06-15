@@ -299,49 +299,53 @@ func (it *PayFlowAPI) AuthorizeZeroAmount(orderInstance order.InterfaceOrder, pa
 	if err != nil {
 		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "550c824b-86cf-4c8d-a13e-73f92da15bde", "payment unexpected response")
 	}
+	responseResult := utils.InterfaceToString(responseValues.Get("RESULT"))
+	responseMessage := utils.InterfaceToString(responseValues.Get("RESPMSG"))
+	transactionID := utils.InterfaceToString(responseValues.Get("PNREF"))
+
+	if responseResult == "" && responseMessage == "" || len(responseValues) == 0{
+		env.Log("paypal.log", env.ConstLogPrefixInfo, "TRANSACTION NO RESPONSE: "+
+					"RESPONSE - "+ fmt.Sprint(responseValues))
+
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "4d941690-d981-4d20-9b4e-ab903d1ea526", "Payment server not respond")
+	}
+
+	result := map[string]interface{}{
+		"transactionID":      transactionID,
+		"responseMessage":    responseMessage,
+		"responseResult":     responseResult,
+		"creditCardLastFour": responseValues.Get("ACCT"),
+		"creditCardType":     responseValues.Get("CARDTYPE"),
+	}
 
 	// Check all values in response for valid credit card data
 	if _, ccSecureCodePresent := ccInfo["cvv"]; ccSecureCodePresent {
-		if utils.InterfaceToString(responseValues.Get("CVV2MATCH")) != "Y" {
+		if utils.InterfaceToString(responseValues.Get("CVV2MATCH")) == "N" {
 			// invalid CVV2
 			return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "51d1a2c9-2f0a-4eee-9aa2-527ca6d83f28", "Payment validation error: CVV2 code incorect")
 		}
 	}
 
-	result := map[string]interface{}{
-		"transactionID":      responseValues.Get("PNREF"),
-		"responseMessage":    responseValues.Get("RESPMSG"),
-		"responseResult":     responseValues.Get("RESULT"),
-		"creditCardLastFour": responseValues.Get("ACCT"),
-		"creditCardType":     responseValues.Get("CARDTYPE"),
-	}
-
 	// utils.InterfaceToString(result["transactionID"])
 	// if status is ok return result with valid values
-	if utils.InterfaceToString(result["transactionID"]) != "" {
-		if utils.InterfaceToString(result["responseMessage"]) == "Verified" {
+	if transactionID != "" {
+		if responseMessage == "Verified" {
 			return result, nil
 		}
 
 		// On review of by Fraud Service -- possible to continue
-		if utils.InterfaceToString(result["responseResult"]) == "126" {
+		if utils.InterfaceToString(responseResult) == "126" {
 			env.Log("paypal.log", env.ConstLogPrefixInfo, "ZERO AMOUNT ATHORIZE TRANSACTION WITH COMMENT: "+
-				"MESSAGE - "+utils.InterfaceToString(result["responseMessage"])+
-				"TRANSACTIONID - "+utils.InterfaceToString(result["transactionID"]))
+				"MESSAGE - "+responseMessage+
+				"TRANSACTIONID - "+transactionID)
 
 			return result, nil
 		}
-
-		env.Log("paypal.log", env.ConstLogPrefixInfo, "ZERO AMOUNT ATHORIZE FAIL: "+
-			"MESSAGE - "+utils.InterfaceToString(result["responseMessage"])+
-			"RESULT - "+utils.InterfaceToString(result["responseResult"]))
-
-		return result, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "a050604a-b9e9-44cc-a4d1-e5c0bfab5c69", "Payment error: "+utils.InterfaceToString(result["responseMessage"]))
 	}
 
 	env.Log("paypal.log", env.ConstLogPrefixInfo, "ZERO AMOUNT ATHORIZE FAIL: "+
-		"MESSAGE - "+utils.InterfaceToString(result["responseMessage"])+
-		"RESULT - "+utils.InterfaceToString(result["responseResult"]))
+		"MESSAGE - "+responseMessage+
+		"RESULT - "+responseResult)
 
-	return result, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "a050604a-b9e9-44cc-a4d1-e5c0bfab5c69", "Payment error: "+utils.InterfaceToString(result["responseMessage"]))
+	return result, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "a050604a-b9e9-44cc-a4d1-e5c0bfab5c69", "Payment error: "+responseMessage)
 }
