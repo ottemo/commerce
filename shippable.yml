@@ -3,7 +3,7 @@ go:
     - 1.4
 env:
     global:
-        - SLACK_ORG=Ottemo PROJECT=Foundation REMOTE_HOST=blitz.ottemo.io
+        - SLACK_ORG=Ottemo PROJECT=Foundation 
         - secure: IgdstVqJgSEKc/DjAhAiySFT43+GFxnm5Vejtb2fToZtMO+D1CFxn3tmFk3DOlHqBlBQPm6ADgW9lUbg/x1G7Kn2RyfMvbV2AkzRJzqfaHc5lXfUw+d5dniVyqcet/nC3Lul5C2fEsuHLsB1dTKunzGXJowHMTU/ZG4BdcgA9zM6h7XuGWO6euJylDpNfZ9nz9V9r14Wbxx2ndeaXgVtWXNpSdu85R1DaAKRzmuObtYmsnoKS5F6mL+v6UuM2A/4q08DRtD52jZwavrVOksAZynmLgjm2/wB2Ew6lZgPlRfCGdzRzCgIP5RenJd7jfrW2Q9tNrOGPpP8BEGjjBg7KQ==
 before_install:
     - shippable_retry sudo apt-get update
@@ -26,5 +26,6 @@ after_failure:
 
 after_success:
     - python slack_notifier.py --org $SLACK_ORG --project $PROJECT --token $SLACK_TOKEN -s
-    - bash deploy.sh
+    - REMOTE_HOST=blitz.ottemo.io bash deploy.sh
+    - REMOTE_HOST=kg.dev.ottemo.io bash deploy.sh
 
