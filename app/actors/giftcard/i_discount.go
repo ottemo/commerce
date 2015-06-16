@@ -7,17 +7,17 @@ import (
 )
 
 // GetName returns name of current discount implementation
-func (dc *DefaultDiscount) GetName() string {
+func (it *DefaultGiftcard) GetName() string {
 	return "GiftCardDiscount"
 }
 
 // GetCode returns code of current discount implementation
-func (dc *DefaultDiscount) GetCode() string {
+func (it *DefaultGiftcard) GetCode() string {
 	return "giftcard_discount"
 }
 
 // CalculateDiscount calculates and returns amount and set of applied gift card discounts to given checkout
-func (dc *DefaultDiscount) CalculateDiscount(checkoutInstance checkout.InterfaceCheckout) []checkout.StructDiscount {
+func (it *DefaultGiftcard) CalculateDiscount(checkoutInstance checkout.InterfaceCheckout) []checkout.StructDiscount {
 	var result []checkout.StructDiscount
 
 	// checking session for applied gift cards codes

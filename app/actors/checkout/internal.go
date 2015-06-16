@@ -15,9 +15,9 @@ import (
 )
 
 // SendOrderConfirmationMail sends an order confirmation email
-func (dc *DefaultCheckout) SendOrderConfirmationMail() error {
+func (it *DefaultCheckout) SendOrderConfirmationMail() error {
 
-	checkoutOrder := dc.GetOrder()
+	checkoutOrder := it.GetOrder()
 	if checkoutOrder == nil {
 		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "e7c69056-cc28-4632-9524-50d71b909d83", "given checkout order does not exists")
 	}
@@ -30,7 +30,7 @@ func (dc *DefaultCheckout) SendOrderConfirmationMail() error {
 		}
 
 		visitorMap := make(map[string]interface{})
-		if visitorModel := dc.GetVisitor(); visitorModel != nil {
+		if visitorModel := it.GetVisitor(); visitorModel != nil {
 			visitorMap = visitorModel.ToHashMap()
 		} else {
 			visitorMap["first_name"] = checkoutOrder.Get("customer_name")
@@ -56,8 +56,8 @@ func (dc *DefaultCheckout) SendOrderConfirmationMail() error {
 		}
 
 		orderMap["items"] = orderItems
-		orderMap["payment_method_title"] = dc.GetPaymentMethod().GetName()
-		orderMap["shipping_method_title"] = dc.GetShippingMethod().GetName()
+		orderMap["payment_method_title"] = it.GetPaymentMethod().GetName()
+		orderMap["shipping_method_title"] = it.GetShippingMethod().GetName()
 
 		customInfo := make(map[string]interface{})
 		customInfo["base_storefront_url"] = utils.InterfaceToString(env.ConfigGetValue(app.ConstConfigPathStorefrontURL))
@@ -82,7 +82,7 @@ func (dc *DefaultCheckout) SendOrderConfirmationMail() error {
 }
 
 // CheckoutSuccess will save the order and clear the shopping in the session.
-func (dc *DefaultCheckout) CheckoutSuccess(checkoutOrder order.InterfaceOrder, session api.InterfaceSession) error {
+func (it *DefaultCheckout) CheckoutSuccess(checkoutOrder order.InterfaceOrder, session api.InterfaceSession) error {
 
 	// making sure order and session were specified
 	if checkoutOrder == nil || session == nil {
@@ -99,7 +99,7 @@ func (dc *DefaultCheckout) CheckoutSuccess(checkoutOrder order.InterfaceOrder, s
 
 	// checkout information cleanup
 	//-----------------------------
-	currentCart := dc.GetCart()
+	currentCart := it.GetCart()
 
 	err := currentCart.Deactivate()
 	if err != nil {
@@ -118,10 +118,10 @@ func (dc *DefaultCheckout) CheckoutSuccess(checkoutOrder order.InterfaceOrder, s
 
 	// sending notifications
 	//----------------------
-	eventData := map[string]interface{}{"checkout": dc, "order": checkoutOrder, "session": session, "cart": currentCart}
+	eventData := map[string]interface{}{"checkout": it, "order": checkoutOrder, "session": session, "cart": currentCart}
 	env.Event("checkout.success", eventData)
 
-	err = dc.SendOrderConfirmationMail()
+	err = it.SendOrderConfirmationMail()
 	if err != nil {
 		env.ErrorDispatch(err)
 	}

@@ -252,7 +252,7 @@ func (it *DefaultOrder) SetStatus(newStatus string) error {
 	} else {
 
 		// taking items from stock
-		if oldStatus == order.ConstOrderStatusCancelled || oldStatus == "" {
+		if oldStatus == order.ConstOrderStatusCancelled || oldStatus == order.ConstOrderStatusNew || oldStatus == "" {
 			err = it.Proceed()
 		}
 	}
