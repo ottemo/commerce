@@ -39,7 +39,7 @@ func (it *DefaultTax) CalculateTax(currentCheckout checkout.InterfaceCheckout) [
 		state := shippingAddress.GetState()
 		zip := shippingAddress.GetZipCode()
 
-		cartGrandTotal := currentCheckout.GetGrandTotal()
+		cartGrandTotal := currentCheckout.GetSubtotal() + currentCheckout.GetShippingAmount()
 
 		if dbEngine := db.GetDBEngine(); dbEngine != nil {
 			if collection, err := dbEngine.GetCollection("Taxes"); err == nil {

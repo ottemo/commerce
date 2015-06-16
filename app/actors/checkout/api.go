@@ -117,18 +117,20 @@ func APIGetCheckout(context api.InterfaceApplicationContext) (interface{}, error
 	if checkoutCart := currentCheckout.GetCart(); checkoutCart != nil {
 		result["subtotal"] = checkoutCart.GetSubtotal()
 	}
-
-	result["discount_amount"], result["discounts"] = currentCheckout.GetDiscounts()
+	result["grandtotal"] = currentCheckout.GetGrandTotal()
 
 	result["tax_amount"], result["taxes"] = currentCheckout.GetTaxes()
 
-	result["grandtotal"] = currentCheckout.GetGrandTotal()
+	result["discount_amount"], result["discounts"] = currentCheckout.GetDiscounts()
 
-	// TODO: remove check cc part after swithc to secure payment method
-	infoMap := utils.InterfaceToMap(currentCheckout.GetInfo("*"))
-	if _, present := infoMap["cc"]; present {
-		delete(infoMap, "cc")
+	// prevent from showing cc values in info
+	infoMap := make(map[string]interface{})
+	for key, value := range utils.InterfaceToMap(currentCheckout.GetInfo("*")) {
+		if key != "cc" {
+			infoMap[key] = value
+		}
 	}
+
 	result["info"] = infoMap
 
 	return result, nil

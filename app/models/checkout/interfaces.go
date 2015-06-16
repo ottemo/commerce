@@ -36,6 +36,8 @@ type InterfaceCheckout interface {
 	GetSubtotal() float64
 	GetGrandTotal() float64
 
+	GetShippingAmount() float64
+
 	SetCart(checkoutCart cart.InterfaceCart) error
 	GetCart() cart.InterfaceCart
 

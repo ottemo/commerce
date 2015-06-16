@@ -7,6 +7,7 @@ import (
 	"time"
 )
 
+// Execute  - execute a sheduled task
 func (it *DefaultCronSchedule) Execute() {
 	currentTime := time.Now()
 
@@ -36,6 +37,7 @@ func (it *DefaultCronSchedule) Execute() {
 	}
 }
 
+// Enable  - enable shedule
 func (it *DefaultCronSchedule) Enable() error {
 	found := false
 	for _, item := range it.scheduler.schedules {
@@ -51,6 +53,7 @@ func (it *DefaultCronSchedule) Enable() error {
 	return nil
 }
 
+// Disable  - disables schedule
 func (it *DefaultCronSchedule) Disable() error {
 	var newList []*DefaultCronSchedule
 	for _, item := range it.scheduler.schedules {
@@ -63,6 +66,7 @@ func (it *DefaultCronSchedule) Disable() error {
 	return nil
 }
 
+// Set  - set param for DefaultCronSchedule
 func (it *DefaultCronSchedule) Set(param string, value interface{}) error {
 	switch param {
 	case "expr":
@@ -93,6 +97,7 @@ func (it *DefaultCronSchedule) Set(param string, value interface{}) error {
 	return nil
 }
 
+// Get return - specified param value
 func (it *DefaultCronSchedule) Get(param string) interface{} {
 	switch param {
 	case "expr":
@@ -113,6 +118,7 @@ func (it *DefaultCronSchedule) Get(param string) interface{} {
 	return nil
 }
 
+// GetInfo - return set of settings for schedule
 func (it *DefaultCronSchedule) GetInfo() map[string]interface{} {
 	return map[string]interface{}{
 		"expr":   it.CronExpr,

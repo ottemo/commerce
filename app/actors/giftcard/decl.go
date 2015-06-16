@@ -25,5 +25,5 @@ const (
 	ConstGiftCardStatusCanceled = "canceled"
 )
 
-// DefaultDiscount is a default implementer of InterfaceDiscount
-type DefaultDiscount struct{}
+// DefaultGiftcard is a default implementer of InterfaceDiscount
+type DefaultGiftcard struct{}

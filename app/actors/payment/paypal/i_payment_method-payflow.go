@@ -303,9 +303,9 @@ func (it *PayFlowAPI) AuthorizeZeroAmount(orderInstance order.InterfaceOrder, pa
 	responseMessage := utils.InterfaceToString(responseValues.Get("RESPMSG"))
 	transactionID := utils.InterfaceToString(responseValues.Get("PNREF"))
 
-	if responseResult == "" && responseMessage == "" || len(responseValues) == 0{
+	if responseResult == "" && responseMessage == "" || len(responseValues) == 0 {
 		env.Log("paypal.log", env.ConstLogPrefixInfo, "TRANSACTION NO RESPONSE: "+
-					"RESPONSE - "+ fmt.Sprint(responseValues))
+			"RESPONSE - "+fmt.Sprint(responseValues))
 
 		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "4d941690-d981-4d20-9b4e-ab903d1ea526", "Payment server not respond")
 	}
