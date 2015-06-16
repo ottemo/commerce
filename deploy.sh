@@ -1,5 +1,5 @@
 #!/bin/bash
-if [ "$BRANCH" == 'feature/maaz_deploy_to_host' ]; then
+if [ "$BRANCH" == 'develop' ]; then
     GIT_COMMIT=`echo $COMMIT | head -c 5` 
     scp -r $GOPATH/bin/foundation/ ottemo@$REMOTE_HOST:~/deploy/foundation-$GIT_COMMIT
     ssh ottemo@$REMOTE_HOST "cd /home/ottemo/deploy/ && ln -sf foundation-$GIT_COMMIT foundation-latest" 
