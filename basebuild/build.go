@@ -36,8 +36,8 @@ import (
 	_ "github.com/ottemo/foundation/app/actors/shipping/flatrate" // "Flat Rate" shipping method
 	_ "github.com/ottemo/foundation/app/actors/shipping/usps"     // USPS shipping method
 
-	_ "github.com/ottemo/foundation/app/actors/discount" // coupon based discounts
 	_ "github.com/ottemo/foundation/app/actors/giftcard" // gift card for discounts
+	_ "github.com/ottemo/foundation/app/actors/discount" // coupon based discounts
 	_ "github.com/ottemo/foundation/app/actors/tax"      // shipping tax rates
 
 	_ "github.com/ottemo/foundation/app/actors/rts" // real time statictic service
