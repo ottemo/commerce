@@ -50,10 +50,13 @@ func sendOrderInfo(checkoutOrder order.InterfaceOrder, currentCart cart.Interfac
 		trustPilotPassword := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathTrustPilotPassword))
 		trustPilotAccessTokenURL := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathTrustPilotAccessTokenURL))
 		trustPilotProductReviewURL := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathTrustPilotProductReviewURL))
+		trustPilotServiceReviewURL := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathTrustPilotServiceReviewURL))
+
+		trustPilotTestMode := utils.InterfaceToBool(env.ConfigGetValue(ConstConfigPathTrustPilotEnabled))
 
 		// config values validation
 		if trustPilotAPIKey != "" && trustPilotAPISecret != "" && trustPilotBusinessUnitID != "" && trustPilotUsername != "" &&
-			trustPilotPassword != "" && trustPilotAccessTokenURL != "" && trustPilotProductReviewURL != "" {
+			trustPilotPassword != "" && trustPilotAccessTokenURL != "" && trustPilotProductReviewURL != "" && trustPilotServiceReviewURL != "" {
 
 			// making request to get authentication token required for following requests
 			bodyString := "grant_type=password&username=" + trustPilotUsername + "&password=" + trustPilotPassword
@@ -93,17 +96,19 @@ func sendOrderInfo(checkoutOrder order.InterfaceOrder, currentCart cart.Interfac
 
 				requestData := make(map[string]interface{})
 				customerEmail := utils.InterfaceToString(checkoutOrder.Get("customer_email"))
+				customerName := checkoutOrder.Get("customer_name")
+				checkoutOrderID := checkoutOrder.GetID()
 
-				if ConstTestMode {
+				if trustPilotTestMode {
 					customerEmail = strings.Replace(customerEmail, "@", "_test@", 1)
 				}
 
 				requestData["consumer"] = map[string]interface{}{
 					"email": customerEmail,
-					"name":  checkoutOrder.Get("customer_name"),
+					"name":  customerName,
 				}
 
-				requestData["referenceId"] = checkoutOrder.GetID()
+				requestData["referenceId"] = checkoutOrderID
 				requestData["locale"] = "en-US"
 
 				mediaStorage, err := media.GetMediaStorage()
@@ -124,7 +129,7 @@ func sendOrderInfo(checkoutOrder order.InterfaceOrder, currentCart cart.Interfac
 					}
 
 					productOptions := productItem.GetOptions()
-					productBrand := ""
+					productBrand := ConstProductBrand
 					if brand, present := productOptions["brand"]; present {
 						productBrand = utils.InterfaceToString(brand)
 					}
@@ -182,8 +187,58 @@ func sendOrderInfo(checkoutOrder order.InterfaceOrder, currentCart cart.Interfac
 					}
 					return env.ErrorNew(ConstErrorModule, env.ConstErrorLevelActor, "c53fd02f-2f5d-4111-8318-69a2cc2d2259", errorMessage)
 				}
+
+				// make service review link with the same token and product review link
+				requestData = map[string]interface{}{
+					"referenceId": checkoutOrderID,
+					"email":       customerEmail,
+					"name":        customerName,
+					"locale":      "en-US",
+					"redirectUrl": reviewLink,
+				}
+
+				trustPilotServiceReviewURL = strings.Replace(trustPilotServiceReviewURL, "{businessUnitId}", trustPilotBusinessUnitID, 1)
+
+				jsonString = utils.EncodeToJSONString(requestData)
+				buffer = bytes.NewBuffer([]byte(jsonString))
+
+				request, err = http.NewRequest("POST", trustPilotServiceReviewURL, buffer)
+				if err != nil {
+					return env.ErrorDispatch(err)
+				}
+
+				request.Header.Set("Content-Type", "application/json")
+				request.Header.Set("Authorization", "Bearer "+utils.InterfaceToString(accessToken))
+
+				response, err = client.Do(request)
+				if err != nil {
+					return env.ErrorDispatch(err)
+				}
+				defer response.Body.Close()
+
+				responseBody, err = ioutil.ReadAll(response.Body)
+				if err != nil {
+					return env.ErrorDispatch(err)
+				}
+
+				jsonResponse, err = utils.DecodeJSONToStringKeyMap(responseBody)
+				if err != nil {
+					return env.ErrorDispatch(err)
+				}
+
+				serviceReviewLink, ok := jsonResponse["url"]
+				if !ok {
+					errorMessage := "Service review link empty, "
+					if jsonMessage, present := jsonResponse["message"]; present {
+						errorMessage += "error message: " + utils.InterfaceToString(jsonMessage)
+					} else {
+						errorMessage += "no error message provided"
+					}
+					return env.ErrorNew(ConstErrorModule, env.ConstErrorLevelActor, "e528633c-9413-41b0-bfe8-8cee581a616c", errorMessage)
+				}
+
 				orderCustomInfo := utils.InterfaceToMap(checkoutOrder.Get("custom_info"))
-				orderCustomInfo[ConstOrderCustomInfoLinkKey] = reviewLink
+				orderCustomInfo[ConstOrderCustomInfoLinkKey] = serviceReviewLink
 				orderCustomInfo[ConstOrderCustomInfoSentKey] = false
 
 				err = checkoutOrder.Set("custom_info", orderCustomInfo)
