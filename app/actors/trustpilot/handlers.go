@@ -135,7 +135,7 @@ func sendOrderInfo(checkoutOrder order.InterfaceOrder, currentCart cart.Interfac
 					}
 
 					productInfo := map[string]string{
-						"productUrl": app.GetStorefrontURL("product/" + currentProductID),
+						"productUri": app.GetStorefrontURL("product/" + currentProductID),
 						"imageUrl":   app.GetStorefrontURL(mediaPath + currentProduct.GetDefaultImage()),
 						"name":       currentProduct.GetName(),
 						"sku":        currentProduct.GetSku(),
