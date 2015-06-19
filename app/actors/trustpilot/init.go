@@ -49,11 +49,15 @@ func schedulerFunc(params map[string]interface{}) error {
 			visitorMap["name"] = currentOrder["customer_name"]
 			visitorMap["link"] = utils.InterfaceToString(trustpilotLink)
 			visitorMap["email"] = visitorEmail
+			siteMap := map[string]interface{}{
+				"url": app.GetStorefrontURL(""),
+			}
 
 			emailToVisitor, err := utils.TextTemplate(emailTemplate,
 				map[string]interface{}{
 					"Visitor": visitorMap,
-					"Order":   currentOrder})
+					"Order":   currentOrder,
+					"Site":    siteMap})
 
 			if err != nil {
 				return env.ErrorDispatch(err)
@@ -82,7 +86,7 @@ func onAppStart() error {
 
 	if scheduler := env.GetScheduler(); scheduler != nil {
 		scheduler.RegisterTask("checkOrdersToSent", schedulerFunc)
-		scheduler.ScheduleRepeat("0 0 * * *", "checkOrdersToSent", nil)
+		scheduler.ScheduleRepeat("0 9 * * *", "checkOrdersToSent", nil)
 	}
 
 	return nil

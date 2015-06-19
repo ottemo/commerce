@@ -135,7 +135,7 @@ func sendOrderInfo(checkoutOrder order.InterfaceOrder, currentCart cart.Interfac
 					}
 
 					productInfo := map[string]string{
-						"productUri": app.GetStorefrontURL("product/" + currentProductID),
+						"productUrl": app.GetStorefrontURL("product/" + currentProductID),
 						"imageUrl":   app.GetStorefrontURL(mediaPath + currentProduct.GetDefaultImage()),
 						"name":       currentProduct.GetName(),
 						"sku":        currentProduct.GetSku(),
@@ -185,7 +185,8 @@ func sendOrderInfo(checkoutOrder order.InterfaceOrder, currentCart cart.Interfac
 					} else {
 						errorMessage += "no error message provided"
 					}
-					return env.ErrorNew(ConstErrorModule, env.ConstErrorLevelActor, "c53fd02f-2f5d-4111-8318-69a2cc2d2259", errorMessage)
+					env.LogError(env.ErrorNew(ConstErrorModule, env.ConstErrorLevelActor, "c53fd02f-2f5d-4111-8318-69a2cc2d2259", errorMessage))
+					return nil
 				}
 
 				// make service review link with the same token and product review link
@@ -194,7 +195,7 @@ func sendOrderInfo(checkoutOrder order.InterfaceOrder, currentCart cart.Interfac
 					"email":       customerEmail,
 					"name":        customerName,
 					"locale":      "en-US",
-					"redirectUrl": reviewLink,
+					"redirectUri": reviewLink,
 				}
 
 				trustPilotServiceReviewURL = strings.Replace(trustPilotServiceReviewURL, "{businessUnitId}", trustPilotBusinessUnitID, 1)
@@ -234,7 +235,8 @@ func sendOrderInfo(checkoutOrder order.InterfaceOrder, currentCart cart.Interfac
 					} else {
 						errorMessage += "no error message provided"
 					}
-					return env.ErrorNew(ConstErrorModule, env.ConstErrorLevelActor, "e528633c-9413-41b0-bfe8-8cee581a616c", errorMessage)
+					env.LogError(env.ErrorNew(ConstErrorModule, env.ConstErrorLevelActor, "e528633c-9413-41b0-bfe8-8cee581a616c", errorMessage))
+					return nil
 				}
 
 				orderCustomInfo := utils.InterfaceToMap(checkoutOrder.Get("custom_info"))
@@ -246,16 +248,16 @@ func sendOrderInfo(checkoutOrder order.InterfaceOrder, currentCart cart.Interfac
 					return env.ErrorDispatch(err)
 				}
 
-				checkoutOrder.Save()
+				err = checkoutOrder.Save()
 				if err != nil {
 					return env.ErrorDispatch(err)
 				}
 
 			} else {
-				return env.ErrorNew(ConstErrorModule, env.ConstErrorLevelActor, "1293708d-9638-455a-8d49-3a387f086181", "access token is empty")
+				return env.ErrorDispatch(env.ErrorNew(ConstErrorModule, env.ConstErrorLevelActor, "1293708d-9638-455a-8d49-3a387f086181", "access token is empty"))
 			}
 		} else {
-			return env.ErrorNew(ConstErrorModule, env.ConstErrorLevelActor, "22207d49-e001-4666-8501-26bf5ef0926b", "some of trust pilot settings are blank")
+			return env.ErrorDispatch(env.ErrorNew(ConstErrorModule, env.ConstErrorLevelActor, "22207d49-e001-4666-8501-26bf5ef0926b", "some of trust pilot settings are blank"))
 		}
 	}
 	return nil
