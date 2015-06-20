@@ -45,6 +45,21 @@ func setupConfig() error {
 	}
 
 	err = config.RegisterItem(env.StructConfigItem{
+		Path:        ConstConfigPathTrustPilotTestMode,
+		Value:       false,
+		Type:        env.ConstConfigTypeBoolean,
+		Editor:      "boolean",
+		Options:     nil,
+		Label:       "Test mode",
+		Description: `Enabled Trust Pilot sent order data in test mode (add _test@ to email)`,
+		Image:       "",
+	}, nil)
+
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	err = config.RegisterItem(env.StructConfigItem{
 		Path:        ConstConfigPathTrustPilotBusinessUnitID,
 		Value:       "",
 		Type:        env.ConstConfigTypeVarchar,
@@ -134,6 +149,23 @@ func setupConfig() error {
 		return env.ErrorDispatch(err)
 	}
 
+	//
+
+	err = config.RegisterItem(env.StructConfigItem{
+		Path:        ConstConfigPathTrustPilotServiceReviewURL,
+		Value:       "https://invitations-api.trustpilot.com/v1/private/business-units/{businessUnitId}/invitation-links",
+		Type:        env.ConstConfigTypeVarchar,
+		Editor:      "line_text",
+		Options:     "",
+		Label:       "Service review URL",
+		Description: `Trustpilot service review URL, {businessUnitId} - will be rewrited by "Business Unit ID" config value`,
+		Image:       "",
+	}, nil)
+
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
 	err = config.RegisterItem(env.StructConfigItem{
 		Path:        ConstConfigPathTrustPilotProductReviewURL,
 		Value:       "https://api.trustpilot.com/v1/private/product-reviews/business-units/{businessUnitId}/invitation-links",
@@ -151,10 +183,10 @@ func setupConfig() error {
 
 	err = config.RegisterItem(env.StructConfigItem{
 		Path: ConstConfigPathTrustPilotEmailTemplate,
-		Value: `Dear {{.Emailinfo.name}},
+		Value: `Dear {{.Visitor.name}},
 		please provide your feedback on recently purchase
 		<br />
-		{{.Emailinfo.link}}`,
+		{{.Visitor.link}}`,
 		Type:        env.ConstConfigTypeText,
 		Editor:      "multiline_text",
 		Options:     "",

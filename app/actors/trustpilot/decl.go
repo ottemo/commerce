@@ -7,7 +7,8 @@ import (
 
 // Package global constants
 const (
-	ConstTestMode = false
+	ConstProductBrand = "Kari Gran"
+	ConstEmailSubject = "Purchase feedback"
 
 	ConstErrorModule = "trustpilot"
 	ConstErrorLevel  = env.ConstErrorLevelActor
@@ -17,6 +18,7 @@ const (
 
 	ConstConfigPathTrustPilot                 = "general.trustpilot"
 	ConstConfigPathTrustPilotEnabled          = "general.trustpilot.enabled"
+	ConstConfigPathTrustPilotTestMode         = "general.trustpilot.test"
 	ConstConfigPathTrustPilotAPIKey           = "general.trustpilot.apiKey"
 	ConstConfigPathTrustPilotAPISecret        = "general.trustpilot.apiSecret"
 	ConstConfigPathTrustPilotBusinessUnitID   = "general.trustpilot.businessUnitID"
@@ -24,5 +26,6 @@ const (
 	ConstConfigPathTrustPilotPassword         = "general.trustpilot.password"
 	ConstConfigPathTrustPilotAccessTokenURL   = "general.trustpilot.accessTokenURL"
 	ConstConfigPathTrustPilotProductReviewURL = "general.trustpilot.productReviewURL"
+	ConstConfigPathTrustPilotServiceReviewURL = "general.trustpilot.serviceReviewURL"
 	ConstConfigPathTrustPilotEmailTemplate    = "general.trustpilot.emailTemplate"
 )
