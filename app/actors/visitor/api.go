@@ -9,11 +9,12 @@ import (
 
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/app"
+	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/foundation/utils"
+
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/order"
 	"github.com/ottemo/foundation/app/models/visitor"
-	"github.com/ottemo/foundation/env"
-	"github.com/ottemo/foundation/utils"
 )
 
 // setupAPI setups package related API endpoint routines
@@ -657,6 +658,31 @@ func APIGetVisit(context api.InterfaceApplicationContext) (interface{}, error) {
 
 // APILogout makes logout for current visit
 func APILogout(context api.InterfaceApplicationContext) (interface{}, error) {
+
+	// if session cookie is set, expire it
+	request := context.GetRequest()
+	if request, ok := request.(*http.Request); ok {
+		responseWriter := context.GetResponseWriter()
+		if responseWriter, ok := responseWriter.(http.ResponseWriter); ok {
+
+			// check for session cookie
+			cookie, err := request.Cookie(api.ConstSessionCookieName)
+			if err == nil {
+
+				// expire the cookie
+				cookieExpires := time.Now().AddDate(0, -1, 0)
+				cookie = &http.Cookie{
+					Name:    api.ConstSessionCookieName,
+					Value:   "",
+					MaxAge:  -1,
+					Expires: cookieExpires,
+				}
+
+				http.SetCookie(responseWriter, cookie)
+			}
+
+		}
+	}
 
 	context.GetSession().Close()
 
