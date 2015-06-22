@@ -178,10 +178,20 @@ func (it *DefaultCheckout) GetSession() api.InterfaceSession {
 	return sessionInstance
 }
 
-// GetTaxes collects taxes applied for current checkout
-func (it *DefaultCheckout) GetTaxes() (float64, []checkout.StructTaxRate) {
+// GetTaxAmount returns total amount of taxes for current checkout
+func (it *DefaultCheckout) GetTaxAmount() float64 {
 
-	var amount float64
+	return it.taxesAmount
+}
+
+// GetDiscountAmount returns total amount of discounts applied for current checkout
+func (it *DefaultCheckout) GetDiscountAmount() float64 {
+
+	return it.discountsAmount
+}
+
+// GetTaxes collects taxes applied for current checkout
+func (it *DefaultCheckout) GetTaxes() []checkout.StructTaxRate {
 
 	if !it.taxesCalculateFlag {
 		it.taxesCalculateFlag = true
@@ -190,25 +200,17 @@ func (it *DefaultCheckout) GetTaxes() (float64, []checkout.StructTaxRate) {
 		for _, tax := range checkout.GetRegisteredTaxes() {
 			for _, taxRate := range tax.CalculateTax(it) {
 				it.Taxes = append(it.Taxes, taxRate)
-				amount += taxRate.Amount
 			}
 		}
 
-		it.Taxes = it.Taxes
 		it.taxesCalculateFlag = false
-	} else {
-		for _, taxRate := range it.Taxes {
-			amount += taxRate.Amount
-		}
 	}
 
-	return amount, it.Taxes
+	return it.Taxes
 }
 
 // GetDiscounts collects discounts applied for current checkout
-func (it *DefaultCheckout) GetDiscounts() (float64, []checkout.StructDiscount) {
-
-	var amount float64
+func (it *DefaultCheckout) GetDiscounts() []checkout.StructDiscount {
 
 	if !it.discountsCalculateFlag {
 		it.discountsCalculateFlag = true
@@ -217,18 +219,13 @@ func (it *DefaultCheckout) GetDiscounts() (float64, []checkout.StructDiscount) {
 		for _, discount := range checkout.GetRegisteredDiscounts() {
 			for _, discountValue := range discount.CalculateDiscount(it) {
 				it.Discounts = append(it.Discounts, discountValue)
-				amount += discountValue.Amount
 			}
 		}
 
 		it.discountsCalculateFlag = false
-	} else {
-		for _, discount := range it.Discounts {
-			amount += discount.Amount
-		}
 	}
 
-	return amount, it.Discounts
+	return it.Discounts
 }
 
 // GetSubtotal returns subtotal total for current checkout
@@ -249,30 +246,115 @@ func (it *DefaultCheckout) GetShippingAmount() float64 {
 	return 0
 }
 
+// CalculateAmount do a calculation of all amounts for checkout
+func (it *DefaultCheckout) CalculateAmount(calculateTarget float64) float64 {
+
+	if !it.calculateFlag {
+		it.calculateFlag = true
+
+		var applySequence []interface{}
+
+		discounts := it.GetDiscounts()
+		taxes := it.GetTaxes()
+
+		// divide values for taxes and discounts
+		var isTaxes bool
+
+		// collect discounts and taxes in one array
+		for len(discounts)+len(taxes) > 0 {
+			var currentPriorityValue float64
+			var currentPriorityIndex int
+
+			for index, disc := range discounts {
+				if disc.Priority > currentPriorityValue {
+					currentPriorityValue = disc.Priority
+					currentPriorityIndex = index
+					isTaxes = false
+				}
+			}
+
+			for index, tax := range taxes {
+				if tax.Priority > currentPriorityValue {
+					currentPriorityValue = tax.Priority
+					currentPriorityIndex = index
+					isTaxes = true
+				}
+			}
+
+			if isTaxes {
+				applySequence = append(applySequence, taxes[currentPriorityIndex])
+				taxes = append(taxes[:currentPriorityIndex], taxes[currentPriorityIndex+1:]...)
+				currentPriorityValue = 0
+
+			} else {
+				applySequence = append(applySequence, discounts[currentPriorityIndex])
+				discounts = append(discounts[:currentPriorityIndex], discounts[currentPriorityIndex+1:]...)
+				currentPriorityValue = 0
+			}
+		}
+
+		it.calculateAmount = 0
+		var prevPriority float64
+
+		for _, x := range applySequence {
+
+			var itemPriority float64
+			var itemAmount float64
+			var itemIsPercent bool
+			var applyAmount float64
+
+			switch typedValue := x.(type) {
+			case checkout.StructDiscount:
+				itemAmount = -typedValue.Amount
+				itemPriority = typedValue.Priority
+				itemIsPercent = typedValue.IsPercent
+				isTaxes = false
+
+			case checkout.StructTaxRate:
+				itemAmount = typedValue.Amount
+				itemPriority = typedValue.Priority
+				itemIsPercent = typedValue.IsPercent
+				isTaxes = true
+			}
+
+			if itemPriority > calculateTarget && calculateTarget != 0 {
+				break
+			}
+
+			// on moving forward check for adding of subtotal and shipping amounts to current calculating amount
+			if prevPriority < checkout.ConstCalculateTargetSubtotal && itemPriority > checkout.ConstCalculateTargetSubtotal {
+				it.calculateAmount += it.GetSubtotal()
+			}
+			if prevPriority < checkout.ConstCalculateTargetShipping && itemPriority > checkout.ConstCalculateTargetShipping {
+				it.calculateAmount += it.GetShippingAmount()
+			}
+
+			if itemIsPercent {
+				applyAmount = it.calculateAmount * itemAmount / 100
+			} else {
+				applyAmount = it.calculateAmount + itemAmount
+			}
+
+			if isTaxes {
+				it.taxesAmount += applyAmount
+			} else {
+				it.discountsAmount -= applyAmount
+			}
+
+			it.calculateAmount += applyAmount
+
+			prevPriority = itemPriority
+		}
+
+		it.calculateFlag = false
+	}
+
+	return it.calculateAmount
+}
+
 // GetGrandTotal returns grand total for current checkout: [cart subtotal] + [shipping rate] + [taxes] - [discounts]
 func (it *DefaultCheckout) GetGrandTotal() float64 {
-
-	amount := it.subtotalAmount
-
-	if !it.grandTotalCalculateFlag {
-		it.grandTotalCalculateFlag = true
-		it.subtotalAmount = it.GetSubtotal()
-		amount = it.subtotalAmount
-	}
-
-	amount += it.GetShippingAmount()
-
-	taxAmount, _ := it.GetTaxes()
-	amount += taxAmount
-
-	discountAmount, _ := it.GetDiscounts()
-	amount -= discountAmount
-
-	if it.grandTotalCalculateFlag {
-		it.grandTotalCalculateFlag = false
-	}
-
-	return amount
+	return it.CalculateAmount(0)
 }
 
 // SetInfo sets additional info for checkout - any values related to checkout process
@@ -405,11 +487,13 @@ func (it *DefaultCheckout) Submit() (interface{}, error) {
 	checkoutOrder.Set("payment_method", it.GetPaymentMethod().GetCode())
 	checkoutOrder.Set("shipping_method", it.GetShippingMethod().GetCode()+"/"+it.GetShippingRate().Code)
 
-	discountAmount, discounts := it.GetDiscounts()
+	discounts := it.GetDiscounts()
+	discountAmount := it.GetDiscountAmount()
 	checkoutOrder.Set("discount", discountAmount)
 	checkoutOrder.Set("discounts", discounts)
 
-	taxAmount, taxes := it.GetTaxes()
+	taxes := it.GetTaxes()
+	taxAmount := it.GetTaxAmount()
 	checkoutOrder.Set("tax_amount", taxAmount)
 	checkoutOrder.Set("taxes", taxes)
 

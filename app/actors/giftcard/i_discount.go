@@ -3,6 +3,7 @@ package giftcard
 import (
 	"github.com/ottemo/foundation/app/models/checkout"
 	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
 )
 
@@ -25,9 +26,6 @@ func (it *DefaultGiftcard) CalculateDiscount(checkoutInstance checkout.Interface
 
 		appliedCodes := utils.InterfaceToStringArray(currentSession.Get(ConstSessionKeyAppliedGiftCardCodes))
 		if len(appliedCodes) > 0 {
-
-			// getting order information will use in calculations
-			discountableAmount := checkoutInstance.GetGrandTotal()
 
 			// loading information about applied discounts
 			collection, err := db.GetCollection(ConstCollectionNameGiftCard)
@@ -52,6 +50,7 @@ func (it *DefaultGiftcard) CalculateDiscount(checkoutInstance checkout.Interface
 					giftCardCodes[giftCardCode] = record
 				}
 			}
+			priorityValue := utils.InterfaceToFloat64(env.ConfigGetValue(ConstConfigPathGiftCardApplyPriority))
 
 			// applying gift card discount codes
 			for appliedCodesIdx, giftCardCode := range appliedCodes {
@@ -61,23 +60,19 @@ func (it *DefaultGiftcard) CalculateDiscount(checkoutInstance checkout.Interface
 
 					// to be applicable gift card should satisfy following conditions:
 					// have positive amount and we have amount that will be discounted
-					if giftCardAmount > 0 && discountableAmount > 0 {
+					if giftCardAmount > 0 {
 
 						// calculating coupon discount amount
 						discountAmount := utils.InterfaceToFloat64(giftCard["amount"])
 
-						if discountableAmount > discountAmount {
-							discountableAmount -= discountAmount
-						} else {
-							discountAmount = discountableAmount
-							discountableAmount = 0
-						}
-
 						result = append(result, checkout.StructDiscount{
-							Name:   utils.InterfaceToString(giftCard["name"]),
-							Code:   utils.InterfaceToString(giftCard["code"]),
-							Amount: discountAmount,
+							Name:      utils.InterfaceToString(giftCard["name"]),
+							Code:      utils.InterfaceToString(giftCard["code"]),
+							Amount:    discountAmount,
+							IsPercent: false,
+							Priority:  priorityValue,
 						})
+						priorityValue += 0.0001
 
 					} else {
 						// we have gift card that no need to apply - removing it from applied list

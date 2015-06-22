@@ -14,6 +14,7 @@ func init() {
 	checkout.RegisterDiscount(instance)
 
 	db.RegisterOnDatabaseStart(setupDB)
+	env.RegisterOnConfigStart(setupConfig)
 	api.RegisterOnRestServiceStart(setupAPI)
 }
 

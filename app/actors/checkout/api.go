@@ -119,9 +119,11 @@ func APIGetCheckout(context api.InterfaceApplicationContext) (interface{}, error
 	}
 	result["grandtotal"] = currentCheckout.GetGrandTotal()
 
-	result["tax_amount"], result["taxes"] = currentCheckout.GetTaxes()
+	result["tax_amount"] = currentCheckout.GetTaxAmount()
+	result["taxes"] = currentCheckout.GetTaxes()
 
-	result["discount_amount"], result["discounts"] = currentCheckout.GetDiscounts()
+	result["discount_amount"] = currentCheckout.GetDiscountAmount()
+	result["discounts"] = currentCheckout.GetDiscounts()
 
 	// prevent from showing cc values in info
 	infoMap := make(map[string]interface{})

@@ -61,8 +61,8 @@ func setupDB() error {
 		collection.AddColumn("shipping_amount", db.ConstTypeMoney, false)
 		collection.AddColumn("grand_total", db.ConstTypeMoney, false)
 
-		collection.AddColumn("discounts", db.ConstTypeJSON, false)
-		collection.AddColumn("taxes", db.ConstTypeJSON, false)
+		collection.AddColumn("discounts", db.TypeArrayOf(db.ConstTypeJSON), false)
+		collection.AddColumn("taxes", db.TypeArrayOf(db.ConstTypeJSON), false)
 
 		collection.AddColumn("created_at", db.ConstTypeDatetime, false)
 		collection.AddColumn("updated_at", db.ConstTypeDatetime, false)
