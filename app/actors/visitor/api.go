@@ -661,6 +661,7 @@ func APILogout(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// if session cookie is set, expire it
 	request := context.GetRequest()
+
 	if request, ok := request.(*http.Request); ok {
 		responseWriter := context.GetResponseWriter()
 		if responseWriter, ok := responseWriter.(http.ResponseWriter); ok {
@@ -672,10 +673,12 @@ func APILogout(context api.InterfaceApplicationContext) (interface{}, error) {
 				// expire the cookie
 				cookieExpires := time.Now().AddDate(0, -1, 0)
 				cookie = &http.Cookie{
-					Name:    api.ConstSessionCookieName,
-					Value:   "",
-					MaxAge:  -1,
-					Expires: cookieExpires,
+					Name:     api.ConstSessionCookieName,
+					Value:    "",
+					Path:     "/",
+					HttpOnly: true,
+					MaxAge:   -1,
+					Expires:  cookieExpires,
 				}
 
 				http.SetCookie(responseWriter, cookie)
