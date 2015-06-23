@@ -83,7 +83,7 @@ func (it *DefaultDiscount) CalculateDiscount(checkoutInstance checkout.Interface
 								IsPercent: true,
 								Priority:  priorityValue,
 							})
-							priorityValue += 0.0001
+							priorityValue += float64(0.0001)
 						}
 						if discountAmount > 0 {
 							result = append(result, checkout.StructDiscount{
@@ -93,7 +93,7 @@ func (it *DefaultDiscount) CalculateDiscount(checkoutInstance checkout.Interface
 								IsPercent: false,
 								Priority:  priorityValue,
 							})
-							priorityValue += 0.0001
+							priorityValue += float64(0.0001)
 						}
 
 					} else {

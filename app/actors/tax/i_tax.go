@@ -28,7 +28,7 @@ func processRecords(name string, records []map[string]interface{}, cartGrandTota
 			Priority:  priorityValue,
 		}
 
-		priorityValue += 0.0001
+		priorityValue += float64(0.0001)
 		result = append(result, taxRate)
 	}
 

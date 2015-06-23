@@ -25,6 +25,7 @@ func (it *DefaultGiftcard) CalculateDiscount(checkoutInstance checkout.Interface
 	if currentSession := checkoutInstance.GetSession(); currentSession != nil {
 
 		appliedCodes := utils.InterfaceToStringArray(currentSession.Get(ConstSessionKeyAppliedGiftCardCodes))
+
 		if len(appliedCodes) > 0 {
 
 			// loading information about applied discounts
@@ -53,37 +54,22 @@ func (it *DefaultGiftcard) CalculateDiscount(checkoutInstance checkout.Interface
 			priorityValue := utils.InterfaceToFloat64(env.ConfigGetValue(ConstConfigPathGiftCardApplyPriority))
 
 			// applying gift card discount codes
-			for appliedCodesIdx, giftCardCode := range appliedCodes {
+			for _, giftCardCode := range appliedCodes {
 				if giftCard, ok := giftCardCodes[giftCardCode]; ok {
 
 					giftCardAmount := utils.InterfaceToFloat64(giftCard["amount"])
 
 					// to be applicable gift card should satisfy following conditions:
 					// have positive amount and we have amount that will be discounted
-					if giftCardAmount > 0 {
+					result = append(result, checkout.StructDiscount{
+						Name:      utils.InterfaceToString(giftCard["name"]),
+						Code:      utils.InterfaceToString(giftCard["code"]),
+						Amount:    giftCardAmount,
+						IsPercent: false,
+						Priority:  priorityValue,
+					})
+					priorityValue += float64(0.0001)
 
-						// calculating coupon discount amount
-						discountAmount := utils.InterfaceToFloat64(giftCard["amount"])
-
-						result = append(result, checkout.StructDiscount{
-							Name:      utils.InterfaceToString(giftCard["name"]),
-							Code:      utils.InterfaceToString(giftCard["code"]),
-							Amount:    discountAmount,
-							IsPercent: false,
-							Priority:  priorityValue,
-						})
-						priorityValue += 0.0001
-
-					} else {
-						// we have gift card that no need to apply - removing it from applied list
-						newAppliedCodes := make([]string, 0, len(appliedCodes)-1)
-						for idx, value := range appliedCodes {
-							if idx != appliedCodesIdx {
-								newAppliedCodes = append(newAppliedCodes, value)
-							}
-						}
-						currentSession.Set(ConstSessionKeyAppliedGiftCardCodes, newAppliedCodes)
-					}
 				}
 			}
 		}

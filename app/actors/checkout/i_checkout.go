@@ -193,7 +193,7 @@ func (it *DefaultCheckout) GetDiscountAmount() float64 {
 // GetTaxes collects taxes applied for current checkout
 func (it *DefaultCheckout) GetTaxes() []checkout.StructTaxRate {
 
-	if !it.taxesCalculateFlag {
+	if !it.taxesCalculateFlag && it.calculateFlag {
 		it.taxesCalculateFlag = true
 
 		it.Taxes = make([]checkout.StructTaxRate, 0)
@@ -212,7 +212,7 @@ func (it *DefaultCheckout) GetTaxes() []checkout.StructTaxRate {
 // GetDiscounts collects discounts applied for current checkout
 func (it *DefaultCheckout) GetDiscounts() []checkout.StructDiscount {
 
-	if !it.discountsCalculateFlag {
+	if !it.discountsCalculateFlag && it.calculateFlag {
 		it.discountsCalculateFlag = true
 
 		it.Discounts = make([]checkout.StructDiscount, 0)
@@ -252,102 +252,122 @@ func (it *DefaultCheckout) CalculateAmount(calculateTarget float64) float64 {
 	if !it.calculateFlag {
 		it.calculateFlag = true
 
-		var applySequence []interface{}
-
 		discounts := it.GetDiscounts()
 		taxes := it.GetTaxes()
 
-		// divide values for taxes and discounts
-		var isTaxes bool
-
-		// collect discounts and taxes in one array
-		for len(discounts)+len(taxes) > 0 {
-			var currentPriorityValue float64
-			var currentPriorityIndex int
-
-			for index, disc := range discounts {
-				if disc.Priority > currentPriorityValue {
-					currentPriorityValue = disc.Priority
-					currentPriorityIndex = index
-					isTaxes = false
-				}
-			}
-
-			for index, tax := range taxes {
-				if tax.Priority > currentPriorityValue {
-					currentPriorityValue = tax.Priority
-					currentPriorityIndex = index
-					isTaxes = true
-				}
-			}
-
-			if isTaxes {
-				applySequence = append(applySequence, taxes[currentPriorityIndex])
-				taxes = append(taxes[:currentPriorityIndex], taxes[currentPriorityIndex+1:]...)
-				currentPriorityValue = 0
-
-			} else {
-				applySequence = append(applySequence, discounts[currentPriorityIndex])
-				discounts = append(discounts[:currentPriorityIndex], discounts[currentPriorityIndex+1:]...)
-				currentPriorityValue = 0
-			}
+		basePoints := map[float64]func() float64{
+			checkout.ConstCalculateTargetSubtotal:   func() float64 { return it.GetSubtotal() },
+			checkout.ConstCalculateTargetShipping:   func() float64 { return it.GetShippingAmount() },
+			checkout.ConstCalculateTargetGrandTotal: func() float64 { return 0 },
 		}
 
 		it.calculateAmount = 0
-		var prevPriority float64
+		it.discountsAmount = 0
+		it.taxesAmount = 0
 
-		for _, x := range applySequence {
+		var minPriority float64
+		var maxPriority float64
 
-			var itemPriority float64
-			var itemAmount float64
-			var itemIsPercent bool
-			var applyAmount float64
+		minIsSet := false
+		maxIsSet := false
 
-			switch typedValue := x.(type) {
-			case checkout.StructDiscount:
-				itemAmount = -typedValue.Amount
-				itemPriority = typedValue.Priority
-				itemIsPercent = typedValue.IsPercent
-				isTaxes = false
+		searchMode := true
 
-			case checkout.StructTaxRate:
-				itemAmount = typedValue.Amount
-				itemPriority = typedValue.Priority
-				itemIsPercent = typedValue.IsPercent
-				isTaxes = true
+		// 2 cycle calculation loop
+		// 1st loop - search mode, looks for current minimal priority to apply
+		// 2nd loop - apply current priority items
+		for searchMode || maxIsSet {
+
+			// setting previousPriority since 2nd search
+			if searchMode && maxIsSet {
+				minPriority = maxPriority
+				minIsSet = true
+				maxIsSet = false
 			}
 
-			if itemPriority > calculateTarget && calculateTarget != 0 {
-				break
+			// base points lookup (subtotal, shipping)
+			for priority, value := range basePoints {
+
+				if searchMode {
+					if (!maxIsSet || priority < maxPriority) && (!minIsSet || priority > minPriority) {
+						maxPriority = priority
+						maxIsSet = true
+					}
+				} else {
+					if priority == maxPriority {
+						it.calculateAmount += value()
+					}
+				}
 			}
 
-			// on moving forward check for adding of subtotal and shipping amounts to current calculating amount
-			if prevPriority < checkout.ConstCalculateTargetSubtotal && itemPriority > checkout.ConstCalculateTargetSubtotal {
-				it.calculateAmount += it.GetSubtotal()
-			}
-			if prevPriority < checkout.ConstCalculateTargetShipping && itemPriority > checkout.ConstCalculateTargetShipping {
-				it.calculateAmount += it.GetShippingAmount()
+			// discounts lookup
+			for index, discount := range discounts {
+
+				if searchMode {
+					priority := discount.Priority
+					if (!maxIsSet || priority < maxPriority) && (!minIsSet || priority > minPriority) {
+						maxPriority = discount.Priority
+						maxIsSet = true
+					}
+				} else {
+					if discount.Priority == maxPriority {
+						amount := discount.Amount
+						if discount.IsPercent {
+							amount = it.calculateAmount * discount.Amount / 100
+						}
+
+						// prevent negative values for grand total subtract
+						if amount > it.calculateAmount {
+							amount = it.calculateAmount
+						}
+
+						discounts[index].Amount = amount
+						it.discountsAmount += amount
+						it.calculateAmount -= amount
+					}
+				}
 			}
 
-			if itemIsPercent {
-				applyAmount = it.calculateAmount * itemAmount / 100
+			// taxes lookup
+			for index, tax := range taxes {
+				if searchMode {
+					priority := tax.Priority
+					if (!maxIsSet || priority < maxPriority) && (!minIsSet || priority > minPriority) {
+						maxPriority = tax.Priority
+						maxIsSet = true
+					}
+				} else {
+					if tax.Priority == maxPriority {
+						amount := tax.Amount
+						if tax.IsPercent {
+							amount = it.calculateAmount * tax.Amount / 100
+						}
+
+						taxes[index].Amount = amount
+
+						it.taxesAmount += amount
+						it.calculateAmount += amount
+					}
+				}
+			}
+
+			// cycle mode switcher
+			if searchMode {
+				searchMode = false
 			} else {
-				applyAmount = it.calculateAmount + itemAmount
+				searchMode = true
 			}
-
-			if isTaxes {
-				it.taxesAmount += applyAmount
-			} else {
-				it.discountsAmount -= applyAmount
-			}
-
-			it.calculateAmount += applyAmount
-
-			prevPriority = itemPriority
 		}
 
-		it.calculateFlag = false
+		it.Discounts = discounts
+		it.Taxes = taxes
+
+		it.calculateAmount = utils.RoundPrice(it.calculateAmount)
+		it.taxesAmount = utils.RoundPrice(it.taxesAmount)
+		it.discountsAmount = utils.RoundPrice(it.discountsAmount)
 	}
+
+	it.calculateFlag = false
 
 	return it.calculateAmount
 }
@@ -412,7 +432,7 @@ func (it *DefaultCheckout) Submit() (interface{}, error) {
 		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "1c069d54-2847-46cb-bccd-76fc13d229ea", "Shipping address is not set")
 	}
 
-	if it.GetPaymentMethod() == nil && it.GetGrandTotal() > 0 {
+	if it.GetPaymentMethod() == nil {
 		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "c0628038-3e06-47e9-9252-480351d903c0", "Payment method is not set")
 	}
 

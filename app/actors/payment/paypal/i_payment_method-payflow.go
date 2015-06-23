@@ -116,6 +116,7 @@ func (it *PayFlowAPI) Authorize(orderInstance order.InterfaceOrder, paymentInfo 
 	orderTransactionID := utils.InterfaceToString(responseValues.Get("PNREF"))
 
 	if responseValues.Get("RESPMSG") != "Approved" || orderTransactionID == "" {
+		env.Log("paypal.log", env.ConstLogPrefixInfo, "Redjected payment: "+fmt.Sprint(responseValues))
 		return "", env.ErrorNew(ConstErrorModule, ConstErrorLevel, "e48403bb-c15d-4302-8894-da7146b93260", "payment error: "+responseValues.Get("RESPMSG")+", "+responseValues.Get("PREFPSMSG"))
 	}
 
@@ -161,8 +162,6 @@ func (it *PayFlowAPI) Void(orderInstance order.InterfaceOrder, paymentInfo map[s
 // GetAccessToken returns application access token
 func (it *PayFlowAPI) GetAccessToken(originRequestParams string) (string, error) {
 
-	// TRXTYPE=S&AMT=0&USER=xom94ok&PWD=KOL78963&PARTNER=PayPal&SILENTTRAN=TRUE&SECURETOKENID=123448308de1413abc3d60c86cb1f4c5&CREATESECURETOKEN=Y
-
 	secureTokenID := utils.InterfaceToString(time.Now().UnixNano())
 	// making NVP request
 	//-------------------.
@@ -202,7 +201,8 @@ func (it *PayFlowAPI) GetAccessToken(originRequestParams string) (string, error)
 	}
 
 	if responseValues.Get("RESPMSG") != "Approved" || responseValues.Get("SECURETOKEN") == "" {
-		return "", env.ErrorNew(ConstErrorModule, ConstErrorLevel, "e48403bb-c15d-4302-8894-da7146b93260", "payment error: "+responseValues.Get("RESPMSG"))
+		env.Log("paypal.log", env.ConstLogPrefixInfo, "Can't obtain secure token: "+fmt.Sprint(responseValues))
+		return "", env.ErrorNew(ConstErrorModule, ConstErrorLevel, "f3608dfb-3c7a-4549-82c1-83d6e9d8b7cb", "payment error: "+responseValues.Get("RESPMSG"))
 	}
 
 	token := responseValues.Get("SECURETOKEN")
