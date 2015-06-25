@@ -104,14 +104,16 @@ func restContactUs(context api.InterfaceApplicationContext) (interface{}, error)
 	frmLocation := utils.InterfaceToString(requestData["formLocation"])
 	delete(requestData, "formLocation")
 
+	recipient := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathContactUsRecipient))
+
 	// create body of email
 	var body bytes.Buffer
-	body.WriteString("New message containing the following information: <br><br>")
+	body.WriteString("The form contained the following information: <br><br>")
 	for key, val := range requestData {
 		body.WriteString(key + ": " + utils.InterfaceToString(val) + "<br>")
 	}
 
-	err = SendMail("james+test@ottemo.io",
+	err = SendMail(recipient,
 		"New Message from Form: "+frmLocation,
 		body.String())
 	if err != nil {
