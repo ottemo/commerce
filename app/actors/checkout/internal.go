@@ -55,6 +55,13 @@ func (it *DefaultCheckout) SendOrderConfirmationMail() error {
 				"price":   item.GetPrice()})
 		}
 
+		// convert date of order creation to store time zone
+		timeZone := utils.InterfaceToString(env.ConfigGetValue(app.ConstConfigPathStoreTimeZone))
+		if date, present := orderMap["created_at"]; present {
+			convertedDate, _ := utils.MakeUTCOffsetTime(utils.InterfaceToTime(date), timeZone)
+			orderMap["created_at"] = convertedDate
+		}
+
 		orderMap["items"] = orderItems
 		orderMap["payment_method_title"] = it.GetPaymentMethod().GetName()
 		orderMap["shipping_method_title"] = it.GetShippingMethod().GetName()

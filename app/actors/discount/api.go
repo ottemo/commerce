@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/ottemo/foundation/api"
+	"github.com/ottemo/foundation/app"
 	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
@@ -339,14 +340,16 @@ func APICreateDiscount(context api.InterfaceApplicationContext) (interface{}, er
 	valueCode := utils.InterfaceToString(postValues["code"])
 	valueName := utils.InterfaceToString(postValues["name"])
 
+	timeZone := utils.InterfaceToString(env.ConfigGetValue(app.ConstConfigPathStoreTimeZone))
+
 	valueUntil := time.Now()
 	if value, present := postValues["until"]; present {
-		valueUntil = utils.InterfaceToTime(value)
+		valueUntil, _ = utils.MakeUTCTime(utils.InterfaceToTime(value), timeZone)
 	}
 
 	valueSince := time.Now()
 	if value, present := postValues["since"]; present {
-		valueSince = utils.InterfaceToTime(value)
+		valueSince, _ = utils.MakeUTCTime(utils.InterfaceToTime(value), timeZone)
 	}
 
 	collection, err := db.GetCollection(ConstCollectionNameCouponDiscounts)
@@ -445,12 +448,13 @@ func APIUpdateDiscount(context api.InterfaceApplicationContext) (interface{}, er
 		}
 	}
 
+	timeZone := utils.InterfaceToString(env.ConfigGetValue(app.ConstConfigPathStoreTimeZone))
 	if value, present := postValues["until"]; present {
-		record["until"] = utils.InterfaceToTime(value)
+		record["until"], _ = utils.MakeUTCTime(utils.InterfaceToTime(value), timeZone)
 	}
 
 	if value, present := postValues["since"]; present {
-		record["since"] = utils.InterfaceToTime(value)
+		record["since"], _ = utils.MakeUTCTime(utils.InterfaceToTime(value), timeZone)
 	}
 
 	// saving updates

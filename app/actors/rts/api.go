@@ -107,7 +107,7 @@ func APIGetVisits(context api.InterfaceApplicationContext) (interface{}, error) 
 
 	// get a hours pasted for local day and count for them and for previous day
 	todayTo := time.Now().Truncate(time.Hour)
-	todayFrom, _ := utils.ApplyTimeZone(todayTo, timeZone)
+	todayFrom, _ := utils.MakeUTCTime(todayTo, timeZone)
 	todayHoursPast := todayFrom.Sub(todayFrom.Truncate(ConstTimeDay))
 
 	todayFrom = todayTo.Add(-todayHoursPast)
@@ -179,8 +179,8 @@ func APIGetVisitsDetails(context api.InterfaceApplicationContext) (interface{}, 
 	hoursOffset := time.Hour * 0
 
 	if timeZone != "" {
-		dateFrom, hoursOffset = utils.ApplyTimeZone(dateFrom, timeZone)
-		dateTo, _ = utils.ApplyTimeZone(dateTo, timeZone)
+		dateFrom, hoursOffset = utils.MakeUTCTime(dateFrom, timeZone)
+		dateTo, _ = utils.MakeUTCTime(dateTo, timeZone)
 	}
 
 	// determining required scope
@@ -242,7 +242,7 @@ func APIGetConversion(context api.InterfaceApplicationContext) (interface{}, err
 
 	// get a hours pasted for local day and count only for them
 	todayTo := time.Now().Truncate(time.Hour).Add(time.Hour)
-	todayFrom, _ := utils.ApplyTimeZone(todayTo, timeZone)
+	todayFrom, _ := utils.MakeUTCTime(todayTo, timeZone)
 	todayHoursPast := todayFrom.Sub(todayFrom.Truncate(ConstTimeDay))
 	todayFrom = todayTo.Add(-todayHoursPast)
 
@@ -283,7 +283,7 @@ func APIGetSales(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// get a hours pasted for local day and count for them and for previous day
 	todayTo := time.Now().Truncate(time.Hour).Add(time.Hour)
-	todayFrom, _ := utils.ApplyTimeZone(todayTo, timeZone)
+	todayFrom, _ := utils.MakeUTCTime(todayTo, timeZone)
 	todayHoursPast := todayFrom.Sub(todayFrom.Truncate(ConstTimeDay))
 
 	todayFrom = todayTo.Add(-todayHoursPast)
@@ -355,8 +355,8 @@ func APIGetSalesDetails(context api.InterfaceApplicationContext) (interface{}, e
 	hoursOffset := time.Hour * 0
 
 	if timeZone != "" {
-		dateFrom, hoursOffset = utils.ApplyTimeZone(dateFrom, timeZone)
-		dateTo, _ = utils.ApplyTimeZone(dateTo, timeZone)
+		dateFrom, hoursOffset = utils.MakeUTCTime(dateFrom, timeZone)
+		dateTo, _ = utils.MakeUTCTime(dateTo, timeZone)
 	}
 
 	// determining required scope
@@ -420,7 +420,7 @@ func APIGetBestsellers(context api.InterfaceApplicationContext) (interface{}, er
 
 	// get a hours pasted for local day and base from it
 	todayTo := time.Now().Truncate(time.Hour).Add(time.Hour) // last hour of current day
-	todayFrom, _ := utils.ApplyTimeZone(todayTo, timeZone)
+	todayFrom, _ := utils.MakeUTCTime(todayTo, timeZone)
 	todayHoursPast := todayFrom.Sub(todayFrom.Truncate(ConstTimeDay))
 
 	todayFrom = todayTo.Add(-todayHoursPast) // beginning of current day
