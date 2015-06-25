@@ -104,7 +104,7 @@ func restContactUs(context api.InterfaceApplicationContext) (interface{}, error)
 		//"The following field is required and cannot be blank: 'emailAddress' ")
 	}
 
-	err = SendMail("james+test@ottemo.io", "Test for Contact Us Form", "Test TEST TTTEEESSSTTT")
+	err = SendMail(utils.InterfaceToString(requestData["emailAddress"]), "Test 2 for Contact Us Form", "Test TEST TTTEEESSSTTT")
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
