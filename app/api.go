@@ -1,6 +1,7 @@
 package app
 
 import (
+	"bytes"
 	"runtime"
 	"time"
 
@@ -94,7 +95,25 @@ func restContactUs(context api.InterfaceApplicationContext) (interface{}, error)
 		return nil, env.ErrorDispatch(err)
 	}
 
-	err = SendMail(utils.InterfaceToString(requestData["emailAddress"]), "Test 2 for Contact Us Form", "Test TEST TTTEEESSSTTT")
+	// formLocation is the only required parameter
+	if !utils.KeysInMapAndNotBlank(requestData, "formLocation") {
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "fee28a56-adb1-44b9-a0e2-1c9be6bd6fdb", "A required parameter is missing: 'formLocation'")
+	}
+
+	// remove form location from map
+	frmLocation := utils.InterfaceToString(requestData["formLocation"])
+	delete(requestData, "formLocation")
+
+	// create body of email
+	var body bytes.Buffer
+	body.WriteString("New message containing the following information: <br><br>")
+	for key, val := range requestData {
+		body.WriteString(key + ": " + utils.InterfaceToString(val) + "<br>")
+	}
+
+	err = SendMail("james+test@ottemo.io",
+		"New Message from Form: "+frmLocation,
+		body.String())
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
