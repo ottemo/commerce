@@ -97,11 +97,25 @@ func restContactUs(context api.InterfaceApplicationContext) (interface{}, error)
 	// check for required fields to send email
 	//  - return an error if a required field is missing
 	if !utils.KeysInMapAndNotBlank(requestData, "emailAddress") {
-		//return nil, env.ErrorNew(ConstErrorModule,
-		//env.ConstErrorLevelAPI,
-		//// TODO: replace with new Error GUID -jwv
-		//"a9610b78-add9-4ae5-b757-59462b646d2b",
-		//"The following field is required and cannot be blank: 'emailAddress' ")
+		return nil, env.ErrorNew(ConstErrorModule,
+			env.ConstErrorLevelAPI,
+			// TODO: replace with new Error GUID -jwv
+			"a9610b78-add9-4ae5-b757-59462b646d2b",
+			"The following field is required and cannot be blank: 'emailAddress' ")
+	}
+	if !utils.KeysInMapAndNotBlank(requestData, "name") {
+		return nil, env.ErrorNew(ConstErrorModule,
+			env.ConstErrorLevelAPI,
+			// TODO: replace with new Error GUID -jwv
+			"a9610b78-add9-4ae5-b757-59462b646d2b",
+			"The following field is required and cannot be blank: 'name' ")
+	}
+	if !utils.KeysInMapAndNotBlank(requestData, "tel") {
+		return nil, env.ErrorNew(ConstErrorModule,
+			env.ConstErrorLevelAPI,
+			// TODO: replace with new Error GUID -jwv
+			"a9610b78-add9-4ae5-b757-59462b646d2b",
+			"The following field is required and cannot be blank: 'tel' ")
 	}
 
 	err = SendMail(utils.InterfaceToString(requestData["emailAddress"]), "Test 2 for Contact Us Form", "Test TEST TTTEEESSSTTT")
