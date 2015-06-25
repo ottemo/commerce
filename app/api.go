@@ -14,6 +14,10 @@ import (
 func setupAPI() error {
 	var err error
 
+	err = api.GetRestService().RegisterAPI("app/contact", api.ConstRESTOperationCreate, restContactUs)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
 	err = api.GetRestService().RegisterAPI("app/login", api.ConstRESTOperationGet, restLogin)
 	if err != nil {
 		return env.ErrorDispatch(err)
@@ -77,6 +81,34 @@ func restLogout(context api.InterfaceApplicationContext) (interface{}, error) {
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
+	return "ok", nil
+}
+
+// restContactUs creates a new email message
+//   - following attributes are required:
+//   - "emailAddress", "name", "tel"
+func restContactUs(context api.InterfaceApplicationContext) (interface{}, error) {
+
+	requestData, err := api.GetRequestContentAsMap(context)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	// check for required fields to send email
+	//  - return an error if a required field is missing
+	if !utils.KeysInMapAndNotBlank(requestData, "emailAddress") {
+		//return nil, env.ErrorNew(ConstErrorModule,
+		//env.ConstErrorLevelAPI,
+		//// TODO: replace with new Error GUID -jwv
+		//"a9610b78-add9-4ae5-b757-59462b646d2b",
+		//"The following field is required and cannot be blank: 'emailAddress' ")
+	}
+
+	err = SendMail("james+test@ottemo.io", "Test for Contact Us Form", "Test TEST TTTEEESSSTTT")
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
 	return "ok", nil
 }
 
