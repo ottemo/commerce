@@ -34,6 +34,8 @@ const (
 	ConstConfigPathStoreAddressline2 = "general.store.addressline2"
 	ConstConfigPathStoreZip          = "general.store.zip"
 
+	ConstConfigPathStoreTimeZone = "general.store.timezone"
+
 	ConstConfigPathMailFrom      = "general.mail.from"
 	ConstConfigPathMailSignature = "general.mail.footer"
 	ConstConfigPathMailServer    = "general.mail.server"

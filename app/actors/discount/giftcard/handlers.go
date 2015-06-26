@@ -268,15 +268,16 @@ func checkoutSuccessHandler(event string, eventData map[string]interface{}) bool
 	}
 
 	// set a customer mail as addressee
-	giftCardRecipientEmail := utils.InterfaceToString(orderPlaced.Get("customer_email"))
+	buyerEmail := utils.InterfaceToString(orderPlaced.Get("customer_email"))
 	orderID := orderPlaced.GetID()
 
 	// send email if we have gift cards in order
 	// mail template get from config value
-	giftCardsEmail := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathGiftEmail))
+	giftCardTemplateEmail := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathGiftEmailTemplate))
 
 	if err := giftCardCollection.AddFilter("order_id", "=", orderID); err != nil {
 		env.LogError(err)
+		return false
 	}
 
 	records, err := giftCardCollection.Load()
@@ -285,34 +286,52 @@ func checkoutSuccessHandler(event string, eventData map[string]interface{}) bool
 		return false
 	}
 
-	if len(records) > 0 && giftCardsEmail != "" {
+	if len(records) > 0 && giftCardTemplateEmail != "" {
 
-		visitorMap := make(map[string]interface{})
+		// use buyer info for giving name to gifted person
+		buyerInfo := make(map[string]interface{})
+		buyerInfo["email"] = buyerEmail
+		buyerInfo["name"] = orderPlaced.Get("customer_name")
 
-		visitorMap["email"] = giftCardRecipientEmail
-		visitorMap["name"] = orderPlaced.Get("customer_name")
+		customInfo := map[string]interface{}{
+			"Url": utils.InterfaceToString(env.ConfigGetValue(app.ConstConfigPathStorefrontURL)),
+		}
 
-		var giftCardsInfo string
+		giftCardEmailSubject := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathGiftEmailTemplate))
+		if len(giftCardEmailSubject) < 2 {
+			giftCardEmailSubject = "Your giftcard has arrived"
+		}
+
+		var giftCardRecipientEmail string
 
 		for _, record := range records {
-			giftCardsInfo = giftCardsInfo + "Gift card " + utils.InterfaceToString(record["amount"]) + "$ code: " + utils.InterfaceToString(record["code"]) + " <br />"
-		}
+			giftCardRecipientEmail = utils.InterfaceToString(record["recipient_mailbox"])
+			if len(giftCardRecipientEmail) < 2 {
+				giftCardRecipientEmail = buyerEmail
+			}
 
-		giftCardsEmail, err := utils.TextTemplate(giftCardsEmail,
-			map[string]interface{}{
-				"Visitor":   visitorMap,
-				"GiftCards": giftCardsInfo,
-			})
+			giftCardInfo := map[string]interface{}{
+				"Amount": utils.RoundPrice(utils.InterfaceToFloat64(record["amount"])),
+				"Code":   utils.InterfaceToString(record["code"]),
+			}
 
-		if err != nil {
-			env.LogError(err)
-			return false
-		}
+			giftCardsEmail, err := utils.TextTemplate(giftCardTemplateEmail,
+				map[string]interface{}{
+					"Visitor":  buyerInfo,
+					"GiftCard": giftCardInfo,
+					"Site":     customInfo,
+				})
 
-		err = app.SendMail(giftCardRecipientEmail, "Gift cards", giftCardsEmail)
-		if err != nil {
-			env.LogError(err)
-			return false
+			if err != nil {
+				env.LogError(err)
+				continue
+			}
+
+			err = app.SendMail(giftCardRecipientEmail, giftCardEmailSubject, giftCardsEmail)
+			if err != nil {
+				env.LogError(err)
+				continue
+			}
 		}
 	}
 

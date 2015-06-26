@@ -39,6 +39,14 @@ func setupAPI() error {
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
+	err = api.GetRestService().RegisterAPI("app/location", api.ConstRESTOperationCreate, setSessionTimeZone)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+	err = api.GetRestService().RegisterAPI("app/location", api.ConstRESTOperationGet, getSessionTimeZone)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
 
 	return nil
 }
@@ -201,4 +209,31 @@ func restStatusInfo(context api.InterfaceApplicationContext) (interface{}, error
 	result["memStats.DebugGC"] = memStats.DebugGC
 
 	return result, nil
+}
+
+// getSessionTimeZone return a time zone of session
+func getSessionTimeZone(context api.InterfaceApplicationContext) (interface{}, error) {
+
+	return context.GetSession().Get(api.ConstSessionKeyTimeZone), nil
+}
+
+// setSessionTimeZone validate time zone and set it to session
+func setSessionTimeZone(context api.InterfaceApplicationContext) (interface{}, error) {
+
+	requestData, err := api.GetRequestContentAsMap(context)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	if requestTimeZone := utils.GetFirstMapValue(requestData, "timeZone", "time_zone", "time"); requestTimeZone != nil {
+
+		result, err := SetSessionTimeZone(context.GetSession(), utils.InterfaceToString(requestTimeZone))
+		if err != nil {
+			return nil, env.ErrorDispatch(err)
+		}
+
+		return result, nil
+	}
+
+	return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "a33f0f5d-2110-4208-8fb6-023da3ffd241", "time zone should be specified")
 }

@@ -34,11 +34,16 @@ type DefaultCheckout struct {
 
 	Info map[string]interface{}
 
-	// subtotal used to have static subtotal during grand total calculation
-	subtotalAmount float64
+	// amounts used to have static values during calculation
+	subtotalAmount  float64
+	shippingAmount  float64
+	taxesAmount     float64
+	discountsAmount float64
+
+	calculateAmount float64
 
 	// flags enables and disables during calculation to prevent recursion
-	taxesCalculateFlag      bool
-	discountsCalculateFlag  bool
-	grandTotalCalculateFlag bool
+	taxesCalculateFlag     bool
+	discountsCalculateFlag bool
+	calculateFlag          bool
 }

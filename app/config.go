@@ -254,6 +254,21 @@ func setupConfig() error {
 	}
 
 	err = config.RegisterItem(env.StructConfigItem{
+		Path:        ConstConfigPathStoreTimeZone,
+		Value:       "UTC",
+		Type:        env.ConstConfigTypeVarchar,
+		Editor:      "select",
+		Options:     models.ConstTimeZonesList,
+		Label:       "Time zone",
+		Description: "store location time zone",
+		Image:       "",
+	}, nil)
+
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	err = config.RegisterItem(env.StructConfigItem{
 		Path:        ConstConfigPathMailGroup,
 		Value:       nil,
 		Type:        env.ConstConfigTypeGroup,

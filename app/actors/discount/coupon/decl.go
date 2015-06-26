@@ -1,6 +1,6 @@
-// Package discount is a default implementation of discount interface declared in
+// Package coupon is a default implementation of discount interface declared in
 // "github.com/ottemo/foundation/app/models/checkout" package
-package discount
+package coupon
 
 import (
 	"github.com/ottemo/foundation/env"
@@ -11,7 +11,10 @@ const (
 	ConstSessionKeyAppliedDiscountCodes = "applied_discount_codes"
 	ConstCollectionNameCouponDiscounts  = "coupon_discounts"
 
-	ConstErrorModule = "discount"
+	ConstConfigPathDiscounts             = "general.discounts"
+	ConstConfigPathDiscountApplyPriority = "general.discounts.discount_apply_priority"
+
+	ConstErrorModule = "coupon"
 	ConstErrorLevel  = env.ConstErrorLevelActor
 )
 

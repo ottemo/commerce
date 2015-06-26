@@ -1,12 +1,12 @@
-package discount
+package coupon
 
 import (
 	"time"
 
 	"github.com/ottemo/foundation/app/models/checkout"
 	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
-	"math"
 )
 
 // GetName returns name of current discount implementation
@@ -29,9 +29,6 @@ func (it *DefaultDiscount) CalculateDiscount(checkoutInstance checkout.Interface
 
 		appliedCodes := utils.InterfaceToStringArray(currentSession.Get(ConstSessionKeyAppliedDiscountCodes))
 		if len(appliedCodes) > 0 {
-			// getting order information will use in calculations
-			discountableAmount := math.Min(checkoutInstance.GetSubtotal(), checkoutInstance.GetGrandTotal())
-			subtotalAmount := discountableAmount
 
 			// loading information about applied discounts
 			collection, err := db.GetCollection(ConstCollectionNameCouponDiscounts)
@@ -56,7 +53,9 @@ func (it *DefaultDiscount) CalculateDiscount(checkoutInstance checkout.Interface
 				}
 			}
 
-			// applying discount codes
+			priorityValue := utils.InterfaceToFloat64(env.ConfigGetValue(ConstConfigPathDiscountApplyPriority))
+
+			// applying coupon codes
 			for appliedCodesIdx, discountCode := range appliedCodes {
 				if discountCoupon, ok := discountCodes[discountCode]; ok {
 
@@ -76,20 +75,26 @@ func (it *DefaultDiscount) CalculateDiscount(checkoutInstance checkout.Interface
 						discountAmount := utils.InterfaceToFloat64(discountCoupon["amount"])
 						discountPercent := utils.InterfaceToFloat64(discountCoupon["percent"])
 
-						discountAmount = utils.RoundPrice(discountAmount) + utils.RoundPrice(subtotalAmount/100*discountPercent)
-
-						if discountableAmount > discountAmount {
-							discountableAmount -= discountAmount
-						} else {
-							discountAmount = discountableAmount
-							discountableAmount = 0
+						if discountPercent > 0 {
+							result = append(result, checkout.StructDiscount{
+								Name:      utils.InterfaceToString(discountCoupon["name"]),
+								Code:      utils.InterfaceToString(discountCoupon["code"]),
+								Amount:    discountPercent,
+								IsPercent: true,
+								Priority:  priorityValue,
+							})
+							priorityValue += float64(0.0001)
 						}
-
-						result = append(result, checkout.StructDiscount{
-							Name:   utils.InterfaceToString(discountCoupon["name"]),
-							Code:   utils.InterfaceToString(discountCoupon["code"]),
-							Amount: discountAmount,
-						})
+						if discountAmount > 0 {
+							result = append(result, checkout.StructDiscount{
+								Name:      utils.InterfaceToString(discountCoupon["name"]),
+								Code:      utils.InterfaceToString(discountCoupon["code"]),
+								Amount:    discountAmount,
+								IsPercent: false,
+								Priority:  priorityValue,
+							})
+							priorityValue += float64(0.0001)
+						}
 
 					} else {
 						// we have not applicable coupon - removing it from applied coupons list
