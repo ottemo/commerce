@@ -369,9 +369,9 @@ func (it *DefaultCheckout) CalculateAmount(calculateTarget float64) float64 {
 		it.calculateAmount = utils.RoundPrice(it.calculateAmount)
 		it.taxesAmount = utils.RoundPrice(it.taxesAmount)
 		it.discountsAmount = utils.RoundPrice(it.discountsAmount)
-	}
 
-	it.calculateFlag = false
+		it.calculateFlag = false
+	}
 
 	return it.calculateAmount
 }
@@ -508,7 +508,14 @@ func (it *DefaultCheckout) Submit() (interface{}, error) {
 	checkoutOrder.Set("shipping_address", shippingAddress)
 
 	checkoutOrder.Set("cart_id", currentCart.GetID())
-	checkoutOrder.Set("payment_method", it.GetPaymentMethod().GetCode())
+
+	paymentMethod := it.GetPaymentMethod()
+
+	if !paymentMethod.IsAllowed(it) {
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "7a5490ee-daa3-42b4-a84a-dade12d103e8", "Payment method not allowed")
+	}
+
+	checkoutOrder.Set("payment_method", paymentMethod.GetCode())
 	checkoutOrder.Set("shipping_method", it.GetShippingMethod().GetCode()+"/"+it.GetShippingRate().Code)
 
 	discounts := it.GetDiscounts()
@@ -561,12 +568,12 @@ func (it *DefaultCheckout) Submit() (interface{}, error) {
 
 	// trying to process payment
 	//--------------------------
-	if it.GetGrandTotal() > 0 {
+	if checkoutOrder.GetGrandTotal() > 0 {
 		paymentInfo := make(map[string]interface{})
 		paymentInfo["sessionID"] = it.GetSession().GetID()
 		paymentInfo["cc"] = it.GetInfo("cc")
 
-		result, err := it.GetPaymentMethod().Authorize(checkoutOrder, paymentInfo)
+		result, err := paymentMethod.Authorize(checkoutOrder, paymentInfo)
 		if err != nil {
 			checkoutOrder.SetStatus(order.ConstOrderStatusNew)
 			return nil, env.ErrorDispatch(err)

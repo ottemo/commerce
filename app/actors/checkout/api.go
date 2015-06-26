@@ -6,6 +6,7 @@ import (
 	"github.com/ottemo/foundation/app/models/visitor"
 	"github.com/ottemo/foundation/env"
 
+	"github.com/ottemo/foundation/app/actors/payment/zeropay"
 	"github.com/ottemo/foundation/utils"
 )
 
@@ -485,6 +486,20 @@ func APISubmitCheckout(context api.InterfaceApplicationContext) (interface{}, er
 
 		if !found {
 			return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "b8384a47-8806-4a54-90fc-cccb5e958b4e", "payment method not found")
+		}
+	}
+
+	// set ZeroPayment method for checkout without payment method
+	if currentCheckout.GetPaymentMethod() == nil {
+		for _, paymentMethod := range checkout.GetRegisteredPaymentMethods() {
+			if zeropay.ConstPaymentZeroPaymentCode == paymentMethod.GetCode() {
+				if paymentMethod.IsAllowed(currentCheckout) {
+					err := currentCheckout.SetPaymentMethod(paymentMethod)
+					if err != nil {
+						return nil, env.ErrorDispatch(err)
+					}
+				}
+			}
 		}
 	}
 
