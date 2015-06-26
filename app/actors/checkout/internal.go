@@ -59,7 +59,9 @@ func (it *DefaultCheckout) SendOrderConfirmationMail() error {
 		timeZone := utils.InterfaceToString(env.ConfigGetValue(app.ConstConfigPathStoreTimeZone))
 		if date, present := orderMap["created_at"]; present {
 			convertedDate, _ := utils.MakeUTCOffsetTime(utils.InterfaceToTime(date), timeZone)
-			orderMap["created_at"] = convertedDate
+			if !utils.IsZeroTime(convertedDate) {
+				orderMap["created_at"] = convertedDate
+			}
 		}
 
 		orderMap["items"] = orderItems

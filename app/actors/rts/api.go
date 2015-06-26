@@ -103,13 +103,19 @@ func APIGetReferrers(context api.InterfaceApplicationContext) (interface{}, erro
 func APIGetVisits(context api.InterfaceApplicationContext) (interface{}, error) {
 	result := make(map[string]interface{})
 
-	timeZone := utils.InterfaceToString(env.ConfigGetValue(app.ConstConfigPathStoreTimeZone))
+	timeZone, err := app.GetSessionTimeZone(context.GetSession())
+	if err != nil || timeZone == "" {
+		timeZone = utils.InterfaceToString(env.ConfigGetValue(app.ConstConfigPathStoreTimeZone))
+	}
 
 	// get a hours pasted for local day and count for them and for previous day
 	todayTo := time.Now().Truncate(time.Hour)
-	todayFrom, _ := utils.MakeUTCOffsetTime(todayTo, timeZone)
-	todayHoursPast := time.Duration(todayFrom.Hour()) * time.Hour
+	todayFrom, _ := utils.MakeUTCOffsetTime(todayTo, utils.InterfaceToString(timeZone))
+	if utils.IsZeroTime(todayFrom) {
+		todayFrom = todayTo
+	}
 
+	todayHoursPast := time.Duration(todayFrom.Hour()) * time.Hour
 	todayFrom = todayTo.Add(-todayHoursPast)
 	yesterdayFrom := todayFrom.AddDate(0, 0, -1)
 	weekFrom := yesterdayFrom.AddDate(0, 0, -5)
@@ -158,7 +164,10 @@ func APIGetVisitsDetails(context api.InterfaceApplicationContext) (interface{}, 
 	result := make(map[string]int)
 	var arrayResult [][]int
 
-	timeZone := utils.InterfaceToString(env.ConfigGetValue(app.ConstConfigPathStoreTimeZone))
+	timeZone, err := app.GetSessionTimeZone(context.GetSession())
+	if err != nil || timeZone == "" {
+		timeZone = utils.InterfaceToString(env.ConfigGetValue(app.ConstConfigPathStoreTimeZone))
+	}
 	dateFrom := utils.InterfaceToTime(context.GetRequestArgument("from"))
 	dateTo := utils.InterfaceToTime(context.GetRequestArgument("to"))
 
@@ -238,11 +247,18 @@ func APIGetVisitsDetails(context api.InterfaceApplicationContext) (interface{}, 
 func APIGetConversion(context api.InterfaceApplicationContext) (interface{}, error) {
 	result := make(map[string]interface{})
 
-	timeZone := utils.InterfaceToString(env.ConfigGetValue(app.ConstConfigPathStoreTimeZone))
+	timeZone, err := app.GetSessionTimeZone(context.GetSession())
+	if err != nil || timeZone == "" {
+		timeZone = utils.InterfaceToString(env.ConfigGetValue(app.ConstConfigPathStoreTimeZone))
+	}
 
 	// get a hours pasted for local day and count only for them
 	todayTo := time.Now().Truncate(time.Hour).Add(time.Hour)
 	todayFrom, _ := utils.MakeUTCOffsetTime(todayTo, timeZone)
+	if utils.IsZeroTime(todayFrom) {
+		todayFrom = todayTo
+	}
+
 	todayHoursPast := time.Duration(todayFrom.Hour()) * time.Hour
 	todayFrom = todayTo.Add(-todayHoursPast)
 
@@ -279,14 +295,19 @@ func APIGetConversion(context api.InterfaceApplicationContext) (interface{}, err
 func APIGetSales(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	result := make(map[string]interface{})
-	timeZone := utils.InterfaceToString(env.ConfigGetValue(app.ConstConfigPathStoreTimeZone))
+	timeZone, err := app.GetSessionTimeZone(context.GetSession())
+	if err != nil || timeZone == "" {
+		timeZone = utils.InterfaceToString(env.ConfigGetValue(app.ConstConfigPathStoreTimeZone))
+	}
 
 	// get a hours pasted for local day and count for them and for previous day
 	todayTo := time.Now().Truncate(time.Hour)
 	todayFrom, _ := utils.MakeUTCOffsetTime(todayTo, timeZone)
-	todayHoursPast := time.Duration(todayFrom.Hour()) * time.Hour
+	if utils.IsZeroTime(todayFrom) {
+		todayFrom = todayTo
+	}
 
-	todayFrom.Hour()
+	todayHoursPast := time.Duration(todayFrom.Hour()) * time.Hour
 	todayFrom = todayTo.Add(-todayHoursPast)
 	yesterdayFrom := todayFrom.AddDate(0, 0, -1)
 	weekFrom := yesterdayFrom.AddDate(0, 0, -5)
@@ -335,7 +356,10 @@ func APIGetSalesDetails(context api.InterfaceApplicationContext) (interface{}, e
 	result := make(map[string]int)
 	var arrayResult [][]int
 
-	timeZone := utils.InterfaceToString(env.ConfigGetValue(app.ConstConfigPathStoreTimeZone))
+	timeZone, err := app.GetSessionTimeZone(context.GetSession())
+	if err != nil || timeZone == "" {
+		timeZone = utils.InterfaceToString(env.ConfigGetValue(app.ConstConfigPathStoreTimeZone))
+	}
 	dateFrom := utils.InterfaceToTime(context.GetRequestArgument("from"))
 	dateTo := utils.InterfaceToTime(context.GetRequestArgument("to"))
 
@@ -369,7 +393,7 @@ func APIGetSalesDetails(context api.InterfaceApplicationContext) (interface{}, e
 	}
 	dateFrom = dateFrom.Truncate(time.Hour)
 	dateTo = dateTo.Truncate(time.Hour)
-	fmt.Println("Detail sales for range after: ", dateFrom, dateTo)
+
 	// set database request settings
 	// making database request
 	visitorInfoCollection, err := db.GetCollection(ConstCollectionNameRTSVisitors)
@@ -417,13 +441,20 @@ func APIGetBestsellers(context api.InterfaceApplicationContext) (interface{}, er
 	var result []map[string]interface{}
 
 	bestsellersRange := utils.InterfaceToString(context.GetRequestArgument("period"))
-	timeZone := utils.InterfaceToString(env.ConfigGetValue(app.ConstConfigPathStoreTimeZone))
+
+	timeZone, err := app.GetSessionTimeZone(context.GetSession())
+	if err != nil || timeZone == "" {
+		timeZone = utils.InterfaceToString(env.ConfigGetValue(app.ConstConfigPathStoreTimeZone))
+	}
 
 	// get a hours pasted for local day and base from it
 	todayTo := time.Now().Truncate(time.Hour).Add(time.Hour) // last hour of current day
 	todayFrom, _ := utils.MakeUTCOffsetTime(todayTo, timeZone)
-	todayHoursPast := time.Duration(todayFrom.Hour()) * time.Hour
+	if utils.IsZeroTime(todayFrom) {
+		todayFrom = todayTo
+	}
 
+	todayHoursPast := time.Duration(todayFrom.Hour()) * time.Hour
 	todayFrom = todayTo.Add(-todayHoursPast) // beginning of current day
 
 	rangeFrom := todayFrom

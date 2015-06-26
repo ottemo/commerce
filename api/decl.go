@@ -14,6 +14,7 @@ const (
 
 	ConstSessionKeyAdminRights = "adminRights"   // session key used to flag that user have admin rights
 	ConstSessionCookieName     = "OTTEMOSESSION" // cookie name which should contain sessionID
+	ConstSessionKeyTimeZone    = "timeZone"      // session key for setting time zone
 
 	ConstGETAuthParamName            = "auth"
 	ConstConfigPathStoreRootLogin    = "general.store.root_login"

@@ -9,7 +9,8 @@ import (
 	"time"
 )
 
-var timeZones = map[string]time.Duration{
+// TimeZones list of known Time Zone Abbreviations – Worldwide List
+var TimeZones = map[string]time.Duration{
 	"A":     1*time.Hour + 00*time.Minute,
 	"ACDT":  10*time.Hour + 30*time.Minute,
 	"ACST":  9*time.Hour + 30*time.Minute,
@@ -257,7 +258,7 @@ func ParseTimeZone(timeZone string) (string, time.Duration) {
 		}
 	} else {
 		zoneOffset = time.Hour * time.Duration(InterfaceToInt(timeZone))
-		zoneName = strings.Replace(zoneName, InterfaceToString(zoneOffset), "", -1)
+		zoneName = strings.Replace(zoneName, InterfaceToString(InterfaceToInt(timeZone)), "", -1)
 	}
 	// set zone name to UTC when zone name not specified
 	if zoneName == "" {
@@ -274,7 +275,7 @@ func MakeUTCTime(inTime time.Time, timeZone string) (time.Time, time.Duration) {
 
 	zoneName, zoneOffset := ParseTimeZone(timeZone)
 
-	if zoneUTCOffset, present := timeZones[zoneName]; present {
+	if zoneUTCOffset, present := TimeZones[zoneName]; present {
 		zoneOffset += time.Duration(zoneUTCOffset)
 	} else {
 		return time.Time{}, time.Duration(0)
@@ -290,7 +291,7 @@ func MakeUTCTime(inTime time.Time, timeZone string) (time.Time, time.Duration) {
 func MakeUTCOffsetTime(inTime time.Time, timeZone string) (time.Time, time.Duration) {
 	zoneName, zoneOffset := ParseTimeZone(timeZone)
 
-	if timeZoneOffset, present := timeZones[zoneName]; present {
+	if timeZoneOffset, present := TimeZones[zoneName]; present {
 		zoneOffset += timeZoneOffset
 	} else {
 		return time.Time{}, time.Duration(0)
@@ -310,7 +311,7 @@ func MakeTZTime(inTime time.Time, timeZone string) (time.Time, time.Duration) {
 
 	locale := time.FixedZone(zoneName, InterfaceToInt(zoneOffset.Seconds()))
 
-	if timeZoneOffset, present := timeZones[zoneName]; present {
+	if timeZoneOffset, present := TimeZones[zoneName]; present {
 		zoneOffset += timeZoneOffset
 	} else {
 		return time.Time{}, time.Duration(0)
@@ -327,7 +328,7 @@ func TimeToUTCTime(inTime time.Time) time.Time {
 	result := time.Date(inTime.Year(), inTime.Month(), inTime.Day(), inTime.Hour(), inTime.Minute(), inTime.Second(), inTime.Nanosecond(), time.UTC)
 
 	zoneName, offset := inTime.Zone()
-	if zoneOffset, present := timeZones[zoneName]; present {
+	if zoneOffset, present := TimeZones[zoneName]; present {
 		result = result.Add(-zoneOffset)
 	}
 
