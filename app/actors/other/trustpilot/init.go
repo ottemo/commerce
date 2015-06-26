@@ -60,19 +60,22 @@ func schedulerFunc(params map[string]interface{}) error {
 					"Site":    siteMap})
 
 			if err != nil {
-				return env.ErrorDispatch(err)
+				env.LogError(err)
+				continue
 			}
 
 			err = app.SendMail(visitorEmail, ConstEmailSubject, emailToVisitor)
 			if err != nil {
-				return env.ErrorDispatch(err)
+				env.LogError(err)
+				continue
 			}
 			customInfo[ConstOrderCustomInfoSentKey] = true
 
 			currentOrder["custom_info"] = customInfo
 			_, err = dbOrderCollection.Save(currentOrder)
 			if err != nil {
-				return env.ErrorDispatch(err)
+				env.LogError(err)
+				continue
 			}
 		}
 	}
@@ -82,6 +85,7 @@ func schedulerFunc(params map[string]interface{}) error {
 
 // onAppStart makes module initialization on application startup
 func onAppStart() error {
+
 	env.EventRegisterListener("checkout.success", checkoutSuccessHandler)
 
 	if scheduler := env.GetScheduler(); scheduler != nil {

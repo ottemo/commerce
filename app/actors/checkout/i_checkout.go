@@ -247,6 +247,7 @@ func (it *DefaultCheckout) GetShippingAmount() float64 {
 }
 
 // CalculateAmount do a calculation of all amounts for checkout
+// TODO: make function use calculateTarget as a limit for priority to where it need to be calculated
 func (it *DefaultCheckout) CalculateAmount(calculateTarget float64) float64 {
 
 	if !it.calculateFlag {
@@ -321,6 +322,8 @@ func (it *DefaultCheckout) CalculateAmount(calculateTarget float64) float64 {
 							amount = it.calculateAmount
 						}
 
+						// round amount add it to calculating amounts and set to discount amount
+						amount = utils.RoundPrice(amount)
 						discounts[index].Amount = amount
 						it.discountsAmount += amount
 						it.calculateAmount -= amount
@@ -343,8 +346,9 @@ func (it *DefaultCheckout) CalculateAmount(calculateTarget float64) float64 {
 							amount = it.calculateAmount * tax.Amount / 100
 						}
 
+						// round amount add it to calculating amounts and set to taxes amount
+						amount = utils.RoundPrice(amount)
 						taxes[index].Amount = amount
-
 						it.taxesAmount += amount
 						it.calculateAmount += amount
 					}
@@ -365,9 +369,9 @@ func (it *DefaultCheckout) CalculateAmount(calculateTarget float64) float64 {
 		it.calculateAmount = utils.RoundPrice(it.calculateAmount)
 		it.taxesAmount = utils.RoundPrice(it.taxesAmount)
 		it.discountsAmount = utils.RoundPrice(it.discountsAmount)
-	}
 
-	it.calculateFlag = false
+		it.calculateFlag = false
+	}
 
 	return it.calculateAmount
 }
@@ -504,7 +508,14 @@ func (it *DefaultCheckout) Submit() (interface{}, error) {
 	checkoutOrder.Set("shipping_address", shippingAddress)
 
 	checkoutOrder.Set("cart_id", currentCart.GetID())
-	checkoutOrder.Set("payment_method", it.GetPaymentMethod().GetCode())
+
+	paymentMethod := it.GetPaymentMethod()
+
+	if !paymentMethod.IsAllowed(it) {
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "7a5490ee-daa3-42b4-a84a-dade12d103e8", "Payment method not allowed")
+	}
+
+	checkoutOrder.Set("payment_method", paymentMethod.GetCode())
 	checkoutOrder.Set("shipping_method", it.GetShippingMethod().GetCode()+"/"+it.GetShippingRate().Code)
 
 	discounts := it.GetDiscounts()
@@ -557,12 +568,12 @@ func (it *DefaultCheckout) Submit() (interface{}, error) {
 
 	// trying to process payment
 	//--------------------------
-	if it.GetGrandTotal() > 0 {
+	if checkoutOrder.GetGrandTotal() > 0 {
 		paymentInfo := make(map[string]interface{})
 		paymentInfo["sessionID"] = it.GetSession().GetID()
 		paymentInfo["cc"] = it.GetInfo("cc")
 
-		result, err := it.GetPaymentMethod().Authorize(checkoutOrder, paymentInfo)
+		result, err := paymentMethod.Authorize(checkoutOrder, paymentInfo)
 		if err != nil {
 			checkoutOrder.SetStatus(order.ConstOrderStatusNew)
 			return nil, env.ErrorDispatch(err)

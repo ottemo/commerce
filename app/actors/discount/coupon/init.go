@@ -1,4 +1,4 @@
-package discount
+package coupon
 
 import (
 	"github.com/ottemo/foundation/api"
