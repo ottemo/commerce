@@ -194,7 +194,6 @@ func (it *DefaultCheckout) GetTaxes() (float64, []checkout.StructTaxRate) {
 			}
 		}
 
-		it.Taxes = it.Taxes
 		it.taxesCalculateFlag = false
 	} else {
 		for _, taxRate := range it.Taxes {

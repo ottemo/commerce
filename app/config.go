@@ -3,6 +3,7 @@ package app
 import (
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/foundation/utils"
 )
 
 // setupConfig setups package configuration values for a system
@@ -352,6 +353,31 @@ func setupConfig() error {
 		Description: "sending mail signature",
 		Image:       "",
 	}, nil)
+
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	// Hide levels
+	emailValidator := func(newValue interface{}) (interface{}, error) {
+		newEmail := utils.InterfaceToString(newValue)
+		if newEmail == "" {
+			err := env.ErrorNew(ConstErrorModule, env.ConstErrorLevelStartStop, "d5abe68b-5bde-4b14-a3a7-b89507c14597", "recipient e-mail should not be blank")
+			return "support@ottemo.io", err
+		}
+
+		return newEmail, nil
+	}
+	err = config.RegisterItem(env.StructConfigItem{
+		Path:        ConstConfigPathContactUsRecipient,
+		Value:       "support@ottemo.io",
+		Type:        utils.DataTypeWPrecision(env.ConstConfigTypeVarchar, 255),
+		Editor:      "text",
+		Options:     nil,
+		Label:       "Contact Us Recipient",
+		Description: "email of contact form recipient",
+		Image:       "",
+	}, emailValidator)
 
 	if err != nil {
 		return env.ErrorDispatch(err)
