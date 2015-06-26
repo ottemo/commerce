@@ -107,8 +107,8 @@ func APIGetVisits(context api.InterfaceApplicationContext) (interface{}, error) 
 
 	// get a hours pasted for local day and count for them and for previous day
 	todayTo := time.Now().Truncate(time.Hour)
-	todayFrom, _ := utils.MakeUTCTime(todayTo, timeZone)
-	todayHoursPast := todayFrom.Sub(todayFrom.Truncate(ConstTimeDay))
+	todayFrom, _ := utils.MakeUTCOffsetTime(todayTo, timeZone)
+	todayHoursPast := time.Duration(todayFrom.Hour()) * time.Hour
 
 	todayFrom = todayTo.Add(-todayHoursPast)
 	yesterdayFrom := todayFrom.AddDate(0, 0, -1)
@@ -122,14 +122,14 @@ func APIGetVisits(context api.InterfaceApplicationContext) (interface{}, error) 
 	todayVisits := todayStats.Visit
 	todayTotalVisits := todayStats.TotalVisits
 
-	yesterdayStats, err := GetRangeStats(yesterdayFrom, todayFrom)
+	yesterdayStats, err := GetRangeStats(yesterdayFrom, todayFrom.Add(-time.Nanosecond))
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 	yesterdayVisits := yesterdayStats.Visit
 	yesterdayTotalVisits := yesterdayStats.TotalVisits
 
-	weekStats, err := GetRangeStats(weekFrom, yesterdayFrom)
+	weekStats, err := GetRangeStats(weekFrom, yesterdayFrom.Add(-time.Nanosecond))
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -223,7 +223,7 @@ func APIGetVisitsDetails(context api.InterfaceApplicationContext) (interface{}, 
 		if value, present := result[timestamp]; present {
 			result[timestamp] = value + visits
 		} else {
-			env.LogError(env.ErrorNew(ConstErrorModule, ConstErrorLevel, "80666c27-e67a-420d-9625-004122523451", "error in calculating detail visits hours"))
+			env.LogError(env.ErrorNew(ConstErrorModule, ConstErrorLevel, "80666c27-e67a-420d-9625-004122523451", timestamp+" - not present in result"))
 		}
 	}
 
@@ -242,8 +242,8 @@ func APIGetConversion(context api.InterfaceApplicationContext) (interface{}, err
 
 	// get a hours pasted for local day and count only for them
 	todayTo := time.Now().Truncate(time.Hour).Add(time.Hour)
-	todayFrom, _ := utils.MakeUTCTime(todayTo, timeZone)
-	todayHoursPast := todayFrom.Sub(todayFrom.Truncate(ConstTimeDay))
+	todayFrom, _ := utils.MakeUTCOffsetTime(todayTo, timeZone)
+	todayHoursPast := time.Duration(todayFrom.Hour()) * time.Hour
 	todayFrom = todayTo.Add(-todayHoursPast)
 
 	visits := 0
@@ -282,10 +282,11 @@ func APIGetSales(context api.InterfaceApplicationContext) (interface{}, error) {
 	timeZone := utils.InterfaceToString(env.ConfigGetValue(app.ConstConfigPathStoreTimeZone))
 
 	// get a hours pasted for local day and count for them and for previous day
-	todayTo := time.Now().Truncate(time.Hour).Add(time.Hour)
-	todayFrom, _ := utils.MakeUTCTime(todayTo, timeZone)
-	todayHoursPast := todayFrom.Sub(todayFrom.Truncate(ConstTimeDay))
+	todayTo := time.Now().Truncate(time.Hour)
+	todayFrom, _ := utils.MakeUTCOffsetTime(todayTo, timeZone)
+	todayHoursPast := time.Duration(todayFrom.Hour()) * time.Hour
 
+	todayFrom.Hour()
 	todayFrom = todayTo.Add(-todayHoursPast)
 	yesterdayFrom := todayFrom.AddDate(0, 0, -1)
 	weekFrom := yesterdayFrom.AddDate(0, 0, -5)
@@ -298,14 +299,14 @@ func APIGetSales(context api.InterfaceApplicationContext) (interface{}, error) {
 	todaySales := todayStats.Sales
 	todaySalesAmount := todayStats.SalesAmount
 
-	yesterdayStats, err := GetRangeStats(yesterdayFrom, todayFrom)
+	yesterdayStats, err := GetRangeStats(yesterdayFrom, todayFrom.Add(-time.Nanosecond))
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 	yesterdaySales := yesterdayStats.Sales
 	yesterdaySalesAmount := yesterdayStats.SalesAmount
 
-	weekStats, err := GetRangeStats(weekFrom, yesterdayFrom)
+	weekStats, err := GetRangeStats(weekFrom, yesterdayFrom.Add(-time.Nanosecond))
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -368,7 +369,7 @@ func APIGetSalesDetails(context api.InterfaceApplicationContext) (interface{}, e
 	}
 	dateFrom = dateFrom.Truncate(time.Hour)
 	dateTo = dateTo.Truncate(time.Hour)
-
+	fmt.Println("Detail sales for range after: ", dateFrom, dateTo)
 	// set database request settings
 	// making database request
 	visitorInfoCollection, err := db.GetCollection(ConstCollectionNameRTSVisitors)
@@ -399,7 +400,7 @@ func APIGetSalesDetails(context api.InterfaceApplicationContext) (interface{}, e
 		if value, present := result[timestamp]; present {
 			result[timestamp] = value + subtotal
 		} else {
-			env.LogError(env.ErrorNew(ConstErrorModule, ConstErrorLevel, "e8d31584-2ef2-4f00-9510-4913b4b1d6e6", "error in calculating detail sales hours"))
+			env.LogError(env.ErrorNew(ConstErrorModule, ConstErrorLevel, "e8d31584-2ef2-4f00-9510-4913b4b1d6e6", timestamp+" - not present in result"))
 		}
 	}
 
@@ -420,8 +421,8 @@ func APIGetBestsellers(context api.InterfaceApplicationContext) (interface{}, er
 
 	// get a hours pasted for local day and base from it
 	todayTo := time.Now().Truncate(time.Hour).Add(time.Hour) // last hour of current day
-	todayFrom, _ := utils.MakeUTCTime(todayTo, timeZone)
-	todayHoursPast := todayFrom.Sub(todayFrom.Truncate(ConstTimeDay))
+	todayFrom, _ := utils.MakeUTCOffsetTime(todayTo, timeZone)
+	todayHoursPast := time.Duration(todayFrom.Hour()) * time.Hour
 
 	todayFrom = todayTo.Add(-todayHoursPast) // beginning of current day
 

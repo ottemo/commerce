@@ -1,4 +1,4 @@
-package discount
+package coupon
 
 import (
 	"encoding/csv"

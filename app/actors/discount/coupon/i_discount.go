@@ -1,4 +1,4 @@
-package discount
+package coupon
 
 import (
 	"time"
@@ -55,7 +55,7 @@ func (it *DefaultDiscount) CalculateDiscount(checkoutInstance checkout.Interface
 
 			priorityValue := utils.InterfaceToFloat64(env.ConfigGetValue(ConstConfigPathDiscountApplyPriority))
 
-			// applying discount codes
+			// applying coupon codes
 			for appliedCodesIdx, discountCode := range appliedCodes {
 				if discountCoupon, ok := discountCodes[discountCode]; ok {
 
