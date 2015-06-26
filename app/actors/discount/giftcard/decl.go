@@ -10,8 +10,9 @@ const (
 	ConstSessionKeyAppliedGiftCardCodes = "applied_giftcard_codes"
 	ConstCollectionNameGiftCard         = "gift_card"
 
-	ConstConfigPathGiftEmail   = "general.discounts.giftCard_email"
-	ConstConfigPathGiftCardSKU = "general.discounts.giftCard_SKU_code"
+	ConstConfigPathGiftEmailTemplate = "general.discounts.giftCard_email"
+	ConstConfigPathGiftEmailSubject  = "general.discounts.giftCard_email_subject"
+	ConstConfigPathGiftCardSKU       = "general.discounts.giftCard_SKU_code"
 
 	ConstConfigPathGiftCardApplyPriority = "general.discounts.giftCard_apply_priority"
 

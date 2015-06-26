@@ -27,6 +27,21 @@ func setupConfig() error {
 	}
 
 	err = config.RegisterItem(env.StructConfigItem{
+		Path:        ConstConfigPathGiftEmailSubject,
+		Value:       "Your giftcard has arrived",
+		Type:        env.ConstConfigTypeVarchar,
+		Editor:      "line_text",
+		Options:     nil,
+		Label:       "Email subject",
+		Description: "This value will be in email subject",
+		Image:       "",
+	}, nil)
+
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	err = config.RegisterItem(env.StructConfigItem{
 		Path:        ConstConfigPathGiftCardApplyPriority,
 		Value:       3.10,
 		Type:        env.ConstConfigTypeFloat,
@@ -42,14 +57,14 @@ func setupConfig() error {
 	}
 
 	err = config.RegisterItem(env.StructConfigItem{
-		Path: ConstConfigPathGiftEmail,
+		Path: ConstConfigPathGiftEmailTemplate,
 		Value: `Dear friend, you has received these gifts
 		from {{.Visitor.name}}
 <br />
 You are free to use this gift card's at any time
 <br />
 <h3>Gift cards</h3><br />
-{{.GiftCards}}`,
+Gift code: {{.GiftCard.Code}}, amount: ${{.GiftCard.Amount}}`,
 		Type:        env.ConstConfigTypeText,
 		Editor:      "multiline_text",
 		Options:     "",
