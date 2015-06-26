@@ -85,9 +85,9 @@ func restLogout(context api.InterfaceApplicationContext) (interface{}, error) {
 	return "ok", nil
 }
 
-// restContactUs creates a new email message
+// restContactUs creates a new email message via a POST from the Contact Us form
 //   - following attributes are required:
-//   - "emailAddress", "name", "tel"
+//   - "formLocation"
 func restContactUs(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	requestData, err := api.GetRequestContentAsMap(context)
@@ -97,7 +97,7 @@ func restContactUs(context api.InterfaceApplicationContext) (interface{}, error)
 
 	// formLocation is the only required parameter
 	if !utils.KeysInMapAndNotBlank(requestData, "formLocation") {
-		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "fee28a56-adb1-44b9-a0e2-1c9be6bd6fdb", "A required parameter is missing: 'formLocation'")
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "e47f0671-0e19-4bbd-a771-ae4fac56a714", "A required parameter is missing: 'formLocation'")
 	}
 
 	// remove form location from map

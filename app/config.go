@@ -366,7 +366,7 @@ func setupConfig() error {
 			return "support+ContactUs@ottemo.io", err
 		}
 		if !utils.ValidEmailAddress(newEmail) {
-			err := env.ErrorNew(ConstErrorModule, env.ConstErrorLevelStartStop, "720C5B82-4AA9-405B-B52D-B94D1F31E49D", "recipient e-mail is not in a valid format")
+			err := env.ErrorNew(ConstErrorModule, env.ConstErrorLevelStartStop, "720c5b82-4aa9-405b-b52d-b94d1f31e49d", "recipient e-mail is not in a valid format")
 			return "support+ContactUs@ottemo.io", err
 
 		}
