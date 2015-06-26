@@ -25,8 +25,6 @@ import (
 	_ "github.com/ottemo/foundation/app/actors/order"    // Purchase Order module
 	_ "github.com/ottemo/foundation/app/actors/stock"    // Stock Management module
 
-	_ "github.com/ottemo/foundation/app/actors/trustpilot" // TrustPilot module
-
 	_ "github.com/ottemo/foundation/app/actors/payment/authorizenet" // Authorize.Net payment method
 	_ "github.com/ottemo/foundation/app/actors/payment/checkmo"      // "Check Money Order" payment method
 	_ "github.com/ottemo/foundation/app/actors/payment/paypal"       // PayPal payment method
@@ -35,12 +33,13 @@ import (
 	_ "github.com/ottemo/foundation/app/actors/shipping/flatrate" // "Flat Rate" shipping method
 	_ "github.com/ottemo/foundation/app/actors/shipping/usps"     // USPS shipping method
 
-	_ "github.com/ottemo/foundation/app/actors/giftcard" // Gift Cards
-
-	_ "github.com/ottemo/foundation/app/actors/discount" // Coupon based discounts
-	_ "github.com/ottemo/foundation/app/actors/grouping" // Grouped Products module
-	_ "github.com/ottemo/foundation/app/actors/tax"      // Tax Rates
+	_ "github.com/ottemo/foundation/app/actors/discount/coupon"   // Coupon based discounts
+	_ "github.com/ottemo/foundation/app/actors/discount/giftcard" // Gift Cards
+	_ "github.com/ottemo/foundation/app/actors/tax"               // Tax Rates
 
 	_ "github.com/ottemo/foundation/app/actors/rts" // Real Time Statistics service
 	_ "github.com/ottemo/foundation/app/actors/seo" // URL Rewrite support
+
+	_ "github.com/ottemo/foundation/app/actors/other/grouping"   // Grouped Products module
+	_ "github.com/ottemo/foundation/app/actors/other/trustpilot" // TrustPilot module
 )

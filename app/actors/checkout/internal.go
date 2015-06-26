@@ -6,8 +6,8 @@ import (
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
 
-	"github.com/ottemo/foundation/app/actors/discount"
-	"github.com/ottemo/foundation/app/actors/giftcard"
+	"github.com/ottemo/foundation/app/actors/discount/coupon"
+	"github.com/ottemo/foundation/app/actors/discount/giftcard"
 
 	"github.com/ottemo/foundation/app/models/cart"
 	"github.com/ottemo/foundation/app/models/checkout"
@@ -53,6 +53,15 @@ func (it *DefaultCheckout) SendOrderConfirmationMail() error {
 				"sku":     item.GetSku(),
 				"qty":     item.GetQty(),
 				"price":   item.GetPrice()})
+		}
+
+		// convert date of order creation to store time zone
+		timeZone := utils.InterfaceToString(env.ConfigGetValue(app.ConstConfigPathStoreTimeZone))
+		if date, present := orderMap["created_at"]; present {
+			convertedDate, _ := utils.MakeUTCOffsetTime(utils.InterfaceToTime(date), timeZone)
+			if !utils.IsZeroTime(convertedDate) {
+				orderMap["created_at"] = convertedDate
+			}
 		}
 
 		orderMap["items"] = orderItems
@@ -113,7 +122,7 @@ func (it *DefaultCheckout) CheckoutSuccess(checkoutOrder order.InterfaceOrder, s
 
 	session.Set(cart.ConstSessionKeyCurrentCart, nil)
 	session.Set(checkout.ConstSessionKeyCurrentCheckout, nil)
-	session.Set(discount.ConstSessionKeyAppliedDiscountCodes, make([]string, 0))
+	session.Set(coupon.ConstSessionKeyAppliedDiscountCodes, make([]string, 0))
 	session.Set(giftcard.ConstSessionKeyAppliedGiftCardCodes, make([]string, 0))
 
 	// sending notifications

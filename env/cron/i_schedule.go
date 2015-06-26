@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// Execute  - execute a sheduled task
+// Execute  - execute a scheduled task
 func (it *DefaultCronSchedule) Execute() {
 	currentTime := time.Now()
 
@@ -29,15 +29,13 @@ func (it *DefaultCronSchedule) Execute() {
 
 		if it.Repeat {
 			it.Execute()
-		} else {
-
 		}
 	} else {
 		it.Execute()
 	}
 }
 
-// Enable  - enable shedule
+// Enable  - enable schedule
 func (it *DefaultCronSchedule) Enable() error {
 	found := false
 	for _, item := range it.scheduler.schedules {

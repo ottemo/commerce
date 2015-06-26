@@ -247,6 +247,7 @@ func (it *DefaultCheckout) GetShippingAmount() float64 {
 }
 
 // CalculateAmount do a calculation of all amounts for checkout
+// TODO: make function use calculateTarget as a limit for priority to where it need to be calculated
 func (it *DefaultCheckout) CalculateAmount(calculateTarget float64) float64 {
 
 	if !it.calculateFlag {
@@ -321,6 +322,8 @@ func (it *DefaultCheckout) CalculateAmount(calculateTarget float64) float64 {
 							amount = it.calculateAmount
 						}
 
+						// round amount add it to calculating amounts and set to discount amount
+						amount = utils.RoundPrice(amount)
 						discounts[index].Amount = amount
 						it.discountsAmount += amount
 						it.calculateAmount -= amount
@@ -343,8 +346,9 @@ func (it *DefaultCheckout) CalculateAmount(calculateTarget float64) float64 {
 							amount = it.calculateAmount * tax.Amount / 100
 						}
 
+						// round amount add it to calculating amounts and set to taxes amount
+						amount = utils.RoundPrice(amount)
 						taxes[index].Amount = amount
-
 						it.taxesAmount += amount
 						it.calculateAmount += amount
 					}
