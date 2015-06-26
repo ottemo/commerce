@@ -11,6 +11,9 @@ const (
 	ConstSessionKeyAppliedDiscountCodes = "applied_discount_codes"
 	ConstCollectionNameCouponDiscounts  = "coupon_discounts"
 
+	ConstConfigPathDiscounts             = "general.discounts"
+	ConstConfigPathDiscountApplyPriority = "general.discounts.discount_apply_priority"
+
 	ConstErrorModule = "discount"
 	ConstErrorLevel  = env.ConstErrorLevelActor
 )

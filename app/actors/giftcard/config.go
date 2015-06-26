@@ -12,13 +12,13 @@ func setupConfig() error {
 	}
 
 	err := config.RegisterItem(env.StructConfigItem{
-		Path:        ConstConfigPathDiscounts,
-		Value:       nil,
-		Type:        env.ConstConfigTypeGroup,
-		Editor:      "",
+		Path:        ConstConfigPathGiftCardSKU,
+		Value:       "gift-card",
+		Type:        env.ConstConfigTypeVarchar,
+		Editor:      "line_text",
 		Options:     nil,
-		Label:       "Discounts",
-		Description: "Discounts related options",
+		Label:       "Gift cards SKU identifier",
+		Description: "This value will be checked on presense in product SKU and it will be a flag for gift card operations",
 		Image:       "",
 	}, nil)
 
@@ -27,13 +27,13 @@ func setupConfig() error {
 	}
 
 	err = config.RegisterItem(env.StructConfigItem{
-		Path:        ConstConfigPathGiftCardSKU,
-		Value:       "gift-card",
-		Type:        env.ConstConfigTypeVarchar,
+		Path:        ConstConfigPathGiftCardApplyPriority,
+		Value:       3.10,
+		Type:        env.ConstConfigTypeFloat,
 		Editor:      "line_text",
 		Options:     nil,
-		Label:       "Gift cards SKU identifier",
-		Description: "This value will be checked on presense in product SKU and it will be a flag for gift card operations",
+		Label:       "Gift cards calculating position",
+		Description: "This value used for using position to calculate it's possible applicable amount (Subtotal - 1, Shipping - 2, Grand total - 3)",
 		Image:       "",
 	}, nil)
 

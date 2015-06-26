@@ -37,6 +37,10 @@ const (
 	ConstPaymentTypePost       = "post"
 	ConstPaymentTypePostCC     = "post_cc"
 
+	ConstCalculateTargetSubtotal   = 1.0
+	ConstCalculateTargetShipping   = 2.0
+	ConstCalculateTargetGrandTotal = 3.0
+
 	ConstSessionKeyCurrentCheckout = "Checkout"
 
 	ConstErrorModule = "checkout"
