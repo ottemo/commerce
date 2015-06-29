@@ -164,6 +164,9 @@ func restStatusInfo(context api.InterfaceApplicationContext) (interface{}, error
 	if buildBranch != "" {
 		result["Ottemo.BuildBranch"] = buildBranch
 	}
+	if buildHash != "" {
+		result["Ottemo.BuildHash"] = buildHash
+	}
 
 	result["GO"] = runtime.Version()
 	result["NumGoroutine"] = runtime.NumGoroutine()
