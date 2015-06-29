@@ -43,6 +43,8 @@ const (
 	ConstConfigPathMailUser      = "general.mail.user"
 	ConstConfigPathMailPassword  = "general.mail.password"
 
+	ConstConfigPathContactUsRecipient = "general.app.recipient"
+
 	ConstErrorModule = "app"
 	ConstErrorLevel  = env.ConstErrorLevelService
 

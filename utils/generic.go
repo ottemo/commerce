@@ -2,6 +2,7 @@ package utils
 
 import (
 	"math"
+	"regexp"
 	"strings"
 )
 
@@ -247,4 +248,12 @@ func EscapeRegexSpecials(value string) string {
 	}
 
 	return value
+}
+
+// ValidEmailAddress takes an email address as string compares it agasint a regular expression
+// - returns true if email address is in a valid format
+// - returns false if email address is not in a valid format
+func ValidEmailAddress(email string) bool {
+	re := regexp.MustCompile(`^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,4}$`)
+	return re.MatchString(email)
 }
