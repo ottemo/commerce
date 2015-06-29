@@ -295,7 +295,7 @@ func (it *DefaultProduct) GetAttributesInfo() []models.StructAttributeInfo {
 			Editors:    "numeric",
 			Options:    "",
 			Default:    "",
-			Validators: "numeric positive",
+			Validators: "",
 		},
 		models.StructAttributeInfo{
 			Model:      product.ConstModelNameProduct,
