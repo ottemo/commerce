@@ -58,6 +58,7 @@ var (
 	buildDate   string
 	buildNumber string
 	buildBranch string
+	buildHash   string
 
 	startTime = time.Now().UTC().Truncate(time.Second)
 )
