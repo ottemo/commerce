@@ -507,9 +507,10 @@ func (it *DefaultCheckout) Submit() (interface{}, error) {
 	shippingAddress := it.GetShippingAddress().ToHashMap()
 	checkoutOrder.Set("shipping_address", shippingAddress)
 
-	if shippingNote := utils.InterfaceToString(it.GetInfo("shipping_note")); shippingNote != "" {
+	// this is a hack until we decide all customers want notes on addresses - jwv 20150630
+	if notes := utils.InterfaceToString(it.GetInfo("notes")); notes != "" {
 		shippingInfo := utils.InterfaceToMap(checkoutOrder.Get("shipping_info"))
-		shippingInfo["shipping_note"] = shippingNote
+		shippingInfo["notes"] = notes
 		checkoutOrder.Set("shipping_info", shippingInfo)
 	}
 

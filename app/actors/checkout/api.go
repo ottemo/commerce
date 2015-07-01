@@ -99,8 +99,8 @@ func APIGetCheckout(context api.InterfaceApplicationContext) (interface{}, error
 	if shippingAddress := currentCheckout.GetShippingAddress(); shippingAddress != nil {
 		shippingAddressMap := shippingAddress.ToHashMap()
 
-		if shippingNote := utils.InterfaceToString(currentCheckout.GetInfo("shipping_note")); shippingNote != "" {
-			shippingAddressMap["shipping_note"] = shippingNote
+		if notes := utils.InterfaceToString(currentCheckout.GetInfo("notes")); notes != "" {
+			shippingAddressMap["notes"] = notes
 		}
 
 		result["shipping_address"] = shippingAddressMap
@@ -308,8 +308,8 @@ func APISetShippingAddress(context api.InterfaceApplicationContext) (interface{}
 
 	requestContents, _ := api.GetRequestContentAsMap(context)
 
-	if shippingNote, present := requestContents["shipping_note"]; present {
-		currentCheckout.SetInfo("shipping_note", shippingNote)
+	if notes, present := requestContents["notes"]; present {
+		currentCheckout.SetInfo("notes", notes)
 	}
 
 	// updating session

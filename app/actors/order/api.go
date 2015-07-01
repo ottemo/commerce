@@ -109,8 +109,8 @@ func APIGetOrder(context api.InterfaceApplicationContext) (interface{}, error) {
 	}
 
 	result := orderModel.ToHashMap()
-	if shippingNote, present := utils.InterfaceToMap(result["shipping_info"])["shipping_note"]; present {
-		utils.InterfaceToMap(result["shipping_address"])["shipping_note"] = shippingNote
+	if notes, present := utils.InterfaceToMap(result["shipping_info"])["notes"]; present {
+		utils.InterfaceToMap(result["shipping_address"])["notes"] = notes
 	}
 
 	result["items"] = orderModel.GetItems()
