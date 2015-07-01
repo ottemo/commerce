@@ -5,6 +5,7 @@ import (
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/order"
 	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/foundation/utils"
 )
 
 // setupAPI setups package related API endpoint routines
@@ -108,6 +109,10 @@ func APIGetOrder(context api.InterfaceApplicationContext) (interface{}, error) {
 	}
 
 	result := orderModel.ToHashMap()
+	if shippingNote, present := utils.InterfaceToMap(result["shipping_info"])["shipping_note"]; present {
+		utils.InterfaceToMap(result["shipping_address"])["shipping_note"] = shippingNote
+	}
+
 	result["items"] = orderModel.GetItems()
 	return result, nil
 }

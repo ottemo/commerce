@@ -507,6 +507,12 @@ func (it *DefaultCheckout) Submit() (interface{}, error) {
 	shippingAddress := it.GetShippingAddress().ToHashMap()
 	checkoutOrder.Set("shipping_address", shippingAddress)
 
+	if shippingNote := utils.InterfaceToString(it.GetInfo("shipping_note")); shippingNote != "" {
+		shippingInfo := utils.InterfaceToMap(checkoutOrder.Get("shipping_info"))
+		shippingInfo["shipping_note"] = shippingNote
+		checkoutOrder.Set("shipping_info", shippingInfo)
+	}
+
 	checkoutOrder.Set("cart_id", currentCart.GetID())
 
 	paymentMethod := it.GetPaymentMethod()

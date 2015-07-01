@@ -97,7 +97,13 @@ func APIGetCheckout(context api.InterfaceApplicationContext) (interface{}, error
 	}
 
 	if shippingAddress := currentCheckout.GetShippingAddress(); shippingAddress != nil {
-		result["shipping_address"] = shippingAddress.ToHashMap()
+		shippingAddressMap := shippingAddress.ToHashMap()
+
+		if shippingNote := utils.InterfaceToString(currentCheckout.GetInfo("shipping_note")); shippingNote != "" {
+			shippingAddressMap["shipping_note"] = shippingNote
+		}
+
+		result["shipping_address"] = shippingAddressMap
 	}
 
 	if paymentMethod := currentCheckout.GetPaymentMethod(); paymentMethod != nil {
@@ -298,6 +304,12 @@ func APISetShippingAddress(context api.InterfaceApplicationContext) (interface{}
 	err = currentCheckout.SetShippingAddress(address)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
+	}
+
+	requestContents, _ := api.GetRequestContentAsMap(context)
+
+	if shippingNote, present := requestContents["shipping_note"]; present {
+		currentCheckout.SetInfo("shipping_note", shippingNote)
 	}
 
 	// updating session
