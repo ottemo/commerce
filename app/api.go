@@ -149,7 +149,7 @@ func restStatusInfo(context api.InterfaceApplicationContext) (interface{}, error
 		result["Ottemo.DBEngine"] = dbEngine.GetName()
 	}
 	result["Ottemo.VersionMajor"] = ConstVersionMajor
-	result["Ottemo.VersionMainor"] = ConstVersionMinor
+	result["Ottemo.VersionMinor"] = ConstVersionMinor
 	result["Ottemo.BuildTags"] = buildTags
 
 	result["StartTime"] = startTime
