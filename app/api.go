@@ -15,7 +15,7 @@ import (
 func setupAPI() error {
 	var err error
 
-	err = api.GetRestService().RegisterAPI("app/contact", api.ConstRESTOperationCreate, restContactUs)
+	err = api.GetRestService().RegisterAPI("app/email", api.ConstRESTOperationCreate, restSendEmail)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -96,7 +96,7 @@ func restLogout(context api.InterfaceApplicationContext) (interface{}, error) {
 // restContactUs creates a new email message via a POST from the Contact Us form
 //   - following attributes are required:
 //   - "formLocation"
-func restContactUs(context api.InterfaceApplicationContext) (interface{}, error) {
+func restSendEmail(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	requestData, err := api.GetRequestContentAsMap(context)
 	if err != nil {
