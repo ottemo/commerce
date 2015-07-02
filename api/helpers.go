@@ -51,9 +51,9 @@ func StartSession(context InterfaceApplicationContext) (InterfaceSession, error)
 			}
 
 			// Session Cookie Declaration
-			// - expires in 30 days
+			// - expires in 1 year
 			// - Domain defaults to the full subdomain path
-			cookieExpires := time.Now().Add(30 * 24 * time.Hour)
+			cookieExpires := time.Now().Add(365 * 24 * time.Hour)
 			cookie = &http.Cookie{
 				Name:     ConstSessionCookieName,
 				Value:    result.GetID(),

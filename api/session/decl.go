@@ -12,9 +12,9 @@ import (
 
 // Package global constants
 const (
-	ConstSessionLifeTime          = 2628000 // session idle period before expire (in sec); set to 1 month
-	ConstSessionUpdateTime        = 10      // '0' - immediate mode, '>0' - update timer mode (in sec)
-	ConstSessionKeepInMemoryItems = 1000    // limits application sessions array for "immediate mode", '0' - unlimited
+	ConstSessionLifeTime          = 26280000 // session idle period before expire (in sec); set to 365 days
+	ConstSessionUpdateTime        = 10       // '0' - immediate mode, '>0' - update timer mode (in sec)
+	ConstSessionKeepInMemoryItems = 1000     // limits application sessions array for "immediate mode", '0' - unlimited
 
 	ConstErrorModule = "api/session"
 	ConstErrorLevel  = env.ConstErrorLevelService
