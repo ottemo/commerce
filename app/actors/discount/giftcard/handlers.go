@@ -294,10 +294,10 @@ func checkoutSuccessHandler(event string, eventData map[string]interface{}) bool
 		buyerInfo["name"] = orderPlaced.Get("customer_name")
 
 		customInfo := map[string]interface{}{
-			"Url": utils.InterfaceToString(env.ConfigGetValue(app.ConstConfigPathStorefrontURL)),
+			"Url": app.GetStorefrontURL(""),
 		}
 
-		giftCardEmailSubject := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathGiftEmailTemplate))
+		giftCardEmailSubject := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathGiftEmailSubject))
 		if len(giftCardEmailSubject) < 2 {
 			giftCardEmailSubject = "Your giftcard has arrived"
 		}
