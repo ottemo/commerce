@@ -327,14 +327,14 @@ func (it *PayFlowAPI) AuthorizeZeroAmount(orderInstance order.InterfaceOrder, pa
 	}
 
 	// utils.InterfaceToString(result["transactionID"])
-	// if status is ok return result with valid values
+	// if status is ok and card is Verified - return result with valid values
 	if transactionID != "" {
-		if responseMessage == "Verified" {
+		if responseResult == "0" && responseMessage[0:8] == "Verified" {
 			return result, nil
 		}
 
 		// On review of by Fraud Service -- possible to continue
-		if utils.InterfaceToString(responseResult) == "126" {
+		if responseResult == "126" {
 			env.Log("paypal.log", env.ConstLogPrefixInfo, "ZERO AMOUNT ATHORIZE TRANSACTION WITH COMMENT: "+
 				"MESSAGE - "+responseMessage+
 				"TRANSACTIONID - "+transactionID)
@@ -344,7 +344,7 @@ func (it *PayFlowAPI) AuthorizeZeroAmount(orderInstance order.InterfaceOrder, pa
 	}
 
 	env.Log("paypal.log", env.ConstLogPrefixInfo, "ZERO AMOUNT ATHORIZE FAIL: "+
-		"MESSAGE - "+responseMessage+
+		"MESSAGE - "+responseMessage+" "+
 		"RESULT - "+responseResult)
 
 	return result, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "a050604a-b9e9-44cc-a4d1-e5c0bfab5c69", "Payment error: "+responseMessage)
