@@ -10,6 +10,7 @@ import (
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/product"
 	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/foundation/media"
 	"github.com/ottemo/foundation/utils"
 )
 
@@ -309,7 +310,19 @@ func APIGetProduct(context api.InterfaceApplicationContext) (interface{}, error)
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "153673ac-1008-40b5-ada9-2286ad3f02b0", "product not available")
 	}
 
-	return productModel.ToHashMap(), nil
+	mediaStorage, err := media.GetMediaStorage()
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	result := productModel.ToHashMap()
+
+	result["images"], err = mediaStorage.GetAllSizes(product.ConstModelNameProduct, productModel.GetID(), ConstProductMediaTypeImage)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	return result, nil
 }
 
 // APICreateProduct creates a new product
@@ -655,7 +668,38 @@ func APIListProducts(context api.InterfaceApplicationContext) (interface{}, erro
 	// extra parameter handle
 	models.ApplyExtraAttributes(context, productCollectionModel)
 
-	return productCollectionModel.List()
+	listItems, err := productCollectionModel.List()
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	mediaStorage, err := media.GetMediaStorage()
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	var result []map[string]interface{}
+
+	for _, listItem := range listItems {
+
+		itemImages, err := mediaStorage.GetAllSizes(product.ConstModelNameProduct, listItem.ID, ConstProductMediaTypeImage)
+		if err != nil {
+			return nil, env.ErrorDispatch(err)
+		}
+
+		item := map[string]interface{}{
+			"ID":     listItem.ID,
+			"Name":   listItem.Name,
+			"Desc":   listItem.Desc,
+			"Extra":  listItem.Extra,
+			"Image":  listItem.Image,
+			"Images": itemImages,
+		}
+
+		result = append(result, item)
+	}
+
+	return result, nil
 }
 
 // APIListRelatedProducts returns related products list for a given product
@@ -803,11 +847,21 @@ func APIListShopProducts(context api.InterfaceApplicationContext) (interface{}, 
 		productsCollection.GetDBCollection().AddFilter("enabled", "=", true)
 	}
 
+	mediaStorage, err := media.GetMediaStorage()
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
 	// preparing product information
 	var result []map[string]interface{}
 
 	for _, productModel := range productsCollection.ListProducts() {
 		productInfo := productModel.ToHashMap()
+		productInfo["images"], err = mediaStorage.GetAllSizes(product.ConstModelNameProduct, productModel.GetID(), ConstProductMediaTypeImage)
+		if err != nil {
+			return nil, env.ErrorDispatch(err)
+		}
+
 		if defaultImage, present := productInfo["default_image"]; present {
 			mediaPath, err := productModel.GetMediaPath("image")
 			if defaultImage, ok := defaultImage.(string); ok && defaultImage != "" && err == nil {

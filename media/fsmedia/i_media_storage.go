@@ -235,3 +235,51 @@ func (it *FilesystemMediaStorage) ListMedia(model string, objID string, mediaTyp
 
 	return result, env.ErrorDispatch(err)
 }
+
+// GetAllSizes returns list of all size images as a path to them for given type of media an model object
+func (it *FilesystemMediaStorage) GetAllSizes(model string, objID string, mediaType string) ([]map[string]string, error) {
+
+	var result []map[string]string
+
+	dbEngine := db.GetDBEngine()
+	if dbEngine == nil {
+		return result, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "d4c8dd6e-95be-4b8f-b606-5544b633cd7c", "Can't get database engine")
+	}
+
+	dbCollection, err := dbEngine.GetCollection(ConstMediaDBCollection)
+	if err != nil {
+		return result, env.ErrorDispatch(err)
+	}
+
+	dbCollection.AddFilter("model", "=", model)
+	dbCollection.AddFilter("object", "=", objID)
+	dbCollection.AddFilter("type", "=", mediaType)
+
+	records, err := dbCollection.Load()
+	if err != nil {
+		return result, env.ErrorDispatch(err)
+	}
+
+	path, err := it.GetMediaPath(model, objID, mediaType)
+	if err != nil {
+		return result, env.ErrorDispatch(err)
+	}
+
+	for _, record := range records {
+
+		if mediaName, ok := record["media"].(string); ok {
+			resultItem := map[string]string{"base": path + mediaName}
+
+			for imageSize := range it.imageSizes {
+				it.ResizeMediaImage(model, objID, mediaName, imageSize)
+				resultItem[imageSize] = path + it.GetResizedMediaName(mediaName, imageSize)
+			}
+
+			it.ResizeMediaImage(model, objID, mediaName, it.baseSize)
+			result = append(result, resultItem)
+		}
+	}
+
+	return result, nil
+
+}

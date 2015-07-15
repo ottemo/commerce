@@ -11,6 +11,8 @@ import (
 	"github.com/ottemo/foundation/app/models/product"
 	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/foundation/media"
+	"github.com/ottemo/foundation/utils"
 )
 
 // setupAPI setups package related API endpoint routines
@@ -117,7 +119,38 @@ func APIListCategories(context api.InterfaceApplicationContext) (interface{}, er
 	// extra parameter handle
 	models.ApplyExtraAttributes(context, categoryCollectionModel)
 
-	return categoryCollectionModel.List()
+	listItems, err := categoryCollectionModel.List()
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	mediaStorage, err := media.GetMediaStorage()
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	var result []map[string]interface{}
+
+	for _, listItem := range listItems {
+
+		itemImages, err := mediaStorage.GetAllSizes(category.ConstModelNameCategory, listItem.ID, ConstCategoryMediaTypeImage)
+		if err != nil {
+			return nil, env.ErrorDispatch(err)
+		}
+
+		item := map[string]interface{}{
+			"ID":     listItem.ID,
+			"Name":   listItem.Name,
+			"Desc":   listItem.Desc,
+			"Extra":  listItem.Extra,
+			"Image":  listItem.Image,
+			"Images": itemImages,
+		}
+
+		result = append(result, item)
+	}
+
+	return result, nil
 }
 
 // APICreateCategory creates a new category
@@ -334,11 +367,21 @@ func APIGetCategoryProducts(context api.InterfaceApplicationContext) (interface{
 	// limit parameter handle
 	productsCollection.ListLimit(models.GetListLimit(context))
 
+	mediaStorage, err := media.GetMediaStorage()
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
 	// preparing product information
 	var result []map[string]interface{}
 
 	for _, productModel := range productsCollection.ListProducts() {
 		productInfo := productModel.ToHashMap()
+		productInfo["images"], err = mediaStorage.GetAllSizes(product.ConstModelNameProduct, productModel.GetID(), ConstCategoryMediaTypeImage)
+		if err != nil {
+			return nil, env.ErrorDispatch(err)
+		}
+
 		if defaultImage, present := productInfo["default_image"]; present {
 			mediaPath, err := productModel.GetMediaPath("image")
 			if defaultImage, ok := defaultImage.(string); ok && defaultImage != "" && err == nil {
@@ -443,7 +486,38 @@ func APIGetCategory(context api.InterfaceApplicationContext) (interface{}, error
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "80615e04-f43d-42a4-9482-39a5e7f8ccb7", "category is not available")
 	}
 
-	return categoryModel.ToHashMap(), nil
+	mediaStorage, err := media.GetMediaStorage()
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	result := categoryModel.ToHashMap()
+
+	// preparing product information
+	var productsResult []map[string]interface{}
+	products := utils.InterfaceToArray(result["products"])
+
+	for _, productMap := range products {
+		productInfo := utils.InterfaceToMap(productMap)
+		productID, present := productInfo["_id"]
+		if present && utils.InterfaceToString(productID) != "" {
+			productInfo["images"], err = mediaStorage.GetAllSizes(product.ConstModelNameProduct, utils.InterfaceToString(productID), ConstCategoryMediaTypeImage)
+			if err != nil {
+				return nil, env.ErrorDispatch(err)
+			}
+
+			productsResult = append(productsResult, productInfo)
+		}
+	}
+
+	result["products"] = productsResult
+
+	result["images"], err = mediaStorage.GetAllSizes(category.ConstModelNameCategory, categoryModel.GetID(), ConstCategoryMediaTypeImage)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	return result, nil
 }
 
 // APIGetCategoriesTree returns categories parent/child relation map
