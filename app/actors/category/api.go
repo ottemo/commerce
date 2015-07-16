@@ -138,6 +138,17 @@ func APIListCategories(context api.InterfaceApplicationContext) (interface{}, er
 			return nil, env.ErrorDispatch(err)
 		}
 
+		// move default image to first position in array
+		if listItem.Image != "" && len(itemImages) > 1 {
+			for index, images := range itemImages {
+				if basicImage, present := images["base"]; present && strings.Contains(basicImage, listItem.Image) {
+					itemImages = append(itemImages[:index], itemImages[index+1:]...)
+					itemImages = append([]map[string]string{images}, itemImages...)
+					break
+				}
+			}
+		}
+
 		item := map[string]interface{}{
 			"ID":     listItem.ID,
 			"Name":   listItem.Name,
@@ -377,7 +388,8 @@ func APIGetCategoryProducts(context api.InterfaceApplicationContext) (interface{
 
 	for _, productModel := range productsCollection.ListProducts() {
 		productInfo := productModel.ToHashMap()
-		productInfo["images"], err = mediaStorage.GetAllSizes(product.ConstModelNameProduct, productModel.GetID(), ConstCategoryMediaTypeImage)
+
+		itemImages, err := mediaStorage.GetAllSizes(product.ConstModelNameProduct, productModel.GetID(), ConstCategoryMediaTypeImage)
 		if err != nil {
 			return nil, env.ErrorDispatch(err)
 		}
@@ -386,8 +398,21 @@ func APIGetCategoryProducts(context api.InterfaceApplicationContext) (interface{
 			mediaPath, err := productModel.GetMediaPath("image")
 			if defaultImage, ok := defaultImage.(string); ok && defaultImage != "" && err == nil {
 				productInfo["default_image"] = mediaPath + defaultImage
+
+				// move default image to first position in array
+				if len(itemImages) > 1 {
+					for index, images := range itemImages {
+						if basicImage, present := images["base"]; present && strings.Contains(basicImage, defaultImage) {
+							itemImages = append(itemImages[:index], itemImages[index+1:]...)
+							itemImages = append([]map[string]string{images}, itemImages...)
+							break
+						}
+					}
+				}
 			}
 		}
+
+		productInfo["images"] = itemImages
 		result = append(result, productInfo)
 	}
 
@@ -501,21 +526,47 @@ func APIGetCategory(context api.InterfaceApplicationContext) (interface{}, error
 		productInfo := utils.InterfaceToMap(productMap)
 		productID, present := productInfo["_id"]
 		if present && utils.InterfaceToString(productID) != "" {
-			productInfo["images"], err = mediaStorage.GetAllSizes(product.ConstModelNameProduct, utils.InterfaceToString(productID), ConstCategoryMediaTypeImage)
+
+			itemImages, err := mediaStorage.GetAllSizes(product.ConstModelNameProduct, utils.InterfaceToString(productID), ConstCategoryMediaTypeImage)
 			if err != nil {
 				return nil, env.ErrorDispatch(err)
 			}
 
+			// move default image to first position in array
+			if defaultImage, present := productInfo["default_image"]; present && utils.InterfaceToString(defaultImage) != "" && len(itemImages) > 1 {
+				for index, images := range itemImages {
+					if basicImage, present := images["base"]; present && strings.Contains(basicImage, utils.InterfaceToString(defaultImage)) {
+						itemImages = append(itemImages[:index], itemImages[index+1:]...)
+						itemImages = append([]map[string]string{images}, itemImages...)
+						break
+					}
+				}
+			}
+
+			productInfo["images"] = itemImages
 			productsResult = append(productsResult, productInfo)
 		}
 	}
 
 	result["products"] = productsResult
 
-	result["images"], err = mediaStorage.GetAllSizes(category.ConstModelNameCategory, categoryModel.GetID(), ConstCategoryMediaTypeImage)
+	itemImages, err := mediaStorage.GetAllSizes(category.ConstModelNameCategory, categoryModel.GetID(), ConstCategoryMediaTypeImage)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
+
+	// move default image to first position in array
+	if defaultImage, present := result["image"]; present && utils.InterfaceToString(defaultImage) != "" && len(itemImages) > 1 {
+		for index, images := range itemImages {
+			if basicImage, present := images["base"]; present && strings.Contains(basicImage, utils.InterfaceToString(defaultImage)) {
+				itemImages = append(itemImages[:index], itemImages[index+1:]...)
+				itemImages = append([]map[string]string{images}, itemImages...)
+				break
+			}
+		}
+	}
+
+	result["images"] = itemImages
 
 	return result, nil
 }
