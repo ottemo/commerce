@@ -43,9 +43,9 @@ func (it *DefaultCheckout) SendOrderConfirmationMail() error {
 		for _, item := range checkoutOrder.GetItems() {
 			options := make(map[string]interface{})
 
-			for _, optionKeys := range item.GetOptions() {
+			for optionName, optionKeys := range item.GetOptions() {
 				optionMap := utils.InterfaceToMap(optionKeys)
-				options[utils.InterfaceToString(optionMap["label"])] = optionMap["value"]
+				options[optionName] = optionMap["value"]
 			}
 			orderItems = append(orderItems, map[string]interface{}{
 				"name":    item.GetName(),

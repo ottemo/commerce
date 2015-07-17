@@ -2,6 +2,7 @@ package giftcard
 
 import (
 	"github.com/ottemo/foundation/api"
+	"github.com/ottemo/foundation/app/models/visitor"
 	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
@@ -65,21 +66,23 @@ func APIGetGiftCardsList(context api.InterfaceApplicationContext) (interface{}, 
 
 	// check request context
 	//---------------------
-	if err := api.ValidateAdminRights(context); err != nil {
-		return nil, env.ErrorDispatch(err)
-	}
-
 	collection, err := db.GetCollection(ConstCollectionNameGiftCard)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	rows, err := collection.Load()
-	if err != nil {
-		return nil, env.ErrorDispatch(err)
+	visitorID := visitor.GetCurrentVisitorID(context)
+	if visitorID == "" {
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "77d16dff-95bc-433d-9876-cc36e3645489", "You are not loginned in")
 	}
 
-	return rows, nil
+	if api.ValidateAdminRights(context) != nil {
+		collection.AddFilter("visitor_id", "=", visitorID)
+	}
+
+	dbRecords, err := collection.Load()
+
+	return dbRecords, env.ErrorDispatch(err)
 }
 
 // APIApplyGiftCard applies gift card to current checkout
