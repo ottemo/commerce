@@ -537,9 +537,15 @@ func APIRegisterVisitor(context api.InterfaceApplicationContext) (interface{}, e
 		return nil, env.ErrorDispatch(err)
 	}
 
-	err = visitorModel.Invalidate()
-	if err != nil {
-		return nil, env.ErrorDispatch(err)
+	// set to false by default
+	if ConstConfigPathVerficationEmail == true {
+		err = visitorModel.Invalidate()
+		if err != nil {
+			return nil, env.ErrorDispatch(err)
+		}
+	} else {
+		// log user in, if site is not using verification emails
+		context.GetSession().Set(visitor.ConstSessionKeyVisitorID, visitorModel.GetID())
 	}
 
 	return visitorModel.ToHashMap(), nil
