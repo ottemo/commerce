@@ -72,8 +72,12 @@ func rateIsAllowed(shippingRate map[string]interface{}, checkoutObject checkout.
 				if subtotal > utils.InterfaceToFloat64(limit) {
 					return false
 				}
-			case "countries":
+			case "banned_countries":
 				if strings.Contains(utils.InterfaceToString(limit), country) {
+					return false
+				}
+			case "allowed_countries":
+				if !strings.Contains(utils.InterfaceToString(limit), country) {
 					return false
 				}
 			}
