@@ -350,7 +350,7 @@ func setupConfig() error {
 		Editor:      "text",
 		Options:     nil,
 		Label:       "From",
-		Description: "sending mail from field",
+		Description: "full name for from field",
 		Image:       "",
 	}, nil)
 
@@ -365,7 +365,23 @@ func setupConfig() error {
 		Editor:      "multiline_text",
 		Options:     nil,
 		Label:       "Signature",
-		Description: "sending mail signature",
+		Description: "mail signature",
+		Image:       "",
+	}, nil)
+
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	// Email Verfication
+	err = config.RegisterItem(env.StructConfigItem{
+		Path:        ConstConfigPathVerficationEmail,
+		Value:       false,
+		Type:        env.ConstConfigTypeBoolean,
+		Editor:      "boolean",
+		Options:     nil,
+		Label:       "Enable Email Verification",
+		Description: "send email verification link",
 		Image:       "",
 	}, nil)
 
