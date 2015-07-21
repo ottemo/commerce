@@ -799,7 +799,7 @@ func APIFacebookLogin(context api.InterfaceApplicationContext) (interface{}, err
 	}
 
 	if facebookResponse.StatusCode != 200 {
-		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "9b304209-107a-4ba5-8329-ebfaebb70ff5", "Can't use google API: "+facebookResponse.Status)
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "9b304209-107a-4ba5-8329-ebfaebb70ff5", "Can't use facebook API: "+facebookResponse.Status)
 	}
 
 	responseData, err := ioutil.ReadAll(facebookResponse.Body)
