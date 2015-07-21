@@ -2,6 +2,7 @@ package coupon
 
 import (
 	"github.com/ottemo/foundation/api"
+	"github.com/ottemo/foundation/app"
 	"github.com/ottemo/foundation/app/models/checkout"
 	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/env"
@@ -16,6 +17,8 @@ func init() {
 	db.RegisterOnDatabaseStart(setupDB)
 	env.RegisterOnConfigStart(setupConfig)
 	api.RegisterOnRestServiceStart(setupAPI)
+
+	app.OnAppStart(initListeners)
 }
 
 // setupDB prepares system database for package usage
@@ -33,6 +36,14 @@ func setupDB() error {
 	collection.AddColumn("times", db.ConstTypeInteger, false)
 	collection.AddColumn("since", db.ConstTypeDatetime, false)
 	collection.AddColumn("until", db.ConstTypeDatetime, false)
+	collection.AddColumn("limits", db.ConstTypeJSON, false)
 
+	return nil
+}
+
+// initListeners register event listeners
+func initListeners() error {
+
+	env.EventRegisterListener("checkout.success", checkoutSuccessHandler)
 	return nil
 }
