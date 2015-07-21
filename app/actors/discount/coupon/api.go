@@ -359,6 +359,11 @@ func APICreateDiscount(context api.InterfaceApplicationContext) (interface{}, er
 		valueSince, _ = utils.MakeUTCTime(utils.InterfaceToTime(value), timeZone)
 	}
 
+	valueLimits := make(map[string]interface {})
+	if value, present := postValues["limits"]; present {
+		valueLimits = utils.InterfaceToMap(value)
+	}
+
 	collection, err := db.GetCollection(ConstCollectionNameCouponDiscounts)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
@@ -383,6 +388,7 @@ func APICreateDiscount(context api.InterfaceApplicationContext) (interface{}, er
 		"times":   -1,
 		"since":   valueSince,
 		"until":   valueUntil,
+		"limits":  valueLimits,
 	}
 
 	attributes := []string{"amount", "percent", "times"}
@@ -448,7 +454,7 @@ func APIUpdateDiscount(context api.InterfaceApplicationContext) (interface{}, er
 
 	// updating other attributes
 	//--------------------------
-	attributes := []string{"amount", "percent", "times"}
+	attributes := []string{"amount", "percent", "times", "limits"}
 	for _, attribute := range attributes {
 		if value, present := postValues[attribute]; present {
 			record[attribute] = value

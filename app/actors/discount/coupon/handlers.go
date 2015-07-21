@@ -18,16 +18,16 @@ func checkoutSuccessHandler(event string, eventData map[string]interface{}) bool
 
 	// check is discounts are applied to this order if they make change of session used discounts
 	orderAppliedDiscounts := orderPlaced.GetDiscounts()
+	if len(orderAppliedDiscounts) > 0 && eventData["session"] != nil {
 
-	session, ok := eventData["session"].(api.InterfaceSession)
-	if !ok {
-		env.LogError(env.ErrorNew(ConstErrorModule, ConstErrorLevel, "55b4054a-fe1a-4b5a-a05e-65fd6c0c2103", "session can't be used"))
-		return false
-	}
+		session, ok := eventData["session"].(api.InterfaceSession)
+		if !ok {
+			env.LogError(env.ErrorNew(ConstErrorModule, ConstErrorLevel, "55b4054a-fe1a-4b5a-a05e-65fd6c0c2103", "session can't be used"))
+			return false
+		}
 
-	usedDiscounts := utils.InterfaceToStringArray(session.Get(ConstSessionKeyUsedDiscountCodes))
+		usedDiscounts := utils.InterfaceToStringArray(session.Get(ConstSessionKeyUsedDiscountCodes))
 
-	if len(orderAppliedDiscounts) > 0 {
 		for _, discount := range orderAppliedDiscounts {
 			usedDiscounts = append(usedDiscounts, discount.Code)
 		}

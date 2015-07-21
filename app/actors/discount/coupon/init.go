@@ -36,6 +36,7 @@ func setupDB() error {
 	collection.AddColumn("times", db.ConstTypeInteger, false)
 	collection.AddColumn("since", db.ConstTypeDatetime, false)
 	collection.AddColumn("until", db.ConstTypeDatetime, false)
+	collection.AddColumn("limits", db.ConstTypeJSON, false)
 
 	return nil
 }

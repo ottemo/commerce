@@ -7,6 +7,7 @@ import (
 	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
+	"strings"
 )
 
 // GetName returns name of current discount implementation
@@ -50,7 +51,8 @@ func (it *DefaultDiscount) CalculateDiscount(checkoutInstance checkout.Interface
 			// making coupon code map for right apply order ignoring used coupons
 			discountCodes := make(map[string]map[string]interface{})
 			for _, record := range records {
-				if discountCode := utils.InterfaceToString(record["code"]); discountCode != "" && !utils.IsInArray(discountCode, usedCodes) {
+				if discountCode := utils.InterfaceToString(record["code"]); discountCode != "" &&
+					!utils.IsInArray(discountCode, usedCodes) && !isLimited(checkoutInstance, record) {
 					discountCodes[discountCode] = record
 				}
 			}
@@ -126,4 +128,38 @@ func (it *DefaultDiscount) CalculateDiscount(checkoutInstance checkout.Interface
 	}
 
 	return result
+}
+
+// checks discount limiting parameters and correspondence of current checkout to their values
+func isLimited(checkoutInstance checkout.InterfaceCheckout, couponDiscount map[string]interface{}) bool {
+
+	if limits, present := couponDiscount["limits"]; present {
+		limitations := utils.InterfaceToMap(limits)
+		if len(limitations) > 0 {
+
+			var productsIDs []string
+			for _, productInCart := range checkoutInstance.GetCart().GetItems() {
+				productsIDs = append(productsIDs, productInCart.GetProductID())
+			}
+
+			for key, limit := range limitations {
+
+				switch strings.ToLower(key) {
+				case "product_in_cart":
+					allowedProducts := utils.InterfaceToArray(limit)
+					for index, productID := range allowedProducts {
+						if utils.IsInArray(productID, productsIDs) {
+							break
+						}
+						if index == (len(allowedProducts) - 1) {
+							return true
+						}
+
+					}
+				}
+			}
+		}
+	}
+
+	return false
 }
