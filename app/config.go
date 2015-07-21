@@ -375,15 +375,15 @@ func setupConfig() error {
 
 	// Email Verfication
 	err = config.RegisterItem(env.StructConfigItem{
-		Path:        ConstConfigPathVerficationEmail,
+		Path:        ConstConfigPathVerfifyEmail,
 		Value:       false,
 		Type:        env.ConstConfigTypeBoolean,
 		Editor:      "boolean",
 		Options:     nil,
-		Label:       "Enable Email Verification",
+		Label:       "Enable Email Verification for Registration",
 		Description: "send email verification link",
 		Image:       "",
-	}, nil)
+	}, func(value interface{}) (interface{}, error) { return utils.InterfaceToBool(value), nil })
 
 	if err != nil {
 		return env.ErrorDispatch(err)

@@ -538,7 +538,8 @@ func APIRegisterVisitor(context api.InterfaceApplicationContext) (interface{}, e
 	}
 
 	// set to false by default
-	if ConstConfigPathVerficationEmail == true {
+	verifyEmail := utils.InterfaceToBool(env.ConfigGetValue(app.ConstConfigPathVerfifyEmail))
+	if verifyEmail == true {
 		err = visitorModel.Invalidate()
 		if err != nil {
 			return nil, env.ErrorDispatch(err)

@@ -45,7 +45,7 @@ const (
 
 	ConstConfigPathContactUsRecipient = "general.app.recipient"
 
-	ConstConfigPathVerficationEmail = ConstConfigPathGroup + ".emailverification"
+	ConstConfigPathVerfifyEmail = ConstConfigPathAppGroup + ".verifyemail"
 
 	ConstErrorModule = "app"
 	ConstErrorLevel  = env.ConstErrorLevelService
