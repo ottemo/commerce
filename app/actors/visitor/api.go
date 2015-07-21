@@ -537,15 +537,16 @@ func APIRegisterVisitor(context api.InterfaceApplicationContext) (interface{}, e
 		return nil, env.ErrorDispatch(err)
 	}
 
-	// set to false by default
+	// check if email verification is necessary to login visitor
 	verifyEmail := utils.InterfaceToBool(env.ConfigGetValue(app.ConstConfigPathVerfifyEmail))
 	if verifyEmail == true {
+		// force the visitor to log in
 		err = visitorModel.Invalidate()
 		if err != nil {
 			return nil, env.ErrorDispatch(err)
 		}
 	} else {
-		// log user in, if site is not using verification emails
+		// log visitor in, if site is not using verification emails
 		context.GetSession().Set(visitor.ConstSessionKeyVisitorID, visitorModel.GetID())
 	}
 
