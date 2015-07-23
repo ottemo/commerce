@@ -7,9 +7,11 @@ import (
 
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/app"
+	"github.com/ottemo/foundation/app/models/checkout"
 	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
+	"strings"
 )
 
 // setupAPI setups package related API endpoint routines
@@ -206,7 +208,7 @@ func APIDownloadDiscountCSV(context api.InterfaceApplicationContext) (interface{
 	context.SetResponseContentType("text/csv")
 	context.SetResponseSetting("Content-disposition", "attachment;filename=discount_coupons.csv")
 
-	csvWriter.Write([]string{"Code", "Name", "Amount", "Percent", "Times", "Since", "Until"})
+	csvWriter.Write([]string{"Code", "Name", "Amount", "Percent", "Times", "Since", "Until", "Limits", "Target"})
 	csvWriter.Flush()
 
 	// loading records from DB and writing them in csv format
@@ -224,6 +226,8 @@ func APIDownloadDiscountCSV(context api.InterfaceApplicationContext) (interface{
 			utils.InterfaceToString(record["times"]),
 			utils.InterfaceToString(record["since"]),
 			utils.InterfaceToString(record["until"]),
+			utils.InterfaceToString(record["limits"]),
+			utils.InterfaceToString(record["target"]),
 		})
 
 		csvWriter.Flush()
@@ -279,6 +283,8 @@ func APIUploadDiscountCSV(context api.InterfaceApplicationContext) (interface{},
 			record["times"] = times
 			record["since"] = utils.InterfaceToTime(csvRecord[5])
 			record["until"] = utils.InterfaceToTime(csvRecord[6])
+			record["limits"] = utils.InterfaceToMap(csvRecord[7])
+			record["target"] = utils.InterfaceToString(csvRecord[8])
 
 			collection.Save(record)
 		}
@@ -359,9 +365,17 @@ func APICreateDiscount(context api.InterfaceApplicationContext) (interface{}, er
 		valueSince, _ = utils.MakeUTCTime(utils.InterfaceToTime(value), timeZone)
 	}
 
-	valueLimits := make(map[string]interface {})
+	valueLimits := make(map[string]interface{})
 	if value, present := postValues["limits"]; present {
 		valueLimits = utils.InterfaceToMap(value)
+	}
+
+	valueTarget := checkout.ConstDiscountObjectCart
+	if targetValue, present := postValues["target"]; present {
+		target := strings.ToLower(utils.InterfaceToString(targetValue))
+		if target != "" && !strings.Contains(target, checkout.ConstDiscountObjectCart) {
+			valueTarget = target
+		}
 	}
 
 	collection, err := db.GetCollection(ConstCollectionNameCouponDiscounts)
@@ -389,6 +403,7 @@ func APICreateDiscount(context api.InterfaceApplicationContext) (interface{}, er
 		"since":   valueSince,
 		"until":   valueUntil,
 		"limits":  valueLimits,
+		"target":  valueTarget,
 	}
 
 	attributes := []string{"amount", "percent", "times"}
@@ -458,6 +473,14 @@ func APIUpdateDiscount(context api.InterfaceApplicationContext) (interface{}, er
 	for _, attribute := range attributes {
 		if value, present := postValues[attribute]; present {
 			record[attribute] = value
+		}
+	}
+
+	record["target"] = checkout.ConstDiscountObjectCart
+	if targetValue, present := postValues["target"]; present {
+		target := strings.ToLower(utils.InterfaceToString(targetValue))
+		if target != "" && !strings.Contains(target, checkout.ConstDiscountObjectCart) {
+			record["target"] = target
 		}
 	}
 

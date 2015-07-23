@@ -48,20 +48,37 @@ func (it *DefaultDiscount) CalculateDiscount(checkoutInstance checkout.Interface
 				return result
 			}
 
-			// making coupon code map for right apply order ignoring used coupons
+			// making coupon code map for right apply order ignoring used coupons and limited
 			discountCodes := make(map[string]map[string]interface{})
 			for _, record := range records {
-				if discountCode := utils.InterfaceToString(record["code"]); discountCode != "" &&
-					!utils.IsInArray(discountCode, usedCodes) && !isLimited(checkoutInstance, record) {
+				discountsUsageQty := discountsUsage(checkoutInstance, record)
+				discountCode := utils.InterfaceToString(record["code"])
+
+				if discountCode != "" && !utils.IsInArray(discountCode, usedCodes) && discountsUsageQty > 0 {
+					record["usage_qty"] = discountsUsageQty
 					discountCodes[discountCode] = record
 				}
 			}
 
-			priorityValue := utils.InterfaceToFloat64(env.ConfigGetValue(ConstConfigPathDiscountApplyPriority))
-			checkoutSubtotal := checkoutInstance.GetSubtotal()
-			var biggestDiscountApplied float64
+			productsInCart := make(map[string]float64)
 
-			// applying coupon codes
+			// collect products by ID and price with priority to lower (for calculating % discount)
+			for _, productInCart := range checkoutInstance.GetCart().GetItems() {
+				if cartProduct := productInCart.GetProduct(); cartProduct != nil {
+					cartProduct.ApplyOptions(productInCart.GetOptions())
+					productPrice := cartProduct.GetPrice()
+					productID := productInCart.GetProductID()
+
+					if storedPrice, present := productsInCart[productID]; !present || productPrice < storedPrice {
+						productsInCart[productID] = productPrice
+					}
+				}
+			}
+
+			productsDiscountPriorityValue := utils.InterfaceToFloat64(env.ConfigGetValue(ConstConfigPathDiscountApplyPriority))
+			cartDiscountPriorityValue := productsDiscountPriorityValue + 0.01
+
+			// accumulation of coupon discounts to result
 			for appliedCodesIdx, discountCode := range appliedCodes {
 				if discountCoupon, ok := discountCodes[discountCode]; ok {
 
@@ -80,14 +97,14 @@ func (it *DefaultDiscount) CalculateDiscount(checkoutInstance checkout.Interface
 						// calculating coupon discount amount
 						discountAmount := utils.InterfaceToFloat64(discountCoupon["amount"])
 						discountPercent := utils.InterfaceToFloat64(discountCoupon["percent"])
+						discountTarget := utils.InterfaceToString(discountCoupon["target"])
+						discountUsageQty := utils.InterfaceToFloat64(discountCoupon["usage_qty"])
 
-						possibleDiscount := discountAmount + (discountPercent / 100 * checkoutSubtotal)
+						discountPercent = discountPercent * discountUsageQty
+						discountAmount = discountAmount * discountUsageQty
 
-						// only the biggest coupon discount will be returned
-						if possibleDiscount > biggestDiscountApplied {
-							biggestDiscountApplied = possibleDiscount
-
-							result = []checkout.StructDiscount{}
+						// case it's a cart discount we just add them to result
+						if strings.Contains(discountTarget, checkout.ConstDiscountObjectCart) || discountTarget == "" {
 
 							if discountPercent > 0 {
 								result = append(result, checkout.StructDiscount{
@@ -95,9 +112,10 @@ func (it *DefaultDiscount) CalculateDiscount(checkoutInstance checkout.Interface
 									Code:      utils.InterfaceToString(discountCoupon["code"]),
 									Amount:    discountPercent,
 									IsPercent: true,
-									Priority:  priorityValue,
+									Priority:  cartDiscountPriorityValue,
+									Object:    checkout.ConstDiscountObjectCart,
 								})
-								priorityValue += float64(0.0001)
+								cartDiscountPriorityValue += float64(0.0001)
 							}
 
 							if discountAmount > 0 {
@@ -106,9 +124,33 @@ func (it *DefaultDiscount) CalculateDiscount(checkoutInstance checkout.Interface
 									Code:      utils.InterfaceToString(discountCoupon["code"]),
 									Amount:    discountAmount,
 									IsPercent: false,
-									Priority:  priorityValue,
+									Priority:  cartDiscountPriorityValue,
+									Object:    checkout.ConstDiscountObjectCart,
 								})
-								priorityValue += float64(0.0001)
+								cartDiscountPriorityValue += float64(0.0001)
+							}
+
+							continue
+						}
+
+						// parse target as array of productIDs on which we will apply discount
+						for _, productID := range utils.InterfaceToStringArray(discountTarget) {
+
+							if cartProductPrice, present := productsInCart[productID]; present {
+								totalProductDiscountAmount := discountPercent/100*cartProductPrice + discountAmount
+
+								if discountPercent > 0 {
+									result = append(result, checkout.StructDiscount{
+										Name:      utils.InterfaceToString(discountCoupon["name"]),
+										Code:      utils.InterfaceToString(discountCoupon["code"]),
+										Amount:    totalProductDiscountAmount,
+										IsPercent: false,
+										Priority:  productsDiscountPriorityValue,
+										Object:    productID,
+									})
+									productsDiscountPriorityValue += float64(0.0001)
+								}
+
 							}
 						}
 
@@ -130,36 +172,78 @@ func (it *DefaultDiscount) CalculateDiscount(checkoutInstance checkout.Interface
 	return result
 }
 
-// checks discount limiting parameters and correspondence of current checkout to their values
-func isLimited(checkoutInstance checkout.InterfaceCheckout, couponDiscount map[string]interface{}) bool {
+// checks discount limiting parameters for correspondence to current checkout values
+// return qty of usages if discount is allowed for current checkout and satisfy all conditions
+func discountsUsage(checkoutInstance checkout.InterfaceCheckout, couponDiscount map[string]interface{}) int {
 
+	result := -1
 	if limits, present := couponDiscount["limits"]; present {
 		limitations := utils.InterfaceToMap(limits)
 		if len(limitations) > 0 {
 
-			var productsIDs []string
+			productsInCart := make(map[string]int)
+			var productID string
+			var productQty int
+
+			// collect products to one map by ID and qty
 			for _, productInCart := range checkoutInstance.GetCart().GetItems() {
-				productsIDs = append(productsIDs, productInCart.GetProductID())
+				productID = productInCart.GetProductID()
+				productQty = productInCart.GetQty()
+
+				if qty, present := productsInCart[productID]; present {
+					productsInCart[productID] = qty + productQty
+					continue
+				}
+				productsInCart[productID] = productQty
 			}
 
-			for key, limit := range limitations {
+			for limitingKey, limitingValue := range limitations {
 
-				switch strings.ToLower(key) {
+				switch strings.ToLower(limitingKey) {
 				case "product_in_cart":
-					allowedProducts := utils.InterfaceToArray(limit)
-					for index, productID := range allowedProducts {
-						if utils.IsInArray(productID, productsIDs) {
+					requiredProduct := utils.InterfaceToStringArray(limitingValue)
+					for index, productID := range requiredProduct {
+						if _, present := productsInCart[productID]; present {
 							break
 						}
-						if index == (len(allowedProducts) - 1) {
-							return true
+						if index == (len(requiredProduct) - 1) {
+							return 0
+						}
+					}
+
+				case "products_in_cart":
+					requiredProducts := utils.InterfaceToStringArray(limitingValue)
+					for _, productID := range requiredProducts {
+						if _, present := productsInCart[productID]; !present {
+							return 0
+						}
+					}
+
+				case "products_in_qty":
+					requiredProducts := utils.InterfaceToMap(limitingValue)
+					for requiredProductID, requiredQty := range requiredProducts {
+						productQty, present := productsInCart[requiredProductID]
+						limitingQty := utils.InterfaceToInt(productQty / utils.InterfaceToInt(requiredQty))
+
+						if !present || limitingQty < 1 {
+							return 0
 						}
 
+						if result == -1 || limitingQty < result {
+							result = limitingQty
+						}
+					}
+				case "max_usage_qty":
+					if limitingQty := utils.InterfaceToInt(limitingValue); limitingQty >= 1 && (result == -1 || limitingQty < result) {
+						result = limitingQty
 					}
 				}
 			}
 		}
 	}
+	if result == -1 {
+		result = 1
+	}
 
-	return false
+	return result
 }
