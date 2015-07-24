@@ -216,9 +216,61 @@ func (it *DefaultCheckout) GetDiscounts() []checkout.StructDiscount {
 		it.discountsCalculateFlag = true
 
 		it.Discounts = make([]checkout.StructDiscount, 0)
+		applicableProductDiscounts := make(map[string][]checkout.StructDiscount)
+
 		for _, discount := range checkout.GetRegisteredDiscounts() {
 			for _, discountValue := range discount.CalculateDiscount(it) {
-				it.Discounts = append(it.Discounts, discountValue)
+				if discountValue.Object == checkout.ConstDiscountObjectCart {
+					it.Discounts = append(it.Discounts, discountValue)
+					continue
+				} else {
+					applicableProductDiscounts[discountValue.Object] = append(applicableProductDiscounts[discountValue.Object], discountValue)
+				}
+			}
+		}
+
+		// adding to discounts the biggest applicable discount per product
+		for _, productInCart := range it.GetCart().GetItems() {
+
+			if cartProduct := productInCart.GetProduct(); cartProduct != nil {
+				cartProduct.ApplyOptions(productInCart.GetOptions())
+				productPrice := cartProduct.GetPrice()
+				productID := productInCart.GetProductID()
+				productQty := productInCart.GetQty()
+
+				for i := 0; i < productQty; i++ {
+					productDiscounts, present := applicableProductDiscounts[productID]
+
+					if present && len(productDiscounts) > 0 {
+						var biggestAppliedDiscount checkout.StructDiscount
+						var biggestAppliedDiscountIndex int
+
+						for index, productDiscount := range productDiscounts {
+							productDiscountableAmount := productDiscount.Amount
+
+							if productDiscount.IsPercent {
+								productDiscountableAmount = productPrice * productDiscount.Amount / 100
+							}
+
+							if biggestAppliedDiscount.Amount < productDiscountableAmount {
+								biggestAppliedDiscount = productDiscount
+								biggestAppliedDiscount.Amount = productDiscountableAmount
+								biggestAppliedDiscount.IsPercent = false
+								biggestAppliedDiscountIndex = index
+							}
+						}
+
+						var newProductDiscounts []checkout.StructDiscount
+						for index, productDiscount := range productDiscounts {
+							if index != biggestAppliedDiscountIndex {
+								newProductDiscounts = append(newProductDiscounts, productDiscount)
+							}
+						}
+
+						it.Discounts = append(it.Discounts, biggestAppliedDiscount)
+						applicableProductDiscounts[productID] = newProductDiscounts
+					}
+				}
 			}
 		}
 
