@@ -3,6 +3,7 @@ package coupon
 import (
 	"time"
 
+	"fmt"
 	"github.com/ottemo/foundation/app/models/checkout"
 	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/env"
@@ -78,9 +79,12 @@ func (it *DefaultDiscount) CalculateDiscount(checkoutInstance checkout.Interface
 			productsDiscountPriorityValue := utils.InterfaceToFloat64(env.ConfigGetValue(ConstConfigPathDiscountApplyPriority))
 			cartDiscountPriorityValue := productsDiscountPriorityValue + 0.01
 
+			appliedProductDiscounts := make(map[string]checkout.StructDiscount)
+
 			// accumulation of coupon discounts to result
 			for appliedCodesIdx, discountCode := range appliedCodes {
 				if discountCoupon, ok := discountCodes[discountCode]; ok {
+					fmt.Println(discountCode)
 
 					applyTimes := utils.InterfaceToInt(discountCoupon["times"])
 					workSince := utils.InterfaceToTime(discountCoupon["since"])
@@ -98,10 +102,10 @@ func (it *DefaultDiscount) CalculateDiscount(checkoutInstance checkout.Interface
 						discountAmount := utils.InterfaceToFloat64(discountCoupon["amount"])
 						discountPercent := utils.InterfaceToFloat64(discountCoupon["percent"])
 						discountTarget := utils.InterfaceToString(discountCoupon["target"])
-						discountUsageQty := utils.InterfaceToFloat64(discountCoupon["usage_qty"])
+						discountUsageQty := utils.InterfaceToInt(discountCoupon["usage_qty"])
 
-						discountPercent = discountPercent * discountUsageQty
-						discountAmount = discountAmount * discountUsageQty
+						discountPercent = discountPercent * float64(discountUsageQty)
+						discountAmount = discountAmount * float64(discountUsageQty)
 
 						// case it's a cart discount we just add them to result
 						if strings.Contains(discountTarget, checkout.ConstDiscountObjectCart) || discountTarget == "" {
@@ -134,22 +138,26 @@ func (it *DefaultDiscount) CalculateDiscount(checkoutInstance checkout.Interface
 						}
 
 						// parse target as array of productIDs on which we will apply discount
-						for _, productID := range utils.InterfaceToStringArray(discountTarget) {
+						for _, productID := range utils.InterfaceToArray(discountTarget) {
+							productID := utils.InterfaceToString(productID)
 
 							if cartProductPrice, present := productsInCart[productID]; present {
 								totalProductDiscountAmount := discountPercent/100*cartProductPrice + discountAmount
 
-								if discountPercent > 0 {
-									result = append(result, checkout.StructDiscount{
+								// part of code for limiting per product discount to biggest one
+								biggestAppliedDiscount, present := appliedProductDiscounts[productID]
+								if !present || biggestAppliedDiscount.Amount < totalProductDiscountAmount {
+									appliedProductDiscounts[productID] = checkout.StructDiscount{
 										Name:      utils.InterfaceToString(discountCoupon["name"]),
 										Code:      utils.InterfaceToString(discountCoupon["code"]),
 										Amount:    totalProductDiscountAmount,
 										IsPercent: false,
 										Priority:  productsDiscountPriorityValue,
 										Object:    productID,
-									})
-									productsDiscountPriorityValue += float64(0.0001)
+									}
 								}
+
+								productsDiscountPriorityValue += float64(0.0001)
 
 							}
 						}
@@ -166,6 +174,12 @@ func (it *DefaultDiscount) CalculateDiscount(checkoutInstance checkout.Interface
 					}
 				}
 			}
+
+			// adding to result collected biggest discount per product
+			for _, productDiscount := range appliedProductDiscounts {
+				result = append(result, productDiscount)
+			}
+
 		}
 	}
 
@@ -182,13 +196,11 @@ func discountsUsage(checkoutInstance checkout.InterfaceCheckout, couponDiscount 
 		if len(limitations) > 0 {
 
 			productsInCart := make(map[string]int)
-			var productID string
-			var productQty int
 
 			// collect products to one map by ID and qty
 			for _, productInCart := range checkoutInstance.GetCart().GetItems() {
-				productID = productInCart.GetProductID()
-				productQty = productInCart.GetQty()
+				productID := productInCart.GetProductID()
+				productQty := productInCart.GetQty()
 
 				if qty, present := productsInCart[productID]; present {
 					productsInCart[productID] = qty + productQty
@@ -202,6 +214,7 @@ func discountsUsage(checkoutInstance checkout.InterfaceCheckout, couponDiscount 
 				switch strings.ToLower(limitingKey) {
 				case "product_in_cart":
 					requiredProduct := utils.InterfaceToStringArray(limitingValue)
+
 					for index, productID := range requiredProduct {
 						if _, present := productsInCart[productID]; present {
 							break
@@ -213,6 +226,7 @@ func discountsUsage(checkoutInstance checkout.InterfaceCheckout, couponDiscount 
 
 				case "products_in_cart":
 					requiredProducts := utils.InterfaceToStringArray(limitingValue)
+
 					for _, productID := range requiredProducts {
 						if _, present := productsInCart[productID]; !present {
 							return 0
@@ -222,8 +236,12 @@ func discountsUsage(checkoutInstance checkout.InterfaceCheckout, couponDiscount 
 				case "products_in_qty":
 					requiredProducts := utils.InterfaceToMap(limitingValue)
 					for requiredProductID, requiredQty := range requiredProducts {
+						requiredQty := utils.InterfaceToInt(requiredQty)
+						if requiredQty < 1 {
+							requiredQty = 1
+						}
 						productQty, present := productsInCart[requiredProductID]
-						limitingQty := utils.InterfaceToInt(productQty / utils.InterfaceToInt(requiredQty))
+						limitingQty := utils.InterfaceToInt(productQty / requiredQty)
 
 						if !present || limitingQty < 1 {
 							return 0
@@ -232,9 +250,10 @@ func discountsUsage(checkoutInstance checkout.InterfaceCheckout, couponDiscount 
 						if result == -1 || limitingQty < result {
 							result = limitingQty
 						}
+
 					}
 				case "max_usage_qty":
-					if limitingQty := utils.InterfaceToInt(limitingValue); limitingQty >= 1 && (result == -1 || limitingQty < result) {
+					if limitingQty := utils.InterfaceToInt(limitingValue); limitingQty >= 1 && limitingQty < result {
 						result = limitingQty
 					}
 				}
