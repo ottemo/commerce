@@ -91,6 +91,7 @@ func (it *DefaultDiscount) CalculateDiscount(checkoutInstance checkout.Interface
 							IsPercent: true,
 							Priority:  discountPriorityValue,
 							Object:    checkout.ConstDiscountObjectCart,
+							Type:      it.GetCode(),
 						}
 
 						// case it's a cart discount we just add them to result

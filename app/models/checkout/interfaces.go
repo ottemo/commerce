@@ -127,4 +127,5 @@ type StructDiscount struct {
 	IsPercent bool
 	Priority  float64
 	Object    string
+	Type      string
 }
