@@ -1,13 +1,12 @@
 package coupon
 
 import (
-	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/app/models/order"
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
 )
 
-// checkoutSuccessHandler find applied coupons for this session and add them to session used coupons values
+// checkoutSuccessHandler will add visitorID to usedCoupons by code of discount
 func checkoutSuccessHandler(event string, eventData map[string]interface{}) bool {
 
 	orderPlaced, ok := eventData["order"].(order.InterfaceOrder)
@@ -16,23 +15,26 @@ func checkoutSuccessHandler(event string, eventData map[string]interface{}) bool
 		return false
 	}
 
-	// check is discounts are applied to this order if they make change of session used discounts
+	// check is discounts are applied to this order if they, make change of used coupons variable
 	orderAppliedDiscounts := orderPlaced.GetDiscounts()
-	if len(orderAppliedDiscounts) > 0 && eventData["session"] != nil {
+	visitorID := utils.InterfaceToString(orderPlaced.Get("visitor_id"))
 
-		session, ok := eventData["session"].(api.InterfaceSession)
-		if !ok {
-			env.LogError(env.ErrorNew(ConstErrorModule, ConstErrorLevel, "55b4054a-fe1a-4b5a-a05e-65fd6c0c2103", "session can't be used"))
-			return false
-		}
+	//	we currently not using customer email for limiting
+	//	if visitorID == "" {
+	//		visitorID = utils.InterfaceToString(orderPlaced.Get("customer_email"))
+	//	}
 
-		usedDiscounts := utils.InterfaceToStringArray(session.Get(ConstSessionKeyUsedDiscountCodes))
+	if len(orderAppliedDiscounts) > 0 && visitorID != "" {
 
 		for _, discount := range orderAppliedDiscounts {
-			usedDiscounts = append(usedDiscounts, discount.Code)
-		}
+			if _, present := usedCoupons[discount.Code]; !present {
+				usedCoupons[discount.Code] = make([]string, 0)
+			}
 
-		session.Set(ConstSessionKeyUsedDiscountCodes, usedDiscounts)
+			if !utils.IsInListStr(visitorID, usedCoupons[discount.Code]) {
+				usedCoupons[discount.Code] = append(usedCoupons[discount.Code], visitorID)
+			}
+		}
 	}
 
 	return true

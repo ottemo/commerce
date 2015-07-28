@@ -29,7 +29,6 @@ func (it *DefaultDiscount) CalculateDiscount(checkoutInstance checkout.Interface
 	if currentSession := checkoutInstance.GetSession(); currentSession != nil {
 
 		appliedCodes := utils.InterfaceToStringArray(currentSession.Get(ConstSessionKeyAppliedDiscountCodes))
-		usedCodes := utils.InterfaceToStringArray(currentSession.Get(ConstSessionKeyUsedDiscountCodes))
 
 		if len(appliedCodes) > 0 {
 
@@ -48,13 +47,21 @@ func (it *DefaultDiscount) CalculateDiscount(checkoutInstance checkout.Interface
 				return result
 			}
 
+			currentVisitor := checkoutInstance.GetVisitor()
+			visitorID := currentVisitor.GetID()
+
 			// making coupon code map for right apply order ignoring used coupons and limited
 			discountCodes := make(map[string]map[string]interface{})
 			for _, record := range records {
 				discountsUsageQty := discountsUsage(checkoutInstance, record)
 				discountCode := utils.InterfaceToString(record["code"])
 
-				if discountCode != "" && !utils.IsInArray(discountCode, usedCodes) && discountsUsageQty > 0 {
+				couponUsed := false
+				if usedByVisitors, present := usedCoupons[discountCode]; present && utils.IsInListStr(visitorID, usedByVisitors) {
+					couponUsed = true
+				}
+
+				if discountCode != "" && !couponUsed && discountsUsageQty > 0 {
 					record["usage_qty"] = discountsUsageQty
 					discountCodes[discountCode] = record
 				}

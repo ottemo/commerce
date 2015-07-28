@@ -8,6 +8,7 @@ import (
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/app"
 	"github.com/ottemo/foundation/app/models/checkout"
+	"github.com/ottemo/foundation/app/models/visitor"
 	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
@@ -70,21 +71,28 @@ func setupAPI() error {
 //   - coupon code should be specified in "coupon" argument
 func APIApplyDiscount(context api.InterfaceApplicationContext) (interface{}, error) {
 
+	visitorID := visitor.GetCurrentVisitorID(context)
+	if visitorID == "" {
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "57a50c6f-117b-4461-9755-6d7b981da313", "This discount code requires you to log in or register to use.  Please register or log in.")
+	}
+
 	couponCode := context.GetRequestArgument("coupon")
 
 	currentSession := context.GetSession()
 
 	// getting applied coupons array for current session
 	appliedCoupons := utils.InterfaceToStringArray(currentSession.Get(ConstSessionKeyAppliedDiscountCodes))
-	usedCodes := utils.InterfaceToStringArray(currentSession.Get(ConstSessionKeyUsedDiscountCodes))
 
 	// checking if coupon was already applied
 	if utils.IsInArray(couponCode, appliedCoupons) {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "29c4c963-0940-4780-8ad2-9ed5ca7c97ff", "coupon code already applied")
 	}
 
-	if utils.IsInArray(couponCode, usedCodes) {
-		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "32315c6c-c932-4ad4-a1a1-5eaf86f1dcdc", "coupon code already used")
+	// checks coupon for being already used by this visitor
+	if usedByVisitors, present := usedCoupons[couponCode]; present {
+		if utils.IsInListStr(visitorID, usedByVisitors) {
+			return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "7fb5b4d1-ed93-45e2-9347-eb9461bbfd75", "coupon code already used")
+		}
 	}
 
 	// loading coupon for specified code
