@@ -63,7 +63,11 @@ func APIReceipt(context api.InterfaceApplicationContext) (interface{}, error) {
 				checkoutOrder.NewIncrementID()
 
 				checkoutOrder.SetStatus(order.ConstOrderStatusPending)
-				checkoutOrder.Set("payment_info", requestData)
+				paymentInfo := utils.InterfaceToMap(checkoutOrder.Get("payment_info"))
+				for key, value := range requestData {
+					paymentInfo[key] = value
+				}
+				checkoutOrder.Set("payment_info", paymentInfo)
 
 				err = checkoutOrder.Save()
 				if err != nil {

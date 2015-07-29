@@ -128,11 +128,10 @@ func (it *PayFlowAPI) Authorize(orderInstance order.InterfaceOrder, paymentInfo 
 	orderPaymentInfo := utils.InterfaceToMap(orderInstance.Get("payment_info"))
 
 	if oldTransaction, present := orderPaymentInfo["transactionID"]; !present {
-		orderPaymentInfo = map[string]interface{}{
-			"transactionID":     orderTransactionID,
-			"creditCardNumbers": responseValues.Get("ACCT"),
-			"creditCardType":    getCreditCardName(utils.InterfaceToString(responseValues.Get("CARDTYPE"))),
-		}
+		orderPaymentInfo["transactionID"] = orderTransactionID
+		orderPaymentInfo["creditCardNumbers"] = responseValues.Get("ACCT")
+		orderPaymentInfo["creditCardType"] = getCreditCardName(utils.InterfaceToString(responseValues.Get("CARDTYPE")))
+
 	} else {
 		orderPaymentInfo["previosTransactionID"] = oldTransaction
 		orderPaymentInfo["transactionID"] = orderTransactionID
