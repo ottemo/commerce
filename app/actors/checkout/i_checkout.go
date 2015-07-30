@@ -595,6 +595,12 @@ func (it *DefaultCheckout) Submit() (interface{}, error) {
 		}
 	}
 
+	// set status to payed for processing without Authorize
+	if checkoutOrder.GetStatus() == order.ConstOrderStatusPending {
+		checkoutOrder.SetStatus(order.ConstOrderStatusPayed)
+		checkoutOrder.Save()
+	}
+
 	err = it.CheckoutSuccess(checkoutOrder, it.GetSession())
 
 	return checkoutOrder.ToHashMap(), err

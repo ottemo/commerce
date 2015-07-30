@@ -99,11 +99,8 @@ func (it *DefaultCheckout) CheckoutSuccess(checkoutOrder order.InterfaceOrder, s
 	}
 
 	// if payment method did not set status by itself - making this
-	if orderStatus := checkoutOrder.GetStatus(); orderStatus == "" || orderStatus == order.ConstOrderStatusNew {
-		err := checkoutOrder.SetStatus(order.ConstOrderStatusPending)
-		if err != nil {
-			return env.ErrorDispatch(err)
-		}
+	if orderStatus := checkoutOrder.GetStatus(); orderStatus != order.ConstOrderStatusPayed && orderStatus != order.ConstOrderStatusCompleted {
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "7dec976e-084b-4d29-9301-bb3b328be95f", "Order is not payed")
 	}
 
 	// checkout information cleanup
