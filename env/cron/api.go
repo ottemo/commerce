@@ -21,6 +21,16 @@ func setupAPI() error {
 		return env.ErrorDispatch(err)
 	}
 
+	err = api.GetRestService().RegisterAPI("cron/task/enable/:taskIndex", api.ConstRESTOperationGet, enableSchedule)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	err = api.GetRestService().RegisterAPI("cron/task/disable/:taskIndex", api.ConstRESTOperationGet, disableSchedule)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
 	err = api.GetRestService().RegisterAPI("cron/task/:taskIndex", api.ConstRESTOperationUpdate, updateSchedule)
 	if err != nil {
 		return env.ErrorDispatch(err)
@@ -163,4 +173,82 @@ func createSchedule(context api.InterfaceApplicationContext) (interface{}, error
 	}
 
 	return newSchedule, nil
+}
+
+// enableSchedule make schedule active
+// taskIndex - need to be specified in request argument
+func enableSchedule(context api.InterfaceApplicationContext) (interface{}, error) {
+
+	// check rights
+	if err := api.ValidateAdminRights(context); err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	reqTaskIndex := context.GetRequestArgument("taskIndex")
+	if reqTaskIndex == "" {
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "d4ee4c0c-124a-4098-aeef-23d868b0d682", "task index should be specified")
+	}
+
+	taskIndex, err := utils.StringToInteger(reqTaskIndex)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	scheduler := env.GetScheduler()
+	currentSchedules := scheduler.ListSchedules()
+
+	if taskIndex > len(currentSchedules)-1 || taskIndex < 0 {
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "5cf9ead0-d23d-4cb6-87b1-3578d54dd1ba", "task index is out of range for existing tasks")
+	}
+
+	for index, schedule := range currentSchedules {
+		if index == taskIndex {
+			err := schedule.Enable()
+			if err != nil {
+				return nil, env.ErrorDispatch(err)
+			}
+			break
+		}
+	}
+
+	return currentSchedules[taskIndex].GetInfo(), nil
+}
+
+// disableSchedule make schedule inactive
+// taskIndex - need to be specified in request argument
+func disableSchedule(context api.InterfaceApplicationContext) (interface{}, error) {
+
+	// check rights
+	if err := api.ValidateAdminRights(context); err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	reqTaskIndex := context.GetRequestArgument("taskIndex")
+	if reqTaskIndex == "" {
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "61285b1f-6c6c-4920-b1b1-5d4d31b58ad5", "task index should be specified")
+	}
+
+	taskIndex, err := utils.StringToInteger(reqTaskIndex)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	scheduler := env.GetScheduler()
+	currentSchedules := scheduler.ListSchedules()
+
+	if taskIndex > len(currentSchedules)-1 || taskIndex < 0 {
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "6465b989-09f9-41a3-9752-9844fddfdc4a", "task index is out of range for existing tasks")
+	}
+
+	for index, schedule := range currentSchedules {
+		if index == taskIndex {
+			err := schedule.Disable()
+			if err != nil {
+				return nil, env.ErrorDispatch(err)
+			}
+			break
+		}
+	}
+
+	return currentSchedules[taskIndex].GetInfo(), nil
 }
