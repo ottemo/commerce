@@ -156,11 +156,14 @@ func APIReceipt(context api.InterfaceApplicationContext) (interface{}, error) {
 
 			return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "af2103b1-8501-4e4b-bc1b-9086ef7c63be", "Transaction not confirmed")
 		}
+		
+		paymentInfo := utils.InterfaceToMap(checkoutOrder.Get("payment_info"))
+		for key, value := range completeData {
+			paymentInfo[key] = value
+		}
 
-		checkoutOrder.NewIncrementID()
-
-		checkoutOrder.SetStatus(order.ConstOrderStatusPending)
-		checkoutOrder.Set("payment_info", completeData)
+		checkoutOrder.SetStatus(order.ConstOrderStatusProcessed)
+		checkoutOrder.Set("payment_info", paymentInfo)
 
 		err = checkoutOrder.Save()
 		if err != nil {

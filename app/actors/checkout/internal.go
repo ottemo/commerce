@@ -95,15 +95,12 @@ func (it *DefaultCheckout) CheckoutSuccess(checkoutOrder order.InterfaceOrder, s
 
 	// making sure order and session were specified
 	if checkoutOrder == nil || session == nil {
-		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "17d45365-7808-4a1b-ad36-1741a83e820f", "Order or session is null")
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "17d45365-7808-4a1b-ad36-1741a83e820f", "Either the order or the session is null")
 	}
 
-	// if payment method did not set status by itself - making this
-	if orderStatus := checkoutOrder.GetStatus(); orderStatus == "" || orderStatus == order.ConstOrderStatusNew {
-		err := checkoutOrder.SetStatus(order.ConstOrderStatusPending)
-		if err != nil {
-			return env.ErrorDispatch(err)
-		}
+	// check order status for funds collected before  proceeding to checkout success
+	if orderStatus := checkoutOrder.GetStatus(); orderStatus != order.ConstOrderStatusProcessed && orderStatus != order.ConstOrderStatusCompleted {
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "7dec976e-084b-4d29-9301-bb3b328be95f", "Funds were not colletecd on the order")
 	}
 
 	// checkout information cleanup
