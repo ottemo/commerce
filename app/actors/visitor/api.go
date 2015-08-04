@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
-	"os"
-	"strconv"
 	"strings"
 	"time"
 
@@ -671,17 +669,13 @@ func APILogout(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// if session cookie is set, expire it
 	request := context.GetRequest()
-	// use secure cookies if OTTEMOCOOKIE is set to a valid true value
-	flagSecure, err := strconv.ParseBool(os.Getenv("OTTEMO_SECURE_COOKIE"))
-	if err != nil {
-		flagSecure = false
-	}
 
 	if request, ok := request.(*http.Request); ok {
 		responseWriter := context.GetResponseWriter()
 		if responseWriter, ok := responseWriter.(http.ResponseWriter); ok {
 
 			// check for session cookie
+			// always pass a secure cookie
 			cookie, err := request.Cookie(api.ConstSessionCookieName)
 			if err == nil {
 
@@ -693,7 +687,7 @@ func APILogout(context api.InterfaceApplicationContext) (interface{}, error) {
 					Path:     "/",
 					HttpOnly: true,
 					MaxAge:   -1,
-					Secure:   flagSecure,
+					Secure:   true,
 					Expires:  cookieExpires,
 				}
 

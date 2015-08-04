@@ -2,8 +2,6 @@ package api
 
 import (
 	"net/http"
-	"os"
-	"strconv"
 	"strings"
 	"time"
 
@@ -18,11 +16,6 @@ import (
 func StartSession(context InterfaceApplicationContext) (InterfaceSession, error) {
 
 	request := context.GetRequest()
-	// use secure cookies if OTTEMOCOOKIE is set to a valid true value
-	flagSecure, err := strconv.ParseBool(os.Getenv("OTTEMO_SECURE_COOKIE"))
-	if err != nil {
-		flagSecure = false
-	}
 
 	// old method - HTTP specific
 	if request, ok := request.(*http.Request); ok {
@@ -53,12 +46,13 @@ func StartSession(context InterfaceApplicationContext) (InterfaceSession, error)
 			// Session Cookie Declaration
 			// - expires in 1 year
 			// - Domain defaults to the full subdomain path
+			// - always send secure cookie
 			cookieExpires := time.Now().Add(365 * 24 * time.Hour)
 			cookie = &http.Cookie{
 				Name:     ConstSessionCookieName,
 				Value:    result.GetID(),
 				Path:     "/",
-				Secure:   flagSecure,
+				Secure:   true,
 				HttpOnly: true,
 				Expires:  cookieExpires,
 			}
