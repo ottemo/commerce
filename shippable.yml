@@ -1,6 +1,6 @@
 language: go
 go:
-    - 1.4.2
+    - 1.4
 env:
     global:
         - SLACK_ORG=Ottemo PROJECT=Foundation 
