@@ -11,7 +11,8 @@ import (
 
 // Package global constants
 const (
-	ConstCollectionNameVisitor = "visitor"
+	ConstCollectionNameVisitor      = "visitor"
+	ConstCollectionNameVisitorToken = "visitor_token"
 
 	ConstEmailValidateExpire = 60 * 60 * 24
 

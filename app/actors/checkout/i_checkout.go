@@ -508,7 +508,7 @@ func (it *DefaultCheckout) Submit() (interface{}, error) {
 	checkoutOrder.Set("shipping_address", shippingAddress)
 
 	shippingInfo := utils.InterfaceToMap(checkoutOrder.Get("shipping_info"))
-	shippingInfo["shipping_method_name"] = it.GetShippingMethod().GetName()+"/"+it.GetShippingRate().Name
+	shippingInfo["shipping_method_name"] = it.GetShippingMethod().GetName() + "/" + it.GetShippingRate().Name
 	if notes := utils.InterfaceToString(it.GetInfo("notes")); notes != "" {
 		shippingInfo["notes"] = notes
 	}
@@ -580,7 +580,9 @@ func (it *DefaultCheckout) Submit() (interface{}, error) {
 	//--------------------------
 	if checkoutOrder.GetGrandTotal() > 0 {
 		paymentInfo := make(map[string]interface{})
-		paymentInfo["sessionID"] = it.GetSession().GetID()
+		if it.GetSession() != nil {
+			paymentInfo["sessionID"] = it.GetSession().GetID()
+		}
 		paymentInfo["cc"] = it.GetInfo("cc")
 
 		result, err := paymentMethod.Authorize(checkoutOrder, paymentInfo)
@@ -588,11 +590,22 @@ func (it *DefaultCheckout) Submit() (interface{}, error) {
 			checkoutOrder.SetStatus(order.ConstOrderStatusNew)
 			return nil, env.ErrorDispatch(err)
 		}
-
-		// if payment.Authorize returns non nil result, that supposing additional operations to complete payment
-		if result != nil {
+		// Payment method require to return as a result:
+		// redirect (with completing of checkout after payment processing)
+		// or payment info for order
+		switch value := result.(type) {
+		case api.StructRestRedirect:
+			fmt.Println("redirect", value)
 			return result, nil
+
+		case map[string]interface{}:
+			fmt.Println("map", value)
+			checkoutOrder.Set("payment_info", result)
+
+		default:
+			fmt.Println("default", value)
 		}
+
 	}
 
 	err = it.CheckoutSuccess(checkoutOrder, it.GetSession())

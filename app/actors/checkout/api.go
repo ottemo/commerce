@@ -154,15 +154,16 @@ func APIGetPaymentMethods(context api.InterfaceApplicationContext) (interface{},
 	}
 
 	type ResultValue struct {
-		Name string
-		Code string
-		Type string
+		Name      string
+		Code      string
+		Type      string
+		Tokenable bool
 	}
 	var result []ResultValue
 
 	for _, paymentMethod := range checkout.GetRegisteredPaymentMethods() {
 		if paymentMethod.IsAllowed(currentCheckout) {
-			result = append(result, ResultValue{Name: paymentMethod.GetName(), Code: paymentMethod.GetCode(), Type: paymentMethod.GetType()})
+			result = append(result, ResultValue{Name: paymentMethod.GetName(), Code: paymentMethod.GetCode(), Type: paymentMethod.GetType(), Tokenable: paymentMethod.IsTokenable(currentCheckout)})
 		}
 	}
 

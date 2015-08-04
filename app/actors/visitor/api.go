@@ -15,6 +15,7 @@ import (
 	"github.com/ottemo/foundation/utils"
 
 	"github.com/ottemo/foundation/app/models"
+	"github.com/ottemo/foundation/app/models/checkout"
 	"github.com/ottemo/foundation/app/models/order"
 	"github.com/ottemo/foundation/app/models/visitor"
 )
@@ -112,6 +113,11 @@ func setupAPI() error {
 		return env.ErrorDispatch(err)
 	}
 	err = api.GetRestService().RegisterAPI("visit/order/:orderID", api.ConstRESTOperationGet, APIGetOrder)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	err = api.GetRestService().RegisterAPI("token", api.ConstRESTOperationCreate, APICreateToken)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -1053,6 +1059,50 @@ func APIMailToVisitor(context api.InterfaceApplicationContext) (interface{}, err
 		if err != nil {
 			return nil, env.ErrorDispatch(err)
 		}
+	}
+
+	return "ok", nil
+}
+
+// APICreateToken creates a request body for posting credit card info to payment system with 0 amount payment
+// for obtaining token on this card and saving it for visitor
+func APICreateToken(context api.InterfaceApplicationContext) (interface{}, error) {
+
+	visitorID := visitor.GetCurrentVisitorID(context)
+	if visitorID == "" {
+		return "you are not logined in", nil
+	}
+
+	requestData, err := api.GetRequestContentAsMap(context)
+	if err != nil {
+		return nil, err
+	}
+
+	paymentMethod := utils.InterfaceToString(utils.GetFirstMapValue(requestData, "payment", "payment_method"))
+	if paymentMethod == "" {
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "6d1691c8-2d26-44be-b90d-24d920e26301", "payment method not selected")
+	}
+
+	var found bool
+	for _, payment := range checkout.GetRegisteredPaymentMethods() {
+		if payment.GetCode() == paymentMethod {
+			found = true
+			if !payment.IsTokenable(nil) {
+				return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "519ef43c-4d07-4b64-90f7-7fdc3657940a", "for selected payment method credit card can't be saved")
+			}
+			paymentInfo := map[string]interface{}{
+				"amount": 0,
+			}
+			return payment.Authorize(nil, paymentInfo)
+		}
+
+		if found {
+			break
+		}
+	}
+
+	if !found {
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "c80c4106-1208-4d0b-8577-0889f608869b", "such payment method not existing")
 	}
 
 	return "ok", nil

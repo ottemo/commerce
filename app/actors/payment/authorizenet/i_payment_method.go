@@ -29,6 +29,11 @@ func (it *DirectPostMethod) GetCode() string {
 	return ConstPaymentCodeDPM
 }
 
+// IsTokenable
+func (it *DirectPostMethod) IsTokenable(checkoutInstance checkout.InterfaceCheckout) bool {
+	return false
+}
+
 // GetType returns type of payment method
 func (it *DirectPostMethod) GetType() string {
 	return checkout.ConstPaymentTypePostCC
