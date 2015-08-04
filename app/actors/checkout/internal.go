@@ -98,8 +98,8 @@ func (it *DefaultCheckout) CheckoutSuccess(checkoutOrder order.InterfaceOrder, s
 		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "17d45365-7808-4a1b-ad36-1741a83e820f", "Order or session is null")
 	}
 
-	// if payment method did not set status by itself - making this
-	if orderStatus := checkoutOrder.GetStatus(); orderStatus != order.ConstOrderStatusPayed && orderStatus != order.ConstOrderStatusCompleted {
+	// check order status for being payed to proceeding checkout success
+	if orderStatus := checkoutOrder.GetStatus(); orderStatus != order.ConstOrderStatusProcessed && orderStatus != order.ConstOrderStatusCompleted {
 		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "7dec976e-084b-4d29-9301-bb3b328be95f", "Order is not payed")
 	}
 

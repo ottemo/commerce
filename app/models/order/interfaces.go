@@ -17,7 +17,7 @@ const (
 	ConstOrderStatusCancelled = "cancelled" // means that order was created and then declined
 	ConstOrderStatusNew       = "new"       // means that order created but not payed
 	ConstOrderStatusPending   = "pending"   // means that order was submitted and currently in processing
-	ConstOrderStatusPayed     = "payed"     // means that order was payed
+	ConstOrderStatusProcessed = "processed" // means that order was payed
 	ConstOrderStatusCompleted = "completed" // means that order was completed
 
 	ConstErrorModule = "order"

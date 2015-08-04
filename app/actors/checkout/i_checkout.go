@@ -597,7 +597,7 @@ func (it *DefaultCheckout) Submit() (interface{}, error) {
 
 	// set status to payed for processing without Authorize
 	if checkoutOrder.GetStatus() == order.ConstOrderStatusPending {
-		checkoutOrder.SetStatus(order.ConstOrderStatusPayed)
+		checkoutOrder.SetStatus(order.ConstOrderStatusProcessed)
 		checkoutOrder.Save()
 	}
 
