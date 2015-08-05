@@ -508,7 +508,7 @@ func (it *DefaultCheckout) Submit() (interface{}, error) {
 	checkoutOrder.Set("shipping_address", shippingAddress)
 
 	shippingInfo := utils.InterfaceToMap(checkoutOrder.Get("shipping_info"))
-	shippingInfo["shipping_method_name"] = it.GetShippingMethod().GetName()+"/"+it.GetShippingRate().Name
+	shippingInfo["shipping_method_name"] = it.GetShippingMethod().GetName() + "/" + it.GetShippingRate().Name
 	if notes := utils.InterfaceToString(it.GetInfo("notes")); notes != "" {
 		shippingInfo["notes"] = notes
 	}
@@ -593,6 +593,12 @@ func (it *DefaultCheckout) Submit() (interface{}, error) {
 		if result != nil {
 			return result, nil
 		}
+	}
+
+	// set status to paid for processing without Authorize
+	if checkoutOrder.GetStatus() == order.ConstOrderStatusPending {
+		checkoutOrder.SetStatus(order.ConstOrderStatusProcessed)
+		checkoutOrder.Save()
 	}
 
 	err = it.CheckoutSuccess(checkoutOrder, it.GetSession())

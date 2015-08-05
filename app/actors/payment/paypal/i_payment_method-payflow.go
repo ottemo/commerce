@@ -138,7 +138,7 @@ func (it *PayFlowAPI) Authorize(orderInstance order.InterfaceOrder, paymentInfo 
 	}
 
 	orderInstance.Set("payment_info", orderPaymentInfo)
-	orderInstance.SetStatus(order.ConstOrderStatusPending)
+	orderInstance.SetStatus(order.ConstOrderStatusProcessed)
 	orderInstance.Save()
 	return nil, nil
 }
