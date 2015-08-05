@@ -2,6 +2,7 @@
 package quickbooks
 
 import (
+	"github.com/ottemo/foundation/app/models/order"
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
 )
@@ -14,26 +15,112 @@ const (
 
 var (
 	orderFields = [][]string{
+
 		{
-			"!TRNS", "TRNSID", "TRNSTYPE", "DATE", "ACCNT", "NAME", "CLASS", "AMOUNT", "DOCNUM",
-			"MEMO", "CLEAR", "TOPRINT", "ADDR1", "ADDR2", "ADDR3", "ADDR4", "ADDR5", "DUEDATE",
-			"TERMS", "PAID", "PAYMETH", "SHIPVIA", "SHIPDATE", "REP", "FOB", "PONUM", "INVTITLE",
-			"INVMEMO", "SADDR1", "SADDR2", "SADDR3", "SADDR4", "SADDR5", "NAMEISTAXABLE",
+			"!TRNS", "TRNSID", "TRNSTYPE", "DATE", "ACCNT", "NAME", "CLASS", "AMOUNT", "DOCNUM", "MEMO", "CLEAR", "ADDR1", "ADDR2", "ADDR3", "ADDR4", "SADDR1", "SADDR2", "SADDR3", "SADDR4", "PAID",
+		},
+
+		{
+			"!SPL", "SPLID", "TRNSTYPE", "DATE", "ACCNT", "NAME", "CLASS", "AMOUNT", "DOCNUM", "MEMO", "CLEAR", "QNTY", "PRICE", "INVITEM", "EXTRA",
+		},
+
+		{
+			"!ENDTRNS",
 		},
 	}
 
 	dataSeted = [][]interface{}{
 		{
-			"TRNS", "$_id", "PAYMENT",
+			// "!TRNS", "TRNSID", "TRNSTYPE",
+			"TRNS", "$_id", "INVOICE",
+			// Date
 			func(record map[string]interface{}) string {
-				return utils.InterfaceToTime(record["created_at"]).Format("02/01/06")
+				return utils.InterfaceToTime(record["created_at"]).Format("01/02/06")
 			},
-			"Orders", "$customer_name", "", "$grand_total", "$increment_id",
-			"MEMO", "N", "TOPRINT", "ADDR1", "ADDR2", "ADDR3", "ADDR4", "ADDR5", "DUEDATE",
-			"TERMS", "PAID", "PAYMETH", "SHIPVIA", "SHIPDATE", "REP", "FOB", "PONUM", "INVTITLE",
-			"INVMEMO", "SADDR1", "SADDR2", "SADDR3", "SADDR4", "SADDR5", "NAMEISTAXABLE",
+			// "ACCNT", 		"NAME", "CLASS", "AMOUNT", "DOCNUM", "MEMO", "CLEAR",
+			"Accounts Receivable", "$customer_name", "", "$grand_total", "$increment_id", "$customer_email", "N",
+			//			// DUEDATE
+			//			func(record map[string]interface{}) string {
+			//				return utils.InterfaceToTime(record["updated_at"]).Format("01/02/06")
+			//			},
+			// "ADDR1",
+			func(record map[string]interface{}) string {
+				address := utils.InterfaceToMap(record["billing_address"])
+				return utils.InterfaceToString(address["first_name"]) + utils.InterfaceToString(address["last_name"])
+			},
+			// "ADDR2",
+			func(record map[string]interface{}) string {
+				return utils.InterfaceToString(utils.InterfaceToMap(record["billing_address"])["address_line1"])
+			},
+			//	"ADDR3",
+			func(record map[string]interface{}) string {
+				address := utils.InterfaceToMap(record["billing_address"])
+				return utils.InterfaceToString(address["city"]) + ", " + utils.InterfaceToString(address["state"]) +
+					" " + utils.InterfaceToString(address["zip_code"])
+			},
+			// "ADDR4",
+			func(record map[string]interface{}) string {
+				return utils.InterfaceToString(utils.InterfaceToMap(record["billing_address"])["country"])
+			},
+			// "SADDR1",
+			func(record map[string]interface{}) string {
+				address := utils.InterfaceToMap(record["shipping_address"])
+				return utils.InterfaceToString(address["first_name"]) + utils.InterfaceToString(address["last_name"])
+			},
+			// "SADDR2",
+			func(record map[string]interface{}) string {
+				return utils.InterfaceToString(utils.InterfaceToMap(record["shipping_address"])["address_line1"])
+			},
+			//	"SADDR3",
+			func(record map[string]interface{}) string {
+				address := utils.InterfaceToMap(record["shipping_address"])
+				return utils.InterfaceToString(address["city"]) + ", " + utils.InterfaceToString(address["state"]) +
+					" " + utils.InterfaceToString(address["zip_code"])
+			},
+			// "SADDR4",
+			func(record map[string]interface{}) string {
+				return utils.InterfaceToString(utils.InterfaceToMap(record["shipping_address"])["country"])
+			},
+
+			// PAID Y or N depends from status
+			func(record map[string]interface{}) string {
+				status := utils.InterfaceToString(record["status"])
+				if status == order.ConstOrderStatusCompleted || status == order.ConstOrderStatusProcessed {
+					return "Y"
+				}
+				return "N"
+			},
+			//			"PONUM", "INVTITLE", "INVMEMO",
+		},
+		{
+			// "!SPL", "SPLID", "TRNSTYPE"
+			"SPL", "$_id", "INVOICE",
+			// Date
+			func(record map[string]interface{}) string {
+				return utils.InterfaceToTime(record["created_at"]).Format("01/02/06")
+			},
+			// "ACCNT", "NAME", "CLASS"
+			"Income", "", "",
+			// Amount with negative value
+			func(record map[string]interface{}) string {
+				return "-" + utils.InterfaceToString(record["grand_total"])
+			},
+			// "DOCNUM", "MEMO", "CLEAR", "QNTY", "PRICE", "INVITEM", "EXTRA"
+			"$increment_id", "$description", "N", "1", "$grand_total", "Product", "$description",
+		},
+		{
+			"ENDTRNS",
 		},
 	}
-)
 
-// "$_id", "PAYMENT", "func", "Orders", "$customer_name", "", "$grand_total", "$increment_id", "MEMO", "N", "TOPRINT", "ADDR1", "ADDR2", "ADDR3", "ADDR4", "ADDR5", "DUEDATE", "TERMS", "PAID", "PAYMETH", "SHIPVIA", "SHIPDATE", "REP", "FOB", "PONUM", "INVTITLE", "INVMEMO", "SADDR1", "SADDR2", "SADDR3", "SADDR4", "SADDR5", "NAMEISTAXABLE"
+
+	blocksHeaders = map[string][][]string {
+		"customers": {{}},
+		"invoices": orderFields,
+	}
+
+	blocksRecords = map[string][][]interface {} {
+		"customers": {{}},
+		"invoices": dataSeted,
+	}
+)

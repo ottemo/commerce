@@ -1,12 +1,14 @@
 package quickbooks
 
 import (
-	"encoding/csv"
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/app/models/order"
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
+
+	"encoding/csv"
 	"strings"
+	"time"
 )
 
 // setupAPI setups package related API endpoint routines
@@ -24,6 +26,13 @@ func setupAPI() error {
 // APIGetGiftCard return gift card info buy it's code
 func APIExportOrders(context api.InterfaceApplicationContext) (interface{}, error) {
 	var itemCSVRecords [][]string
+	var requestedOrdersIDs []interface {}
+
+	if context.GetRequestArgument("orders") != "" {
+		requestedOrdersIDs = utils.InterfaceToArray(context.GetRequestArgument("orders"))
+	}
+
+//	withCustomers := utils.InterfaceToBool(context.GetRequestArgument("customers"))
 
 	orderCollectionModel, err := order.GetOrderCollectionModel()
 	if err != nil {
@@ -32,6 +41,10 @@ func APIExportOrders(context api.InterfaceApplicationContext) (interface{}, erro
 
 	dbOrderCollection := orderCollectionModel.GetDBCollection()
 	dbOrderCollection.AddSort("created_at", false)
+
+	if requestedOrdersIDs != nil && len(requestedOrdersIDs) > 0 {
+		dbOrderCollection.AddFilter("_id", "in", requestedOrdersIDs)
+	}
 
 	dbRecords, err := dbOrderCollection.Load()
 	if err != nil {
@@ -75,7 +88,7 @@ func APIExportOrders(context api.InterfaceApplicationContext) (interface{}, erro
 	// preparing csv writer
 	csvWriter := csv.NewWriter(context.GetResponseWriter())
 
-	exportFilename := "ordersTestExport.csv"
+	exportFilename := "orders_export_" + time.Now().Format(time.RFC3339) + ".iif"
 
 	context.SetResponseContentType("text/csv")
 	context.SetResponseSetting("Content-disposition", "attachment;filename="+exportFilename)
@@ -87,9 +100,3 @@ func APIExportOrders(context api.InterfaceApplicationContext) (interface{}, erro
 
 	return nil, nil
 }
-
-//func convertRecordToRow (record map[string]interface {}, key string) []string {
-//	result := make([]string, 0)
-//
-//	return ""
-//}
