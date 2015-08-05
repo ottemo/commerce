@@ -3,11 +3,9 @@ package mysql
 import (
 	"fmt"
 	"io"
-	"regexp"
 	"strconv"
 	"strings"
-
-	sqlite3 "github.com/mxk/go-sqlite/sqlite3"
+	
 	"github.com/ottemo/foundation/env"
 )
 
@@ -50,13 +48,12 @@ func (it *DBCollection) Iterate(iteratorFunc func(record map[string]interface{})
 
 	SQL := it.getSelectSQL()
 
-	stmt, err := connectionQuery(SQL)
-	defer closeStatement(stmt)
+	rows, err := connectionQuery(SQL)
+	defer closeCursor(rows)
 
 	if err == nil {
-		for ; err == nil; err = stmt.Next() {
-			row := make(sqlite3.RowMap)
-			if err := stmt.Scan(row); err == nil {
+		for ok := rows.Next(); ok == true; ok = rows.Next() {
+			if row, err := getRowAsMap(rows); err == nil {
 				it.modifyResultRow(row)
 
 				if !iteratorFunc(row) {
@@ -81,18 +78,17 @@ func (it *DBCollection) Distinct(columnName string) ([]interface{}, error) {
 	prevResultColumns := it.ResultColumns
 	it.SetResultColumns(columnName)
 
-	SQL := "SELECT DISTINCT " + it.getSQLResultColumns() + " FROM " + it.Name + it.getSQLFilters() + it.getSQLOrder() + it.Limit
+	SQL := "SELECT DISTINCT " + it.getSQLResultColumns() + " FROM `" + it.Name + "`" + it.getSQLFilters() + it.getSQLOrder() + it.Limit
 
 	it.ResultColumns = prevResultColumns
 
-	stmt, err := connectionQuery(SQL)
-	defer closeStatement(stmt)
+	rows, err := connectionQuery(SQL)
+	defer closeCursor(rows)
 
 	var result []interface{}
 	if err == nil {
-		for ; err == nil; err = stmt.Next() {
-			row := make(sqlite3.RowMap)
-			if err := stmt.Scan(row); err == nil {
+		for ok := rows.Next(); ok == true; ok = rows.Next() {
+			if row, err := getRowAsMap(rows); err == nil {
 				ignoreNull := false
 				for _, columnValue := range row {
 					if columnValue == nil {
@@ -122,7 +118,7 @@ func (it *DBCollection) Distinct(columnName string) ([]interface{}, error) {
 							}
 						}
 					} else {
-						// if value is not array SQLite did distinct work for us
+						// if value is not array then SQL did distinct work for us
 						result = append(result, columnValue)
 					}
 
@@ -145,14 +141,13 @@ func (it *DBCollection) Distinct(columnName string) ([]interface{}, error) {
 func (it *DBCollection) Count() (int, error) {
 	sqlLoadFilter := it.getSQLFilters()
 
-	SQL := "SELECT COUNT(*) AS cnt FROM " + it.Name + sqlLoadFilter
+	SQL := "SELECT COUNT(*) AS cnt FROM `" + it.Name + "`" + sqlLoadFilter
 
-	stmt, err := connectionQuery(SQL)
-	defer closeStatement(stmt)
+	rows, err := connectionQuery(SQL)
+	defer closeCursor(rows)
 
 	if err == nil {
-		row := make(sqlite3.RowMap)
-		if err = stmt.Scan(row); err == nil {
+		if row, err := getRowAsMap(rows); err == nil {
 			cnt := int(row["cnt"].(int64)) //TODO: check this assertion works
 			return cnt, err
 		}
@@ -185,7 +180,7 @@ func (it *DBCollection) Save(item map[string]interface{}) (string, error) {
 			}
 		}
 	} else {
-		// _id in SQLite supposed to be auto-incremented int but for MongoDB it forced to be string
+		// _id in MySQL supposed to be auto-incremented int but for MongoDB it forced to be string
 		// collection interface also forced us to use string but we still want it ti be int in DB
 		// to make that we need to convert it before save from  string to int or nil
 		// and after save get auto-incremented id as convert to string
@@ -231,7 +226,7 @@ func (it *DBCollection) Save(item map[string]interface{}) (string, error) {
 
 	// trying to make update first, it we have _id
 	if item["_id"] != nil && item["_id"] != "" {
-		SQL := "UPDATE " + it.Name + " SET " + strings.Join(columnEqArg, ", ") +
+		SQL := "UPDATE `" + it.Name + "` SET " + strings.Join(columnEqArg, ", ") +
 			" WHERE `_id`=" + convertValueForSQL(item["_id"])
 
 		affected, err := connectionExecWAffected(SQL)
@@ -245,7 +240,7 @@ func (it *DBCollection) Save(item map[string]interface{}) (string, error) {
 
 	// so if update fas successful we do not need to insert
 	if makeInsertFlag {
-		SQL := "INSERT INTO " + it.Name +
+		SQL := "INSERT INTO `" + it.Name + "`" +
 			" (" + strings.Join(columns, ",") + ") VALUES" +
 			" (" + strings.Join(args, ",") + ")"
 
@@ -274,16 +269,16 @@ func (it *DBCollection) Save(item map[string]interface{}) (string, error) {
 func (it *DBCollection) Delete() (int, error) {
 	sqlDeleteFilter := it.getSQLFilters()
 
-	SQL := "DELETE FROM " + it.Name + sqlDeleteFilter
+	SQL := "DELETE FROM `" + it.Name + "` " + sqlDeleteFilter
 
 	affected, err := connectionExecWAffected(SQL)
 
-	return affected, env.ErrorDispatch(err)
+	return int(affected), env.ErrorDispatch(err)
 }
 
 // DeleteByID removes record from DB by is's id
 func (it *DBCollection) DeleteByID(id string) error {
-	SQL := "DELETE FROM " + it.Name + " WHERE _id = " + convertValueForSQL(id)
+	SQL := "DELETE FROM `" + it.Name + "` WHERE `_id` = " + convertValueForSQL(id)
 
 	return connectionExec(SQL)
 }
@@ -411,13 +406,15 @@ func (it *DBCollection) ListColumns() map[string]string {
 	}
 
 	// updating column into collection
-	SQL := "SELECT column, type FROM " + ConstCollectionNameColumnInfo + " WHERE collection = '" + it.Name + "'"
-	stmt, err := connectionQuery(SQL)
-	defer closeStatement(stmt)
+	SQL := "SELECT `column`, `type` FROM `" + ConstCollectionNameColumnInfo + "` WHERE `collection` = '" + it.Name + "'"
+	rows, _ := connectionQuery(SQL)
+	defer closeCursor(rows)
 
-	row := make(sqlite3.RowMap)
-	for ; err == nil; err = stmt.Next() {
-		stmt.Scan(row)
+	for ok := rows.Next(); ok == true; ok = rows.Next() {
+		row, err := getRowAsMap(rows)
+		if err != nil {
+			env.ErrorDispatch(err)
+		}
 
 		key := row["column"].(string)
 		value := row["type"].(string)
@@ -487,7 +484,7 @@ func (it *DBCollection) AddColumn(columnName string, columnType string, indexed 
 
 	// updating collection info table
 	//--------------------------------
-	SQL := "INSERT INTO " + ConstCollectionNameColumnInfo + "(collection, column, type, indexed) VALUES (" +
+	SQL := "INSERT INTO `" + ConstCollectionNameColumnInfo + "` (`collection`, `column`, `type`, `indexed`) VALUES (" +
 		"'" + it.Name + "', " +
 		"'" + columnName + "', " +
 		"'" + columnType + "', "
@@ -509,7 +506,7 @@ func (it *DBCollection) AddColumn(columnName string, columnType string, indexed 
 		return env.ErrorDispatch(err)
 	}
 
-	SQL = "ALTER TABLE " + it.Name + " ADD COLUMN \"" + columnName + "\" " + ColumnType
+	SQL = "ALTER TABLE `" + it.Name + "` ADD COLUMN `" + columnName + "` " + ColumnType
 
 	err = connectionExec(SQL)
 	if err != nil {
@@ -523,7 +520,6 @@ func (it *DBCollection) AddColumn(columnName string, columnType string, indexed 
 }
 
 // RemoveColumn removes attribute(column) to current collection(table)
-//   - sqlite do not have alter DROP COLUMN statements so it is hard task...
 func (it *DBCollection) RemoveColumn(columnName string) error {
 
 	// checking column in table
@@ -538,79 +534,25 @@ func (it *DBCollection) RemoveColumn(columnName string) error {
 
 	// getting table create SQL to take columns from
 	//----------------------------------------------
-	var tableCreateSQL string
+	SQL := "SHOW TABLES LIKE '" + it.Name + "'"
+	rows, err := connectionQuery(SQL)
+	if err != nil || !rows.Next() {
+		closeCursor(rows)
+		return sqlError(SQL, err)
+	}
+	closeCursor(rows)
 
-	SQL := "SELECT sql FROM sqlite_master WHERE tbl_name='" + it.Name + "' AND type='table'"
-	stmt, err := connectionQuery(SQL)
+	SQL = "DELETE FROM `" + ConstCollectionNameColumnInfo + "` WHERE `collection`='" + it.Name + "' AND column='" + columnName + "'"
+	if err := connectionExec(SQL); err != nil {
+		return sqlError(SQL, err)
+	}
+
+	// updating physical table
+	//-------------------------
+	SQL = "ALTER TABLE `" + it.Name + "` DROP COLUMN `" + columnName + "` "
+
+	err = connectionExec(SQL)
 	if err != nil {
-		closeStatement(stmt)
-		return sqlError(SQL, err)
-	}
-
-	err = stmt.Scan(&tableCreateSQL)
-	if err != nil {
-		closeStatement(stmt)
-		return err
-	}
-	closeStatement(stmt)
-
-	SQL = "DELETE FROM " + ConstCollectionNameColumnInfo + " WHERE collection='" + it.Name + "' AND column='" + columnName + "'"
-	if err := connectionExec(SQL); err != nil {
-		return sqlError(SQL, err)
-	}
-
-	// parsing create SQL, making same but w/o deleting column
-	//--------------------------------------------------------
-	tableColumnsWTypes := ""
-	tableColumnsWoTypes := ""
-
-	re := regexp.MustCompile("CREATE TABLE [^(]*\\((.*)\\)$")
-	if regexMatch := re.FindStringSubmatch(tableCreateSQL); len(regexMatch) >= 2 {
-		tableColumnsList := strings.Split(regexMatch[1], ", ")
-
-		for _, tableColumn := range tableColumnsList {
-			tableColumn = strings.Trim(tableColumn, "\n\t ")
-
-			if !strings.HasPrefix(tableColumn, columnName) && !strings.HasPrefix(tableColumn, "\""+columnName+"\"") {
-				if tableColumnsWTypes != "" {
-					tableColumnsWTypes += ", "
-					tableColumnsWoTypes += ", "
-				}
-				tableColumnsWTypes += tableColumn
-				tableColumnsWoTypes += tableColumn[0:strings.Index(tableColumn, " ")]
-			}
-
-		}
-	} else {
-		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "ac7aef2e-4b79-4e82-86aa-27e7ec0ab6ae", "can't find table create columns in '"+tableCreateSQL+"', found ["+strings.Join(regexMatch, ", ")+"]")
-	}
-
-	// making new table without removing column, and filling with values from old table
-	//---------------------------------------------------------------------------------
-	SQL = "CREATE TABLE " + it.Name + "_removecolumn (" + tableColumnsWTypes + ") "
-	if err := connectionExec(SQL); err != nil {
-		return sqlError(SQL, err)
-	}
-
-	SQL = "INSERT INTO " + it.Name + "_removecolumn (" + tableColumnsWoTypes + ") SELECT " + tableColumnsWoTypes + " FROM " + it.Name
-	if err := connectionExec(SQL); err != nil {
-		return sqlError(SQL, err)
-	}
-
-	// switching newly created table, deleting old table
-	//---------------------------------------------------
-	SQL = "ALTER TABLE " + it.Name + " RENAME TO " + it.Name + "_fordelete"
-	if err := connectionExec(SQL); err != nil {
-		return sqlError(SQL, err)
-	}
-
-	SQL = "ALTER TABLE " + it.Name + "_removecolumn RENAME TO " + it.Name
-	if err := connectionExec(SQL); err != nil {
-		return sqlError(SQL, err)
-	}
-
-	SQL = "DROP TABLE " + it.Name + "_fordelete"
-	if err := connectionExec(SQL); err != nil {
 		return sqlError(SQL, err)
 	}
 

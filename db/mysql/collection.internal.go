@@ -7,7 +7,6 @@ import (
 	"strings"
 	"time"
 
-	sqlite3 "github.com/mxk/go-sqlite/sqlite3"
 	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
@@ -86,7 +85,7 @@ func (it *DBCollection) getSelectSQL() string {
 }
 
 // un-serialize object values
-func (it *DBCollection) modifyResultRow(row sqlite3.RowMap) sqlite3.RowMap {
+func (it *DBCollection) modifyResultRow(row RowMap) RowMap {
 
 	for columnName, columnValue := range row {
 		columnType, present := dbEngine.attributeTypes[it.Name][columnName]

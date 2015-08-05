@@ -14,7 +14,7 @@ const (
 	ConstConnectionValidateInterval = time.Second * 10 // timer interval to ping connection and refresh it by perforce
 
 	ConstUseUUIDids = true  // flag which indicates to use UUID "_id" column type instead of default integer
-	ConstDebugSQL   = false // flag which indicates to perform log on each SQL operation
+	ConstDebugSQL   = true // flag which indicates to perform log on each SQL operation
 	ConstDebugFile  = "mysql.log"
 
 	ConstFilterGroupStatic  = "static"  // name for static filter, ref. to AddStaticFilter(...)
@@ -22,7 +22,7 @@ const (
 
 	ConstCollectionNameColumnInfo = "collection_column_info" // table name to hold Ottemo types of columns
 
-	ConstErrorModule = "db/sqlite"
+	ConstErrorModule = "db/mysql"
 	ConstErrorLevel  = env.ConstErrorLevelService
 )
 
@@ -34,6 +34,8 @@ var (
 	// ConstSQLNameValidator is a regex expression used to check names used within SQL queries
 	ConstSQLNameValidator = regexp.MustCompile("^[A-Za-z_][A-Za-z0-9_]*$")
 )
+
+type RowMap map[string]interface{}
 
 // StructDBFilterGroup is a structure to hold information of named collection filter
 type StructDBFilterGroup struct {

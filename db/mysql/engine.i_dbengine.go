@@ -2,7 +2,6 @@ package mysql
 
 import (
 	"strconv"
-	"database/sql"
 
 	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/env"
@@ -17,12 +16,12 @@ func (it *DBEngine) GetName() string {
 func (it *DBEngine) HasCollection(collectionName string) bool {
 	// collectionName = strings.ToLower(collectionName)
 
-	SQL := "SELECT name FROM sqlite_master WHERE type='table' AND name='" + collectionName + "'"
+	SQL := "SHOW TABLES LIKE '" + collectionName + "'"
 
-	stmt, err := connectionQuery(SQL)
-	defer closeStatement(stmt)
+	rows, err := connectionQuery(SQL)
+	defer closeCursor(rows)
 
-	if err == nil {
+	if err == nil && rows.Next() {
 		return true
 	}
 
@@ -49,7 +48,7 @@ func (it *DBEngine) CreateCollection(collectionName string) error {
 // GetCollection returns collection(table) by name or creates new one
 func (it *DBEngine) GetCollection(collectionName string) (db.InterfaceDBCollection, error) {
 	if !ConstSQLNameValidator.MatchString(collectionName) {
-		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "aa6e7efa-2855-44f1-a686-ff938ade2659", "not valid collection name for DB engine")
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "fb53c672-31bb-4f4f-8ff7-e20bcdd0fcc4", "not valid collection name for DB engine")
 	}
 
 	if !it.HasCollection(collectionName) {
@@ -77,17 +76,15 @@ func (it *DBEngine) RawQuery(query string) (map[string]interface{}, error) {
 
 	result := make([]map[string]interface{}, 0, 10)
 
-	row := make(sql.Row)
-
-	stmt, err := connectionQuery(query)
-	defer closeStatement(stmt)
+	rows, err := connectionQuery(query)
+	defer closeCursor(rows)
 
 	if err == nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	for ; err == nil; err = stmt.Next() {
-		if err := stmt.Scan(row); err == nil {
+	for ok := rows.Next(); ok == false; ok = rows.Next() {
+		if row, err := getRowAsMap(rows); err == nil {
 
 			if ConstUseUUIDids {
 				if _, present := row["_id"]; present {

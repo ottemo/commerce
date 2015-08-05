@@ -21,11 +21,11 @@ func connectionExecWLastInsertID(SQL string, args ...interface{}) (int64, error)
 		return -1, err
 	}
 
-	return result.LastInsertId(), err
+	return result.LastInsertId()
 }
 
 // exec routines
-func connectionExecWAffected(SQL string, args ...interface{}) (int, error) {
+func connectionExecWAffected(SQL string, args ...interface{}) (int64, error) {
 	dbEngine.connectionMutex.Lock()
 	defer dbEngine.connectionMutex.Unlock()
 
@@ -38,7 +38,7 @@ func connectionExecWAffected(SQL string, args ...interface{}) (int, error) {
 		return 0, err
 	}
 
-	return result.RowsAffected(), err
+	return result.RowsAffected()
 }
 
 // exec routines
@@ -50,11 +50,13 @@ func connectionExec(SQL string, args ...interface{}) error {
 		env.Log(ConstDebugFile, env.ConstLogPrefixInfo, SQL)
 	}
 
-	return dbEngine.connection.Exec(SQL, args...)
+	_, err  := dbEngine.connection.Exec(SQL, args...)
+
+	return err
 }
 
 // query routines
-func connectionQuery(SQL string) (*sql.Stmt, error) {
+func connectionQuery(SQL string) (*sql.Rows, error) {
 	dbEngine.connectionMutex.Lock()
 
 	if ConstDebugSQL {
@@ -64,10 +66,10 @@ func connectionQuery(SQL string) (*sql.Stmt, error) {
 	return dbEngine.connection.Query(SQL)
 }
 
-// close sqlite3 statement routine
-func closeStatement(statement *sql.Stmt) {
-	if statement != nil {
-		statement.Close()
+// closeCursor closes cursor statement routine
+func closeCursor(cursor *sql.Rows) {
+	if cursor != nil {
+		cursor.Close()
 	}
 	dbEngine.connectionMutex.Unlock()
 }
@@ -124,7 +126,34 @@ func convertValueForSQL(value interface{}) string {
 	return convertValueForSQL(utils.InterfaceToString(value))
 }
 
-// GetDBType returns type used inside sqlite for given general name
+func getRowAsMap(rows *sql.Rows) (RowMap, error) {
+	row := make(RowMap)
+
+	columns, err := rows.Columns()
+	if err != nil {
+		return row, env.ErrorDispatch(err)
+	}
+
+	values := make([]sql.RawBytes, len(columns))
+
+	scanArgs := make([]interface{}, len(values))
+	for i := range values {
+		scanArgs[i] = &values[i]
+	}
+
+	err = rows.Scan(scanArgs...)
+	if err != nil {
+		return row, env.ErrorDispatch(err)
+	}
+
+	for idx, column := range columns {
+		row[column] = values[idx]
+	}
+
+	return row, nil
+}
+
+// GetDBType returns type used inside mysql for given general name
 func GetDBType(ColumnType string) (string, error) {
 	ColumnType = strings.ToLower(ColumnType)
 	switch {
