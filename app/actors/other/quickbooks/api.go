@@ -11,11 +11,11 @@ import (
 	"time"
 )
 
-// setupAPI setups package related API endpoint routines
+// setupAPI configures the package related API endpoints
 func setupAPI() error {
 	var err error
 
-	err = api.GetRestService().RegisterAPI("quickbook/export", api.ConstRESTOperationGet, APIExportOrders)
+	err = api.GetRestService().RegisterAPI("quickbooks/export", api.ConstRESTOperationGet, APIExportOrders)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -23,16 +23,18 @@ func setupAPI() error {
 	return nil
 }
 
-// APIGetGiftCard return gift card info buy it's code
+// APIExportOrders returns a list of orders in Quickbooks IIF format
+// - returns all orders in IIF format with no parameters
+// - returns orders specified in url parameters
 func APIExportOrders(context api.InterfaceApplicationContext) (interface{}, error) {
 	var itemCSVRecords [][]string
-	var requestedOrdersIDs []interface {}
+	var requestedOrdersIDs []interface{}
 
 	if context.GetRequestArgument("orders") != "" {
 		requestedOrdersIDs = utils.InterfaceToArray(context.GetRequestArgument("orders"))
 	}
 
-//	withCustomers := utils.InterfaceToBool(context.GetRequestArgument("customers"))
+	//	withCustomers := utils.InterfaceToBool(context.GetRequestArgument("customers"))
 
 	orderCollectionModel, err := order.GetOrderCollectionModel()
 	if err != nil {
