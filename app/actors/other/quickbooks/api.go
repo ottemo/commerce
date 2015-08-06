@@ -1,14 +1,14 @@
 package quickbooks
 
 import (
+	"encoding/csv"
+	"strings"
+	"time"
+
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/app/models/order"
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
-
-	"encoding/csv"
-	"strings"
-	"time"
 )
 
 // setupAPI configures the package related API endpoints
