@@ -542,7 +542,7 @@ func (it *DBCollection) RemoveColumn(columnName string) error {
 	}
 	closeCursor(rows)
 
-	SQL = "DELETE FROM `" + ConstCollectionNameColumnInfo + "` WHERE `collection`='" + it.Name + "' AND column='" + columnName + "'"
+	SQL = "DELETE FROM `" + ConstCollectionNameColumnInfo + "` WHERE `collection`='" + it.Name + "' AND `column`='" + columnName + "'"
 	if err := connectionExec(SQL); err != nil {
 		return sqlError(SQL, err)
 	}
