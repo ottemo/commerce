@@ -53,7 +53,7 @@ func (it *DBCollection) Iterate(iteratorFunc func(record map[string]interface{})
 
 	if err == nil {
 		for ok := rows.Next(); ok == true; ok = rows.Next() {
-			if row, err := getRowAsMap(rows); err == nil {
+			if row, err := getRowAsStringMap(rows); err == nil {
 				it.modifyResultRow(row)
 
 				if !iteratorFunc(row) {
@@ -88,7 +88,7 @@ func (it *DBCollection) Distinct(columnName string) ([]interface{}, error) {
 	var result []interface{}
 	if err == nil {
 		for ok := rows.Next(); ok == true; ok = rows.Next() {
-			if row, err := getRowAsMap(rows); err == nil {
+			if row, err := getRowAsStringMap(rows); err == nil {
 				ignoreNull := false
 				for _, columnValue := range row {
 					if columnValue == nil {
@@ -147,7 +147,7 @@ func (it *DBCollection) Count() (int, error) {
 	defer closeCursor(rows)
 
 	if err == nil {
-		if row, err := getRowAsMap(rows); err == nil {
+		if row, err := getRowAsStringMap(rows); err == nil {
 			cnt := int(row["cnt"].(int64)) //TODO: check this assertion works
 			return cnt, err
 		}
@@ -411,7 +411,7 @@ func (it *DBCollection) ListColumns() map[string]string {
 	defer closeCursor(rows)
 
 	for ok := rows.Next(); ok == true; ok = rows.Next() {
-		row, err := getRowAsMap(rows)
+		row, err := getRowAsStringMap(rows)
 		if err != nil {
 			env.ErrorDispatch(err)
 		}

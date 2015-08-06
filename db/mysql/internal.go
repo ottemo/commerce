@@ -126,7 +126,7 @@ func convertValueForSQL(value interface{}) string {
 	return convertValueForSQL(utils.InterfaceToString(value))
 }
 
-func getRowAsMap(rows *sql.Rows) (RowMap, error) {
+func getRowAsStringMap(rows *sql.Rows) (RowMap, error) {
 	row := make(RowMap)
 
 	columns, err := rows.Columns()
@@ -134,7 +134,7 @@ func getRowAsMap(rows *sql.Rows) (RowMap, error) {
 		return row, env.ErrorDispatch(err)
 	}
 
-	values := make([]sql.RawBytes, len(columns))
+	values := make([]string, len(columns))
 
 	scanArgs := make([]interface{}, len(values))
 	for i := range values {

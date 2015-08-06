@@ -13,7 +13,6 @@ import (
 
 // init makes package self-initialization routine
 func init() {
-	println("111")
 	dbEngine = new(DBEngine)
 	dbEngine.attributeTypes = make(map[string]map[string]string)
 

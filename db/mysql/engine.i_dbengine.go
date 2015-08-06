@@ -9,7 +9,7 @@ import (
 
 // GetName returns current DB engine name
 func (it *DBEngine) GetName() string {
-	return "Sqlite3"
+	return "MySQL"
 }
 
 // HasCollection checks if collection(table) already exists
@@ -84,7 +84,7 @@ func (it *DBEngine) RawQuery(query string) (map[string]interface{}, error) {
 	}
 
 	for ok := rows.Next(); ok == false; ok = rows.Next() {
-		if row, err := getRowAsMap(rows); err == nil {
+		if row, err := getRowAsStringMap(rows); err == nil {
 
 			if ConstUseUUIDids {
 				if _, present := row["_id"]; present {
