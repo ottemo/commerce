@@ -157,7 +157,7 @@ func APIGetVisits(context api.InterfaceApplicationContext) (interface{}, error) 
 }
 
 // APIGetVisitsDetails returns detailed site visit information for a specified period
-//   - period start and end dates should be specified in "from" and "to" attributes in DD-MM-YYY format
+//   - period start and end dates should be specified in "from" and "to" attributes in YYYY-MM-DD format
 func APIGetVisitsDetails(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// getting initial values
