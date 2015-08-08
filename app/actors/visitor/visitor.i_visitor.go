@@ -3,9 +3,9 @@ package visitor
 import (
 	"crypto/md5"
 	"crypto/rand"
-	"encoding/hex"
-
 	"encoding/base64"
+	"encoding/hex"
+	"strings"
 	"time"
 
 	"github.com/ottemo/foundation/app"
@@ -17,14 +17,18 @@ import (
 )
 
 // returns InterfaceVisitorAddress model filled with values from DB or blank structure if no id found in DB
-func (it *DefaultVisitor) passwdEncode(passwd string) string {
-	salt := ":"
-	if len(passwd) > 2 {
-		salt += passwd[0:1]
-	}
+func (it *DefaultVisitor) passwdEncode(passwd string, salt string) string {
 
 	hasher := md5.New()
-	hasher.Write([]byte(passwd + salt))
+	if salt == "" {
+		salt := ":"
+		if len(passwd) > 2 {
+			salt += passwd[0:1]
+		}
+		hasher.Write([]byte(passwd + salt))
+	} else {
+		hasher.Write([]byte(salt + passwd))
+	}
 
 	return hex.EncodeToString(hasher.Sum(nil))
 }
@@ -202,10 +206,18 @@ func (it *DefaultVisitor) Validate(key string) error {
 // SetPassword updates the password for the current Visitor
 func (it *DefaultVisitor) SetPassword(passwd string) error {
 	if len(passwd) > 0 {
-		if utils.IsMD5(passwd) {
+
+		tmp := strings.Split(passwd, ":")
+		if len(tmp) == 2 {
+			if utils.IsMD5(tmp[0]) {
+				it.Password = passwd
+			} else {
+				it.Password = it.passwdEncode(passwd, "")
+			}
+		} else if utils.IsMD5(passwd) {
 			it.Password = passwd
 		} else {
-			it.Password = it.passwdEncode(passwd)
+			it.Password = it.passwdEncode(passwd, "")
 		}
 	} else {
 		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "c24bb166-0ffb-4abc-a8d5-ddacd859da72", "password can't be blank")
@@ -216,7 +228,19 @@ func (it *DefaultVisitor) SetPassword(passwd string) error {
 
 // CheckPassword validates password for the current Visitor
 func (it *DefaultVisitor) CheckPassword(passwd string) bool {
-	return it.passwdEncode(passwd) == it.Password
+
+	passwd = strings.TrimSpace(passwd)
+
+	pass := it.Password
+	salt := ""
+
+	tmp := strings.Split(it.Password, ":")
+	if len(tmp) == 2 {
+		pass = tmp[0]
+		salt = tmp[1]
+	}
+
+	return it.passwdEncode(passwd, salt) == pass
 }
 
 // GenerateNewPassword generates new password for the current Visitor
