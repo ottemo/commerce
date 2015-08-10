@@ -39,10 +39,6 @@ var (
 			},
 			// "ACCNT", 		"NAME", "CLASS", "AMOUNT", "DOCNUM", "MEMO", "CLEAR",
 			"Accounts Receivable", "$customer_name", "", "$grand_total", "$increment_id", "$customer_email", "N",
-			//			// DUEDATE
-			//			func(record map[string]interface{}) string {
-			//				return utils.InterfaceToTime(record["updated_at"]).Format("01/02/06")
-			//			},
 			// "ADDR1",
 			func(record map[string]interface{}) string {
 				address := utils.InterfaceToMap(record["billing_address"])
@@ -90,7 +86,6 @@ var (
 				}
 				return "N"
 			},
-			//			"PONUM", "INVTITLE", "INVMEMO",
 		},
 		{
 			// "!SPL", "SPLID", "TRNSTYPE"
@@ -113,14 +108,13 @@ var (
 		},
 	}
 
-
-	blocksHeaders = map[string][][]string {
+	blocksHeaders = map[string][][]string{
 		"customers": {{}},
-		"invoices": orderFields,
+		"invoices":  orderFields,
 	}
 
-	blocksRecords = map[string][][]interface {} {
+	blocksRecords = map[string][][]interface{}{
 		"customers": {{}},
-		"invoices": dataSeted,
+		"invoices":  dataSeted,
 	}
 )
