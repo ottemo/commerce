@@ -16,27 +16,27 @@ func setupAPI() error {
 		return env.ErrorDispatch(err)
 	}
 
+	err = api.GetRestService().RegisterAPI("cron/tasks", api.ConstRESTOperationCreate, createSchedule)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
 	err = api.GetRestService().RegisterAPI("cron/functions", api.ConstRESTOperationGet, getTasks)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("cron/task/enable/:taskIndex", api.ConstRESTOperationGet, enableSchedule)
+	err = api.GetRestService().RegisterAPI("cron/tasks/enable/:taskIndex", api.ConstRESTOperationGet, enableSchedule)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("cron/task/disable/:taskIndex", api.ConstRESTOperationGet, disableSchedule)
+	err = api.GetRestService().RegisterAPI("cron/tasks/disable/:taskIndex", api.ConstRESTOperationGet, disableSchedule)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("cron/task/:taskIndex", api.ConstRESTOperationUpdate, updateSchedule)
-	if err != nil {
-		return env.ErrorDispatch(err)
-	}
-
-	err = api.GetRestService().RegisterAPI("cron/task", api.ConstRESTOperationCreate, createSchedule)
+	err = api.GetRestService().RegisterAPI("cron/tasks/:taskIndex", api.ConstRESTOperationUpdate, updateSchedule)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -52,7 +52,7 @@ func getSchedules(context api.InterfaceApplicationContext) (interface{}, error) 
 		return nil, env.ErrorDispatch(err)
 	}
 
-	var result []interface {}
+	var result []interface{}
 
 	scheduler := env.GetScheduler()
 
@@ -100,9 +100,8 @@ func updateSchedule(context api.InterfaceApplicationContext) (interface{}, error
 		return nil, env.ErrorDispatch(err)
 	}
 
-
 	scheduler := env.GetScheduler()
-	scheduleParams := []string {"expr", "time", "task", "repeat", "params"}
+	scheduleParams := []string{"expr", "time", "task", "repeat", "params"}
 
 	for index, schedule := range scheduler.ListSchedules() {
 		if index == taskIndex {
@@ -147,7 +146,7 @@ func createSchedule(context api.InterfaceApplicationContext) (interface{}, error
 
 	taskName := utils.InterfaceToString(utils.GetFirstMapValue(postValues, "TaskName", "Task", "task"))
 
-	if taskName == "" || !utils.IsInListStr (taskName, scheduler.ListTasks()) {
+	if taskName == "" || !utils.IsInListStr(taskName, scheduler.ListTasks()) {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "eafc6b15-e897-4d9f-a93a-f84cffa78497", "task not specified or not regisetered")
 	}
 
@@ -156,7 +155,7 @@ func createSchedule(context api.InterfaceApplicationContext) (interface{}, error
 		isRepeat = utils.InterfaceToBool(repeatValue)
 	}
 
-	taskParams := make(map[string]interface {})
+	taskParams := make(map[string]interface{})
 	if taskParams, present := postValues["params"]; present {
 		taskParams = utils.InterfaceToMap(taskParams)
 	}
