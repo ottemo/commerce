@@ -507,12 +507,13 @@ func (it *DefaultCheckout) Submit() (interface{}, error) {
 	shippingAddress := it.GetShippingAddress().ToHashMap()
 	checkoutOrder.Set("shipping_address", shippingAddress)
 
-	// this is a hack until we decide all customers want notes on addresses - jwv 20150630
+	shippingInfo := utils.InterfaceToMap(checkoutOrder.Get("shipping_info"))
+	shippingInfo["shipping_method_name"] = it.GetShippingMethod().GetName() + "/" + it.GetShippingRate().Name
 	if notes := utils.InterfaceToString(it.GetInfo("notes")); notes != "" {
-		shippingInfo := utils.InterfaceToMap(checkoutOrder.Get("shipping_info"))
 		shippingInfo["notes"] = notes
-		checkoutOrder.Set("shipping_info", shippingInfo)
 	}
+	checkoutOrder.Set("shipping_info", shippingInfo)
+	checkoutOrder.Set("shipping_method", it.GetShippingMethod().GetCode()+"/"+it.GetShippingRate().Code)
 
 	checkoutOrder.Set("cart_id", currentCart.GetID())
 
@@ -523,7 +524,9 @@ func (it *DefaultCheckout) Submit() (interface{}, error) {
 	}
 
 	checkoutOrder.Set("payment_method", paymentMethod.GetCode())
-	checkoutOrder.Set("shipping_method", it.GetShippingMethod().GetCode()+"/"+it.GetShippingRate().Code)
+	paymentInfo := utils.InterfaceToMap(checkoutOrder.Get("payment_info"))
+	paymentInfo["payment_method_name"] = it.GetPaymentMethod().GetName()
+	checkoutOrder.Set("payment_info", paymentInfo)
 
 	discounts := it.GetDiscounts()
 	discountAmount := it.GetDiscountAmount()
@@ -590,6 +593,12 @@ func (it *DefaultCheckout) Submit() (interface{}, error) {
 		if result != nil {
 			return result, nil
 		}
+	}
+
+	// set status to paid for processing without Authorize
+	if checkoutOrder.GetStatus() == order.ConstOrderStatusPending {
+		checkoutOrder.SetStatus(order.ConstOrderStatusProcessed)
+		checkoutOrder.Save()
 	}
 
 	err = it.CheckoutSuccess(checkoutOrder, it.GetSession())

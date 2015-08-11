@@ -70,12 +70,19 @@ func APIApplyDiscount(context api.InterfaceApplicationContext) (interface{}, err
 
 	couponCode := context.GetRequestArgument("coupon")
 
+	currentSession := context.GetSession()
+
 	// getting applied coupons array for current session
-	appliedCoupons := utils.InterfaceToStringArray(context.GetSession().Get(ConstSessionKeyAppliedDiscountCodes))
+	appliedCoupons := utils.InterfaceToStringArray(currentSession.Get(ConstSessionKeyAppliedDiscountCodes))
+	usedCodes := utils.InterfaceToStringArray(currentSession.Get(ConstSessionKeyUsedDiscountCodes))
 
 	// checking if coupon was already applied
 	if utils.IsInArray(couponCode, appliedCoupons) {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "29c4c963-0940-4780-8ad2-9ed5ca7c97ff", "coupon code already applied")
+	}
+
+	if utils.IsInArray(couponCode, usedCodes) {
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "32315c6c-c932-4ad4-a1a1-5eaf86f1dcdc", "coupon code already used")
 	}
 
 	// loading coupon for specified code
@@ -121,7 +128,7 @@ func APIApplyDiscount(context api.InterfaceApplicationContext) (interface{}, err
 
 			// coupon is working - applying it
 			appliedCoupons = append(appliedCoupons, couponCode)
-			context.GetSession().Set(ConstSessionKeyAppliedDiscountCodes, appliedCoupons)
+			currentSession.Set(ConstSessionKeyAppliedDiscountCodes, appliedCoupons)
 
 		} else {
 			return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "63442858-bd71-4f10-855a-b5975fc2dd16", "coupon is not applicable")
@@ -352,6 +359,11 @@ func APICreateDiscount(context api.InterfaceApplicationContext) (interface{}, er
 		valueSince, _ = utils.MakeUTCTime(utils.InterfaceToTime(value), timeZone)
 	}
 
+	valueLimits := make(map[string]interface {})
+	if value, present := postValues["limits"]; present {
+		valueLimits = utils.InterfaceToMap(value)
+	}
+
 	collection, err := db.GetCollection(ConstCollectionNameCouponDiscounts)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
@@ -376,6 +388,7 @@ func APICreateDiscount(context api.InterfaceApplicationContext) (interface{}, er
 		"times":   -1,
 		"since":   valueSince,
 		"until":   valueUntil,
+		"limits":  valueLimits,
 	}
 
 	attributes := []string{"amount", "percent", "times"}
@@ -441,7 +454,7 @@ func APIUpdateDiscount(context api.InterfaceApplicationContext) (interface{}, er
 
 	// updating other attributes
 	//--------------------------
-	attributes := []string{"amount", "percent", "times"}
+	attributes := []string{"amount", "percent", "times", "limits"}
 	for _, attribute := range attributes {
 		if value, present := postValues[attribute]; present {
 			record[attribute] = value

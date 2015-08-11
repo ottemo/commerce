@@ -63,12 +63,34 @@ func orderProceedHandler(event string, eventData map[string]interface{}) bool {
 
 		if strings.Contains(giftCardSKU, giftCardsSKUElement) {
 
-			productName := cartItem.GetName()
+			recipientName := orderProceed.Get("customer_name")
 			giftCardAmount := float64(0)
 
 			// split item SKU with config gift card SKU value and sign "-" take last element
 			giftCardSplitedSKU := strings.Split(giftCardSKU, giftCardsSKUElement)
 			giftCardSplitedSKU = strings.Split(giftCardSplitedSKU[len(giftCardSplitedSKU)-1], "-")
+
+			// reed recipient options
+			productOptions := cartItem.GetOptions()
+			if recipientEmailOption := utils.GetFirstMapValue(productOptions, "Recipient email", "Email", "recipient_mailbox"); recipientEmailOption != nil {
+
+				recipientEmailOption := utils.InterfaceToMap(recipientEmailOption)
+				emailValue, present := recipientEmailOption["value"]
+
+				if present {
+					giftCardRecipientEmail = utils.InterfaceToString(emailValue)
+				}
+			}
+
+			if recipientNameOption := utils.GetFirstMapValue(productOptions, "Recipient", "Recipient name", "Name", "name"); recipientNameOption != nil {
+
+				recipientNameOption := utils.InterfaceToMap(recipientNameOption)
+				nameValue, present := recipientNameOption["value"]
+
+				if present && utils.InterfaceToString(nameValue) != "" {
+					recipientName = utils.InterfaceToString(nameValue)
+				}
+			}
 
 			// check is result value is number if not take amount as a price of item
 			if giftCardAmount = utils.InterfaceToFloat64(giftCardSplitedSKU[len(giftCardSplitedSKU)-1]); giftCardAmount <= 0 {
@@ -83,7 +105,7 @@ func orderProceedHandler(event string, eventData map[string]interface{}) bool {
 				giftCard := make(map[string]interface{})
 
 				giftCard["code"] = giftCardUniqueCode
-				giftCard["name"] = productName
+				giftCard["name"] = recipientName
 				giftCard["sku"] = giftCardSKU
 
 				giftCard["amount"] = giftCardAmount
@@ -151,7 +173,7 @@ func orderProceedHandler(event string, eventData map[string]interface{}) bool {
 				_, err := giftCardCollection.Save(giftCard)
 				if err != nil {
 					env.LogError(err)
-					return false
+					continue
 				}
 			}
 		}
@@ -237,7 +259,7 @@ func orderRollbackHandler(event string, eventData map[string]interface{}) bool {
 			giftCardCollection.DeleteByID(utils.InterfaceToString(record["_id"]))
 
 		} else {
-			env.LogError(env.ErrorNew(ConstErrorModule, ConstErrorLevel, "e6d02f68-157f-421c-904d-7f33c8408d6f", "cancell gift card that was already apllied"))
+			env.LogError(env.ErrorNew(ConstErrorModule, ConstErrorLevel, "e6d02f68-157f-421c-904d-7f33c8408d6f", "cancell gift card that was already apllied or delivered"))
 			record["status"] = ConstGiftCardStatusCanceled
 			record["amount"] = 0
 
@@ -306,9 +328,12 @@ func checkoutSuccessHandler(event string, eventData map[string]interface{}) bool
 
 		for _, record := range records {
 			giftCardRecipientEmail = utils.InterfaceToString(record["recipient_mailbox"])
-			if len(giftCardRecipientEmail) < 2 {
+			if !utils.ValidEmailAddress(giftCardRecipientEmail) {
+				record["recipient_mailbox"] = buyerEmail
 				giftCardRecipientEmail = buyerEmail
 			}
+
+			buyerInfo["name"] = utils.InterfaceToString(record["name"])
 
 			giftCardInfo := map[string]interface{}{
 				"Amount": utils.RoundPrice(utils.InterfaceToFloat64(record["amount"])),
@@ -331,6 +356,13 @@ func checkoutSuccessHandler(event string, eventData map[string]interface{}) bool
 			if err != nil {
 				env.LogError(err)
 				continue
+			}
+
+			record["status"] = ConstGiftCardStatusDelivered
+
+			_, err = giftCardCollection.Save(record)
+			if err != nil {
+				env.LogError(err)
 			}
 		}
 	}

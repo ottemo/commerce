@@ -19,12 +19,13 @@ const (
 	ConstErrorModule = "giftcard"
 	ConstErrorLevel  = env.ConstErrorLevelActor
 
-	ConstGiftCardStatusNew      = "new"
-	ConstGiftCardStatusApplied  = "applied"
-	ConstGiftCardStatusUsed     = "used"
-	ConstGiftCardStatusOverUsed = "over-used"
-	ConstGiftCardStatusRefilled = "refilled"
-	ConstGiftCardStatusCanceled = "canceled"
+	ConstGiftCardStatusNew       = "new"
+	ConstGiftCardStatusApplied   = "applied"
+	ConstGiftCardStatusUsed      = "used"
+	ConstGiftCardStatusOverUsed  = "over-used"
+	ConstGiftCardStatusRefilled  = "refilled"
+	ConstGiftCardStatusCanceled  = "canceled"
+	ConstGiftCardStatusDelivered = "delivered"
 )
 
 // DefaultGiftcard is a default implementer of InterfaceDiscount

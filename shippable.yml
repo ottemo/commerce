@@ -16,10 +16,10 @@ install:
     - go get -t
     - go get -t gopkg.in/mgo.v2 && go get -t github.com/Pallinder/go-randomdata && go get -t github.com/drhodes/golorem
     - go get -t github.com/mxk/go-sqlite/sqlite3 && go get -t github.com/gorhill/cronexpr
-    - go build -tags mongo 
 
 script:
     - go version
+    - ./make.sh -tags mongo 
 
 after_failure:
     - python slack_notifier.py --org $SLACK_ORG --project $PROJECT --token $SLACK_TOKEN
