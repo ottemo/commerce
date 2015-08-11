@@ -151,8 +151,15 @@ func createSchedule(context api.InterfaceApplicationContext) (interface{}, error
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "eafc6b15-e897-4d9f-a93a-f84cffa78497", "task not specified or not regisetered")
 	}
 
-	isRepeat := utils.InterfaceToBool(postValues["repeat"])
-	taskParams := utils.InterfaceToMap(postValues["params"])
+	isRepeat := false
+	if repeatValue, present := postValues["repeat"]; present {
+		isRepeat = utils.InterfaceToBool(repeatValue)
+	}
+
+	taskParams := make(map[string]interface {})
+	if taskParams, present := postValues["params"]; present {
+		taskParams = utils.InterfaceToMap(taskParams)
+	}
 
 	var newSchedule env.InterfaceSchedule
 	if !utils.IsZeroTime(scheduledTime) {
