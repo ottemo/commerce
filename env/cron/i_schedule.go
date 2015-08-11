@@ -1,10 +1,11 @@
 package cron
 
 import (
+	"time"
+
 	"github.com/gorhill/cronexpr"
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
-	"time"
 )
 
 // Execute  - execute a scheduled task
