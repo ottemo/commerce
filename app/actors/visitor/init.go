@@ -55,7 +55,7 @@ func setupDB() error {
 
 	collection.AddColumn("type", db.TypeWPrecision(db.ConstTypeVarchar, 50), false)
 	collection.AddColumn("number", db.TypeWPrecision(db.ConstTypeVarchar, 50), false)
-	collection.AddColumn("expiration_date", db.ConstTypeDatetime, false)
+	collection.AddColumn("expiration_date", db.TypeWPrecision(db.ConstTypeVarchar, 50), false)
 
 	collection.AddColumn("holder", db.ConstTypeVarchar, false)
 

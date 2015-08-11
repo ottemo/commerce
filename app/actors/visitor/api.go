@@ -18,6 +18,7 @@ import (
 	"github.com/ottemo/foundation/app/models/checkout"
 	"github.com/ottemo/foundation/app/models/order"
 	"github.com/ottemo/foundation/app/models/visitor"
+	"github.com/ottemo/foundation/db"
 )
 
 // setupAPI setups package related API endpoint routines
@@ -1078,32 +1079,67 @@ func APICreateToken(context api.InterfaceApplicationContext) (interface{}, error
 		return nil, err
 	}
 
-	paymentMethod := utils.InterfaceToString(utils.GetFirstMapValue(requestData, "payment", "payment_method"))
-	if paymentMethod == "" {
+	paymentMethodCode := utils.InterfaceToString(utils.GetFirstMapValue(requestData, "payment", "payment_method"))
+	if paymentMethodCode == "" {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "6d1691c8-2d26-44be-b90d-24d920e26301", "payment method not selected")
 	}
 
-	var found bool
+	value, present := requestData["cc"]
+	if !present {
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "2e9f1bfc-ec9f-4017-83c6-4d04b95b9c08", "payment info not specified")
+	}
+
+	creditCardInfo := utils.InterfaceToMap(value)
+
+	var paymentMethod checkout.InterfacePaymentMethod
+
 	for _, payment := range checkout.GetRegisteredPaymentMethods() {
-		if payment.GetCode() == paymentMethod {
-			found = true
+		if payment.GetCode() == paymentMethodCode {
 			if !payment.IsTokenable(nil) {
 				return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "519ef43c-4d07-4b64-90f7-7fdc3657940a", "for selected payment method credit card can't be saved")
 			}
-			paymentInfo := map[string]interface{}{
-				"amount": 0,
-			}
-			return payment.Authorize(nil, paymentInfo)
-		}
-
-		if found {
-			break
+			paymentMethod = payment
 		}
 	}
 
-	if !found {
+	if paymentMethod == nil {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "c80c4106-1208-4d0b-8577-0889f608869b", "such payment method not existing")
 	}
 
-	return "ok", nil
+	paymentInfo := map[string]interface{}{
+		"amount": 0,
+		"cc":     creditCardInfo,
+	}
+
+	// contains creditCardLastFour, creditCardType, responseMessage, responseResult, transactionID, creditCardExp
+	paymentResult, err := paymentMethod.Authorize(nil, paymentInfo)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	cardInfoMap := utils.InterfaceToMap(paymentResult)
+
+	// create token record in database and save it for visitor
+	tokenRecord := map[string]interface{}{
+		"visitor_id":      visitorID,
+		"payment":         paymentMethodCode,
+		"type":            cardInfoMap["creditCardType"],
+		"number":          cardInfoMap["creditCardLastFour"],
+		"expiration_date": cardInfoMap["creditCardExp"],
+		"holder":          "Noname",
+		"token":           cardInfoMap["transactionID"],
+		"updated":         time.Now(),
+	}
+
+	collection, err := db.GetCollection(ConstCollectionNameVisitorToken)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	_, err = collection.Save(tokenRecord)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	return tokenRecord, nil
 }

@@ -43,8 +43,13 @@ func (it *PayFlowAPI) IsAllowed(checkoutInstance checkout.InterfaceCheckout) boo
 // Authorize makes payment method authorize operation (currently it's a Authorize zero amount + Sale operations)
 func (it *PayFlowAPI) Authorize(orderInstance order.InterfaceOrder, paymentInfo map[string]interface{}) (interface{}, error) {
 
+	// make only authorize zero amount procedure to obtain and return it's token with additional payment info
 	if value, present := paymentInfo["amount"]; present && utils.InterfaceToFloat64(value) == 0 {
-		return it.CreateAuthorizeZeroAmountRequest(orderInstance, paymentInfo)
+		return it.AuthorizeZeroAmount(orderInstance, paymentInfo)
+
+		// currently we will do request directly from foundation side but our next step is to do it just create request content
+		// and make post from storefront
+		//		return it.CreateAuthorizeZeroAmountRequest(orderInstance, paymentInfo)
 	}
 
 	authorizeZeroResult, err := it.AuthorizeZeroAmount(orderInstance, paymentInfo)
@@ -239,14 +244,6 @@ func (it *PayFlowAPI) AuthorizeZeroAmount(orderInstance order.InterfaceOrder, pa
 
 	// getting order information
 	//--------------------------
-	billingAddress := orderInstance.GetBillingAddress()
-	if billingAddress == nil {
-		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "17a1b377-7915-4cd0-a4e8-40379e34851f", "no billing address information")
-	}
-
-	if orderInstance == nil {
-		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "ae8dfe99-4895-43fa-b2af-a575d94fd80a", "no created order")
-	}
 
 	user := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathPayPalPayflowUser))
 	password := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathPayPalPayflowPass))
@@ -265,16 +262,9 @@ func (it *PayFlowAPI) AuthorizeZeroAmount(orderInstance order.InterfaceOrder, pa
 		"&ACCT=" + utils.InterfaceToString(ccInfo["number"]) +
 		"&EXPDATE=" + ccExpirationDate +
 
-		// Payer Information Fields
-		"&EMAIL=" + utils.InterfaceToString(orderInstance.Get("customer_email")) +
-		"&BILLTOFIRSTNAME=" + billingAddress.GetFirstName() +
-		"&BILLTOLASTNAME=" + billingAddress.GetLastName() +
-		"&BILLTOZIP=" + billingAddress.GetZipCode() +
-
 		// Payment Details Fields
 		"&AMT=0" +
-		"&VERBOSITY=HIGH" +
-		"&INVNUM=" + orderInstance.GetID()
+		"&VERBOSITY=HIGH"
 
 	// add additional params to request
 	if ccSecureCode, ccSecureCodePresent := ccInfo["cvv"]; ccSecureCodePresent {
@@ -290,8 +280,6 @@ func (it *PayFlowAPI) AuthorizeZeroAmount(orderInstance order.InterfaceOrder, pa
 	request.Header.Add("Content-Type", "text/name value")
 	request.Header.Add("Host", utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathPayPalPayflowHost)))
 
-	fmt.Println(request)
-	fmt.Println(requestParams, nvpGateway)
 	response, err := http.DefaultClient.Do(request)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
@@ -306,7 +294,6 @@ func (it *PayFlowAPI) AuthorizeZeroAmount(orderInstance order.InterfaceOrder, pa
 		return nil, env.ErrorDispatch(err)
 	}
 
-	fmt.Println(responseBody)
 	responseValues, err := url.ParseQuery(string(responseBody))
 	if err != nil {
 		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "550c824b-86cf-4c8d-a13e-73f92da15bde", "payment unexpected response")
@@ -327,7 +314,8 @@ func (it *PayFlowAPI) AuthorizeZeroAmount(orderInstance order.InterfaceOrder, pa
 		"responseMessage":    responseMessage,
 		"responseResult":     responseResult,
 		"creditCardLastFour": responseValues.Get("ACCT"),
-		"creditCardType":     responseValues.Get("CARDTYPE"),
+		"creditCardType":     getCreditCardName(responseValues.Get("CARDTYPE")),
+		"creditCardExp":      responseValues.Get("EXPDATE"),
 	}
 
 	// Check all values in response for valid credit card data
