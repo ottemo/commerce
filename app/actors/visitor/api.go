@@ -178,7 +178,7 @@ func APIUpdateVisitor(context api.InterfaceApplicationContext) (interface{}, err
 		sessionValue := context.GetSession().Get(visitor.ConstSessionKeyVisitorID)
 		sessionVisitorID, ok := sessionValue.(string)
 		if !ok {
-			return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "e7a97b45-a22a-48c5-96f8-f4ecd3f8380f", "Not logged in, please login")
+			return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "e7a97b45-a22a-48c5-96f8-f4ecd3f8380f", "Not logged in, please login.")
 		}
 		visitorID = sessionVisitorID
 	}
@@ -204,17 +204,17 @@ func APIUpdateVisitor(context api.InterfaceApplicationContext) (interface{}, err
 		if _, present := requestData["password"]; present {
 			if oldPass, present := requestData["old_password"]; present {
 				if ok := visitorModel.CheckPassword(utils.InterfaceToString(oldPass)); !ok {
-					return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "13a80ab1-d44e-4a90-979c-ea6914d9c012", "wrong password")
+					return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "13a80ab1-d44e-4a90-979c-ea6914d9c012", "Password entered does not match stored password.")
 				}
 				delete(requestData, "old_password")
 			} else {
-				return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "157df5fa-d775-4934-af94-b77ef8c826e9", "please specify old password")
+				return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "157df5fa-d775-4934-af94-b77ef8c826e9", "Please enter current password and try again.")
 			}
 		}
 		// When admin user change password from storefront we will validate it
 	} else if oldPass, present := requestData["old_password"]; present {
 		if ok := visitorModel.CheckPassword(utils.InterfaceToString(oldPass)); !ok {
-			return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "13a80ab1-d44e-4a90-979c-ea6914d9c012", "wrong password")
+			return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "13a80ab1-d44e-4a90-979c-ea6914d9c012", "Password entered does not match stored password.")
 		}
 		delete(requestData, "old_password")
 	}
@@ -247,7 +247,7 @@ func APIDeleteVisitor(context api.InterfaceApplicationContext) (interface{}, err
 
 	visitorID := context.GetRequestArgument("visitorID")
 	if visitorID == "" {
-		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "157df5fa-d775-4934-af94-b77ef8c826e9", "visitor id was not specified")
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "157df5fa-d775-4934-af94-b77ef8c826e9", "No Visitor ID found, please specify a Visitor ID.")
 	}
 
 	// delete operation
@@ -277,7 +277,7 @@ func APIGetVisitor(context api.InterfaceApplicationContext) (interface{}, error)
 
 	visitorID := context.GetRequestArgument("visitorID")
 	if visitorID == "" {
-		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "58630919-23f5-4406-8676-a7d1a629b35f", "visitor id was not specified")
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "58630919-23f5-4406-8676-a7d1a629b35f", "No Visitor ID found, please specify a Visitor ID.")
 	}
 
 	// get operation
@@ -349,15 +349,15 @@ func APICreateVisitorAttribute(context api.InterfaceApplicationContext) (interfa
 
 	attributeName, isSpecified := requestData["Attribute"]
 	if !isSpecified {
-		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "f91e2342-d19d-4d83-8c6d-f7dc4237a49f", "attribute name was not specified")
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "f91e2342-d19d-4d83-8c6d-f7dc4237a49f", "Attribute Name was not specified, this is a required field.")
 	}
 
 	attributeLabel, isSpecified := requestData["Label"]
 	if !isSpecified {
-		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "23c7d427-ab41-4183-b446-bf5ffef2e8fc", "attribute label was not specified")
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "23c7d427-ab41-4183-b446-bf5ffef2e8fc", "Attribute Label was not specified, this is a required field.")
 	}
 
-	// make product attribute operation
+	// create visitor by filling model
 	//---------------------------------
 	visitorModel, err := visitor.GetVisitorModel()
 	if err != nil {
@@ -422,7 +422,7 @@ func APIUpdateVisitorAttribute(context api.InterfaceApplicationContext) (interfa
 
 	attributeName := context.GetRequestArgument("attribute")
 	if attributeName == "" {
-		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "cb8f7251-e22b-4605-97bb-e239df6c7aac", "attribute name was not specified")
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "cb8f7251-e22b-4605-97bb-e239df6c7aac", "Attribute Name was not specified, this is a required field.")
 	}
 
 	// check rights
@@ -438,7 +438,7 @@ func APIUpdateVisitorAttribute(context api.InterfaceApplicationContext) (interfa
 	for _, attribute := range visitorModel.GetAttributesInfo() {
 		if attribute.Attribute == attributeName {
 			if attribute.IsStatic == true {
-				return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "2893262f-a61a-42f8-9c75-e763e0a5c8ca", "can't edit static attributes")
+				return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "2893262f-a61a-42f8-9c75-e763e0a5c8ca", "Attribute is static, cannot edit static attributes.")
 			}
 
 			for key, value := range requestData {
@@ -471,7 +471,7 @@ func APIUpdateVisitorAttribute(context api.InterfaceApplicationContext) (interfa
 		}
 	}
 
-	return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "2893262f-a61a-42f8-9c75-e763e0a5c8ca", "attribute not found")
+	return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "2893262f-a61a-42f8-9c75-e763e0a5c8ca", "Unable to find specified attribute.")
 }
 
 // APIDeleteVisitorAttribute removes existing custom attribute of a visitor model
@@ -486,7 +486,7 @@ func APIDeleteVisitorAttribute(context api.InterfaceApplicationContext) (interfa
 
 	attributeName := context.GetRequestArgument("attribute")
 	if attributeName == "" {
-		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "4b0f0edf-6926-42d8-a625-7d4d424ee819", "attribute name was not specified")
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "4b0f0edf-6926-42d8-a625-7d4d424ee819", "Attribute Name was not specified, this is required field.")
 	}
 
 	// remove attribute actions
@@ -517,7 +517,7 @@ func APIRegisterVisitor(context api.InterfaceApplicationContext) (interface{}, e
 	}
 
 	if !utils.KeysInMapAndNotBlank(requestData, "email") {
-		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "a37ff1e8-68e3-4201-a7b4-c9b4356dcbeb", "email was not specified")
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "a37ff1e8-68e3-4201-a7b4-c9b4356dcbeb", "An email address was not specified, this is a required field.")
 	}
 
 	// register visitor operation
@@ -563,7 +563,7 @@ func APIValidateVisitors(context api.InterfaceApplicationContext) (interface{}, 
 
 	validationKey := context.GetRequestArgument("key")
 	if validationKey == "" {
-		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "0b1c8414-18bf-4c44-8b29-c462d38d5498", "validation key was not specified")
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "0b1c8414-18bf-4c44-8b29-c462d38d5498", "Validation key was not specified, this is a required field.")
 	}
 
 	visitorModel, err := visitor.GetVisitorModel()
@@ -648,7 +648,7 @@ func APIGetVisit(context api.InterfaceApplicationContext) (interface{}, error) {
 		if isAdmin {
 			return map[string]interface{}{"is_admin": true}, nil
 		}
-		return "No session found, please log in first", nil
+		return "No session found, please log in first.", nil
 	}
 
 	// visitor info
@@ -728,7 +728,7 @@ func APILogin(context api.InterfaceApplicationContext) (interface{}, error) {
 	}
 
 	if !utils.KeysInMapAndNotBlank(requestData, "email", "password") {
-		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "02b0583b-28c3-4072-afe2-f392a163ed87", "email and/or password were not specified")
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "02b0583b-28c3-4072-afe2-f392a163ed87", "Email Address and/or Password was not specified, these are required fields.")
 	}
 
 	requestLogin := strings.ToLower(utils.InterfaceToString(requestData["email"]))
@@ -743,7 +743,7 @@ func APILogin(context api.InterfaceApplicationContext) (interface{}, error) {
 
 			return "ok", nil
 		}
-		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "3f10710a-7484-42ac-af49-c69bce11ec13", "wrong login - should be email")
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "3f10710a-7484-42ac-af49-c69bce11ec13", "Please enter a valid email address in the correct format.")
 	}
 
 	// visitor info
@@ -760,14 +760,14 @@ func APILogin(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	ok := visitorModel.CheckPassword(requestPassword)
 	if !ok {
-		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "13a80ab1-d44e-4a90-979c-ea6914d9c012", "wrong password")
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "13a80ab1-d44e-4a90-979c-ea6914d9c012", "The password entered does not match the stored password.")
 	}
 
 	// api session updates
 	if visitorModel.IsValidated() {
 		context.GetSession().Set(visitor.ConstSessionKeyVisitorID, visitorModel.GetID())
 	} else {
-		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "29fba7a4-bd85-400e-81c2-69189c50d0d0", "visitor is not validated, please check "+visitorModel.GetEmail()+" for a verify link we sent you")
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "29fba7a4-bd85-400e-81c2-69189c50d0d0", "This account has not been verfied, please check your email account: ,"+visitorModel.GetEmail()+" for a verification link sent to you.")
 	}
 
 	if visitorModel.IsAdmin() {
@@ -789,11 +789,11 @@ func APIFacebookLogin(context api.InterfaceApplicationContext) (interface{}, err
 	}
 
 	if !utils.KeysInMapAndNotBlank(requestData, "access_token") {
-		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "b4b0356d-6c17-4b63-bc72-0cfc943535e2", "access_token was not specified")
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "b4b0356d-6c17-4b63-bc72-0cfc943535e2", "No access token found named 'access_token', this is a required field.")
 	}
 
 	if !utils.KeysInMapAndNotBlank(requestData, "user_id") {
-		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "17b8481d-cf78-4edb-b866-f067d496915d", "user_id was not specified")
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "17b8481d-cf78-4edb-b866-f067d496915d", "No ID found named 'user_id', this is a required field.")
 	}
 
 	// facebook login operation
@@ -807,7 +807,7 @@ func APIFacebookLogin(context api.InterfaceApplicationContext) (interface{}, err
 	}
 
 	if facebookResponse.StatusCode != 200 {
-		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "9b304209-107a-4ba5-8329-ebfaebb70ff5", "Can't use facebook API: "+facebookResponse.Status)
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "9b304209-107a-4ba5-8329-ebfaebb70ff5", "Facebook is not responding at this time, unable to use this login method. Current status code found: "+facebookResponse.Status)
 	}
 
 	responseData, err := ioutil.ReadAll(facebookResponse.Body)
@@ -823,7 +823,7 @@ func APIFacebookLogin(context api.InterfaceApplicationContext) (interface{}, err
 	}
 
 	if !utils.StrKeysInMap(jsonMap, "id", "email", "first_name", "last_name", "verified") {
-		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "6258ffff-8336-49ef-9aaf-dd15f578a16f", "unexpected facebook response")
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "6258ffff-8336-49ef-9aaf-dd15f578a16f", "The following fields are all required: id, email, first_name, last_name and verfied.")
 	}
 
 	// trying to load visitor from our DB
@@ -834,7 +834,7 @@ func APIFacebookLogin(context api.InterfaceApplicationContext) (interface{}, err
 
 	visitorModel, ok := model.(visitor.InterfaceVisitor)
 	if !ok {
-		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "42144bb6-37a2-4dd0-87d8-542270e3c5b7", "visitor model is not InterfaceVisitor campatible")
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "42144bb6-37a2-4dd0-87d8-542270e3c5b7", "Unable to create visitor using using specified fields.")
 	}
 
 	// trying to load visitor by facebook_id
@@ -858,7 +858,7 @@ func APIFacebookLogin(context api.InterfaceApplicationContext) (interface{}, err
 		} else {
 			// we have visitor with that e-mail just updating token, if it verified
 			if value, ok := jsonMap["verified"].(bool); !(ok && value) {
-				return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "904b3ad7-4350-4823-8f8c-6f278b032168", "facebook account email unverified")
+				return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "904b3ad7-4350-4823-8f8c-6f278b032168", "Account has not been verfied.  Please check your email account: "+visitorModel.GetEmail()+", for an email with a verification link.")
 			}
 
 			visitorModel.Set("facebook_id", jsonMap["id"])
@@ -880,7 +880,7 @@ func APIFacebookLogin(context api.InterfaceApplicationContext) (interface{}, err
 	return "ok", nil
 }
 
-// APIGoogleLogin makes login and/or registration via Google
+// APIGoogleLogin associates the specified email address with a Google account
 //   - "access_token" attribute needed
 //   - visitor attributes will be taken from Google
 func APIGoogleLogin(context api.InterfaceApplicationContext) (interface{}, error) {
