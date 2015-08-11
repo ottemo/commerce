@@ -136,7 +136,7 @@ func APICreateVisitor(context api.InterfaceApplicationContext) (interface{}, err
 	}
 
 	if !utils.KeysInMapAndNotBlank(requestData, "email") {
-		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "a9610b78-add9-4ae5-b757-59462b646d2b", "'email' was not specified")
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "a9610b78-add9-4ae5-b757-59462b646d2b", "No email address specified, please specify an email address.")
 	}
 
 	// create operation
@@ -147,6 +147,10 @@ func APICreateVisitor(context api.InterfaceApplicationContext) (interface{}, err
 	}
 
 	for attribute, value := range requestData {
+		// always lowercase email address
+		if attribute == "email" {
+			value = strings.ToLower(utils.InterfaceToString(value))
+		}
 		err := visitorModel.Set(attribute, value)
 		if err != nil {
 			return nil, env.ErrorDispatch(err)
