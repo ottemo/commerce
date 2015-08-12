@@ -5,6 +5,7 @@ import (
 	"math/rand"
 	"mime"
 	"strings"
+	"time"
 
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/app/models"
@@ -570,6 +571,10 @@ func APIAddMediaForProduct(context api.InterfaceApplicationContext) (interface{}
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
+
+	// Adding timestamp to image name to prevent overwriting
+	mediaNameParts := strings.SplitN(mediaName, ".", 2)
+	mediaName = mediaNameParts[0] + "_" + utils.InterfaceToString(time.Now().Unix()) + "." + mediaNameParts[1]
 
 	err = productModel.AddMedia(mediaType, mediaName, fileContents)
 	if err != nil {

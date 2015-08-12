@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"mime"
 	"strings"
+	"time"
 
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/app/models"
@@ -757,6 +758,10 @@ func APIAddMediaForCategory(context api.InterfaceApplicationContext) (interface{
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
+
+	// Adding timestamp to image name to prevent overwriting
+	mediaNameParts := strings.SplitN(mediaName, ".", 2)
+	mediaName = mediaNameParts[0] + "_" + utils.InterfaceToString(time.Now().Unix()) + "." + mediaNameParts[1]
 
 	err = categoryModel.AddMedia(mediaType, mediaName, fileContents)
 	if err != nil {

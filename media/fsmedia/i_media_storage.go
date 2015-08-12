@@ -2,8 +2,10 @@ package fsmedia
 
 import (
 	"bytes"
+	"github.com/ottemo/foundation/app"
 	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/foundation/utils"
 	"image"
 	"image/jpeg"
 	"io/ioutil"
@@ -264,6 +266,9 @@ func (it *FilesystemMediaStorage) GetAllSizes(model string, objID string, mediaT
 	if err != nil {
 		return result, env.ErrorDispatch(err)
 	}
+
+	mediaBasePath := utils.InterfaceToString(env.ConfigGetValue(app.ConstConfigPathMediaBaseURL))
+	path = mediaBasePath + path
 
 	for _, record := range records {
 
