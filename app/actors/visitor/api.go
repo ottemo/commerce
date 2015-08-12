@@ -504,7 +504,7 @@ func APIDeleteVisitorAttribute(context api.InterfaceApplicationContext) (interfa
 	return "ok", nil
 }
 
-// APIRegisterVisitor creates a new visitor, sends validation link to visitor email
+// APIRegisterVisitor creates a new visitor, sends verification link to visitor email
 //   - visitor attributes should be included contents
 //   - "email" attribute required
 func APIRegisterVisitor(context api.InterfaceApplicationContext) (interface{}, error) {
@@ -558,12 +558,12 @@ func APIRegisterVisitor(context api.InterfaceApplicationContext) (interface{}, e
 }
 
 // APIValidateVisitors validates visitors by a key which sends after registration
-//   - validation key should be provided in "key" argument
+//   - verification key should be provided in "key" argument
 func APIValidateVisitors(context api.InterfaceApplicationContext) (interface{}, error) {
 
-	validationKey := context.GetRequestArgument("key")
-	if validationKey == "" {
-		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "0b1c8414-18bf-4c44-8b29-c462d38d5498", "Validation key was not specified, this is a required field.")
+	verificationKey := context.GetRequestArgument("key")
+	if verificationKey == "" {
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "0b1c8414-18bf-4c44-8b29-c462d38d5498", "Verification key was not specified, this is a required field.")
 	}
 
 	visitorModel, err := visitor.GetVisitorModel()
@@ -571,7 +571,7 @@ func APIValidateVisitors(context api.InterfaceApplicationContext) (interface{}, 
 		return nil, env.ErrorDispatch(err)
 	}
 
-	err = visitorModel.Validate(validationKey)
+	err = visitorModel.Validate(verificationKey)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -579,7 +579,7 @@ func APIValidateVisitors(context api.InterfaceApplicationContext) (interface{}, 
 	return api.StructRestRedirect{Result: "ok", Location: app.GetStorefrontURL("login")}, nil
 }
 
-// APIInvalidateVisitor invalidate visitor by email, sends a new validation key to email
+// APIInvalidateVisitor invalidate visitor by email, sends a new verification key to email
 //   - visitor email should be specified in "email" argument
 func APIInvalidateVisitor(context api.InterfaceApplicationContext) (interface{}, error) {
 
@@ -597,7 +597,7 @@ func APIInvalidateVisitor(context api.InterfaceApplicationContext) (interface{},
 
 	// checking rights
 	if err := api.ValidateAdminRights(context); err != nil {
-		if visitorModel.IsValidated() {
+		if visitorModel.IsVerfied() {
 			return nil, env.ErrorDispatch(err)
 		}
 	}
@@ -764,7 +764,7 @@ func APILogin(context api.InterfaceApplicationContext) (interface{}, error) {
 	}
 
 	// api session updates
-	if visitorModel.IsValidated() {
+	if visitorModel.IsVerfied() {
 		context.GetSession().Set(visitor.ConstSessionKeyVisitorID, visitorModel.GetID())
 	} else {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "29fba7a4-bd85-400e-81c2-69189c50d0d0", "This account has not been verfied, please check your email account: ,"+visitorModel.GetEmail()+" for a verification link sent to you.")
@@ -834,7 +834,7 @@ func APIFacebookLogin(context api.InterfaceApplicationContext) (interface{}, err
 
 	visitorModel, ok := model.(visitor.InterfaceVisitor)
 	if !ok {
-		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "42144bb6-37a2-4dd0-87d8-542270e3c5b7", "Unable to create visitor using using specified fields.")
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "42144bb6-37a2-4dd0-87d8-542270e3c5b7", "Unable to create visitor using Facebook credentials using using specified fields.")
 	}
 
 	// trying to load visitor by facebook_id
@@ -888,11 +888,11 @@ func APIGoogleLogin(context api.InterfaceApplicationContext) (interface{}, error
 	//---------------------
 	requestData, err := api.GetRequestContentAsMap(context)
 	if err != nil {
-		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "03a6782e-e34f-4621-8e1a-0d5d5d0dc0c3", "unexpected request content")
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "03a6782e-e34f-4621-8e1a-0d5d5d0dc0c3", "Unexpected error occurred when parsing request.")
 	}
 
 	if !utils.KeysInMapAndNotBlank(requestData, "access_token") {
-		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "6838cf4f-c1bc-41fb-b73e-426be0ee6f17", "access_token was not specified")
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "6838cf4f-c1bc-41fb-b73e-426be0ee6f17", "No key-pair found named 'access_token' in request, this is a required field.")
 	}
 
 	// google login operation
@@ -906,7 +906,7 @@ func APIGoogleLogin(context api.InterfaceApplicationContext) (interface{}, error
 	}
 
 	if googleResponse.StatusCode != 200 {
-		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "6bc2fd24-8ca3-442c-91d8-341428c3d45d", "Can't use google API: "+googleResponse.Status)
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "6bc2fd24-8ca3-442c-91d8-341428c3d45d", "Unable to access Google API at this time, current response code: "+googleResponse.Status)
 	}
 
 	responseData, err := ioutil.ReadAll(googleResponse.Body)
@@ -922,7 +922,7 @@ func APIGoogleLogin(context api.InterfaceApplicationContext) (interface{}, error
 	}
 
 	if !utils.StrKeysInMap(jsonMap, "id", "email", "verified_email", "given_name", "family_name") {
-		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "d793e872-98b4-44c8-ac74-351a177dab68", "unexpected google response")
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "d793e872-98b4-44c8-ac74-351a177dab68", "One of the following required key-pair fields are missing: id, email, verfified_email, given_name and family_name.")
 	}
 
 	// trying to load visitor from our DB
@@ -933,18 +933,18 @@ func APIGoogleLogin(context api.InterfaceApplicationContext) (interface{}, error
 
 	visitorModel, ok := model.(visitor.InterfaceVisitor)
 	if !ok {
-		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "ec3f04a0-a9fb-4096-abcf-38062355e0a6", "visitor model is not InterfaceVisitor campatible")
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "ec3f04a0-a9fb-4096-abcf-38062355e0a6", "Unable to create visitor using Google credentials using using specified fields.")
 	}
 
 	// trying to load visitor by google_id
 	err = visitorModel.LoadByGoogleID(jsonMap["email"].(string))
-	if err != nil && strings.Contains(err.Error(), "not found") {
+	if err != nil && strings.Contains(err.Error(), "Unable to find the email address, "+jsonMap["email"].(string)+", associated with the provided Google ID.") {
 
 		// there is no such google_id in DB, trying to find by e-mail
 		err = visitorModel.LoadByEmail(jsonMap["email"].(string))
-		if err != nil && strings.Contains(err.Error(), "not found") {
+		if err != nil && strings.Contains(err.Error(), "Unable to find the visitor account with the following email addres: "+jsonMap["email"].(string)+".") {
 
-			// visitor e-mail not exists in out DB - creating new one
+			// As the visitor does not exist, create a new one
 			visitorModel.Set("email", jsonMap["email"])
 			visitorModel.Set("first_name", jsonMap["given_name"])
 			visitorModel.Set("last_name", jsonMap["family_name"])
@@ -959,7 +959,7 @@ func APIGoogleLogin(context api.InterfaceApplicationContext) (interface{}, error
 		} else {
 			// we have visitor with that e-mail just updating token, if it verified
 			if value, ok := jsonMap["verified_email"].(bool); !(ok && value) {
-				return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "b7b65d5c-0372-4c9f-816a-c5157110894d", "google account email unverified")
+				return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "b7b65d5c-0372-4c9f-816a-c5157110894d", "Account has not been verfied.  Please check your email account: "+visitorModel.GetEmail()+", for an email with a verification link.")
 			}
 
 			visitorModel.Set("google_id", jsonMap["id"])

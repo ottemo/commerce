@@ -90,7 +90,7 @@ func (it *DefaultVisitor) Save() error {
 	storableValues["facebook_id"] = it.FacebookID
 	storableValues["google_id"] = it.GoogleID
 	storableValues["password"] = it.Password
-	storableValues["validate"] = it.ValidateKey
+	storableValues["validate"] = it.VerificationKey
 
 	// shipping address save
 	if it.ShippingAddress != nil {
