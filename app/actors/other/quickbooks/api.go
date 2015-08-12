@@ -15,7 +15,7 @@ import (
 func setupAPI() error {
 	var err error
 
-	err = api.GetRestService().RegisterAPI("quickbooks/export", api.ConstRESTOperationGet, APIExportOrders)
+	err = api.GetRestService().RegisterAPI("export/quickbooks", api.ConstRESTOperationCreate, APIExportOrders)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -28,13 +28,16 @@ func setupAPI() error {
 // - returns orders specified in url parameters
 func APIExportOrders(context api.InterfaceApplicationContext) (interface{}, error) {
 	var itemCSVRecords [][]string
-	var requestedOrdersIDs []interface{}
+	var orders []string
 
-	if context.GetRequestArgument("orders") != "" {
-		requestedOrdersIDs = utils.InterfaceToArray(context.GetRequestArgument("orders"))
+	requestData, err := api.GetRequestContentAsMap(context)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
 	}
 
-	//	withCustomers := utils.InterfaceToBool(context.GetRequestArgument("customers"))
+	if !utils.KeysInMapAndNotBlank(requestData, "orders") {
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "f2602f73-7cae-4525-8405-9e470681c20e", "at least one order need to be specified")
+	}
 
 	orderCollectionModel, err := order.GetOrderCollectionModel()
 	if err != nil {
@@ -44,13 +47,18 @@ func APIExportOrders(context api.InterfaceApplicationContext) (interface{}, erro
 	dbOrderCollection := orderCollectionModel.GetDBCollection()
 	dbOrderCollection.AddSort("created_at", false)
 
-	if requestedOrdersIDs != nil && len(requestedOrdersIDs) > 0 {
-		dbOrderCollection.AddFilter("_id", "in", requestedOrdersIDs)
+	orders = utils.InterfaceToStringArray(utils.InterfaceToArray(requestData["orders"]))
+	if orders != nil && len(orders) > 0 && !utils.IsInListStr("all", orders) {
+		dbOrderCollection.AddFilter("_id", "in", orders)
 	}
 
 	dbRecords, err := dbOrderCollection.Load()
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
+	}
+
+	if len(dbRecords) == 0 {
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "28eac91b-39ec-4034-b664-4004e940a6d1", "none from requested orders finded")
 	}
 
 	for _, columnsHeaders := range orderFields {

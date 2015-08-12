@@ -134,7 +134,7 @@ func getRowAsStringMap(rows *sql.Rows) (RowMap, error) {
 		return row, env.ErrorDispatch(err)
 	}
 
-	values := make([]string, len(columns))
+	values := make([]sql.NullString, len(columns))
 
 	scanArgs := make([]interface{}, len(values))
 	for i := range values {
@@ -143,11 +143,21 @@ func getRowAsStringMap(rows *sql.Rows) (RowMap, error) {
 
 	err = rows.Scan(scanArgs...)
 	if err != nil {
-		return row, env.ErrorDispatch(err)
+		if rows.Next() {
+			err = rows.Scan(scanArgs...)
+		}
+
+		if err != nil {
+			return row, env.ErrorDispatch(err)
+		}
 	}
 
 	for idx, column := range columns {
-		row[column] = values[idx]
+		if values[idx].Valid {
+			row[column] = values[idx].String
+		} else {
+			row[column] = nil
+		}
 	}
 
 	return row, nil

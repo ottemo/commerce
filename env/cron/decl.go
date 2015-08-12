@@ -1,9 +1,10 @@
 package cron
 
 import (
+	"time"
+
 	"github.com/gorhill/cronexpr"
 	"github.com/ottemo/foundation/env"
-	"time"
 )
 
 // Package global constants
@@ -27,8 +28,8 @@ type DefaultCronSchedule struct {
 	Params   map[string]interface{}
 	Repeat   bool
 	Time     time.Time
+	active   bool
 
-	idx  int
 	task env.FuncCronTask
 	expr *cronexpr.Expression
 

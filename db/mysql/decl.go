@@ -34,7 +34,7 @@ var (
 	// ConstSQLNameValidator is a regex expression used to check names used within SQL queries
 	ConstSQLNameValidator = regexp.MustCompile("^[A-Za-z_][A-Za-z0-9_]*$")
 )
-
+// RowMap - represents row of data from database
 type RowMap map[string]interface{}
 
 // StructDBFilterGroup is a structure to hold information of named collection filter
