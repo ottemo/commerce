@@ -66,6 +66,10 @@ func setupAPI() error {
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
+	err = api.GetRestService().RegisterAPI("visitors/available", api.ConstRESTOperationCreate, APIVisitorEmailAvailable)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
 	err = api.GetRestService().RegisterAPI("visitors/validate/:key", api.ConstRESTOperationGet, APIValidateVisitors)
 	if err != nil {
 		return env.ErrorDispatch(err)
@@ -557,6 +561,39 @@ func APIRegisterVisitor(context api.InterfaceApplicationContext) (interface{}, e
 	return visitorModel.ToHashMap(), nil
 }
 
+// APIVisitorEmailAvailable creates a new visitor, sends verification link to visitor email
+//   - "email" attribute required and email address in valid format
+func APIVisitorEmailAvailable(context api.InterfaceApplicationContext) (interface{}, error) {
+
+	// check request context
+	requestData, err := api.GetRequestContentAsMap(context)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	if !utils.KeysInMapAndNotBlank(requestData, "email") {
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "fec90530-6441-49bf-aa55-187e18b1fc7c", "An email address was not specified, this is a required field.")
+	}
+	visitorEmail := strings.ToLower(utils.InterfaceToString(requestData["email"]))
+
+	if !utils.ValidEmail(visitorEmail) {
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "362efeb5-331a-484c-b5f3-daef1e7b065b", "The email address specified is not in a valid format, "+visitorEmail+".")
+	}
+	visitorModel, err := visitor.GetVisitorModel()
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	err = visitorModel.LoadByEmail(visitorEmail)
+	if err != nil {
+		// requested email address is available
+		return true, nil
+	}
+
+	// requested email address is already in use
+	return false, nil
+}
+
 // APIValidateVisitors validates visitors by a key which sends after registration
 //   - verification key should be provided in "key" argument
 func APIValidateVisitors(context api.InterfaceApplicationContext) (interface{}, error) {
@@ -942,7 +979,7 @@ func APIGoogleLogin(context api.InterfaceApplicationContext) (interface{}, error
 
 		// there is no such google_id in DB, trying to find by e-mail
 		err = visitorModel.LoadByEmail(jsonMap["email"].(string))
-		if err != nil && strings.Contains(err.Error(), "Unable to find the visitor account with the following email addres: "+jsonMap["email"].(string)+".") {
+		if err != nil && strings.Contains(err.Error(), "Unable to find the visitor account with the following email address: "+jsonMap["email"].(string)+".") {
 
 			// As the visitor does not exist, create a new one
 			visitorModel.Set("email", jsonMap["email"])

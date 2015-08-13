@@ -352,7 +352,7 @@ func (it *DefaultVisitor) LoadByEmail(email string) error {
 	}
 
 	if len(rows) == 0 {
-		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "0a7063fe-9495-4991-8a80-dcfcfc6f5b92", "Unable to find an account associated with the provided email address.")
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "0a7063fe-9495-4991-8a80-dcfcfc6f5b92", "Unable to find an account associated with the provided email address, "+email+".")
 	}
 
 	if len(rows) > 1 {
