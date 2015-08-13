@@ -122,6 +122,14 @@ func setupAPI() error {
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
+	err = api.GetRestService().RegisterAPI("tokens", api.ConstRESTOperationGet, APIGetTokens)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+	//	err = api.GetRestService().RegisterAPI("token/:tokenID", api.ConstRESTOperationUpdate, APIGetToken)
+	//	if err != nil {
+	//		return env.ErrorDispatch(err)
+	//	}
 
 	return nil
 }
@@ -1118,6 +1126,9 @@ func APICreateToken(context api.InterfaceApplicationContext) (interface{}, error
 	}
 
 	cardInfoMap := utils.InterfaceToMap(paymentResult)
+	if !utils.KeysInMapAndNotBlank(cardInfoMap, "transactionID", "creditCardLastFour") {
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "22e17290-56f3-452a-8d54-18d5a9eb2833", "transaction can't be obtained")
+	}
 
 	// create token record in database and save it for visitor
 	tokenRecord := map[string]interface{}{
@@ -1126,7 +1137,7 @@ func APICreateToken(context api.InterfaceApplicationContext) (interface{}, error
 		"type":            cardInfoMap["creditCardType"],
 		"number":          cardInfoMap["creditCardLastFour"],
 		"expiration_date": cardInfoMap["creditCardExp"],
-		"holder":          "Noname",
+		"holder":          utils.InterfaceToString(requestData["holder"]),
 		"token":           cardInfoMap["transactionID"],
 		"updated":         time.Now(),
 	}
@@ -1142,4 +1153,39 @@ func APICreateToken(context api.InterfaceApplicationContext) (interface{}, error
 	}
 
 	return tokenRecord, nil
+}
+
+// APIGetTokens return a list of existing tokens for visitor
+func APIGetTokens(context api.InterfaceApplicationContext) (interface{}, error) {
+
+	visitorID := visitor.GetCurrentVisitorID(context)
+	if visitorID == "" {
+		return "you are not logined in", nil
+	}
+
+	collection, err := db.GetCollection(ConstCollectionNameVisitorToken)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	collection.AddFilter("visitor_id", "=", visitorID)
+
+	records, err := collection.Load()
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	var tokens []map[string]interface{}
+
+	for _, record := range records {
+		tokens = append(tokens, map[string]interface{}{
+			"ID":      record["_id"],
+			"Type":    record["type"],
+			"Payment": record["payment"],
+			"Number":  record["number"],
+			"Exp":     record["expiration_date"],
+		})
+	}
+
+	return tokens, nil
 }
