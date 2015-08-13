@@ -266,10 +266,9 @@ func (it *DefaultVisitor) GenerateNewPassword() error {
 	}
 
 	linkHref := app.GetStorefrontURL("login")
-	err = app.SendMail(it.GetEmail(), "forgot password event", "Forgot password was requested for your account "+
-		it.GetEmail()+"\n\n"+
-		"New password: "+newPassword+"\n\n"+
-		"Please change your password on next login "+linkHref)
+	err = app.SendMail(it.GetEmail(), "Password Recovery", "A new password was requested for your account: "+it.GetEmail()+"<br><br>"+
+		"New password: "+newPassword+"<br><br>"+
+		"Please remember to change your password upon next login "+linkHref)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
