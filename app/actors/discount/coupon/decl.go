@@ -21,6 +21,6 @@ const (
 // DefaultDiscount is a default implementer of InterfaceDiscount
 type DefaultDiscount struct{}
 
-var (
-	usedCoupons map[string][]string
-)
+// usedCoupons contains used coupon codes with visitorsId's, initialize from orders and updated on checkout success
+var usedCoupons map[string][]string
+
