@@ -39,6 +39,12 @@ func APIExportOrders(context api.InterfaceApplicationContext) (interface{}, erro
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "f2602f73-7cae-4525-8405-9e470681c20e", "at least one order need to be specified")
 	}
 
+	orderItemsCollectionModel, err := order.GetOrderItemCollectionModel()
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+	dbOrderItemsCollection := orderItemsCollectionModel.GetDBCollection()
+
 	orderCollectionModel, err := order.GetOrderCollectionModel()
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
@@ -52,12 +58,12 @@ func APIExportOrders(context api.InterfaceApplicationContext) (interface{}, erro
 		dbOrderCollection.AddFilter("_id", "in", orders)
 	}
 
-	dbRecords, err := dbOrderCollection.Load()
+	ordersRecords, err := dbOrderCollection.Load()
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	if len(dbRecords) == 0 {
+	if len(ordersRecords) == 0 {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "28eac91b-39ec-4034-b664-4004e940a6d1", "none from requested orders finded")
 	}
 
@@ -65,32 +71,72 @@ func APIExportOrders(context api.InterfaceApplicationContext) (interface{}, erro
 		itemCSVRecords = append(itemCSVRecords, columnsHeaders)
 	}
 
-	for _, record := range dbRecords {
-		orderRecord := utils.InterfaceToMap(record)
+	for _, orderRecord := range ordersRecords {
+
+		dbOrderItemsCollection.ClearFilters()
+		dbOrderItemsCollection.AddFilter("order_id", "=", orderRecord["_id"])
+
+		orderItemsRecords, err := dbOrderItemsCollection.Load()
+		if err != nil {
+			return nil, env.ErrorDispatch(err)
+		}
+		orderItem := utils.InterfaceToMap(orderItemsRecords[0])
+
+		orderRecord := utils.InterfaceToMap(orderRecord)
+		shippingAddress := utils.InterfaceToMap(orderRecord["shipping_address"])
+		billingAddress := utils.InterfaceToMap(orderRecord["billing_address"])
 
 		for _, inputValues := range dataSeted {
 			var rowData []string
 
 			for _, value := range inputValues {
+				cellValue := ""
+
 				switch typedValue := value.(type) {
 				case string:
-					if strings.Index(typedValue, "$") == 0 {
-						rowData = append(rowData, utils.InterfaceToString(orderRecord[strings.Replace(typedValue, "$", "", 1)]))
+					cellValue = typedValue
+					switch {
+					case strings.Index(cellValue, "$") == 0:
+						cellValue = utils.InterfaceToString(orderRecord[strings.Replace(cellValue, "$", "", 1)])
+						break
+
+					case strings.HasPrefix(cellValue, "item."):
+						cellValue = utils.InterfaceToString(orderItem[strings.Replace(cellValue, "item.", "", 1)])
+						break
+
+					case strings.HasPrefix(cellValue, "shipping."):
+						cellValue = utils.InterfaceToString(shippingAddress[strings.Replace(cellValue, "shipping.", "", 1)])
+						break
+
+					case strings.HasPrefix(cellValue, "billing."):
+						cellValue = utils.InterfaceToString(billingAddress[strings.Replace(cellValue, "billing.", "", 1)])
 						break
 					}
-					rowData = append(rowData, typedValue)
+
 					break
+
+					//					if strings.Index(typedValue, "$") == 0 {
+					//						cellValue = utils.InterfaceToString(orderRecord[strings.Replace(typedValue, "$", "", 1)])
+					//						break
+					//					}
+					//
+					//					if strings.HasPrefix(typedValue, "items.") {
+					//						cellValue = utils.InterfaceToString(orderItemsRecords[0][strings.Replace(typedValue, "items.", "", 1)])
+					//						break
+					//					}
+					//
+					//					cellValue = typedValue
+					//					break
 
 				case func(record map[string]interface{}) string:
-					rowData = append(rowData, typedValue(orderRecord))
+					cellValue = typedValue(orderRecord)
 					break
 
-				default:
-					rowData = append(rowData, "")
-
 				}
+				// collect cellValue to row
+				rowData = append(rowData, cellValue)
 			}
-
+			// collect row to table
 			itemCSVRecords = append(itemCSVRecords, rowData)
 		}
 	}
@@ -98,7 +144,7 @@ func APIExportOrders(context api.InterfaceApplicationContext) (interface{}, erro
 	// preparing csv writer
 	csvWriter := csv.NewWriter(context.GetResponseWriter())
 
-	exportFilename := "orders_export_" + time.Now().Format(time.RFC3339) + ".iif"
+	exportFilename := "orders_export_" + time.Now().Format(time.RFC3339) + ".csv"
 
 	context.SetResponseContentType("text/csv")
 	context.SetResponseSetting("Content-disposition", "attachment;filename="+exportFilename)
