@@ -1,8 +1,15 @@
 #!/bin/bash
+
+# location of foundation
+SRCDIR=/home/ottemo/code/go/src/github.com/ottemo/foundation
+
 if [ "$BRANCH" == 'develop' ]; then
-    GIT_COMMIT=`echo $COMMIT | head -c 5` 
-    scp -r $GOPATH/bin/foundation/ ottemo@$REMOTE_HOST:~/deploy/foundation-$GIT_COMMIT
-    ssh ottemo@$REMOTE_HOST "cd /home/ottemo/deploy/ && ln -sf foundation-$GIT_COMMIT foundation-latest" 
+    GIT_COMMIT=`echo $COMMIT | head -c 5`
+    # grab the latest code
+    ssh ottemo@$REMOTE_HOST "cd $SRCDIR && git fetch --prune && git pull"
+    # build locally after successful merge to develop
+    ssh ottemo@$REMOTE_HOST "cd $SRCDIR && make.sh -tags mongo"
+    # backup the current binary and put the newly built binary into service
     ssh ottemo@$REMOTE_HOST "sudo /etc/init.d/ottemo stop && cp ~/foundation/foundation ~/foundation/backup/foundation-$(date +%Y%m%d)"
-    ssh ottemo@$REMOTE_HOST "cp ~/deploy/foundation-latest ~/foundation/foundation && sudo /etc/init.d/ottemo start"
+    ssh ottemo@$REMOTE_HOST "cp $SRCDIR/foundation ~/foundation/foundation && sudo /etc/init.d/ottemo start"
 fi
