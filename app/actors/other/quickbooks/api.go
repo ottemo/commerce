@@ -80,64 +80,70 @@ func APIExportOrders(context api.InterfaceApplicationContext) (interface{}, erro
 		if err != nil {
 			return nil, env.ErrorDispatch(err)
 		}
-		orderItem := utils.InterfaceToMap(orderItemsRecords[0])
 
 		orderRecord := utils.InterfaceToMap(orderRecord)
 		shippingAddress := utils.InterfaceToMap(orderRecord["shipping_address"])
 		billingAddress := utils.InterfaceToMap(orderRecord["billing_address"])
 
-		for _, inputValues := range dataSeted {
-			var rowData []string
+		for orderItemIndex, orderItem := range orderItemsRecords {
 
-			for _, value := range inputValues {
-				cellValue := ""
+			for _, inputValues := range dataSeted {
+				var rowData []string
 
-				switch typedValue := value.(type) {
-				case string:
-					cellValue = typedValue
-					switch {
-					case strings.Index(cellValue, "$") == 0:
-						cellValue = utils.InterfaceToString(orderRecord[strings.Replace(cellValue, "$", "", 1)])
+				for _, value := range inputValues {
+					cellValue := ""
+
+					switch typedValue := value.(type) {
+					case string:
+						cellValue = typedValue
+						switch {
+						case strings.Index(cellValue, "$") == 0:
+							cellValue = utils.InterfaceToString(orderRecord[strings.Replace(cellValue, "$", "", 1)])
+							break
+
+						case strings.HasPrefix(cellValue, "item."):
+							cellValue = utils.InterfaceToString(orderItem[strings.Replace(cellValue, "item.", "", 1)])
+							break
+
+						case strings.HasPrefix(cellValue, "shipping."):
+							cellValue = utils.InterfaceToString(shippingAddress[strings.Replace(cellValue, "shipping.", "", 1)])
+							break
+
+						case strings.HasPrefix(cellValue, "billing."):
+							cellValue = utils.InterfaceToString(billingAddress[strings.Replace(cellValue, "billing.", "", 1)])
+							break
+						}
+
 						break
 
-					case strings.HasPrefix(cellValue, "item."):
-						cellValue = utils.InterfaceToString(orderItem[strings.Replace(cellValue, "item.", "", 1)])
+						//					if strings.Index(typedValue, "$") == 0 {
+						//						cellValue = utils.InterfaceToString(orderRecord[strings.Replace(typedValue, "$", "", 1)])
+						//						break
+						//					}
+						//
+						//					if strings.HasPrefix(typedValue, "items.") {
+						//						cellValue = utils.InterfaceToString(orderItemsRecords[0][strings.Replace(typedValue, "items.", "", 1)])
+						//						break
+						//					}
+						//
+						//					cellValue = typedValue
+						//					break
+
+					case func(record map[string]interface{}) string:
+						cellValue = typedValue(orderRecord)
 						break
 
-					case strings.HasPrefix(cellValue, "shipping."):
-						cellValue = utils.InterfaceToString(shippingAddress[strings.Replace(cellValue, "shipping.", "", 1)])
+					case func(int, map[string]interface{}) string:
+						cellValue = typedValue(orderItemIndex, orderItem)
 						break
 
-					case strings.HasPrefix(cellValue, "billing."):
-						cellValue = utils.InterfaceToString(billingAddress[strings.Replace(cellValue, "billing.", "", 1)])
-						break
 					}
-
-					break
-
-					//					if strings.Index(typedValue, "$") == 0 {
-					//						cellValue = utils.InterfaceToString(orderRecord[strings.Replace(typedValue, "$", "", 1)])
-					//						break
-					//					}
-					//
-					//					if strings.HasPrefix(typedValue, "items.") {
-					//						cellValue = utils.InterfaceToString(orderItemsRecords[0][strings.Replace(typedValue, "items.", "", 1)])
-					//						break
-					//					}
-					//
-					//					cellValue = typedValue
-					//					break
-
-				case func(record map[string]interface{}) string:
-					cellValue = typedValue(orderRecord)
-					break
-
+					// collect cellValue to row
+					rowData = append(rowData, cellValue)
 				}
-				// collect cellValue to row
-				rowData = append(rowData, cellValue)
+				// collect row to table
+				itemCSVRecords = append(itemCSVRecords, rowData)
 			}
-			// collect row to table
-			itemCSVRecords = append(itemCSVRecords, rowData)
 		}
 	}
 
