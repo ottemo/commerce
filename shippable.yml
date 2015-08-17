@@ -19,7 +19,7 @@ install:
 
 script:
     - go version
-    - sh bin/make.sh -tags mongo
+    - go build -tags mongo
 
 after_failure:
     - python bin/slack_notifier.py --org $SLACK_ORG --project $PROJECT --token $SLACK_TOKEN
