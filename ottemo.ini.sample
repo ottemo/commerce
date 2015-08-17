@@ -12,7 +12,9 @@ media.fsmedia.folder=/Users/james/code/kg-media
 ; db.mysql.uri is the DSN in the format
 ;     [username[:password]@][protocol[(address)]]/dbname[?param1=value1&...&paramN=valueN]
 ; example settings:
+;     - for a remote host
 ;     db.mysql.uri=USER:PASSWORD@tcp(HOST:PORT)/DBNAME
+;     - for a local mysql host
 ;     db.mysql.uri=USER:PASSWORD@/DBNAME
 db.mysql.db=ottemo
 db.mysql.uri=root@/
