@@ -54,7 +54,7 @@ func sendOrderInfo(checkoutOrder order.InterfaceOrder, currentCart cart.Interfac
 
 		trustPilotTestMode := utils.InterfaceToBool(env.ConfigGetValue(ConstConfigPathTrustPilotEnabled))
 
-		// config values validation
+		// verification of configuration values
 		if trustPilotAPIKey != "" && trustPilotAPISecret != "" && trustPilotBusinessUnitID != "" && trustPilotUsername != "" &&
 			trustPilotPassword != "" && trustPilotAccessTokenURL != "" && trustPilotProductReviewURL != "" && trustPilotServiceReviewURL != "" {
 

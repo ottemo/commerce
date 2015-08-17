@@ -59,7 +59,6 @@ type DBCollection struct {
 // DBEngine is a InterfaceDBEngine implementer
 type DBEngine struct {
 	connection      *sql.DB
-	connectionMutex sync.RWMutex
 
 	attributeTypes      map[string]map[string]string
 	attributeTypesMutex sync.RWMutex
