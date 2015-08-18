@@ -36,7 +36,7 @@ db.mysql.poolConnections=10
 
 ; Secure Cookies
 ;;;;;;;;;;;;;;;;
-; Turn of the use of secure cookies
+; Turn off the use of secure cookies
 ;    - secure cookies are enabled by default
 ; This means cookies will only be sent over https by the browser.  Comment out
 ; or set this value to true to enable the use of secure cookies.
