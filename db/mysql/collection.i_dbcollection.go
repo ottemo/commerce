@@ -5,8 +5,9 @@ import (
 	"io"
 	"strconv"
 	"strings"
-	
+
 	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/foundation/utils"
 )
 
 // LoadByID loads record from DB by it's id
@@ -148,7 +149,7 @@ func (it *DBCollection) Count() (int, error) {
 
 	if err == nil {
 		if row, err := getRowAsStringMap(rows); err == nil {
-			cnt := int(row["cnt"].(int64)) //TODO: check this assertion works
+			cnt := utils.InterfaceToInt(row["cnt"])
 			return cnt, err
 		}
 	}
@@ -222,42 +223,24 @@ func (it *DBCollection) Save(item map[string]interface{}) (string, error) {
 		}
 	}
 
-	makeInsertFlag := true
+	SQL := "INSERT INTO `" + it.Name + "`" +
+		" (" + strings.Join(columns, ",") + ") VALUES" +
+		" (" + strings.Join(args, ",") + ")" +
+		" ON DUPLICATE KEY UPDATE " + strings.Join(columnEqArg, ", ")
 
-	// trying to make update first, it we have _id
-	if item["_id"] != nil && item["_id"] != "" {
-		SQL := "UPDATE `" + it.Name + "` SET " + strings.Join(columnEqArg, ", ") +
-			" WHERE `_id`=" + convertValueForSQL(item["_id"])
-
-		affected, err := connectionExecWAffected(SQL)
+	if !ConstUseUUIDids {
+		newIDInt64, err := connectionExecWLastInsertID(SQL, values...)
 		if err != nil {
 			return "", sqlError(SQL, err)
 		}
-		if affected > 0 {
-			makeInsertFlag = false
-		}
-	}
 
-	// so if update fas successful we do not need to insert
-	if makeInsertFlag {
-		SQL := "INSERT INTO `" + it.Name + "`" +
-			" (" + strings.Join(columns, ",") + ") VALUES" +
-			" (" + strings.Join(args, ",") + ")"
-
-		if !ConstUseUUIDids {
-			newIDInt64, err := connectionExecWLastInsertID(SQL, values...)
-			if err != nil {
-				return "", sqlError(SQL, err)
-			}
-
-			// auto-incremented _id back to string
-			newIDString := strconv.FormatInt(newIDInt64, 10)
-			item["_id"] = newIDString
-		} else {
-			err := connectionExec(SQL, values...)
-			if err != nil {
-				return "", sqlError(SQL, err)
-			}
+		// auto-incremented _id back to string
+		newIDString := strconv.FormatInt(newIDInt64, 10)
+		item["_id"] = newIDString
+	} else {
+		err := connectionExec(SQL, values...)
+		if err != nil {
+			return "", sqlError(SQL, err)
 		}
 	}
 

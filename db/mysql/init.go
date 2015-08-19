@@ -1,12 +1,12 @@
 package mysql
 
 import (
-	"time"
 	"database/sql"
 
 	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/env"
 
+	"github.com/ottemo/foundation/utils"
 )
 
 // init makes package self-initialization routine
@@ -29,6 +29,9 @@ func (it *DBEngine) Startup() error {
 	uri := "/"
 	dbName := "ottemo"
 
+	poolConnections := 10
+	maxConnections := 0
+
 	if iniConfig := env.GetIniConfig(); iniConfig != nil {
 		if iniValue := iniConfig.GetValue("db.mysql.uri", uri); iniValue != "" {
 			uri = iniValue
@@ -37,12 +40,28 @@ func (it *DBEngine) Startup() error {
 		if iniValue := iniConfig.GetValue("db.mysql.db", dbName); iniValue != "" {
 			dbName = iniValue
 		}
+
+		if iniValue := iniConfig.GetValue("db.mysql.maxConnections", ""); iniValue != "" {
+			maxConnections = utils.InterfaceToInt(iniValue)
+		}
+
+		if iniValue := iniConfig.GetValue("db.mysql.poolConnections", ""); iniValue != "" {
+			poolConnections = utils.InterfaceToInt(iniValue)
+		}
 	}
 
 	if newConnection, err := sql.Open("mysql", uri); err == nil {
 		it.connection = newConnection
 	} else {
 		return env.ErrorDispatch(err)
+	}
+
+	if poolConnections > 0 {
+		it.connection.SetMaxIdleConns(poolConnections)
+	}
+
+	if maxConnections > 0 {
+		it.connection.SetMaxOpenConns(maxConnections)
 	}
 
 	// making sure DB selected otherwise trying to obtain DB
@@ -61,25 +80,6 @@ func (it *DBEngine) Startup() error {
 			}
 		}
 	}
-
-	// timer routine to check connection state and reconnect by perforce
-	ticker := time.NewTicker(ConstConnectionValidateInterval)
-	go func() {
-		for _ = range ticker.C {
-			err := it.connection.Ping()
-			if err != nil {
-				dbEngine.connectionMutex.Lock()
-				newConnection, err := sql.Open("mysql", uri)
-				dbEngine.connectionMutex.Unlock()
-
-				if err != nil {
-					env.ErrorDispatch(err)
-				} else {
-					it.connection = newConnection
-				}
-			}
-		}
-	}()
 
 	// making column info table
 	SQL := "CREATE TABLE IF NOT EXISTS `" + ConstCollectionNameColumnInfo + "` ( " +

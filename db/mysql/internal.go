@@ -5,6 +5,7 @@ import (
 
 	"database/sql"
 
+	"fmt"
 	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
@@ -13,8 +14,6 @@ import (
 
 // exec routines
 func connectionExecWLastInsertID(SQL string, args ...interface{}) (int64, error) {
-	dbEngine.connectionMutex.Lock()
-	defer dbEngine.connectionMutex.Unlock()
 
 	result, err := dbEngine.connection.Exec(SQL, args...)
 	if err != nil {
@@ -26,8 +25,6 @@ func connectionExecWLastInsertID(SQL string, args ...interface{}) (int64, error)
 
 // exec routines
 func connectionExecWAffected(SQL string, args ...interface{}) (int64, error) {
-	dbEngine.connectionMutex.Lock()
-	defer dbEngine.connectionMutex.Unlock()
 
 	if ConstDebugSQL {
 		env.Log(ConstDebugFile, env.ConstLogPrefixInfo, SQL)
@@ -43,22 +40,18 @@ func connectionExecWAffected(SQL string, args ...interface{}) (int64, error) {
 
 // exec routines
 func connectionExec(SQL string, args ...interface{}) error {
-	dbEngine.connectionMutex.Lock()
-	defer dbEngine.connectionMutex.Unlock()
 
 	if ConstDebugSQL {
 		env.Log(ConstDebugFile, env.ConstLogPrefixInfo, SQL)
 	}
 
-	_, err  := dbEngine.connection.Exec(SQL, args...)
+	_, err := dbEngine.connection.Exec(SQL, args...)
 
 	return err
 }
 
 // query routines
 func connectionQuery(SQL string) (*sql.Rows, error) {
-	dbEngine.connectionMutex.Lock()
-
 	if ConstDebugSQL {
 		env.Log(ConstDebugFile, env.ConstLogPrefixInfo, SQL)
 	}
@@ -71,7 +64,6 @@ func closeCursor(cursor *sql.Rows) {
 	if cursor != nil {
 		cursor.Close()
 	}
-	dbEngine.connectionMutex.Unlock()
 }
 
 // formats SQL query error for output to log
@@ -134,7 +126,7 @@ func getRowAsStringMap(rows *sql.Rows) (RowMap, error) {
 		return row, env.ErrorDispatch(err)
 	}
 
-	values := make([]string, len(columns))
+	values := make([]sql.NullString, len(columns))
 
 	scanArgs := make([]interface{}, len(values))
 	for i := range values {
@@ -143,11 +135,21 @@ func getRowAsStringMap(rows *sql.Rows) (RowMap, error) {
 
 	err = rows.Scan(scanArgs...)
 	if err != nil {
-		return row, env.ErrorDispatch(err)
+		if rows.Next() {
+			err = rows.Scan(scanArgs...)
+		}
+
+		if err != nil {
+			return row, env.ErrorDispatch(err)
+		}
 	}
 
 	for idx, column := range columns {
-		row[column] = values[idx]
+		if values[idx].Valid {
+			row[column] = values[idx].String
+		} else {
+			row[column] = nil
+		}
 	}
 
 	return row, nil
@@ -168,7 +170,13 @@ func GetDBType(ColumnType string) (string, error) {
 		return "INTEGER", nil
 	case ColumnType == "real" || ColumnType == "float":
 		return "REAL", nil
-	case ColumnType == "string" || ColumnType == "text" || ColumnType == "json" || strings.Contains(ColumnType, "char"):
+	case strings.Contains(ColumnType, "char") || ColumnType == "string":
+		dataType := utils.DataTypeParse(ColumnType)
+		if dataType.Precision > 0 {
+			return fmt.Sprintf("VARCHAR(%d)", dataType.Precision), nil
+		}
+		return "VARCHAR(255)", nil
+	case ColumnType == "text" || ColumnType == "json":
 		return "TEXT", nil
 	case ColumnType == "blob" || ColumnType == "struct" || ColumnType == "data":
 		return "BLOB", nil

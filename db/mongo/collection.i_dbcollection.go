@@ -61,7 +61,7 @@ func (it *DBCollection) Distinct(columnName string) ([]interface{}, error) {
 // Save stores record in DB for current collection
 func (it *DBCollection) Save(Item map[string]interface{}) (string, error) {
 
-	// id validation/updating
+	// id verification/updating
 	//-----------------------
 	id := bson.NewObjectId().Hex()
 
