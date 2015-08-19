@@ -52,18 +52,24 @@ func (it *PayFlowAPI) Authorize(orderInstance order.InterfaceOrder, paymentInfo 
 		//		return it.CreateAuthorizeZeroAmountRequest(orderInstance, paymentInfo)
 	}
 
-	authorizeZeroResult, err := it.AuthorizeZeroAmount(orderInstance, paymentInfo)
+	var transactionID string
+	// check is it reference transaction if not make sure that credit card info is valid
+	if ccInfo, present := paymentInfo["cc"]; present && utils.KeysInMapAndNotBlank(utils.InterfaceToMap(ccInfo), "transactionID") {
+		referencePaymentInfo := utils.InterfaceToMap(paymentInfo["cc"])
+		transactionID = utils.InterfaceToString(referencePaymentInfo["transactionID"])
+	} else {
+		authorizeZeroResult, err := it.AuthorizeZeroAmount(orderInstance, paymentInfo)
+		if err != nil {
+			return nil, env.ErrorDispatch(err)
+		}
 
-	if err != nil {
-		return nil, env.ErrorDispatch(err)
+		authorizeZeroResultMap := utils.InterfaceToMap(authorizeZeroResult)
+		if value, present := authorizeZeroResultMap["transactionID"]; !present || utils.InterfaceToString(value) == "" {
+			return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "5e68f079-e8ce-4677-8fb9-89c6f7acbd7f", "Error: token was not created")
+		}
+
+		transactionID = utils.InterfaceToString(authorizeZeroResultMap["transactionID"])
 	}
-
-	authorizeZeroResultMap := utils.InterfaceToMap(authorizeZeroResult)
-	if value, present := authorizeZeroResultMap["transactionID"]; !present || utils.InterfaceToString(value) == "" {
-		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "5e68f079-e8ce-4677-8fb9-89c6f7acbd7f", "Error: token was not created")
-	}
-
-	transactionID := utils.InterfaceToString(authorizeZeroResultMap["transactionID"])
 
 	// getting order information
 	//--------------------------
@@ -142,14 +148,19 @@ func (it *PayFlowAPI) Authorize(orderInstance order.InterfaceOrder, paymentInfo 
 
 	orderPaymentInfo := utils.InterfaceToMap(orderInstance.Get("payment_info"))
 
-	if oldTransaction, present := orderPaymentInfo["transactionID"]; !present {
-		orderPaymentInfo["transactionID"] = orderTransactionID
-		orderPaymentInfo["creditCardNumbers"] = responseValues.Get("ACCT")
-		orderPaymentInfo["creditCardType"] = getCreditCardName(utils.InterfaceToString(responseValues.Get("CARDTYPE")))
+	paymentInformation := map[string]string{
+		"transactionID":     orderTransactionID,
+		"creditCardNumbers": responseValues.Get("ACCT"),
+		"creditCardType":    getCreditCardName(utils.InterfaceToString(responseValues.Get("CARDTYPE"))),
+	}
 
-	} else {
-		orderPaymentInfo["previosTransactionID"] = oldTransaction
-		orderPaymentInfo["transactionID"] = orderTransactionID
+	currentTimeString := utils.InterfaceToString(time.Now().Unix())
+	for key, newValue := range paymentInformation {
+		if existingValue, present := orderPaymentInfo[key]; present {
+			orderPaymentInfo[key+"_"+currentTimeString] = existingValue
+		}
+
+		orderPaymentInfo[key] = newValue
 	}
 
 	orderInstance.Set("payment_info", orderPaymentInfo)
