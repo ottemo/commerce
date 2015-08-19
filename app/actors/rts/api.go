@@ -84,14 +84,21 @@ func APIRegisterVisit(context api.InterfaceApplicationContext) (interface{}, err
 
 // APIGetReferrers returns list of unique referrers were registered
 func APIGetReferrers(context api.InterfaceApplicationContext) (interface{}, error) {
-	result := make(map[string]int)
-	itemsCount := 0
+	var result []map[string]interface{}
+	var resultArray []map[string]interface{}
 
 	for url, count := range referrers {
-		result[url] = count
+		resultArray = append(resultArray, map[string]interface{}{
+			"url":   url,
+			"count": count,
+		})
+	}
 
-		itemsCount++
-		if itemsCount == 20 {
+	resultArray = sortArrayOfMapByKey(resultArray, "count")
+
+	for _, value := range resultArray {
+		result = append(result, value)
+		if len(result) >= 20 {
 			break
 		}
 	}
@@ -157,7 +164,7 @@ func APIGetVisits(context api.InterfaceApplicationContext) (interface{}, error) 
 }
 
 // APIGetVisitsDetails returns detailed site visit information for a specified period
-//   - period start and end dates should be specified in "from" and "to" attributes in DD-MM-YYY format
+//   - period start and end dates should be specified in "from" and "to" attributes in YYYY-MM-DD format
 func APIGetVisitsDetails(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// getting initial values
@@ -463,21 +470,17 @@ func APIGetBestsellers(context api.InterfaceApplicationContext) (interface{}, er
 	switch bestsellersRange {
 
 	case "yesterday", "2":
-		rangeTo = todayTo.AddDate(0, 0, -1)
-		rangeFrom = todayFrom.AddDate(0, 0, -1)
+		rangeTo = rangeFrom
+		rangeFrom = rangeFrom.AddDate(0, 0, -1)
 		break
 
 	case "week", "7":
-		rangeFrom = todayFrom.AddDate(0, 0, -6)
+		rangeFrom = rangeFrom.AddDate(0, 0, -6)
 		break
 
 	case "month", "30":
-		rangeFrom = todayFrom.AddDate(0, 0, -30)
+		rangeFrom = rangeFrom.AddDate(0, 0, -30)
 		break
-
-	default:
-		rangeFrom = todayFrom
-		rangeTo = todayTo
 	}
 
 	salesHistoryCollection, err := db.GetCollection(ConstCollectionNameRTSSalesHistory)
@@ -486,8 +489,8 @@ func APIGetBestsellers(context api.InterfaceApplicationContext) (interface{}, er
 	}
 
 	salesHistoryCollection.AddFilter("count", ">", 0)
-	salesHistoryCollection.AddFilter("created_at", ">=", rangeFrom.Unix())
-	salesHistoryCollection.AddFilter("created_at", "<", rangeTo.Unix())
+	salesHistoryCollection.AddFilter("created_at", ">", rangeFrom)
+	salesHistoryCollection.AddFilter("created_at", "<=", rangeTo)
 
 	collectionRecords, err := salesHistoryCollection.Load()
 	if err != nil {

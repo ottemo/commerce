@@ -7,11 +7,12 @@ import (
 	"net/http"
 	"net/url"
 
+	"time"
+
 	"github.com/ottemo/foundation/app/models/checkout"
 	"github.com/ottemo/foundation/app/models/order"
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
-	"time"
 )
 
 // GetName returns config value "Title" of payment method
@@ -128,18 +129,17 @@ func (it *PayFlowAPI) Authorize(orderInstance order.InterfaceOrder, paymentInfo 
 	orderPaymentInfo := utils.InterfaceToMap(orderInstance.Get("payment_info"))
 
 	if oldTransaction, present := orderPaymentInfo["transactionID"]; !present {
-		orderPaymentInfo = map[string]interface{}{
-			"transactionID":     orderTransactionID,
-			"creditCardNumbers": responseValues.Get("ACCT"),
-			"creditCardType":    getCreditCardName(utils.InterfaceToString(responseValues.Get("CARDTYPE"))),
-		}
+		orderPaymentInfo["transactionID"] = orderTransactionID
+		orderPaymentInfo["creditCardNumbers"] = responseValues.Get("ACCT")
+		orderPaymentInfo["creditCardType"] = getCreditCardName(utils.InterfaceToString(responseValues.Get("CARDTYPE")))
+
 	} else {
 		orderPaymentInfo["previosTransactionID"] = oldTransaction
 		orderPaymentInfo["transactionID"] = orderTransactionID
 	}
 
 	orderInstance.Set("payment_info", orderPaymentInfo)
-	orderInstance.SetStatus(order.ConstOrderStatusPending)
+	orderInstance.SetStatus(order.ConstOrderStatusProcessed)
 	orderInstance.Save()
 	return nil, nil
 }
@@ -307,7 +307,7 @@ func (it *PayFlowAPI) AuthorizeZeroAmount(orderInstance order.InterfaceOrder, pa
 		env.Log("paypal.log", env.ConstLogPrefixInfo, "TRANSACTION NO RESPONSE: "+
 			"RESPONSE - "+fmt.Sprint(responseValues))
 
-		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "4d941690-d981-4d20-9b4e-ab903d1ea526", "Payment server not respond")
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "4d941690-d981-4d20-9b4e-ab903d1ea526", "The payment server is not responding.")
 	}
 
 	result := map[string]interface{}{
@@ -322,7 +322,7 @@ func (it *PayFlowAPI) AuthorizeZeroAmount(orderInstance order.InterfaceOrder, pa
 	if _, ccSecureCodePresent := ccInfo["cvv"]; ccSecureCodePresent {
 		if utils.InterfaceToString(responseValues.Get("CVV2MATCH")) == "N" {
 			// invalid CVV2
-			return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "51d1a2c9-2f0a-4eee-9aa2-527ca6d83f28", "Payment validation error: CVV2 code incorect")
+			return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "51d1a2c9-2f0a-4eee-9aa2-527ca6d83f28", "Payment verification error: the CVV2 code is not valid.")
 		}
 	}
 

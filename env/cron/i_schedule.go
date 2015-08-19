@@ -1,14 +1,16 @@
 package cron
 
 import (
+	"time"
+
 	"github.com/gorhill/cronexpr"
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
-	"time"
 )
 
 // Execute  - execute a scheduled task
 func (it *DefaultCronSchedule) Execute() {
+	it.active = true
 	currentTime := time.Now()
 
 	if it.Time.Before(currentTime) && it.expr != nil {
@@ -16,9 +18,12 @@ func (it *DefaultCronSchedule) Execute() {
 	}
 
 	if it.scheduler.appStarted {
-		if currentTime.Before(it.Time) {
-			c := time.Tick(it.Time.Sub(currentTime))
+		c := time.Tick(time.Second)
+		for time.Now().Before(it.Time) {
 			_ = <-c
+			if !it.active {
+				return
+			}
 		}
 
 		err := it.task(it.Params)
@@ -28,24 +33,32 @@ func (it *DefaultCronSchedule) Execute() {
 		}
 
 		if it.Repeat {
-			it.Execute()
+			go it.Execute()
+		} else {
+			it.active = false
 		}
+
 	} else {
-		it.Execute()
+		go it.Execute()
 	}
 }
 
 // Enable  - enable schedule
 func (it *DefaultCronSchedule) Enable() error {
-	found := false
-	for _, item := range it.scheduler.schedules {
-		if item == it {
-			found = true
-			break
-		}
-	}
-	if !found {
-		it.scheduler.schedules = append(it.scheduler.schedules, it)
+	// this code make no sense
+	//	found := false
+	//	for _, item := range it.scheduler.schedules {
+	//		if item == it {
+	//			found = true
+	//			break
+	//		}
+	//	}
+	//	if !found {
+	//		it.scheduler.schedules = append(it.scheduler.schedules, it)
+	//	}
+	if !it.active {
+		it.Execute()
+		it.active = true
 	}
 
 	return nil
@@ -53,13 +66,18 @@ func (it *DefaultCronSchedule) Enable() error {
 
 // Disable  - disables schedule
 func (it *DefaultCronSchedule) Disable() error {
-	var newList []*DefaultCronSchedule
-	for _, item := range it.scheduler.schedules {
-		if item != it {
-			newList = append(newList, item)
-		}
+	// this code make no sense
+	//	var newList []*DefaultCronSchedule
+	//	for _, item := range it.scheduler.schedules {
+	//		if item != it {
+	//			newList = append(newList, item)
+	//		}
+	//	}
+	//	it.scheduler.schedules = newList
+
+	if it.active {
+		it.active = false
 	}
-	it.scheduler.schedules = newList
 
 	return nil
 }
@@ -123,5 +141,6 @@ func (it *DefaultCronSchedule) GetInfo() map[string]interface{} {
 		"time":   it.Time,
 		"task":   it.TaskName,
 		"repeat": it.Repeat,
-		"params": it.Params}
+		"params": it.Params,
+		"active": it.active}
 }

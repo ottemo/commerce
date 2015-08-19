@@ -58,31 +58,35 @@ func rateIsAllowed(shippingRate map[string]interface{}, checkoutObject checkout.
 
 	if len(shippingRate) > 3 {
 		subtotal := checkoutObject.GetSubtotal()
-		country := checkoutObject.GetShippingAddress().GetCountry()
+		country := "Default"
 
-		for key, limit := range shippingRate {
+		shippingAddress := checkoutObject.GetShippingAddress()
+		if shippingAddress != nil {
+			country = utils.InterfaceToString(shippingAddress.GetCountry())
+		}
 
-			switch strings.ToLower(key) {
+		for limitingKey, limitingValue := range shippingRate {
+
+			switch strings.ToLower(limitingKey) {
 			case "price_from":
-				if subtotal < utils.InterfaceToFloat64(limit) {
+				if subtotal < utils.InterfaceToFloat64(limitingValue) {
 					return false
 				}
-
 			case "price_to":
-				if subtotal > utils.InterfaceToFloat64(limit) {
+				if subtotal > utils.InterfaceToFloat64(limitingValue) {
 					return false
 				}
 			case "banned_countries":
-				if strings.Contains(utils.InterfaceToString(limit), country) {
+				if strings.Contains(utils.InterfaceToString(limitingValue), country) {
 					return false
 				}
 			case "allowed_countries":
-				if !strings.Contains(utils.InterfaceToString(limit), country) {
+				if !strings.Contains(utils.InterfaceToString(limitingValue), country) {
 					return false
 				}
 			}
 		}
 	}
 
-	return utils.KeysInMapAndNotBlank(shippingRate, "title", "code", "price")
+	return true
 }
