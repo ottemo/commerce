@@ -20,12 +20,14 @@ func (it *DefaultSessionService) allocateSessionInstance(sessionInstance *Defaul
 		it.GC()
 
 		numOfSessionsToClean := len(it.Sessions) - ConstSessionKeepInMemoryItems
-		for sessionID := range it.Sessions {
-			it.Storage.FlushSession(sessionID)
+		if numOfSessionsToClean >= 0 {
+			for sessionID := range it.Sessions {
+				it.Storage.FlushSession(sessionID)
+				numOfSessionsToClean--
 
-			numOfSessionsToClean--
-			if numOfSessionsToClean == 0 {
-				break
+				if numOfSessionsToClean <= 0 {
+					break
+				}
 			}
 		}
 	}
@@ -46,8 +48,10 @@ func (it *DefaultSessionService) allocateSessionInstance(sessionInstance *Defaul
 // Get returns session object for given session id or nil of not currently exists
 func (it *DefaultSessionService) Get(sessionID string) (api.InterfaceSession, error) {
 
+	var resultError error
+
 	if sessionID == "" {
-		return nil, nil
+		return nil, env.Error(ConstErrorModule, env.ConstErrorLevelAPI, "15fc38db-0848-4992-897e-82b93513f4c6", "blank session id")
 	}
 	replaceInstanceFlag := false
 
@@ -84,6 +88,7 @@ func (it *DefaultSessionService) Get(sessionID string) (api.InterfaceSession, er
 			return nil, env.ErrorDispatch(err)
 		}
 
+		resultError = env.Error(ConstErrorModule, env.ConstErrorLevelAPI, "11670fe2-ee1c-45c9-a732-1349737b53f6", "new session created")
 		replaceInstanceFlag = true
 	}
 
@@ -98,7 +103,7 @@ func (it *DefaultSessionService) Get(sessionID string) (api.InterfaceSession, er
 		}
 	}
 
-	return sessionInstance.id, nil
+	return sessionInstance.id, resultError
 }
 
 // New initializes new session instance
@@ -223,4 +228,12 @@ func (it *DefaultSessionService) GC() error {
 	}
 
 	return nil
+}
+
+// IsEmpty checks if session contains data
+func (it *DefaultSessionService) IsEmpty(sessionID string) bool {
+	if sessionInstance, present := it.Sessions[sessionID]; present {
+		return len(sessionInstance.Data) == 0
+	}
+	return true
 }

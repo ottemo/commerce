@@ -127,12 +127,21 @@ func (it *DefaultCheckout) GetShippingRate() *checkout.StructShippingRate {
 
 // SetCart sets cart for checkout
 func (it *DefaultCheckout) SetCart(checkoutCart cart.InterfaceCart) error {
-	it.CartID = checkoutCart.GetID()
+	if checkoutCart != nil {
+		it.CartID = checkoutCart.GetID()
+	} else {
+		it.CartID = ""
+	}
+
 	return nil
 }
 
 // GetCart returns a shopping cart
 func (it *DefaultCheckout) GetCart() cart.InterfaceCart {
+	if it.CartID == "" {
+		return nil
+	}
+
 	cartInstance, _ := cart.LoadCartByID(it.CartID)
 	return cartInstance
 }
@@ -541,7 +550,7 @@ func (it *DefaultCheckout) Submit() (interface{}, error) {
 	checkoutOrder.Set("shipping_amount", it.GetShippingRate().Price)
 
 	// remove order items, and add new from current cart with new description
-	for index, _ := range checkoutOrder.GetItems() {
+	for index := range checkoutOrder.GetItems() {
 		err := checkoutOrder.RemoveItem(index + 1)
 		if err != nil {
 			return nil, env.ErrorDispatch(err)

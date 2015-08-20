@@ -180,6 +180,11 @@ func (it *FilesystemSessionService) FlushSession(sessionID string) error {
 		return env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "363cd5a8-1a3d-4163-a7d3-cb96dbaff01c", "session "+sessionID+" not found")
 	}
 
+	// skipping flush for empty sessions
+	if SessionService.IsEmpty(sessionID) {
+		return nil
+	}
+
 	// serializing session data to file
 	sessionFile, err := os.OpenFile(ConstStorageFolder+sessionID, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0660)
 	if err != nil {

@@ -134,7 +134,7 @@ func APIReceipt(context api.InterfaceApplicationContext) (interface{}, error) {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	currentCheckout, err := checkout.GetCurrentCheckout(context)
+	currentCheckout, err := checkout.GetCurrentCheckout(context, true)
 	if err != nil {
 		return nil, err
 	}
@@ -208,7 +208,7 @@ func APIDecline(context api.InterfaceApplicationContext) (interface{}, error) {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	currentCheckout, err := checkout.GetCurrentCheckout(context)
+	currentCheckout, err := checkout.GetCurrentCheckout(context, true)
 	if err != nil {
 		return nil, err
 	}

@@ -92,6 +92,7 @@ func (it *DefaultCheckout) SendOrderConfirmationMail() error {
 
 // CheckoutSuccess will save the order and clear the shopping in the session.
 func (it *DefaultCheckout) CheckoutSuccess(checkoutOrder order.InterfaceOrder, session api.InterfaceSession) error {
+	var err error
 
 	// making sure order and session were specified
 	if checkoutOrder == nil || session == nil {
@@ -107,14 +108,16 @@ func (it *DefaultCheckout) CheckoutSuccess(checkoutOrder order.InterfaceOrder, s
 	//-----------------------------
 	currentCart := it.GetCart()
 
-	err := currentCart.Deactivate()
-	if err != nil {
-		return env.ErrorDispatch(err)
-	}
+	if currentCart != nil {
+		err = currentCart.Deactivate()
+		if err != nil {
+			return env.ErrorDispatch(err)
+		}
 
-	err = currentCart.Save()
-	if err != nil {
-		return env.ErrorDispatch(err)
+		err = currentCart.Save()
+		if err != nil {
+			return env.ErrorDispatch(err)
+		}
 	}
 
 	session.Set(cart.ConstSessionKeyCurrentCart, nil)

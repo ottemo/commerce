@@ -35,7 +35,7 @@ func setupAPI() error {
 // APICartInfo returns get cart related information
 func APICartInfo(context api.InterfaceApplicationContext) (interface{}, error) {
 
-	currentCart, err := cart.GetCurrentCart(context)
+	currentCart, err := cart.GetCurrentCart(context, false)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -117,7 +117,7 @@ func APICartItemAdd(context api.InterfaceApplicationContext) (interface{}, error
 
 	// operation
 	//----------
-	currentCart, err := cart.GetCurrentCart(context)
+	currentCart, err := cart.GetCurrentCart(context, true)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -163,7 +163,7 @@ func APICartItemUpdate(context api.InterfaceApplicationContext) (interface{}, er
 
 	// operation
 	//----------
-	currentCart, err := cart.GetCurrentCart(context)
+	currentCart, err := cart.GetCurrentCart(context, true)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -212,7 +212,7 @@ func APICartItemDelete(context api.InterfaceApplicationContext) (interface{}, er
 
 	// operation
 	//----------
-	currentCart, err := cart.GetCurrentCart(context)
+	currentCart, err := cart.GetCurrentCart(context, true)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}

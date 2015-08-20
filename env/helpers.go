@@ -90,6 +90,14 @@ func ErrorModify(err error, module string, level int, code string) error {
 	return err
 }
 
+// Error creates new error (without dispatch)
+func Error(module string, level int, code string, message string) error {
+	if errorBus := GetErrorBus(); errorBus != nil {
+		return errorBus.Prepare(module, level, code, message)
+	}
+	return errors.New(message)
+}
+
 // ErrorNew creates new error and dispatches it
 func ErrorNew(module string, level int, code string, message string) error {
 	if errorBus := GetErrorBus(); errorBus != nil {

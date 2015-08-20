@@ -72,7 +72,7 @@ func GetCartForVisitor(visitorID string) (InterfaceCart, error) {
 }
 
 // GetCurrentCart returns cart for current session or creates new one
-func GetCurrentCart(context api.InterfaceApplicationContext) (InterfaceCart, error) {
+func GetCurrentCart(context api.InterfaceApplicationContext, createNew bool) (InterfaceCart, error) {
 	sessionCartID := context.GetSession().Get(ConstSessionKeyCurrentCart)
 	visitorID := context.GetSession().Get(visitor.ConstSessionKeyVisitorID)
 
@@ -113,32 +113,36 @@ func GetCurrentCart(context api.InterfaceApplicationContext) (InterfaceCart, err
 
 	}
 
-	// no cart id was in session, trying to get cart for visitor
-	if visitorID != nil {
-		currentCart, err := GetCartForVisitor(utils.InterfaceToString(visitorID))
-		if err != nil {
-			return nil, env.ErrorDispatch(err)
+	if createNew {
+		// no cart id was in session, trying to get cart for visitor
+		if visitorID != nil {
+			currentCart, err := GetCartForVisitor(utils.InterfaceToString(visitorID))
+			if err != nil {
+				return nil, env.ErrorDispatch(err)
+			}
+
+			context.GetSession().Set(ConstSessionKeyCurrentCart, currentCart.GetID())
+
+			return currentCart, nil
 		}
 
-		context.GetSession().Set(ConstSessionKeyCurrentCart, currentCart.GetID())
+		// making new cart for guest if allowed
+		if app.ConstAllowGuest {
+			currentCart, err := GetCartModel()
+			if err != nil {
+				return nil, env.ErrorDispatch(err)
+			}
+			currentCart.SetSessionID(context.GetSession().GetID())
+			currentCart.Activate()
+			currentCart.Save()
 
-		return currentCart, nil
-	}
+			context.GetSession().Set(ConstSessionKeyCurrentCart, currentCart.GetID())
 
-	// making new cart for guest if allowed
-	if app.ConstAllowGuest {
-		currentCart, err := GetCartModel()
-		if err != nil {
-			return nil, env.ErrorDispatch(err)
+			return currentCart, nil
 		}
-		currentCart.SetSessionID(context.GetSession().GetID())
-		currentCart.Activate()
-		currentCart.Save()
 
-		context.GetSession().Set(ConstSessionKeyCurrentCart, currentCart.GetID())
-
-		return currentCart, nil
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "f5acb5ee-f689-4dd8-a85f-f2ec47425ba1", "not registered visitor")
 	}
 
-	return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "f5acb5ee-f689-4dd8-a85f-f2ec47425ba1", "not registered visitor")
+	return nil, nil
 }

@@ -81,6 +81,7 @@ type InterfaceErrorBus interface {
 	Dispatch(err error) error
 	Modify(err error, module string, level int, code string) error
 
+	Prepare(module string, level int, code string, message string) error
 	New(module string, level int, code string, message string) error
 	Raw(message string) error
 }

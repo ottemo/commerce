@@ -45,7 +45,7 @@ func APIReceipt(context api.InterfaceApplicationContext) (interface{}, error) {
 	}
 	context.SetSession(session)
 
-	currentCheckout, err := checkout.GetCurrentCheckout(context)
+	currentCheckout, err := checkout.GetCurrentCheckout(context, true)
 	if err != nil {
 		return nil, err
 	}
@@ -147,7 +147,7 @@ func APIRelay(context api.InterfaceApplicationContext) (interface{}, error) {
 	}
 	context.SetSession(sessionInstance)
 
-	currentCheckout, err := checkout.GetCurrentCheckout(context)
+	currentCheckout, err := checkout.GetCurrentCheckout(context, true)
 	if err != nil {
 		return nil, err
 	}
