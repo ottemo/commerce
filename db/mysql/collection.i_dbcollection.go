@@ -29,6 +29,9 @@ func (it *DBCollection) LoadByID(id string) (map[string]interface{}, error) {
 		return false
 	})
 
+	if len(result) == 0 {
+		err = env.Error(ConstErrorModule, ConstErrorLevel, "96aa4214-3c7e-40df-934c-e0584e21dc95", "not found")
+	}
 	return result, env.ErrorDispatch(err)
 }
 
