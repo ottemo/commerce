@@ -127,7 +127,7 @@ func (it *FilesystemSessionService) LoadSession(sessionID string) (*DefaultSessi
 	filename := ConstStorageFolder + sessionID
 	fileInfo, err := os.Stat(filename)
 	if err != nil {
-		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "363cd5a8-1a3d-4163-a7d3-cb96dbaff01c", "session "+sessionID+" not found")
+		return nil, env.Error(ConstErrorModule, env.ConstErrorLevelAPI, "363cd5a8-1a3d-4163-a7d3-cb96dbaff01c", "session "+sessionID+" not found")
 	}
 
 	// checking file modification time - expired session case
@@ -136,7 +136,7 @@ func (it *FilesystemSessionService) LoadSession(sessionID string) (*DefaultSessi
 		if err != nil {
 			return nil, err
 		}
-		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "7aee9352-a08b-420a-a725-7f32a17495a8", "session "+sessionID+" expired")
+		return nil, env.Error(ConstErrorModule, env.ConstErrorLevelAPI, "7aee9352-a08b-420a-a725-7f32a17495a8", "session "+sessionID+" expired")
 	}
 
 	// file not expired - loading data from it

@@ -125,8 +125,8 @@ func APIReceipt(context api.InterfaceApplicationContext) (interface{}, error) {
 	delete(waitingTokens, requestData["token"])
 	waitingTokensMutex.Unlock()
 
-	sessionInstance, err := api.GetSessionByID(utils.InterfaceToString(sessionID))
-	if err != nil {
+	sessionInstance, err := api.GetSessionByID(utils.InterfaceToString(sessionID), false)
+	if sessionInstance == nil {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "04eaf220-5964-4d92-821b-c60e1eb8185e", "Wrong session ID")
 	}
 	err = context.SetSession(sessionInstance)
@@ -199,8 +199,8 @@ func APIDecline(context api.InterfaceApplicationContext) (interface{}, error) {
 	delete(waitingTokens, requestData["token"])
 	waitingTokensMutex.Unlock()
 
-	session, err := api.GetSessionByID(utils.InterfaceToString(sessionID))
-	if err != nil {
+	session, err := api.GetSessionByID(utils.InterfaceToString(sessionID), false)
+	if session == nil {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "04eaf220-5964-4d92-821b-c60e1eb8185e", "Wrong session ID")
 	}
 	err = context.SetSession(session)

@@ -12,7 +12,7 @@ type InterfaceSessionService interface {
 	GC() error
 
 	New() (InterfaceSession, error)
-	Get(sessionID string) (InterfaceSession, error)
+	Get(sessionID string, create bool) (InterfaceSession, error)
 
 	IsEmpty(sessionID string) bool
 

@@ -46,9 +46,10 @@ func (it *DefaultSessionService) allocateSessionInstance(sessionInstance *Defaul
 }
 
 // Get returns session object for given session id or nil of not currently exists
-func (it *DefaultSessionService) Get(sessionID string) (api.InterfaceSession, error) {
+func (it *DefaultSessionService) Get(sessionID string, create bool) (api.InterfaceSession, error) {
 
 	var resultError error
+	var resultSession api.InterfaceSession
 
 	if sessionID == "" {
 		return nil, env.Error(ConstErrorModule, env.ConstErrorLevelAPI, "15fc38db-0848-4992-897e-82b93513f4c6", "blank session id")
@@ -77,7 +78,7 @@ func (it *DefaultSessionService) Get(sessionID string) (api.InterfaceSession, er
 	}
 
 	// checking if session was found, if not - making new session for given id
-	if sessionInstance == nil {
+	if create && sessionInstance == nil {
 		sessionInstance = new(DefaultSessionContainer)
 		sessionInstance.id = DefaultSession(sessionID)
 		sessionInstance.Data = make(map[string]interface{})
@@ -103,7 +104,11 @@ func (it *DefaultSessionService) Get(sessionID string) (api.InterfaceSession, er
 		}
 	}
 
-	return sessionInstance.id, resultError
+	if sessionInstance != nil {
+		resultSession = sessionInstance.id
+	}
+
+	return resultSession, resultError
 }
 
 // New initializes new session instance
@@ -131,7 +136,7 @@ func (it *DefaultSessionService) New() (api.InterfaceSession, error) {
 
 // Touch updates session last modification time to current moment
 func (it *DefaultSessionService) Touch(sessionID string) error {
-	sessionInstance, err := it.Get(sessionID)
+	sessionInstance, err := it.Get(sessionID, false)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -174,7 +179,7 @@ func (it *DefaultSessionService) Close(sessionID string) error {
 
 // GetKey returns session value for a given key or nil - if not set
 func (it *DefaultSessionService) GetKey(sessionID string, key string) interface{} {
-	sessionInstance, err := it.Get(sessionID)
+	sessionInstance, err := it.Get(sessionID, false)
 	if sessionInstance == nil || err != nil {
 		return nil
 	}
@@ -193,7 +198,7 @@ func (it *DefaultSessionService) GetKey(sessionID string, key string) interface{
 
 // SetKey assigns value to session key
 func (it *DefaultSessionService) SetKey(sessionID string, key string, value interface{}) {
-	sessionInstance, _ := it.Get(sessionID)
+	sessionInstance, _ := it.Get(sessionID, true)
 
 	if sessionInstance != nil {
 		if sessionInstance, present := it.Sessions[sessionID]; present {
@@ -232,6 +237,12 @@ func (it *DefaultSessionService) GC() error {
 
 // IsEmpty checks if session contains data
 func (it *DefaultSessionService) IsEmpty(sessionID string) bool {
+
+	_, err := it.Get(sessionID, false)
+	if err != nil {
+		env.ErrorDispatch(err)
+	}
+
 	if sessionInstance, present := it.Sessions[sessionID]; present {
 		return len(sessionInstance.Data) == 0
 	}

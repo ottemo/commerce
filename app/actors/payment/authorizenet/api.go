@@ -39,8 +39,8 @@ func APIReceipt(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	status := requestData["x_response_code"]
 
-	session, err := api.GetSessionByID(utils.InterfaceToString(requestData["x_session"]))
-	if err != nil {
+	session, err := api.GetSessionByID(utils.InterfaceToString(requestData["x_session"]), false)
+	if session == nil {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "48f70911-836f-41ba-9ed9-b2afcb7ca462", "Wrong session ID")
 	}
 	context.SetSession(session)
@@ -141,8 +141,8 @@ func APIRelay(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	status := requestData["x_response_code"]
 
-	sessionInstance, err := api.GetSessionByID(utils.InterfaceToString(requestData["x_session"]))
-	if err != nil {
+	sessionInstance, err := api.GetSessionByID(utils.InterfaceToString(requestData["x_session"]), false)
+	if sessionInstance == nil {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "48f70911-836f-41ba-9ed9-b2afcb7ca462", "Wrong session ID")
 	}
 	context.SetSession(sessionInstance)

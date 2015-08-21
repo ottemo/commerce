@@ -181,9 +181,9 @@ func (it *DefaultCheckout) SetSession(checkoutSession api.InterfaceSession) erro
 	return nil
 }
 
-// GetSession return checkout visitor
+// GetSession return checkout session
 func (it *DefaultCheckout) GetSession() api.InterfaceSession {
-	sessionInstance, _ := api.GetSessionByID(it.SessionID)
+	sessionInstance, _ := api.GetSessionByID(it.SessionID, true)
 	return sessionInstance
 }
 
@@ -593,7 +593,9 @@ func (it *DefaultCheckout) Submit() (interface{}, error) {
 	//--------------------------
 	if checkoutOrder.GetGrandTotal() > 0 {
 		paymentInfo := make(map[string]interface{})
-		paymentInfo["sessionID"] = it.GetSession().GetID()
+		if currentSession := it.GetSession(); currentSession != nil {
+			paymentInfo["sessionID"] = currentSession.GetID()
+		}
 		paymentInfo["cc"] = it.GetInfo("cc")
 
 		result, err := paymentMethod.Authorize(checkoutOrder, paymentInfo)

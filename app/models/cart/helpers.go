@@ -80,37 +80,35 @@ func GetCurrentCart(context api.InterfaceApplicationContext, createNew bool) (In
 	if sessionCartID != nil && sessionCartID != "" {
 		// cart id was found in session - loading cart by id
 		sessionCart, err := LoadCartByID(utils.InterfaceToString(sessionCartID))
-		if err != nil {
-			return nil, env.ErrorDispatch(err)
+		if err == nil && sessionCart != nil {
+
+			if visitorID != nil && sessionCart.GetVisitorID() == "" {
+				visitorCart, err := GetCartForVisitor(utils.InterfaceToString(visitorID))
+				if err == nil && visitorCart != nil {
+					for _, item := range sessionCart.GetItems() {
+						visitorCart.AddItem(item.GetProductID(), item.GetQty(), item.GetOptions())
+					}
+
+					visitorCart.SetSessionID(context.GetSession().GetID())
+
+					err = visitorCart.Save()
+					if err != nil {
+						env.ErrorDispatch(err)
+					}
+
+					err = sessionCart.Delete()
+					if err != nil {
+						env.ErrorDispatch(err)
+					}
+
+					context.GetSession().Set(ConstSessionKeyCurrentCart, visitorCart.GetID())
+
+					return visitorCart, nil
+				}
+			}
+
+			return sessionCart, nil
 		}
-		if visitorID != nil && sessionCart.GetVisitorID() == "" {
-			visitorCart, err := GetCartForVisitor(utils.InterfaceToString(visitorID))
-			if err != nil {
-				return nil, env.ErrorDispatch(err)
-			}
-
-			for _, item := range sessionCart.GetItems() {
-				visitorCart.AddItem(item.GetProductID(), item.GetQty(), item.GetOptions())
-			}
-
-			visitorCart.SetSessionID(context.GetSession().GetID())
-
-			err = visitorCart.Save()
-			if err != nil {
-				env.ErrorDispatch(err)
-			}
-
-			err = sessionCart.Delete()
-			if err != nil {
-				env.ErrorDispatch(err)
-			}
-
-			context.GetSession().Set(ConstSessionKeyCurrentCart, visitorCart.GetID())
-
-			return visitorCart, nil
-		}
-		return sessionCart, nil
-
 	}
 
 	if createNew {
@@ -128,6 +126,7 @@ func GetCurrentCart(context api.InterfaceApplicationContext, createNew bool) (In
 
 		// making new cart for guest if allowed
 		if app.ConstAllowGuest {
+
 			currentCart, err := GetCartModel()
 			if err != nil {
 				return nil, env.ErrorDispatch(err)
