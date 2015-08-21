@@ -327,10 +327,18 @@ func APIGetProduct(context api.InterfaceApplicationContext) (interface{}, error)
 
 	// move default image to first position in array
 	if defaultImage != "" && len(itemImages) > 1 {
+		found := false
 		for index, images := range itemImages {
-			if basicImage, present := images["base"]; present && strings.Contains(basicImage, defaultImage) {
-				itemImages = append(itemImages[:index], itemImages[index+1:]...)
-				itemImages = append([]map[string]string{images}, itemImages...)
+			for sizeName, sizeValue := range images {
+				basicName := strings.Replace(sizeValue, "_"+sizeName, "", -1)
+				if strings.Contains(basicName, defaultImage) {
+					found = true
+					itemImages = append(itemImages[:index], itemImages[index+1:]...)
+					itemImages = append([]map[string]string{images}, itemImages...)
+				}
+				break
+			}
+			if found {
 				break
 			}
 		}
@@ -709,10 +717,18 @@ func APIListProducts(context api.InterfaceApplicationContext) (interface{}, erro
 
 		// move default image to first position in array
 		if listItem.Image != "" && len(itemImages) > 1 {
+			found := false
 			for index, images := range itemImages {
-				if basicImage, present := images["base"]; present && strings.Contains(basicImage, listItem.Image) {
-					itemImages = append(itemImages[:index], itemImages[index+1:]...)
-					itemImages = append([]map[string]string{images}, itemImages...)
+				for sizeName, sizeValue := range images {
+					basicName := strings.Replace(sizeValue, "_"+sizeName, "", -1)
+					if strings.Contains(basicName, listItem.Image) {
+						found = true
+						itemImages = append(itemImages[:index], itemImages[index+1:]...)
+						itemImages = append([]map[string]string{images}, itemImages...)
+					}
+					break
+				}
+				if found {
 					break
 				}
 			}
@@ -901,10 +917,18 @@ func APIListShopProducts(context api.InterfaceApplicationContext) (interface{}, 
 
 				// move default image to first position in array
 				if len(itemImages) > 1 {
+					found := false
 					for index, images := range itemImages {
-						if basicImage, present := images["base"]; present && strings.Contains(basicImage, defaultImage) {
-							itemImages = append(itemImages[:index], itemImages[index+1:]...)
-							itemImages = append([]map[string]string{images}, itemImages...)
+						for sizeName, sizeValue := range images {
+							basicName := strings.Replace(sizeValue, "_"+sizeName, "", -1)
+							if strings.Contains(basicName, defaultImage) {
+								found = true
+								itemImages = append(itemImages[:index], itemImages[index+1:]...)
+								itemImages = append([]map[string]string{images}, itemImages...)
+							}
+							break
+						}
+						if found {
 							break
 						}
 					}

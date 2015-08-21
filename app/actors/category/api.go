@@ -141,10 +141,18 @@ func APIListCategories(context api.InterfaceApplicationContext) (interface{}, er
 
 		// move default image to first position in array
 		if listItem.Image != "" && len(itemImages) > 1 {
+			found := false
 			for index, images := range itemImages {
-				if basicImage, present := images["base"]; present && strings.Contains(basicImage, listItem.Image) {
-					itemImages = append(itemImages[:index], itemImages[index+1:]...)
-					itemImages = append([]map[string]string{images}, itemImages...)
+				for sizeName, sizeValue := range images {
+					basicName := strings.Replace(sizeValue, "_"+sizeName, "", -1)
+					if strings.Contains(basicName, listItem.Image) {
+						found = true
+						itemImages = append(itemImages[:index], itemImages[index+1:]...)
+						itemImages = append([]map[string]string{images}, itemImages...)
+					}
+					break
+				}
+				if found {
 					break
 				}
 			}
@@ -402,10 +410,18 @@ func APIGetCategoryProducts(context api.InterfaceApplicationContext) (interface{
 
 				// move default image to first position in array
 				if len(itemImages) > 1 {
+					found := false
 					for index, images := range itemImages {
-						if basicImage, present := images["base"]; present && strings.Contains(basicImage, defaultImage) {
-							itemImages = append(itemImages[:index], itemImages[index+1:]...)
-							itemImages = append([]map[string]string{images}, itemImages...)
+						for sizeName, sizeValue := range images {
+							basicName := strings.Replace(sizeValue, "_"+sizeName, "", -1)
+							if strings.Contains(basicName, defaultImage) {
+								found = true
+								itemImages = append(itemImages[:index], itemImages[index+1:]...)
+								itemImages = append([]map[string]string{images}, itemImages...)
+							}
+							break
+						}
+						if found {
 							break
 						}
 					}
@@ -534,11 +550,20 @@ func APIGetCategory(context api.InterfaceApplicationContext) (interface{}, error
 			}
 
 			// move default image to first position in array
-			if defaultImage, present := productInfo["default_image"]; present && utils.InterfaceToString(defaultImage) != "" && len(itemImages) > 1 {
+			defaultImage := utils.InterfaceToString(productInfo["default_image"])
+			if _, present := productInfo["default_image"]; present && defaultImage != "" && len(itemImages) > 1 {
+				found := false
 				for index, images := range itemImages {
-					if basicImage, present := images["base"]; present && strings.Contains(basicImage, utils.InterfaceToString(defaultImage)) {
-						itemImages = append(itemImages[:index], itemImages[index+1:]...)
-						itemImages = append([]map[string]string{images}, itemImages...)
+					for sizeName, sizeValue := range images {
+						basicName := strings.Replace(sizeValue, "_"+sizeName, "", -1)
+						if strings.Contains(basicName, defaultImage) {
+							found = true
+							itemImages = append(itemImages[:index], itemImages[index+1:]...)
+							itemImages = append([]map[string]string{images}, itemImages...)
+						}
+						break
+					}
+					if found {
 						break
 					}
 				}
@@ -557,11 +582,20 @@ func APIGetCategory(context api.InterfaceApplicationContext) (interface{}, error
 	}
 
 	// move default image to first position in array
-	if defaultImage, present := result["image"]; present && utils.InterfaceToString(defaultImage) != "" && len(itemImages) > 1 {
+	defaultImage := utils.InterfaceToString(result["image"])
+	if _, present := result["image"]; present && defaultImage != "" && len(itemImages) > 1 {
+		found := false
 		for index, images := range itemImages {
-			if basicImage, present := images["base"]; present && strings.Contains(basicImage, utils.InterfaceToString(defaultImage)) {
-				itemImages = append(itemImages[:index], itemImages[index+1:]...)
-				itemImages = append([]map[string]string{images}, itemImages...)
+			for sizeName, value := range images {
+				basicName := strings.Replace(value, "_"+sizeName, "", -1)
+				if strings.Contains(basicName, defaultImage) {
+					found = true
+					itemImages = append(itemImages[:index], itemImages[index+1:]...)
+					itemImages = append([]map[string]string{images}, itemImages...)
+				}
+				break
+			}
+			if found {
 				break
 			}
 		}

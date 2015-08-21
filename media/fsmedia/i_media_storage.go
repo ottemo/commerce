@@ -2,15 +2,15 @@ package fsmedia
 
 import (
 	"bytes"
-	"github.com/ottemo/foundation/app"
-	"github.com/ottemo/foundation/db"
-	"github.com/ottemo/foundation/env"
-	"github.com/ottemo/foundation/utils"
 	"image"
 	"image/jpeg"
 	"io/ioutil"
 	"os"
 	"strings"
+
+	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/foundation/utils"
 )
 
 // GetName returns media storage name
@@ -267,13 +267,14 @@ func (it *FilesystemMediaStorage) GetAllSizes(model string, objID string, mediaT
 		return result, env.ErrorDispatch(err)
 	}
 
-	mediaBasePath := utils.InterfaceToString(env.ConfigGetValue(app.ConstConfigPathMediaBaseURL))
-	path = mediaBasePath + path
+	// Adding "/" to this thing to be responsive to all dashboard values
+	mediaBasePath := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathMediaBaseURL))
+	path = mediaBasePath + "/" + path
 
 	for _, record := range records {
 
 		if mediaName, ok := record["media"].(string); ok {
-			resultItem := map[string]string{"base": path + mediaName}
+			resultItem := map[string]string{}
 
 			for imageSize := range it.imageSizes {
 				it.ResizeMediaImage(model, objID, mediaName, imageSize)

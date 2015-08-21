@@ -67,5 +67,33 @@ func (it *FilesystemMediaStorage) setupConfig() error {
 
 	imageDefaultSizeValidator(env.ConfigGetValue(ConstConfigPathMediaImageSize))
 
+	imageBasePathValidator := func(newValue interface{}) (interface{}, error) {
+		if newValue, ok := newValue.(string); ok {
+			if length := len(newValue); length > 1 && newValue[length-1:length] == "/" {
+				return newValue[0 : length-1], nil
+			}
+			return newValue, nil
+		}
+
+		return "media", env.ErrorNew(ConstErrorModule, env.ConstErrorLevelStartStop, "eb97378b-a940-45b4-a653-3bdb47fe6b16", "Unexpected value for image base url")
+	}
+
+	err = config.RegisterItem(env.StructConfigItem{
+		Path:        ConstConfigPathMediaBaseURL,
+		Value:       "media",
+		Type:        env.ConstConfigTypeVarchar,
+		Editor:      "text",
+		Options:     nil,
+		Label:       "Media base URL",
+		Description: "URL application will use to generate media resources links",
+		Image:       "",
+	}, imageBasePathValidator)
+
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	imageBasePathValidator(env.ConfigGetValue(ConstConfigPathMediaBaseURL))
+
 	return nil
 }

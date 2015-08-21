@@ -20,7 +20,6 @@ const (
 	ConstConfigPathStorefrontURL = "general.app.storefront_url"
 	ConstConfigPathDashboardURL  = "general.app.dashboard_url"
 	ConstConfigPathFoundationURL = "general.app.foundation_url"
-	ConstConfigPathMediaBaseURL  = "general.app.media_base_url"
 
 	ConstConfigPathStoreName  = "general.store.name"
 	ConstConfigPathStoreEmail = "general.store.email"

@@ -419,20 +419,5 @@ func setupConfig() error {
 		return env.ErrorDispatch(err)
 	}
 
-	err = config.RegisterItem(env.StructConfigItem{
-		Path:        ConstConfigPathMediaBaseURL,
-		Value:       "media/",
-		Type:        env.ConstConfigTypeVarchar,
-		Editor:      "text",
-		Options:     nil,
-		Label:       "Media base URL",
-		Description: "URL application will use to generate media resources links",
-		Image:       "",
-	}, nil)
-
-	if err != nil {
-		return env.ErrorDispatch(err)
-	}
-
 	return nil
 }
