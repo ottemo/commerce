@@ -75,7 +75,6 @@ func APIApplyDiscount(context api.InterfaceApplicationContext) (interface{}, err
 
 	// getting applied coupons array for current session
 	appliedCoupons := utils.InterfaceToStringArray(currentSession.Get(ConstSessionKeyAppliedDiscountCodes))
-	usedCodes := utils.InterfaceToStringArray(currentSession.Get(ConstSessionKeyUsedDiscountCodes))
 
 	// checking if coupon was already applied
 	if utils.IsInArray(couponCode, appliedCoupons) {
