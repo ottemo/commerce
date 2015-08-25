@@ -52,7 +52,7 @@ func (it *DefaultSessionService) Get(sessionID string, create bool) (api.Interfa
 	var resultSession api.InterfaceSession
 
 	if sessionID == "" {
-		return nil, env.Error(ConstErrorModule, env.ConstErrorLevelAPI, "15fc38db-0848-4992-897e-82b93513f4c6", "blank session id")
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "15fc38db-0848-4992-897e-82b93513f4c6", "blank session id")
 	}
 	replaceInstanceFlag := false
 
@@ -89,7 +89,7 @@ func (it *DefaultSessionService) Get(sessionID string, create bool) (api.Interfa
 			return nil, env.ErrorDispatch(err)
 		}
 
-		resultError = env.Error(ConstErrorModule, env.ConstErrorLevelAPI, "11670fe2-ee1c-45c9-a732-1349737b53f6", "new session created")
+		resultError = env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "11670fe2-ee1c-45c9-a732-1349737b53f6", "new session created")
 		replaceInstanceFlag = true
 	}
 
@@ -164,7 +164,7 @@ func (it *DefaultSessionService) Close(sessionID string) error {
 		if _, err := os.Stat(filename); err == nil {
 			err := os.Remove(filename)
 			if err != nil {
-				env.ErrorDispatch(err)
+				env.LogError(err)
 			}
 		}
 
@@ -227,7 +227,7 @@ func (it *DefaultSessionService) GC() error {
 		if secondsAfterLastUpdate > ConstSessionUpdateTime {
 			err := it.Storage.FlushSession(sessionID)
 			if err != nil {
-				env.ErrorDispatch(err)
+				env.LogError(err)
 			}
 		}
 	}
@@ -240,7 +240,7 @@ func (it *DefaultSessionService) IsEmpty(sessionID string) bool {
 
 	_, err := it.Get(sessionID, false)
 	if err != nil {
-		env.ErrorDispatch(err)
+		env.LogError(err)
 	}
 
 	if sessionInstance, present := it.Sessions[sessionID]; present {

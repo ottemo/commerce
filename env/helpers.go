@@ -31,6 +31,7 @@ func Log(storage string, prefix string, message string) {
 
 // LogError logs an error message
 func LogError(err error) {
+	err = ErrorDispatch(err)
 	if logger := GetLogger(); logger != nil {
 		logger.LogError(err)
 	}

@@ -131,7 +131,14 @@ type InterfaceOttemoError interface {
 	ErrorFull() string
 	ErrorLevel() int
 	ErrorCode() string
+	ErrorMessage() string
 	ErrorCallStack() string
+
+	IsHandled() bool
+	MarkHandled() bool
+
+	IsLogged() bool
+	MarkLogged() bool
 
 	error
 }

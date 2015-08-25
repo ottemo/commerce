@@ -33,13 +33,13 @@ func (it *DefaultCheckout) GetShippingAddress() visitor.InterfaceVisitorAddress 
 
 	shippingAddress, err := visitor.GetVisitorAddressModel()
 	if err != nil {
-		env.ErrorDispatch(err)
+		env.LogError(err)
 		return nil
 	}
 
 	err = shippingAddress.FromHashMap(it.ShippingAddress)
 	if err != nil {
-		env.ErrorDispatch(err)
+		env.LogError(err)
 		return nil
 	}
 
@@ -65,13 +65,13 @@ func (it *DefaultCheckout) GetBillingAddress() visitor.InterfaceVisitorAddress {
 
 	billingAddress, err := visitor.GetVisitorAddressModel()
 	if err != nil {
-		env.ErrorDispatch(err)
+		env.LogError(err)
 		return nil
 	}
 
 	err = billingAddress.FromHashMap(it.BillingAddress)
 	if err != nil {
-		env.ErrorDispatch(err)
+		env.LogError(err)
 		return nil
 	}
 

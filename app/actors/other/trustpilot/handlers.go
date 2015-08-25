@@ -185,7 +185,7 @@ func sendOrderInfo(checkoutOrder order.InterfaceOrder, currentCart cart.Interfac
 					} else {
 						errorMessage += "no error message provided"
 					}
-					env.LogError(env.Error(ConstErrorModule, env.ConstErrorLevelActor, "c53fd02f-2f5d-4111-8318-69a2cc2d2259", errorMessage))
+					env.LogError(env.ErrorNew(ConstErrorModule, env.ConstErrorLevelActor, "c53fd02f-2f5d-4111-8318-69a2cc2d2259", errorMessage))
 					return nil
 				}
 

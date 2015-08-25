@@ -31,9 +31,9 @@ func (it *DBCollection) LoadByID(id string) (map[string]interface{}, error) {
 	})
 
 	if len(result) == 0 {
-		err = env.Error(ConstErrorModule, ConstErrorLevel, "5a52f28f-14e0-4cb7-91ff-a1bf2a5f0064", "not found")
+		err = env.ErrorNew(ConstErrorModule, ConstErrorLevel, "5a52f28f-14e0-4cb7-91ff-a1bf2a5f0064", "not found")
 	}
-	return result, env.ErrorDispatch(err)
+	return result, err
 }
 
 // Load loads records from DB for current collection and filter if it set

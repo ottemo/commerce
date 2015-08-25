@@ -134,7 +134,7 @@ func (it *DefaultCheckout) CheckoutSuccess(checkoutOrder order.InterfaceOrder, s
 
 	err = it.SendOrderConfirmationMail()
 	if err != nil {
-		env.ErrorDispatch(err)
+		env.LogError(err)
 	}
 
 	return nil

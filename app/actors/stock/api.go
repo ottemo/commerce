@@ -46,19 +46,19 @@ func APIGetProductStock(context api.InterfaceApplicationContext) (interface{}, e
 	// receiving database information
 	dbCollection, err := db.GetCollection(ConstCollectionNameStock)
 	if err != nil {
-		env.ErrorDispatch(err)
+		env.LogError(err)
 		return nil, err
 	}
 
 	err = dbCollection.AddFilter("product_id", "=", context.GetRequestArgument("productID"))
 	if err != nil {
-		env.ErrorDispatch(err)
+		env.LogError(err)
 		return nil, err
 	}
 
 	dbRecords, err := dbCollection.Load()
 	if err != nil {
-		env.ErrorDispatch(err)
+		env.LogError(err)
 		return nil, err
 	}
 
