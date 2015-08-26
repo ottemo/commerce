@@ -17,6 +17,8 @@ const (
 	ConstConfigPathMediaImageSize  = "general.app.image_size"  // base image size
 	ConstConfigPathMediaImageSizes = "general.app.image_sizes" // other image sizes required
 
+	ConstConfigPathMediaBaseURL = "general.app.media_base_url"
+
 	ConstMediaTypeImage    = "image"
 	ConstMediaTypeLink     = "link"
 	ConstMediaTypeDocument = "document"
