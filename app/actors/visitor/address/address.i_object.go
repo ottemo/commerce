@@ -89,7 +89,6 @@ func (it *DefaultVisitorAddress) FromHashMap(input map[string]interface{}) error
 	for attribute, value := range input {
 		if err := it.Set(attribute, value); err != nil {
 			env.LogError(err)
-			env.LogError(env.ErrorNew(ConstErrorModule, ConstErrorLevel, "9b5b43d5-1a89-4e80-a4bc-75c68ea7061b", "can't set attribute - "+attribute+" value"))
 		}
 	}
 

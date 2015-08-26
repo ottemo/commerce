@@ -154,7 +154,6 @@ func (it *DefaultVisitor) FromHashMap(input map[string]interface{}) error {
 	for attribute, value := range input {
 		if err := it.Set(attribute, value); err != nil {
 			env.LogError(err)
-			//			env.LogError(env.ErrorNew(ConstErrorModule, ConstErrorLevel, "99874e7f-2fd5-4a7a-9e2d-33ef0922c7ec", "can't set attribute - " + attribute + " value"))
 		}
 	}
 
