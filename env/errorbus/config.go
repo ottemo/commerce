@@ -77,5 +77,25 @@ func setupConfig() error {
 		return env.ErrorDispatch(err)
 	}
 
+	// instant debug
+	debugValidator := func(newValue interface{}) (interface{}, error) {
+		debug = utils.InterfaceToBool(newValue)
+		return debug, nil
+	}
+	err = config.RegisterItem(env.StructConfigItem{
+		Path:        ConstConfigPathErrorDebug,
+		Value:       false,
+		Type:        env.ConstConfigTypeBoolean,
+		Editor:      "boolean",
+		Options:     nil,
+		Label:       "Debug",
+		Description: "errors would be logged instantly on dispatch (depends on error levels)",
+		Image:       "",
+	}, debugValidator)
+
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
 	return nil
 }

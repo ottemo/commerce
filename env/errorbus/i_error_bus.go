@@ -48,6 +48,10 @@ func (it *DefaultErrorBus) process(ottemoErr *OttemoError) *OttemoError {
 		}
 	}
 
+	if debug {
+		env.LogError(ottemoErr)
+	}
+
 	return ottemoErr
 }
 

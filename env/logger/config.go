@@ -25,7 +25,7 @@ func setupConfig() error {
 	}, nil)
 
 	if err != nil {
-		return env.ErrorDispatch(err)
+		env.ErrorDispatch(err)
 	}
 
 	// Log level
