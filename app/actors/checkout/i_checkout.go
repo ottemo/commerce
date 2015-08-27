@@ -33,13 +33,13 @@ func (it *DefaultCheckout) GetShippingAddress() visitor.InterfaceVisitorAddress 
 
 	shippingAddress, err := visitor.GetVisitorAddressModel()
 	if err != nil {
-		env.ErrorDispatch(err)
+		env.LogError(err)
 		return nil
 	}
 
 	err = shippingAddress.FromHashMap(it.ShippingAddress)
 	if err != nil {
-		env.ErrorDispatch(err)
+		env.LogError(err)
 		return nil
 	}
 
@@ -65,13 +65,13 @@ func (it *DefaultCheckout) GetBillingAddress() visitor.InterfaceVisitorAddress {
 
 	billingAddress, err := visitor.GetVisitorAddressModel()
 	if err != nil {
-		env.ErrorDispatch(err)
+		env.LogError(err)
 		return nil
 	}
 
 	err = billingAddress.FromHashMap(it.BillingAddress)
 	if err != nil {
-		env.ErrorDispatch(err)
+		env.LogError(err)
 		return nil
 	}
 
@@ -127,12 +127,21 @@ func (it *DefaultCheckout) GetShippingRate() *checkout.StructShippingRate {
 
 // SetCart sets cart for checkout
 func (it *DefaultCheckout) SetCart(checkoutCart cart.InterfaceCart) error {
-	it.CartID = checkoutCart.GetID()
+	if checkoutCart != nil {
+		it.CartID = checkoutCart.GetID()
+	} else {
+		it.CartID = ""
+	}
+
 	return nil
 }
 
 // GetCart returns a shopping cart
 func (it *DefaultCheckout) GetCart() cart.InterfaceCart {
+	if it.CartID == "" {
+		return nil
+	}
+
 	cartInstance, _ := cart.LoadCartByID(it.CartID)
 	return cartInstance
 }
@@ -172,9 +181,9 @@ func (it *DefaultCheckout) SetSession(checkoutSession api.InterfaceSession) erro
 	return nil
 }
 
-// GetSession return checkout visitor
+// GetSession return checkout session
 func (it *DefaultCheckout) GetSession() api.InterfaceSession {
-	sessionInstance, _ := api.GetSessionByID(it.SessionID)
+	sessionInstance, _ := api.GetSessionByID(it.SessionID, true)
 	return sessionInstance
 }
 
@@ -541,7 +550,7 @@ func (it *DefaultCheckout) Submit() (interface{}, error) {
 	checkoutOrder.Set("shipping_amount", it.GetShippingRate().Price)
 
 	// remove order items, and add new from current cart with new description
-	for index, _ := range checkoutOrder.GetItems() {
+	for index := range checkoutOrder.GetItems() {
 		err := checkoutOrder.RemoveItem(index + 1)
 		if err != nil {
 			return nil, env.ErrorDispatch(err)
@@ -584,7 +593,9 @@ func (it *DefaultCheckout) Submit() (interface{}, error) {
 	//--------------------------
 	if checkoutOrder.GetGrandTotal() > 0 {
 		paymentInfo := make(map[string]interface{})
-		paymentInfo["sessionID"] = it.GetSession().GetID()
+		if currentSession := it.GetSession(); currentSession != nil {
+			paymentInfo["sessionID"] = currentSession.GetID()
+		}
 		paymentInfo["cc"] = it.GetInfo("cc")
 
 		result, err := paymentMethod.Authorize(checkoutOrder, paymentInfo)

@@ -49,7 +49,7 @@ func (it *DBEngine) Startup() error {
 				dbEngine.connectionMutex.Unlock()
 
 				if err != nil {
-					env.ErrorDispatch(err)
+					env.LogError(err)
 				} else {
 					it.connection = newConnection
 				}
