@@ -593,19 +593,64 @@ func (it *DefaultCheckout) Submit() (interface{}, error) {
 			return nil, env.ErrorDispatch(err)
 		}
 
-		// if payment.Authorize returns non nil result, that supposing additional operations to complete payment
-		if result != nil {
+		// Payment method require to return as a result:
+		// redirect (with completing of checkout after payment processing)
+		// or payment info for order
+		switch value := result.(type) {
+		case api.StructRestRedirect:
 			return result, nil
+
+		case map[string]interface{}:
+			return it.SubmitFinish(value)
 		}
 	}
 
-	// set status to paid for processing without Authorize
-	if checkoutOrder.GetStatus() == order.ConstOrderStatusPending {
-		checkoutOrder.SetStatus(order.ConstOrderStatusProcessed)
-		checkoutOrder.Save()
+	return it.SubmitFinish(nil)
+}
+
+// SubmitFinish finishes processing of submit (required for payment methods to finish with this call?)
+func (it *DefaultCheckout) SubmitFinish(paymentInfo map[string]interface{}) (interface{}, error) {
+
+	checkoutOrder := it.GetOrder()
+	if checkoutOrder == nil {
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "6372e487-7d43-4da7-a08d-a4d743baa83c", "Order not present in checkout")
 	}
 
-	err = it.CheckoutSuccess(checkoutOrder, it.GetSession())
+	checkoutOrder.SetStatus(order.ConstOrderStatusProcessed)
 
-	return checkoutOrder.ToHashMap(), err
+	if paymentInfo != nil {
+		currentPaymentInfo := utils.InterfaceToMap(checkoutOrder.Get("payment_info"))
+		for key, value := range paymentInfo {
+			currentPaymentInfo[key] = value
+		}
+
+		checkoutOrder.Set("payment_info", currentPaymentInfo)
+	}
+
+	err := checkoutOrder.Save()
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	result := checkoutOrder.ToHashMap()
+	var orderItems []map[string]interface{}
+
+	for _, orderItem := range checkoutOrder.GetItems() {
+		options := make(map[string]interface{})
+
+		for optionName, optionKeys := range orderItem.GetOptions() {
+			optionMap := utils.InterfaceToMap(optionKeys)
+			options[optionName] = optionMap["value"]
+		}
+		orderItems = append(orderItems, map[string]interface{}{
+			"name":    orderItem.GetName(),
+			"options": options,
+			"sku":     orderItem.GetSku(),
+			"qty":     orderItem.GetQty(),
+			"price":   orderItem.GetPrice()})
+	}
+
+	result["items"] = orderItems
+
+	return result, it.CheckoutSuccess(checkoutOrder, it.GetSession())
 }

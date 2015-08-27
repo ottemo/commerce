@@ -4,7 +4,6 @@ import (
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/app"
 	"github.com/ottemo/foundation/app/models/checkout"
-	"github.com/ottemo/foundation/app/models/order"
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
 )
@@ -61,23 +60,7 @@ func APIReceipt(context api.InterfaceApplicationContext) (interface{}, error) {
 			}
 			if checkoutOrder != nil {
 
-				paymentInfo := utils.InterfaceToMap(checkoutOrder.Get("payment_info"))
-				for key, value := range requestData {
-					paymentInfo[key] = value
-				}
-
-				checkoutOrder.SetStatus(order.ConstOrderStatusProcessed)
-				checkoutOrder.Set("payment_info", paymentInfo)
-
-				err = checkoutOrder.Save()
-				if err != nil {
-					return nil, err
-				}
-
-				err = currentCheckout.CheckoutSuccess(checkoutOrder, context.GetSession())
-				if err != nil {
-					return nil, err
-				}
+				result, err := currentCheckout.SubmitFinish(requestData)
 
 				env.Log(ConstLogStorage, env.ConstLogPrefixInfo, "TRANSACTION APPROVED: "+
 					"VisitorID - "+utils.InterfaceToString(checkoutOrder.Get("visitor_id"))+", "+
@@ -86,7 +69,7 @@ func APIReceipt(context api.InterfaceApplicationContext) (interface{}, error) {
 					"Total - "+utils.InterfaceToString(requestData["x_amount"])+", "+
 					"Transaction ID - "+utils.InterfaceToString(requestData["x_trans_id"]))
 
-				return api.StructRestRedirect{Location: app.GetStorefrontURL("account/order/" + checkoutOrder.GetID()), DoRedirect: true}, nil
+				return api.StructRestRedirect{Result: result, Location: app.GetStorefrontURL("account/order/" + checkoutOrder.GetID()), DoRedirect: true}, err
 			}
 		}
 	case ConstTransactionDeclined:
@@ -162,18 +145,8 @@ func APIRelay(context api.InterfaceApplicationContext) (interface{}, error) {
 				return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "6244e778-a837-4425-849b-fbce26d5b095", "Cart is not specified")
 			}
 			if checkoutOrder != nil {
-				checkoutOrder.SetStatus(order.ConstOrderStatusProcessed)
-				checkoutOrder.Set("payment_info", requestData)
 
-				err = checkoutOrder.Save()
-				if err != nil {
-					return nil, err
-				}
-
-				err = currentCheckout.CheckoutSuccess(checkoutOrder, context.GetSession())
-				if err != nil {
-					return nil, err
-				}
+				result, err := currentCheckout.SubmitFinish(requestData)
 
 				context.SetResponseContentType("text/plain")
 
@@ -184,31 +157,7 @@ func APIRelay(context api.InterfaceApplicationContext) (interface{}, error) {
 					"Total - "+utils.InterfaceToString(requestData["x_amount"])+", "+
 					"Transaction ID - "+utils.InterfaceToString(requestData["x_trans_id"]))
 
-				return []byte(`<html>
-					 <head>
-						 <noscript>
-						 	<meta http-equiv='refresh' content='1;url=` + app.GetStorefrontURL("account/order/"+checkoutOrder.GetID()) + `'>
-						 </noscript>
-					 </head>
-					 <body>
-					 	<h1>Thanks for your purchase.</h1>
-					 	<p>Your transaction ID: <b>` + utils.InterfaceToString(requestData["x_trans_id"]) + `</b></p>
-					 	<p>You will  redirect to the store after <span id="sec"></span> sec.	<a href="` + app.GetStorefrontURL("account/order/"+checkoutOrder.GetID()) + `">Back to store</a></p>
-					 </body>
-					 <script type='text/javascript' charset='utf-8'>
-					 	(function(){
-							var seconds = 10;
-							document.getElementById("sec").innerHTML = seconds;
-							setInterval(function(){
-								seconds -= 1;
-								document.getElementById("sec").innerHTML = seconds;
-								if(0 === seconds){
-									window.location='` + app.GetStorefrontURL("account/order/"+checkoutOrder.GetID()) + `';
-								}
-							}, 1000);
-					 	})();
-					 </script>
-				</html>`), nil
+				return api.StructRestRedirect{Result: result, Location: app.GetStorefrontURL("checkout/success/" + checkoutOrder.GetID()), DoRedirect: true}, err
 			}
 		}
 	case ConstTransactionDeclined:
