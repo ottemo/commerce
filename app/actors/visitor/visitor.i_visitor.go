@@ -10,9 +10,8 @@ import (
 
 	"github.com/ottemo/foundation/app"
 	"github.com/ottemo/foundation/app/models/visitor"
-	"github.com/ottemo/foundation/env"
-
 	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
 )
 
@@ -269,6 +268,73 @@ func (it *DefaultVisitor) GenerateNewPassword() error {
 	err = app.SendMail(it.GetEmail(), "Password Recovery", "A new password was requested for your account: "+it.GetEmail()+"<br><br>"+
 		"New password: "+newPassword+"<br><br>"+
 		"Please remember to change your password upon next login "+linkHref)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	return nil
+}
+
+// ResetPassword generates new password for the current Visitor
+func (it *DefaultVisitor) ResetPassword() error {
+
+	if it.GetEmail() == "" {
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "bef673e9-79c1-42bc-ade0-e870b3da0e2f", "The email address field cannot be blank.")
+	}
+
+	verificationCode := utils.InterfaceToString(time.Now().Unix()) + ":" + it.GetID()
+	verificationCode = hex.EncodeToString([]byte(base64.StdEncoding.EncodeToString([]byte(verificationCode))))
+
+	linkHref := app.GetStorefrontURL("login?reset=" + verificationCode)
+
+	err := app.SendMail(it.GetEmail(), "password reset", "Please follow the link to reset your password: <a href=\""+linkHref+"\">"+linkHref+"</a>")
+
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	return nil
+}
+
+// UpdateResetPassword takes a visitors verification key and checks it against the database, a new verification email is sent if the key cannot be validated
+func (it *DefaultVisitor) UpdateResetPassword(key string, passwd string) error {
+
+	// checking verification key expiration
+	temp, err := hex.DecodeString(key)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	data, err := base64.StdEncoding.DecodeString(string(temp))
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	verificationCode := strings.SplitN(string(data), ":", 2)
+
+	// in this case code is invalid
+	if len(verificationCode) != 2 {
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "875bbdf9-f746-4fbc-9950-d6cf98e681b7", "Verifaication code expired")
+	}
+
+	timeWas := int64(utils.InterfaceToInt(verificationCode[0]))
+	timeNow := time.Now().Unix()
+
+	if (timeNow - timeWas) > ConstEmailPasswordResetExpire {
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "d672f112-b74e-432f-b377-37ea2885a9fc", "Verifaication code expired")
+	}
+
+	err = it.Load(verificationCode[1])
+	if err != nil || it.GetEmail() == "" {
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "fe53edeb-85a6-4252-b705-ca4aeaabddf6", "Verifaication code expired")
+	}
+
+	err = it.SetPassword(passwd)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	err = it.Save()
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
