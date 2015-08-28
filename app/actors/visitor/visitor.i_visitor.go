@@ -319,8 +319,9 @@ func (it *DefaultVisitor) UpdateResetPassword(key string, passwd string) error {
 
 	timeWas := int64(utils.InterfaceToInt(verificationCode[0]))
 	timeNow := time.Now().Unix()
+	timeDifference := (timeNow - timeWas)
 
-	if (timeNow - timeWas) > ConstEmailPasswordResetExpire {
+	if timeDifference > ConstEmailPasswordResetExpire || timeDifference < 0 {
 		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "d672f112-b74e-432f-b377-37ea2885a9fc", "Verifaication code expired")
 	}
 
