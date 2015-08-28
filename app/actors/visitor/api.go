@@ -639,7 +639,7 @@ func APIInvalidateVisitor(context api.InterfaceApplicationContext) (interface{},
 
 	// checking rights
 	if err := api.ValidateAdminRights(context); err != nil {
-		if visitorModel.IsVerfied() {
+		if visitorModel.IsVerified() {
 			return nil, env.ErrorDispatch(err)
 		}
 	}
@@ -834,7 +834,7 @@ func APILogin(context api.InterfaceApplicationContext) (interface{}, error) {
 	}
 
 	// api session updates
-	if visitorModel.IsVerfied() {
+	if visitorModel.IsVerified() {
 		context.GetSession().Set(visitor.ConstSessionKeyVisitorID, visitorModel.GetID())
 	} else {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "29fba7a4-bd85-400e-81c2-69189c50d0d0", "This account has not been verfied, please check your email account: ,"+visitorModel.GetEmail()+" for a verification link sent to you.")

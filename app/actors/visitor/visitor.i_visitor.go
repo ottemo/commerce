@@ -7,7 +7,7 @@ import (
 	"encoding/hex"
 	"strings"
 	"time"
-
+	
 	"github.com/ottemo/foundation/app"
 	"github.com/ottemo/foundation/app/models/visitor"
 	"github.com/ottemo/foundation/db"
@@ -99,8 +99,8 @@ func (it *DefaultVisitor) IsGuest() bool {
 	return it.GetGoogleID() == "" && it.GetFacebookID() == "" && it.GetEmail() == ""
 }
 
-// IsVerfied returns true if the Visitor's e-mail has been verified
-func (it *DefaultVisitor) IsVerfied() bool {
+// IsVerified returns true if the Visitor's e-mail has been verified
+func (it *DefaultVisitor) IsVerified() bool {
 	return it.VerificationKey == ""
 }
 
@@ -285,10 +285,41 @@ func (it *DefaultVisitor) ResetPassword() error {
 	verificationCode := utils.InterfaceToString(time.Now().Unix()) + ":" + it.GetID()
 	verificationCode = hex.EncodeToString([]byte(base64.StdEncoding.EncodeToString([]byte(verificationCode))))
 
-	linkHref := app.GetStorefrontURL("login?reset=" + verificationCode)
+	linkHref := app.GetStorefrontURL("reset-password?key=" + verificationCode)
 
-	err := app.SendMail(it.GetEmail(), "password reset", "Please follow the link to reset your password: <a href=\""+linkHref+"\">"+linkHref+"</a>")
+	customerInfo := map[string]string{
+		"name":               it.GetFullName(),
+		"reset_password_url": linkHref,
+		"reset_time_length":  "30",
+	}
+	shopInfo := map[string]string{
+		"name": utils.InterfaceToString(env.ConfigGetValue(app.ConstConfigPathStoreName)),
+	}
 
+	resetTemplateEmail := `<p>You have requested to have your password reset for your account at {{.shop.name}}</p>
+<p></p>
+<p>Please visit this url in the next {{.customer.reset_time_length}} minutes to reset your password. </p>
+<p></p>
+<p><a href="{{.customer.reset_password_url}}">{{.customer.reset_password_url}}</a></p>
+<p></p>
+<p>If you received this email in error, you can safely ignore this email.</p>`
+
+	if it.GetFullName() != "" {
+		resetTemplateEmail = `<p>Dear {{.customer.name}},</p>
+<p></p>` + resetTemplateEmail
+	}
+
+	passwordRecoveryEmail, err := utils.TextTemplate(resetTemplateEmail,
+		map[string]interface{}{
+			"customer": customerInfo,
+			"shop":     shopInfo,
+		})
+
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	err = app.SendMail(it.GetEmail(), "Password Recovery", passwordRecoveryEmail)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -314,7 +345,7 @@ func (it *DefaultVisitor) UpdateResetPassword(key string, passwd string) error {
 
 	// in this case code is invalid
 	if len(verificationCode) != 2 {
-		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "875bbdf9-f746-4fbc-9950-d6cf98e681b7", "Verifaication code expired")
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "875bbdf9-f746-4fbc-9950-d6cf98e681b7", "verification key mismatch")
 	}
 
 	timeWas := int64(utils.InterfaceToInt(verificationCode[0]))
@@ -322,12 +353,12 @@ func (it *DefaultVisitor) UpdateResetPassword(key string, passwd string) error {
 	timeDifference := (timeNow - timeWas)
 
 	if timeDifference > ConstEmailPasswordResetExpire || timeDifference < 0 {
-		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "d672f112-b74e-432f-b377-37ea2885a9fc", "Verifaication code expired")
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "d672f112-b74e-432f-b377-37ea2885a9fc", "Your password reset link has already expired, please submit a new request to reset your password")
 	}
 
 	err = it.Load(verificationCode[1])
 	if err != nil || it.GetEmail() == "" {
-		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "fe53edeb-85a6-4252-b705-ca4aeaabddf6", "Verifaication code expired")
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "fe53edeb-85a6-4252-b705-ca4aeaabddf6", "verification key mismatch")
 	}
 
 	err = it.SetPassword(passwd)

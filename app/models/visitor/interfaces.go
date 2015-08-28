@@ -49,7 +49,7 @@ type InterfaceVisitor interface {
 	IsAdmin() bool
 	IsGuest() bool
 
-	IsVerfied() bool
+	IsVerified() bool
 	Invalidate() error
 	Validate(key string) error
 
