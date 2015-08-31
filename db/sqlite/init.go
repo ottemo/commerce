@@ -70,7 +70,7 @@ func (it *DBEngine) Startup() error {
 		return sqlError(SQL, err)
 	}
 
-	db.OnDatabaseStart()
+	err = db.OnDatabaseStart()
 
-	return nil
+	return err
 }
