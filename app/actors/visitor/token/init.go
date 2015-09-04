@@ -2,12 +2,17 @@ package token
 
 import (
 	"github.com/ottemo/foundation/api"
+	"github.com/ottemo/foundation/app/models"
+	"github.com/ottemo/foundation/app/models/visitor"
 	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/env"
 )
 
 // init makes package self-initialization routine
 func init() {
+	visitorCardInstance := new(DefaultVisitorCard)
+	var _ visitor.InterfaceVisitorCard = visitorCardInstance
+	models.RegisterModel(visitor.ConstModelNameVisitorCard, visitorCardInstance)
 
 	db.RegisterOnDatabaseStart(setupDB)
 	api.RegisterOnRestServiceStart(setupAPI)

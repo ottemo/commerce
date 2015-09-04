@@ -12,3 +12,18 @@ const (
 	ConstErrorModule = "visitor/token"
 	ConstErrorLevel  = env.ConstErrorLevelActor
 )
+
+// DefaultVisitorCard is a default implementer of InterfaceVisitorCard
+type DefaultVisitorCard struct {
+	id        string
+	visitorID string
+
+	Holder  string
+	Payment string
+
+	Type           string
+	Number         string
+	ExpirationDate string
+
+	Token string
+}
