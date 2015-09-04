@@ -24,7 +24,8 @@ func init() {
 
 		api.RegisterOnRestServiceStart(setupAPI)
 
-		media.RegisterOnMediaStorageStart(instance.ResizeAllMediaImages)
+		// process of resizing images on media start
+		//		media.RegisterOnMediaStorageStart(instance.ResizeAllMediaImages)
 	}
 }
 
@@ -33,7 +34,10 @@ func (it *FilesystemMediaStorage) setupCheckDone() {
 
 	// so, we are not sure on events sequence order
 	if it.setupWaitCnt--; it.setupWaitCnt == 0 {
-		env.LogError(media.OnMediaStorageStart())
+		err := media.OnMediaStorageStart()
+		if err != nil {
+			env.LogError(err)
+		}
 	}
 }
 
