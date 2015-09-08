@@ -219,13 +219,14 @@ func initSalesHistory() error {
 func GetRangeStats(dateFrom, dateTo time.Time) (ActionsMade, error) {
 	var result ActionsMade
 
-	// making minimal offset to include timestamp itself
-	dateFrom = dateTo.Add(-time.Nanosecond)
+	// making minimal offset to include dateTo timestamp,
+	// dateFrom timestamp includes by default in time.Before() function
 	dateTo = dateTo.Add(time.Nanosecond)
 
 	// Go through period and summarise counters
 	for dateFrom.Before(dateTo) {
-		if statisticValue, present := statistic[dateFrom.Unix()]; present {
+		timestamp := dateFrom.Unix()
+		if statisticValue, present := statistic[timestamp]; present {
 			result.Visit += statisticValue.Visit
 			result.Sales += statisticValue.Sales
 			result.Cart += statisticValue.Cart
