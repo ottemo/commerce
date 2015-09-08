@@ -4,6 +4,7 @@ import (
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/app/models/cart"
 	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/foundation/media"
 	"github.com/ottemo/foundation/utils"
 )
 
@@ -49,6 +50,11 @@ func APICartInfo(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	if currentCart != nil {
 
+		mediaStorage, err := media.GetMediaStorage()
+		if err != nil {
+			return nil, env.ErrorDispatch(err)
+		}
+
 		cartItems := currentCart.GetItems()
 		for _, cartItem := range cartItems {
 
@@ -66,14 +72,16 @@ func APICartInfo(context api.InterfaceApplicationContext) (interface{}, error) {
 
 				productData := make(map[string]interface{})
 
-				mediaPath, _ := product.GetMediaPath("image")
-
 				productData["name"] = product.GetName()
 				productData["sku"] = product.GetSku()
-				productData["image"] = mediaPath + product.GetDefaultImage()
 				productData["price"] = product.GetPrice()
 				productData["weight"] = product.GetWeight()
 				productData["options"] = product.GetOptions()
+
+				productData["image"], err = mediaStorage.GetSizes(product.GetModelName(), product.GetID(), "image", product.GetDefaultImage())
+				if err != nil {
+					env.LogError(err)
+				}
 
 				item["product"] = productData
 			}

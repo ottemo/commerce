@@ -135,14 +135,18 @@ func APIGetVisits(context api.InterfaceApplicationContext) (interface{}, error) 
 	todayVisits := todayStats.Visit
 	todayTotalVisits := todayStats.TotalVisits
 
-	yesterdayStats, err := GetRangeStats(yesterdayFrom, todayFrom)
+	// excluding last our for yesterday range statistic
+	yesterdayTo := todayFrom.Add(-time.Nanosecond)
+	yesterdayStats, err := GetRangeStats(yesterdayFrom, yesterdayTo)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 	yesterdayVisits := yesterdayStats.Visit
 	yesterdayTotalVisits := yesterdayStats.TotalVisits
 
-	weekStats, err := GetRangeStats(weekFrom, yesterdayFrom)
+	// excluding last our for week range statistic
+	weekTo := yesterdayFrom.Add(-time.Nanosecond)
+	weekStats, err := GetRangeStats(weekFrom, weekTo)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -328,14 +332,16 @@ func APIGetSales(context api.InterfaceApplicationContext) (interface{}, error) {
 	todaySales := todayStats.Sales
 	todaySalesAmount := todayStats.SalesAmount
 
-	yesterdayStats, err := GetRangeStats(yesterdayFrom, todayFrom)
+	yesterdayTo := todayFrom.Add(-time.Nanosecond)
+	yesterdayStats, err := GetRangeStats(yesterdayFrom, yesterdayTo)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 	yesterdaySales := yesterdayStats.Sales
 	yesterdaySalesAmount := yesterdayStats.SalesAmount
 
-	weekStats, err := GetRangeStats(weekFrom, yesterdayFrom)
+	weekTo := yesterdayFrom.Add(-time.Nanosecond)
+	weekStats, err := GetRangeStats(weekFrom, weekTo)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
