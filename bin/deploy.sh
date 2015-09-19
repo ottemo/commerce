@@ -6,7 +6,7 @@ SRCDIR=/home/ottemo/code/go/src/github.com/ottemo/foundation
 if [ "$BRANCH" == 'develop' ]; then
     GIT_COMMIT=`echo $COMMIT | head -c 5`
     # grab the latest code
-    ssh ottemo@$REMOTE_HOST "cd $SRCDIR && git fetch --prune && git pull"
+    ssh ottemo@$REMOTE_HOST "cd $SRCDIR && git checkout develop && git fetch --prune && git pull"
     # build locally after successful merge to develop
     ssh ottemo@$REMOTE_HOST "cd $SRCDIR && ./bin/make.sh -tags mongo"
     # backup the current binary and put the newly built binary into service
