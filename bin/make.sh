@@ -6,7 +6,8 @@ OTTEMOPKG="github.com/ottemo/foundation"
 
 BRANCH=`git -C $OTTEMODIR rev-parse --abbrev-ref HEAD`
 BUILD=`git -C $OTTEMODIR rev-list origin/develop --count`
-DATE=`date`
+DATE=`date --rfc-3339=second`
+DATE="${DATE/ /T}"
 HASH=`git -C $OTTEMODIR rev-parse --short --verify HEAD`
 TAGS=""
 
@@ -37,11 +38,11 @@ done
 cd $WORKDIR
 
 LDFLAGS="-ldflags \""
-LDFLAGS+="-X github.com/ottemo/foundation/app.buildDate '$DATE' "
-LDFLAGS+="-X github.com/ottemo/foundation/app.buildTags '$TAGS' "
-LDFLAGS+="-X github.com/ottemo/foundation/app.buildNumber '$BUILD' "
-LDFLAGS+="-X github.com/ottemo/foundation/app.buildBranch '$BRANCH'"
-LDFLAGS+="-X github.com/ottemo/foundation/app.buildHash '$HASH'"
+LDFLAGS+="-X github.com/ottemo/foundation/app.buildDate=$DATE "
+LDFLAGS+="-X github.com/ottemo/foundation/app.buildTags=$TAGS "
+LDFLAGS+="-X github.com/ottemo/foundation/app.buildNumber=$BUILD "
+LDFLAGS+="-X github.com/ottemo/foundation/app.buildBranch=$BRANCH "
+LDFLAGS+="-X github.com/ottemo/foundation/app.buildHash=$HASH"
 LDFLAGS+="\""
 
 if [ -z "$GOPATH" ]; then 
