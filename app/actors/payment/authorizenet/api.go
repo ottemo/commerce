@@ -146,7 +146,10 @@ func APIRelay(context api.InterfaceApplicationContext) (interface{}, error) {
 			}
 			if checkoutOrder != nil {
 
-				result, err := currentCheckout.SubmitFinish(requestData)
+				_, err := currentCheckout.SubmitFinish(requestData)
+				if err != nil {
+					env.LogError(err)
+				}
 
 				context.SetResponseContentType("text/plain")
 
@@ -157,7 +160,54 @@ func APIRelay(context api.InterfaceApplicationContext) (interface{}, error) {
 					"Total - "+utils.InterfaceToString(requestData["x_amount"])+", "+
 					"Transaction ID - "+utils.InterfaceToString(requestData["x_trans_id"]))
 
-				return api.StructRestRedirect{Result: result, Location: app.GetStorefrontURL("checkout/success/" + checkoutOrder.GetID()), DoRedirect: true}, err
+				redirectLink := app.GetStorefrontURL("checkout/success/" + checkoutOrder.GetID())
+
+				/*
+					return []byte(`<html>
+						 <head>
+							 <noscript>
+							 	<meta http-equiv='refresh' content='1;url=` + app.GetStorefrontURL("account/order/"+checkoutOrder.GetID()) + `'>
+							 </noscript>
+						 </head>
+						 <body>
+						 	<h1>Thanks for your purchase.</h1>
+						 	<p>Your transaction ID: <b>` + utils.InterfaceToString(requestData["x_trans_id"]) + `</b></p>
+						 	<p>You will  redirect to the store after <span id="sec"></span> sec.	<a href="` + app.GetStorefrontURL("account/order/"+checkoutOrder.GetID()) + `">Back to store</a></p>
+						 </body>
+						 <script type='text/javascript' charset='utf-8'>
+						 	(function(){
+								var seconds = 10;
+								document.getElementById("sec").innerHTML = seconds;
+								setInterval(function(){
+									seconds -= 1;
+									document.getElementById("sec").innerHTML = seconds;
+									if(0 === seconds){
+										window.location='` + app.GetStorefrontURL("account/order/"+checkoutOrder.GetID()) + `';
+									}
+								}, 1000);
+						 	})();
+						 </script>
+					</html>`), nil
+
+				*/
+				//				return api.StructRestRedirect{Result: result, Location: redirectLink, DoRedirect: true}, err
+				return []byte(`<html>
+					 <head>
+					 	<script type=”text/javascript” charset”utf-8”>
+					 	 window.location='` + redirectLink + `';
+					 	</script>
+						 <noscript>
+						 	<meta http-equiv='refresh' content='1;url=` + redirectLink + `'>
+						 </noscript>
+					 </head>
+					 <body>
+					 	<h1>Success</h1>
+					 	<p>` + utils.InterfaceToString(requestData["x_response_reason_text"]) + `</p>
+
+						<p><a href="` + app.GetStorefrontURL("checkout") + `">Back to store</a></p>
+
+					 </body>
+				</html>`), nil
 			}
 		}
 	case ConstTransactionDeclined:
