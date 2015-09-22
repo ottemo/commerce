@@ -1,5 +1,10 @@
 package token
 
+import (
+	"github.com/ottemo/foundation/utils"
+	"time"
+)
+
 // GetVisitorID returns the Visitor ID for the Visitor Card
 func (it *DefaultVisitorCard) GetVisitorID() string { return it.visitorID }
 
@@ -23,6 +28,6 @@ func (it *DefaultVisitorCard) GetToken() string { return it.Token }
 
 // IsExpired will return Expired status of the Visitor Card
 func (it *DefaultVisitorCard) IsExpired() bool {
-
-	return it.ExpirationDate != ""
+	current := time.Now()
+	return it.ExpirationYear < utils.InterfaceToInt(current.Year()) || it.ExpirationMonth < utils.InterfaceToInt(current.Month())
 }

@@ -21,9 +21,12 @@ type DefaultVisitorCard struct {
 	Holder  string
 	Payment string
 
-	Type           string
-	Number         string
-	ExpirationDate string
+	Type   string
+	Number string
+
+	ExpirationDate  string
+	ExpirationMonth int
+	ExpirationYear  int
 
 	Token string
 }

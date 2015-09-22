@@ -89,6 +89,42 @@ func APICreateToken(context api.InterfaceApplicationContext) (interface{}, error
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "22e17290-56f3-452a-8d54-18d5a9eb2833", "transaction can't be obtained")
 	}
 
+	// create visitor address operation
+	//---------------------------------
+	visitorAddressModel, err := visitor.GetVisitorAddressModel()
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	for attribute, value := range requestData {
+		err := visitorAddressModel.Set(attribute, value)
+		if err != nil {
+			return nil, env.ErrorDispatch(err)
+		}
+	}
+
+	err = visitorAddressModel.Save()
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	creditCard := new(DefaultVisitorCard)
+
+	creditCard.visitorID = visitorID
+
+	creditCard.Holder = utils.InterfaceToString(requestData["holder"])
+
+	creditCard.Payment = utils.InterfaceToString(cardInfoMap["transactionID"])
+	creditCard.Number = utils.InterfaceToString(cardInfoMap["creditCardLastFour"])
+	creditCard.Type = utils.InterfaceToString(cardInfoMap["creditCardType"])
+	creditCard.ExpirationDate = utils.InterfaceToString(cardInfoMap["creditCardExp"])
+	creditCard.Token = utils.InterfaceToString(cardInfoMap["transactionID"])
+
+	err = creditCard.Save()
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
 	// create token record in database and save it for visitor
 	tokenRecord := map[string]interface{}{
 		"visitor_id":      visitorID,

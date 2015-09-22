@@ -37,6 +37,21 @@ func GetVisitorAddressModel() (InterfaceVisitorAddress, error) {
 	return visitorAddressModel, nil
 }
 
+// GetVisitorCardModel retrieves current InterfaceVisitorAddress model implementation
+func GetVisitorCardModel() (InterfaceVisitorCard, error) {
+	model, err := models.GetModel(ConstModelNameVisitorCard)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	visitorCardModel, ok := model.(InterfaceVisitorCard)
+	if !ok {
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "8ffe121f-4fbd-4d5b-88ae-641405444a93", "model "+model.GetImplementationName()+" is not 'InterfaceVisitorCard' capable")
+	}
+
+	return visitorCardModel, nil
+}
+
 // GetVisitorCollectionModel retrieves current InterfaceVisitorCollection model implementation
 func GetVisitorCollectionModel() (InterfaceVisitorCollection, error) {
 	model, err := models.GetModel(ConstModelNameVisitorCollection)
