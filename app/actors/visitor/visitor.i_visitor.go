@@ -1,7 +1,6 @@
 package visitor
 
 import (
-	"bytes"
 	"crypto/md5"
 	"crypto/rand"
 	"encoding/base64"
@@ -284,7 +283,10 @@ func (it *DefaultVisitor) ResetPassword() error {
 	}
 
 	verificationCode := utils.InterfaceToString(time.Now().Unix()) + ":" + it.GetID()
-	verificationCode = hex.EncodeToString([]byte(base64.StdEncoding.EncodeToString([]byte(verificationCode))))
+	verificationCode, err := utils.HexEncryptString(verificationCode)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
 
 	linkHref := app.GetStorefrontURL("reset-password") + "?key=" + verificationCode
 
@@ -332,19 +334,12 @@ func (it *DefaultVisitor) ResetPassword() error {
 func (it *DefaultVisitor) UpdateResetPassword(key string, passwd string) error {
 
 	// checking verification key expiration
-	temp, err := hex.DecodeString(key)
+	code, err := utils.HexDecodeString(key)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	n := bytes.IndexByte(temp, 0)
-	data, err := base64.StdEncoding.DecodeString(string(temp[:n]))
-	if err != nil {
-		return env.ErrorDispatch(err)
-	}
-
-	n = bytes.IndexByte(data, 0)
-	verificationCode := strings.SplitN(string(data[:n]), ":", 2)
+	verificationCode := strings.SplitN(string(code), ":", 2)
 
 	// in this case code is invalid
 	if len(verificationCode) != 2 {
