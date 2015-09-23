@@ -7,7 +7,7 @@ import (
 	"encoding/hex"
 	"strings"
 	"time"
-	
+
 	"github.com/ottemo/foundation/app"
 	"github.com/ottemo/foundation/app/models/visitor"
 	"github.com/ottemo/foundation/db"
@@ -285,7 +285,7 @@ func (it *DefaultVisitor) ResetPassword() error {
 	verificationCode := utils.InterfaceToString(time.Now().Unix()) + ":" + it.GetID()
 	verificationCode = hex.EncodeToString([]byte(base64.StdEncoding.EncodeToString([]byte(verificationCode))))
 
-	linkHref := app.GetStorefrontURL("reset-password?key=" + verificationCode)
+	linkHref := app.GetStorefrontURL("reset-password") + "?key=" + verificationCode
 
 	customerInfo := map[string]string{
 		"name":               it.GetFullName(),
@@ -297,16 +297,16 @@ func (it *DefaultVisitor) ResetPassword() error {
 	}
 
 	resetTemplateEmail := `<p>You have requested to have your password reset for your account at {{.shop.name}}</p>
-<p></p>
-<p>Please visit this url in the next {{.customer.reset_time_length}} minutes to reset your password. </p>
-<p></p>
-<p><a href="{{.customer.reset_password_url}}">{{.customer.reset_password_url}}</a></p>
-<p></p>
-<p>If you received this email in error, you can safely ignore this email.</p>`
+		<p></p>
+		<p>Please visit this url within the next {{.customer.reset_time_length}} minutes to reset your password. </p>
+		<p></p>
+		<p><a href="{{.customer.reset_password_url}}">{{.customer.reset_password_url}}</a></p>
+		<p></p>
+		<p>If you received this email in error, you may safely ignore this request.</p>`
 
 	if it.GetFullName() != "" {
 		resetTemplateEmail = `<p>Dear {{.customer.name}},</p>
-<p></p>` + resetTemplateEmail
+			<p></p>` + resetTemplateEmail
 	}
 
 	passwordRecoveryEmail, err := utils.TextTemplate(resetTemplateEmail,
@@ -336,19 +336,19 @@ func (it *DefaultVisitor) UpdateResetPassword(key string, passwd string) error {
 		return env.ErrorDispatch(err)
 	}
 
-	data, err := base64.StdEncoding.DecodeString(string(temp))
+	data, err := base64.StdEncoding.DecodeString([]byte(temp))
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	verificationCode := strings.SplitN(string(data), ":", 2)
+	verificationCode := strings.SplitN([]byte(data), ":", 2)
 
 	// in this case code is invalid
 	if len(verificationCode) != 2 {
 		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "875bbdf9-f746-4fbc-9950-d6cf98e681b7", "verification key mismatch")
 	}
 
-	timeWas := int64(utils.InterfaceToInt(verificationCode[0]))
+	timeWas := utils.InterfaceToTime(verificationCode[0])
 	timeNow := time.Now().Unix()
 	timeDifference := (timeNow - timeWas)
 
