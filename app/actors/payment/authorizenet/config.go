@@ -168,6 +168,66 @@ func setupConfig() error {
 		if err != nil {
 			return err
 		}
+
+		config.RegisterItem(env.StructConfigItem{
+			Path:        ConstConfigPathDPMReceiptURL,
+			Value:       "",
+			Type:        env.ConstConfigTypeText,
+			Editor:      "line_text",
+			Options:     nil,
+			Label:       "Relay response receipt redirect URL",
+			Description: "",
+			Image:       "",
+		}, nil)
+
+		if err != nil {
+			return err
+		}
+
+		config.RegisterItem(env.StructConfigItem{
+			Path:        ConstConfigPathDPMDeclineURL,
+			Value:       "",
+			Type:        env.ConstConfigTypeText,
+			Editor:      "line_text",
+			Options:     nil,
+			Label:       "Relay response decline redirect URL",
+			Description: "",
+			Image:       "",
+		}, nil)
+
+		if err != nil {
+			return err
+		}
+
+		config.RegisterItem(env.StructConfigItem{
+			Path:        ConstConfigPathDPMReceiptHTML,
+			Value:       ConstDefaultReceiptTemplate,
+			Type:        env.ConstConfigTypeText,
+			Editor:      "multiline_text",
+			Options:     nil,
+			Label:       "Relay response receipt HTML",
+			Description: "",
+			Image:       "",
+		}, nil)
+
+		if err != nil {
+			return err
+		}
+
+		config.RegisterItem(env.StructConfigItem{
+			Path:        ConstConfigPathDPMDeclineHTML,
+			Value:       ConstDefaultDeclineTemplate,
+			Type:        env.ConstConfigTypeText,
+			Editor:      "multiline_text",
+			Options:     nil,
+			Label:       "Relay response decline HTML",
+			Description: "",
+			Image:       "",
+		}, nil)
+
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

@@ -6,6 +6,7 @@ import (
 	"github.com/ottemo/foundation/app/models/checkout"
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
+	"strings"
 )
 
 // setupAPI setups package related API endpoint routines
@@ -72,8 +73,8 @@ func APIReceipt(context api.InterfaceApplicationContext) (interface{}, error) {
 				return api.StructRestRedirect{Result: result, Location: app.GetStorefrontURL("account/order/" + checkoutOrder.GetID()), DoRedirect: true}, err
 			}
 		}
-	case ConstTransactionDeclined:
-	case ConstTransactionWaitingReview:
+	//	case ConstTransactionDeclined:
+	//	case ConstTransactionWaitingReview:
 	default:
 		{
 			if checkoutOrder != nil {
@@ -85,20 +86,21 @@ func APIReceipt(context api.InterfaceApplicationContext) (interface{}, error) {
 					"Transaction ID - "+utils.InterfaceToString(requestData["x_trans_id"]))
 			}
 
-			return []byte(`<html>
-					 <head>
-						 <noscript>
-						 	<meta http-equiv='refresh' content='1;url=` + app.GetStorefrontURL("checkout") + `'>
-						 </noscript>
-					 </head>
-					 <body>
-					 	<h1>Something went wrong</h1>
-					 	<p>` + utils.InterfaceToString(requestData["x_response_reason_text"]) + `</p>
+			templateContext := map[string]interface{}{
+				"backURL":  app.GetStorefrontURL("checkout"),
+				"response": requestData}
 
-						<p><a href="` + app.GetStorefrontURL("checkout") + `">Back to store</a></p>
+			template := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathDPMDeclineHTML))
+			if strings.TrimSpace(template) == "" {
+				template = ConstDefaultDeclineTemplate
+			}
 
-					 </body>
-				</html>`), nil
+			result, err := utils.TextTemplate(template, templateContext)
+			if err != nil {
+				return result, err
+			}
+
+			return []byte(result), nil
 		}
 	}
 	if checkoutOrder != nil {
@@ -160,58 +162,25 @@ func APIRelay(context api.InterfaceApplicationContext) (interface{}, error) {
 					"Total - "+utils.InterfaceToString(requestData["x_amount"])+", "+
 					"Transaction ID - "+utils.InterfaceToString(requestData["x_trans_id"]))
 
-				redirectLink := app.GetStorefrontURL("checkout/success/" + checkoutOrder.GetID())
+				templateContext := map[string]interface{}{
+					"backURL":  app.GetStorefrontURL("account/order/" + checkoutOrder.GetID()),
+					"response": requestData}
 
-				/*
-					return []byte(`<html>
-						 <head>
-							 <noscript>
-							 	<meta http-equiv='refresh' content='1;url=` + app.GetStorefrontURL("account/order/"+checkoutOrder.GetID()) + `'>
-							 </noscript>
-						 </head>
-						 <body>
-						 	<h1>Thanks for your purchase.</h1>
-						 	<p>Your transaction ID: <b>` + utils.InterfaceToString(requestData["x_trans_id"]) + `</b></p>
-						 	<p>You will  redirect to the store after <span id="sec"></span> sec.	<a href="` + app.GetStorefrontURL("account/order/"+checkoutOrder.GetID()) + `">Back to store</a></p>
-						 </body>
-						 <script type='text/javascript' charset='utf-8'>
-						 	(function(){
-								var seconds = 10;
-								document.getElementById("sec").innerHTML = seconds;
-								setInterval(function(){
-									seconds -= 1;
-									document.getElementById("sec").innerHTML = seconds;
-									if(0 === seconds){
-										window.location='` + app.GetStorefrontURL("account/order/"+checkoutOrder.GetID()) + `';
-									}
-								}, 1000);
-						 	})();
-						 </script>
-					</html>`), nil
+				template := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathDPMReceiptHTML))
+				if strings.TrimSpace(template) == "" {
+					template = ConstDefaultReceiptTemplate
+				}
 
-				*/
-				//				return api.StructRestRedirect{Result: result, Location: redirectLink, DoRedirect: true}, err
-				return []byte(`<html>
-					 <head>
-					 	<script type=”text/javascript” charset”utf-8”>
-					 	 window.location='` + redirectLink + `';
-					 	</script>
-						 <noscript>
-						 	<meta http-equiv='refresh' content='1;url=` + redirectLink + `'>
-						 </noscript>
-					 </head>
-					 <body>
-					 	<h1>Success</h1>
-					 	<p>` + utils.InterfaceToString(requestData["x_response_reason_text"]) + `</p>
+				result, err := utils.TextTemplate(template, templateContext)
+				if err != nil {
+					return result, err
+				}
 
-						<p><a href="` + app.GetStorefrontURL("checkout") + `">Back to store</a></p>
-
-					 </body>
-				</html>`), nil
+				return []byte(result), nil
 			}
 		}
-	case ConstTransactionDeclined:
-	case ConstTransactionWaitingReview:
+	//	case ConstTransactionDeclined:
+	//	case ConstTransactionWaitingReview:
 	default:
 		{
 			if checkoutOrder != nil {
@@ -222,20 +191,22 @@ func APIRelay(context api.InterfaceApplicationContext) (interface{}, error) {
 					"Total - "+utils.InterfaceToString(requestData["x_amount"])+", "+
 					"Transaction ID - "+utils.InterfaceToString(requestData["x_trans_id"]))
 			}
-			return []byte(`<html>
-					 <head>
-						 <noscript>
-						 	<meta http-equiv='refresh' content='1;url=` + app.GetStorefrontURL("checkout") + `'>
-						 </noscript>
-					 </head>
-					 <body>
-					 	<h1>Something went wrong</h1>
-					 	<p>` + utils.InterfaceToString(requestData["x_response_reason_text"]) + `</p>
 
-						<p><a href="` + app.GetStorefrontURL("checkout") + `">Back to store</a></p>
+			templateContext := map[string]interface{}{
+				"backURL":  app.GetStorefrontURL("checkout"),
+				"response": requestData}
 
-					 </body>
-				</html>`), nil
+			template := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathDPMDeclineHTML))
+			if strings.TrimSpace(template) == "" {
+				template = ConstDefaultDeclineTemplate
+			}
+
+			result, err := utils.TextTemplate(template, templateContext)
+			if err != nil {
+				return result, err
+			}
+
+			return []byte(result), nil
 		}
 	}
 	if checkoutOrder != nil {
