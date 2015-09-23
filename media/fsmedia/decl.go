@@ -27,6 +27,11 @@ const (
 	ConstErrorLevel  = env.ConstErrorLevelService
 )
 
+// resizeImagesOnFly can be specified in ini config file by key "media.resize.images.onfly", false by default
+var (
+	resizeImagesOnFly bool
+)
+
 // FilesystemMediaStorage is a filesystem based implementer of InterfaceMediaStorage
 type FilesystemMediaStorage struct {
 	storageFolder string

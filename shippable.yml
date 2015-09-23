@@ -26,7 +26,8 @@ after_failure:
 
 after_success:
     - python bin/slack_notifier.py --org $SLACK_ORG --project $PROJECT --token $SLACK_TOKEN -s
-    - REMOTE_HOST=blitz.ottemo.io sh bin/deploy.sh
-    - REMOTE_HOST=urbanity.ottemo.io sh bin/deploy.sh
-    - REMOTE_HOST=richkids.dev.ottemo.io sh bin/deploy.sh
+    - REMOTE_HOST=rk.dev.ottemo.io sh bin/deploy.sh
     - REMOTE_HOST=kg.dev.ottemo.io sh bin/deploy.sh
+
+notifications:
+    email: false
