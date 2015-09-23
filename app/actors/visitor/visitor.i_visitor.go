@@ -1,6 +1,7 @@
 package visitor
 
 import (
+	"bytes"
 	"crypto/md5"
 	"crypto/rand"
 	"encoding/base64"
@@ -336,19 +337,21 @@ func (it *DefaultVisitor) UpdateResetPassword(key string, passwd string) error {
 		return env.ErrorDispatch(err)
 	}
 
-	data, err := base64.StdEncoding.DecodeString([]byte(temp))
+	n := bytes.IndexByte(temp, 0)
+	data, err := base64.StdEncoding.DecodeString(string(temp[:n]))
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	verificationCode := strings.SplitN([]byte(data), ":", 2)
+	n = bytes.IndexByte(data, 0)
+	verificationCode := strings.SplitN(string(data[:n]), ":", 2)
 
 	// in this case code is invalid
 	if len(verificationCode) != 2 {
 		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "875bbdf9-f746-4fbc-9950-d6cf98e681b7", "verification key mismatch")
 	}
 
-	timeWas := utils.InterfaceToTime(verificationCode[0])
+	timeWas := utils.InterfaceToTime(verificationCode[0]).Unix()
 	timeNow := time.Now().Unix()
 	timeDifference := (timeNow - timeWas)
 
