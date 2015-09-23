@@ -5,6 +5,7 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"encoding/base64"
+	"encoding/hex"
 	"io"
 )
 
@@ -142,4 +143,33 @@ func EncryptWriter(rawWriter io.Writer) (io.Writer, error) {
 	stream := cipher.NewOFB(cipherBlock, iv)
 
 	return &cipher.StreamWriter{S: stream, W: rawWriter}, nil
+}
+
+// HexEncryptString encrypts given string with base64 and hex encoding
+func HexEncryptString(rawString string) (string, error) {
+	result := hex.EncodeToString([]byte(base64.StdEncoding.EncodeToString([]byte(rawString))))
+
+	return result, nil
+}
+
+// HexDecodeString decode given encoded string and returns decoded value
+func HexDecodeString(encodedString string) (string, error) {
+
+	var result string
+
+	data, err := hex.DecodeString(encodedString)
+	if err != nil {
+		return result, err
+	}
+
+	data, err = base64.StdEncoding.DecodeString(string(data))
+	if err != nil {
+		return result, err
+	}
+
+	if data != nil {
+		result = string(data)
+	}
+
+	return result, nil
 }

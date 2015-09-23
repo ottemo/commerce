@@ -99,8 +99,8 @@ func (it *DefaultVisitor) IsGuest() bool {
 	return it.GetGoogleID() == "" && it.GetFacebookID() == "" && it.GetEmail() == ""
 }
 
-// IsVerfied returns true if the Visitor's e-mail has been verified
-func (it *DefaultVisitor) IsVerfied() bool {
+// IsVerified returns true if the Visitor's e-mail has been verified
+func (it *DefaultVisitor) IsVerified() bool {
 	return it.VerificationKey == ""
 }
 
@@ -268,6 +268,103 @@ func (it *DefaultVisitor) GenerateNewPassword() error {
 	err = app.SendMail(it.GetEmail(), "Password Recovery", "A new password was requested for your account: "+it.GetEmail()+"<br><br>"+
 		"New password: "+newPassword+"<br><br>"+
 		"Please remember to change your password upon next login "+linkHref)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	return nil
+}
+
+// ResetPassword generates new password for the current Visitor
+func (it *DefaultVisitor) ResetPassword() error {
+
+	if it.GetEmail() == "" {
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "bef673e9-79c1-42bc-ade0-e870b3da0e2f", "The email address field cannot be blank.")
+	}
+
+	verificationCode := utils.InterfaceToString(time.Now().Unix()) + ":" + it.GetID()
+	verificationCode, err := utils.HexEncryptString(verificationCode)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	linkHref := app.GetStorefrontURL("reset-password") + "?key=" + verificationCode
+
+	customerInfo := map[string]string{
+		"name":               it.GetFullName(),
+		"reset_password_url": linkHref,
+		"reset_time_length":  "30",
+	}
+	shopInfo := map[string]string{
+		"name": utils.InterfaceToString(env.ConfigGetValue(app.ConstConfigPathStoreName)),
+	}
+
+	resetTemplateEmail := `<p>You have requested to have your password reset for your account at {{.shop.name}}</p>
+		<p></p>
+		<p>Please visit this url within the next {{.customer.reset_time_length}} minutes to reset your password. </p>
+		<p></p>
+		<p><a href="{{.customer.reset_password_url}}">{{.customer.reset_password_url}}</a></p>
+		<p></p>
+		<p>If you received this email in error, you may safely ignore this request.</p>`
+
+	if it.GetFullName() != "" {
+		resetTemplateEmail = `<p>Dear {{.customer.name}},</p>
+			<p></p>` + resetTemplateEmail
+	}
+
+	passwordRecoveryEmail, err := utils.TextTemplate(resetTemplateEmail,
+		map[string]interface{}{
+			"customer": customerInfo,
+			"shop":     shopInfo,
+		})
+
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	err = app.SendMail(it.GetEmail(), "Password Recovery", passwordRecoveryEmail)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	return nil
+}
+
+// UpdateResetPassword takes a visitors verification key and checks it against the database, a new verification email is sent if the key cannot be validated
+func (it *DefaultVisitor) UpdateResetPassword(key string, passwd string) error {
+
+	// checking verification key expiration
+	code, err := utils.HexDecodeString(key)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	verificationCode := strings.SplitN(string(code), ":", 2)
+
+	// in this case code is invalid
+	if len(verificationCode) != 2 {
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "875bbdf9-f746-4fbc-9950-d6cf98e681b7", "verification key mismatch")
+	}
+
+	timeWas := utils.InterfaceToTime(verificationCode[0]).Unix()
+	timeNow := time.Now().Unix()
+	timeDifference := (timeNow - timeWas)
+
+	if timeDifference > ConstEmailPasswordResetExpire || timeDifference < 0 {
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "d672f112-b74e-432f-b377-37ea2885a9fc", "Your password reset link has already expired, please submit a new request to reset your password")
+	}
+
+	err = it.Load(verificationCode[1])
+	if err != nil || it.GetEmail() == "" {
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "fe53edeb-85a6-4252-b705-ca4aeaabddf6", "verification key mismatch")
+	}
+
+	err = it.SetPassword(passwd)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	err = it.Save()
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
