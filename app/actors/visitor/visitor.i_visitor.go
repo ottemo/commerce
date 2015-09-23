@@ -1,10 +1,7 @@
 package visitor
 
 import (
-	"crypto/md5"
 	"crypto/rand"
-	"encoding/base64"
-	"encoding/hex"
 	"strings"
 	"time"
 
@@ -14,23 +11,6 @@ import (
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
 )
-
-// returns InterfaceVisitorAddress model filled with values from DB or blank structure if no id found in DB
-func (it *DefaultVisitor) passwdEncode(passwd string, salt string) string {
-
-	hasher := md5.New()
-	if salt == "" {
-		salt := ":"
-		if len(passwd) > 2 {
-			salt += passwd[0:1]
-		}
-		hasher.Write([]byte(passwd + salt))
-	} else {
-		hasher.Write([]byte(salt + passwd))
-	}
-
-	return hex.EncodeToString(hasher.Sum(nil))
-}
 
 // GetEmail returns the Visitor e-mail which also used as a login ID
 func (it *DefaultVisitor) GetEmail() string {
@@ -116,7 +96,7 @@ func (it *DefaultVisitor) Invalidate() error {
 		return env.ErrorDispatch(err)
 	}
 
-	it.VerificationKey = hex.EncodeToString([]byte(base64.StdEncoding.EncodeToString(data)))
+	it.VerificationKey = utils.CryptToURLString(data)
 	err = it.Save()
 	if err != nil {
 		return env.ErrorDispatch(err)
@@ -164,15 +144,14 @@ func (it *DefaultVisitor) Validate(key string) error {
 	}
 
 	// checking verification key expiration
-	step1, err := hex.DecodeString(key)
-	data, err := base64.StdEncoding.DecodeString(string(step1))
+	data, err := utils.DecryptURLString(key)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
 	stamp := time.Now()
 	timeNow := stamp.Unix()
-	stamp.UnmarshalBinary(data)
+	stamp.UnmarshalBinary([]byte(data))
 	timeWas := stamp.Unix()
 
 	verificationExpired := (timeNow - timeWas) > ConstEmailVerifyExpire
@@ -211,12 +190,12 @@ func (it *DefaultVisitor) SetPassword(passwd string) error {
 			if utils.IsMD5(tmp[0]) {
 				it.Password = passwd
 			} else {
-				it.Password = it.passwdEncode(passwd, "")
+				it.Password = utils.PasswordEncode(passwd, "")
 			}
 		} else if utils.IsMD5(passwd) {
 			it.Password = passwd
 		} else {
-			it.Password = it.passwdEncode(passwd, "")
+			it.Password = utils.PasswordEncode(passwd, "")
 		}
 	} else {
 		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "c24bb166-0ffb-4abc-a8d5-ddacd859da72", "The password field cannot be blank.")
@@ -227,19 +206,7 @@ func (it *DefaultVisitor) SetPassword(passwd string) error {
 
 // CheckPassword validates password for the current Visitor
 func (it *DefaultVisitor) CheckPassword(passwd string) bool {
-
-	passwd = strings.TrimSpace(passwd)
-
-	pass := it.Password
-	salt := ""
-
-	tmp := strings.Split(it.Password, ":")
-	if len(tmp) == 2 {
-		pass = tmp[0]
-		salt = tmp[1]
-	}
-
-	return it.passwdEncode(passwd, salt) == pass
+	return utils.PasswordCheck(it.Password, passwd)
 }
 
 // GenerateNewPassword generates new password for the current Visitor
@@ -283,10 +250,7 @@ func (it *DefaultVisitor) ResetPassword() error {
 	}
 
 	verificationCode := utils.InterfaceToString(time.Now().Unix()) + ":" + it.GetID()
-	verificationCode, err := utils.HexEncryptString(verificationCode)
-	if err != nil {
-		return env.ErrorDispatch(err)
-	}
+	verificationCode = utils.CryptAsURLString(verificationCode)
 
 	linkHref := app.GetStorefrontURL("reset-password") + "?key=" + verificationCode
 
@@ -334,7 +298,7 @@ func (it *DefaultVisitor) ResetPassword() error {
 func (it *DefaultVisitor) UpdateResetPassword(key string, passwd string) error {
 
 	// checking verification key expiration
-	code, err := utils.HexDecodeString(key)
+	code, err := utils.DecryptURLString(key)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
