@@ -183,7 +183,7 @@ func DecryptURLString(encodedString string) (string, error) {
 	return result, nil
 }
 
-// returns InterfaceVisitorAddress model filled with values from DB or blank structure if no id found in DB
+// PasswordEncode encode inputed password with using salt, if no salt it will use default one
 func PasswordEncode(password string, salt string) string {
 
 	hasher := md5.New()
@@ -200,7 +200,7 @@ func PasswordEncode(password string, salt string) string {
 	return hex.EncodeToString(hasher.Sum(nil))
 }
 
-// CheckPassword validates password for the current Visitor
+// PasswordCheck compare inputed password with stored one
 func PasswordCheck(password string, input string) bool {
 
 	password = strings.TrimSpace(password)
