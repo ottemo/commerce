@@ -24,7 +24,7 @@ func setupConfig() error {
 
 		config.RegisterItem(env.StructConfigItem{
 			Path:        ConstConfigPathEmailSubject,
-			Value: 		 "Email friend",
+			Value:       "Email friend",
 			Type:        env.ConstConfigTypeVarchar,
 			Editor:      "text",
 			Options:     nil,
@@ -38,7 +38,7 @@ func setupConfig() error {
 		}
 
 		config.RegisterItem(env.StructConfigItem{
-			Path:        ConstConfigPathEmailTemplate,
+			Path: ConstConfigPathEmailTemplate,
 			Value: `Dear {{.name}}
 <br />
 <br />

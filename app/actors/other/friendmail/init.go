@@ -1,11 +1,11 @@
 package friendmail
 
 import (
+	"github.com/dchest/captcha"
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/env"
 	"time"
-	"github.com/dchest/captcha"
 )
 
 // init makes package self-initialization routine
@@ -16,7 +16,7 @@ func init() {
 
 	captchaValues = make(map[string]time.Time)
 
-	captchaStore = captcha.NewMemoryStore(ConstMaxCaptchaItems, time.Second * ConstCaptchaLifeTime)
+	captchaStore = captcha.NewMemoryStore(ConstMaxCaptchaItems, time.Second*ConstCaptchaLifeTime)
 	captcha.SetCustomStore(captchaStore)
 
 	// starting timer for garbage collector
@@ -47,7 +47,6 @@ func setupDB() error {
 	if collection, err := db.GetCollection(ConstCollectionNameFriendMail); err == nil {
 		collection.AddColumn("date", db.ConstTypeID, true)
 		collection.AddColumn("email", db.ConstTypeVarchar, true)
-		collection.AddColumn("name", db.ConstTypeVarchar, false)
 		collection.AddColumn("data", db.ConstTypeJSON, false)
 	} else {
 		return env.ErrorDispatch(err)

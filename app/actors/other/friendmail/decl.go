@@ -2,19 +2,19 @@
 package friendmail
 
 import (
-	"github.com/ottemo/foundation/env"
-	"time"
-	"sync"
 	"github.com/dchest/captcha"
+	"github.com/ottemo/foundation/env"
+	"sync"
+	"time"
 )
 
 // Package global constants
 const (
 	ConstCollectionNameFriendMail = "friend_mail"
 
-	ConstConfigPathGroup   = "general.friendmail"
+	ConstConfigPathGroup         = "general.friendmail"
 	ConstConfigPathEmailTemplate = "general.friendmail.template"
-	ConstConfigPathEmailSubject = "general.friendmail.subject"
+	ConstConfigPathEmailSubject  = "general.friendmail.subject"
 
 	ConstErrorModule = "friendmail"
 	ConstErrorLevel  = env.ConstErrorLevelActor
@@ -23,9 +23,8 @@ const (
 	ConstCaptchaLifeTime = 300    // seconds generated captcha works (5 min)
 )
 
-
 var (
-	captchaValuesMutex sync.RWMutex      // synchronization on captchaValues variable
-	captchaValues map[string]time.Time   // global variable to track generated captcha codes
-	captchaStore captcha.Store
+	captchaValuesMutex sync.RWMutex         // synchronization on captchaValues variable
+	captchaValues      map[string]time.Time // global variable to track generated captcha codes
+	captchaStore       captcha.Store
 )
