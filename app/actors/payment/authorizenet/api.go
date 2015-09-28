@@ -28,6 +28,7 @@ func setupAPI() error {
 }
 
 // APIReceipt processes Authorize.net receipt response
+// can be used for redirecting customer to it on exit from authorize.net
 //   - "x_session" should be specified in request contents with id of existing session
 //   - refer to http://www.authorize.net/support/DirectPost_guide.pdf for other fields receipt response should contain
 func APIReceipt(context api.InterfaceApplicationContext) (interface{}, error) {
@@ -61,7 +62,15 @@ func APIReceipt(context api.InterfaceApplicationContext) (interface{}, error) {
 			}
 			if checkoutOrder != nil {
 
-				result, err := currentCheckout.SubmitFinish(requestData)
+				orderMap, err := currentCheckout.SubmitFinish(requestData)
+				if err != nil {
+					env.LogError(env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "54296509-fc83-447d-9826-3b7a94ea1acb", "Can't proceed submiting order from Authorize relay"))
+				}
+
+				redirectURL := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathDPMReceiptURL))
+				if strings.TrimSpace(redirectURL) == "" {
+					redirectURL = app.GetStorefrontURL("account/order") + checkoutOrder.GetID()
+				}
 
 				env.Log(ConstLogStorage, env.ConstLogPrefixInfo, "TRANSACTION APPROVED: "+
 					"VisitorID - "+utils.InterfaceToString(checkoutOrder.Get("visitor_id"))+", "+
@@ -70,7 +79,7 @@ func APIReceipt(context api.InterfaceApplicationContext) (interface{}, error) {
 					"Total - "+utils.InterfaceToString(requestData["x_amount"])+", "+
 					"Transaction ID - "+utils.InterfaceToString(requestData["x_trans_id"]))
 
-				return api.StructRestRedirect{Result: result, Location: app.GetStorefrontURL("account/order/" + checkoutOrder.GetID()), DoRedirect: true}, err
+				return api.StructRestRedirect{Result: orderMap, Location: redirectURL, DoRedirect: true}, err
 			}
 		}
 	//	case ConstTransactionDeclined:
@@ -86,8 +95,13 @@ func APIReceipt(context api.InterfaceApplicationContext) (interface{}, error) {
 					"Transaction ID - "+utils.InterfaceToString(requestData["x_trans_id"]))
 			}
 
+			redirectURL := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathDPMDeclineURL))
+			if strings.TrimSpace(redirectURL) == "" {
+				redirectURL = app.GetStorefrontURL("checkout")
+			}
+
 			templateContext := map[string]interface{}{
-				"backURL":  app.GetStorefrontURL("checkout"),
+				"backURL":  redirectURL,
 				"response": requestData}
 
 			template := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathDPMDeclineHTML))
@@ -96,11 +110,8 @@ func APIReceipt(context api.InterfaceApplicationContext) (interface{}, error) {
 			}
 
 			result, err := utils.TextTemplate(template, templateContext)
-			if err != nil {
-				return result, err
-			}
 
-			return []byte(result), nil
+			return []byte(result), err
 		}
 	}
 	if checkoutOrder != nil {
@@ -148,9 +159,10 @@ func APIRelay(context api.InterfaceApplicationContext) (interface{}, error) {
 			}
 			if checkoutOrder != nil {
 
-				_, err := currentCheckout.SubmitFinish(requestData)
+				orderMap, err := currentCheckout.SubmitFinish(requestData)
 				if err != nil {
-					env.LogError(err)
+					env.LogError(env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "54296509-fc83-447d-9826-3b7a94ea1acb", "Can't proceed submiting order from Authorize relay"))
+					return nil, err
 				}
 
 				context.SetResponseContentType("text/plain")
@@ -162,9 +174,16 @@ func APIRelay(context api.InterfaceApplicationContext) (interface{}, error) {
 					"Total - "+utils.InterfaceToString(requestData["x_amount"])+", "+
 					"Transaction ID - "+utils.InterfaceToString(requestData["x_trans_id"]))
 
+				redirectURL := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathDPMReceiptURL))
+				if strings.TrimSpace(redirectURL) == "" {
+					redirectURL = app.GetStorefrontURL("account/order") + checkoutOrder.GetID()
+				}
+
 				templateContext := map[string]interface{}{
-					"backURL":  app.GetStorefrontURL("account/order/" + checkoutOrder.GetID()),
-					"response": requestData}
+					"backURL":  redirectURL,
+					"response": requestData,
+					"order":    orderMap,
+				}
 
 				template := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathDPMReceiptHTML))
 				if strings.TrimSpace(template) == "" {
@@ -192,8 +211,13 @@ func APIRelay(context api.InterfaceApplicationContext) (interface{}, error) {
 					"Transaction ID - "+utils.InterfaceToString(requestData["x_trans_id"]))
 			}
 
+			redirectURL := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathDPMDeclineURL))
+			if strings.TrimSpace(redirectURL) == "" {
+				redirectURL = app.GetStorefrontURL("checkout")
+			}
+
 			templateContext := map[string]interface{}{
-				"backURL":  app.GetStorefrontURL("checkout"),
+				"backURL":  redirectURL,
 				"response": requestData}
 
 			template := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathDPMDeclineHTML))
@@ -202,11 +226,8 @@ func APIRelay(context api.InterfaceApplicationContext) (interface{}, error) {
 			}
 
 			result, err := utils.TextTemplate(template, templateContext)
-			if err != nil {
-				return result, err
-			}
 
-			return []byte(result), nil
+			return []byte(result), err
 		}
 	}
 	if checkoutOrder != nil {

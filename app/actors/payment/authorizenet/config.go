@@ -63,7 +63,7 @@ func setupConfig() error {
 			Value:       ConstDPMActionAuthorizeOnly,
 			Type:        env.ConstConfigTypeVarchar,
 			Editor:      "select",
-			Options:     map[string]string{ConstDPMActionAuthorizeOnly: "Authorize Only", ConstDPMActionAuthorizeAndCapture: "Authorize & Capture"},
+			Options:     map[string]string{ConstDPMActionAuthorizeOnly: "Authorize Only", ConstDPMActionAuthorizeAndCapture: "Authorize and Capture"},
 			Label:       "Action",
 			Description: "specifies action on checkout submit",
 			Image:       "",
@@ -176,7 +176,7 @@ func setupConfig() error {
 			Editor:      "line_text",
 			Options:     nil,
 			Label:       "Relay response receipt redirect URL",
-			Description: "",
+			Description: "URL for approved transactions, default value: StorefrontURL/account/order/:orderID",
 			Image:       "",
 		}, nil)
 
@@ -191,7 +191,7 @@ func setupConfig() error {
 			Editor:      "line_text",
 			Options:     nil,
 			Label:       "Relay response decline redirect URL",
-			Description: "",
+			Description: "URL for declined transactions, default value: StorefrontURL/checkout",
 			Image:       "",
 		}, nil)
 

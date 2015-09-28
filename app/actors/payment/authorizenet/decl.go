@@ -45,49 +45,61 @@ const (
 	ConstErrorLevel  = env.ConstErrorLevelActor
 
 	ConstDefaultDeclineTemplate = `<html>
-	 <head>
-		<script type='text/javascript' charset='utf-8'>
-			window.location='{{ backURL }}';
-		</script>
-		<noscript>
-			<meta http-equiv='refresh' content='1;url={{ backURL }}'>
-		</noscript>
-	 </head>
-	 <body>
-		<h1>Something went wrong</h1>
-		<p>{{ response["x_response_reason_text"]) }}</p>
+		 <head>
+			<noscript>
+				<meta http-equiv='refresh' content='1;url={{ .backURL }}'>
+			</noscript>
+		 </head>
 
-		<p><a href="{{ backURL }}">Back to store</a></p>
+		 <body>
+			<h1>Something went wrong</h1>
+			<p>Response text: {{ .response.x_response_reason_text }}</p>
 
-	 </body>
-</html>`
+			<p>You will be redirected beck to the store in <span id="countdown"></span> sec.
+			<p><a href="{{ .backURL }}">Back to store</a></p>
+		 </body>
+
+		 <script type='text/javascript' charset='utf-8'>
+				 var seconds = 13;
+				 document.getElementById("countdown").innerHTML = seconds;
+				 setInterval(function(){
+					 seconds -= 1;
+					 document.getElementById("countdown").innerHTML = seconds;
+					 if (seconds == 0) {
+						 window.location='{{ .backURL }}';
+					 }
+				 }, 1000);
+		 </script>
+	</html>`
 
 	ConstDefaultReceiptTemplate = `<html>
-     <head>
-         <noscript>
-             <meta http-equiv='refresh' content='1;url={{ backURL }}'>
-         </noscript>
-     </head>
+		 <head>
+			 <noscript>
+				 <meta http-equiv='refresh' content='1;url={{ .backURL }}'>
+			 </noscript>
+		 </head>
 
-     <body>
-        <h1>Thanks for your purchase.</h1>
-        <p>Your transaction ID: <b>{{ response["x_trans_id"]) }}</b></p>
-        <p>You will be redirected beck to the store in <span id="countdown"></span> sec.
-        <a href="{{ backURL }}">Back to store</a></p>
-     </body>
+		 <body>
+			<h1>Thanks for your purchase.</h1>
+			<p>Your transaction ID: <b>{{ .response.x_trans_id }}</b></p>
+			<p>Order #{{.Order.increment_id}}</p>
 
-     <script type='text/javascript' charset='utf-8'>
-         var seconds = 10;
-         document.getElementById("countdown").innerHTML = seconds;
-         setInterval(function(){
-             seconds -= 1;
-             document.getElementById("countdown").innerHTML = seconds;
-             if (seconds == 0) {
-                 window.location='{{ backURL }}';
-             }
-         }, 1000);
-     </script>
-</html>`
+			<p>You will be redirected back to the store in <span id="countdown"></span> sec.
+			<a href="{{ .backURL }}">Back to store</a></p>
+		 </body>
+
+		 <script type='text/javascript' charset='utf-8'>
+			 var seconds = 13;
+			 document.getElementById("countdown").innerHTML = seconds;
+			 setInterval(function(){
+				 seconds -= 1;
+				 document.getElementById("countdown").innerHTML = seconds;
+				 if (seconds == 0) {
+					 window.location='{{ .backURL }}';
+				 }
+			 }, 1000);
+		 </script>
+	</html>`
 )
 
 // DirectPostMethod is a implementer of InterfacePaymentMethod for a Authorize.Net Direct Post method
