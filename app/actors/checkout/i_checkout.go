@@ -528,6 +528,9 @@ func (it *DefaultCheckout) Submit() (interface{}, error) {
 
 	paymentMethod := it.GetPaymentMethod()
 
+	// call for recalculating of all amounts including taxes and discounts
+	it.CalculateAmount(0)
+
 	if !paymentMethod.IsAllowed(it) {
 		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "7a5490ee-daa3-42b4-a84a-dade12d103e8", "Payment method not allowed")
 	}
