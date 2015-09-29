@@ -12,9 +12,9 @@ import (
 const (
 	ConstCollectionNameFriendMail = "friend_mail"
 
-	ConstConfigPathGroup         = "general.friendmail"
-	ConstConfigPathEmailTemplate = "general.friendmail.template"
-	ConstConfigPathEmailSubject  = "general.friendmail.subject"
+	ConstConfigPathFriendMail              = "general.friendmail"
+	ConstConfigPathFriendMailEmailTemplate = "general.friendmail.template"
+	ConstConfigPathFriendMailEmailSubject  = "general.friendmail.subject"
 
 	ConstErrorModule = "friendmail"
 	ConstErrorLevel  = env.ConstErrorLevelActor

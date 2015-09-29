@@ -8,13 +8,13 @@ import (
 func setupConfig() error {
 	if config := env.GetConfig(); config != nil {
 		err := config.RegisterItem(env.StructConfigItem{
-			Path:        ConstConfigPathGroup,
+			Path:        ConstConfigPathFriendMail,
 			Value:       nil,
 			Type:        env.ConstConfigTypeGroup,
 			Editor:      "",
 			Options:     nil,
-			Label:       "Stock",
-			Description: "Stock management system",
+			Label:       "Refer-A-Friend",
+			Description: "Referal program",
 			Image:       "",
 		}, nil)
 
@@ -23,7 +23,7 @@ func setupConfig() error {
 		}
 
 		config.RegisterItem(env.StructConfigItem{
-			Path:        ConstConfigPathEmailSubject,
+			Path:        ConstConfigPathFriendMailEmailTemplate,
 			Value:       "Email friend",
 			Type:        env.ConstConfigTypeVarchar,
 			Editor:      "text",
@@ -38,8 +38,8 @@ func setupConfig() error {
 		}
 
 		config.RegisterItem(env.StructConfigItem{
-			Path: ConstConfigPathEmailTemplate,
-			Value: `Dear {{.name}}
+			Path: ConstConfigPathFriendMailEmailTemplate,
+			Value: `Dear {{.friend_name}}
 <br />
 <br />
 Your friend sent you an email:

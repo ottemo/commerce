@@ -110,9 +110,9 @@ func APIFriendEmail(context api.InterfaceApplicationContext) (interface{}, error
 	captchaValuesMutex.Unlock()
 
 	// sending an e-mail
-	emailSubject := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathEmailSubject))
+	emailSubject := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathFriendMailEmailSubject))
 
-	emailTemplate := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathEmailTemplate))
+	emailTemplate := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathFriendMailEmailTemplate))
 	emailTemplate, err = utils.TextTemplate(emailTemplate, requestData)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
