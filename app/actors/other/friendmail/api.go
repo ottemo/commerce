@@ -80,7 +80,7 @@ func APIFriendCaptcha(context api.InterfaceApplicationContext) (interface{}, err
 // APIFriendEmail sends an email to a friend
 func APIFriendEmail(context api.InterfaceApplicationContext) (interface{}, error) {
 
-	var email string
+	var friendEmail string
 
 	// checking request values
 	requestData, err := api.GetRequestContentAsMap(context)
@@ -88,12 +88,12 @@ func APIFriendEmail(context api.InterfaceApplicationContext) (interface{}, error
 		return nil, env.ErrorDispatch(err)
 	}
 
-	if !utils.KeysInMapAndNotBlank(requestData, "captcha", "email") {
-		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "3c3d0918-b951-43b7-943c-54e8571d0c32", "'captcha' and/or 'email' fields are not specified or blank")
+	if !utils.KeysInMapAndNotBlank(requestData, "captcha", "friend_email") {
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "3c3d0918-b951-43b7-943c-54e8571d0c32", "'captcha' and/or 'friend_email' fields are not specified or blank")
 	}
 
-	email = utils.InterfaceToString(requestData["email"])
-	if !utils.ValidEmailAddress(email) {
+	friendEmail = utils.InterfaceToString(requestData["friend_email"])
+	if !utils.ValidEmailAddress(friendEmail) {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "5821734e-4c84-449b-9f75-fd1154623c42", "invalid email")
 	}
 
@@ -118,12 +118,12 @@ func APIFriendEmail(context api.InterfaceApplicationContext) (interface{}, error
 		return nil, env.ErrorDispatch(err)
 	}
 
-	app.SendMail(email, emailSubject, emailTemplate)
+	app.SendMail(friendEmail, emailSubject, emailTemplate)
 
 	// storing data to database
 	saveData := map[string]interface{}{
 		"date":  time.Now(),
-		"email": email,
+		"email": friendEmail,
 		"data":  requestData,
 	}
 
