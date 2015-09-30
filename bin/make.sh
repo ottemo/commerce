@@ -3,21 +3,20 @@
 WORKDIR=`pwd`
 OTTEMODIR="$(cd "$(dirname "$0")" && pwd)"
 OTTEMOPKG="github.com/ottemo/foundation"
+
 if [[ "$OSTYPE" == "darwin"*  ]]; then
-    DATE=`gawk 'BEGIN{ print gensub(/(..)$/, ":\\\1", "g", strftime("%Y-%m-%dT%H:%M:%S%z")); exit }'`
+    AWK=gawk
 else
-    DATE=`awk 'BEGIN{ print gensub(/(..)$/, ":\\\1", "g", strftime("%Y-%m-%dT%H:%M:%S%z")); exit }'`
+    AWK=awk
 fi
+
+DATE=`${AWK} 'BEGIN{ print gensub(/(..)$/, ":\\\1", "g", strftime("%Y-%m-%dT%H:%M:%S%z")); exit }'`
 TAGS=""
 BUILD=`git -C $OTTEMODIR rev-list origin/develop --count`
 BRANCH=`git -C $OTTEMODIR rev-parse --abbrev-ref HEAD`
 HASH=`git -C $OTTEMODIR rev-parse --short --verify HEAD`
 
-if [[ "$OSTYPE" == "darwin"*  ]]; then
-    GOVERSION=`go version | gawk '{print gensub(/.*go([0-9]+[.][0-9]+).[0-9]+.*/, "\\\1", "1")}'`
-else
-    GOVERSION=`go version | awk '{print gensub(/.*go([0-9]+[.][0-9]+).[0-9]+.*/, "\\\1", "1")}'`
-fi
+GOVERSION=`go version | ${AWK} '{print gensub(/.*go([0-9]+[.][0-9]+).[0-9]+.*/, "\\\1", "1")}'`
 
 while test $# -gt 0; do
         case "$1" in
@@ -53,7 +52,7 @@ LDFLAGS+="-X \"github.com/ottemo/foundation/app.buildBranch=$BRANCH\" "
 LDFLAGS+="-X \"github.com/ottemo/foundation/app.buildHash=$HASH\" "
 LDFLAGS+="'"
 
-if [ "`awk "BEGIN{ if ($GOVERSION < 1.5) print 1 }"`" == "1" ]; then
+if [ "`${AWK} "BEGIN{ if ($GOVERSION < 1.5) print 1 }"`" == "1" ]; then
   LDFLAGS=${LDFLAGS//=/\" \"}
 fi
 
