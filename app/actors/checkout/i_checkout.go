@@ -627,8 +627,11 @@ func (it *DefaultCheckout) SubmitFinish(paymentInfo map[string]interface{}) (int
 		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "6372e487-7d43-4da7-a08d-a4d743baa83c", "Order not present in checkout")
 	}
 
+	// track for order status to prevent double executing of checkout success
+	previousOrderStatus := checkoutOrder.GetStatus()
 	checkoutOrder.SetStatus(order.ConstOrderStatusProcessed)
 
+	// updating payment info of order with info given from payment method
 	if paymentInfo != nil {
 		currentPaymentInfo := utils.InterfaceToMap(checkoutOrder.Get("payment_info"))
 		for key, value := range paymentInfo {
@@ -662,6 +665,11 @@ func (it *DefaultCheckout) SubmitFinish(paymentInfo map[string]interface{}) (int
 	}
 
 	result["items"] = orderItems
+
+	// return order in map in case if success processing was already executed
+	if previousOrderStatus == order.ConstOrderStatusProcessed || previousOrderStatus == order.ConstOrderStatusCompleted {
+		return result, nil
+	}
 
 	return result, it.CheckoutSuccess(checkoutOrder, it.GetSession())
 }
