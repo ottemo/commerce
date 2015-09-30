@@ -1,6 +1,6 @@
 language: go
 go:
-    - 1.4
+    - 1.5
 env:
     global:
         - SLACK_ORG=Ottemo PROJECT=Foundation
@@ -10,6 +10,11 @@ env:
 branch:
     only:
         - develop
+
+install:
+        - export GOPATH=$HOME/workspace
+        - export PATH=$PATH:$GOPATH/bin
+        - cd $GOPATH/src/github.com/ottemo/foundation
 
 after_failure:
     - python bin/slack_notifier.py --org $SLACK_ORG --project $PROJECT --token $SLACK_TOKEN
