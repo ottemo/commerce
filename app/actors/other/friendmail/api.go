@@ -118,7 +118,10 @@ func APIFriendEmail(context api.InterfaceApplicationContext) (interface{}, error
 		return nil, env.ErrorDispatch(err)
 	}
 
-	app.SendMail(friendEmail, emailSubject, emailTemplate)
+	err = app.SendMail(friendEmail, emailSubject, emailTemplate)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
 
 	// storing data to database
 	saveData := map[string]interface{}{
