@@ -16,7 +16,7 @@ BUILD=`git -C $OTTEMODIR rev-list origin/develop --count`
 BRANCH=`git -C $OTTEMODIR rev-parse --abbrev-ref HEAD`
 HASH=`git -C $OTTEMODIR rev-parse --short --verify HEAD`
 
-GOVERSION=`go version | ${AWK} '{print gensub(/.*go([0-9]+[.][0-9]+).[0-9]+.*/, "\\\1", "1")}'`
+GOVERSION=`go version | ${AWK} '{print $3}' | awk '{sub(/go/,""); print}'`
 
 while test $# -gt 0; do
         case "$1" in
@@ -52,7 +52,8 @@ LDFLAGS+="-X \"github.com/ottemo/foundation/app.buildBranch=$BRANCH\" "
 LDFLAGS+="-X \"github.com/ottemo/foundation/app.buildHash=$HASH\" "
 LDFLAGS+="'"
 
-if [ "`${AWK} "BEGIN{ if ($GOVERSION < 1.5) print 1 }"`" == "1" ]; then
+# need to convert GOVERSION string to number
+if [ "`${AWK} "BEGIN{ if (($GOVERSION +0) < 1.5) print 1 }"`" == "1" ]; then
   LDFLAGS=${LDFLAGS//=/\" \"}
 fi
 
