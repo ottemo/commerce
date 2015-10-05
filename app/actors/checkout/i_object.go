@@ -60,7 +60,7 @@ func (it *DefaultCheckout) Set(attribute string, value interface{}) error {
 		shippingAddress := utils.InterfaceToMap(value)
 
 		if address, err := checkout.ValidateAddress(shippingAddress); err == nil {
-			it.BillingAddress = address.ToHashMap()
+			it.ShippingAddress = address.ToHashMap()
 		} else {
 			return err
 		}
