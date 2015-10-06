@@ -645,6 +645,8 @@ func (it *DefaultCheckout) SubmitFinish(paymentInfo map[string]interface{}) (int
 		checkoutOrder.Set("payment_info", currentPaymentInfo)
 	}
 
+	checkoutOrder.Set("created_at", time.Now())
+
 	err := checkoutOrder.Save()
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
