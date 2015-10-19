@@ -122,7 +122,6 @@ func APIExportOrders(context api.InterfaceApplicationContext) (interface{}, erro
 							cellValue = regexCleaner.ReplaceAllString(cellValue, "")
 							break
 						}
-
 						break
 
 					case func(record map[string]interface{}) string:
@@ -156,5 +155,5 @@ func APIExportOrders(context api.InterfaceApplicationContext) (interface{}, erro
 	}
 	csvWriter.Flush()
 
-	return nil, nil
+	return "", nil
 }
