@@ -192,7 +192,7 @@ func checkoutSuccessHandler(event string, eventData map[string]interface{}) bool
 
 			// reed recipient options
 			productOptions := cartItem.GetOptions()
-			if recipientEmailOption := utils.GetFirstMapValue(productOptions, "Recipient email", "Email", "recipient_mailbox"); recipientEmailOption != nil {
+			if recipientEmailOption := utils.GetFirstMapValue(productOptions, "Recipient Email", "Email", "recipient_mailbox"); recipientEmailOption != nil {
 
 				recipientEmailOption := utils.InterfaceToMap(recipientEmailOption)
 				emailValue, present := recipientEmailOption["value"]
@@ -215,7 +215,7 @@ func checkoutSuccessHandler(event string, eventData map[string]interface{}) bool
 				}
 			}
 
-			if customMessageOption := utils.GetFirstMapValue(productOptions, "Message", "Gift message", "Note", "message"); customMessageOption != nil {
+			if customMessageOption := utils.GetFirstMapValue(productOptions, "Message", "Gift Message", "Note", "message"); customMessageOption != nil {
 				customMessageOption := utils.InterfaceToMap(customMessageOption)
 				messageValue, present := customMessageOption["value"]
 				if present {
@@ -223,7 +223,7 @@ func checkoutSuccessHandler(event string, eventData map[string]interface{}) bool
 				}
 			}
 
-			if deliveryDateOption := utils.GetFirstMapValue(productOptions, "Date", "Delivery date", "send_date", "send date", "date"); deliveryDateOption != nil {
+			if deliveryDateOption := utils.GetFirstMapValue(productOptions, "Date", "Delivery Date", "send_date", "Send Date", "date"); deliveryDateOption != nil {
 				deliveryDateOption := utils.InterfaceToMap(deliveryDateOption)
 				dateValue, present := deliveryDateOption["value"]
 				if present && !utils.IsZeroTime(utils.InterfaceToTime(dateValue)) {
