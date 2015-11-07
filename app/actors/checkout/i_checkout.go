@@ -677,7 +677,7 @@ func (it *DefaultCheckout) SubmitFinish(paymentInfo map[string]interface{}) (int
 	result["items"] = orderItems
 
 	// return order in map in case if success processing was already executed
-	if previousOrderStatus == order.ConstOrderStatusProcessed || previousOrderStatus == order.ConstOrderStatusCompleted {
+	if previousOrderStatus != order.ConstOrderStatusNew || previousOrderStatus != order.ConstOrderStatusPending {
 		return result, nil
 	}
 
