@@ -14,11 +14,12 @@ const (
 
 	ConstModelNameOrderItemCollection = "OrderItemCollection"
 
-	ConstOrderStatusDeclined  = "declined"  // means that order was created and then declined
-	ConstOrderStatusNew       = "new"       // means that order created but not paid
-	ConstOrderStatusPending   = "pending"   // means that order was submitted and currently in processing
-	ConstOrderStatusProcessed = "processed" // means that order was paid
-	ConstOrderStatusCompleted = "completed" // means that order was completed
+	ConstOrderStatusDeclined  = "declined"  // order was created and then declined
+	ConstOrderStatusNew       = "new"       // order created but not paid
+	ConstOrderStatusPending   = "pending"   // order was submitted and currently in processing
+	ConstOrderStatusProcessed = "processed" // order was authorized and funds collected
+	ConstOrderStatusCompleted = "completed" // order was completed by retailer
+	ConstOrderStatusCancelled = "cancelled" // order was cancelled by retailer
 
 	ConstErrorModule = "order"
 	ConstErrorLevel  = env.ConstErrorLevelModel
