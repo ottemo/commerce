@@ -47,8 +47,6 @@ func (it *DefaultCronScheduler) ScheduleAtTime(scheduleTime time.Time, taskName 
 		expr:      nil,
 		scheduler: it}
 
-	it.schedules = append(it.schedules, schedule)
-
 	go schedule.Execute()
 
 	return schedule, nil
@@ -75,8 +73,6 @@ func (it *DefaultCronScheduler) ScheduleOnce(cronExpr string, taskName string, p
 		task:      task,
 		expr:      expr,
 		scheduler: it}
-
-	it.schedules = append(it.schedules, schedule)
 
 	go schedule.Execute()
 
