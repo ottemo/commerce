@@ -56,9 +56,10 @@ func (it *DefaultCheckout) SendOrderConfirmationMail() error {
 				if strings.Contains(item.GetSku(), giftCardSku) {
 					if utils.IsAmongStr(optionName, "Date", "Delivery Date", "send_date", "Send Date", "date") {
 						// Localize and format the date
-						giftcardDeliveryDate, _ := utils.MakeUTCOffsetTime(utils.InterfaceToTime(optionMap["value"]), timeZone)
+						giftcardDeliveryDate, _ := utils.MakeTZTime(utils.InterfaceToTime(optionMap["value"]), timeZone)
 						if !utils.IsZeroTime(giftcardDeliveryDate) {
-							options[optionName] = giftcardDeliveryDate.Format("Monday Jan 2 15:04 MST")
+							//TODO: Should be "Monday Jan 2 15:04 (MST)" but we have a bug
+							options[optionName] = giftcardDeliveryDate.Format("Monday Jan 2 15:04")
 						}
 					}
 				}
@@ -74,7 +75,7 @@ func (it *DefaultCheckout) SendOrderConfirmationMail() error {
 
 		// convert date of order creation to store time zone
 		if date, present := orderMap["created_at"]; present {
-			convertedDate, _ := utils.MakeUTCOffsetTime(utils.InterfaceToTime(date), timeZone)
+			convertedDate, _ := utils.MakeTZTime(utils.InterfaceToTime(date), timeZone)
 			if !utils.IsZeroTime(convertedDate) {
 				orderMap["created_at"] = convertedDate
 			}
