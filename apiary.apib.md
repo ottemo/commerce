@@ -77,14 +77,12 @@ app/actors/cms/page/api.go
 - [DELETE]   cms/page/:id
 - [GET]      cms/pages/attributes
 
-## Gallery
-app/actors/cms/gallery/api.go
+## Images
+app/actors/cms/images/api.go
 
-- [GET]      cms/gallery/images
-- [GET]      cms/gallery/image/:name
-- [POST]     cms/gallery/image/:name
-- [DELETE]   cms/gallery/image/:name
-- [GET]      cms/gallery/path
+- [GET]      cms/images
+- [POST]     cms/images
+- [DELETE]   cms/images/:id
 
 # Group Unsorted
 
