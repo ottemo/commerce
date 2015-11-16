@@ -116,8 +116,8 @@ func onAppStart() error {
 	env.EventRegisterListener("checkout.success", checkoutSuccessHandler)
 
 	if scheduler := env.GetScheduler(); scheduler != nil {
-		scheduler.RegisterTask("checkOrdersToSent", schedulerFunc)
-		scheduler.ScheduleRepeat("0 9 * * *", "checkOrdersToSent", nil)
+		scheduler.RegisterTask("trustPilotReview", schedulerFunc)
+		scheduler.ScheduleRepeat("0 9 * * *", "trustPilotReview", nil)
 	}
 
 	return nil
