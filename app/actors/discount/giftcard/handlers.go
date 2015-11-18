@@ -268,5 +268,10 @@ func checkoutSuccessHandler(event string, eventData map[string]interface{}) bool
 		}
 	}
 
+	// run the sendGiftCards task to send immediately if delivery_date is today's date
+	if scheduler := env.GetScheduler(); scheduler != nil {
+		scheduler.ScheduleOnce("* * * * *", "sendGiftCards", nil)
+	}
+
 	return true
 }
