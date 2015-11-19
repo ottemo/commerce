@@ -41,7 +41,7 @@ func setupAPI() error {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("cron/firenow/:taskName", api.ConstRESTOperationGet, fireNow)
+	err = api.GetRestService().RegisterAPI("cron/tasks/run/:taskIndex", api.ConstRESTOperationGet, runScheduleTask)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -49,23 +49,50 @@ func setupAPI() error {
 	return nil
 }
 
-// Given a task name it will schedule a task to fire immediately
-func fireNow(context api.InterfaceApplicationContext) (interface{}, error) {
+// runScheduleTask - allows to execute task of schedule without updating of it
+// taskIndex - need to be specified in request argument
+func runScheduleTask(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check rights
 	if err := api.ValidateAdminRights(context); err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	cronExpression := "* * * * * *" // Fire immediately
-	taskName := context.GetRequestArgument("taskName")
-	taskParams := make(map[string]interface{})
+	reqTaskIndex := context.GetRequestArgument("taskIndex")
+	if reqTaskIndex == "" {
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "41baa8b5-eea1-4a31-aad6-83aceb56ed2f", "task index should be specified")
+	}
+
+	taskIndex, err := utils.StringToInteger(reqTaskIndex)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
 
 	scheduler := env.GetScheduler()
-	var newSchedule env.InterfaceSchedule
-	newSchedule, _ = scheduler.ScheduleOnce(cronExpression, taskName, taskParams)
+	currentSchedules := scheduler.ListSchedules()
 
-	return newSchedule, nil
+	if taskIndex > len(currentSchedules)-1 || taskIndex < 0 {
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "0a50509a-c638-49ab-bb52-a7b9750097b2", "task index is out of range for existing tasks")
+	}
+
+	useTaskParams := utils.InterfaceToBool(context.GetRequestArgument("useTaskParams"))
+
+	var params map[string]interface {}
+	if !useTaskParams {
+		params = make(map[string]interface {})
+	}
+
+	for index, schedule := range currentSchedules {
+		if index == taskIndex {
+			err := schedule.RunTask(params)
+			if err != nil {
+				return nil, env.ErrorDispatch(err)
+			}
+			break
+		}
+	}
+
+	return "ok", nil
 }
 
 // getSchedules to get information about current schedules
@@ -125,7 +152,7 @@ func updateSchedule(context api.InterfaceApplicationContext) (interface{}, error
 	}
 
 	scheduler := env.GetScheduler()
-	scheduleParams := []string{"expr", "time", "task", "repeat", "params"}
+	scheduleParams := []string{"expr", "task", "repeat", "params", "time"}
 
 	for index, schedule := range scheduler.ListSchedules() {
 		if index == taskIndex {
