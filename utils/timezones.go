@@ -339,3 +339,12 @@ func TimeToUTCTime(inTime time.Time) time.Time {
 
 	return result
 }
+
+// SetTimeZoneName set name to zone for given time object
+func SetTimeZoneName(inTime time.Time, zoneName string) time.Time {
+
+	_, offset := inTime.Zone()
+	loc := time.FixedZone(zoneName, offset)
+
+	return inTime.In(loc)
+}
