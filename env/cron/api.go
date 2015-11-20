@@ -10,38 +10,38 @@ import (
 func setupAPI() error {
 
 	var err error
-
-	err = api.GetRestService().RegisterAPI("cron/tasks", api.ConstRESTOperationGet, getSchedules)
+	// GET - return a list of all currently scheduled tasks
+	err = api.GetRestService().RegisterAPI("cron/schedule", api.ConstRESTOperationGet, getSchedule)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-
-	err = api.GetRestService().RegisterAPI("cron/tasks", api.ConstRESTOperationCreate, createSchedule)
+	// POST - create a task to be run on a schedule
+	err = api.GetRestService().RegisterAPI("cron/task", api.ConstRESTOperationCreate, createTask)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-
-	err = api.GetRestService().RegisterAPI("cron/functions", api.ConstRESTOperationGet, getTasks)
+	// GET - return the list of possible tasks which may be scheduled
+	err = api.GetRestService().RegisterAPI("cron/task", api.ConstRESTOperationGet, getTasks)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-
-	err = api.GetRestService().RegisterAPI("cron/tasks/enable/:taskIndex", api.ConstRESTOperationGet, enableSchedule)
+	// GET - enables the specified task
+	err = api.GetRestService().RegisterAPI("cron/task/enable/:taskIndex", api.ConstRESTOperationGet, enableTask)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-
-	err = api.GetRestService().RegisterAPI("cron/tasks/disable/:taskIndex", api.ConstRESTOperationGet, disableSchedule)
+	// GET - disable the specified task
+	err = api.GetRestService().RegisterAPI("cron/task/disable/:taskIndex", api.ConstRESTOperationGet, disableTask)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-
-	err = api.GetRestService().RegisterAPI("cron/tasks/:taskIndex", api.ConstRESTOperationUpdate, updateSchedule)
+	// PUT - update the specified task
+	err = api.GetRestService().RegisterAPI("cron/task/:taskIndex", api.ConstRESTOperationUpdate, updateTask)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-
-	err = api.GetRestService().RegisterAPI("cron/tasks/run/:taskIndex", api.ConstRESTOperationGet, runScheduleTask)
+	// GET - run the specified task now
+	err = api.GetRestService().RegisterAPI("cron/task/run/:taskIndex", api.ConstRESTOperationGet, runTask)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -49,9 +49,9 @@ func setupAPI() error {
 	return nil
 }
 
-// runScheduleTask - allows to execute task of schedule without updating of it
+// runTask - allows to execute task of schedule without updating of it
 // taskIndex - need to be specified in request argument
-func runScheduleTask(context api.InterfaceApplicationContext) (interface{}, error) {
+func runTask(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check rights
 	if err := api.ValidateAdminRights(context); err != nil {
@@ -77,9 +77,9 @@ func runScheduleTask(context api.InterfaceApplicationContext) (interface{}, erro
 
 	useTaskParams := utils.InterfaceToBool(context.GetRequestArgument("useTaskParams"))
 
-	var params map[string]interface {}
+	var params map[string]interface{}
 	if !useTaskParams {
-		params = make(map[string]interface {})
+		params = make(map[string]interface{})
 	}
 
 	for index, schedule := range currentSchedules {
@@ -95,8 +95,8 @@ func runScheduleTask(context api.InterfaceApplicationContext) (interface{}, erro
 	return "ok", nil
 }
 
-// getSchedules to get information about current schedules
-func getSchedules(context api.InterfaceApplicationContext) (interface{}, error) {
+// getSchedule to get information about current schedules
+func getSchedule(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check rights
 	if err := api.ValidateAdminRights(context); err != nil {
@@ -127,9 +127,9 @@ func getTasks(context api.InterfaceApplicationContext) (interface{}, error) {
 	return scheduler.ListTasks(), nil
 }
 
-// updateSchedule update scheduler task
+// updateTask update scheduler task
 //   - "taskIndex" should be specified as argument (task index can be obtained from getSchedules)
-func updateSchedule(context api.InterfaceApplicationContext) (interface{}, error) {
+func updateTask(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check rights
 	if err := api.ValidateAdminRights(context); err != nil {
@@ -170,9 +170,9 @@ func updateSchedule(context api.InterfaceApplicationContext) (interface{}, error
 	return "ok", nil
 }
 
-// createSchedule with request params
-// in request params required are time or cronExpr for creating different type of schedules
-func createSchedule(context api.InterfaceApplicationContext) (interface{}, error) {
+// createTask with request params
+// in request params required are time or cronExpr for creating different type of tasks
+func createTask(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check request context
 	//---------------------
@@ -232,9 +232,9 @@ func createSchedule(context api.InterfaceApplicationContext) (interface{}, error
 	return newSchedule, nil
 }
 
-// enableSchedule make schedule active
+// enableTask make schedule active
 // taskIndex - need to be specified in request argument
-func enableSchedule(context api.InterfaceApplicationContext) (interface{}, error) {
+func enableTask(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check rights
 	if err := api.ValidateAdminRights(context); err != nil {
@@ -271,9 +271,9 @@ func enableSchedule(context api.InterfaceApplicationContext) (interface{}, error
 	return currentSchedules[taskIndex].GetInfo(), nil
 }
 
-// disableSchedule make schedule inactive
+// disableTask make schedule inactive
 // taskIndex - need to be specified in request argument
-func disableSchedule(context api.InterfaceApplicationContext) (interface{}, error) {
+func disableTask(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check rights
 	if err := api.ValidateAdminRights(context); err != nil {
