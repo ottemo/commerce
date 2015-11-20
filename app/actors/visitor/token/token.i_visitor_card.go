@@ -21,7 +21,14 @@ func (it *DefaultVisitorCard) GetType() string { return it.Type }
 func (it *DefaultVisitorCard) GetNumber() string { return it.Number }
 
 // GetExpirationDate will return the Expiration date  of the Visitor Card
-func (it *DefaultVisitorCard) GetExpirationDate() string { return it.ExpirationDate }
+func (it *DefaultVisitorCard) GetExpirationDate() string {
+
+	if it.ExpirationDate == "" {
+		it.ExpirationDate = utils.InterfaceToString(it.ExpirationMonth) + "/" + utils.InterfaceToString(it.ExpirationYear)
+	}
+
+	return it.ExpirationDate
+}
 
 // GetToken will return the Token of the Visitor Card
 func (it *DefaultVisitorCard) GetToken() string { return it.Token }

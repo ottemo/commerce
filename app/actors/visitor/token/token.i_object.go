@@ -16,7 +16,7 @@ func (it *DefaultVisitorCard) Get(attribute string) interface{} {
 		return it.visitorID
 	case "holder", "holder_name":
 		return it.Holder
-	case "payment", "payment_code":
+	case "payment", "payment_code", "PaymentMethodCode":
 		return it.Payment
 	case "type":
 		return it.Type
