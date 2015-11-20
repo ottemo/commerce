@@ -333,3 +333,13 @@ app/actors/cms/images/api.go
 - [POST]     config/value/:path
 - [PUT]      config/value/:path
 - [DELETE]   config/value/:path
+
+## env/cron/api.go
+
+- [GET]     cron/schedule
+- [POST]    cron/tasks
+- [GET]     cron/tasks
+- [GET]     cron/tasks/enable/:taskIndex
+- [GET]     cron/tasks/disable/:taskIndex
+- [PUT]     cron/tasks/:taskIndex
+- [GET]     cron/tasks/run/:taskIndex
