@@ -2,6 +2,7 @@
 package token
 
 import (
+	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/env"
 )
 
@@ -29,4 +30,10 @@ type DefaultVisitorCard struct {
 	ExpirationYear  int
 
 	Token string
+}
+
+// DefaultVisitorAddressCollection is a default implementer of InterfaceVisitorCardCollection
+type DefaultVisitorCardCollection struct {
+	listCollection     db.InterfaceDBCollection
+	listExtraAtributes []string
 }

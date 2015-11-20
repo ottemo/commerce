@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/ottemo/foundation/api"
+	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/checkout"
 	"github.com/ottemo/foundation/app/models/visitor"
 	"github.com/ottemo/foundation/db"
@@ -15,11 +16,11 @@ import (
 func setupAPI() error {
 	var err error
 
-	err = api.GetRestService().RegisterAPI("token", api.ConstRESTOperationCreate, APICreateToken)
+	err = api.GetRestService().RegisterAPI("visit/token", api.ConstRESTOperationCreate, APICreateToken)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-	err = api.GetRestService().RegisterAPI("tokens", api.ConstRESTOperationGet, APIGetTokens)
+	err = api.GetRestService().RegisterAPI("visit/tokens", api.ConstRESTOperationGet, APIListVisitorCards)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -91,41 +92,12 @@ func APICreateToken(context api.InterfaceApplicationContext) (interface{}, error
 
 	// create visitor address operation
 	//---------------------------------
-	visitorAddressModel, err := visitor.GetVisitorAddressModel()
+	visitorCardModel, err := visitor.GetVisitorCardModel()
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	for attribute, value := range requestData {
-		err := visitorAddressModel.Set(attribute, value)
-		if err != nil {
-			return nil, env.ErrorDispatch(err)
-		}
-	}
-
-	err = visitorAddressModel.Save()
-	if err != nil {
-		return nil, env.ErrorDispatch(err)
-	}
-
-	creditCard := new(DefaultVisitorCard)
-
-	creditCard.visitorID = visitorID
-
-	creditCard.Holder = utils.InterfaceToString(requestData["holder"])
-
-	creditCard.Payment = utils.InterfaceToString(cardInfoMap["transactionID"])
-	creditCard.Number = utils.InterfaceToString(cardInfoMap["creditCardLastFour"])
-	creditCard.Type = utils.InterfaceToString(cardInfoMap["creditCardType"])
-	creditCard.ExpirationDate = utils.InterfaceToString(cardInfoMap["creditCardExp"])
-	creditCard.Token = utils.InterfaceToString(cardInfoMap["transactionID"])
-
-	err = creditCard.Save()
-	if err != nil {
-		return nil, env.ErrorDispatch(err)
-	}
-
-	// create token record in database and save it for visitor
+	// create credit card map with info
 	tokenRecord := map[string]interface{}{
 		"visitor_id":      visitorID,
 		"payment":         paymentMethodCode,
@@ -137,12 +109,12 @@ func APICreateToken(context api.InterfaceApplicationContext) (interface{}, error
 		"updated":         time.Now(),
 	}
 
-	collection, err := db.GetCollection(ConstCollectionNameVisitorToken)
+	err = visitorCardModel.FromHashMap(tokenRecord)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	_, err = collection.Save(tokenRecord)
+	err = visitorCardModel.Save()
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -150,37 +122,49 @@ func APICreateToken(context api.InterfaceApplicationContext) (interface{}, error
 	return tokenRecord, nil
 }
 
-// APIGetTokens return a list of existing tokens for visitor
-func APIGetTokens(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIListVisitorCards return a list of existing tokens for visitor
+func APIListVisitorCards(context api.InterfaceApplicationContext) (interface{}, error) {
 
-	visitorID := visitor.GetCurrentVisitorID(context)
+	// if visitorID was specified - using this otherwise, taking current visitor
+	visitorID := context.GetRequestArgument("visitorID")
 	if visitorID == "" {
-		return "you are not logined in", nil
+
+		sessionVisitorID := visitor.GetCurrentVisitorID(context)
+		if sessionVisitorID == "" {
+			return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "2ac4c16b-9241-406e-b35a-399813bb6ca5", "you are not logined in")
+		}
+		visitorID = sessionVisitorID
 	}
 
-	collection, err := db.GetCollection(ConstCollectionNameVisitorToken)
+	// check rights
+	if err := api.ValidateAdminRights(context); err != nil {
+		if visitorID != visitor.GetCurrentVisitorID(context) {
+			return nil, env.ErrorDispatch(err)
+		}
+	}
+
+	// list operation
+	//---------------
+	visitorAddressCollectionModel, err := visitor.GetVisitorAddressCollectionModel()
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
+	dbCollection := visitorAddressCollectionModel.GetDBCollection()
+	dbCollection.AddStaticFilter("visitor_id", "=", visitorID)
 
-	collection.AddFilter("visitor_id", "=", visitorID)
+	// filters handle
+	models.ApplyFilters(context, dbCollection)
 
-	records, err := collection.Load()
-	if err != nil {
-		return nil, env.ErrorDispatch(err)
+	// checking for a "count" request
+	if context.GetRequestArgument("count") != "" {
+		return visitorAddressCollectionModel.GetDBCollection().Count()
 	}
 
-	var tokens []map[string]interface{}
+	// limit parameter handle
+	visitorAddressCollectionModel.ListLimit(models.GetListLimit(context))
 
-	for _, record := range records {
-		tokens = append(tokens, map[string]interface{}{
-			"ID":      record["_id"],
-			"Type":    record["type"],
-			"Payment": record["payment"],
-			"Number":  record["number"],
-			"Exp":     record["expiration_date"],
-		})
-	}
+	// extra parameter handle
+	models.ApplyExtraAttributes(context, visitorAddressCollectionModel)
 
-	return tokens, nil
+	return visitorAddressCollectionModel.List()
 }

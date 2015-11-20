@@ -14,6 +14,7 @@ const (
 	ConstModelNameVisitorAddress           = "VisitorAddress"
 	ConstModelNameVisitorAddressCollection = "VisitorAddressCollection"
 	ConstModelNameVisitorCard              = "VisitorCard"
+	ConstModelNameVisitorCardCollection    = "VisitorCardCollection"
 
 	ConstSessionKeyVisitorID = "visitor_id"
 
@@ -118,4 +119,11 @@ type InterfaceVisitorCard interface {
 	models.InterfaceModel
 	models.InterfaceObject
 	models.InterfaceStorable
+}
+
+// InterfaceVisitorCardCollection represents interface to access business layer implementation of visitor card collection
+type InterfaceVisitorCardCollection interface {
+	ListVisitorsCards() []InterfaceVisitorCard
+
+	models.InterfaceCollection
 }

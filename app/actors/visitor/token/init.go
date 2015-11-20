@@ -14,6 +14,10 @@ func init() {
 	var _ visitor.InterfaceVisitorCard = visitorCardInstance
 	models.RegisterModel(visitor.ConstModelNameVisitorCard, visitorCardInstance)
 
+	visitorCardCollectionInstance := new(DefaultVisitorCardCollection)
+	var _ visitor.InterfaceVisitorCardCollection = visitorCardCollectionInstance
+	models.RegisterModel(visitor.ConstModelNameVisitorCardCollection, visitorCardCollectionInstance)
+
 	db.RegisterOnDatabaseStart(setupDB)
 	api.RegisterOnRestServiceStart(setupAPI)
 }
