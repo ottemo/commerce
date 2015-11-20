@@ -16,17 +16,17 @@ func setupAPI() error {
 
 	var err error
 
-	err = api.GetRestService().RegisterAPI("cms/gallery/image/:mediaName", api.ConstRESTOperationGet, APIGetGalleryImage)
-	if err != nil {
-		return env.ErrorDispatch(err)
-	}
+	//	err = api.GetRestService().RegisterAPI("cms/gallery/image/:mediaName", api.ConstRESTOperationGet, APIGetGalleryImage)
+	//	if err != nil {
+	//		return env.ErrorDispatch(err)
+	//	}
 
 	err = api.GetRestService().RegisterAPI("cms/gallery/images", api.ConstRESTOperationGet, APIListGalleryImages)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("cms/gallery/image/:mediaName", api.ConstRESTOperationCreate, APIAddGalleryImage)
+	err = api.GetRestService().RegisterAPI("cms/gallery/images", api.ConstRESTOperationCreate, APIAddGalleryImage)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -36,10 +36,10 @@ func setupAPI() error {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("cms/gallery/path", api.ConstRESTOperationGet, APIGetGalleryPath)
-	if err != nil {
-		return env.ErrorDispatch(err)
-	}
+	//	err = api.GetRestService().RegisterAPI("cms/gallery/path", api.ConstRESTOperationGet, APIGetGalleryPath)
+	//	if err != nil {
+	//		return env.ErrorDispatch(err)
+	//	}
 
 	return nil
 }
@@ -64,70 +64,81 @@ func APIGetGalleryPath(context api.InterfaceApplicationContext) (interface{}, er
 // APIListGalleryImages returns list of media files from gallery
 func APIListGalleryImages(context api.InterfaceApplicationContext) (interface{}, error) {
 
+	var result []interface{}
+
 	mediaStorage, err := media.GetMediaStorage()
 	if err != nil {
-		return "", env.ErrorDispatch(err)
+		return nil, env.ErrorDispatch(err)
 	}
 
 	mediaList, err := mediaStorage.ListMedia(ConstStorageModel, ConstStorageObject, ConstStorageType)
 	if err != nil {
-		return "", env.ErrorDispatch(err)
-	}
-
-	return mediaList, nil
-}
-
-// APIAddGalleryImage uploads image to the gallery
-//   - media name should be specified in "mediaName" arguments
-//   - media file should be provided in "file" field
-func APIAddGalleryImage(context api.InterfaceApplicationContext) (interface{}, error) {
-
-	// check request context
-	//---------------------
-	imageName := context.GetRequestArgument("mediaName")
-	if imageName == "" {
-		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "23fb7617-f19a-4505-b706-10f7898fd980", "media name was not specified")
-	}
-
-	// check rights
-	if err := api.ValidateAdminRights(context); err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	// income file processing
-	//-----------------------
+	path, err := mediaStorage.GetMediaPath(ConstStorageModel, ConstStorageObject, ConstStorageType)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	mediaBasePath := utils.InterfaceToString(env.ConfigGetValue("general.app.media_base_url"))
+	path = mediaBasePath + "/" + path
+
+	for _, mediaName := range mediaList {
+		mediaNameParts := strings.SplitN(mediaName, ".", 2)
+		creationDate := utils.InterfaceToTime(mediaNameParts[0][strings.LastIndex(mediaNameParts[0], "_")+1:])
+
+		result = append(result, map[string]string{"name": mediaName, "url": path + mediaName, "created_at": creationDate.String()})
+	}
+
+	return result, nil
+}
+
+// APIAddGalleryImage uploads images to the gallery
+//   - media file should be provided in "file" field with full name
+func APIAddGalleryImage(context api.InterfaceApplicationContext) (interface{}, error) {
+	var result []interface{}
+
 	files := context.GetRequestFiles()
 	if len(files) == 0 {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "75a2ddaf-b63d-4eed-b16d-4b32778f5fc1", "media file was not specified")
 	}
 
-	var fileContents []byte
-	for _, fileReader := range files {
-		contents, err := ioutil.ReadAll(fileReader)
-		if err != nil {
-			return nil, env.ErrorDispatch(err)
-		}
-		fileContents = contents
-		break
-	}
-
-	// Adding timestamp to image name to prevent overwriting
-	mediaNameParts := strings.SplitN(imageName, ".", 2)
-	imageName = mediaNameParts[0] + "_" + utils.InterfaceToString(time.Now().Unix()) + "." + mediaNameParts[1]
-
-	// add media operation
-	//--------------------
 	mediaStorage, err := media.GetMediaStorage()
 	if err != nil {
 		return "", env.ErrorDispatch(err)
 	}
 
-	err = mediaStorage.Save(ConstStorageModel, ConstStorageObject, ConstStorageType, imageName, fileContents)
-	if err != nil {
-		return "", env.ErrorDispatch(err)
+	for fileName, fileReader := range files {
+		fileContent, err := ioutil.ReadAll(fileReader)
+		if err != nil {
+			return nil, env.ErrorDispatch(err)
+		}
+
+		if !strings.Contains(fileName, ".") {
+			result = append(result, "Image: '"+fileName+"' should contain extension")
+			continue
+		}
+
+		// Handle image name, adding timestamp to image name to prevent overwriting
+		fileName = strings.TrimSpace(fileName)
+		mediaNameParts := strings.SplitN(fileName, ".", 2)
+		imageName := mediaNameParts[0] + "_" + utils.InterfaceToString(time.Now().Unix()) + "." + mediaNameParts[1]
+
+		// add media operation
+		//--------------------
+
+		err = mediaStorage.Save(ConstStorageModel, ConstStorageObject, ConstStorageType, imageName, fileContent)
+		if err != nil {
+			env.ErrorDispatch(err)
+			result = append(result, "Image: '"+fileName+"' returned error on save")
+			continue
+		}
+
+		result = append(result, fileName+": "+imageName)
 	}
 
-	return "ok", nil
+	return result, nil
 }
 
 // APIRemoveGalleryImage removes image from gallery
