@@ -35,7 +35,7 @@ func (it *CustomAttributes) Init(model string, collection string) (*CustomAttrib
 		customAttributesCollection.AddFilter("model", "=", it.model)
 		records, err := customAttributesCollection.Load()
 		if err != nil {
-			env.ErrorDispatch(err)
+			env.LogError(err)
 			return it, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "91e0f7e5-7234-4a33-b94b-bec7437200a5", "Can't load custom attributes information for '"+it.model+"'")
 		}
 
@@ -209,7 +209,7 @@ func (it *CustomAttributes) AddNewAttribute(newAttribute models.StructAttributeI
 		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "0402b818-03e9-4c56-bee8-0c1471b8d2ba", "There is already atribute '"+newAttribute.Attribute+"' in collection '"+it.collection+"'")
 	}
 
-	// type validation
+	// type verification
 	if !utils.IsAmongStr(strings.Trim(newAttribute.Type, "[]"),
 		db.ConstTypeID,
 		db.ConstTypeBoolean,

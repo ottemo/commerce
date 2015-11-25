@@ -8,6 +8,7 @@
 _obj
 _test
 tags
+.tags
 .idea
 tmp
 release
@@ -41,3 +42,4 @@ foundation
 db/sqlite/test/ottemo.db
 ottemo.db
 ottemo.ini
+.DS_Store

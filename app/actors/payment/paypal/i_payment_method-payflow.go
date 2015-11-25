@@ -6,9 +6,9 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+
 	"time"
 
-	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/app/models/checkout"
 	"github.com/ottemo/foundation/app/models/order"
 	"github.com/ottemo/foundation/env"
@@ -125,48 +125,34 @@ func (it *PayFlowAPI) Authorize(orderInstance order.InterfaceOrder, paymentInfo 
 	//-----------------------------------
 	responseBody, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		return "", env.ErrorDispatch(err)
+		return nil, env.ErrorDispatch(err)
 	}
 
 	responseValues, err := url.ParseQuery(string(responseBody))
 	if err != nil {
-		return "", env.ErrorNew(ConstErrorModule, ConstErrorLevel, "b18cdcad-8c21-4acf-a2e0-56e0541103de", "payment unexpected response")
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "b18cdcad-8c21-4acf-a2e0-56e0541103de", "payment unexpected response")
 	}
 
 	// get info about transaction from response response
 	orderTransactionID := utils.InterfaceToString(responseValues.Get("PNREF"))
 
 	if responseValues.Get("RESPMSG") != "Approved" || orderTransactionID == "" {
-		env.Log(ConstLogStorage, env.ConstLogPrefixInfo, "Redjected payment: "+fmt.Sprint(responseValues))
-		return "", env.ErrorNew(ConstErrorModule, ConstErrorLevel, "e48403bb-c15d-4302-8894-da7146b93260", "payment error: "+responseValues.Get("RESPMSG")+", "+responseValues.Get("PREFPSMSG"))
+		env.Log("paypal.log", env.ConstLogPrefixInfo, "Redjected payment: "+fmt.Sprint(responseValues))
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "e48403bb-c15d-4302-8894-da7146b93260", "payment error: "+responseValues.Get("RESPMSG")+", "+responseValues.Get("PREFPSMSG"))
 	}
 
-	env.Log(ConstLogStorage, env.ConstLogPrefixInfo, "NEW TRANSACTION: "+
-		"Visitor ID - "+utils.InterfaceToString(orderInstance.Get("visitor_id"))+", "+
-		"Order ID - "+utils.InterfaceToString(orderInstance.GetID())+", "+
-		"TRANSACTIONID - "+orderTransactionID)
+	env.Log("paypal.log", env.ConstLogPrefixInfo, "NEW TRANSACTION: "+
+				"Visitor ID - "+utils.InterfaceToString(orderInstance.Get("visitor_id"))+", "+
+				"Order ID - "+utils.InterfaceToString(orderInstance.GetID())+", "+
+				"TRANSACTIONID - "+orderTransactionID)
 
-	orderPaymentInfo := utils.InterfaceToMap(orderInstance.Get("payment_info"))
-
-	paymentInformation := map[string]string{
+	orderPaymentInfo := map[string]interface{}{
 		"transactionID":     orderTransactionID,
 		"creditCardNumbers": responseValues.Get("ACCT"),
 		"creditCardType":    getCreditCardName(utils.InterfaceToString(responseValues.Get("CARDTYPE"))),
 	}
 
-	currentTimeString := utils.InterfaceToString(time.Now().Unix())
-	for key, newValue := range paymentInformation {
-		if existingValue, present := orderPaymentInfo[key]; present {
-			orderPaymentInfo[key+"_"+currentTimeString] = existingValue
-		}
-
-		orderPaymentInfo[key] = newValue
-	}
-
-	orderInstance.Set("payment_info", orderPaymentInfo)
-	orderInstance.SetStatus(order.ConstOrderStatusPending)
-	orderInstance.Save()
-	return nil, nil
+	return orderPaymentInfo, nil
 }
 
 // Capture payment method capture operation
@@ -317,7 +303,7 @@ func (it *PayFlowAPI) AuthorizeZeroAmount(orderInstance order.InterfaceOrder, pa
 		env.Log(ConstLogStorage, env.ConstLogPrefixInfo, "TRANSACTION NO RESPONSE: "+
 			"RESPONSE - "+fmt.Sprint(responseValues))
 
-		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "4d941690-d981-4d20-9b4e-ab903d1ea526", "Payment server not respond")
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "4d941690-d981-4d20-9b4e-ab903d1ea526", "The payment server is not responding.")
 	}
 
 	result := map[string]interface{}{
@@ -333,7 +319,7 @@ func (it *PayFlowAPI) AuthorizeZeroAmount(orderInstance order.InterfaceOrder, pa
 	if _, ccSecureCodePresent := ccInfo["cvv"]; ccSecureCodePresent {
 		if utils.InterfaceToString(responseValues.Get("CVV2MATCH")) == "N" {
 			// invalid CVV2
-			return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "51d1a2c9-2f0a-4eee-9aa2-527ca6d83f28", "Payment validation error: CVV2 code incorect")
+			return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "51d1a2c9-2f0a-4eee-9aa2-527ca6d83f28", "Payment verification error: the CVV2 code is not valid.")
 		}
 	}
 

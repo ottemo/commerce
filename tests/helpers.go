@@ -15,6 +15,7 @@ import (
 	"github.com/ottemo/foundation/app/models/checkout"
 	"github.com/ottemo/foundation/app/models/product"
 	"github.com/ottemo/foundation/app/models/visitor"
+	"github.com/ottemo/foundation/env"
 )
 
 // GetRandomVisitor returns visitor object with randomly filled data
@@ -223,6 +224,19 @@ func RandomizeShippingAndBillingAddresses(currentCheckout checkout.InterfaceChec
 
 // UpdateShippingAndPaymentMethods sets check money order payment method and flat rate shipping method to checkout
 func UpdateShippingAndPaymentMethods(currentCheckout checkout.InterfaceCheckout) error {
+
+	// making sure methods are enabled in config
+	if config := env.GetConfig(); config != nil {
+		for _, configItem := range config.GetItemsInfo("*flat_rate*.enabled") {
+			config.SetValue(configItem.Path, true)
+		}
+
+		for _, configItem := range config.GetItemsInfo("*checkmo*.enabled") {
+			config.SetValue(configItem.Path, true)
+		}
+	}
+
+	// setting shipping method
 	found := false
 	for _, shippingMethod := range checkout.GetRegisteredShippingMethods() {
 		if shippingMethod.GetCode() == "flat_rate" {
@@ -232,7 +246,7 @@ func UpdateShippingAndPaymentMethods(currentCheckout checkout.InterfaceCheckout)
 		}
 	}
 	if !found {
-		errors.New("Shipping method 'flat rate' not registered")
+		_ = errors.New("Shipping method 'flat rate' not registered")
 	}
 
 	// setting payment method
@@ -245,7 +259,7 @@ func UpdateShippingAndPaymentMethods(currentCheckout checkout.InterfaceCheckout)
 		}
 	}
 	if !found {
-		errors.New("Payment method 'check money order' not registered")
+		_ = errors.New("Payment method 'check money order' not registered")
 	}
 	return nil
 }

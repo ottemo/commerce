@@ -5,12 +5,14 @@ import (
 	"github.com/ottemo/foundation/env"
 )
 
-import "time"
+import (
+	"sync"
+	"time"
+)
 
 // Package global constants
 const (
 	ConstCollectionNameRTSSalesHistory = "rts_sales_history"
-	ConstCollectionNameRTSSales        = "rts_sales"
 	ConstCollectionNameRTSVisitors     = "rts_visitors"
 	ConstCollectionNameRTSReferrals    = "rts_referrals"
 
@@ -28,13 +30,15 @@ const (
 
 // Package global variables
 var (
+	updateSync sync.RWMutex
+
 	referrers = make(map[string]int)         // collects and counts refers from external sites
 	statistic = make(map[int64]*ActionsMade) // information about per hour site activity
 
 	lastUpdate = time.Now()            // last update timer for day reset
 	visitState = make(map[string]bool) // reflects session state: 1) not present - new visit, 2) false - addToCart not happened, 3) true - addToCart happened
 
-	// OnlineSessions holds session based information about referer type on first visit
+	// OnlineSessions holds session based information about referrer type on first visit
 	OnlineSessions = make(map[string]*OnlineReferrer)
 
 	OnlineDirect      = 0

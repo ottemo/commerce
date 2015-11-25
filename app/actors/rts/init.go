@@ -22,13 +22,17 @@ func init() {
 	ticker := time.NewTicker(seconds)
 	go func() {
 		for _ = range ticker.C {
+			updateSync.Lock()
 			for sessionID := range OnlineSessions {
-				delta := time.Now().Sub(OnlineSessions[sessionID].time)
-				if float64(ConstVisitorOnlineSeconds) < delta.Seconds() {
-					DecreaseOnline(OnlineSessions[sessionID].referrerType)
-					delete(OnlineSessions, sessionID)
+				if OnlineSessions[sessionID] != nil {
+					delta := time.Now().Sub(OnlineSessions[sessionID].time)
+					if float64(ConstVisitorOnlineSeconds) < delta.Seconds() {
+						DecreaseOnline(OnlineSessions[sessionID].referrerType)
+						delete(OnlineSessions, sessionID)
+					}
 				}
 			}
+			updateSync.Unlock()
 		}
 	}()
 }
@@ -60,15 +64,6 @@ func setupDB() error {
 	collection.AddColumn("product_id", db.ConstTypeID, true)
 	collection.AddColumn("created_at", db.ConstTypeDatetime, false)
 	collection.AddColumn("count", db.ConstTypeInteger, false)
-
-	collection, err = db.GetCollection(ConstCollectionNameRTSSales)
-	if err != nil {
-		return env.ErrorDispatch(err)
-	}
-
-	collection.AddColumn("product_id", db.ConstTypeID, true)
-	collection.AddColumn("count", db.ConstTypeInteger, false)
-	collection.AddColumn("range", db.TypeWPrecision(db.ConstTypeVarchar, 21), false)
 
 	collection, err = db.GetCollection(ConstCollectionNameRTSVisitors)
 	if err != nil {

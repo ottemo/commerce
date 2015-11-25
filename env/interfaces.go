@@ -42,6 +42,7 @@ const (
 // InterfaceSchedule is an interface to system schedule service
 type InterfaceSchedule interface {
 	Execute()
+	RunTask(params map[string]interface{}) error
 
 	Enable() error
 	Disable() error
@@ -81,6 +82,7 @@ type InterfaceErrorBus interface {
 	Dispatch(err error) error
 	Modify(err error, module string, level int, code string) error
 
+	Prepare(module string, level int, code string, message string) error
 	New(module string, level int, code string, message string) error
 	Raw(message string) error
 }
@@ -130,7 +132,14 @@ type InterfaceOttemoError interface {
 	ErrorFull() string
 	ErrorLevel() int
 	ErrorCode() string
+	ErrorMessage() string
 	ErrorCallStack() string
+
+	IsHandled() bool
+	MarkHandled() bool
+
+	IsLogged() bool
+	MarkLogged() bool
 
 	error
 }

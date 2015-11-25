@@ -1,33 +1,16 @@
 package visitor
 
 import (
-	"crypto/md5"
 	"crypto/rand"
-	"encoding/hex"
-
-	"encoding/base64"
+	"strings"
 	"time"
 
 	"github.com/ottemo/foundation/app"
 	"github.com/ottemo/foundation/app/models/visitor"
-	"github.com/ottemo/foundation/env"
-
 	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
 )
-
-// returns InterfaceVisitorAddress model filled with values from DB or blank structure if no id found in DB
-func (it *DefaultVisitor) passwdEncode(passwd string) string {
-	salt := ":"
-	if len(passwd) > 2 {
-		salt += passwd[0:1]
-	}
-
-	hasher := md5.New()
-	hasher.Write([]byte(passwd + salt))
-
-	return hex.EncodeToString(hasher.Sum(nil))
-}
 
 // GetEmail returns the Visitor e-mail which also used as a login ID
 func (it *DefaultVisitor) GetEmail() string {
@@ -96,16 +79,16 @@ func (it *DefaultVisitor) IsGuest() bool {
 	return it.GetGoogleID() == "" && it.GetFacebookID() == "" && it.GetEmail() == ""
 }
 
-// IsValidated returns true if the Visitor's e-mail has been verified
-func (it *DefaultVisitor) IsValidated() bool {
-	return it.ValidateKey == ""
+// IsVerified returns true if the Visitor's e-mail has been verified
+func (it *DefaultVisitor) IsVerified() bool {
+	return it.VerificationKey == ""
 }
 
-// Invalidate marks a visitor e-mail address as not validated, then sends an e-mail to the Visitor with a new validation key
+// Invalidate marks a visitor e-mail address as not verified, then sends an e-mail to the Visitor with a new verification key
 func (it *DefaultVisitor) Invalidate() error {
 
 	if it.GetEmail() == "" {
-		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "bef673e9-79c1-42bc-ade0-e870b3da0e2f", "email was not specified")
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "bef673e9-79c1-42bc-ade0-e870b3da0e2f", "The email address field cannot be blank.")
 	}
 
 	data, err := time.Now().MarshalBinary()
@@ -113,23 +96,23 @@ func (it *DefaultVisitor) Invalidate() error {
 		return env.ErrorDispatch(err)
 	}
 
-	it.ValidateKey = hex.EncodeToString([]byte(base64.StdEncoding.EncodeToString(data)))
+	it.VerificationKey = utils.CryptToURLString(data)
 	err = it.Save()
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	linkHref := app.GetStorefrontURL("login?validate=" + it.ValidateKey)
+	linkHref := app.GetStorefrontURL("login?validate=" + it.VerificationKey)
 
-	err = app.SendMail(it.GetEmail(), "e-mail validation", "Please follow the link to validate your e-mail: <a href=\""+linkHref+"\">"+linkHref+"</a>")
+	err = app.SendMail(it.GetEmail(), "e-mail verification", "Please follow the link to verify your e-mail address: <a href=\""+linkHref+"\">"+linkHref+"</a>")
 
 	return env.ErrorDispatch(err)
 }
 
-// Validate takes a visitors validation key and checks it against the database, a new validation email is sent if the key cannot be validated
+// Validate takes a visitors verification key and checks it against the database, a new verification email is sent if the key cannot be validated
 func (it *DefaultVisitor) Validate(key string) error {
 
-	// looking for visitors with given validation key in DB and collecting ids
+	// looking for visitors with given verification key in DB and collecting ids
 	var visitorIDs []string
 
 	collection, err := db.GetCollection(ConstCollectionNameVisitor)
@@ -148,7 +131,7 @@ func (it *DefaultVisitor) Validate(key string) error {
 	}
 
 	if len(records) == 0 {
-		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "597c38a7-fae4-4eab-9c8e-380ecc626dd2", "wrong validation key")
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "597c38a7-fae4-4eab-9c8e-380ecc626dd2", "Unable to validate the provided Verification Key, please request a new one.")
 	}
 
 	for _, record := range records {
@@ -160,21 +143,20 @@ func (it *DefaultVisitor) Validate(key string) error {
 
 	}
 
-	// checking validation key expiration
-	step1, err := hex.DecodeString(key)
-	data, err := base64.StdEncoding.DecodeString(string(step1))
+	// checking verification key expiration
+	data, err := utils.DecryptURLString(key)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
 	stamp := time.Now()
 	timeNow := stamp.Unix()
-	stamp.UnmarshalBinary(data)
+	stamp.UnmarshalBinary([]byte(data))
 	timeWas := stamp.Unix()
 
-	validationExpired := (timeNow - timeWas) > ConstEmailValidateExpire
+	verificationExpired := (timeNow - timeWas) > ConstEmailVerifyExpire
 
-	// processing visitors for given validation key
+	// processing visitors for given verification key
 	for _, visitorID := range visitorIDs {
 
 		visitorModel, err := visitor.LoadVisitorByID(visitorID)
@@ -182,9 +164,9 @@ func (it *DefaultVisitor) Validate(key string) error {
 			return env.ErrorDispatch(err)
 		}
 
-		if !validationExpired {
+		if !verificationExpired {
 			visitorModel := visitorModel.(*DefaultVisitor)
-			visitorModel.ValidateKey = ""
+			visitorModel.VerificationKey = ""
 			visitorModel.Save()
 		} else {
 			err = visitorModel.Invalidate()
@@ -192,7 +174,7 @@ func (it *DefaultVisitor) Validate(key string) error {
 				return env.ErrorDispatch(err)
 			}
 
-			return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "1ae869fa-0fa2-4ec0-b092-a2c18b963f2d", "validation key expired, new validation link was sent to visitor e-mail")
+			return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "1ae869fa-0fa2-4ec0-b092-a2c18b963f2d", "The provided Verification Key had expired, a new verification link has been sent your email address.")
 		}
 	}
 
@@ -202,13 +184,21 @@ func (it *DefaultVisitor) Validate(key string) error {
 // SetPassword updates the password for the current Visitor
 func (it *DefaultVisitor) SetPassword(passwd string) error {
 	if len(passwd) > 0 {
-		if utils.IsMD5(passwd) {
+
+		tmp := strings.Split(passwd, ":")
+		if len(tmp) == 2 {
+			if utils.IsMD5(tmp[0]) {
+				it.Password = passwd
+			} else {
+				it.Password = utils.PasswordEncode(passwd, "")
+			}
+		} else if utils.IsMD5(passwd) {
 			it.Password = passwd
 		} else {
-			it.Password = it.passwdEncode(passwd)
+			it.Password = utils.PasswordEncode(passwd, "")
 		}
 	} else {
-		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "c24bb166-0ffb-4abc-a8d5-ddacd859da72", "password can't be blank")
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "c24bb166-0ffb-4abc-a8d5-ddacd859da72", "The password field cannot be blank.")
 	}
 
 	return nil
@@ -216,7 +206,7 @@ func (it *DefaultVisitor) SetPassword(passwd string) error {
 
 // CheckPassword validates password for the current Visitor
 func (it *DefaultVisitor) CheckPassword(passwd string) bool {
-	return it.passwdEncode(passwd) == it.Password
+	return utils.PasswordCheck(it.Password, passwd)
 }
 
 // GenerateNewPassword generates new password for the current Visitor
@@ -242,10 +232,103 @@ func (it *DefaultVisitor) GenerateNewPassword() error {
 	}
 
 	linkHref := app.GetStorefrontURL("login")
-	err = app.SendMail(it.GetEmail(), "forgot password event", "Forgot password was requested for your account "+
-		it.GetEmail()+"\n\n"+
-		"New password: "+newPassword+"\n\n"+
-		"Please change your password on next login "+linkHref)
+	err = app.SendMail(it.GetEmail(), "Password Recovery", "A new password was requested for your account: "+it.GetEmail()+"<br><br>"+
+		"New password: "+newPassword+"<br><br>"+
+		"Please remember to change your password upon next login "+linkHref)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	return nil
+}
+
+// ResetPassword generates new password for the current Visitor
+func (it *DefaultVisitor) ResetPassword() error {
+
+	if it.GetEmail() == "" {
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "bef673e9-79c1-42bc-ade0-e870b3da0e2f", "The email address field cannot be blank.")
+	}
+
+	verificationCode := utils.InterfaceToString(time.Now().Unix()) + ":" + it.GetID()
+	verificationCode = utils.CryptAsURLString(verificationCode)
+
+	linkHref := app.GetStorefrontURL("reset-password") + "?key=" + verificationCode
+
+	customerInfo := map[string]string{
+		"name":               it.GetFullName(),
+		"reset_password_url": linkHref,
+		"reset_time_length":  "30",
+	}
+	shopInfo := map[string]string{
+		"name": utils.InterfaceToString(env.ConfigGetValue(app.ConstConfigPathStoreName)),
+	}
+
+	resetTemplateEmail := `<p>You have requested to have your password reset for your account at {{.shop.name}}</p>
+		<p></p>
+		<p>Please visit this url within the next {{.customer.reset_time_length}} minutes to reset your password. </p>
+		<p></p>
+		<p><a href="{{.customer.reset_password_url}}">{{.customer.reset_password_url}}</a></p>
+		<p></p>
+		<p>If you received this email in error, you may safely ignore this request.</p>`
+
+	if it.GetFullName() != "" {
+		resetTemplateEmail = `<p>Dear {{.customer.name}},</p>
+			<p></p>` + resetTemplateEmail
+	}
+
+	passwordRecoveryEmail, err := utils.TextTemplate(resetTemplateEmail,
+		map[string]interface{}{
+			"customer": customerInfo,
+			"shop":     shopInfo,
+		})
+
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	err = app.SendMail(it.GetEmail(), "Password Recovery", passwordRecoveryEmail)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	return nil
+}
+
+// UpdateResetPassword takes a visitors verification key and checks it against the database, a new verification email is sent if the key cannot be validated
+func (it *DefaultVisitor) UpdateResetPassword(key string, passwd string) error {
+
+	// checking verification key expiration
+	code, err := utils.DecryptURLString(key)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	verificationCode := strings.SplitN(string(code), ":", 2)
+
+	// in this case code is invalid
+	if len(verificationCode) != 2 {
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "875bbdf9-f746-4fbc-9950-d6cf98e681b7", "verification key mismatch")
+	}
+
+	timeWas := utils.InterfaceToTime(verificationCode[0]).Unix()
+	timeNow := time.Now().Unix()
+	timeDifference := (timeNow - timeWas)
+
+	if timeDifference > ConstEmailPasswordResetExpire || timeDifference < 0 {
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "d672f112-b74e-432f-b377-37ea2885a9fc", "Your password reset link has already expired, please submit a new request to reset your password")
+	}
+
+	err = it.Load(verificationCode[1])
+	if err != nil || it.GetEmail() == "" {
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "fe53edeb-85a6-4252-b705-ca4aeaabddf6", "verification key mismatch")
+	}
+
+	err = it.SetPassword(passwd)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
+	err = it.Save()
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -268,11 +351,11 @@ func (it *DefaultVisitor) LoadByGoogleID(googleID string) error {
 	}
 
 	if len(rows) == 0 {
-		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "4ffde5a6-6e84-44cf-acb6-fb9714b82bcc", "visitor not found")
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "4ffde5a6-6e84-44cf-acb6-fb9714b82bcc", "Unable to find an account associated with the provided Google ID.")
 	}
 
 	if len(rows) > 1 {
-		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "693e7c5a-fdcf-4731-9e39-41d6f6c849ae", "duplicated google account id")
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "693e7c5a-fdcf-4731-9e39-41d6f6c849ae", "Found more than one account associated with the provided Google ID.")
 	}
 
 	err = it.FromHashMap(rows[0])
@@ -298,11 +381,11 @@ func (it *DefaultVisitor) LoadByFacebookID(facebookID string) error {
 	}
 
 	if len(rows) == 0 {
-		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "c33d114e-435a-44fe-80f1-456c57a692b9", "visitor not found")
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "c33d114e-435a-44fe-80f1-456c57a692b9", "Unable to find an account associated with provided Facebook ID.")
 	}
 
 	if len(rows) > 1 {
-		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "b3b941c0-fa6b-47fa-ac60-10f27e3bd69c", "duplicated facebook account id")
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "b3b941c0-fa6b-47fa-ac60-10f27e3bd69c", "Found more than one account associated with the provided Facebook ID.")
 	}
 
 	err = it.FromHashMap(rows[0])
@@ -328,11 +411,11 @@ func (it *DefaultVisitor) LoadByEmail(email string) error {
 	}
 
 	if len(rows) == 0 {
-		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "0a7063fe-9495-4991-8a80-dcfcfc6f5b92", "visitor not found")
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "0a7063fe-9495-4991-8a80-dcfcfc6f5b92", "Unable to find an account associated with the provided email address, "+email+".")
 	}
 
 	if len(rows) > 1 {
-		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "9c7abb46-49d4-40ea-a33a-9c6790cdb0d8", "duplicated email")
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "9c7abb46-49d4-40ea-a33a-9c6790cdb0d8", "Found more than one account associated with the provided email address.")
 	}
 
 	err = it.FromHashMap(rows[0])

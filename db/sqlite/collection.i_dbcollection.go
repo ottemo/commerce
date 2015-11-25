@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	sqlite3 "github.com/mxk/go-sqlite/sqlite3"
+	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/env"
 )
 
@@ -30,7 +31,10 @@ func (it *DBCollection) LoadByID(id string) (map[string]interface{}, error) {
 		return false
 	})
 
-	return result, env.ErrorDispatch(err)
+	if len(result) == 0 {
+		err = env.ErrorNew(ConstErrorModule, ConstErrorLevel, "5a52f28f-14e0-4cb7-91ff-a1bf2a5f0064", "not found")
+	}
+	return result, err
 }
 
 // Load loads records from DB for current collection and filter if it set
@@ -442,7 +446,7 @@ func (it *DBCollection) ListColumns() map[string]string {
 // GetColumnType returns SQL like type of attribute in current collection, or if not present ""
 func (it *DBCollection) GetColumnType(columnName string) string {
 	if columnName == "_id" {
-		return "string"
+		return db.ConstTypeID
 	}
 
 	// looking in cache first

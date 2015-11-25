@@ -33,13 +33,13 @@ func (it *DefaultCheckout) GetShippingAddress() visitor.InterfaceVisitorAddress 
 
 	shippingAddress, err := visitor.GetVisitorAddressModel()
 	if err != nil {
-		env.ErrorDispatch(err)
+		env.LogError(err)
 		return nil
 	}
 
 	err = shippingAddress.FromHashMap(it.ShippingAddress)
 	if err != nil {
-		env.ErrorDispatch(err)
+		env.LogError(err)
 		return nil
 	}
 
@@ -65,13 +65,13 @@ func (it *DefaultCheckout) GetBillingAddress() visitor.InterfaceVisitorAddress {
 
 	billingAddress, err := visitor.GetVisitorAddressModel()
 	if err != nil {
-		env.ErrorDispatch(err)
+		env.LogError(err)
 		return nil
 	}
 
 	err = billingAddress.FromHashMap(it.BillingAddress)
 	if err != nil {
-		env.ErrorDispatch(err)
+		env.LogError(err)
 		return nil
 	}
 
@@ -127,12 +127,21 @@ func (it *DefaultCheckout) GetShippingRate() *checkout.StructShippingRate {
 
 // SetCart sets cart for checkout
 func (it *DefaultCheckout) SetCart(checkoutCart cart.InterfaceCart) error {
-	it.CartID = checkoutCart.GetID()
+	if checkoutCart != nil {
+		it.CartID = checkoutCart.GetID()
+	} else {
+		it.CartID = ""
+	}
+
 	return nil
 }
 
 // GetCart returns a shopping cart
 func (it *DefaultCheckout) GetCart() cart.InterfaceCart {
+	if it.CartID == "" {
+		return nil
+	}
+
 	cartInstance, _ := cart.LoadCartByID(it.CartID)
 	return cartInstance
 }
@@ -172,9 +181,9 @@ func (it *DefaultCheckout) SetSession(checkoutSession api.InterfaceSession) erro
 	return nil
 }
 
-// GetSession return checkout visitor
+// GetSession return checkout session
 func (it *DefaultCheckout) GetSession() api.InterfaceSession {
-	sessionInstance, _ := api.GetSessionByID(it.SessionID)
+	sessionInstance, _ := api.GetSessionByID(it.SessionID, true)
 	return sessionInstance
 }
 
@@ -481,6 +490,7 @@ func (it *DefaultCheckout) Submit() (interface{}, error) {
 
 	// updating order information
 	//---------------------------
+	checkoutOrder.Set("session_id", it.GetInfo("session_id"))
 	checkoutOrder.Set("updated_at", currentTime)
 
 	checkoutOrder.SetStatus(order.ConstOrderStatusNew)
@@ -519,6 +529,10 @@ func (it *DefaultCheckout) Submit() (interface{}, error) {
 
 	paymentMethod := it.GetPaymentMethod()
 
+	// call for recalculating of all amounts including taxes and discounts
+	// cause they can be not calculated at this point in case of direct post
+	it.CalculateAmount(checkout.ConstCalculateTargetGrandTotal)
+
 	if !paymentMethod.IsAllowed(it) {
 		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "7a5490ee-daa3-42b4-a84a-dade12d103e8", "Payment method not allowed")
 	}
@@ -540,11 +554,15 @@ func (it *DefaultCheckout) Submit() (interface{}, error) {
 
 	checkoutOrder.Set("shipping_amount", it.GetShippingRate().Price)
 
-	generateDescriptionFlag := false
-	orderDescription := utils.InterfaceToString(it.GetInfo("order_description"))
-	if orderDescription == "" {
-		generateDescriptionFlag = true
+	// remove order items, and add new from current cart with new description
+	for index := range checkoutOrder.GetItems() {
+		err := checkoutOrder.RemoveItem(index + 1)
+		if err != nil {
+			return nil, env.ErrorDispatch(err)
+		}
 	}
+
+	orderDescription := ""
 
 	for _, cartItem := range cartItems {
 		orderItem, err := checkoutOrder.AddItem(cartItem.GetProductID(), cartItem.GetQty(), cartItem.GetOptions())
@@ -552,13 +570,13 @@ func (it *DefaultCheckout) Submit() (interface{}, error) {
 			return nil, env.ErrorDispatch(err)
 		}
 
-		if generateDescriptionFlag {
-			if orderDescription != "" {
-				orderDescription += ", "
-			}
-			orderDescription += fmt.Sprintf("%dx %s", cartItem.GetQty(), orderItem.GetName())
+		if orderDescription != "" {
+			orderDescription += ", "
 		}
+		orderDescription += fmt.Sprintf("%dx %s", cartItem.GetQty(), orderItem.GetName())
+
 	}
+
 	checkoutOrder.Set("description", orderDescription)
 
 	err := checkoutOrder.CalculateTotals()
@@ -580,8 +598,8 @@ func (it *DefaultCheckout) Submit() (interface{}, error) {
 	//--------------------------
 	if checkoutOrder.GetGrandTotal() > 0 {
 		paymentInfo := make(map[string]interface{})
-		if it.GetSession() != nil {
-			paymentInfo["sessionID"] = it.GetSession().GetID()
+		if currentSession := it.GetSession(); currentSession != nil {
+			paymentInfo["sessionID"] = currentSession.GetID()
 		}
 		paymentInfo["cc"] = it.GetInfo("cc")
 
@@ -590,25 +608,78 @@ func (it *DefaultCheckout) Submit() (interface{}, error) {
 			checkoutOrder.SetStatus(order.ConstOrderStatusNew)
 			return nil, env.ErrorDispatch(err)
 		}
+
 		// Payment method require to return as a result:
 		// redirect (with completing of checkout after payment processing)
 		// or payment info for order
 		switch value := result.(type) {
 		case api.StructRestRedirect:
-			fmt.Println("redirect", value)
 			return result, nil
 
 		case map[string]interface{}:
-			fmt.Println("map", value)
-			checkoutOrder.Set("payment_info", result)
-
-		default:
-			fmt.Println("default", value)
+			return it.SubmitFinish(value)
 		}
-
 	}
 
-	err = it.CheckoutSuccess(checkoutOrder, it.GetSession())
+	return it.SubmitFinish(nil)
+}
 
-	return checkoutOrder.ToHashMap(), err
+// SubmitFinish finishes processing of submit (required for payment methods to finish with this call?)
+func (it *DefaultCheckout) SubmitFinish(paymentInfo map[string]interface{}) (interface{}, error) {
+
+	checkoutOrder := it.GetOrder()
+	if checkoutOrder == nil {
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "6372e487-7d43-4da7-a08d-a4d743baa83c", "Order not present in checkout")
+	}
+
+	// track for order status to prevent double executing of checkout success
+	previousOrderStatus := checkoutOrder.GetStatus()
+	checkoutOrder.SetStatus(order.ConstOrderStatusProcessed)
+
+	// updating payment info of order with info given from payment method
+	if paymentInfo != nil {
+		currentPaymentInfo := utils.InterfaceToMap(checkoutOrder.Get("payment_info"))
+		for key, value := range paymentInfo {
+			currentPaymentInfo[key] = value
+		}
+
+		checkoutOrder.Set("payment_info", currentPaymentInfo)
+	}
+
+	checkoutOrder.Set("created_at", time.Now())
+	if utils.InterfaceToString(checkoutOrder.Get("session_id")) == "" {
+		checkoutOrder.Set("session_id", it.GetInfo("session_id"))
+	}
+
+	err := checkoutOrder.Save()
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	result := checkoutOrder.ToHashMap()
+	var orderItems []map[string]interface{}
+
+	for _, orderItem := range checkoutOrder.GetItems() {
+		options := make(map[string]interface{})
+
+		for optionName, optionKeys := range orderItem.GetOptions() {
+			optionMap := utils.InterfaceToMap(optionKeys)
+			options[optionName] = optionMap["value"]
+		}
+		orderItems = append(orderItems, map[string]interface{}{
+			"name":    orderItem.GetName(),
+			"options": options,
+			"sku":     orderItem.GetSku(),
+			"qty":     orderItem.GetQty(),
+			"price":   orderItem.GetPrice()})
+	}
+
+	result["items"] = orderItems
+
+	// return order in map if order has already been processed or marked completed by merchant
+	if previousOrderStatus == order.ConstOrderStatusProcessed || previousOrderStatus == order.ConstOrderStatusCancelled {
+		return result, nil
+	}
+
+	return result, it.CheckoutSuccess(checkoutOrder, it.GetSession())
 }

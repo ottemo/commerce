@@ -2,9 +2,10 @@
 package visitor
 
 import (
+	"time"
+
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/env"
-	"time"
 )
 
 // Package global constants
@@ -44,10 +45,13 @@ type InterfaceVisitor interface {
 	CheckPassword(passwd string) bool
 	GenerateNewPassword() error
 
+	ResetPassword() error
+	UpdateResetPassword(key string, passwd string) error
+
 	IsAdmin() bool
 	IsGuest() bool
 
-	IsValidated() bool
+	IsVerified() bool
 	Invalidate() error
 	Validate(key string) error
 

@@ -1,9 +1,10 @@
 package cron
 
 import (
+	"time"
+
 	"github.com/gorhill/cronexpr"
 	"github.com/ottemo/foundation/env"
-	"time"
 )
 
 // ListTasks returns a list of task names currently available
@@ -40,6 +41,7 @@ func (it *DefaultCronScheduler) ScheduleAtTime(scheduleTime time.Time, taskName 
 		TaskName:  taskName,
 		Params:    params,
 		Repeat:    false,
+		active:    true,
 		Time:      scheduleTime,
 		task:      task,
 		expr:      nil,
@@ -69,6 +71,7 @@ func (it *DefaultCronScheduler) ScheduleOnce(cronExpr string, taskName string, p
 		TaskName:  taskName,
 		Params:    params,
 		Repeat:    false,
+		active:    true,
 		task:      task,
 		expr:      expr,
 		scheduler: it}
@@ -98,6 +101,7 @@ func (it *DefaultCronScheduler) ScheduleRepeat(cronExpr string, taskName string,
 		TaskName:  taskName,
 		Params:    params,
 		Repeat:    true,
+		active:    true,
 		task:      task,
 		expr:      expr,
 		scheduler: it}

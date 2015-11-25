@@ -52,9 +52,9 @@ func sendOrderInfo(checkoutOrder order.InterfaceOrder, currentCart cart.Interfac
 		trustPilotProductReviewURL := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathTrustPilotProductReviewURL))
 		trustPilotServiceReviewURL := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathTrustPilotServiceReviewURL))
 
-		trustPilotTestMode := utils.InterfaceToBool(env.ConfigGetValue(ConstConfigPathTrustPilotEnabled))
+		trustPilotTestMode := utils.InterfaceToBool(env.ConfigGetValue(ConstConfigPathTrustPilotTestMode))
 
-		// config values validation
+		// verification of configuration values
 		if trustPilotAPIKey != "" && trustPilotAPISecret != "" && trustPilotBusinessUnitID != "" && trustPilotUsername != "" &&
 			trustPilotPassword != "" && trustPilotAccessTokenURL != "" && trustPilotProductReviewURL != "" && trustPilotServiceReviewURL != "" {
 
@@ -235,7 +235,7 @@ func sendOrderInfo(checkoutOrder order.InterfaceOrder, currentCart cart.Interfac
 					} else {
 						errorMessage += "no error message provided"
 					}
-					env.LogError(env.ErrorNew(ConstErrorModule, env.ConstErrorLevelActor, "e528633c-9413-41b0-bfe8-8cee581a616c", errorMessage))
+					env.LogError(env.ErrorNew(ConstErrorModule, ConstErrorLevel, "e528633c-9413-41b0-bfe8-8cee581a616c", errorMessage))
 					return nil
 				}
 

@@ -41,6 +41,8 @@ import (
 	_ "github.com/ottemo/foundation/app/actors/rts" // Real Time Statistics service
 	_ "github.com/ottemo/foundation/app/actors/seo" // URL Rewrite support
 
-	_ "github.com/ottemo/foundation/app/actors/other/grouping"   // Grouped Products module
-	_ "github.com/ottemo/foundation/app/actors/other/trustpilot" // TrustPilot module
+	_ "github.com/ottemo/foundation/app/actors/other/friendmail" // email friend extension
+	_ "github.com/ottemo/foundation/app/actors/other/grouping"   // products grouping extension
+	_ "github.com/ottemo/foundation/app/actors/other/quickbooks" // QuickBooks exporting extension
+	_ "github.com/ottemo/foundation/app/actors/other/trustpilot" // TrustPilot integration
 )

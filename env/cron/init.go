@@ -1,6 +1,7 @@
 package cron
 
 import (
+	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/app"
 	"github.com/ottemo/foundation/env"
 )
@@ -16,6 +17,7 @@ func init() {
 
 	app.OnAppInit(instance.appInitEvent)
 	app.OnAppEnd(instance.appEndEvent)
+	api.RegisterOnRestServiceStart(setupAPI)
 
 	env.RegisterScheduler(instance)
 }

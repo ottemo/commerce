@@ -8,6 +8,8 @@ import (
 const (
 	ConstErrorModule = "models"
 	ConstErrorLevel  = env.ConstErrorLevelModel
+
+	ConstCollectionListLimit = 20
 )
 
 // StructListItem represents type to hold business layer object information within collection
@@ -51,9 +53,11 @@ var (
 		"CA": "California",
 		"CO": "Colorado",
 		"CT": "Connecticut",
+		"DC": "District of Columbia",
 		"DE": "Delaware",
 		"FL": "Florida",
 		"GA": "Georgia",
+		"GU": "Guam",
 		"HI": "Hawaii",
 		"ID": "Idaho",
 		"IL": "Illinois",
@@ -82,6 +86,7 @@ var (
 		"OK": "Oklahoma",
 		"OR": "Oregon",
 		"PA": "Pennsylvania",
+		"PR": "Puerto Rico",
 		"RI": "Rhode Island",
 		"SC": "South Carolina",
 		"SD": "South Dakota",

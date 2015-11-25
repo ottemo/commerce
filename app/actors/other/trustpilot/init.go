@@ -17,8 +17,21 @@ func init() {
 // Function for every day checking for email sent to customers who order is already two week
 func schedulerFunc(params map[string]interface{}) error {
 	timeDay := time.Hour * 24
-	currentTime := time.Now()
-	twoWeeksAgo := currentTime.Add(-timeDay * 14)
+	twoWeeksAgo := time.Now().Truncate(timeDay).Add(-timeDay*14 + time.Nanosecond)
+
+	ordersFrom := twoWeeksAgo
+	ordersTo := ordersFrom.Add(timeDay)
+
+	// Allows to use params values date_from and date_to to set records selecting range
+	// date_to wouldn't be used until date_from is set and by default is calculating as date_from + day
+	if fromDate, present := params["date_from"]; present {
+		ordersFrom = utils.InterfaceToTime(fromDate)
+		ordersTo = ordersFrom.Add(timeDay)
+
+		if toDate, ok := params["date_to"]; ok {
+			ordersTo = utils.InterfaceToTime(toDate)
+		}
+	}
 
 	orderCollectionModel, err := order.GetOrderCollectionModel()
 	if err != nil {
@@ -26,8 +39,22 @@ func schedulerFunc(params map[string]interface{}) error {
 	}
 
 	dbOrderCollection := orderCollectionModel.GetDBCollection()
-	dbOrderCollection.AddFilter("created_at", ">=", twoWeeksAgo)
-	dbOrderCollection.AddFilter("created_at", "<", twoWeeksAgo.Add(timeDay))
+	dbOrderCollection.AddFilter("created_at", ">=", ordersFrom)
+	dbOrderCollection.AddFilter("created_at", "<", ordersTo)
+
+	validOrderStates := [2]string{order.ConstOrderStatusProcessed, order.ConstOrderStatusCompleted}
+	dbOrderCollection.AddFilter("status", "in", validOrderStates)
+
+	// Allows to use params value orders for specifying an array of orders by ID which would be processed
+	if ordersID, present := params["orders"]; present {
+		orders := utils.InterfaceToArray(ordersID)
+		if len(orders) > 0 {
+			if ordersFrom == twoWeeksAgo {
+				dbOrderCollection.ClearFilters()
+			}
+			dbOrderCollection.AddFilter("_id", "in", orders)
+		}
+	}
 
 	dbRecords, err := dbOrderCollection.Load()
 	if err != nil {
@@ -39,9 +66,8 @@ func schedulerFunc(params map[string]interface{}) error {
 		currentOrder := utils.InterfaceToMap(dbRecord)
 		customInfo := utils.InterfaceToMap(currentOrder["custom_info"])
 		emailSent := utils.InterfaceToBool(customInfo[ConstOrderCustomInfoSentKey])
-		orderStatus := utils.InterfaceToString(currentOrder["status"])
 
-		if trustpilotLink, present := customInfo[ConstOrderCustomInfoLinkKey]; present && !emailSent && orderStatus != "new" {
+		if trustpilotLink, present := customInfo[ConstOrderCustomInfoLinkKey]; present && !emailSent {
 
 			visitorMap := make(map[string]interface{})
 			visitorEmail := utils.InterfaceToString(currentOrder["customer_email"])
@@ -89,8 +115,8 @@ func onAppStart() error {
 	env.EventRegisterListener("checkout.success", checkoutSuccessHandler)
 
 	if scheduler := env.GetScheduler(); scheduler != nil {
-		scheduler.RegisterTask("checkOrdersToSent", schedulerFunc)
-		scheduler.ScheduleRepeat("0 9 * * *", "checkOrdersToSent", nil)
+		scheduler.RegisterTask("trustPilotReview", schedulerFunc)
+		scheduler.ScheduleRepeat("0 9 * * *", "trustPilotReview", nil)
 	}
 
 	return nil
