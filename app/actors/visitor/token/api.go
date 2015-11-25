@@ -7,7 +7,6 @@ import (
 	"github.com/ottemo/foundation/app/models"
 	"github.com/ottemo/foundation/app/models/checkout"
 	"github.com/ottemo/foundation/app/models/visitor"
-	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
 )
@@ -75,8 +74,8 @@ func APICreateToken(context api.InterfaceApplicationContext) (interface{}, error
 	}
 
 	paymentInfo := map[string]interface{}{
-		"amount": 0,
-		"cc":     creditCardInfo,
+		checkout.ConstPaymentActionTypeKey: checkout.ConstPaymentActionTypeCreateToken,
+		"cc": creditCardInfo,
 	}
 
 	// contains creditCardLastFour, creditCardType, responseMessage, responseResult, transactionID, creditCardExp
@@ -145,11 +144,11 @@ func APIListVisitorCards(context api.InterfaceApplicationContext) (interface{}, 
 
 	// list operation
 	//---------------
-	visitorAddressCollectionModel, err := visitor.GetVisitorAddressCollectionModel()
+	visitorCardCollectionModel, err := visitor.GetVisitorCardCollectionModel()
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
-	dbCollection := visitorAddressCollectionModel.GetDBCollection()
+	dbCollection := visitorCardCollectionModel.GetDBCollection()
 	dbCollection.AddStaticFilter("visitor_id", "=", visitorID)
 
 	// filters handle
@@ -157,14 +156,14 @@ func APIListVisitorCards(context api.InterfaceApplicationContext) (interface{}, 
 
 	// checking for a "count" request
 	if context.GetRequestArgument("count") != "" {
-		return visitorAddressCollectionModel.GetDBCollection().Count()
+		return visitorCardCollectionModel.GetDBCollection().Count()
 	}
 
 	// limit parameter handle
-	visitorAddressCollectionModel.ListLimit(models.GetListLimit(context))
+	visitorCardCollectionModel.ListLimit(models.GetListLimit(context))
 
 	// extra parameter handle
-	models.ApplyExtraAttributes(context, visitorAddressCollectionModel)
+	models.ApplyExtraAttributes(context, visitorCardCollectionModel)
 
-	return visitorAddressCollectionModel.List()
+	return visitorCardCollectionModel.List()
 }

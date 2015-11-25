@@ -28,7 +28,7 @@ func (it *DefaultVisitorCardCollection) List() ([]models.StructListItem, error) 
 		resultItem := new(models.StructListItem)
 
 		resultItem.ID = visitorCardModel.GetID()
-		resultItem.Name = visitorCardModel.GetType() + visitorCardModel.GetNumber()
+		resultItem.Name = visitorCardModel.GetType() + " (" + visitorCardModel.GetNumber() + ")"
 		resultItem.Image = ""
 		resultItem.Desc = visitorCardModel.GetPaymentMethod()
 
@@ -50,7 +50,7 @@ func (it *DefaultVisitorCardCollection) List() ([]models.StructListItem, error) 
 // ListAddExtraAttribute allows to obtain additional attributes from  List() function
 func (it *DefaultVisitorCardCollection) ListAddExtraAttribute(attribute string) error {
 
-	if utils.IsAmongStr(attribute, "_id", "id", "visitor_id", "visitorID", "name", "holder_name", "number", "expiration", "expiration_date") {
+	if utils.IsAmongStr(attribute, "_id", "id", "visitor_id", "visitorID", "name", "holder_name", "number", "type", "payment", "expiration", "expiration_date") {
 
 		if !utils.IsInListStr(attribute, it.listExtraAtributes) {
 			it.listExtraAtributes = append(it.listExtraAtributes, attribute)

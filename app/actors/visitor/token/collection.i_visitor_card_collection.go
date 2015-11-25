@@ -5,13 +5,13 @@ import (
 	"github.com/ottemo/foundation/db"
 )
 
-// GetDBCollection returns the database collection of the Visitor Address
+// GetDBCollection returns the database collection of the Visitor Cards
 func (it *DefaultVisitorCardCollection) GetDBCollection() db.InterfaceDBCollection {
 	return it.listCollection
 }
 
-// ListVisitorsAddresses returns list of visitor model items for the Visitor Address
-func (it *DefaultVisitorCardCollection) ListVisitorsAddresses() []visitor.InterfaceVisitorCard {
+// ListVisitorsCards returns list of visitor model items for the Visitor Cards
+func (it *DefaultVisitorCardCollection) ListVisitorsCards() []visitor.InterfaceVisitorCard {
 	var result []visitor.InterfaceVisitorCard
 
 	dbRecords, err := it.listCollection.Load()

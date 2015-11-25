@@ -6,9 +6,9 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-
 	"time"
 
+	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/app/models/checkout"
 	"github.com/ottemo/foundation/app/models/order"
 	"github.com/ottemo/foundation/env"
@@ -32,7 +32,7 @@ func (it *PayFlowAPI) GetType() string {
 
 // IsTokenable checks for method applicability
 func (it *PayFlowAPI) IsTokenable(checkoutInstance checkout.InterfaceCheckout) bool {
-	return true
+	return utils.InterfaceToBool(env.ConfigGetValue(ConstConfigPathPayPalPayflowEnabled)) && utils.InterfaceToBool(env.ConfigGetValue(ConstConfigPathPayPalPayflowTokenable))
 }
 
 // IsAllowed checks for method applicability
@@ -44,7 +44,7 @@ func (it *PayFlowAPI) IsAllowed(checkoutInstance checkout.InterfaceCheckout) boo
 func (it *PayFlowAPI) Authorize(orderInstance order.InterfaceOrder, paymentInfo map[string]interface{}) (interface{}, error) {
 
 	// make only authorize zero amount procedure to obtain and return it's token with additional payment info
-	if value, present := paymentInfo["amount"]; present && utils.InterfaceToFloat64(value) == 0 {
+	if value, present := paymentInfo[checkout.ConstPaymentActionTypeKey]; present && utils.InterfaceToString(value) == checkout.ConstPaymentActionTypeCreateToken {
 		return it.AuthorizeZeroAmount(orderInstance, paymentInfo)
 
 		// currently we will do request directly from foundation side but our next step is to do it just create request content
@@ -142,9 +142,9 @@ func (it *PayFlowAPI) Authorize(orderInstance order.InterfaceOrder, paymentInfo 
 	}
 
 	env.Log("paypal.log", env.ConstLogPrefixInfo, "NEW TRANSACTION: "+
-				"Visitor ID - "+utils.InterfaceToString(orderInstance.Get("visitor_id"))+", "+
-				"Order ID - "+utils.InterfaceToString(orderInstance.GetID())+", "+
-				"TRANSACTIONID - "+orderTransactionID)
+		"Visitor ID - "+utils.InterfaceToString(orderInstance.Get("visitor_id"))+", "+
+		"Order ID - "+utils.InterfaceToString(orderInstance.GetID())+", "+
+		"TRANSACTIONID - "+orderTransactionID)
 
 	orderPaymentInfo := map[string]interface{}{
 		"transactionID":     orderTransactionID,

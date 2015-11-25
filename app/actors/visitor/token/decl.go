@@ -32,7 +32,7 @@ type DefaultVisitorCard struct {
 	Token string
 }
 
-// DefaultVisitorAddressCollection is a default implementer of InterfaceVisitorCardCollection
+// DefaultVisitorCardCollection is a default implementer of InterfaceVisitorCardCollection
 type DefaultVisitorCardCollection struct {
 	listCollection     db.InterfaceDBCollection
 	listExtraAtributes []string

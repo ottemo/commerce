@@ -105,7 +105,7 @@ type InterfaceVisitorAddressCollection interface {
 	models.InterfaceCollection
 }
 
-// InterfaceVisitorAddress represents interface to access business layer implementation of visitor address object
+// InterfaceVisitorCard represents interface to access business layer implementation of visitor card object
 type InterfaceVisitorCard interface {
 	GetVisitorID() string
 
