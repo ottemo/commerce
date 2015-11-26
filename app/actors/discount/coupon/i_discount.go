@@ -1,13 +1,13 @@
 package coupon
 
 import (
+	"time"
+	"strings"
+
 	"github.com/ottemo/foundation/app/models/checkout"
 	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
-
-	"strings"
-	"time"
 )
 
 // GetName returns name of current discount implementation
@@ -53,6 +53,7 @@ func (it *DefaultDiscount) CalculateDiscount(checkoutInstance checkout.Interface
 			// making coupon code map for right apply order ignoring used coupons and limited
 			discountCodes := make(map[string]map[string]interface{})
 			for _, record := range records {
+
 				discountsUsageQty := discountsUsage(checkoutInstance, record)
 				discountCode := utils.InterfaceToString(record["code"])
 

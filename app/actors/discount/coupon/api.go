@@ -2,8 +2,9 @@ package coupon
 
 import (
 	"encoding/csv"
-
+	"strings"
 	"time"
+	"strings"
 
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/app"
@@ -12,7 +13,6 @@ import (
 	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
-	"strings"
 )
 
 // setupAPI setups package related API endpoint routines
@@ -71,11 +71,6 @@ func setupAPI() error {
 //   - coupon code should be specified in "coupon" argument
 func APIApplyDiscount(context api.InterfaceApplicationContext) (interface{}, error) {
 
-	visitorID := visitor.GetCurrentVisitorID(context)
-	if visitorID == "" {
-		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "57a50c6f-117b-4461-9755-6d7b981da313", "This discount code requires you to log in or register to use.  Please register or log in.")
-	}
-
 	couponCode := context.GetRequestArgument("coupon")
 
 	currentSession := context.GetSession()
@@ -86,13 +81,6 @@ func APIApplyDiscount(context api.InterfaceApplicationContext) (interface{}, err
 	// checking if coupon was already applied
 	if utils.IsInArray(couponCode, appliedCoupons) {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "29c4c963-0940-4780-8ad2-9ed5ca7c97ff", "coupon code already applied")
-	}
-
-	// checks coupon for being already used by this visitor
-	if usedByVisitors, present := usedCoupons[couponCode]; present {
-		if utils.IsInListStr(visitorID, usedByVisitors) {
-			return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "7fb5b4d1-ed93-45e2-9347-eb9461bbfd75", "coupon code already used")
-		}
 	}
 
 	// loading coupon for specified code
@@ -141,10 +129,10 @@ func APIApplyDiscount(context api.InterfaceApplicationContext) (interface{}, err
 			currentSession.Set(ConstSessionKeyAppliedDiscountCodes, appliedCoupons)
 
 		} else {
-			return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "63442858-bd71-4f10-855a-b5975fc2dd16", "coupon is not applicable")
+			return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "63442858-bd71-4f10-855a-b5975fc2dd16", "Coupon code, "+strings.ToUpper(couponCode)+", cannot be applied, exceeded usage limits.")
 		}
 	} else {
-		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "b2934505-06e9-4250-bb98-c22e4918799e", "coupon code not found")
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "b2934505-06e9-4250-bb98-c22e4918799e", "Coupon code, "+strings.ToUpper(couponCode)+", is not a valid coupon code.")
 	}
 
 	return "ok", nil
@@ -256,7 +244,7 @@ func APIUploadDiscountCSV(context api.InterfaceApplicationContext) (interface{},
 
 	csvFile := context.GetRequestFile("file")
 	if csvFile == nil {
-		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "3398f40a-726b-48ad-9f29-9dd390b7e952", "file unspecified")
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "3398f40a-726b-48ad-9f29-9dd390b7e952", "A file name must be specified.")
 	}
 
 	csvReader := csv.NewReader(csvFile)
@@ -355,7 +343,7 @@ func APICreateDiscount(context api.InterfaceApplicationContext) (interface{}, er
 	}
 
 	if !utils.KeysInMapAndNotBlank(postValues, "code", "name") {
-		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "842d3ba9-3354-4470-a85f-cbaf909c3827", "'code' or 'name' value is not specified")
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "842d3ba9-3354-4470-a85f-cbaf909c3827", "Required fields, 'code' and 'name', cannot be blank.")
 	}
 
 	valueCode := utils.InterfaceToString(postValues["code"])
@@ -397,7 +385,7 @@ func APICreateDiscount(context api.InterfaceApplicationContext) (interface{}, er
 		return nil, env.ErrorDispatch(err)
 	}
 	if recordsNumber > 0 {
-		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "34cb6cfe-fba3-4c1f-afc5-1ff7266a9a86", "discount with such code: '"+valueCode+"', already exists")
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "34cb6cfe-fba3-4c1f-afc5-1ff7266a9a86", "A Discount with the provided code: '"+valueCode+"', already exists.")
 	}
 
 	// making new record and storing it
@@ -469,7 +457,7 @@ func APIUpdateDiscount(context api.InterfaceApplicationContext) (interface{}, er
 			return nil, env.ErrorDispatch(err)
 		}
 		if recordsNumber > 0 {
-			return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "e49e5e01-4f6f-4ff0-bd28-dfb616308aa7", "discount with such code: '"+codeValue+"', already exists")
+			return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "e49e5e01-4f6f-4ff0-bd28-dfb616308aa7", "A Discount with the provided code: '"+codeValue+"', already exists.")
 		}
 
 		record["code"] = codeValue
@@ -492,13 +480,12 @@ func APIUpdateDiscount(context api.InterfaceApplicationContext) (interface{}, er
 		}
 	}
 
-	timeZone := utils.InterfaceToString(env.ConfigGetValue(app.ConstConfigPathStoreTimeZone))
 	if value, present := postValues["until"]; present {
-		record["until"], _ = utils.MakeUTCTime(utils.InterfaceToTime(value), timeZone)
+		record["until"] = utils.InterfaceToTime(value)
 	}
 
 	if value, present := postValues["since"]; present {
-		record["since"], _ = utils.MakeUTCTime(utils.InterfaceToTime(value), timeZone)
+		record["since"] = utils.InterfaceToTime(value)
 	}
 
 	// saving updates

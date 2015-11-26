@@ -87,6 +87,11 @@ func setupAPI() error {
 		return env.ErrorDispatch(err)
 	}
 
+	err = api.GetRestService().RegisterAPI("visitors/reset-password", api.ConstRESTOperationCreate, APIResetPassword)
+	if err != nil {
+		return env.ErrorDispatch(err)
+	}
+
 	err = api.GetRestService().RegisterAPI("visit", api.ConstRESTOperationGet, APIGetVisit)
 	if err != nil {
 		return env.ErrorDispatch(err)
@@ -634,7 +639,7 @@ func APIInvalidateVisitor(context api.InterfaceApplicationContext) (interface{},
 
 	// checking rights
 	if err := api.ValidateAdminRights(context); err != nil {
-		if visitorModel.IsVerfied() {
+		if visitorModel.IsVerified() {
 			return nil, env.ErrorDispatch(err)
 		}
 	}
@@ -645,6 +650,34 @@ func APIInvalidateVisitor(context api.InterfaceApplicationContext) (interface{},
 	}
 
 	return "ok", nil
+}
+
+// APIResetPassword update visitor password by using verification key from email
+func APIResetPassword(context api.InterfaceApplicationContext) (interface{}, error) {
+
+	requestData, err := api.GetRequestContentAsMap(context)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	if !utils.KeysInMapAndNotBlank(requestData, "key", "password") {
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "991eceb5-37a6-4044-b0e9-5039055044a0", "Verification key and new password are required.")
+	}
+
+	verificationKey := utils.InterfaceToString(requestData["key"])
+	newPassword := utils.InterfaceToString(requestData["password"])
+
+	visitorModel, err := visitor.GetVisitorModel()
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	err = visitorModel.UpdateResetPassword(verificationKey, newPassword)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	return visitorModel.GetEmail(), nil
 }
 
 // APIForgotPassword changes and sends a new password to visitor e-mail
@@ -662,7 +695,7 @@ func APIForgotPassword(context api.InterfaceApplicationContext) (interface{}, er
 		return nil, env.ErrorDispatch(err)
 	}
 
-	err = visitorModel.GenerateNewPassword()
+	err = visitorModel.ResetPassword()
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
@@ -801,7 +834,7 @@ func APILogin(context api.InterfaceApplicationContext) (interface{}, error) {
 	}
 
 	// api session updates
-	if visitorModel.IsVerfied() {
+	if visitorModel.IsVerified() {
 		context.GetSession().Set(visitor.ConstSessionKeyVisitorID, visitorModel.GetID())
 	} else {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "29fba7a4-bd85-400e-81c2-69189c50d0d0", "This account has not been verfied, please check your email account: ,"+visitorModel.GetEmail()+" for a verification link sent to you.")
@@ -1021,18 +1054,21 @@ func APIGoogleLogin(context api.InterfaceApplicationContext) (interface{}, error
 // APIGetOrder returns current visitor order details for specified order
 //   - orderID should be specified in arguments
 func APIGetOrder(context api.InterfaceApplicationContext) (interface{}, error) {
-	visitorID := visitor.GetCurrentVisitorID(context)
-	if visitorID == "" {
-		return "No Visitor ID found, unable to process order request. Please log in first.", nil
-	}
 
 	orderModel, err := order.LoadOrderByID(context.GetRequestArgument("orderID"))
 	if err != nil {
-		return nil, env.ErrorDispatch(err)
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "cc719b01-c1e4-4b69-9c89-5735f5c0d339", "Unable to retrieve an order associated with OrderID: "+context.GetRequestArgument("orderID")+".")
 	}
 
-	if utils.InterfaceToString(orderModel.Get("visitor_id")) != visitorID {
-		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "c5ca1fdb-7008-4a1c-a168-9df544df9825", "There is a mis-match between the current Visitor ID and the Visitor ID on the order.")
+	// allow anonymous visitors through if the session id matches
+	if utils.InterfaceToString(orderModel.Get("session_id")) != context.GetSession().GetID() {
+		// force anonymous visitors to log in if their session id does not match the one on the order
+		visitorID := visitor.GetCurrentVisitorID(context)
+		if visitorID == "" {
+			return "No Visitor ID found, unable to process order request. Please log in first.", nil
+		} else if utils.InterfaceToString(orderModel.Get("visitor_id")) != visitorID {
+			return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "c5ca1fdb-7008-4a1c-a168-9df544df9825", "There is a mis-match between the current Visitor ID and the Visitor ID on the order.")
+		}
 	}
 
 	result := orderModel.ToHashMap()
