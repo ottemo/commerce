@@ -554,5 +554,13 @@ func APISubmitCheckout(context api.InterfaceApplicationContext) (interface{}, er
 		}
 	}
 
+	// Add handle for cc save action to save them before submitting of checkout
+	// and use saved cc in this case instantly, so after saving we can get reed of personal information and handle with credit card visitor token ID
+	if saveCreditCard := currentCheckout.GetInfo("saveCreditCard"); saveCreditCard != nil && utils.InterfaceToBool(saveCreditCard) {
+
+
+
+	}
+
 	return currentCheckout.Submit()
 }
