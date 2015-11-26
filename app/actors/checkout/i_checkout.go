@@ -289,6 +289,46 @@ func (it *DefaultCheckout) GetDiscounts() []checkout.StructDiscount {
 	return it.Discounts
 }
 
+// GetAggregatedDiscounts returns aggregated total of used discounts
+func (it *DefaultCheckout) GetAggregatedDiscounts() []checkout.StructAggregatedDiscount {
+	var result []checkout.StructAggregatedDiscount
+
+	groupedDiscounts := make(map[string]checkout.StructAggregatedDiscount)
+	usedDiscounts := it.GetDiscounts()
+
+	for _, currentDiscount := range usedDiscounts {
+		key := currentDiscount.Code + currentDiscount.Type
+		var groupedDiscount checkout.StructAggregatedDiscount
+
+		if savedDiscount, present := groupedDiscounts[key]; present {
+			groupedDiscount = savedDiscount
+
+			groupedDiscount.Amount = groupedDiscount.Amount + currentDiscount.Amount
+
+			if _, present := groupedDiscount.Object[currentDiscount.Object]; present {
+				groupedDiscount.Object[currentDiscount.Object]++
+			} else {
+				groupedDiscount.Object[currentDiscount.Object] = 1
+			}
+		} else {
+			groupedDiscount.Code = currentDiscount.Code
+			groupedDiscount.Name = currentDiscount.Name
+			groupedDiscount.Amount = currentDiscount.Amount
+			groupedDiscount.Type = currentDiscount.Type
+
+			groupedDiscount.Object = map[string]int{currentDiscount.Object: 1}
+		}
+
+		groupedDiscounts[key] = groupedDiscount
+	}
+
+	for _, discount := range groupedDiscounts {
+		result = append(result, discount)
+	}
+
+	return result
+}
+
 // GetSubtotal returns subtotal total for current checkout
 func (it *DefaultCheckout) GetSubtotal() float64 {
 	currentCart := it.GetCart()
