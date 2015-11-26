@@ -4,12 +4,10 @@ import (
 	"encoding/csv"
 	"strings"
 	"time"
-	"strings"
 
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/app"
 	"github.com/ottemo/foundation/app/models/checkout"
-	"github.com/ottemo/foundation/app/models/visitor"
 	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"

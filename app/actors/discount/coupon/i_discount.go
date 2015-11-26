@@ -1,8 +1,8 @@
 package coupon
 
 import (
-	"time"
 	"strings"
+	"time"
 
 	"github.com/ottemo/foundation/app/models/checkout"
 	"github.com/ottemo/foundation/db"

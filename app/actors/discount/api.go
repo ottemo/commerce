@@ -19,30 +19,45 @@ func setupAPI() error {
 }
 
 // APIGetDiscounts returns list of applied discounts
+// that are aggregated and using final values
 func APIGetDiscounts(context api.InterfaceApplicationContext) (interface{}, error) {
 
-	var result []checkout.StructDiscount
-	groupedDiscounts := make(map[string]checkout.StructDiscount)
+	var result []StructAggregatedDiscount
+	groupedDiscounts := make(map[string]StructAggregatedDiscount)
 
-	currentCheckout, err := checkout.GetCurrentCheckout(context)
-	if err != nil {
+	currentCheckout, err := checkout.GetCurrentCheckout(context, false)
+	if err != nil || currentCheckout == nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	currentCheckout.CalculateAmount(0)
+	currentCheckout.GetGrandTotal()
 
 	usedDiscounts := currentCheckout.GetDiscounts()
 
 	for _, currentDiscount := range usedDiscounts {
 		key := currentDiscount.Code + currentDiscount.Type
+		var groupedDiscount StructAggregatedDiscount
 
 		if savedDiscount, present := groupedDiscounts[key]; present {
-			currentDiscount.Amount = savedDiscount.Amount + currentDiscount.Amount
-			currentDiscount.Object = savedDiscount.Object + ", " + currentDiscount.Object
-			currentDiscount.IsPercent = false
+			groupedDiscount = savedDiscount
+
+			groupedDiscount.Amount = groupedDiscount.Amount + currentDiscount.Amount
+
+			if _, present := groupedDiscount.Object[currentDiscount.Object]; present {
+				groupedDiscount.Object[currentDiscount.Object] += 1
+			} else {
+				groupedDiscount.Object[currentDiscount.Object] = 1
+			}
+		} else {
+			groupedDiscount.Code = currentDiscount.Code
+			groupedDiscount.Name = currentDiscount.Name
+			groupedDiscount.Amount = currentDiscount.Amount
+			groupedDiscount.Type = currentDiscount.Type
+
+			groupedDiscount.Object = map[string]int{currentDiscount.Object: 1}
 		}
 
-		groupedDiscounts[key] = currentDiscount
+		groupedDiscounts[key] = groupedDiscount
 	}
 
 	for _, discount := range groupedDiscounts {

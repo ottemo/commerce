@@ -24,4 +24,3 @@ type DefaultDiscount struct{}
 
 // usedCoupons contains used coupon codes with visitorsId's, initialize from orders and updated on checkout success
 var usedCoupons map[string][]string
-
