@@ -183,15 +183,17 @@ func discountsUsage(checkoutInstance checkout.InterfaceCheckout, couponDiscount 
 			productsInCart := make(map[string]int)
 
 			// collect products to one map by ID and qty
-			for _, productInCart := range checkoutInstance.GetCart().GetItems() {
-				productID := productInCart.GetProductID()
-				productQty := productInCart.GetQty()
+			if currentCart := checkoutInstance.GetCart(); currentCart != nil {
+				for _, productInCart := range currentCart.GetItems() {
+					productID := productInCart.GetProductID()
+					productQty := productInCart.GetQty()
 
-				if qty, present := productsInCart[productID]; present {
-					productsInCart[productID] = qty + productQty
-					continue
+					if qty, present := productsInCart[productID]; present {
+						productsInCart[productID] = qty + productQty
+						continue
+					}
+					productsInCart[productID] = productQty
 				}
-				productsInCart[productID] = productQty
 			}
 
 			for limitingKey, limitingValue := range limitations {

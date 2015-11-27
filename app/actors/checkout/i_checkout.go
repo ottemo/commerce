@@ -238,8 +238,14 @@ func (it *DefaultCheckout) GetDiscounts() []checkout.StructDiscount {
 			}
 		}
 
+		currentCart := it.GetCart()
+		if currentCart == nil {
+			it.discountsCalculateFlag = false
+			return it.Discounts
+		}
+
 		// adding to discounts the biggest applicable discount per product
-		for _, productInCart := range it.GetCart().GetItems() {
+		for _, productInCart := range currentCart.GetItems() {
 
 			if cartProduct := productInCart.GetProduct(); cartProduct != nil {
 				cartProduct.ApplyOptions(productInCart.GetOptions())
