@@ -5,6 +5,7 @@ import (
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
 	"strings"
+	"time"
 )
 
 // Get will return the requested attribute when provided a string representation of the attribute
@@ -86,7 +87,7 @@ func (it *DefaultVisitorCard) ToHashMap() map[string]interface{} {
 	result["payment"] = it.Payment
 	result["type"] = it.Type
 	result["number"] = it.Number
-	result["expirationDate"] = it.ExpirationDate
+	result["expiration_date"] = it.ExpirationDate
 	result["token"] = it.Token
 
 	return result

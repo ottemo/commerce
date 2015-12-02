@@ -11,6 +11,7 @@ import (
 	"github.com/ottemo/foundation/api"
 	"github.com/ottemo/foundation/app/models/checkout"
 	"github.com/ottemo/foundation/app/models/order"
+	"github.com/ottemo/foundation/app/models/visitor"
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
 )
@@ -53,11 +54,18 @@ func (it *PayFlowAPI) Authorize(orderInstance order.InterfaceOrder, paymentInfo 
 	}
 
 	var transactionID string
-	// check is it reference transaction if not make sure that credit card info is valid
-	if ccInfo, present := paymentInfo["cc"]; present && utils.KeysInMapAndNotBlank(utils.InterfaceToMap(ccInfo), "transactionID") {
-		referencePaymentInfo := utils.InterfaceToMap(paymentInfo["cc"])
-		transactionID = utils.InterfaceToString(referencePaymentInfo["transactionID"])
-	} else {
+	var visitorCreditCard visitor.InterfaceVisitorCard
+
+	// try to obtain visitor token info
+	if cc, present := paymentInfo["cc"]; present {
+		if creditCard, ok := cc.(visitor.InterfaceVisitorCard); ok && creditCard != nil {
+			transactionID = creditCard.GetToken()
+			visitorCreditCard = creditCard
+		}
+	}
+
+	// otherwise we will authorize in default way
+	if transactionID == "" {
 		authorizeZeroResult, err := it.AuthorizeZeroAmount(orderInstance, paymentInfo)
 		if err != nil {
 			return nil, env.ErrorDispatch(err)
@@ -150,6 +158,10 @@ func (it *PayFlowAPI) Authorize(orderInstance order.InterfaceOrder, paymentInfo 
 		"transactionID":     orderTransactionID,
 		"creditCardNumbers": responseValues.Get("ACCT"),
 		"creditCardType":    getCreditCardName(utils.InterfaceToString(responseValues.Get("CARDTYPE"))),
+	}
+
+	if visitorCreditCard != nil {
+		orderPaymentInfo["creditCardID"] = visitorCreditCard.GetID()
 	}
 
 	return orderPaymentInfo, nil

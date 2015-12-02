@@ -120,8 +120,6 @@ type InterfaceVisitorCard interface {
 
 	IsExpired() bool
 
-	CreateVisitorCard(ccInfo map[string]interface {}) error
-
 	models.InterfaceModel
 	models.InterfaceObject
 	models.InterfaceStorable

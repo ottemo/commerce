@@ -2,12 +2,13 @@ package checkout
 
 import (
 	"github.com/ottemo/foundation/api"
+	"github.com/ottemo/foundation/app/actors/payment/zeropay"
 	"github.com/ottemo/foundation/app/models/checkout"
 	"github.com/ottemo/foundation/app/models/visitor"
 	"github.com/ottemo/foundation/env"
-
-	"github.com/ottemo/foundation/app/actors/payment/zeropay"
 	"github.com/ottemo/foundation/utils"
+
+	"time"
 )
 
 // setupAPI setups package related API endpoint routines
@@ -556,11 +557,79 @@ func APISubmitCheckout(context api.InterfaceApplicationContext) (interface{}, er
 
 	// Add handle for cc save action to save them before submitting of checkout
 	// and use saved cc in this case instantly, so after saving we can get reed of personal information and handle with credit card visitor token ID
-	if saveCreditCard := currentCheckout.GetInfo("saveCreditCard"); saveCreditCard != nil && utils.InterfaceToBool(saveCreditCard) {
-
-
-
+	if saveCreditCard := currentCheckout.GetInfo("saveCreditCard"); currentVisitorID != "" && saveCreditCard != nil && utils.InterfaceToBool(saveCreditCard) {
+		creditCardInfo := currentCheckout.GetInfo("cc")
+		if creditCardInfo == nil {
+			creditCardInfo = utils.GetFirstMapValue(requestData, "cc", "ccInfo", "creditCardInfo")
+		}
+		if creditCardInfo != nil {
+			creditCard, err := createCreditCardToken(currentCheckout, utils.InterfaceToMap(creditCardInfo))
+			if err == nil {
+				currentCheckout.Set("cc", creditCard)
+			}
+		}
 	}
 
 	return currentCheckout.Submit()
+}
+
+func createCreditCardToken(currentCheckout checkout.InterfaceCheckout, creditCardInfo map[string]interface{}) (visitor.InterfaceVisitorCard, error) {
+
+	paymentMethod := currentCheckout.GetPaymentMethod()
+	if !paymentMethod.IsTokenable(nil) {
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "5b05cc24-2184-47cc-b2dc-77cb41035698", "for selected payment method credit card can't be saved")
+	}
+
+	currentVisitor := currentCheckout.GetVisitor()
+	currentVisitorID := currentVisitor.GetID()
+	if currentVisitor == nil || currentVisitorID == "" {
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "bdb47c82-807f-4b80-9fe9-7e0c51fea154", "visitor should be registered")
+	}
+
+	paymentInfo := map[string]interface{}{
+		checkout.ConstPaymentActionTypeKey: checkout.ConstPaymentActionTypeCreateToken,
+		"cc": creditCardInfo,
+	}
+
+	// contains creditCardLastFour, creditCardType, responseMessage, responseResult, transactionID, creditCardExp
+	paymentResult, err := paymentMethod.Authorize(nil, paymentInfo)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	cardInfoMap := utils.InterfaceToMap(paymentResult)
+	if !utils.KeysInMapAndNotBlank(cardInfoMap, "transactionID", "creditCardLastFour") {
+		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "22e17290-56f3-452a-8d54-18d5a9eb2833", "transaction can't be obtained")
+	}
+
+	// create visitor address operation
+	//---------------------------------
+	visitorCardModel, err := visitor.GetVisitorCardModel()
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	// create credit card map with info
+	tokenRecord := map[string]interface{}{
+		"visitor_id":      currentVisitorID,
+		"payment":         paymentMethod.GetCode(),
+		"type":            cardInfoMap["creditCardType"],
+		"number":          cardInfoMap["creditCardLastFour"],
+		"expiration_date": cardInfoMap["creditCardExp"],
+		"holder":          utils.InterfaceToString(creditCardInfo["holder"]),
+		"token":           cardInfoMap["transactionID"],
+		"updated":         time.Now(),
+	}
+
+	err = visitorCardModel.FromHashMap(tokenRecord)
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	err = visitorCardModel.Save()
+	if err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
+
+	return visitorCardModel, nil
 }
