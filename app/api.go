@@ -171,7 +171,6 @@ func restStatusInfo(context api.InterfaceApplicationContext) (interface{}, error
 			case "MySQL":
 				iniConfigDBKey = "db.mysql.db"
 				break
-				// case "MongoDB": iniConfigDBKey = "mongodb.db"; break
 			}
 
 			if iniValue := iniConfig.GetValue(iniConfigDBKey, "ottemo"); iniValue != "" {
