@@ -104,8 +104,8 @@ func APICreateToken(context api.InterfaceApplicationContext) (interface{}, error
 		"number":          cardInfoMap["creditCardLastFour"],
 		"expiration_date": cardInfoMap["creditCardExp"],
 		"holder":          utils.InterfaceToString(requestData["holder"]),
-		"token":           cardInfoMap["transactionID"],
-		"updated":         time.Now(),
+		"token_id":        cardInfoMap["transactionID"],
+		"token_updated":   time.Now(),
 	}
 
 	err = visitorCardModel.FromHashMap(tokenRecord)

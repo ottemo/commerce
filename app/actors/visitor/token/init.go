@@ -30,6 +30,7 @@ func setupDB() error {
 	}
 
 	collection.AddColumn("visitor_id", db.ConstTypeID, true)
+	collection.AddColumn("token_id", db.ConstTypeVarchar, true)
 	collection.AddColumn("payment", db.TypeWPrecision(db.ConstTypeVarchar, 150), true)
 
 	collection.AddColumn("type", db.TypeWPrecision(db.ConstTypeVarchar, 50), false)
@@ -42,8 +43,8 @@ func setupDB() error {
 
 	collection.AddColumn("holder", db.ConstTypeVarchar, false)
 
-	collection.AddColumn("token", db.ConstTypeVarchar, true)
-	collection.AddColumn("updated", db.ConstTypeDatetime, true)
+	collection.AddColumn("token_updated", db.ConstTypeDatetime, true)
+	collection.AddColumn("created_at", db.ConstTypeDatetime, false)
 
 	return nil
 }

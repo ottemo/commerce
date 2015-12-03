@@ -3,6 +3,8 @@ package token
 import (
 	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/foundation/utils"
+	"time"
 )
 
 // GetID returns the Default Visitor Token as a string
@@ -51,11 +53,18 @@ func (it *DefaultVisitorCard) Save() error {
 		return env.ErrorDispatch(err)
 	}
 
-	if it.Token == "" || it.Payment == "" {
+	if it.tokenID == "" || it.Payment == "" {
 		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "dbd526dd-e0ae-4f43-a8cd-2da8ff3bba8a", "payment and token should be specified")
 	}
 
-	newID, err := collection.Save(it.ToHashMap())
+	if utils.IsZeroTime(it.CreatedAt) && it.GetID() == "" {
+		it.CreatedAt = time.Now()
+	}
+
+	storableValues := it.ToHashMap()
+	storableValues["token_id"] = it.tokenID
+
+	newID, err := collection.Save(storableValues)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}

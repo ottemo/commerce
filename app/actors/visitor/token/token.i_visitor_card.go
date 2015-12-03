@@ -31,7 +31,7 @@ func (it *DefaultVisitorCard) GetExpirationDate() string {
 }
 
 // GetToken will return the Token of the Visitor Card
-func (it *DefaultVisitorCard) GetToken() string { return it.Token }
+func (it *DefaultVisitorCard) GetToken() string { return it.tokenID }
 
 // IsExpired will return Expired status of the Visitor Card
 func (it *DefaultVisitorCard) IsExpired() bool {

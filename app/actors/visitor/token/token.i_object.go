@@ -5,7 +5,6 @@ import (
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
 	"strings"
-	"time"
 )
 
 // Get will return the requested attribute when provided a string representation of the attribute
@@ -13,20 +12,24 @@ func (it *DefaultVisitorCard) Get(attribute string) interface{} {
 	switch strings.ToLower(attribute) {
 	case "_id", "id":
 		return it.id
-	case "visitor_id", "visitorID":
+	case "visitor_id":
 		return it.visitorID
-	case "holder", "holder_name":
+	case "token_id":
+		return it.tokenID
+	case "holder":
 		return it.Holder
-	case "payment", "payment_code", "PaymentMethodCode":
+	case "payment":
 		return it.Payment
 	case "type":
 		return it.Type
 	case "number":
 		return it.Number
-	case "expiration_date", "expiration":
+	case "expiration_date":
 		return it.ExpirationDate
-	case "token":
-		return it.Token
+	case "token_updated":
+		return it.TokenUpdated
+	case "created_at":
+		return it.CreatedAt
 	}
 
 	return nil
@@ -38,13 +41,16 @@ func (it *DefaultVisitorCard) Set(attribute string, value interface{}) error {
 	case "_id", "id":
 		it.id = utils.InterfaceToString(value)
 
-	case "visitor_id", "visitorID":
+	case "visitor_id":
 		it.visitorID = utils.InterfaceToString(value)
 
-	case "fname", "first_name":
+	case "token_id":
+		it.tokenID = utils.InterfaceToString(value)
+
+	case "holder":
 		it.Holder = utils.InterfaceToString(value)
 
-	case "payment", "payment_code":
+	case "payment":
 		it.Payment = utils.InterfaceToString(value)
 
 	case "type":
@@ -53,11 +59,17 @@ func (it *DefaultVisitorCard) Set(attribute string, value interface{}) error {
 	case "number":
 		it.Number = utils.InterfaceToString(value)
 
-	case "expiration_date", "expiration":
+	case "expiration_date":
 		it.ExpirationDate = utils.InterfaceToString(value)
 
-	case "token":
-		it.Token = utils.InterfaceToString(value)
+	case "expire_year":
+		it.ExpirationYear = utils.InterfaceToInt(value)
+
+	case "expire_month":
+		it.ExpirationMonth = utils.InterfaceToInt(value)
+
+	case "token_updated":
+		it.TokenUpdated = utils.InterfaceToTime(value)
 	}
 	return nil
 }
@@ -88,7 +100,8 @@ func (it *DefaultVisitorCard) ToHashMap() map[string]interface{} {
 	result["type"] = it.Type
 	result["number"] = it.Number
 	result["expiration_date"] = it.ExpirationDate
-	result["token"] = it.Token
+	result["created_at"] = it.CreatedAt
+	result["token_updated"] = it.TokenUpdated
 
 	return result
 }

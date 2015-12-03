@@ -160,7 +160,7 @@ func (it *PayFlowAPI) Authorize(orderInstance order.InterfaceOrder, paymentInfo 
 		"creditCardType":    getCreditCardName(utils.InterfaceToString(responseValues.Get("CARDTYPE"))),
 	}
 
-	if visitorCreditCard != nil {
+	if visitorCreditCard != nil && visitorCreditCard.GetID() != "" {
 		orderPaymentInfo["creditCardID"] = visitorCreditCard.GetID()
 	}
 

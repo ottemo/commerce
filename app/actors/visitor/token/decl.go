@@ -4,6 +4,7 @@ package token
 import (
 	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/env"
+	"time"
 )
 
 // Package global constants
@@ -29,7 +30,10 @@ type DefaultVisitorCard struct {
 	ExpirationMonth int
 	ExpirationYear  int
 
-	Token string
+	CreatedAt    time.Time
+	TokenUpdated time.Time
+
+	tokenID string
 }
 
 // DefaultVisitorCardCollection is a default implementer of InterfaceVisitorCardCollection
