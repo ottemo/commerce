@@ -874,7 +874,7 @@ func APIFacebookLogin(context api.InterfaceApplicationContext) (interface{}, err
 	//-------------------------
 
 	// using access token to get user information
-	url := "https://graph.facebook.com/" + utils.InterfaceToString(requestData["user_id"]) + "?access_token=" + utils.InterfaceToString(requestData["access_token"])
+	url := "https://graph.facebook.com/" + utils.InterfaceToString(requestData["user_id"]) + "?access_token=" + utils.InterfaceToString(requestData["access_token"]) + "&fields=email,first_name,last_name,is_verified,verified"
 	facebookResponse, err := http.Get(url)
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
