@@ -2,10 +2,11 @@ package checkout
 
 import (
 	"github.com/ottemo/foundation/api"
-	"github.com/ottemo/foundation/app/actors/payment/zeropay"
 	"github.com/ottemo/foundation/app/models/checkout"
 	"github.com/ottemo/foundation/app/models/visitor"
 	"github.com/ottemo/foundation/env"
+
+	"github.com/ottemo/foundation/app/actors/payment/zeropay"
 	"github.com/ottemo/foundation/utils"
 )
 
@@ -128,7 +129,7 @@ func APIGetCheckout(context api.InterfaceApplicationContext) (interface{}, error
 	result["taxes"] = currentCheckout.GetTaxes()
 
 	result["discount_amount"] = currentCheckout.GetDiscountAmount()
-	result["discounts"] = currentCheckout.GetAggregatedDiscounts()
+	result["discounts"] = currentCheckout.GetDiscounts()
 
 	// prevent from showing cc values in info
 	infoMap := make(map[string]interface{})

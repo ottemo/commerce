@@ -1,8 +1,9 @@
 package coupon
 
 import (
-	"strings"
 	"time"
+
+	"strings"
 
 	"github.com/ottemo/foundation/app/models/checkout"
 	"github.com/ottemo/foundation/db"
@@ -10,22 +11,22 @@ import (
 	"github.com/ottemo/foundation/utils"
 )
 
-// GetName returns the name of the current coupon implementation
-func (it *Coupon) GetName() string {
+// GetName returns name of current discount implementation
+func (it *DefaultDiscount) GetName() string {
 	return "CouponDiscount"
 }
 
-// GetCode returns the code of the current coupon implementation
-func (it *Coupon) GetCode() string {
+// GetCode returns code of current discount implementation
+func (it *DefaultDiscount) GetCode() string {
 	return "coupon_discount"
 }
 
-// CalculateDiscount calculates and returns a set of coupons applied to the provided checkout
-func (it *Coupon) CalculateDiscount(checkoutInstance checkout.InterfaceCheckout) []checkout.StructDiscount {
+// CalculateDiscount calculates and returns a set of discounts applied to given checkout
+func (it *DefaultDiscount) CalculateDiscount(checkoutInstance checkout.InterfaceCheckout) []checkout.StructDiscount {
 
 	var result []checkout.StructDiscount
 
-	// check session for applied coupon codes
+	// checking session for applied coupon codes
 	if currentSession := checkoutInstance.GetSession(); currentSession != nil {
 
 		appliedCodes := utils.InterfaceToStringArray(currentSession.Get(ConstSessionKeyAppliedDiscountCodes))
@@ -47,30 +48,20 @@ func (it *Coupon) CalculateDiscount(checkoutInstance checkout.InterfaceCheckout)
 				return result
 			}
 
-			currentVisitor := checkoutInstance.GetVisitor()
-			visitorID := currentVisitor.GetID()
-
-			// making coupon code map for right apply order ignoring used coupons and limited
+			// making coupon code map for right apply order ignoring used coupons
 			discountCodes := make(map[string]map[string]interface{})
 			for _, record := range records {
-
-				discountsUsageQty := discountsUsage(checkoutInstance, record)
-				discountCode := utils.InterfaceToString(record["code"])
-
-				couponUsed := false
-				if usedByVisitors, present := usedCoupons[discountCode]; present && utils.IsInListStr(visitorID, usedByVisitors) {
-					couponUsed = true
-				}
-
-				if discountCode != "" && !couponUsed && discountsUsageQty > 0 {
-					record["usage_qty"] = discountsUsageQty
+				if discountCode := utils.InterfaceToString(record["code"]); discountCode != "" &&
+					!isLimited(checkoutInstance, record) {
 					discountCodes[discountCode] = record
 				}
 			}
 
-			discountPriorityValue := utils.InterfaceToFloat64(env.ConfigGetValue(ConstConfigPathDiscountApplyPriority))
+			priorityValue := utils.InterfaceToFloat64(env.ConfigGetValue(ConstConfigPathDiscountApplyPriority))
+			checkoutSubtotal := checkoutInstance.GetSubtotal()
+			var biggestDiscountApplied float64
 
-			// accumulation of coupon discounts to result
+			// applying coupon codes
 			for appliedCodesIdx, discountCode := range appliedCodes {
 				if discountCoupon, ok := discountCodes[discountCode]; ok {
 
@@ -89,68 +80,36 @@ func (it *Coupon) CalculateDiscount(checkoutInstance checkout.InterfaceCheckout)
 						// calculating coupon discount amount
 						discountAmount := utils.InterfaceToFloat64(discountCoupon["amount"])
 						discountPercent := utils.InterfaceToFloat64(discountCoupon["percent"])
-						discountTarget := utils.InterfaceToString(discountCoupon["target"])
-						discountUsageQty := utils.InterfaceToInt(discountCoupon["usage_qty"])
 
-						currentDiscount := checkout.StructDiscount{
-							Name:      utils.InterfaceToString(discountCoupon["name"]),
-							Code:      utils.InterfaceToString(discountCoupon["code"]),
-							Amount:    discountPercent,
-							IsPercent: true,
-							Priority:  discountPriorityValue,
-							Object:    checkout.ConstDiscountObjectCart,
-							Type:      it.GetCode(),
-						}
+						possibleDiscount := discountAmount + (discountPercent / 100 * checkoutSubtotal)
 
-						// case it's a cart discount we just add them to result
-						if strings.Contains(discountTarget, checkout.ConstDiscountObjectCart) || discountTarget == "" {
-							discountPercent = discountPercent * float64(discountUsageQty)
-							discountAmount = discountAmount * float64(discountUsageQty)
+						// only the biggest coupon discount will be returned
+						if possibleDiscount > biggestDiscountApplied {
+							biggestDiscountApplied = possibleDiscount
+
+							result = []checkout.StructDiscount{}
 
 							if discountPercent > 0 {
-								currentDiscount.Amount = discountPercent
-								currentDiscount.Priority = discountPriorityValue + float64(0.01)
-								result = append(result, currentDiscount)
-								discountPriorityValue += float64(0.0001)
+								result = append(result, checkout.StructDiscount{
+									Name:      utils.InterfaceToString(discountCoupon["name"]),
+									Code:      utils.InterfaceToString(discountCoupon["code"]),
+									Amount:    discountPercent,
+									IsPercent: true,
+									Priority:  priorityValue,
+								})
+								priorityValue += float64(0.0001)
 							}
 
 							if discountAmount > 0 {
-								currentDiscount.Amount = discountAmount
-								currentDiscount.IsPercent = false
-								currentDiscount.Priority = discountPriorityValue + float64(0.01)
-								result = append(result, currentDiscount)
-								discountPriorityValue += float64(0.0001)
+								result = append(result, checkout.StructDiscount{
+									Name:      utils.InterfaceToString(discountCoupon["name"]),
+									Code:      utils.InterfaceToString(discountCoupon["code"]),
+									Amount:    discountAmount,
+									IsPercent: false,
+									Priority:  priorityValue,
+								})
+								priorityValue += float64(0.0001)
 							}
-
-							continue
-						}
-
-						// parse target as array of productIDs on which we will return discounts
-						if discountPercent > 0 {
-							currentDiscount.Amount = discountPercent
-							currentDiscount.IsPercent = true
-
-							for _, productID := range utils.InterfaceToArray(discountTarget) {
-								currentDiscount.Object = utils.InterfaceToString(productID)
-								for index := 0; index < discountUsageQty; index++ {
-									result = append(result, currentDiscount)
-								}
-							}
-							discountPriorityValue += float64(0.0001)
-						}
-
-						if discountAmount > 0 {
-							currentDiscount.Amount = discountAmount
-							currentDiscount.IsPercent = false
-							currentDiscount.Priority = discountPriorityValue
-
-							for _, productID := range utils.InterfaceToArray(discountTarget) {
-								currentDiscount.Object = utils.InterfaceToString(productID)
-								for index := 0; index < discountUsageQty; index++ {
-									result = append(result, currentDiscount)
-								}
-							}
-							discountPriorityValue += float64(0.0001)
 						}
 
 					} else {
@@ -171,83 +130,36 @@ func (it *Coupon) CalculateDiscount(checkoutInstance checkout.InterfaceCheckout)
 	return result
 }
 
-// check coupon limitation parameters for correspondence to current checkout values
-// return qty of usages if coupon is allowed for current checkout and satisfies all conditions
-func discountsUsage(checkoutInstance checkout.InterfaceCheckout, couponDiscount map[string]interface{}) int {
+// checks discount limiting parameters and correspondence of current checkout to their values
+func isLimited(checkoutInstance checkout.InterfaceCheckout, couponDiscount map[string]interface{}) bool {
 
-	result := -1
 	if limits, present := couponDiscount["limits"]; present {
 		limitations := utils.InterfaceToMap(limits)
 		if len(limitations) > 0 {
 
-			productsInCart := make(map[string]int)
-
-			// collect products to one map by ID and qty
-			if currentCart := checkoutInstance.GetCart(); currentCart != nil {
-				for _, productInCart := range currentCart.GetItems() {
-					productID := productInCart.GetProductID()
-					productQty := productInCart.GetQty()
-
-					if qty, present := productsInCart[productID]; present {
-						productsInCart[productID] = qty + productQty
-						continue
-					}
-					productsInCart[productID] = productQty
-				}
+			var productsIDs []string
+			for _, productInCart := range checkoutInstance.GetCart().GetItems() {
+				productsIDs = append(productsIDs, productInCart.GetProductID())
 			}
 
-			for limitingKey, limitingValue := range limitations {
+			for key, limit := range limitations {
 
-				switch strings.ToLower(limitingKey) {
+				switch strings.ToLower(key) {
 				case "product_in_cart":
-					requiredProduct := utils.InterfaceToStringArray(limitingValue)
-					for index, productID := range requiredProduct {
-						if _, present := productsInCart[productID]; present {
+					allowedProducts := utils.InterfaceToArray(limit)
+					for index, productID := range allowedProducts {
+						if utils.IsInArray(productID, productsIDs) {
 							break
 						}
-						if index == (len(requiredProduct) - 1) {
-							return 0
-						}
-					}
-
-				case "products_in_cart":
-					requiredProducts := utils.InterfaceToStringArray(limitingValue)
-					for _, productID := range requiredProducts {
-						if _, present := productsInCart[productID]; !present {
-							return 0
-						}
-					}
-
-				case "products_in_qty":
-					requiredProducts := utils.InterfaceToMap(limitingValue)
-					for requiredProductID, requiredQty := range requiredProducts {
-						requiredQty := utils.InterfaceToInt(requiredQty)
-						if requiredQty < 1 {
-							requiredQty = 1
-						}
-						productQty, present := productsInCart[requiredProductID]
-						limitingQty := utils.InterfaceToInt(productQty / requiredQty)
-
-						if !present || limitingQty < 1 {
-							return 0
+						if index == (len(allowedProducts) - 1) {
+							return true
 						}
 
-						if result == -1 || limitingQty < result {
-							result = limitingQty
-						}
-
-					}
-				case "max_usage_qty":
-					if limitingQty := utils.InterfaceToInt(limitingValue); limitingQty >= 1 && limitingQty < result {
-						result = limitingQty
 					}
 				}
 			}
 		}
 	}
-	if result == -1 {
-		result = 1
-	}
 
-	return result
+	return false
 }
