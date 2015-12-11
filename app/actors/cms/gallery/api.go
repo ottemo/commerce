@@ -123,7 +123,7 @@ func APIAddGalleryImage(context api.InterfaceApplicationContext) (interface{}, e
 		// Handle image name, adding timestamp to image name to prevent overwriting
 		fileName = strings.TrimSpace(fileName)
 		mediaNameParts := strings.SplitN(fileName, ".", 2)
-		imageName := mediaNameParts[0] + "_" + utils.InterfaceToString(time.Now().Unix()) + "." + mediaNameParts[1]
+		imageName := mediaNameParts[0] + utils.InterfaceToString(time.Now().Nanosecond()) + "_" + utils.InterfaceToString(time.Now().Unix()) + "." + mediaNameParts[1]
 
 		// add media operation
 		//--------------------
