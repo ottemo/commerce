@@ -40,8 +40,6 @@ const (
 	ConstCalculateTargetShipping   = 2.0
 	ConstCalculateTargetGrandTotal = 3.0
 
-	ConstDiscountObjectCart = "cart"
-
 	ConstSessionKeyCurrentCheckout = "Checkout"
 
 	ConstErrorModule = "checkout"

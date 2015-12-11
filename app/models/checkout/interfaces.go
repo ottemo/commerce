@@ -34,7 +34,6 @@ type InterfaceCheckout interface {
 	GetTaxAmount() float64
 
 	GetDiscounts() []StructDiscount
-	GetAggregatedDiscounts() []StructAggregatedDiscount
 	GetDiscountAmount() float64
 
 	GetSubtotal() float64
@@ -129,15 +128,4 @@ type StructDiscount struct {
 	Amount    float64
 	IsPercent bool
 	Priority  float64
-	Object    string
-	Type      string
-}
-
-// StructAggregatedDiscount represents type to hold discount information after handling in checkout calculations
-type StructAggregatedDiscount struct {
-	Name   string
-	Code   string
-	Amount float64
-	Object map[string]int
-	Type   string
 }

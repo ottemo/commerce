@@ -7,7 +7,7 @@ import (
 	"github.com/ottemo/foundation/utils"
 )
 
-// checkoutSuccessHandler will add visitorID to usedCoupons by code of discount
+// checkoutSuccessHandler find applied coupons for this session and add them to session used coupons values
 func checkoutSuccessHandler(event string, eventData map[string]interface{}) bool {
 
 	orderPlaced, ok := eventData["order"].(order.InterfaceOrder)
