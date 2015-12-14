@@ -14,7 +14,7 @@ const (
 
 	ConstStorageModel  = "cms"
 	ConstStorageType   = "image"
-	ConstStorageObject = "gallery" // leave it to prevent loose of images from gallery
+	ConstStorageObject = "media"
 )
 
 var (
