@@ -1,4 +1,4 @@
-package gallery
+package media
 
 import (
 	"io/ioutil"
@@ -16,53 +16,26 @@ func setupAPI() error {
 
 	var err error
 
-	//	err = api.GetRestService().RegisterAPI("cms/gallery/image/:mediaName", api.ConstRESTOperationGet, APIGetGalleryImage)
-	//	if err != nil {
-	//		return env.ErrorDispatch(err)
-	//	}
-
-	err = api.GetRestService().RegisterAPI("cms/gallery/images", api.ConstRESTOperationGet, APIListGalleryImages)
+	err = api.GetRestService().RegisterAPI("cms/media", api.ConstRESTOperationGet, APIListMediaImages)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("cms/gallery/images", api.ConstRESTOperationCreate, APIAddGalleryImages)
+	err = api.GetRestService().RegisterAPI("cms/media", api.ConstRESTOperationCreate, APIAddMediaImages)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("cms/gallery/image/:mediaName", api.ConstRESTOperationDelete, APIRemoveGalleryImage)
+	err = api.GetRestService().RegisterAPI("cms/media/:mediaName", api.ConstRESTOperationDelete, APIRemoveMediaImage)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
-
-	//	err = api.GetRestService().RegisterAPI("cms/gallery/path", api.ConstRESTOperationGet, APIGetGalleryPath)
-	//	if err != nil {
-	//		return env.ErrorDispatch(err)
-	//	}
 
 	return nil
 }
 
-// APIGetGalleryPath returns relative path to gallery library
-//   - product id, media type must be specified in "productID" and "mediaType" arguments
-func APIGetGalleryPath(context api.InterfaceApplicationContext) (interface{}, error) {
-
-	mediaStorage, err := media.GetMediaStorage()
-	if err != nil {
-		return "", env.ErrorDispatch(err)
-	}
-
-	mediaPath, err := mediaStorage.GetMediaPath(ConstStorageModel, ConstStorageObject, ConstStorageType)
-	if err != nil {
-		return "", env.ErrorDispatch(err)
-	}
-
-	return mediaPath, nil
-}
-
-// APIListGalleryImages returns list of media files from gallery
-func APIListGalleryImages(context api.InterfaceApplicationContext) (interface{}, error) {
+// APIListMediaImages returns list of media files from media
+func APIListMediaImages(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	var result []interface{}
 
@@ -94,9 +67,9 @@ func APIListGalleryImages(context api.InterfaceApplicationContext) (interface{},
 	return result, nil
 }
 
-// APIAddGalleryImages uploads images to the gallery
+// APIAddMediaImages uploads images to the media
 //   - media file should be provided in "file" field with full name
-func APIAddGalleryImages(context api.InterfaceApplicationContext) (interface{}, error) {
+func APIAddMediaImages(context api.InterfaceApplicationContext) (interface{}, error) {
 	var result []interface{}
 
 	files := context.GetRequestFiles()
@@ -139,9 +112,9 @@ func APIAddGalleryImages(context api.InterfaceApplicationContext) (interface{}, 
 	return result, nil
 }
 
-// APIRemoveGalleryImage removes image from gallery
+// APIRemoveMediaImage removes image from media
 //   - media name must be specified in "mediaName" argument
-func APIRemoveGalleryImage(context api.InterfaceApplicationContext) (interface{}, error) {
+func APIRemoveMediaImage(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check request context
 	//---------------------
@@ -170,10 +143,10 @@ func APIRemoveGalleryImage(context api.InterfaceApplicationContext) (interface{}
 	return "ok", nil
 }
 
-// APIGetGalleryImage returns image from gallery
+// APIGetMediaImage returns image from media
 //   - media name must be specified in "mediaName" argument
 //   - on success case not a JSON data returns, but media file
-func APIGetGalleryImage(context api.InterfaceApplicationContext) (interface{}, error) {
+func APIGetMediaImage(context api.InterfaceApplicationContext) (interface{}, error) {
 
 	// check request context
 	//---------------------
@@ -194,4 +167,21 @@ func APIGetGalleryImage(context api.InterfaceApplicationContext) (interface{}, e
 		return "", env.ErrorDispatch(err)
 	}
 	return imageFile, nil
+}
+
+// APIGetMediaPath returns relative path to media library
+//   - product id, media type must be specified in "productID" and "mediaType" arguments
+func APIGetMediaPath(context api.InterfaceApplicationContext) (interface{}, error) {
+
+	mediaStorage, err := media.GetMediaStorage()
+	if err != nil {
+		return "", env.ErrorDispatch(err)
+	}
+
+	mediaPath, err := mediaStorage.GetMediaPath(ConstStorageModel, ConstStorageObject, ConstStorageType)
+	if err != nil {
+		return "", env.ErrorDispatch(err)
+	}
+
+	return mediaPath, nil
 }
