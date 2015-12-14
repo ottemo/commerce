@@ -26,7 +26,7 @@ func setupAPI() error {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("cms/gallery/images", api.ConstRESTOperationCreate, APIAddGalleryImage)
+	err = api.GetRestService().RegisterAPI("cms/gallery/images", api.ConstRESTOperationCreate, APIAddGalleryImages)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
@@ -94,9 +94,9 @@ func APIListGalleryImages(context api.InterfaceApplicationContext) (interface{},
 	return result, nil
 }
 
-// APIAddGalleryImage uploads images to the gallery
+// APIAddGalleryImages uploads images to the gallery
 //   - media file should be provided in "file" field with full name
-func APIAddGalleryImage(context api.InterfaceApplicationContext) (interface{}, error) {
+func APIAddGalleryImages(context api.InterfaceApplicationContext) (interface{}, error) {
 	var result []interface{}
 
 	files := context.GetRequestFiles()
@@ -112,7 +112,7 @@ func APIAddGalleryImage(context api.InterfaceApplicationContext) (interface{}, e
 	for fileName, fileReader := range files {
 		fileContent, err := ioutil.ReadAll(fileReader)
 		if err != nil {
-			return nil, env.ErrorDispatch(err)
+			return result, env.ErrorDispatch(err)
 		}
 
 		if !strings.Contains(fileName, ".") {
@@ -120,14 +120,12 @@ func APIAddGalleryImage(context api.InterfaceApplicationContext) (interface{}, e
 			continue
 		}
 
-		// Handle image name, adding timestamp to image name to prevent overwriting
+		// Handle image name, adding unique values to name
 		fileName = strings.TrimSpace(fileName)
 		mediaNameParts := strings.SplitN(fileName, ".", 2)
 		imageName := mediaNameParts[0] + utils.InterfaceToString(time.Now().Nanosecond()) + "_" + utils.InterfaceToString(time.Now().Unix()) + "." + mediaNameParts[1]
 
-		// add media operation
-		//--------------------
-
+		// save to media storage operation
 		err = mediaStorage.Save(ConstStorageModel, ConstStorageObject, ConstStorageType, imageName, fileContent)
 		if err != nil {
 			env.ErrorDispatch(err)
