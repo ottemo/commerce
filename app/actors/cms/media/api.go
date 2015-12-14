@@ -37,40 +37,23 @@ func setupAPI() error {
 // APIListMediaImages returns list of media files from media
 func APIListMediaImages(context api.InterfaceApplicationContext) (interface{}, error) {
 
-	var result []interface{}
-
 	mediaStorage, err := media.GetMediaStorage()
 	if err != nil {
 		return nil, env.ErrorDispatch(err)
 	}
 
-	mediaList, err := mediaStorage.ListMedia(ConstStorageModel, ConstStorageObject, ConstStorageType)
-	if err != nil {
-		return nil, env.ErrorDispatch(err)
-	}
-
-	path, err := mediaStorage.GetMediaPath(ConstStorageModel, ConstStorageObject, ConstStorageType)
-	if err != nil {
-		return nil, env.ErrorDispatch(err)
-	}
-
-	mediaBasePath := utils.InterfaceToString(env.ConfigGetValue("general.app.media_base_url"))
-	path = mediaBasePath + "/" + path
-
-	for _, mediaName := range mediaList {
-		mediaNameParts := strings.SplitN(mediaName, ".", 2)
-		creationDate := utils.InterfaceToTime(mediaNameParts[0][strings.LastIndex(mediaNameParts[0], "_")+1:])
-
-		result = append(result, map[string]string{"name": mediaName, "url": path + mediaName, "created_at": creationDate.String()})
-	}
-
-	return result, nil
+	return mediaStorage.ListMediaDetail(ConstStorageModel, ConstStorageObject, ConstStorageType)
 }
 
 // APIAddMediaImages uploads images to the media
 //   - media file should be provided in "file" field with full name
 func APIAddMediaImages(context api.InterfaceApplicationContext) (interface{}, error) {
 	var result []interface{}
+
+	// check rights
+	if err := api.ValidateAdminRights(context); err != nil {
+		return nil, env.ErrorDispatch(err)
+	}
 
 	files := context.GetRequestFiles()
 	if len(files) == 0 {
@@ -89,24 +72,24 @@ func APIAddMediaImages(context api.InterfaceApplicationContext) (interface{}, er
 		}
 
 		if !strings.Contains(fileName, ".") {
-			result = append(result, "Image: '"+fileName+"' should contain extension")
+			result = append(result, "Image: '"+fileName+"', should contain extension")
 			continue
 		}
 
 		// Handle image name, adding unique values to name
 		fileName = strings.TrimSpace(fileName)
 		mediaNameParts := strings.SplitN(fileName, ".", 2)
-		imageName := mediaNameParts[0] + utils.InterfaceToString(time.Now().Nanosecond()) + "_" + utils.InterfaceToString(time.Now().Unix()) + "." + mediaNameParts[1]
+		imageName := mediaNameParts[0] + "_" + utils.InterfaceToString(time.Now().Nanosecond()) + "." + mediaNameParts[1]
 
 		// save to media storage operation
 		err = mediaStorage.Save(ConstStorageModel, ConstStorageObject, ConstStorageType, imageName, fileContent)
 		if err != nil {
 			env.ErrorDispatch(err)
-			result = append(result, "Image: '"+fileName+"' returned error on save")
+			result = append(result, "Image: '"+fileName+"', returned error on save")
 			continue
 		}
 
-		result = append(result, fileName+": "+imageName)
+		result = append(result, "ok")
 	}
 
 	return result, nil
