@@ -17,47 +17,47 @@ import (
 func setupAPI() error {
 	var err error
 
-	err = api.GetRestService().RegisterAPI("discounts/coupons", api.ConstRESTOperationGet, List)
+	err = api.GetRestService().RegisterAPI("coupons", api.ConstRESTOperationGet, List)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("discounts/coupons", api.ConstRESTOperationCreate, Create)
+	err = api.GetRestService().RegisterAPI("coupons", api.ConstRESTOperationCreate, Create)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("discounts/coupons/apply/:coupon", api.ConstRESTOperationGet, Apply)
+	err = api.GetRestService().RegisterAPI("coupons/csv/download", api.ConstRESTOperationGet, DownloadCSV)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("discounts/coupons/revert/:coupon", api.ConstRESTOperationGet, Revert)
+	err = api.GetRestService().RegisterAPI("coupons/csv/upload", api.ConstRESTOperationCreate, UploadCSV)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("discounts/coupons/csv", api.ConstRESTOperationGet, DownloadCSV)
+	err = api.GetRestService().RegisterAPI("coupons/item/:id/apply", api.ConstRESTOperationGet, Apply)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("discounts/coupons/csv", api.ConstRESTOperationCreate, UploadCSV)
+	err = api.GetRestService().RegisterAPI("coupons/item/:id/revert", api.ConstRESTOperationGet, Revert)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("discounts/coupons/:couponID", api.ConstRESTOperationGet, GetByID)
+	err = api.GetRestService().RegisterAPI("coupons/item/:id", api.ConstRESTOperationGet, GetByID)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("discounts/coupons/:couponID", api.ConstRESTOperationUpdate, UpdateByID)
+	err = api.GetRestService().RegisterAPI("coupons/item/:id", api.ConstRESTOperationUpdate, UpdateByID)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("discounts/coupons/:couponID", api.ConstRESTOperationDelete, DeleteByID)
+	err = api.GetRestService().RegisterAPI("coupons/item/:id", api.ConstRESTOperationDelete, DeleteByID)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
