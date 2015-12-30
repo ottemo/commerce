@@ -225,9 +225,67 @@ func (it *DefaultCheckout) GetDiscounts() []checkout.StructDiscount {
 		it.discountsCalculateFlag = true
 
 		it.Discounts = make([]checkout.StructDiscount, 0)
+		applicableProductDiscounts := make(map[string][]checkout.StructDiscount)
+
 		for _, discount := range checkout.GetRegisteredDiscounts() {
 			for _, discountValue := range discount.CalculateDiscount(it) {
-				it.Discounts = append(it.Discounts, discountValue)
+				if discountValue.Object == checkout.ConstDiscountObjectCart {
+					it.Discounts = append(it.Discounts, discountValue)
+					continue
+				} else {
+					applicableProductDiscounts[discountValue.Object] = append(applicableProductDiscounts[discountValue.Object], discountValue)
+				}
+			}
+		}
+
+		currentCart := it.GetCart()
+		if currentCart == nil {
+			it.discountsCalculateFlag = false
+			return it.Discounts
+		}
+
+		// adding to discounts the biggest applicable discount per product
+		for _, productInCart := range currentCart.GetItems() {
+
+			if cartProduct := productInCart.GetProduct(); cartProduct != nil {
+				cartProduct.ApplyOptions(productInCart.GetOptions())
+				productPrice := cartProduct.GetPrice()
+				productID := productInCart.GetProductID()
+				productQty := productInCart.GetQty()
+
+				for i := 0; i < productQty; i++ {
+					productDiscounts, present := applicableProductDiscounts[productID]
+
+					if present && len(productDiscounts) > 0 {
+						var biggestAppliedDiscount checkout.StructDiscount
+						var biggestAppliedDiscountIndex int
+
+						for index, productDiscount := range productDiscounts {
+							productDiscountableAmount := productDiscount.Amount
+
+							if productDiscount.IsPercent {
+								productDiscountableAmount = productPrice * productDiscount.Amount / 100
+							}
+
+							if biggestAppliedDiscount.Amount < productDiscountableAmount {
+								biggestAppliedDiscount = productDiscount
+								biggestAppliedDiscount.Amount = productDiscountableAmount
+								biggestAppliedDiscount.IsPercent = false
+								biggestAppliedDiscountIndex = index
+							}
+						}
+
+						var newProductDiscounts []checkout.StructDiscount
+						for index, productDiscount := range productDiscounts {
+							if index != biggestAppliedDiscountIndex {
+								newProductDiscounts = append(newProductDiscounts, productDiscount)
+							}
+						}
+
+						it.Discounts = append(it.Discounts, biggestAppliedDiscount)
+						applicableProductDiscounts[productID] = newProductDiscounts
+					}
+				}
 			}
 		}
 
@@ -235,6 +293,46 @@ func (it *DefaultCheckout) GetDiscounts() []checkout.StructDiscount {
 	}
 
 	return it.Discounts
+}
+
+// GetAggregatedDiscounts returns aggregated total of used discounts
+func (it *DefaultCheckout) GetAggregatedDiscounts() []checkout.StructAggregatedDiscount {
+	var result []checkout.StructAggregatedDiscount
+
+	groupedDiscounts := make(map[string]checkout.StructAggregatedDiscount)
+	usedDiscounts := it.GetDiscounts()
+
+	for _, currentDiscount := range usedDiscounts {
+		key := currentDiscount.Code + currentDiscount.Type
+		var groupedDiscount checkout.StructAggregatedDiscount
+
+		if savedDiscount, present := groupedDiscounts[key]; present {
+			groupedDiscount = savedDiscount
+
+			groupedDiscount.Amount = groupedDiscount.Amount + currentDiscount.Amount
+
+			if _, present := groupedDiscount.Object[currentDiscount.Object]; present {
+				groupedDiscount.Object[currentDiscount.Object]++
+			} else {
+				groupedDiscount.Object[currentDiscount.Object] = 1
+			}
+		} else {
+			groupedDiscount.Code = currentDiscount.Code
+			groupedDiscount.Name = currentDiscount.Name
+			groupedDiscount.Amount = currentDiscount.Amount
+			groupedDiscount.Type = currentDiscount.Type
+
+			groupedDiscount.Object = map[string]int{currentDiscount.Object: 1}
+		}
+
+		groupedDiscounts[key] = groupedDiscount
+	}
+
+	for _, discount := range groupedDiscounts {
+		result = append(result, discount)
+	}
+
+	return result
 }
 
 // GetSubtotal returns subtotal total for current checkout
