@@ -27,37 +27,37 @@ func setupAPI() error {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("coupons/csv/download", api.ConstRESTOperationGet, DownloadCSV)
+	err = api.GetRestService().RegisterAPI("csv/coupons", api.ConstRESTOperationGet, DownloadCSV)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("coupons/csv/upload", api.ConstRESTOperationCreate, UploadCSV)
+	err = api.GetRestService().RegisterAPI("csv/coupons", api.ConstRESTOperationCreate, UploadCSV)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("coupons/item/:id/apply", api.ConstRESTOperationGet, Apply)
+	err = api.GetRestService().RegisterAPI("cart/coupons", api.ConstRESTOperationCreate, Apply)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("coupons/item/:id/revert", api.ConstRESTOperationGet, Revert)
+	err = api.GetRestService().RegisterAPI("cart/coupons/:code", api.ConstRESTOperationDelete, Revert)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("coupons/item/:id", api.ConstRESTOperationGet, GetByID)
+	err = api.GetRestService().RegisterAPI("coupons/:id", api.ConstRESTOperationGet, GetByID)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("coupons/item/:id", api.ConstRESTOperationUpdate, UpdateByID)
+	err = api.GetRestService().RegisterAPI("coupons/:id", api.ConstRESTOperationUpdate, UpdateByID)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
 
-	err = api.GetRestService().RegisterAPI("coupons/item/:id", api.ConstRESTOperationDelete, DeleteByID)
+	err = api.GetRestService().RegisterAPI("coupons/:id", api.ConstRESTOperationDelete, DeleteByID)
 	if err != nil {
 		return env.ErrorDispatch(err)
 	}
