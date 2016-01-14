@@ -14,8 +14,6 @@ const (
 	ConstModelNameVisitorCollection        = "VisitorCollection"
 	ConstModelNameVisitorAddress           = "VisitorAddress"
 	ConstModelNameVisitorAddressCollection = "VisitorAddressCollection"
-	ConstModelNameVisitorCard              = "VisitorCard"
-	ConstModelNameVisitorCardCollection    = "VisitorCardCollection"
 
 	ConstSessionKeyVisitorID = "visitor_id"
 
@@ -101,33 +99,6 @@ type InterfaceVisitorAddress interface {
 // InterfaceVisitorAddressCollection represents interface to access business layer implementation of visitor address collection
 type InterfaceVisitorAddressCollection interface {
 	ListVisitorsAddresses() []InterfaceVisitorAddress
-
-	models.InterfaceCollection
-}
-
-// InterfaceVisitorCard represents interface to access business layer implementation of visitor card object
-type InterfaceVisitorCard interface {
-	GetVisitorID() string
-
-	GetHolderName() string
-	GetPaymentMethod() string
-
-	GetType() string
-	GetNumber() string
-	GetExpirationDate() string
-
-	GetToken() string
-
-	IsExpired() bool
-
-	models.InterfaceModel
-	models.InterfaceObject
-	models.InterfaceStorable
-}
-
-// InterfaceVisitorCardCollection represents interface to access business layer implementation of visitor card collection
-type InterfaceVisitorCardCollection interface {
-	ListVisitorsCards() []InterfaceVisitorCard
 
 	models.InterfaceCollection
 }

@@ -44,9 +44,8 @@ const (
 
 	ConstConfigPathPayPalPayflowGroup = "payment.paypalpayflow"
 
-	ConstConfigPathPayPalPayflowEnabled   = "payment.paypalpayflow.enabled"
-	ConstConfigPathPayPalPayflowTokenable = "payment.paypalpayflow.tokanable"
-	ConstConfigPathPayPalPayflowTitle     = "payment.paypalpayflow.title"
+	ConstConfigPathPayPalPayflowEnabled = "payment.paypalpayflow.enabled"
+	ConstConfigPathPayPalPayflowTitle   = "payment.paypalpayflow.title"
 
 	ConstConfigPathPayPalPayflowURL  = "payment.paypalpayflow.url"
 	ConstConfigPathPayPalPayflowHost = "payment.paypalpayflow.host"
