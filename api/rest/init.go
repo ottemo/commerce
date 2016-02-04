@@ -10,7 +10,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-// init makes package self-initialization routine
+// init performs the package self-initialization routine
 func init() {
 	var _ api.InterfaceApplicationContext = new(DefaultRestApplicationContext)
 
@@ -32,12 +32,11 @@ func (it *DefaultRestService) startup() error {
 
 	it.Router = httprouter.New()
 
-	it.Router.PanicHandler = func(resp http.ResponseWriter, req *http.Request, params interface{}) {
-		resp.WriteHeader(404)
-		resp.Write([]byte("page not found"))
+	it.Router.PanicHandler = func(w http.ResponseWriter, r *http.Request, params interface{}) {
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte("page not found"))
 	}
 
-	// our homepage - shows all registered API in text representation
 	it.Router.GET("/", it.rootPageHandler)
 
 	api.OnRestServiceStart()
@@ -46,21 +45,22 @@ func (it *DefaultRestService) startup() error {
 }
 
 // rootPageHandler Display a list of the registered endpoints
-func (it *DefaultRestService) rootPageHandler(resp http.ResponseWriter, req *http.Request, params httprouter.Params) {
+func (it *DefaultRestService) rootPageHandler(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 	newline := []byte("\n")
 
-	resp.Header().Add("Content-Type", "text/plain")
+	w.Header().Add("Content-Type", "text/plain")
+	w.WriteHeader(http.StatusOK)
 
-	resp.Write([]byte("Ottemo REST API:"))
-	resp.Write(newline)
-	resp.Write([]byte("----"))
-	resp.Write(newline)
+	w.Write([]byte("Ottemo REST API:"))
+	w.Write(newline)
+	w.Write([]byte("----"))
+	w.Write(newline)
 
 	// sorting handlers before output
 	sort.Strings(it.Handlers)
 
 	for _, handlerPath := range it.Handlers {
-		resp.Write([]byte(handlerPath))
-		resp.Write(newline)
+		w.Write([]byte(handlerPath))
+		w.Write(newline)
 	}
 }
