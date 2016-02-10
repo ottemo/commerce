@@ -2,7 +2,6 @@ package rts
 
 import (
 	"fmt"
-	"net/http"
 	"time"
 
 	"github.com/ottemo/foundation/api"
@@ -19,32 +18,28 @@ func setupAPI() error {
 	service := api.GetRestService()
 
 	service.POST("rts/visit", APIRegisterVisit)
-	service.GET("rts/referrers", APIGetReferrers)
+
 	service.GET("rts/visits", APIGetVisits)
 	service.GET("rts/visits/detail/:from/:to", APIGetVisitsDetails)
-	service.GET("rts/conversion", APIGetConversion)
+	service.GET("rts/visits/realtime", APIGetVisitsRealtime)
+
 	service.GET("rts/sales", APIGetSales)
 	service.GET("rts/sales/detail/:from/:to", APIGetSalesDetails)
+
+	service.GET("rts/conversion", APIGetConversion)
 	service.GET("rts/bestsellers", APIGetBestsellers)
-	service.GET("rts/visits/realtime", APIGetVisitsRealtime)
+	service.GET("rts/referrers", APIGetReferrers)
 
 	return nil
 }
 
 // APIRegisterVisit registers request for a statistics
 func APIRegisterVisit(context api.InterfaceApplicationContext) (interface{}, error) {
-	if httpRequest, ok := context.GetRequest().(*http.Request); ok && httpRequest != nil {
-		if httpResponseWriter, ok := context.GetResponseWriter().(http.ResponseWriter); ok && httpResponseWriter != nil {
-			xReferrer := utils.InterfaceToString(httpRequest.Header.Get("X-Referer"))
+	// Variables in post; path=/shop/cleaning-products, referrer=http://google.com
+	// In headers; Referrer=http://karigran.com/shop/cleaning-products
+	eventData := map[string]interface{}{"session": context.GetSession(), "context": context}
+	env.Event("api.rts.visit", eventData)
 
-			http.SetCookie(httpResponseWriter, &http.Cookie{Name: "X_Referrer", Value: xReferrer, Path: "/"})
-
-			eventData := map[string]interface{}{"session": context.GetSession(), "context": context}
-			env.Event("api.rts.visit", eventData)
-
-			return nil, nil
-		}
-	}
 	return nil, nil
 }
 
