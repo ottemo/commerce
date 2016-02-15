@@ -76,7 +76,7 @@ func APICreateToken(context api.InterfaceApplicationContext) (interface{}, error
 	}
 
 	cardInfoMap := utils.InterfaceToMap(paymentResult)
-	if !utils.KeysInMapAndNotBlank(cardInfoMap, "transactionID", "creditCardLastFour") {
+	if !utils.KeysInMapAndNotBlank(cardInfoMap, "transactionID") {
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "22e17290-56f3-452a-8d54-18d5a9eb2833", "transaction can't be obtained")
 	}
 
@@ -109,7 +109,7 @@ func APICreateToken(context api.InterfaceApplicationContext) (interface{}, error
 		return nil, env.ErrorDispatch(err)
 	}
 
-	return tokenRecord, nil
+	return visitorCardModel.ToHashMap(), nil
 }
 
 // APIListVisitorCards return a list of existing tokens for visitor
