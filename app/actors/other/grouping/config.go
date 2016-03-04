@@ -16,7 +16,7 @@ func setupConfig() error {
 	validateNewRules := func(newRulesValues interface{}) (interface{}, error) {
 
 		// taking rules as array
-		if newRulesValues != nil {
+		if newRulesValues != "" {
 			rules, err := utils.DecodeJSONToArray(newRulesValues)
 			if err != nil {
 				return nil, err
@@ -53,18 +53,19 @@ func setupConfig() error {
 	// grouping rules config setup
 	//----------------------------
 	err := config.RegisterItem(env.StructConfigItem{
-		Path:        ConstGroupingConfigPath,
-		Value:       ``,
-		Type:        env.ConstConfigTypeText,
-		Editor:      "multiline_text",
-		Options:     "",
-		Label:       "Rules for grouping items",
-		Description: "Rules must be in JSON format",
-		// Description: `products grouping rules, pattern:
-		//  [
-		//  {"group": [{"pid": "id1", "qty": 1 }, ...],
-		//   "into":  [{"pid": "id2", "qty": 1, "options": {"color": "red"}, ...]
-		//  }, ... ]`,
+		Path:    ConstGroupingConfigPath,
+		Value:   ``,
+		Type:    env.ConstConfigTypeText,
+		Editor:  "multiline_text",
+		Options: "",
+		Label:   "Rules for grouping items",
+		Description: `Rules must be in JSON format:
+[
+	{
+		"group": [{ "pid": "id1", "qty": 1 }, ...],
+		"into":  [{ "pid": "id2", "qty": 1, "options": {"color": "red"}, ...]
+	}, ...
+]`,
 		Image: "",
 	}, env.FuncConfigValueValidator(validateNewRules))
 
