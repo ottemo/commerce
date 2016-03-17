@@ -6,7 +6,9 @@ env:
         - SLACK_ORG=Ottemo PROJECT=Foundation
         - secure: T2ImzTpns/H12TPzWD+/XYWBJzvLdIdBj2rzO7EgCezxBRk3EcixCCcj6ImXKxk7kyCMHJR/fALjoE7u7elHG9Y+TmtR7useu95TMVekO66RD702jrEu4LA7tUGvDfBzTw8Dr4PVeCjr0NFQlJ/z1XHk9knrsHEXydHRtQ4ciN/DTw4M1yVImp3VXYMpOePCGIfjcYA20M8/ZvTZA9Nv5f/eBcGZbPLsNCdvMasUEekWwpZzJvXycX7tS7EYc5kUZdqzpHpToY1/HYLtcLm4qmILUahWiaMKAYloA0nT/FCUcPpZLCOf0hhm9nNaEuE1YfA/3anAhBu89rqqSPzM5Q==
 
-before_install:
+build:
+    pre_ci:
+        - sudo apt-get install bazaar bzr -y
 
 cache: false
 
