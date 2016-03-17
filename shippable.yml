@@ -8,7 +8,7 @@ env:
 
 build:
     pre_ci:
-        - sudo apt-get install bazaar bzr -y
+        - sudo apt-get install bzr -y
 
 cache: false
 
