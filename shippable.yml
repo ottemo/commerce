@@ -8,13 +8,16 @@ env:
 
 build:
     pre_ci:
+
+    ci:
         - sudo apt-get install bzr -y
+
 
 cache: false
 
-install: 
+install:
 
-script: 
+script:
     - go version
 
 # only build develop
