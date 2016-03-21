@@ -39,3 +39,4 @@ integrations:
             on_success: never
             on_failure: never
             on_pull_request: never
+
