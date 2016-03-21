@@ -35,8 +35,7 @@ integrations:
     notifications:
 
         - integrationName: email
-            type: email
-            on_success: never
-            on_failure: never
-            on_pull_request: never
-
+        type: email
+        on_success: never
+        on_failure: never
+        on_pull_request: never
