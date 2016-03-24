@@ -39,11 +39,12 @@ type BillingAddress struct {
 }
 
 type ShippingAddress struct {
-	Name     string
-	Address1 string
-	City     string
-	State    string
-	Country  string
+	Name       string
+	Address1   string
+	City       string
+	State      string
+	PostalCode string
+	Country    string
 }
 
 type OrderItem struct {

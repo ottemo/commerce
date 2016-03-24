@@ -163,11 +163,12 @@ func buildItem(oItem order.InterfaceOrder, allOrderItems []map[string]interface{
 
 	oShipAddress := oItem.GetShippingAddress()
 	orderDetails.Customer.ShippingAddress = ShippingAddress{
-		Name:     oShipAddress.GetFirstName() + " " + oShipAddress.GetLastName(),
-		Address1: oShipAddress.GetAddressLine1(),
-		City:     oShipAddress.GetCity(),
-		State:    oShipAddress.GetState(),
-		Country:  oShipAddress.GetCountry(),
+		Name:       oShipAddress.GetFirstName() + " " + oShipAddress.GetLastName(),
+		Address1:   oShipAddress.GetAddressLine1(),
+		City:       oShipAddress.GetCity(),
+		State:      oShipAddress.GetState(),
+		PostalCode: oShipAddress.GetZipCode(),
+		Country:    oShipAddress.GetCountry(),
 	}
 
 	// Order Items
