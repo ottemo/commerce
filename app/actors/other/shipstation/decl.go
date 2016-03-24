@@ -18,8 +18,9 @@ type Order struct {
 	OrderDate      string // Set to string because we can't control the date formatting otherwise
 	OrderStatus    string
 	LastModified   string // Same formatting issue
-	OrderTotal     float64
+	TaxAmount      float64
 	ShippingAmount float64
+	OrderTotal     float64
 
 	// Containers
 	Customer Customer

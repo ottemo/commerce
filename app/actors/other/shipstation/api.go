@@ -149,8 +149,9 @@ func buildItem(oItem order.InterfaceOrder, allOrderItems []map[string]interface{
 		OrderDate:      createdAt.Format(outputDateFormat),
 		OrderStatus:    oItem.GetStatus(),
 		LastModified:   updatedAt.Format(outputDateFormat),
-		OrderTotal:     oItem.GetGrandTotal(),
+		TaxAmount:      oItem.GetTaxAmount(),
 		ShippingAmount: oItem.GetShippingAmount(),
+		OrderTotal:     oItem.GetGrandTotal(),
 	}
 
 	// Customer Details
