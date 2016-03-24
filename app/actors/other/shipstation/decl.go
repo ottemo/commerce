@@ -13,7 +13,7 @@ type Orders struct {
 }
 
 type Order struct {
-	OrderId        string
+	OrderId        string `xml:"OrderID"`
 	OrderNumber    string
 	OrderDate      string // Set to string because we can't control the date formatting otherwise
 	OrderStatus    string
