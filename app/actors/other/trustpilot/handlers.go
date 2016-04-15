@@ -81,16 +81,16 @@ func checkoutSuccessHandler(event string, eventData map[string]interface{}) bool
 	}
 
 	if checkoutOrder != nil && checkoutCart != nil {
-		go sendOrderInfo(checkoutOrder, checkoutCart)
+		go SendOrderInfo(checkoutOrder, checkoutCart)
 	}
 
 	return true
 }
 
-// sendOrderInfo Makes requests to the trustpilot api to obtain an access token, then a product review url, then a
+// SendOrderInfo Makes requests to the trustpilot api to obtain an access token, then a product review url, then a
 // service review url. This last url is then saved to the order so that we can setup a cronjob to email customers
 // at any given time.
-func sendOrderInfo(checkoutOrder order.InterfaceOrder, currentCart cart.InterfaceCart) error {
+func SendOrderInfo(checkoutOrder order.InterfaceOrder, currentCart cart.InterfaceCart) error {
 
 	isEnabled := utils.InterfaceToBool(env.ConfigGetValue(ConstConfigPathTrustPilotEnabled))
 	if !isEnabled {
