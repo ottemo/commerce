@@ -8,10 +8,11 @@ import (
 	"os"
 	"strings"
 
+	"time"
+
 	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
-	"time"
 )
 
 // GetName returns the media storage name
