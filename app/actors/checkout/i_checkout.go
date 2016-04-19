@@ -357,7 +357,7 @@ func (it *DefaultCheckout) applyPriceAdjustment(priceAdjustment checkout.StructP
 
 		// prevent negative values of grand total
 		if amount+it.calculateAmount < 0 {
-			amount = it.calculateAmount
+			amount = it.calculateAmount * -1
 		}
 
 		// affecting grand total of a cart
