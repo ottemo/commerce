@@ -274,7 +274,7 @@ func getProductReviewLink(requestData ProductReview, businessID string, accessTo
 		return "", env.ErrorDispatch(err)
 	}
 
-	reviewLinkI, ok := jsonResponse["reviewURL"]
+	reviewLinkI, ok := jsonResponse["reviewUrl"]
 	if !ok {
 		errorMessage := "Review link empty"
 		return "", env.ErrorNew(ConstErrorModule, 1, "c53fd02f-2f5d-4111-8318-69a2cc2d2259", errorMessage)
