@@ -5,6 +5,7 @@ import (
 	"github.com/ottemo/foundation/db"
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
+	"strings"
 )
 
 // GetName returns name of current discount implementation
@@ -20,16 +21,64 @@ func (it *DefaultGiftcard) GetCode() string {
 // GetPriority returns the code of the current coupon implementation
 func (it *DefaultGiftcard) GetPriority() []float64 {
 	// adding this first value of priority to make PA that will reduce GT of gift cards by 100% right after subtotal calculation
-	return []float64{checkout.ConstCalculateTargetSubtotal, utils.InterfaceToFloat64(env.ConfigGetValue(ConstConfigPathGiftCardApplyPriority))}
+	return []float64{checkout.ConstCalculateTargetSubtotal, utils.InterfaceToFloat64(env.ConfigGetValue(ConstConfigPathGiftCardApplyPriority)), checkout.ConstCalculateTargetGrandTotal}
 }
 
 // Calculate calculates and returns amount and set of applied gift card discounts to given checkout
-func (it *DefaultGiftcard) Calculate(checkoutInstance checkout.InterfaceCheckout) []checkout.StructPriceAdjustment {
+func (it *DefaultGiftcard) Calculate(checkoutInstance checkout.InterfaceCheckout, currentPriority float64) []checkout.StructPriceAdjustment {
 	var result []checkout.StructPriceAdjustment
+	giftCardSkuElement := checkout.GiftCardSkuElement
 
-	// TODO: First: discount cart items with gift card
-	// Second: Apply Gift Cart discount for grand total
-	// TODO: Third: Return gift card subtotal amount
+	// discount gift cards on 100%, so they wouldn't be discounted or taxed
+	if currentPriority == checkout.ConstCalculateTargetSubtotal {
+		items := checkoutInstance.GetItems()
+		perItem := make(map[string]float64)
+		for _, item := range items {
+			if productItem := item.GetProduct(); productItem != nil && strings.Contains(productItem.GetSku(), giftCardSkuElement) {
+				perItem[utils.InterfaceToString(item.GetIdx())] = -100 // -100%
+			}
+		}
+		if perItem == nil || len(perItem) == 0 {
+			return result
+		}
+		result = append(result, checkout.StructPriceAdjustment{
+			Code:      it.GetCode(),
+			Name:      it.GetName(),
+			Amount:    -100,
+			IsPercent: true,
+			Priority:  checkout.ConstCalculateTargetSubtotal,
+			Labels:    []string{checkout.ConstLabelGiftCardAdjustment},
+			PerItem:   perItem,
+		})
+
+		return result
+	}
+	// restore gift cards amounts as they basic subtotal
+	if currentPriority == checkout.ConstCalculateTargetGrandTotal {
+
+		items := checkoutInstance.GetItems()
+		perItem := make(map[string]float64)
+		for _, item := range items {
+			if productItem := item.GetProduct(); productItem != nil && strings.Contains(productItem.GetSku(), giftCardSkuElement) {
+				index := utils.InterfaceToString(item.GetIdx())
+				perItem[index] = checkoutInstance.GetItemSpecificTotal(index, checkout.ConstLabelSubtotal)
+			}
+		}
+		if perItem == nil || len(perItem) == 0 {
+			return result
+		}
+		result = append(result, checkout.StructPriceAdjustment{
+			Code:      it.GetCode(),
+			Name:      it.GetName(),
+			Amount:    0,
+			IsPercent: false,
+			Priority:  checkout.ConstCalculateTargetGrandTotal,
+			Labels:    []string{checkout.ConstLabelGiftCardAdjustment},
+			PerItem:   perItem,
+		})
+
+		return result
+	}
 
 	// checking session for applied gift cards codes
 	if currentSession := checkoutInstance.GetSession(); currentSession != nil {

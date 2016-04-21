@@ -13,6 +13,7 @@ import (
 	"github.com/ottemo/foundation/app/models/order"
 	"github.com/ottemo/foundation/app/models/subscription"
 	"github.com/ottemo/foundation/app/models/visitor"
+	"strings"
 )
 
 // SetShippingAddress sets shipping address for checkout
@@ -251,6 +252,21 @@ func (it *DefaultCheckout) GetItems() []cart.InterfaceCartItem {
 	return nil
 }
 
+// GetDiscountableItems returns current cart items that can be discounted (not a gift cards)
+func (it *DefaultCheckout) GetDiscountableItems() []cart.InterfaceCartItem {
+	if items := it.GetItems(); items != nil {
+		var result []cart.InterfaceCartItem
+		for _, item := range items {
+			// this method should be updated to general product type usage
+			if !strings.Contains(item.GetProduct().GetSku(), checkout.GiftCardSkuElement) {
+				result = append(result, item)
+			}
+		}
+		return result
+	}
+	return nil
+}
+
 // GetShippingAmount returns shipping price for current checkout
 func (it *DefaultCheckout) GetShippingAmount() float64 {
 	return it.GetItemSpecificTotal(0, checkout.ConstLabelShipping)
@@ -325,9 +341,8 @@ func (it *DefaultCheckout) GetItemSpecificTotal(idx interface{}, label string) f
 	return 0
 }
 
-// applyAmount applies amounts to checkout detail calculaltion map
+// applyAmount applies amounts to checkout detail calculation map
 func (it *DefaultCheckout) applyAmount(idx interface{}, label string, amount float64) {
-	amount = utils.RoundPrice(amount)
 	index := utils.InterfaceToInt(idx)
 	if index != 0 {
 		it.getItemTotals(index)[label] = utils.RoundPrice(amount + it.GetItemSpecificTotal(index, label))
@@ -352,17 +367,18 @@ func (it *DefaultCheckout) applyPriceAdjustment(priceAdjustment checkout.StructP
 		amount := priceAdjustment.Amount
 		if priceAdjustment.IsPercent {
 			// current grand total will be changed on some percentage
-			amount = it.GetItemSpecificTotal(0, checkout.ConstLabelGrandTotal) * priceAdjustment.Amount / 100
+			amount = it.GetItemSpecificTotal(0, checkout.ConstLabelGrandTotal) * amount / 100
 		}
 
 		// prevent negative values of grand total
-		if amount+it.calculateAmount < 0 {
+		if amount+it.calculateAmount < -0.001 {
 			amount = it.calculateAmount * -1
 		}
 
 		// affecting grand total of a cart
+		amount = utils.RoundPrice(amount)
 		it.applyAmount(0, checkout.ConstLabelGrandTotal, amount)
-		totalPriceAdjustmentAmount += utils.RoundPrice(amount)
+		totalPriceAdjustmentAmount += amount
 
 		// cart details show amount was applied by Types
 		for _, label := range priceAdjustment.Labels {
@@ -375,22 +391,23 @@ func (it *DefaultCheckout) applyPriceAdjustment(priceAdjustment checkout.StructP
 		for index, amount := range priceAdjustment.PerItem {
 			currentItemTotal := it.GetItemSpecificTotal(index, checkout.ConstLabelGrandTotal)
 			if priceAdjustment.IsPercent {
-				amount = currentItemTotal * priceAdjustment.Amount / 100
+				amount = currentItemTotal * amount / 100
 			}
 
 			// prevent negative values of grand total per cart
-			if amount+it.calculateAmount < 0 {
-				amount = it.calculateAmount
+			if amount+it.calculateAmount < -0.001 {
+				amount = it.calculateAmount * -1
 			}
 
 			// prevent negative values of grand total per item
-			if amount+currentItemTotal < 0 {
-				amount = it.calculateAmount
+			if amount+currentItemTotal < -0.001 {
+				amount = currentItemTotal * -1
 			}
 
 			// adding amount to grand total of current item and full cart
+			amount = utils.RoundPrice(amount)
 			it.applyAmount(index, checkout.ConstLabelGrandTotal, amount)
-			totalPriceAdjustmentAmount += utils.RoundPrice(amount)
+			totalPriceAdjustmentAmount += amount
 
 			for _, label := range priceAdjustment.Labels {
 				if label != checkout.ConstLabelGrandTotal {
@@ -416,9 +433,10 @@ func (it *DefaultCheckout) CalculateAmount(calculateTarget float64) float64 {
 		it.calculationDetailTotals = make(map[int]map[string]float64)
 
 		var priceAdjustments []checkout.StructPriceAdjustment
+		priceAdjustmentCalls := make(map[float64]func(checkout.InterfaceCheckout, float64) []checkout.StructPriceAdjustment)
 		for _, priceAdjustment := range checkout.GetRegisteredPriceAdjustments() {
-			for _, priceAdjustmentElement := range priceAdjustment.Calculate(it) {
-				priceAdjustments = append(priceAdjustments, priceAdjustmentElement)
+			for _, priorityValue := range priceAdjustment.GetPriority() {
+				priceAdjustmentCalls[priorityValue] = priceAdjustment.Calculate
 			}
 		}
 
@@ -462,6 +480,23 @@ func (it *DefaultCheckout) CalculateAmount(calculateTarget float64) float64 {
 				}
 			}
 
+			// priceAdjustment calls lookup
+			for priority, priceAdjustmentCall := range priceAdjustmentCalls {
+
+				if searchMode {
+					if (!maxIsSet || priority < maxPriority) && (!minIsSet || priority > minPriority) {
+						maxPriority = priority
+						maxIsSet = true
+					}
+				} else {
+					if priority == maxPriority {
+						for _, priceAdjustment := range priceAdjustmentCall(it, priority) {
+							priceAdjustments = append(priceAdjustments, priceAdjustment)
+						}
+					}
+				}
+			}
+
 			// priceAdjustment lookup
 			for _, priceAdjustment := range priceAdjustments {
 
@@ -492,6 +527,7 @@ func (it *DefaultCheckout) CalculateAmount(calculateTarget float64) float64 {
 		}
 
 		it.SetInfo("calculation", infoDetails)
+		it.SetInfo("price_adjustments", it.priceAdjustments)
 
 		it.calculateFlag = false
 	}

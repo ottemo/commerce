@@ -26,7 +26,7 @@ func (it *Coupon) GetPriority() []float64 {
 }
 
 // Calculate calculates and returns a set of coupons applied to the provided checkout
-func (it *Coupon) Calculate(checkoutInstance checkout.InterfaceCheckout) []checkout.StructPriceAdjustment {
+func (it *Coupon) Calculate(checkoutInstance checkout.InterfaceCheckout, currentPriority float64) []checkout.StructPriceAdjustment {
 
 	var result []checkout.StructPriceAdjustment
 
@@ -164,7 +164,7 @@ func (it *Coupon) Calculate(checkoutInstance checkout.InterfaceCheckout) []check
 			priceAdjustments := make(map[string]checkout.StructPriceAdjustment)
 
 			// adding to discounts the biggest applicable discount per product
-			for _, cartItem := range items {
+			for _, cartItem := range checkoutInstance.GetDiscountableItems() {
 				index := utils.InterfaceToString(cartItem.GetIdx())
 
 				if cartProduct := cartItem.GetProduct(); cartProduct != nil {
