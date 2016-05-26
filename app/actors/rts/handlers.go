@@ -318,9 +318,7 @@ func registerVisitorAsOnlineHandler(event string, eventData map[string]interface
 			}
 		}
 
-		updateSync.RLock()
 		if _, present := OnlineSessions[sessionID]; !present || OnlineSessions[sessionID] == nil {
-			updateSync.RUnlock()
 			updateSync.Lock()
 			OnlineSessions[sessionID] = &OnlineReferrer{}
 			updateSync.Unlock()
@@ -336,9 +334,7 @@ func registerVisitorAsOnlineHandler(event string, eventData map[string]interface
 			}
 		}
 
-		updateSync.RLock()
 		if _, present := OnlineSessions[sessionID]; present && OnlineSessions[sessionID] == nil {
-			updateSync.RUnlock()
 			updateSync.Lock()
 			OnlineSessions[sessionID].time = time.Now()
 			OnlineSessions[sessionID].referrerType = referrerType
@@ -353,9 +349,7 @@ func visitorOnlineActionHandler(event string, eventData map[string]interface{}) 
 
 	if sessionInstance, ok := eventData["session"].(api.InterfaceSession); ok && sessionInstance != nil {
 		if sessionID := sessionInstance.GetID(); sessionID != "" {
-			updateSync.RLock()
 			if _, present := OnlineSessions[sessionID]; present && OnlineSessions[sessionID] != nil {
-				updateSync.RUnlock()
 				updateSync.Lock()
 				OnlineSessions[sessionID].time = time.Now()
 				updateSync.Unlock()
