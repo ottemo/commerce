@@ -71,13 +71,15 @@ func APIGetTrustpilotProductsSummaries(context api.InterfaceApplicationContext) 
 		request.Header.Set("Content-Type", "application/json")
 		request.Header.Set("Authorization", "Bearer "+accessToken)
 
-		client := &http.Client{}
+		client := &http.Client{
+			Timeout: time.Second * 10,
+		}
 		response, err := client.Do(request)
 		if err != nil {
 			context.SetResponseStatusInternalServerError()
 			return nil, env.ErrorDispatch(err)
 		}
-		defer func (c io.ReadCloser){
+		defer func(c io.ReadCloser) {
 			if err := c.Close(); err != nil {
 				_ = env.ErrorNew(ConstErrorModule, ConstErrorLevel, "05ffa9ae-3b84-4835-a732-af4aa7f6bc2a", err.Error())
 			}

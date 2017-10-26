@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/ottemo/foundation/app"
 	"github.com/ottemo/foundation/app/models/order"
@@ -34,7 +35,7 @@ func checkoutSuccessHandler(event string, eventData map[string]interface{}) bool
 
 	// inspect the order only if not nil
 	if checkoutOrder != nil {
-		go func (checkoutOrder order.InterfaceOrder){
+		go func(checkoutOrder order.InterfaceOrder) {
 			if err := processOrder(checkoutOrder); err != nil {
 				_ = env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "f9bb4bb5-6c46-4a57-b769-8c76c966faf6", err.Error())
 			}
@@ -152,7 +153,9 @@ func sendRequest(url string, payload []byte) (map[string]interface{}, error) {
 	request.Header.Set("Content-Type", "application/json")
 	request.SetBasicAuth("key", apiKey)
 
-	client := &http.Client{}
+	client := &http.Client{
+		Timeout: time.Second * 10,
+	}
 	response, err := client.Do(request)
 	// require http response code of 200 or error out
 	if response.StatusCode != http.StatusOK {
@@ -166,7 +169,7 @@ func sendRequest(url string, payload []byte) (map[string]interface{}, error) {
 
 		return nil, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "dc1dc0ce-0918-4eff-a6ce-575985a1bc58", "Unable to subscribe visitor to MailChimp list, response code returned was "+status)
 	}
-	defer func (c io.ReadCloser){
+	defer func(c io.ReadCloser) {
 		if err := c.Close(); err != nil {
 			_ = env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "f58ed1a0-6041-40cd-a761-6b4a980fa041", err.Error())
 		}

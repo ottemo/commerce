@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"path"
 	"strings"
+	"time"
 
 	"strconv"
 
@@ -646,7 +647,10 @@ func (it *ImportCmdMedia) Process(itemData map[string]interface{}, input interfa
 				transport := &http.Transport{
 					TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 				}
-				client := &http.Client{Transport: transport}
+				client := &http.Client{
+					Timeout:   time.Second * 10,
+					Transport: transport,
+				}
 				req, err := http.NewRequest("GET", tgtMediaValue, nil)
 				if err != nil {
 					return srcPrevMediaName, env.ErrorDispatch(err)

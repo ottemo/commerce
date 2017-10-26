@@ -1,6 +1,8 @@
 package trustpilot
 
 import (
+	"time"
+
 	"github.com/ottemo/foundation/app"
 	"github.com/ottemo/foundation/app/models/cart"
 	"github.com/ottemo/foundation/app/models/order"
@@ -10,10 +12,10 @@ import (
 
 	"bytes"
 	"encoding/base64"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"strings"
-	"io"
 )
 
 const (
@@ -82,7 +84,7 @@ func checkoutSuccessHandler(event string, eventData map[string]interface{}) bool
 	}
 
 	if checkoutOrder != nil && checkoutCart != nil {
-		go func(checkoutOrder order.InterfaceOrder, checkoutCart cart.InterfaceCart){
+		go func(checkoutOrder order.InterfaceOrder, checkoutCart cart.InterfaceCart) {
 			if err := SendOrderInfo(checkoutOrder, checkoutCart); err != nil {
 				_ = env.ErrorNew(ConstErrorModule, ConstErrorLevel, "c76b0bf2-f439-47f2-a59b-a6e3e4612c33", err.Error())
 			}
@@ -205,12 +207,14 @@ func getAccessToken(cred tpCredentials) (string, error) {
 	request.Header.Set("Authorization", "Basic "+encodedString)
 	request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
-	client := &http.Client{}
+	client := &http.Client{
+		Timeout: time.Second * 10,
+	}
 	response, err := client.Do(request)
 	if err != nil {
 		return "", err
 	}
-	defer func (c io.ReadCloser){
+	defer func(c io.ReadCloser) {
 		if err := c.Close(); err != nil {
 			_ = env.ErrorNew(ConstErrorModule, ConstErrorLevel, "30b05dd7-4319-4df4-bc55-7858d148a84d", err.Error())
 		}
@@ -262,12 +266,14 @@ func getProductReviewLink(requestData ProductReview, businessID string, accessTo
 	request.Header.Set("Content-Type", "application/json")
 	request.Header.Set("Authorization", "Bearer "+accessToken)
 
-	client := &http.Client{}
+	client := &http.Client{
+		Timeout: time.Second * 10,
+	}
 	response, err := client.Do(request)
 	if err != nil {
 		return "", env.ErrorDispatch(err)
 	}
-	defer func (c io.ReadCloser){
+	defer func(c io.ReadCloser) {
 		if err := c.Close(); err != nil {
 			_ = env.ErrorNew(ConstErrorModule, ConstErrorLevel, "b8c3dcbf-03ff-4f97-afcf-606b5efc4f40", err.Error())
 		}
@@ -330,12 +336,14 @@ func getServiceReviewLink(requestData ServiceReview, businessUnitID string, acce
 	request.Header.Set("Content-Type", "application/json")
 	request.Header.Set("Authorization", "Bearer "+accessToken)
 
-	client := &http.Client{}
+	client := &http.Client{
+		Timeout: time.Second * 10,
+	}
 	response, err := client.Do(request)
 	if err != nil {
 		return "", err
 	}
-	defer func (c io.ReadCloser){
+	defer func(c io.ReadCloser) {
 		if err := c.Close(); err != nil {
 			_ = env.ErrorNew(ConstErrorModule, ConstErrorLevel, "d8d98545-cdbf-4a58-adfb-8280871d79f7", err.Error())
 		}

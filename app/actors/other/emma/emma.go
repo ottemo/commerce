@@ -4,10 +4,12 @@ import (
 	"bytes"
 	"io/ioutil"
 	"net/http"
+	"time"
+
+	"io"
 
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
-	"io"
 )
 
 const (
@@ -58,7 +60,9 @@ func (it *emmaServiceType) subscribe(credentials emmaCredentialsType, subscribeI
 	request.Header.Set("Content-Type", "application/json")
 	request.SetBasicAuth(credentials.PublicAPIKey, credentials.PrivateAPIKey)
 
-	client := &http.Client{}
+	client := &http.Client{
+		Timeout: time.Second * 10,
+	}
 	response, err := client.Do(request)
 	// require http response code of 200 or error out
 	if response.StatusCode != http.StatusOK {
@@ -72,7 +76,7 @@ func (it *emmaServiceType) subscribe(credentials emmaCredentialsType, subscribeI
 
 		return result, env.ErrorNew(ConstErrorModule, env.ConstErrorLevelAPI, "cad8ad77-dd4c-440c-ada2-1e315b706175", "Unable to subscribe visitor to Emma list, response code returned was "+status)
 	}
-	defer func (c io.ReadCloser){
+	defer func(c io.ReadCloser) {
 		if err := c.Close(); err != nil {
 			_ = env.ErrorNew(ConstErrorModule, ConstErrorLevel, "039165b1-f795-4d3d-ac65-16a9087a3174", err.Error())
 		}
