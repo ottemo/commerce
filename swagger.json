@@ -1,7 +1,7 @@
 {
   "swagger" : "2.0",
   "info" : {
-    "description" : "Ottemo provides a REST interface to talk to Foundation, it's core api server written in golang. It is an elgant and compact monolith which may be scaled both horizontally by adding replica instances using a load balancer with sticy sessions or vertically by adding CPUs.<br><br> It may be compiled to and run upon any golang supported hardware.",
+    "description" : "Ottemo provides a REST interface to talk to Foundation, it's core api server written in golang. It is an elgant and compact monolith which may be scaled both horizontally by adding replicas or vertically by adding CPUs.<br><br> It may be compiled to and run upon any golang supported hardware.",
     "version" : "1",
     "title" : "Ottemo Foundation API",
     "termsOfService" : "http://subject.to.change",
