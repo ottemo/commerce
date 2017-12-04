@@ -1,4 +1,4 @@
-#!/bin/env bash
+#!/usr/bin/env bash
 
 WORKDIR=`pwd`
 OTTEMODIR="$(cd "$(dirname "$0")" && pwd)"
