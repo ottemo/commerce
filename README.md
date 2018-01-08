@@ -10,6 +10,10 @@ a small, wicked fast ecommerce platform built for gophers
 
 coming....
 
+
+## License
+
+[Mozilla Publice License 2.0](LICENSE.md) 
 ## Terms and Conditions
 
 All Submissions you make to Ottemo, Inc. (“Ottemo”) through GitHub are subject to the following terms and conditions:
