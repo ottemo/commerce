@@ -10,8 +10,8 @@ func getGoodCredentials() (tpCredentials, bool) {
 	goodCredentials := tpCredentials{
 		username:  "engineering@ottemo.io",
 		password:  "***REMOVED***",
-		apiKey:    "***REMOVED***",
-		apiSecret: "***REMOVED***",
+		apiKey:    "8N3P9QOvhrC4ej2PawPRoRD6O4BjjsWM",
+		apiSecret: "**REMOVED**",
 	}
 	return goodCredentials, isValidCredentials
 }
