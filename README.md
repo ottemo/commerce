@@ -22,5 +22,5 @@ All Submissions you make to Ottemo, Inc. (“Ottemo”) through GitHub are subje
 2. Your Submission is an original work of authorship and you are the owner or are legally entitled to grant the license stated above.
 
 ### Copyright
-© 2017 Ottemo, Inc.
+© 2019 Ottemo, Inc.
 
