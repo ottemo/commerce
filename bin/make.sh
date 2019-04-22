@@ -2,7 +2,7 @@
 
 WORKDIR=`pwd`
 OTTEMODIR="$(cd "$(dirname "$0")" && pwd)"
-OTTEMOPKG="github.com/ottemo/foundation"
+OTTEMOPKG="github.com/ottemo/commerce"
 
 # select the right version of awk
 #    on MacOS and Alpine you may need to install gawk
