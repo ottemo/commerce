@@ -1,8 +1,8 @@
 package product
 
 import (
-	"github.com/ottemo/foundation/app/models"
-	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/commerce/app/models"
+	"github.com/ottemo/commerce/env"
 )
 
 // GetProductCollectionModel retrieves current InterfaceProductCollection model implementation

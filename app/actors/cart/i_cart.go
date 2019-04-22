@@ -5,11 +5,11 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/ottemo/foundation/app/models/cart"
-	"github.com/ottemo/foundation/app/models/visitor"
-	"github.com/ottemo/foundation/db"
-	"github.com/ottemo/foundation/env"
-	"github.com/ottemo/foundation/utils"
+	"github.com/ottemo/commerce/app/models/cart"
+	"github.com/ottemo/commerce/app/models/visitor"
+	"github.com/ottemo/commerce/db"
+	"github.com/ottemo/commerce/env"
+	"github.com/ottemo/commerce/utils"
 )
 
 // function calls when cart was changes and subtotal recalculation needed

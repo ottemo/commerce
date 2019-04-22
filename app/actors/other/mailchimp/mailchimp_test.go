@@ -6,10 +6,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ottemo/foundation/app/actors/other/mailchimp"
-	"github.com/ottemo/foundation/env"
-	"github.com/ottemo/foundation/test"
-	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/commerce/app/actors/other/mailchimp"
+	"github.com/ottemo/commerce/env"
+	"github.com/ottemo/commerce/test"
+	"github.com/ottemo/commerce/db"
 )
 
 func TestMailchimpSubscribe(t *testing.T) {

@@ -1,9 +1,9 @@
 package grouping
 
 import (
-	"github.com/ottemo/foundation/app/models/cart"
-	"github.com/ottemo/foundation/env"
-	"github.com/ottemo/foundation/utils"
+	"github.com/ottemo/commerce/app/models/cart"
+	"github.com/ottemo/commerce/env"
+	"github.com/ottemo/commerce/utils"
 )
 
 // updateCartHandler listening for cart update, on update thru over cart items grouping them by rules defined in config

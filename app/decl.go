@@ -3,7 +3,7 @@ package app
 import (
 	"time"
 
-	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/commerce/env"
 )
 
 // Package global constants
@@ -19,7 +19,7 @@ const (
 
 	ConstConfigPathStorefrontURL = "general.app.storefront_url"
 	ConstConfigPathDashboardURL  = "general.app.dashboard_url"
-	ConstConfigPathFoundationURL = "general.app.foundation_url"
+	ConstConfigPathcommerceURL = "general.app.commerce_url"
 
 	ConstConfigPathStoreName  = "general.store.name"
 	ConstConfigPathStoreEmail = "general.store.email"
@@ -54,7 +54,7 @@ const (
 )
 
 // build related information supposed to be specified through -ldflags "-X key value"
-//   - sample: go build -ldflags "-X github.com/ottemo/foundation/app.buildDate '`date`'"
+//   - sample: go build -ldflags "-X github.com/ottemo/commerce/app.buildDate '`date`'"
 var (
 	buildTags   string
 	buildDate   string

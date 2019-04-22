@@ -1,8 +1,8 @@
 package order
 
 import (
-	"github.com/ottemo/foundation/app/models"
-	"github.com/ottemo/foundation/app/models/order"
+	"github.com/ottemo/commerce/app/models"
+	"github.com/ottemo/commerce/app/models/order"
 )
 
 // GetModelName returns model name we have implementation for

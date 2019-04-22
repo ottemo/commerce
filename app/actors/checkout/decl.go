@@ -1,11 +1,11 @@
 // Package checkout is a default implementation of interfaces declared in
-// "github.com/ottemo/foundation/app/models/checkout" package
+// "github.com/ottemo/commerce/app/models/checkout" package
 package checkout
 
 import (
-	"github.com/ottemo/foundation/app/models/cart"
-	"github.com/ottemo/foundation/app/models/checkout"
-	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/commerce/app/models/cart"
+	"github.com/ottemo/commerce/app/models/checkout"
+	"github.com/ottemo/commerce/env"
 )
 
 // Package global constants

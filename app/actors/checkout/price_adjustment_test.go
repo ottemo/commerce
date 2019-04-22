@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/ottemo/foundation/app/models/checkout"
-	"github.com/ottemo/foundation/utils"
+	"github.com/ottemo/commerce/app/models/checkout"
+	"github.com/ottemo/commerce/utils"
 )
 
 func TestPriceAdjustments(t *testing.T) {

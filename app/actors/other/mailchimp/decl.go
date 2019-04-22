@@ -1,6 +1,6 @@
 package mailchimp
 
-import "github.com/ottemo/foundation/env"
+import "github.com/ottemo/commerce/env"
 
 // Package constants for Mailchimp module
 const (

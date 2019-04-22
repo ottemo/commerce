@@ -1,7 +1,7 @@
 // Copyright 2014 The Ottemo Authors. All rights reserved.
 
 /*
-Package config is a default implementation of InterfaceConfig declared in "github.com/ottemo/foundation/env" package.
+Package config is a default implementation of InterfaceConfig declared in "github.com/ottemo/commerce/env" package.
 
 Default config values service is a database based storage of application configuration values. Is using one collection
 within current DB storage service to do this. Config using [StructConfigItem] structure to represent its values. Except

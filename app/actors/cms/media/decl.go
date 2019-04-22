@@ -1,10 +1,10 @@
 // Package media is a default implementation of cms page related interfaces declared in
-// "github.com/ottemo/foundation/app/models/cms" package
+// "github.com/ottemo/commerce/app/models/cms" package
 package media
 
 import (
-	"github.com/ottemo/foundation/env"
-	"github.com/ottemo/foundation/media"
+	"github.com/ottemo/commerce/env"
+	"github.com/ottemo/commerce/media"
 )
 
 // Package global constants

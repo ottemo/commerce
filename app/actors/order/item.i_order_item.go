@@ -1,6 +1,6 @@
 package order
 
-import "github.com/ottemo/foundation/utils"
+import "github.com/ottemo/commerce/utils"
 
 // GetID returns order item unique id, or blank string
 func (it *DefaultOrderItem) GetID() string {

@@ -1,8 +1,8 @@
 package token
 
 import (
-	"github.com/ottemo/foundation/app/models"
-	"github.com/ottemo/foundation/app/models/visitor"
+	"github.com/ottemo/commerce/app/models"
+	"github.com/ottemo/commerce/app/models/visitor"
 )
 
 // GetModelName returns the Visitor Address Model

@@ -1,11 +1,11 @@
 // Package product is a implementation of interfaces declared in
-// "github.com/ottemo/foundation/app/models/product" package
+// "github.com/ottemo/commerce/app/models/product" package
 package product
 
 import (
-	"github.com/ottemo/foundation/app/helpers/attributes"
-	"github.com/ottemo/foundation/db"
-	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/commerce/app/helpers/attributes"
+	"github.com/ottemo/commerce/db"
+	"github.com/ottemo/commerce/env"
 )
 
 // Package global constants

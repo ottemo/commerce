@@ -1,10 +1,10 @@
 // Package block is a default implementation of cms block related interfaces declared in
-// "github.com/ottemo/foundation/app/models/csm" package
+// "github.com/ottemo/commerce/app/models/csm" package
 package block
 
 import (
-	"github.com/ottemo/foundation/db"
-	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/commerce/db"
+	"github.com/ottemo/commerce/env"
 	"time"
 )
 

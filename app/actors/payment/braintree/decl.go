@@ -1,11 +1,11 @@
 // Package braintree is a "braintree payments" implementation of payment method interface declared in
-// "github.com/ottemo/foundation/app/models/checkout" package
+// "github.com/ottemo/commerce/app/models/checkout" package
 package braintree
 
 import (
 	"github.com/lionelbarrow/braintree-go"
 
-	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/commerce/env"
 )
 
 // Package global constants

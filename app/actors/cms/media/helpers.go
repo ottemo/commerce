@@ -1,7 +1,7 @@
 package media
 
 import (
-	"github.com/ottemo/foundation/media"
+	"github.com/ottemo/commerce/media"
 )
 
 // correctMediaType returns only supported media type according to srcMediaType specified

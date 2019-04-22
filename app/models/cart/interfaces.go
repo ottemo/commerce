@@ -4,10 +4,10 @@ package cart
 import (
 	"time"
 
-	"github.com/ottemo/foundation/app/models"
-	"github.com/ottemo/foundation/app/models/product"
-	"github.com/ottemo/foundation/app/models/visitor"
-	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/commerce/app/models"
+	"github.com/ottemo/commerce/app/models/product"
+	"github.com/ottemo/commerce/app/models/visitor"
+	"github.com/ottemo/commerce/env"
 )
 
 // Package global constants

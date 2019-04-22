@@ -13,18 +13,18 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/ottemo/foundation/app/helpers/attributes"
-	"github.com/ottemo/foundation/db"
-	"github.com/ottemo/foundation/env"
-	"github.com/ottemo/foundation/media"
-	"github.com/ottemo/foundation/utils"
+	"github.com/ottemo/commerce/app/helpers/attributes"
+	"github.com/ottemo/commerce/db"
+	"github.com/ottemo/commerce/env"
+	"github.com/ottemo/commerce/media"
+	"github.com/ottemo/commerce/utils"
 
-	"github.com/ottemo/foundation/app/models"
-	"github.com/ottemo/foundation/app/models/product"
+	"github.com/ottemo/commerce/app/models"
+	"github.com/ottemo/commerce/app/models/product"
 )
 
 // ---------------------------------------------------------------------------------
-// InterfaceModel implementation (package "github.com/ottemo/foundation/app/models")
+// InterfaceModel implementation (package "github.com/ottemo/commerce/app/models")
 // ---------------------------------------------------------------------------------
 
 // GetModelName returns model name
@@ -57,7 +57,7 @@ func (it *DefaultProduct) New() (models.InterfaceModel, error) {
 }
 
 // -------------------------------------------------------------------------------------------
-// InterfaceProduct implementation (package "github.com/ottemo/foundation/app/models/product")
+// InterfaceProduct implementation (package "github.com/ottemo/commerce/app/models/product")
 // -------------------------------------------------------------------------------------------
 
 // GetEnabled returns enabled flag for the given product
@@ -438,7 +438,7 @@ func (it *DefaultProduct) LoadExternalAttributes() error {
 }
 
 // ----------------------------------------------------------------------------------
-// InterfaceObject implementation (package "github.com/ottemo/foundation/app/models")
+// InterfaceObject implementation (package "github.com/ottemo/commerce/app/models")
 // ----------------------------------------------------------------------------------
 
 // Get returns an object attribute value or nil
@@ -795,7 +795,7 @@ func (it *DefaultProduct) GetAttributesInfo() []models.StructAttributeInfo {
 }
 
 // ------------------------------------------------------------------------------------
-// InterfaceStorable implementation (package "github.com/ottemo/foundation/app/models")
+// InterfaceStorable implementation (package "github.com/ottemo/commerce/app/models")
 // ------------------------------------------------------------------------------------
 
 // GetID returns current product id
@@ -893,7 +893,7 @@ func (it *DefaultProduct) Save() error {
 }
 
 // ------------------------------------------------------------------------------------
-// InterfaceListable implementation (package "github.com/ottemo/foundation/app/models")
+// InterfaceListable implementation (package "github.com/ottemo/commerce/app/models")
 // ------------------------------------------------------------------------------------
 
 // GetCollection returns collection of current instance type
@@ -907,7 +907,7 @@ func (it *DefaultProduct) GetCollection() models.InterfaceCollection {
 }
 
 // ---------------------------------------------------------------------------------
-// InterfaceMedia implementation (package "github.com/ottemo/foundation/app/models")
+// InterfaceMedia implementation (package "github.com/ottemo/commerce/app/models")
 // ---------------------------------------------------------------------------------
 
 // AddMedia adds new media assigned to product
@@ -988,7 +988,7 @@ func (it *DefaultProduct) GetMediaPath(mediaType string) (string, error) {
 }
 
 // --------------------------------------------------------------------------------------------
-// InterfaceCustomAttributes implementation (package "github.com/ottemo/foundation/app/models")
+// InterfaceCustomAttributes implementation (package "github.com/ottemo/commerce/app/models")
 // --------------------------------------------------------------------------------------------
 
 // GetInstance returns current instance delegate attached to
@@ -1017,7 +1017,7 @@ func (it *DefaultProduct) GetCustomAttributeCollectionName() string {
 }
 
 // ----------------------------------------------------------------------------------------------
-// InterfaceExternalAttributes implementation (package "github.com/ottemo/foundation/app/models")
+// InterfaceExternalAttributes implementation (package "github.com/ottemo/commerce/app/models")
 // ----------------------------------------------------------------------------------------------
 
 // GetInstance() method was implemented before for InterfaceCustomAttributes

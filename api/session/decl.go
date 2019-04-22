@@ -1,13 +1,13 @@
 // Package session is a default implementation of InterfaceSessionService and InterfaceSession
-// declared in "github.com/ottemo/foundation/api" package
+// declared in "github.com/ottemo/commerce/api" package
 package session
 
 import (
 	"sync"
 	"time"
 
-	"github.com/ottemo/foundation/api"
-	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/commerce/api"
+	"github.com/ottemo/commerce/env"
 )
 
 // Package global constants
@@ -29,11 +29,11 @@ var (
 )
 
 // DefaultSession is a default implementer of InterfaceSession declared in
-// "github.com/ottemo/foundation/api" package
+// "github.com/ottemo/commerce/api" package
 type DefaultSession string
 
 // DefaultSessionService is a basic implementer of InterfaceSessionService declared in
-// "github.com/ottemo/foundation/api" package
+// "github.com/ottemo/commerce/api" package
 type DefaultSessionService struct {
 	sessions map[string]*DefaultSessionContainer // active sessions set
 	mutex    sync.Mutex                          // synchronization on Sessions variable modification

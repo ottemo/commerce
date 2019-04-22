@@ -3,17 +3,17 @@ package braintree_test
 import (
 	"testing"
 
-	"github.com/ottemo/foundation/app/actors/order"
-	"github.com/ottemo/foundation/app/actors/payment/braintree"
-	_ "github.com/ottemo/foundation/app/actors/visitor" // required to initialize Visitor Address Model
-	"github.com/ottemo/foundation/app/actors/visitor/token"
-	"github.com/ottemo/foundation/env"
-	"github.com/ottemo/foundation/test"
-	"github.com/ottemo/foundation/utils"
+	"github.com/ottemo/commerce/app/actors/order"
+	"github.com/ottemo/commerce/app/actors/payment/braintree"
+	_ "github.com/ottemo/commerce/app/actors/visitor" // required to initialize Visitor Address Model
+	"github.com/ottemo/commerce/app/actors/visitor/token"
+	"github.com/ottemo/commerce/env"
+	"github.com/ottemo/commerce/test"
+	"github.com/ottemo/commerce/utils"
 
-	"github.com/ottemo/foundation/app/models/checkout"
-	"github.com/ottemo/foundation/app/models/visitor"
-	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/commerce/app/models/checkout"
+	"github.com/ottemo/commerce/app/models/visitor"
+	"github.com/ottemo/commerce/db"
 )
 
 // TestPaymentMethodCcGuestTransaction tests Authorize method for guest visitor transaction.

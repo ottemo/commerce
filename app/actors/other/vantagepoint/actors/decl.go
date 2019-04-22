@@ -1,6 +1,6 @@
 package actors
 
-import "github.com/ottemo/foundation/env"
+import "github.com/ottemo/commerce/env"
 
 const (
 	ConstErrorModule = "vantagepoint"

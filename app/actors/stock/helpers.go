@@ -1,7 +1,7 @@
 package stock
 
 import (
-	"github.com/ottemo/foundation/utils"
+	"github.com/ottemo/commerce/utils"
 )
 
 // haveInventoryOptionsDuplicates checks inventory for duplicates

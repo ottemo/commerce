@@ -1,6 +1,6 @@
 package shipstation
 
-import "github.com/ottemo/foundation/env"
+import "github.com/ottemo/commerce/env"
 
 // buildTrackingUrl Assemble a tracking url from the carrier and tracking number
 // - http://verysimple.com/2011/07/06/ups-tracking-url/

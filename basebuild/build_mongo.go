@@ -4,5 +4,5 @@ package basebuild
 
 import (
 	// MongoDB based database service
-	_ "github.com/ottemo/foundation/db/mongo"
+	_ "github.com/ottemo/commerce/db/mongo"
 )

@@ -1,8 +1,8 @@
 package impex
 
 import (
-	"github.com/ottemo/foundation/api"
-	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/commerce/api"
+	"github.com/ottemo/commerce/env"
 )
 
 // ImportStartHandler is a middleware to init importState for async "next" procedure.

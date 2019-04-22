@@ -2,12 +2,12 @@
 package checkout
 
 import (
-	"github.com/ottemo/foundation/api"
+	"github.com/ottemo/commerce/api"
 
-	"github.com/ottemo/foundation/app/models"
-	"github.com/ottemo/foundation/app/models/cart"
-	"github.com/ottemo/foundation/app/models/order"
-	"github.com/ottemo/foundation/app/models/visitor"
+	"github.com/ottemo/commerce/app/models"
+	"github.com/ottemo/commerce/app/models/cart"
+	"github.com/ottemo/commerce/app/models/order"
+	"github.com/ottemo/commerce/app/models/visitor"
 )
 
 // InterfaceCheckout represents interface to access business layer implementation of checkout object

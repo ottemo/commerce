@@ -7,9 +7,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ottemo/foundation/db"
-	"github.com/ottemo/foundation/env"
-	"github.com/ottemo/foundation/utils"
+	"github.com/ottemo/commerce/db"
+	"github.com/ottemo/commerce/env"
+	"github.com/ottemo/commerce/utils"
 )
 
 // makes SQL filter string based on ColumnName, Operator and Value parameters or returns nil

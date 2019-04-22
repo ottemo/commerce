@@ -4,8 +4,8 @@ import (
 	"strconv"
 
 	"github.com/mxk/go-sqlite/sqlite3"
-	"github.com/ottemo/foundation/db"
-	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/commerce/db"
+	"github.com/ottemo/commerce/env"
 )
 
 // GetName returns current DB engine name

@@ -1,8 +1,8 @@
 package checkout
 
 import (
-	"github.com/ottemo/foundation/app/models"
-	"github.com/ottemo/foundation/app/models/checkout"
+	"github.com/ottemo/commerce/app/models"
+	"github.com/ottemo/commerce/app/models/checkout"
 )
 
 // GetModelName returns model name we have implementation for

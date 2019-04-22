@@ -10,17 +10,17 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ottemo/foundation/db"
-	"github.com/ottemo/foundation/env"
-	"github.com/ottemo/foundation/utils"
+	"github.com/ottemo/commerce/db"
+	"github.com/ottemo/commerce/env"
+	"github.com/ottemo/commerce/utils"
 
-	"github.com/ottemo/foundation/app/models"
-	"github.com/ottemo/foundation/app/models/discount/saleprice"
-	"github.com/ottemo/foundation/app/models/product"
+	"github.com/ottemo/commerce/app/models"
+	"github.com/ottemo/commerce/app/models/discount/saleprice"
+	"github.com/ottemo/commerce/app/models/product"
 )
 
 // ---------------------------------------------------------------------------------------------------------------------
-// InterfaceModel implementation (package "github.com/ottemo/foundation/app/models/interfaces")
+// InterfaceModel implementation (package "github.com/ottemo/commerce/app/models/interfaces")
 // ---------------------------------------------------------------------------------------------------------------------
 
 // GetModelName returns model name
@@ -44,7 +44,7 @@ func newErrorHelper(msg, code string) error {
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
-// InterfaceObject implementation (package "github.com/ottemo/foundation/app/models/interfaces")
+// InterfaceObject implementation (package "github.com/ottemo/commerce/app/models/interfaces")
 // ---------------------------------------------------------------------------------------------------------------------
 
 // Get return model attribute by name
@@ -224,7 +224,7 @@ func (it *DefaultSalePrice) GetAttributesInfo() []models.StructAttributeInfo {
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
-// InterfaceStorable implementation (package "github.com/ottemo/foundation/app/models/interfaces")
+// InterfaceStorable implementation (package "github.com/ottemo/commerce/app/models/interfaces")
 // ---------------------------------------------------------------------------------------------------------------------
 
 // SetID sets database storage id for current object
@@ -327,7 +327,7 @@ func (it *DefaultSalePrice) Delete() error {
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
-// InterfaceSalePrice implementation (package "github.com/ottemo/foundation/app/models/discount/interfaces")
+// InterfaceSalePrice implementation (package "github.com/ottemo/commerce/app/models/discount/interfaces")
 // ---------------------------------------------------------------------------------------------------------------------
 
 // SetAmount : amount setter

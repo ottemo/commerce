@@ -6,14 +6,14 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/ottemo/foundation/api"
-	"github.com/ottemo/foundation/app"
-	"github.com/ottemo/foundation/env"
-	"github.com/ottemo/foundation/utils"
+	"github.com/ottemo/commerce/api"
+	"github.com/ottemo/commerce/app"
+	"github.com/ottemo/commerce/env"
+	"github.com/ottemo/commerce/utils"
 
-	"github.com/ottemo/foundation/app/models/checkout"
-	"github.com/ottemo/foundation/app/models/order"
-	"github.com/ottemo/foundation/app/models/visitor"
+	"github.com/ottemo/commerce/app/models/checkout"
+	"github.com/ottemo/commerce/app/models/order"
+	"github.com/ottemo/commerce/app/models/visitor"
 )
 
 // GetInternalName returns the name of the payment method
@@ -68,8 +68,8 @@ func (it *Express) Authorize(orderInstance order.InterfaceOrder, paymentInfo map
 	description := "Purchase%20for%20%24" + fmt.Sprintf("%.2f", grandTotal)
 	custom := orderInstance.GetID()
 
-	cancelURL := app.GetFoundationURL("paypal/cancel")
-	returnURL := app.GetFoundationURL("paypal/success")
+	cancelURL := app.GetcommerceURL("paypal/cancel")
+	returnURL := app.GetcommerceURL("paypal/success")
 
 	// making NVP request
 	//-------------------

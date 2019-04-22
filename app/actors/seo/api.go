@@ -5,17 +5,17 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ottemo/foundation/api"
-	"github.com/ottemo/foundation/app"
-	"github.com/ottemo/foundation/db"
-	"github.com/ottemo/foundation/env"
-	"github.com/ottemo/foundation/utils"
+	"github.com/ottemo/commerce/api"
+	"github.com/ottemo/commerce/app"
+	"github.com/ottemo/commerce/db"
+	"github.com/ottemo/commerce/env"
+	"github.com/ottemo/commerce/utils"
 
-	"github.com/ottemo/foundation/app/models"
-	"github.com/ottemo/foundation/app/models/category"
-	"github.com/ottemo/foundation/app/models/cms"
-	"github.com/ottemo/foundation/app/models/product"
-	"github.com/ottemo/foundation/app/models/seo"
+	"github.com/ottemo/commerce/app/models"
+	"github.com/ottemo/commerce/app/models/category"
+	"github.com/ottemo/commerce/app/models/cms"
+	"github.com/ottemo/commerce/app/models/product"
+	"github.com/ottemo/commerce/app/models/seo"
 	"io"
 )
 

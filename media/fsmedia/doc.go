@@ -1,7 +1,7 @@
 // Copyright 2014 The Ottemo Authors. All rights reserved.
 
 /*
-Package fsmedia is a default implementation of InterfaceMediaStorage declared in "github.com/ottemo/foundation/media" package.
+Package fsmedia is a default implementation of InterfaceMediaStorage declared in "github.com/ottemo/commerce/media" package.
 
 It using filesystem ot store media files in, and database to store existing media to object bindings. Following media types
 special behaviour supposed:

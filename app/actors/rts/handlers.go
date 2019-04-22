@@ -3,12 +3,12 @@ package rts
 import (
 	"time"
 
-	"github.com/ottemo/foundation/api"
-	"github.com/ottemo/foundation/app/models/cart"
-	"github.com/ottemo/foundation/app/models/order"
-	"github.com/ottemo/foundation/db"
-	"github.com/ottemo/foundation/env"
-	"github.com/ottemo/foundation/utils"
+	"github.com/ottemo/commerce/api"
+	"github.com/ottemo/commerce/app/models/cart"
+	"github.com/ottemo/commerce/app/models/order"
+	"github.com/ottemo/commerce/db"
+	"github.com/ottemo/commerce/env"
+	"github.com/ottemo/commerce/utils"
 )
 
 func visitsHandler(event string, eventData map[string]interface{}) bool {
@@ -24,7 +24,7 @@ func visitsHandler(event string, eventData map[string]interface{}) bool {
 
 			// TODO: Super flakey implementation for telling if the visitor has been tracked today
 			// by reusing an 'add to bag' tracking mechanism
-			// foundation/app/actors/rts/decl.go :45
+			// commerce/app/actors/rts/decl.go :45
 			if _, present := visitState[sessionID]; !present {
 				visitState[sessionID] = false
 

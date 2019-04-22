@@ -1,5 +1,5 @@
 // Package attributes represents an implementation of InterfaceCustomAttributes declared in
-// "github.com/ottemo/foundation/app/models" package.
+// "github.com/ottemo/commerce/app/models" package.
 //
 // In order to use it you should just embed ModelCustomAttributes in your actor,
 // you can found sample usage in "github.com/app/actors/product" package.
@@ -8,8 +8,8 @@ package attributes
 import (
 	"sync"
 
-	"github.com/ottemo/foundation/app/models"
-	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/commerce/app/models"
+	"github.com/ottemo/commerce/env"
 )
 
 // Package global constants

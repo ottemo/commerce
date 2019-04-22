@@ -2,7 +2,7 @@
 
 /*
 Package rest is a default implementation of a RESTful server. That package provides "InterfaceRestService" functionality
-declared in "github.com/ottemo/foundation/api" package.
+declared in "github.com/ottemo/commerce/api" package.
 
 Package stands on a top of "github.com/julienschmidt/httprouter" package.
 

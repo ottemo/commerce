@@ -5,10 +5,10 @@ import (
 
 	"github.com/lionelbarrow/braintree-go"
 
-	"github.com/ottemo/foundation/app/models/order"
-	"github.com/ottemo/foundation/app/models/visitor"
-	"github.com/ottemo/foundation/env"
-	"github.com/ottemo/foundation/utils"
+	"github.com/ottemo/commerce/app/models/order"
+	"github.com/ottemo/commerce/app/models/visitor"
+	"github.com/ottemo/commerce/env"
+	"github.com/ottemo/commerce/utils"
 )
 
 // getCustomerIDByVisitorID returns 3rd party customer ID by visitor registered ID

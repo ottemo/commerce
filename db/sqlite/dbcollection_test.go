@@ -7,9 +7,9 @@ import (
 
 	"github.com/mxk/go-sqlite/sqlite3"
 
-	"github.com/ottemo/foundation/api"
+	"github.com/ottemo/commerce/api"
 
-	"github.com/ottemo/foundation/app/models"
+	"github.com/ottemo/commerce/app/models"
 )
 
 //--------------------------------------------------------------------------------------------------------------

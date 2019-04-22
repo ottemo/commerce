@@ -5,16 +5,16 @@ package saleprice
 //	- InterfaceCollection
 
 import (
-	"github.com/ottemo/foundation/db"
-	"github.com/ottemo/foundation/env"
-	"github.com/ottemo/foundation/utils"
+	"github.com/ottemo/commerce/db"
+	"github.com/ottemo/commerce/env"
+	"github.com/ottemo/commerce/utils"
 
-	"github.com/ottemo/foundation/app/models"
-	"github.com/ottemo/foundation/app/models/discount/saleprice"
+	"github.com/ottemo/commerce/app/models"
+	"github.com/ottemo/commerce/app/models/discount/saleprice"
 )
 
 // ---------------------------------------------------------------------------------------------------------------------
-// InterfaceModel implementation (package "github.com/ottemo/foundation/app/models/interfaces")
+// InterfaceModel implementation (package "github.com/ottemo/commerce/app/models/interfaces")
 // ---------------------------------------------------------------------------------------------------------------------
 
 // GetModelName returns model name
@@ -38,7 +38,7 @@ func (it *DefaultSalePriceCollection) New() (models.InterfaceModel, error) {
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
-// InterfaceCollection implementation (package "github.com/ottemo/foundation/app/models/interfaces")
+// InterfaceCollection implementation (package "github.com/ottemo/commerce/app/models/interfaces")
 // ---------------------------------------------------------------------------------------------------------------------
 
 // GetDBCollection returns database collection
@@ -137,7 +137,7 @@ func (it *DefaultSalePriceCollection) ListLimit(offset int, limit int) error {
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
-//  implementation (package "github.com/ottemo/foundation/app/models/interfaces")
+//  implementation (package "github.com/ottemo/commerce/app/models/interfaces")
 // ---------------------------------------------------------------------------------------------------------------------
 
 // ListSalePrices returns list of sale price model items

@@ -4,7 +4,7 @@ import (
 	"time"
 	"fmt"
 
-	"github.com/ottemo/foundation/utils"
+	"github.com/ottemo/commerce/utils"
 )
 
 // DBConnector takes logic of connection to DB and keeps it alive

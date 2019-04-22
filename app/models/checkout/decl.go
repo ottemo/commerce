@@ -1,6 +1,6 @@
 package checkout
 
-import "github.com/ottemo/foundation/env"
+import "github.com/ottemo/commerce/env"
 
 // Package global constants
 const (

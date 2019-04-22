@@ -1,10 +1,10 @@
 package visitor
 
 import (
-	"github.com/ottemo/foundation/app/helpers/attributes"
-	"github.com/ottemo/foundation/app/models"
-	"github.com/ottemo/foundation/app/models/visitor"
-	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/commerce/app/helpers/attributes"
+	"github.com/ottemo/commerce/app/models"
+	"github.com/ottemo/commerce/app/models/visitor"
+	"github.com/ottemo/commerce/env"
 )
 
 // GetModelName returns model name for the Visitor
