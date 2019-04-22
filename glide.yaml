@@ -1,14 +1,14 @@
 package: github.com/ottemo/commerce
 import:
 - package: github.com/Pallinder/go-randomdata
-- package: github.com/Sirupsen/logrus
+- package: github.com/sirupsen/logrus
   version: v0.11.5
 - package: github.com/avator/authorizecim
 - package: github.com/bradfitz/gomemcache
   subpackages:
   - memcache
 - package: github.com/bshuster-repo/logrus-logstash-hook
-  version: 0.3
+  version: 0.4.1
 - package: github.com/dchest/captcha
 - package: github.com/disintegration/imaging
   version: v1.1.0
