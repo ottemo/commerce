@@ -1,19 +1,19 @@
 Ottemo
 =========
 
-[![Build Status](http://jenkins.ottemo.io/buildStatus/icon?job=build_foundation_docker_image)](http://jenkins.ottemo.io/job/build_foundation_docker_image/)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/3e068cd576494103aa411d21157d2a4d)](https://www.codacy.com/app/vastbinderj/foundation?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=ottemo/foundation&amp;utm_campaign=Badge_Grade)
+[![Go Report Status](https://goreportcard.com/badge/github.com/ottemo/commerce)](https://goreportcard.com/report/github.com/ottemo/commerce)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/3e068cd576494103aa411d21157d2a4d)](https://www.codacy.com/app/vastbinderj/commerce?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=ottemo/commerce&amp;utm_campaign=Badge_Grade)
 
 a small, wicked fast ecommerce platform built for gophers
 
-## Install and Setup 
+## Install and Setup
 
 coming....
 
 
 ## License
 
-[Mozilla Publice License 2.0](LICENSE.md) 
+[Mozilla Publice License 2.0](LICENSE.md)
 ## Terms and Conditions
 
 All Submissions you make to Ottemo, Inc. (“Ottemo”) through GitHub are subject to the following terms and conditions:
