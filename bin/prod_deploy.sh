@@ -2,24 +2,24 @@
 
 # vars for script
 PWD=$PWD
-SRCDIR=/home/ottemo/code/go/src/github.com/ottemo/foundation
+SRCDIR=/home/ottemo/code/go/src/github.com/ottemo/commerce
 
 cd $SRCDIR
-# Build Foundation
-echo "BUILDING FOUNDATION"
+# Build commerce
+echo "BUILDING COMMERCE"
 ./bin/make.sh -tags mongo
 
-# stop the foundation service
-echo "STOP FOUNDATION SERVICE"
+# stop the commerce service
+echo "STOP COMMERCE SERVICE"
 while sudo service ottemo stop >/dev/null 2>&1; do
-    echo "warning: foundation is still running"
+    echo "warning: commerce is still running"
 done
-echo "info: foundation has terminated"
+echo "info: commerce has terminated"
 
-echo "DEPLOYING FOUNDATION"
-# Backup binaries and restart foundation
-cp ~/foundation/foundation ~/foundation/foundation.bak
-cp foundation ~/foundation/
+echo "DEPLOYING COMMERCE"
+# Backup binaries and restart commerce
+cp ~/commerce/commerce ~/commerce/commerce.bak
+cp commerce ~/commerce/
 sudo service ottemo start
 
 # restore PWD

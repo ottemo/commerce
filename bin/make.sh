@@ -52,11 +52,11 @@ done
 cd $WORKDIR
 
 LDFLAGS="-ldflags '"
-LDFLAGS+="-X \"github.com/ottemo/foundation/app.buildDate=$DATE\" "
-LDFLAGS+="-X \"github.com/ottemo/foundation/app.buildTags=$TAGS\" "
-LDFLAGS+="-X \"github.com/ottemo/foundation/app.buildNumber=$BUILD\" "
-LDFLAGS+="-X \"github.com/ottemo/foundation/app.buildBranch=$BRANCH\" "
-LDFLAGS+="-X \"github.com/ottemo/foundation/app.buildHash=$HASH\" "
+LDFLAGS+="-X \"github.com/ottemo/commerce/app.buildDate=$DATE\" "
+LDFLAGS+="-X \"github.com/ottemo/commerce/app.buildTags=$TAGS\" "
+LDFLAGS+="-X \"github.com/ottemo/commerce/app.buildNumber=$BUILD\" "
+LDFLAGS+="-X \"github.com/ottemo/commerce/app.buildBranch=$BRANCH\" "
+LDFLAGS+="-X \"github.com/ottemo/commerce/app.buildHash=$HASH\" "
 LDFLAGS+="'"
 
 # uncomment for go versions previous to 1.7 using the old linker
@@ -77,14 +77,14 @@ fi
 # install glide to $GOPATH
 #     if it does not exist yet
 #
-if [ ! -f "$GOPATH/bin/glide" ]; then
-    echo "Glide not found, installing it.\n"
-    go get github.com/Masterminds/glide
-fi
+#if [ ! -f "$GOPATH/bin/glide" ]; then
+#    echo "Glide not found, installing it.\n"
+#    go get github.com/Masterminds/glide
+#fi
 
 # install project dependencies
 $GOPATH/bin/glide install
 
 
 CMD="go build -a $TAGS $LDFLAGS $OTTEMOPKG"
-eval CGO_ENABLED=0 GOOS=linux $CMD
+eval CGO_ENABLED=0 $CMD

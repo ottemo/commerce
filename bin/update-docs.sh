@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# location of foundation
-SRCDIR=/home/ottemo/code/go/src/github.com/ottemo/foundation
+# location of commerce
+SRCDIR=/home/ottemo/code/go/src/github.com/ottemo/commerce
 
 if [ "$BRANCH" == 'develop' ]; then
     GIT_COMMIT=`echo $COMMIT | head -c 5`

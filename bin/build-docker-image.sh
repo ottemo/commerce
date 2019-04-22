@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# build and push foundation image to registry
+# build and push commerce image to registry
 
 for i in "$@"
 do
@@ -21,20 +21,20 @@ done
 
 indocker="${indocker:-false}"
 
-GOIMAGE="ottemo/golang:1.7.5" # images that used to build foundation binary
-FOUNDATIONIMAGE="ottemo/foundation"
+GOIMAGE="ottemo/golang:1.7.5" # images that used to build commerce binary
+COMMERCEIMAGE="ottemo/commerce"
 
 MYDIR=$(cd `dirname ${BASH_SOURCE[0]}` && pwd)
-FOUNDATIONREPO="$MYDIR/.."
-cd $FOUNDATIONREPO
+COMMERCEREPO="$MYDIR/.."
+cd $COMMERCEREPO
 
 BUILD=$(git rev-list origin/develop --count)
 
 if ! [ -n "$version" ] ; then
   date=$(date +%Y%m%d-%H%M%S)
-  IMAGE="${FOUNDATIONIMAGE}:${date}-${BUILD}"
+  IMAGE="${COMMERCEIMAGE}:${date}-${BUILD}"
 else
-  IMAGE="${FOUNDATIONIMAGE}:${version}"
+  IMAGE="${COMMERCEIMAGE}:${version}"
 fi
 echo "use $IMAGE as image name"
 
@@ -42,31 +42,31 @@ if [ "$indocker" = "true" ] ; then
   echo "build image under docker container"
   echo "generate temporary Dockerfile"
   echo "FROM $GOIMAGE" >Dockerfile.temporary
-  echo 'COPY . /go/src/github.com/ottemo/foundation' >>Dockerfile.temporary
-  echo 'RUN cd /go/src/github.com/ottemo/foundation && bin/make.sh -tags mongo,redis' >>Dockerfile.temporary
+  echo 'COPY . /go/src/github.com/ottemo/commerce' >>Dockerfile.temporary
+  echo 'RUN cd /go/src/github.com/ottemo/commerce && bin/make.sh -tags mongo,redis' >>Dockerfile.temporary
 
-  echo "build foundation in temporary docker container"
-  docker build --file Dockerfile.temporary -t temp-foundation-golang .
+  echo "build commerce in temporary docker container"
+  docker build --file Dockerfile.temporary -t temp-commerce-golang .
   if [ $? -ne 0 ]; then
-    echo "error in build foundation in temporary docker container"
+    echo "error in build commerce in temporary docker container"
     exit 2
   fi
-  ID=$(docker run -d temp-foundation-golang)
-  docker cp $ID:/go/src/github.com/ottemo/foundation/foundation .
+  ID=$(docker run -d temp-commerce-golang)
+  docker cp $ID:/go/src/github.com/ottemo/commerce/commerce .
 else
 
-  echo "build foundation executable with $GOIMAGE docker image"
-  docker run -v "$FOUNDATIONREPO":/go/src/github.com/ottemo/foundation -w /go/src/github.com/ottemo/foundation -e GOOS=linux -e CGO_ENABLED=0 $GOIMAGE bin/make.sh -tags mongo,redis
+  echo "build commerce executable with $GOIMAGE docker image"
+  docker run -v "$COMMERCEREPO":/go/src/github.com/ottemo/commerce -w /go/src/github.com/ottemo/commerce -e GOOS=linux -e CGO_ENABLED=0 $GOIMAGE bin/make.sh -tags mongo,redis
   if [ $? -ne 0 ]; then
-    echo "error in build foundation executable"
+    echo "error in build commerce executable"
     exit 2
   fi
 fi
 
-echo "build alpine based foundation container"
-docker build -t $IMAGE -t ${FOUNDATIONIMAGE}:latest .
+echo "build alpine based commerce container"
+docker build -t $IMAGE -t ${COMMERCEIMAGE}:latest .
 if [ $? -ne 0 ]; then
-  echo "error in build foundation alpine based container"
+  echo "error in build commerce alpine based container"
   exit 2
 fi
 
@@ -76,8 +76,8 @@ if [ $? -ne 0 ]; then
   exit 2
 fi
 
-docker push ${FOUNDATIONIMAGE}:latest
+docker push ${COMMERCEIMAGE}:latest
 if [ $? -ne 0 ]; then
-  echo "error in push latest foundation image tag"
+  echo "error in push latest commerce image tag"
   exit 2
 fi
