@@ -1,7 +1,7 @@
 package paypal
 
 import (
-	"github.com/ottemo/foundation/app/models"
+	"github.com/ottemo/commerce/app/models"
 )
 
 // getCreditCardName returns credit card valid name

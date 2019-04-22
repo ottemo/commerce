@@ -1,7 +1,7 @@
 package eventbus
 
 import (
-	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/commerce/env"
 )
 
 // DefaultEventBus InterfaceEventBus implementer class

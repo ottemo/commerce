@@ -3,11 +3,11 @@ package app
 import (
 	"sort"
 
-	"github.com/ottemo/foundation/api"
-	"github.com/ottemo/foundation/api/rest"
-	"github.com/ottemo/foundation/app/models"
-	"github.com/ottemo/foundation/env"
-	"github.com/ottemo/foundation/utils"
+	"github.com/ottemo/commerce/api"
+	"github.com/ottemo/commerce/api/rest"
+	"github.com/ottemo/commerce/app/models"
+	"github.com/ottemo/commerce/env"
+	"github.com/ottemo/commerce/utils"
 )
 
 // setupConfig setups package configuration values for a system
@@ -79,13 +79,13 @@ func setupConfig() error {
 	}
 
 	err = config.RegisterItem(env.StructConfigItem{
-		Path:        ConstConfigPathFoundationURL,
+		Path:        ConstConfigPathcommerceURL,
 		Value:       nil,
 		Type:        env.ConstConfigTypeVarchar,
 		Editor:      "text",
 		Options:     nil,
-		Label:       "Foundation host URL",
-		Description: "URL application will use to generate foundation resources links",
+		Label:       "commerce host URL",
+		Description: "URL application will use to generate commerce resources links",
 		Image:       "",
 	}, nil)
 

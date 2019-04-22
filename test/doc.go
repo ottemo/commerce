@@ -7,8 +7,8 @@ during GO tests writing.
 
 Package also contains a set of benchmarks and tests which related to whole application rather when particular package.
 In order to run them use:
-  go test [-tags ...] github.com/ottemo/foundation/tests
-  go test -bench . [-tags ...] github.com/ottemo/foundation/tests
+  go test [-tags ...] github.com/ottemo/commerce/tests
+  go test -bench . [-tags ...] github.com/ottemo/commerce/tests
 
 (refer to http://golang.org/pkg/testing/ for details)
 */

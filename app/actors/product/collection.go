@@ -6,15 +6,15 @@ package product
 //	- InterfaceProductCollection
 
 import (
-	"github.com/ottemo/foundation/app/models"
-	"github.com/ottemo/foundation/app/models/product"
-	"github.com/ottemo/foundation/db"
-	"github.com/ottemo/foundation/env"
-	"github.com/ottemo/foundation/utils"
+	"github.com/ottemo/commerce/app/models"
+	"github.com/ottemo/commerce/app/models/product"
+	"github.com/ottemo/commerce/db"
+	"github.com/ottemo/commerce/env"
+	"github.com/ottemo/commerce/utils"
 )
 
 // --------------------------------------------------------------------------------------
-// InterfaceCollection implementation (package "github.com/ottemo/foundation/app/models")
+// InterfaceCollection implementation (package "github.com/ottemo/commerce/app/models")
 // --------------------------------------------------------------------------------------
 
 // List enumerates items of Product model type
@@ -124,7 +124,7 @@ func (it *DefaultProductCollection) ListLimit(offset int, limit int) error {
 }
 
 // ---------------------------------------------------------------------------------
-// InterfaceModel implementation (package "github.com/ottemo/foundation/app/models")
+// InterfaceModel implementation (package "github.com/ottemo/commerce/app/models")
 // ---------------------------------------------------------------------------------
 
 // GetModelName returns model name
@@ -148,7 +148,7 @@ func (it *DefaultProductCollection) New() (models.InterfaceModel, error) {
 }
 
 // -----------------------------------------------------------------------------------------------------
-// InterfaceProductCollection implementation (package "github.com/ottemo/foundation/app/models/product")
+// InterfaceProductCollection implementation (package "github.com/ottemo/commerce/app/models/product")
 // -----------------------------------------------------------------------------------------------------
 
 // GetDBCollection returns database collection

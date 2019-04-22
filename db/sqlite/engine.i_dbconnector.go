@@ -6,11 +6,11 @@ import (
 
 	"github.com/mxk/go-sqlite/sqlite3"
 
-	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/commerce/env"
 )
 
 // ------------------------------------------------------------------------------------
-// InterfaceDBConnector implementation (package "github.com/ottemo/foundation/db/interfaces")
+// InterfaceDBConnector implementation (package "github.com/ottemo/commerce/db/interfaces")
 // ------------------------------------------------------------------------------------
 
 // GetConnectionParams returns configured DB connection params

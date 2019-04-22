@@ -1,10 +1,10 @@
 package config
 
 import (
-	"github.com/ottemo/foundation/api"
-	"github.com/ottemo/foundation/db"
-	"github.com/ottemo/foundation/env"
-	"github.com/ottemo/foundation/impex"
+	"github.com/ottemo/commerce/api"
+	"github.com/ottemo/commerce/db"
+	"github.com/ottemo/commerce/env"
+	"github.com/ottemo/commerce/impex"
 )
 
 // init makes package self-initialization routine

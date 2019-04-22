@@ -1,7 +1,7 @@
 package order
 
 import (
-	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/commerce/db"
 )
 
 // GetDBCollection returns database collection

@@ -10,16 +10,16 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ottemo/foundation/db"
-	"github.com/ottemo/foundation/env"
-	"github.com/ottemo/foundation/utils"
+	"github.com/ottemo/commerce/db"
+	"github.com/ottemo/commerce/env"
+	"github.com/ottemo/commerce/utils"
 
-	"github.com/ottemo/foundation/app/models"
-	"github.com/ottemo/foundation/app/models/blog/post"
+	"github.com/ottemo/commerce/app/models"
+	"github.com/ottemo/commerce/app/models/blog/post"
 )
 
 // ------------------------------------------------------------------------------------
-// InterfaceModel implementation (package "github.com/ottemo/foundation/app/models")
+// InterfaceModel implementation (package "github.com/ottemo/commerce/app/models")
 // ------------------------------------------------------------------------------------
 
 // GetModelName returns model name
@@ -38,7 +38,7 @@ func (it *DefaultBlogPost) New() (models.InterfaceModel, error) {
 }
 
 // ------------------------------------------------------------------------------------
-// InterfaceStorable implementation (package "github.com/ottemo/foundation/app/models")
+// InterfaceStorable implementation (package "github.com/ottemo/commerce/app/models")
 // ------------------------------------------------------------------------------------
 
 // GetID returns current blog post id
@@ -123,7 +123,7 @@ func (it *DefaultBlogPost) Save() error {
 }
 
 // ----------------------------------------------------------------------------------
-// InterfaceObject implementation (package "github.com/ottemo/foundation/app/models")
+// InterfaceObject implementation (package "github.com/ottemo/commerce/app/models")
 // ----------------------------------------------------------------------------------
 
 // Get returns an object attribute value or nil
@@ -363,7 +363,7 @@ func (it *DefaultBlogPost) GetAttributesInfo() []models.StructAttributeInfo {
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
-// InterfaceBlogPost implementation (package "github.com/ottemo/foundation/app/models/blog/post/interfaces")
+// InterfaceBlogPost implementation (package "github.com/ottemo/commerce/app/models/blog/post/interfaces")
 // ---------------------------------------------------------------------------------------------------------------------
 
 // SetIdentifier : identifier setter

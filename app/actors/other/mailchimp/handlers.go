@@ -10,10 +10,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ottemo/foundation/app"
-	"github.com/ottemo/foundation/app/models/order"
-	"github.com/ottemo/foundation/env"
-	"github.com/ottemo/foundation/utils"
+	"github.com/ottemo/commerce/app"
+	"github.com/ottemo/commerce/app/models/order"
+	"github.com/ottemo/commerce/env"
+	"github.com/ottemo/commerce/utils"
 )
 
 // checkoutSuccessHandler handles the checkout success event to begin the subscription process if an order meets the

@@ -4,9 +4,9 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/ottemo/foundation/db"
-	"github.com/ottemo/foundation/env"
-	"github.com/ottemo/foundation/utils"
+	"github.com/ottemo/commerce/db"
+	"github.com/ottemo/commerce/env"
+	"github.com/ottemo/commerce/utils"
 )
 
 // ListPathes enumerates registered pathes for config

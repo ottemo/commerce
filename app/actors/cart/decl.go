@@ -1,13 +1,13 @@
 // Package cart is a default implementation of interfaces declared in
-// "github.com/ottemo/foundation/app/models/cart" package
+// "github.com/ottemo/commerce/app/models/cart" package
 package cart
 
 import (
 	"time"
 
-	"github.com/ottemo/foundation/app/models/cart"
-	"github.com/ottemo/foundation/app/models/product"
-	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/commerce/app/models/cart"
+	"github.com/ottemo/commerce/app/models/product"
+	"github.com/ottemo/commerce/env"
 )
 
 // Package global constants

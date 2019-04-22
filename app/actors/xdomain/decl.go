@@ -1,6 +1,6 @@
 package xdomain
 
-import "github.com/ottemo/foundation/env"
+import "github.com/ottemo/commerce/env"
 
 // xdomain package constants
 const (

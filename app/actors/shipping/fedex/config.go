@@ -1,9 +1,9 @@
 package fedex
 
 import (
-	"github.com/ottemo/foundation/env"
-	"github.com/ottemo/foundation/utils"
-	"github.com/ottemo/foundation/app/models"
+	"github.com/ottemo/commerce/env"
+	"github.com/ottemo/commerce/utils"
+	"github.com/ottemo/commerce/app/models"
 )
 
 // setupConfig setups package configuration values for a system

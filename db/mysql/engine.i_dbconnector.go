@@ -5,12 +5,12 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/ottemo/foundation/env"
-	"github.com/ottemo/foundation/utils"
+	"github.com/ottemo/commerce/env"
+	"github.com/ottemo/commerce/utils"
 )
 
 // ------------------------------------------------------------------------------------
-// InterfaceDBConnector implementation (package "github.com/ottemo/foundation/db/interfaces")
+// InterfaceDBConnector implementation (package "github.com/ottemo/commerce/db/interfaces")
 // ------------------------------------------------------------------------------------
 
 // GetConnectionParams returns configured DB connection params

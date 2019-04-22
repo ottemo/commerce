@@ -3,11 +3,11 @@ package seo_test
 import (
 	"testing"
 
-	"github.com/ottemo/foundation/test"
-	"github.com/ottemo/foundation/utils"
+	"github.com/ottemo/commerce/test"
+	"github.com/ottemo/commerce/utils"
 
-	"github.com/ottemo/foundation/app/models/seo"
-	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/commerce/app/models/seo"
+	"github.com/ottemo/commerce/db"
 )
 
 // Basic SEOItem test: check model save/load

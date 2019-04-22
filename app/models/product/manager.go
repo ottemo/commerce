@@ -1,8 +1,8 @@
 package product
 
 import (
-	"github.com/ottemo/foundation/env"
-	"github.com/ottemo/foundation/app/models/stock"
+	"github.com/ottemo/commerce/env"
+	"github.com/ottemo/commerce/app/models/stock"
 )
 
 // Package global variables

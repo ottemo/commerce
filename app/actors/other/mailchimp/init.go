@@ -1,8 +1,8 @@
 package mailchimp
 
 import (
-	"github.com/ottemo/foundation/app"
-	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/commerce/app"
+	"github.com/ottemo/commerce/env"
 )
 
 func init() {

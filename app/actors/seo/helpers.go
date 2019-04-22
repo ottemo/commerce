@@ -1,10 +1,10 @@
 package seo
 
 import (
-	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/commerce/env"
 
-	"github.com/ottemo/foundation/app/models"
-	"github.com/ottemo/foundation/app/models/seo"
+	"github.com/ottemo/commerce/app/models"
+	"github.com/ottemo/commerce/app/models/seo"
 )
 
 // GetSEOItemCollectionModel retrieves current InterfaceSEOCollection model implementation

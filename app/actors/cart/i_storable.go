@@ -1,13 +1,13 @@
 package cart
 
 import (
-	"github.com/ottemo/foundation/app/models/cart"
-	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/commerce/app/models/cart"
+	"github.com/ottemo/commerce/env"
 
 	"time"
 
-	"github.com/ottemo/foundation/db"
-	"github.com/ottemo/foundation/utils"
+	"github.com/ottemo/commerce/db"
+	"github.com/ottemo/commerce/utils"
 )
 
 // GetID returns id of current cart

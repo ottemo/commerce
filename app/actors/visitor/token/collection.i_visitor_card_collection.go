@@ -1,9 +1,9 @@
 package token
 
 import (
-	"github.com/ottemo/foundation/app/models/visitor"
-	"github.com/ottemo/foundation/db"
-	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/commerce/app/models/visitor"
+	"github.com/ottemo/commerce/db"
+	"github.com/ottemo/commerce/env"
 )
 
 // GetDBCollection returns the database collection of the Visitor Cards

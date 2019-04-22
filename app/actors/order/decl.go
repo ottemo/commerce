@@ -1,17 +1,17 @@
 // Package order is a default implementation of interfaces declared in
-// "github.com/ottemo/foundation/app/models/order" package
+// "github.com/ottemo/commerce/app/models/order" package
 package order
 
 import (
-	"github.com/ottemo/foundation/app"
-	"github.com/ottemo/foundation/app/models/order"
-	"github.com/ottemo/foundation/db"
-	"github.com/ottemo/foundation/utils"
+	"github.com/ottemo/commerce/app"
+	"github.com/ottemo/commerce/app/models/order"
+	"github.com/ottemo/commerce/db"
+	"github.com/ottemo/commerce/utils"
 
 	"sync"
 	"time"
 
-	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/commerce/env"
 )
 
 // Package global variables

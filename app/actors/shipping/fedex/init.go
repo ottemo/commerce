@@ -1,8 +1,8 @@
 package fedex
 
 import (
-	"github.com/ottemo/foundation/app/models/checkout"
-	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/commerce/app/models/checkout"
+	"github.com/ottemo/commerce/env"
 )
 
 // init makes package self-initialization routine

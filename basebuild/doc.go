@@ -4,5 +4,5 @@
 // are self-init packages of replaceable modules/extension/plugins.
 //
 // In order to use this package just use void import:
-//   import _ "github.com/ottemo/foundation/basebuild"
+//   import _ "github.com/ottemo/commerce/basebuild"
 package basebuild

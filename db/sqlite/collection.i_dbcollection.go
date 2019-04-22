@@ -8,8 +8,8 @@ import (
 	"strings"
 
 	sqlite3 "github.com/mxk/go-sqlite/sqlite3"
-	"github.com/ottemo/foundation/db"
-	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/commerce/db"
+	"github.com/ottemo/commerce/env"
 )
 
 // LoadByID loads record from DB by it's id

@@ -4,9 +4,9 @@ package post
 import (
 	"time"
 
-	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/commerce/env"
 
-	"github.com/ottemo/foundation/app/models"
+	"github.com/ottemo/commerce/app/models"
 )
 
 // Package global constants

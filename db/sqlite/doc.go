@@ -2,7 +2,7 @@
 
 /*
 Package sqlite is a default SQLite implementation for Ottemo. It provides "InterfaceDBEngine" implementation declared in
-"github.com/ottemo/foundation/db" package.
+"github.com/ottemo/commerce/db" package.
 
 Package stands on a top of "github.com/mxk/go-sqlite/sqlite3" package.
 

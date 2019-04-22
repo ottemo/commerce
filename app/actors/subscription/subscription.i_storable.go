@@ -1,8 +1,8 @@
 package subscription
 
 import (
-	"github.com/ottemo/foundation/db"
-	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/commerce/db"
+	"github.com/ottemo/commerce/env"
 	"time"
 )
 

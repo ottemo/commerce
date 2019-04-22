@@ -2,7 +2,7 @@
 
 WORKDIR=`pwd`
 OTTEMODIR="$(cd "$(dirname "$0")" && pwd)"
-OTTEMOPKG="github.com/ottemo/foundation"
+OTTEMOPKG="github.com/ottemo/commerce"
 
 # select the right version of awk
 #    on MacOS and Alpine you may need to install gawk
@@ -52,18 +52,16 @@ done
 cd $WORKDIR
 
 LDFLAGS="-ldflags '"
-LDFLAGS+="-X \"github.com/ottemo/foundation/app.buildDate=$DATE\" "
-LDFLAGS+="-X \"github.com/ottemo/foundation/app.buildTags=$TAGS\" "
-LDFLAGS+="-X \"github.com/ottemo/foundation/app.buildNumber=$BUILD\" "
-LDFLAGS+="-X \"github.com/ottemo/foundation/app.buildBranch=$BRANCH\" "
-LDFLAGS+="-X \"github.com/ottemo/foundation/app.buildHash=$HASH\" "
+LDFLAGS+="-X \"github.com/ottemo/commerce/app.buildDate=$DATE\" "
+LDFLAGS+="-X \"github.com/ottemo/commerce/app.buildTags=$TAGS\" "
+LDFLAGS+="-X \"github.com/ottemo/commerce/app.buildNumber=$BUILD\" "
+LDFLAGS+="-X \"github.com/ottemo/commerce/app.buildBranch=$BRANCH\" "
+LDFLAGS+="-X \"github.com/ottemo/commerce/app.buildHash=$HASH\" "
 LDFLAGS+="'"
 
-# need to convert GOVERSION string to number
+# uncomment for go versions previous to 1.7 using the old linker
 #
-if [ "`${AWK} "BEGIN{ if (($GOVERSION +0) < 1.5) print 1 }"`" == "1" ]; then
-  LDFLAGS=${LDFLAGS//=/\" \"}
-fi
+#  LDFLAGS=${LDFLAGS//=/\" \"}
 
 if [ -z "$GOPATH" ]; then
 REPLACE="/src/$OTTEMOPKG"
@@ -76,17 +74,6 @@ TAGS=$(echo $TAGS| sed 's/,/ /g')
 TAGS="-tags '$TAGS'"
 fi
 
-# install glide to $GOPATH
-#     if it does not exist yet
-#
-if [ ! -f "$GOPATH/bin/glide" ]; then
-    echo "Glide not found, installing it.\n"
-    go get github.com/Masterminds/glide
-fi
-
-# install project dependencies
-$GOPATH/bin/glide install
-
 
 CMD="go build -a $TAGS $LDFLAGS $OTTEMOPKG"
-eval CGO_ENABLED=0 GOOS=linux $CMD
+eval CGO_ENABLED=0 $CMD

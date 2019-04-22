@@ -1,8 +1,8 @@
 package category
 
 import (
-	"github.com/ottemo/foundation/env"
-	"github.com/ottemo/foundation/media"
+	"github.com/ottemo/commerce/env"
+	"github.com/ottemo/commerce/media"
 )
 
 // AddMedia adds new media assigned to category

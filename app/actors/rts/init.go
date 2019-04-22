@@ -1,10 +1,10 @@
 package rts
 
 import (
-	"github.com/ottemo/foundation/api"
-	"github.com/ottemo/foundation/app"
-	"github.com/ottemo/foundation/db"
-	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/commerce/api"
+	"github.com/ottemo/commerce/app"
+	"github.com/ottemo/commerce/db"
+	"github.com/ottemo/commerce/env"
 )
 
 // init makes package self-initialization routine before app start

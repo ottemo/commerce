@@ -4,8 +4,8 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/ottemo/foundation/api"
-	"github.com/ottemo/foundation/utils"
+	"github.com/ottemo/commerce/api"
+	"github.com/ottemo/commerce/utils"
 )
 
 // GetRequest returns raw request object

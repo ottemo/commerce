@@ -4,8 +4,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ottemo/foundation/app/models"
-	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/commerce/app/models"
+	"github.com/ottemo/commerce/env"
 )
 
 // GetOrderCollectionModel retrieves current InterfaceOrderCollection model implementation

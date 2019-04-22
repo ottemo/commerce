@@ -1,8 +1,8 @@
 package cart
 
 import (
-	"github.com/ottemo/foundation/app/models"
-	"github.com/ottemo/foundation/app/models/cart"
+	"github.com/ottemo/commerce/app/models"
+	"github.com/ottemo/commerce/app/models/cart"
 )
 
 // GetModelName returns model name we have implementation for

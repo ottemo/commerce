@@ -3,12 +3,12 @@ package braintree
 import (
 	"github.com/lionelbarrow/braintree-go"
 
-	"github.com/ottemo/foundation/env"
-	"github.com/ottemo/foundation/utils"
+	"github.com/ottemo/commerce/env"
+	"github.com/ottemo/commerce/utils"
 
-	"github.com/ottemo/foundation/app/models/checkout"
-	"github.com/ottemo/foundation/app/models/order"
-	"github.com/ottemo/foundation/app/models/visitor"
+	"github.com/ottemo/commerce/app/models/checkout"
+	"github.com/ottemo/commerce/app/models/order"
+	"github.com/ottemo/commerce/app/models/visitor"
 )
 
 // GetCode returns payment method code for use in business logic
@@ -26,7 +26,7 @@ func (it *CreditCardMethod) GetName() string {
 	return utils.InterfaceToString(env.ConfigGetValue(ConstGeneralMethodConfigPathName))
 }
 
-// GetType returns type of payment method according to "github.com/ottemo/foundation/app/models/checkout"
+// GetType returns type of payment method according to "github.com/ottemo/commerce/app/models/checkout"
 func (it *CreditCardMethod) GetType() string {
 	return checkout.ConstPaymentTypeCreditCard
 }

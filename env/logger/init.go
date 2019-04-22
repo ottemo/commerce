@@ -3,10 +3,11 @@ package logger
 import (
 	"os"
 
-	log "github.com/Sirupsen/logrus"
-	"github.com/bshuster-repo/logrus-logstash-hook"
-	"github.com/ottemo/foundation/env"
 	"fmt"
+
+	logrus_logstash "github.com/bshuster-repo/logrus-logstash-hook"
+	"github.com/ottemo/commerce/env"
+	log "github.com/sirupsen/logrus"
 )
 
 // init makes package self-initialization routine

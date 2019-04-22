@@ -3,11 +3,11 @@ package product_test
 // This package provides additional product package tests
 // To run it use command line
 //
-// $ go test -tags sqlite github.com/ottemo/foundation/app/actors/product/
+// $ go test -tags sqlite github.com/ottemo/commerce/app/actors/product/
 //
 // or, if fmt.Println output required, use it with "-v" flag
 //
-// $ go test -v -tags sqlite github.com/ottemo/foundation/app/actors/product/
+// $ go test -v -tags sqlite github.com/ottemo/commerce/app/actors/product/
 
 import (
 	"fmt"
@@ -16,11 +16,11 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/ottemo/foundation/env"
-	"github.com/ottemo/foundation/test"
-	"github.com/ottemo/foundation/utils"
+	"github.com/ottemo/commerce/env"
+	"github.com/ottemo/commerce/test"
+	"github.com/ottemo/commerce/utils"
 
-	"github.com/ottemo/foundation/app/models/product"
+	"github.com/ottemo/commerce/app/models/product"
 )
 
 const (

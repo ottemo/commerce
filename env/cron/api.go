@@ -1,9 +1,9 @@
 package cron
 
 import (
-	"github.com/ottemo/foundation/api"
-	"github.com/ottemo/foundation/env"
-	"github.com/ottemo/foundation/utils"
+	"github.com/ottemo/commerce/api"
+	"github.com/ottemo/commerce/env"
+	"github.com/ottemo/commerce/utils"
 )
 
 // setups package related API endpoint routines

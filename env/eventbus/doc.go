@@ -1,7 +1,7 @@
 // Copyright 2015 The Ottemo Authors. All rights reserved.
 
 /*
-Package eventbus is a default implementation of InterfaceEventBus declared in "github.com/ottemo/foundation/env" package.
+Package eventbus is a default implementation of InterfaceEventBus declared in "github.com/ottemo/commerce/env" package.
 
 Event bus is a service used for simplified communication between application code. Event provider emits an event message
 and event listeners makes special handling for an event.

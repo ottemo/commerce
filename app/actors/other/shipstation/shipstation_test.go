@@ -3,8 +3,8 @@ package shipstation
 import (
 	"testing"
 
-	"github.com/ottemo/foundation/app/actors/order"
-	_ "github.com/ottemo/foundation/app/actors/visitor" // required to initialize Visitor Address Model
+	"github.com/ottemo/commerce/app/actors/order"
+	_ "github.com/ottemo/commerce/app/actors/visitor" // required to initialize Visitor Address Model
 )
 
 // TestBuildItemReturnsNoAdjustments tests buildItem function.

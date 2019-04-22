@@ -3,7 +3,7 @@ package env
 import (
 	"time"
 
-	"github.com/ottemo/foundation/utils"
+	"github.com/ottemo/commerce/utils"
 )
 
 // Package global constants

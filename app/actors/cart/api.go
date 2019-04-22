@@ -1,12 +1,12 @@
 package cart
 
 import (
-	"github.com/ottemo/foundation/api"
-	"github.com/ottemo/foundation/env"
-	"github.com/ottemo/foundation/media"
-	"github.com/ottemo/foundation/utils"
+	"github.com/ottemo/commerce/api"
+	"github.com/ottemo/commerce/env"
+	"github.com/ottemo/commerce/media"
+	"github.com/ottemo/commerce/utils"
 
-	"github.com/ottemo/foundation/app/models/cart"
+	"github.com/ottemo/commerce/app/models/cart"
 )
 
 // setupAPI setups package related API endpoint routines

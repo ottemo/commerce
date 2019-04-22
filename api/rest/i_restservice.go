@@ -13,10 +13,10 @@ import (
 	"time"
 
 	"github.com/julienschmidt/httprouter"
-	"github.com/ottemo/foundation/api"
-	"github.com/ottemo/foundation/api/context"
-	"github.com/ottemo/foundation/env"
-	"github.com/ottemo/foundation/utils"
+	"github.com/ottemo/commerce/api"
+	"github.com/ottemo/commerce/api/context"
+	"github.com/ottemo/commerce/env"
+	"github.com/ottemo/commerce/utils"
 )
 
 // GetName returns implementation name of our REST API service
@@ -397,7 +397,7 @@ func (it DefaultRestService) ServeHTTP(responseWriter http.ResponseWriter, reque
 		// default output format
 		responseWriter.Header().Set("Content-Type", "application/json")
 
-		request.URL.Path = strings.Replace(request.URL.Path, "/foundation", "", -1)
+		request.URL.Path = strings.Replace(request.URL.Path, "/commerce", "", -1)
 
 		it.Router.ServeHTTP(responseWriter, request)
 	}

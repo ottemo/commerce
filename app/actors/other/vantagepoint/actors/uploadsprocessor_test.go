@@ -2,7 +2,7 @@ package actors
 
 import (
 	"testing"
-	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/commerce/env"
 	"errors"
 	"fmt"
 	"regexp"

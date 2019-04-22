@@ -2,7 +2,7 @@
 package models
 
 import (
-	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/commerce/db"
 )
 
 // InterfaceModel represents interface for basic business layer implementation object

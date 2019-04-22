@@ -3,11 +3,11 @@ package trustpilot
 import (
 	"time"
 
-	"github.com/ottemo/foundation/api"
-	"github.com/ottemo/foundation/app"
-	"github.com/ottemo/foundation/app/models/order"
-	"github.com/ottemo/foundation/env"
-	"github.com/ottemo/foundation/utils"
+	"github.com/ottemo/commerce/api"
+	"github.com/ottemo/commerce/app"
+	"github.com/ottemo/commerce/app/models/order"
+	"github.com/ottemo/commerce/env"
+	"github.com/ottemo/commerce/utils"
 )
 
 // init makes package self-initialization routine before app start

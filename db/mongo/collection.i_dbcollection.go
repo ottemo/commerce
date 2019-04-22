@@ -6,8 +6,8 @@ import (
 
 	"gopkg.in/mgo.v2/bson"
 
-	"github.com/ottemo/foundation/db"
-	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/commerce/db"
+	"github.com/ottemo/commerce/env"
 )
 
 // LoadByID loads one record from DB by record _id

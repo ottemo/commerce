@@ -1,9 +1,9 @@
 package visitor
 
 import (
-	"github.com/ottemo/foundation/app/actors/visitor/address"
-	"github.com/ottemo/foundation/db"
-	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/commerce/app/actors/visitor/address"
+	"github.com/ottemo/commerce/db"
+	"github.com/ottemo/commerce/env"
 )
 
 // GetID returns current ID of the Visitor

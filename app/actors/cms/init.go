@@ -3,11 +3,11 @@ package cms
 
 import (
 	// self-initiabilizable sub-package
-	_ "github.com/ottemo/foundation/app/actors/cms/block"
+	_ "github.com/ottemo/commerce/app/actors/cms/block"
 
 	// self-initiabilizable sub-package
-	_ "github.com/ottemo/foundation/app/actors/cms/page"
+	_ "github.com/ottemo/commerce/app/actors/cms/page"
 
 	// self-initiabilizable sub-package
-	_ "github.com/ottemo/foundation/app/actors/cms/media"
+	_ "github.com/ottemo/commerce/app/actors/cms/media"
 )

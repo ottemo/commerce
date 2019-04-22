@@ -1,8 +1,8 @@
 package seo
 
 import (
-	"github.com/ottemo/foundation/app/models"
-	"github.com/ottemo/foundation/app/models/seo"
+	"github.com/ottemo/commerce/app/models"
+	"github.com/ottemo/commerce/app/models/seo"
 )
 
 // GetCollection returns collection of current instance type

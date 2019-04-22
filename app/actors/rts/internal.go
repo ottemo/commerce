@@ -3,11 +3,11 @@ package rts
 import (
 	"time"
 
-	"github.com/ottemo/foundation/app"
-	"github.com/ottemo/foundation/app/models/order"
-	"github.com/ottemo/foundation/db"
-	"github.com/ottemo/foundation/env"
-	"github.com/ottemo/foundation/utils"
+	"github.com/ottemo/commerce/app"
+	"github.com/ottemo/commerce/app/models/order"
+	"github.com/ottemo/commerce/db"
+	"github.com/ottemo/commerce/env"
+	"github.com/ottemo/commerce/utils"
 )
 
 // GetDateFrom returns the a time.Time of last record of sales history

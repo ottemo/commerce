@@ -7,9 +7,9 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/ottemo/foundation/api"
-	"github.com/ottemo/foundation/env"
-	"github.com/ottemo/foundation/utils"
+	"github.com/ottemo/commerce/api"
+	"github.com/ottemo/commerce/env"
+	"github.com/ottemo/commerce/utils"
 )
 
 // GetVersion returns current version number
@@ -47,9 +47,9 @@ func GetStorefrontURL(path string) string {
 	return strings.TrimRight(baseURL, "/") + "/" + path
 }
 
-// GetFoundationURL returns url related to foundation server
-func GetFoundationURL(path string) string {
-	baseURL := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathFoundationURL))
+// GetcommerceURL returns url related to commerce server
+func GetcommerceURL(path string) string {
+	baseURL := utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathcommerceURL))
 	return strings.TrimRight(baseURL, "/") + "/" + path
 }
 

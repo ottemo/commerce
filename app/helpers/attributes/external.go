@@ -1,9 +1,9 @@
 package attributes
 
 import (
-	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/commerce/env"
 
-	"github.com/ottemo/foundation/app/models"
+	"github.com/ottemo/commerce/app/models"
 )
 
 // perDelegateAttributes returns new map where the attributes are grouped by delegate
@@ -67,7 +67,7 @@ func ExternalAttributes(instance interface{}) (*ModelExternalAttributes, error) 
 }
 
 // ----------------------------------------------------------------------------------------------
-// InterfaceExternalAttributes implementation (package "github.com/ottemo/foundation/app/models")
+// InterfaceExternalAttributes implementation (package "github.com/ottemo/commerce/app/models")
 // ----------------------------------------------------------------------------------------------
 
 // GetInstance returns current instance delegate attached to
@@ -169,7 +169,7 @@ func (it *ModelExternalAttributes) ListExternalAttributes() map[string]models.In
 }
 
 // ----------------------------------------------------------------------------------
-// InterfaceModel implementation (package "github.com/ottemo/foundation/app/models")
+// InterfaceModel implementation (package "github.com/ottemo/commerce/app/models")
 // ----------------------------------------------------------------------------------
 
 // GetModelName stub func for Model interface - returns model name
@@ -186,7 +186,7 @@ func (it *ModelExternalAttributes) GetImplementationName() string {
 }
 
 // ----------------------------------------------------------------------------------
-// InterfaceObject implementation (package "github.com/ottemo/foundation/app/models")
+// InterfaceObject implementation (package "github.com/ottemo/commerce/app/models")
 // ----------------------------------------------------------------------------------
 
 // Get returns object attribute value or nil
@@ -248,7 +248,7 @@ func (it *ModelExternalAttributes) ToHashMap() map[string]interface{} {
 }
 
 // ------------------------------------------------------------------------------------
-// InterfaceStorable implementation (package "github.com/ottemo/foundation/app/models")
+// InterfaceStorable implementation (package "github.com/ottemo/commerce/app/models")
 // ------------------------------------------------------------------------------------
 
 // GetID stub function - callback to instance getID()

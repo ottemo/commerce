@@ -6,17 +6,17 @@ package saleprice
 import (
 	"time"
 
-	"github.com/ottemo/foundation/env"
-	"github.com/ottemo/foundation/utils"
+	"github.com/ottemo/commerce/env"
+	"github.com/ottemo/commerce/utils"
 
-	"github.com/ottemo/foundation/api/context"
-	"github.com/ottemo/foundation/app/models"
-	"github.com/ottemo/foundation/app/models/discount/saleprice"
-	"github.com/ottemo/foundation/app/models/product"
+	"github.com/ottemo/commerce/api/context"
+	"github.com/ottemo/commerce/app/models"
+	"github.com/ottemo/commerce/app/models/discount/saleprice"
+	"github.com/ottemo/commerce/app/models/product"
 )
 
 // ---------------------------------------------------------------------------------------------------------------------
-// InterfaceAttributesDelegate implementation (package "github.com/ottemo/foundation/app/models/interfaces")
+// InterfaceAttributesDelegate implementation (package "github.com/ottemo/commerce/app/models/interfaces")
 // ---------------------------------------------------------------------------------------------------------------------
 
 // New creates new SalePriceDelegate with associated product

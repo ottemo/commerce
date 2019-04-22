@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"sort"
 
-	"github.com/ottemo/foundation/api"
-	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/commerce/api"
+	"github.com/ottemo/commerce/env"
 
 	"github.com/julienschmidt/httprouter"
 )

@@ -3,12 +3,12 @@ package tax
 import (
 	"encoding/csv"
 
-	"github.com/ottemo/foundation/api"
-	"github.com/ottemo/foundation/db"
-	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/commerce/api"
+	"github.com/ottemo/commerce/db"
+	"github.com/ottemo/commerce/env"
 
-	"github.com/ottemo/foundation/utils"
-	"github.com/ottemo/foundation/impex"
+	"github.com/ottemo/commerce/utils"
+	"github.com/ottemo/commerce/impex"
 )
 
 // setupAPI setups package related API endpoint routines

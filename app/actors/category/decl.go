@@ -1,11 +1,11 @@
 // Package category is a default implementation of interfaces declared in
-// "github.com/ottemo/foundation/app/models/category" package
+// "github.com/ottemo/commerce/app/models/category" package
 package category
 
 import (
-	"github.com/ottemo/foundation/app/models/category"
-	"github.com/ottemo/foundation/db"
-	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/commerce/app/models/category"
+	"github.com/ottemo/commerce/db"
+	"github.com/ottemo/commerce/env"
 )
 
 // Package global constants

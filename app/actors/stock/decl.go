@@ -1,12 +1,12 @@
 // Package stock is a default implementation of stock interface declared in
-// "github.com/ottemo/foundation/app/models/checkout" package
+// "github.com/ottemo/commerce/app/models/checkout" package
 package stock
 
 import (
-	"github.com/ottemo/foundation/app/models"
-	"github.com/ottemo/foundation/app/models/product"
-	"github.com/ottemo/foundation/env"
-	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/commerce/app/models"
+	"github.com/ottemo/commerce/app/models/product"
+	"github.com/ottemo/commerce/env"
+	"github.com/ottemo/commerce/db"
 )
 
 // Package global constants

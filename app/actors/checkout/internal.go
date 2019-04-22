@@ -1,15 +1,15 @@
 package checkout
 
 import (
-	"github.com/ottemo/foundation/api"
-	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/commerce/api"
+	"github.com/ottemo/commerce/env"
 
-	"github.com/ottemo/foundation/app/actors/discount/coupon"
-	"github.com/ottemo/foundation/app/actors/discount/giftcard"
+	"github.com/ottemo/commerce/app/actors/discount/coupon"
+	"github.com/ottemo/commerce/app/actors/discount/giftcard"
 
-	"github.com/ottemo/foundation/app/models/cart"
-	"github.com/ottemo/foundation/app/models/checkout"
-	"github.com/ottemo/foundation/app/models/order"
+	"github.com/ottemo/commerce/app/models/cart"
+	"github.com/ottemo/commerce/app/models/checkout"
+	"github.com/ottemo/commerce/app/models/order"
 )
 
 // SendOrderConfirmationEmail sends an order confirmation email

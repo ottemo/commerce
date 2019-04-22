@@ -3,12 +3,12 @@ package trustpilot
 import (
 	"time"
 
-	"github.com/ottemo/foundation/app"
-	"github.com/ottemo/foundation/app/models/cart"
-	"github.com/ottemo/foundation/app/models/order"
-	"github.com/ottemo/foundation/env"
-	"github.com/ottemo/foundation/media"
-	"github.com/ottemo/foundation/utils"
+	"github.com/ottemo/commerce/app"
+	"github.com/ottemo/commerce/app/models/cart"
+	"github.com/ottemo/commerce/app/models/order"
+	"github.com/ottemo/commerce/env"
+	"github.com/ottemo/commerce/media"
+	"github.com/ottemo/commerce/utils"
 
 	"bytes"
 	"encoding/base64"

@@ -1,9 +1,9 @@
 // Package zeropay is a "Zero Payment" implementation of payment method interface declared in
-// "github.com/ottemo/foundation/app/models/checkout" package
+// "github.com/ottemo/commerce/app/models/checkout" package
 package zeropay
 
 import (
-	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/commerce/env"
 )
 
 // Package global constants

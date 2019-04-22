@@ -1,16 +1,16 @@
 // Package saleprice is an implementation of discount interface declared in
-// "github.com/ottemo/foundation/app/models/checkout" package
+// "github.com/ottemo/commerce/app/models/checkout" package
 package saleprice
 
 import (
 	"time"
 
-	"github.com/ottemo/foundation/db"
-	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/commerce/db"
+	"github.com/ottemo/commerce/env"
 
-	"github.com/ottemo/foundation/app/models"
-	"github.com/ottemo/foundation/app/models/discount/saleprice"
-	"github.com/ottemo/foundation/app/models/product"
+	"github.com/ottemo/commerce/app/models"
+	"github.com/ottemo/commerce/app/models/discount/saleprice"
+	"github.com/ottemo/commerce/app/models/product"
 )
 
 // Package global constants

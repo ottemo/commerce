@@ -1,6 +1,6 @@
 #!/bin/sh
 
-echo "generate foundation config and start it"
+echo "generate commerce config and start it"
 echo "you have to define at least MONGOHOST and MONGODB"
 echo "MONGOUSER, MONGOPASS, SECURE_COOKIE, SSL_CERT, XDOMAIN, REDIS are optional parametes"
 
@@ -54,4 +54,4 @@ fi
 echo "use follow ottemo.ini config:"
 cat ottemo.ini
 
-./foundation
+./commerce

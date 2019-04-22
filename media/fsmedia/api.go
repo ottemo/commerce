@@ -1,9 +1,9 @@
 package fsmedia
 
 import (
-	"github.com/ottemo/foundation/api"
-	"github.com/ottemo/foundation/media"
-	"github.com/ottemo/foundation/utils"
+	"github.com/ottemo/commerce/api"
+	"github.com/ottemo/commerce/media"
+	"github.com/ottemo/commerce/utils"
 )
 
 // configures package related API endpoint routines
