@@ -74,17 +74,6 @@ TAGS=$(echo $TAGS| sed 's/,/ /g')
 TAGS="-tags '$TAGS'"
 fi
 
-# install glide to $GOPATH
-#     if it does not exist yet
-#
-#if [ ! -f "$GOPATH/bin/glide" ]; then
-#    echo "Glide not found, installing it.\n"
-#    go get github.com/Masterminds/glide
-#fi
-
-# install project dependencies
-$GOPATH/bin/glide install
-
 
 CMD="go build -a $TAGS $LDFLAGS $OTTEMOPKG"
 eval CGO_ENABLED=0 $CMD
