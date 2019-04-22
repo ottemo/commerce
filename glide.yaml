@@ -1,4 +1,4 @@
-package: github.com/ottemo/foundation
+package: github.com/ottemo/commerce
 import:
 - package: github.com/Pallinder/go-randomdata
 - package: github.com/Sirupsen/logrus
