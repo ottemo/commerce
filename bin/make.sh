@@ -59,11 +59,9 @@ LDFLAGS+="-X \"github.com/ottemo/foundation/app.buildBranch=$BRANCH\" "
 LDFLAGS+="-X \"github.com/ottemo/foundation/app.buildHash=$HASH\" "
 LDFLAGS+="'"
 
-# need to convert GOVERSION string to number
+# uncomment for go versions previous to 1.7 using the old linker
 #
-if [ "`${AWK} "BEGIN{ if (($GOVERSION +0) < 1.5) print 1 }"`" == "1" ]; then
-  LDFLAGS=${LDFLAGS//=/\" \"}
-fi
+#  LDFLAGS=${LDFLAGS//=/\" \"}
 
 if [ -z "$GOPATH" ]; then
 REPLACE="/src/$OTTEMOPKG"
