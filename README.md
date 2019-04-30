@@ -3,6 +3,7 @@ Ottemo
 
 [![GoDoc](https://godoc.org/github.com/ottemo/commerce?status.svg)](https://godoc.org/github.com/ottemo/commerce)
 [![Go Report Status](https://goreportcard.com/badge/github.com/ottemo/commerce)](https://goreportcard.com/report/github.com/ottemo/commerce)
+[![GitHub version](https://badge.fury.io/ottemo/commerce%2Fcommerce.svg)](https://badge.fury.io/ottemo/commerce%2Fcommerce)
 
 a small, wicked fast ecommerce platform built for gophers
 
