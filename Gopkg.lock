@@ -2,6 +2,14 @@
 
 
 [[projects]]
+  digest = "1:b62a3c5b37db602bf1158e921da1a762315a4c37855fd418a14498aa87a342d5"
+  name = "cloud.google.com/go"
+  packages = ["civil"]
+  pruneopts = "UT"
+  revision = "fcb9a2d5f791d07be64506ab54434de65989d370"
+  version = "v0.37.4"
+
+[[projects]]
   digest = "1:ddaeea4ba16546053455f7139c27b9efe16a6a739353043cc2af76a9437d73b2"
   name = "github.com/Pallinder/go-randomdata"
   packages = ["."]
@@ -26,14 +34,6 @@
   revision = "551aad21a6682b95329c1f5bd62ee5060d64f7e8"
 
 [[projects]]
-  digest = "1:7b81d2ed76bf960333a8020c4b8c22abd6072f0b54ad31c66e90e6a17a19315a"
-  name = "github.com/bshuster-repo/logrus-logstash-hook"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "dbc1e22735aa6ed7bd9579a407c17bc7c4a4e046"
-  version = "v0.4.1"
-
-[[projects]]
   digest = "1:667f41be124637d8af08d9163be07cc718ae291bc590b6a91047c94b25ef0753"
   name = "github.com/davecgh/go-spew"
   packages = ["spew"]
@@ -47,6 +47,17 @@
   packages = ["."]
   pruneopts = "UT"
   revision = "6a29415a8364ec2971fdc62d9e415ed53fc20410"
+
+[[projects]]
+  branch = "master"
+  digest = "1:c9dd44a96bdb9689436c2a1adbbcaba649ff4d51711e1aeab408f4e177dce8a5"
+  name = "github.com/denisenkom/go-mssqldb"
+  packages = [
+    ".",
+    "internal/cp",
+  ]
+  pruneopts = "UT"
+  revision = "731ef375ac027e24d275c5432221dbec5007a647"
 
 [[projects]]
   digest = "1:2ca362d3e01e3cedf7231099f80559affd65f03173bf65e5ff26264b14b92712"
@@ -124,14 +135,6 @@
   revision = "d8ed2627bdf02c080bf22230dbb337003b7aba2d"
 
 [[projects]]
-  digest = "1:8011d6367a04c40f1a9f50274e5e22b1cd5c05104d87cd8cf21d5a56c0cc3bd8"
-  name = "github.com/sirupsen/logrus"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "ba1b36c82c5e05c4f912a88eab0dcd91a171688f"
-  version = "v0.11.5"
-
-[[projects]]
   digest = "1:25f2747b063c0a656195ef85413cef8c9f2bbe128deab7d39563a6ca1e536070"
   name = "github.com/stretchr/testify"
   packages = ["assert"]
@@ -163,6 +166,14 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:100a36e16f77aaad7c9144ab26bcefb92c5b6ebed5b137f935fdc11f541fa5b8"
+  name = "golang.org/x/crypto"
+  packages = ["md4"]
+  pruneopts = "UT"
+  revision = "a29dc8fdc73485234dbef99ebedb95d2eced08de"
+
+[[projects]]
+  branch = "master"
   digest = "1:4c5fae3d31eb72f59429f9218ff258128ef37edcae9785f93bb9f1609b392c51"
   name = "golang.org/x/image"
   packages = [
@@ -172,14 +183,6 @@
   ]
   pruneopts = "UT"
   revision = "4e30a6eb7d9a7fbd8f97e1d47806f810d86cfc6e"
-
-[[projects]]
-  branch = "master"
-  digest = "1:55565b142e38b7d00c39ce9a86fc70bbfa37c4f2f00d8ff2343f433c351db8e3"
-  name = "golang.org/x/sys"
-  packages = ["unix"]
-  pruneopts = "UT"
-  revision = "953cdadca894cdc07be76fc99f95b40c28f06623"
 
 [[projects]]
   branch = "v2"
@@ -210,8 +213,8 @@
     "github.com/Pallinder/go-randomdata",
     "github.com/avator/authorizecim",
     "github.com/bradfitz/gomemcache/memcache",
-    "github.com/bshuster-repo/logrus-logstash-hook",
     "github.com/dchest/captcha",
+    "github.com/denisenkom/go-mssqldb",
     "github.com/disintegration/imaging",
     "github.com/drhodes/golorem",
     "github.com/fiorix/go-redis/redis",
@@ -220,7 +223,6 @@
     "github.com/julienschmidt/httprouter",
     "github.com/lionelbarrow/braintree-go",
     "github.com/mxk/go-sqlite/sqlite3",
-    "github.com/sirupsen/logrus",
     "github.com/stretchr/testify/assert",
     "github.com/stripe/stripe-go",
     "github.com/stripe/stripe-go/card",

@@ -3,7 +3,7 @@ package test
 import (
 	"testing"
 
-	"githbu.com/ottemo/commerce/db"
+	"github.com/ottemo/commerce/db"
 	"github.com/ottemo/commerce/utils"
 )
 
