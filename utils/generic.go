@@ -317,7 +317,7 @@ func Clone(subject interface{}) interface{} {
 	return result
 }
 
-// Convert string to snake_case format
+// StrToSnakeCase will convert the string to snake_case format
 func StrToSnakeCase(str string) string {
 	str = regexpAnyToSnakeCase.ReplaceAllString(str, "${1}_${2}")
 	str = strings.Trim(str, "_")
@@ -325,7 +325,7 @@ func StrToSnakeCase(str string) string {
 	return strings.ToLower(str)
 }
 
-// Convert string from snake_case to camelCase format
+// StrToCamelCase will convert the string from snake_case to camelCase format
 func StrToCamelCase(str string) string {
 	operator := func(matchedStr string) string {
 		matchedStr = strings.Trim(matchedStr, "_")

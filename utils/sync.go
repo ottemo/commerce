@@ -7,16 +7,15 @@ import (
 )
 
 var (
-	locks      = make(map[uintptr]*syncMutex)
+	locks      = make(map[uintptr]*SyncMutex)
 	locksMutex sync.Mutex
 
 	scalarLocks      = make(map[interface{}]*scalarSyncMutex)
 	scalarLocksMutex sync.Mutex
 )
 
-//----------------------------------------------------------------------------------------------------------------------
-// syncMutex an extended variation of sync.Mutex
-type syncMutex struct {
+// SyncMutex an extended variation of sync.Mutex
+type SyncMutex struct {
 	index uintptr
 	refs  int
 	lock  bool
@@ -24,13 +23,13 @@ type syncMutex struct {
 }
 
 // Lock holds the lock on a mutex
-func (it *syncMutex) Lock() {
+func (it *SyncMutex) Lock() {
 	it.mutex.Lock()
 	it.lock = true
 }
 
 // Unlock releases the mutex lock
-func (it *syncMutex) Unlock() {
+func (it *SyncMutex) Unlock() {
 	locksMutex.Lock()
 	defer locksMutex.Unlock()
 
@@ -44,17 +43,17 @@ func (it *syncMutex) Unlock() {
 }
 
 // GetIndex returns the pointer of an holden subject (the index in global mutexes map)
-func (it *syncMutex) GetIndex() uintptr {
+func (it *SyncMutex) GetIndex() uintptr {
 	return it.index
 }
 
 // IsLocked checks if the mutex if currently locked without actual lock
-func (it *syncMutex) IsLocked() bool {
+func (it *SyncMutex) IsLocked() bool {
 	return it.lock
 }
 
 // Refs returns the amount of references to a mutex
-func (it *syncMutex) Refs() int {
+func (it *SyncMutex) Refs() int {
 	return it.refs
 }
 
@@ -92,8 +91,8 @@ func GetPointer(subject interface{}) (uintptr, error) {
 	return 0, errors.New("can't get pointer to " + value.Type().String())
 }
 
-// SyncMutex creates a mutex element for a given subject or error for a scalar values (un-addressable values)
-func SyncMutex(subject interface{}) (*syncMutex, error) {
+// NewSyncMutex creates a mutex element for a given subject or errors for a scalar value (ie. an un-addressable value)
+func NewSyncMutex(subject interface{}) (*SyncMutex, error) {
 	locksMutex.Lock()
 	defer locksMutex.Unlock()
 
@@ -106,7 +105,7 @@ func SyncMutex(subject interface{}) (*syncMutex, error) {
 	}
 	mutex, present := locks[index]
 	if !present {
-		mutex = new(syncMutex)
+		mutex = new(SyncMutex)
 		mutex.index = index
 		locks[index] = mutex
 	}
@@ -116,7 +115,7 @@ func SyncMutex(subject interface{}) (*syncMutex, error) {
 
 // SyncLock holds mutex on a given subject
 func SyncLock(subject interface{}) error {
-	mutex, err := SyncMutex(subject)
+	mutex, err := NewSyncMutex(subject)
 	if err != nil {
 		return err
 	}
@@ -126,7 +125,7 @@ func SyncLock(subject interface{}) error {
 
 // SyncUnlock releases mutex on a given subject
 func SyncUnlock(subject interface{}) error {
-	mutex, err := SyncMutex(subject)
+	mutex, err := NewSyncMutex(subject)
 	if err != nil {
 		return err
 	}
@@ -174,7 +173,7 @@ func getSyncScalarMutext(subject interface{}, createNew bool) *scalarSyncMutex {
 	return nil
 }
 
-// ScalarSyncLock holds mutex on a given scalar subject.
+// SyncScalarLock holds the mutex on a given scalar subject.
 func SyncScalarLock(subject interface{}) error {
 	var mutexPtr = getSyncScalarMutext(subject, true)
 	mutexPtr.lock()
@@ -182,7 +181,7 @@ func SyncScalarLock(subject interface{}) error {
 	return nil
 }
 
-// ScalarSyncUnlock releases mutex on a given scalar subject.
+// SyncScalarUnlock releases the mutex on the scalar subject.
 // It forgets subject if no more refs exists.
 func SyncScalarUnlock(subject interface{}) error {
 	var mutexPtr = getSyncScalarMutext(subject, false)
@@ -204,13 +203,13 @@ func SyncScalarUnlock(subject interface{}) error {
 // pathItem represents the stack of (index, value, mutex) collected during path-walk on a tree like type value
 type pathItem struct {
 	parent *pathItem
-	mutex  *syncMutex
+	mutex  *SyncMutex
 	locked bool
 	key    reflect.Value
 	value  reflect.Value
 }
 
-// Lock is a SyncMutex.Lock() implementation for a pathItem
+// Lock is a NewSyncMutex.Lock() implementation for a pathItem
 // (it uses own it.locked flag to safely handle Lock/Unlock only for a current instance)
 func (it *pathItem) Lock() {
 	if it.mutex != nil && !it.locked {
@@ -219,7 +218,7 @@ func (it *pathItem) Lock() {
 	}
 }
 
-// Unlock is a SyncMutex.Lock() implementation for a pathItem
+// Unlock is a NewSyncMutex.Lock() implementation for a pathItem
 // (it uses own it.locked flag to safely handle Lock/Unlock only for a current instance)
 func (it *pathItem) Unlock() {
 	if it.mutex != nil && it.locked {
@@ -247,7 +246,7 @@ func (it *pathItem) UnlockStack() {
 // the copy of slice is made -with such case the parent items information will address unused memory and should be updated )
 func (it *pathItem) Update(newSubject reflect.Value) {
 	stack := make([]*pathItem, 0, 100)
-	wasLocked := make([]*syncMutex, 0, 100)
+	wasLocked := make([]*SyncMutex, 0, 100)
 
 	// collecting pathItem stack and locking items
 	for x := it.parent; x != nil; x = x.parent {
@@ -270,7 +269,7 @@ func (it *pathItem) Update(newSubject reflect.Value) {
 		}
 
 		if oldValue != stack[i-1].value {
-			mutex, err := SyncMutex(stack[i-1].value)
+			mutex, err := NewSyncMutex(stack[i-1].value)
 			if err != nil {
 				panic(err)
 			}
@@ -459,7 +458,7 @@ func getPathItem(subject interface{}, path []interface{}, initBlank bool, lockLe
 	}
 
 	// taking mutex for subject if possible
-	mutex, err := SyncMutex(rSubject)
+	mutex, err := NewSyncMutex(rSubject)
 	if err != nil {
 		if len(path) != 0 {
 			return nil, err
@@ -608,5 +607,5 @@ func getPathItem(subject interface{}, path []interface{}, initBlank bool, lockLe
 		return nil, errors.New("invalid subject, path can not be applied to: " + rSubjectType.String())
 	}
 
-	return pathItem, nil
+	//return pathItem, nil
 }

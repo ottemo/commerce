@@ -3,9 +3,9 @@ package utils
 import (
 	"fmt"
 	"math/rand"
+	"sync"
 	"testing"
 	"time"
-	"sync"
 )
 
 //func BenchmarkPtrMapAccess(b *testing.B) {
@@ -77,7 +77,7 @@ func TestMutex(t *testing.T) {
 				key1 := rand.Intn(scatter)
 				key2 := rand.Intn(scatter)
 
-				m, err := SyncMutex(x) // synchronization
+				m, err := NewSyncMutex(x) // synchronization
 				if err != nil {
 					t.Error(err)
 				}
@@ -236,8 +236,8 @@ func TestScalarSyncSet(t *testing.T) {
 	var wg sync.WaitGroup
 	wg.Add(len(tests))
 
-	for _, test := range(tests) {
-		go func(scalar interface{}){
+	for _, test := range tests {
+		go func(scalar interface{}) {
 			defer wg.Done()
 			var err error
 
