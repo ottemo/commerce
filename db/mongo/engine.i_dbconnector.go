@@ -4,10 +4,11 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"errors"
-	"gopkg.in/mgo.v2"
 	"io/ioutil"
 	"net"
 	"time"
+
+	"gopkg.in/mgo.v2"
 
 	"github.com/ottemo/commerce/env"
 )
@@ -50,7 +51,7 @@ func (it *DBEngine) GetConnectionParams() interface{} {
 func (it *DBEngine) Connect(srcConnectionParams interface{}) error {
 	connectionParams, ok := srcConnectionParams.(connectionParamsType)
 	if !ok {
-		return errors.New("Wrong connection parameters type.")
+		return errors.New("missing or wrong connection parameters passed")
 	}
 
 	if !connectionParams.UseSSL {
@@ -84,7 +85,7 @@ func (it *DBEngine) Connect(srcConnectionParams interface{}) error {
 func (it *DBEngine) AfterConnect(srcConnectionParams interface{}) error {
 	connectionParams, ok := srcConnectionParams.(connectionParamsType)
 	if !ok {
-		return errors.New("Wrong connection parameters type.")
+		return errors.New("missing or wrong connection parameters passed")
 	}
 
 	it.database = it.session.DB(connectionParams.DBName)

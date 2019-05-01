@@ -12,8 +12,9 @@ func init() {
 
 	var _ db.InterfaceDBEngine = dbEngine
 
-	var dbConnector = db.NewDBConnector(dbEngine)
-	env.RegisterOnConfigIniStart(dbConnector.Connect)
+	var dbConnection = db.NewConnection(dbEngine)
+	//TODO: change to create the connection async once the drive is stable
+	env.RegisterOnConfigIniStart(dbConnection.Connect)
 
 	if err := db.RegisterDBEngine(dbEngine); err != nil {
 		_ = env.ErrorDispatch(err)

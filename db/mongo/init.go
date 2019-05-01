@@ -9,8 +9,8 @@ import (
 func init() {
 	instance := new(DBEngine)
 
-	var dbConnector = db.NewDBConnector(instance)
-	env.RegisterOnConfigIniStart(dbConnector.ConnectAsync)
+	var dbConnection = db.NewConnection(instance)
+	env.RegisterOnConfigIniStart(dbConnection.Async)
 
 	_ = db.RegisterDBEngine(instance)
 }

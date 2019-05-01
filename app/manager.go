@@ -34,10 +34,9 @@ func OnAppInit(callback func() error) {
 func OnAppStart(callback func() error) {
 	callbacksOnAppStart = append(callbacksOnAppStart, callback)
 
-	// If callback added after application started, they should run imidiately.
-	// It could happens if these callbacks have been waiting for db connection,
-	// for example, because db connect process is async now.
-	if (startFlag) {
+	// If a callback is added after the application starts, the callback should be run immediately. This can happen
+	// if callbacks have been waiting for db connection, for example, especially because db connect process is async now.
+	if startFlag {
 		if err := callback(); err != nil {
 			env.ErrorDispatch(err)
 		}

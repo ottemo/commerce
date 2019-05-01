@@ -66,6 +66,7 @@ func (it *DBEngine) GetCollection(CollectionName string) (db.InterfaceDBCollecti
 //   "db.collection.find().toArray()"
 func (it *DBEngine) RawQuery(query string) (map[string]interface{}, error) {
 	result := make(map[string]interface{})
+	//TODO: add keys if we continue support for mongo to suppress go-vet warning
 	err := it.database.Run(bson.D{{"eval", query}}, result)
 	return result, err
 }
