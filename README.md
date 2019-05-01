@@ -3,6 +3,7 @@ Ottemo
 
 [![GoDoc](https://godoc.org/github.com/ottemo/commerce?status.svg)](https://godoc.org/github.com/ottemo/commerce)
 [![Go Report Status](https://goreportcard.com/badge/github.com/ottemo/commerce)](https://goreportcard.com/report/github.com/ottemo/commerce)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/14a33aebbca74eae96205e625c78fb51)](https://www.codacy.com/app/Ottemo/commerce?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=ottemo/commerce&amp;utm_campaign=Badge_Grade)
 [![GitHub version](https://badge.fury.io/gh/ottemo%2Fcommerce.svg)](https://badge.fury.io/gh/ottemo%2Fcommerce)
 
 a small, wicked fast ecommerce platform built for gophers
