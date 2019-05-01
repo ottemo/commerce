@@ -12,7 +12,6 @@ import (
 
 	// using standard set of packages
 	_ "github.com/ottemo/commerce/basebuild"
-	"github.com/ottemo/commerce/db"
 )
 
 // Package global variables
@@ -147,15 +146,15 @@ func CheckTestIniDefaults() error {
 
 // StartAppInTestingMode starts application in "test mode" (you should use that function for your package test)
 func StartAppInTestingMode() error {
-	var readyChannel = make(chan int, 1)
+	startAppMutex.Lock()
+	defer startAppMutex.Unlock()
 
-	db.RegisterOnDatabaseStart(func() error {
+	readyChannel := make(chan int, 1)
+
+	app.OnAppStart(func() error {
 		readyChannel <- 1
 		return nil
 	})
-
-	startAppMutex.Lock()
-	defer startAppMutex.Unlock()
 
 	if !startAppFlag {
 		err := UpdateWorkingDirectory()
@@ -182,6 +181,5 @@ func StartAppInTestingMode() error {
 	}
 
 	<-readyChannel
-
 	return nil
 }

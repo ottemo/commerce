@@ -5,14 +5,13 @@ import (
 
 	"fmt"
 
-	logrus_logstash "github.com/bshuster-repo/logrus-logstash-hook"
 	"github.com/ottemo/commerce/env"
-	log "github.com/sirupsen/logrus"
 )
 
 // init makes package self-initialization routine
 func init() {
-	log.SetFormatter(&logrus_logstash.LogstashFormatter{Type: "ottemo_api"})
+	// no longer use logstash
+	//log.SetFormatter(&logrus_logstash.LogstashFormatter{Type: "ottemo_api"})
 	instance := new(DefaultLogger)
 	var _ env.InterfaceLogger = instance
 

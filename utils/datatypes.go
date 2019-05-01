@@ -620,3 +620,18 @@ func StringToInterface(value string) interface{} {
 
 	return value
 }
+
+// Now returns current time with nanoseconds
+func Now() time.Time {
+	return time.Now()
+}
+
+// Time returns current time without nanoseconds
+func Time() time.Time {
+	return trimNanoseconds(time.Now())
+}
+
+// trimNanoseconds removes nanoseconds from given time object
+func trimNanoseconds(input time.Time) time.Time {
+	return time.Unix(input.Unix(), 0)
+}

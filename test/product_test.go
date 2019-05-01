@@ -8,21 +8,16 @@ import (
 	"github.com/ottemo/commerce/app/models"
 	"github.com/ottemo/commerce/app/models/product"
 	"github.com/ottemo/commerce/utils"
-	"github.com/ottemo/commerce/db"
 )
 
 // function used to test most product model operations
 func TestProductsOperations(t *testing.T) {
-	// start app
 	err := StartAppInTestingMode()
 	if err != nil {
 		t.Error(err)
 	}
 
-	db.RegisterOnDatabaseStart(func () error {
-		testProductsOperations(t)
-		return nil
-	})
+	testProductsOperations(t)
 }
 
 // function used to test most product model operations
@@ -132,21 +127,12 @@ func BenchmarkSleep1sec(b *testing.B) {
 
 // benchmarks product list obtain operation
 func BenchmarkList50Products(b *testing.B) {
-	// start app
 	err := StartAppInTestingMode()
 	if err != nil {
 		b.Error(err)
 	}
 
-	db.RegisterOnDatabaseStart(func () error {
-		benchmarkList50Products(b)
-		return nil
-	})
-}
-
-// benchmarks product list obtain operation
-func benchmarkList50Products(b *testing.B) {
-	var err = MakeSureProductsCount(100)
+	err = MakeSureProductsCount(100)
 	if err != nil {
 		b.Error(err)
 	}
@@ -172,21 +158,12 @@ func benchmarkList50Products(b *testing.B) {
 
 // benchmarks product load operation throught collection
 func BenchmarkProductCntLoad(b *testing.B) {
-	// start app
 	err := StartAppInTestingMode()
 	if err != nil {
 		b.Error(err)
 	}
 
-	db.RegisterOnDatabaseStart(func () error {
-		benchmarkProductCntLoad(b)
-		return nil
-	})
-}
-
-// benchmarks product load operation throught collection
-func benchmarkProductCntLoad(b *testing.B) {
-	err := MakeSureProductsCount(100)
+	err = MakeSureProductsCount(100)
 	if err != nil {
 		b.Error(err)
 	}
@@ -202,14 +179,6 @@ func benchmarkProductCntLoad(b *testing.B) {
 		if err != nil {
 			b.Error(err)
 		}
-		//productsCount := 100
-
-		//		err = productCollection.ListLimit(rand.Intn(productsCount), 1)
-		//		if err != nil {
-		//			b.Error(err)
-		//		}
-		//
-		//		productCollection.ListProducts()
 	}
 }
 
@@ -221,15 +190,7 @@ func BenchmarkProductLoad(b *testing.B) {
 		b.Error(err)
 	}
 
-	db.RegisterOnDatabaseStart(func () error {
-		benchmarkProductLoad(b)
-		return nil
-	})
-}
-
-// benchmarks product load operation
-func benchmarkProductLoad(b *testing.B) {
-	var err = MakeSureProductsCount(100)
+	err = MakeSureProductsCount(100)
 	if err != nil {
 		b.Error(err)
 	}
@@ -254,20 +215,3 @@ func benchmarkProductLoad(b *testing.B) {
 		}
 	}
 }
-
-// func BenchmarkGetAllProductsParallel(b *testing.B) {
-// 	app.Start()
-// 	b.ResetTimer()
-// 	b.RunParallel(func(pb *testing.PB) {
-// 		for pb.Next() {
-// 			productCollection, err := product.GetProductCollectionModel()
-// 			if err != nil {
-// 				b.Error(err)
-// 			}
-// 			_, err = productCollection.List()
-// 			if err != nil {
-// 				b.Error(err)
-// 			}
-// 		}
-// 	})
-// }
