@@ -10,7 +10,7 @@ import (
 	"github.com/ottemo/foundation/app"
 
 	// using standard set of packages
-	_ "github.com/ottemo/foundation/basebuild"
+	_ "github.com/ottemo/commerce/basebuild"
 	"github.com/ottemo/foundation/env"
 )
 

@@ -33,9 +33,9 @@ func (it *DBEngine) HasCollection(collectionName string) bool {
 func (it *DBEngine) CreateCollection(collectionName string) error {
 	// collectionName = strings.ToLower(collectionName)
 
-	SQL := "CREATE TABLE " + collectionName + " (_id INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY  )"
+	SQL := "CREATE TABLE \"" + collectionName + "\" (_id SERIAL PRIMARY KEY  )"
 	if ConstUseUUIDids {
-		SQL = "CREATE TABLE " + collectionName + " (_id CHAR(24) NOT NULL PRIMARY KEY)"
+		SQL = "CREATE TABLE \"" + collectionName + "\" (_id CHAR(24) NOT NULL PRIMARY KEY)"
 	}
 
 	err := connectionExec(SQL)

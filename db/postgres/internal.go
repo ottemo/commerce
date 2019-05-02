@@ -185,9 +185,9 @@ func GetDBType(ColumnType string) (string, error) {
 	case strings.Contains(ColumnType, "numeric") || strings.Contains(ColumnType, "decimal") || ColumnType == "money":
 		return "NUMERIC", nil
 	case strings.Contains(ColumnType, "date") || strings.Contains(ColumnType, "time"):
-		return "NUMERIC", nil
+		return "TIMESTAMP", nil
 	case ColumnType == "bool" || ColumnType == "boolean":
-		return "NUMERIC", nil
+		return "BOOLEAN", nil
 	}
 
 	return "?", env.ErrorNew(ConstErrorModule, ConstErrorLevel, "80757774-5967-4e47-8429-7ca2cbcea72c", "Unknown type '"+ColumnType+"'")

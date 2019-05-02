@@ -6,7 +6,7 @@ import (
 	_ "github.com/ottemo/foundation/env/errorbus" // Error Bus service
 	_ "github.com/ottemo/foundation/env/eventbus" // Event Bus service
 	_ "github.com/ottemo/foundation/env/ini"      // INI Configuration service
-	_ "github.com/ottemo/foundation/env/logger"   // File-based Logging service
+	// _ "github.com/ottemo/foundation/env/logger"   // File-based Logging service
 
 	_ "github.com/ottemo/foundation/api/context"   // Context runtime transfer service
 	_ "github.com/ottemo/foundation/api/rest"      // RESTful API service
@@ -31,10 +31,10 @@ import (
 	_ "github.com/ottemo/foundation/app/actors/xdomain"      // XDomain support module
 
 	_ "github.com/ottemo/foundation/app/actors/payment/authorizenet" // Authorize.Net payment method
-	_ "github.com/ottemo/foundation/app/actors/payment/braintree"    // Braintree payment method
+	// _ "github.com/ottemo/foundation/app/actors/payment/braintree"    // Braintree payment method
 	_ "github.com/ottemo/foundation/app/actors/payment/checkmo"      // "Check Money Order" payment method
 	_ "github.com/ottemo/foundation/app/actors/payment/paypal"       // PayPal payment method
-	_ "github.com/ottemo/foundation/app/actors/payment/stripe"       // Stripe payment method
+	// _ "github.com/ottemo/foundation/app/actors/payment/stripe"       // Stripe payment method
 
 	_ "github.com/ottemo/foundation/app/actors/shipping/fedex"      // FedEx
 	_ "github.com/ottemo/foundation/app/actors/shipping/flatrate"   // Flat Rate

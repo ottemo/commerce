@@ -4,6 +4,7 @@ import (
 	"errors"
 	"database/sql"
 	"time"
+	"strings"
 
 	"github.com/ottemo/foundation/env"
 	"github.com/ottemo/foundation/utils"
@@ -16,7 +17,7 @@ import (
 // GetConnectionParams returns configured DB connection params
 func (it *DBEngine) GetConnectionParams() interface{} {
 	var connectionParams = connectionParamsType{
-		uri: "/",
+		uri: "postgres://localhost/postgres?sslmode=disable",
 		dbName: "ottemo",
 		poolConnections: 10,
 		maxConnections: 0,
@@ -70,31 +71,41 @@ func (it *DBEngine) Connect(srcConnectionParams interface{}) error {
 		return err
 	}
 
-	if !rows.Next() || rows.Scan(connectionParams.dbName) != nil || connectionParams.dbName == "" {
-		if _, err := it.connection.Exec("USE " + connectionParams.dbName); err != nil {
-			if _, err = it.connection.Exec("CREATE DATABASE " + connectionParams.dbName); err != nil {
-				return err
-			}
-			if _, err = it.connection.Exec("USE " + connectionParams.dbName); err != nil {
+	if !rows.Next() || rows.Scan(&it.dbName) != nil || it.dbName != connectionParams.dbName {
+
+		if _, err = it.connection.Exec("CREATE DATABASE " + connectionParams.dbName); err != nil {
+			if !strings.Contains(err.Error(), "exists") {
 				return err
 			}
 		}
-	}
 
-	it.dbName = connectionParams.dbName
+		if err = it.connection.Close(); err != nil {
+			return err
+		}
+
+		if connectionParams.dbName != "" && strings.Contains(connectionParams.uri, it.dbName) {
+			connectionParams.uri = strings.Replace(connectionParams.uri, "/" + it.dbName, "/" + connectionParams.dbName, -1)
+		} else if strings.Contains(connectionParams.uri, "?") {
+			connectionParams.uri = strings.Replace(connectionParams.uri, "?", "/" + connectionParams.dbName + "?", 1)
+		} else {
+			connectionParams.uri += "/" + connectionParams.dbName
+		}
+
+		return it.Connect(connectionParams)
+
+	}
 
 	return nil
 }
 
 // AfterConnect makes initialization of DB engine
 func (it *DBEngine) AfterConnect(srcConnectionParams interface{}) error {
-	SQL := "CREATE TABLE IF NOT EXISTS `" + ConstCollectionNameColumnInfo + "` ( " +
-		"`_id`        INTEGER NOT NULL AUTO_INCREMENT," +
-		"`collection` VARCHAR(255)," +
-		"`column`     VARCHAR(255)," +
-		"`type`       VARCHAR(255)," +
-		"`indexed`    TINYINT(1)," +
-		"PRIMARY KEY(`_id`) )"
+	SQL := "CREATE TABLE IF NOT EXISTS \"" + ConstCollectionNameColumnInfo + "\" ( " +
+		"\"_id\"        SERIAL PRIMARY KEY," +
+		"\"collection\" VARCHAR(255)," +
+		"\"column\"     VARCHAR(255)," +
+		"\"type\"       VARCHAR(255)," +
+		"\"indexed\"    BOOLEAN)"
 
 	_, err := it.connection.Exec(SQL)
 	if err != nil {
@@ -124,7 +135,7 @@ func (it *DBEngine) SetConnected(connected bool) {
 // Ping checks connection alive
 func (it *DBEngine) Ping() error {
 	// Better way to check connection is alive and "database is selected"
-	rows, err := it.connection.Query("SELECT * FROM " + ConstCollectionNameColumnInfo);
+	rows, err := it.connection.Query("SELECT * FROM \"" + ConstCollectionNameColumnInfo + "\"");
 
 	defer func(rows *sql.Rows){
 		if rows != nil {

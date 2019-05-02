@@ -91,7 +91,7 @@ func (it *DBCollection) Distinct(columnName string) ([]interface{}, error) {
 		_ = env.ErrorDispatch(err)
 	}
 
-	SQL := "SELECT DISTINCT " + it.getSQLResultColumns() + " FROM `" + it.Name + "`" + it.getSQLFilters() + it.getSQLOrder() + it.Limit
+	SQL := "SELECT DISTINCT " + it.getSQLResultColumns() + " FROM \"" + it.Name + "\"" + it.getSQLFilters() + it.getSQLOrder() + it.Limit
 
 	it.ResultColumns = prevResultColumns
 
@@ -154,7 +154,7 @@ func (it *DBCollection) Distinct(columnName string) ([]interface{}, error) {
 func (it *DBCollection) Count() (int, error) {
 	sqlLoadFilter := it.getSQLFilters()
 
-	SQL := "SELECT COUNT(*) AS cnt FROM `" + it.Name + "`" + sqlLoadFilter
+	SQL := "SELECT COUNT(*) AS cnt FROM \"" + it.Name + "\"" + sqlLoadFilter
 
 	rows, err := connectionQuery(SQL)
 	defer closeCursor(rows)
@@ -223,11 +223,11 @@ func (it *DBCollection) Save(item map[string]interface{}) (string, error) {
 
 	for key, value := range item {
 		if item[key] != nil {
-			columns = append(columns, "`"+key+"`")
+			columns = append(columns, "\""+key+"\"")
 			args = append(args, convertValueForSQL(value))
 
 			if key != "_id" {
-				columnEqArg = append(columnEqArg, "`"+key+"`="+convertValueForSQL(value))
+				columnEqArg = append(columnEqArg, "\""+key+"\"="+convertValueForSQL(value))
 			}
 
 			//args = append(args, "$_"+key)
@@ -235,7 +235,7 @@ func (it *DBCollection) Save(item map[string]interface{}) (string, error) {
 		}
 	}
 
-	SQL := "INSERT INTO `" + it.Name + "`" +
+	SQL := "INSERT INTO \"" + it.Name + "\"" +
 		" (" + strings.Join(columns, ",") + ") VALUES" +
 		" (" + strings.Join(args, ",") + ")" +
 		" ON DUPLICATE KEY UPDATE " + strings.Join(columnEqArg, ", ")
@@ -264,7 +264,7 @@ func (it *DBCollection) Save(item map[string]interface{}) (string, error) {
 func (it *DBCollection) Delete() (int, error) {
 	sqlDeleteFilter := it.getSQLFilters()
 
-	SQL := "DELETE FROM `" + it.Name + "` " + sqlDeleteFilter
+	SQL := "DELETE FROM \"" + it.Name + "\" " + sqlDeleteFilter
 
 	affected, err := connectionExecWAffected(SQL)
 
@@ -273,7 +273,7 @@ func (it *DBCollection) Delete() (int, error) {
 
 // DeleteByID removes record from DB by is's id
 func (it *DBCollection) DeleteByID(id string) error {
-	SQL := "DELETE FROM `" + it.Name + "` WHERE `_id` = " + convertValueForSQL(id)
+	SQL := "DELETE FROM \"" + it.Name + "\" WHERE \"_id\" = " + convertValueForSQL(id)
 
 	return connectionExec(SQL)
 }
@@ -401,7 +401,7 @@ func (it *DBCollection) ListColumns() map[string]string {
 	}
 
 	// updating column into collection
-	SQL := "SELECT `column`, `type` FROM `" + ConstCollectionNameColumnInfo + "` WHERE `collection` = '" + it.Name + "'"
+	SQL := "SELECT \"column\", \"type\" FROM \"" + ConstCollectionNameColumnInfo + "\" WHERE \"collection\" = '" + it.Name + "'"
 	rows, _ := connectionQuery(SQL)
 	defer closeCursor(rows)
 
@@ -479,7 +479,7 @@ func (it *DBCollection) AddColumn(columnName string, columnType string, indexed 
 
 	// updating collection info table
 	//--------------------------------
-	SQL := "INSERT INTO `" + ConstCollectionNameColumnInfo + "` (`collection`, `column`, `type`, `indexed`) VALUES (" +
+	SQL := "INSERT INTO \"" + ConstCollectionNameColumnInfo + "\" (\"collection\", \"column\", \"type\", \"indexed\") VALUES (" +
 		"'" + it.Name + "', " +
 		"'" + columnName + "', " +
 		"'" + columnType + "', "
@@ -501,7 +501,7 @@ func (it *DBCollection) AddColumn(columnName string, columnType string, indexed 
 		return env.ErrorDispatch(err)
 	}
 
-	SQL = "ALTER TABLE `" + it.Name + "` ADD COLUMN `" + columnName + "` " + ColumnType
+	SQL = "ALTER TABLE \"" + it.Name + "\" ADD COLUMN \"" + columnName + "\" " + ColumnType
 
 	err = connectionExec(SQL)
 	if err != nil {
@@ -537,14 +537,14 @@ func (it *DBCollection) RemoveColumn(columnName string) error {
 	}
 	closeCursor(rows)
 
-	SQL = "DELETE FROM `" + ConstCollectionNameColumnInfo + "` WHERE `collection`='" + it.Name + "' AND `column`='" + columnName + "'"
+	SQL = "DELETE FROM \"" + ConstCollectionNameColumnInfo + "\" WHERE \"collection\"='" + it.Name + "' AND \"column\"='" + columnName + "'"
 	if err := connectionExec(SQL); err != nil {
 		return sqlError(SQL, err)
 	}
 
 	// updating physical table
 	//-------------------------
-	SQL = "ALTER TABLE `" + it.Name + "` DROP COLUMN `" + columnName + "` "
+	SQL = "ALTER TABLE \"" + it.Name + "\" DROP COLUMN \"" + columnName + "\" "
 
 	err = connectionExec(SQL)
 	if err != nil {
