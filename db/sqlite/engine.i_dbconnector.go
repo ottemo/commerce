@@ -32,7 +32,7 @@ func (it *DBEngine) GetConnectionParams() interface{} {
 func (it *DBEngine) Connect(srcConnectionParams interface{}) error {
 	connectionParams, ok := srcConnectionParams.(connectionParamsType)
 	if !ok {
-		return errors.New("Wrong connection parameters type.")
+		return errors.New("missing or wrong connection parameters provided")
 	}
 
 	newConnection, err := sqlite3.Open(connectionParams.uri)
@@ -80,7 +80,7 @@ func (it *DBEngine) GetValidationInterval() time.Duration {
 func (it *DBEngine) Reconnect(srcConnectionParams interface{}) error {
 	connectionParams, ok := srcConnectionParams.(connectionParamsType)
 	if !ok {
-		return errors.New("Wrong connection parameters type.")
+		return errors.New("missing or wrong connection parameters passed")
 	}
 
 	dbEngine.connectionMutex.Lock()
