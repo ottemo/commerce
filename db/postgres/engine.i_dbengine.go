@@ -16,8 +16,7 @@ func (it *DBEngine) GetName() string {
 func (it *DBEngine) HasCollection(collectionName string) bool {
 	// collectionName = strings.ToLower(collectionName)
 
-	SQL := "SELECT * FROM pg_catalog.pg_tables WHERE schemaname='" + it.dbName +
-		"' AND tablename='" + collectionName + "'"
+	SQL := "SELECT * FROM pg_catalog.pg_tables WHERE tablename='" + collectionName + "'"
 
 	rows, err := connectionQuery(SQL)
 	defer closeCursor(rows)

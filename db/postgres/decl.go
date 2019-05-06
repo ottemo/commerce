@@ -13,7 +13,7 @@ import (
 const (
 	ConstConnectionValidateInterval = time.Second * 10 // timer interval to ping connection and refresh it by perforce
 
-	ConstUseUUIDids = true // flag which indicates to use UUID "_id" column type instead of default integer
+	ConstUseUUIDids = false // flag which indicates to use UUID "_id" column type instead of default integer
 	ConstDebugSQL   = true // flag which indicates to perform log on each SQL operation
 	ConstDebugFile  = "postgres.log"
 

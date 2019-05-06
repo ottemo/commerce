@@ -237,8 +237,13 @@ func (it *DBCollection) Save(item map[string]interface{}) (string, error) {
 
 	SQL := "INSERT INTO \"" + it.Name + "\"" +
 		" (" + strings.Join(columns, ",") + ") VALUES" +
-		" (" + strings.Join(args, ",") + ")" +
-		" ON DUPLICATE KEY UPDATE " + strings.Join(columnEqArg, ", ")
+		" (" + strings.Join(args, ",") + ")"
+
+	if ConstUseUUIDids {
+		SQL += " ON CONFLICT (_id) DO UPDATE SET " + strings.Join(columnEqArg, ", ")
+	} else {
+		SQL += " RETURNING _id"
+	}
 
 	if !ConstUseUUIDids {
 		newIDInt64, err := connectionExecWLastInsertID(SQL, values...)
@@ -484,9 +489,9 @@ func (it *DBCollection) AddColumn(columnName string, columnType string, indexed 
 		"'" + columnName + "', " +
 		"'" + columnType + "', "
 	if indexed {
-		SQL += "1)"
+		SQL += "true)"
 	} else {
-		SQL += "0)"
+		SQL += "false)"
 	}
 
 	err := connectionExec(SQL)

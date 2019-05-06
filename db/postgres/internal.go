@@ -15,12 +15,24 @@ import (
 // exec routines
 func connectionExecWLastInsertID(SQL string, args ...interface{}) (int64, error) {
 
-	result, err := dbEngine.connection.Exec(SQL, args...)
+	var newId int64
+
+	if !strings.Contains(SQL, " RETURNING") {
+		SQL += " RETURNING _id"
+	}
+
+	result, err := dbEngine.connection.Query(SQL, args...)
 	if err != nil {
 		return -1, err
 	}
 
-	return result.LastInsertId()
+	result.Next()
+	if err := result.Scan(&newId); err != nil {
+		return -1, err
+	}
+	result.Close()
+
+	return newId, nil
 }
 
 // exec routines

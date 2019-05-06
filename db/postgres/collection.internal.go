@@ -31,7 +31,7 @@ func (it *DBCollection) makeSQLFilterString(ColumnName string, Operator string, 
 	// array column - special case
 	if strings.HasPrefix(columnType, "[]") {
 		value := strings.Trim(convertValueForSQL(Value), "'")
-		template := "(', ' || `" + ColumnName + "` || ',') LIKE '%, $value,%'"
+		template := "(', ' || \"" + ColumnName + "\" || ',') LIKE '%, $value,%'"
 
 		var resultItems []string
 		for _, arrayItem := range strings.Split(value, ", ") {
@@ -75,7 +75,7 @@ func (it *DBCollection) makeSQLFilterString(ColumnName string, Operator string, 
 	default:
 		Value = convertValueForSQL(Value)
 	}
-	return "`" + ColumnName + "` " + Operator + " " + utils.InterfaceToString(Value), nil
+	return "\"" + ColumnName + "\" " + Operator + " " + utils.InterfaceToString(Value), nil
 }
 
 // returns SQL select statement for current collection
@@ -107,8 +107,8 @@ func (it *DBCollection) modifyResultRow(row RowMap) RowMap {
 
 // joins result columns in string
 func (it *DBCollection) getSQLResultColumns() string {
-	sqlColumns := "`" + strings.Join(it.ResultColumns, "`, `") + "`"
-	if sqlColumns == "``" {
+	sqlColumns := "\"" + strings.Join(it.ResultColumns, "\", \"") + "\""
+	if sqlColumns == "\"\"" {
 		sqlColumns = "*"
 	}
 
