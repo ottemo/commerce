@@ -6,9 +6,9 @@ import (
 	"database/sql"
 
 	"fmt"
-	"github.com/ottemo/foundation/db"
-	"github.com/ottemo/foundation/env"
-	"github.com/ottemo/foundation/utils"
+	"github.com/ottemo/commerce/db"
+	"github.com/ottemo/commerce/env"
+	"github.com/ottemo/commerce/utils"
 	"time"
 )
 
@@ -94,9 +94,9 @@ func convertValueForSQL(value interface{}) string {
 
 	case bool:
 		if value.(bool) {
-			return "1"
+			return "true"
 		}
-		return "0"
+		return "false"
 
 	case string:
 		result := value.(string)
@@ -106,7 +106,7 @@ func convertValueForSQL(value interface{}) string {
 
 		return result
 
-	case int, int32, int64:
+	case int, int32, int64, float32, float64:
 		return utils.InterfaceToString(value)
 
 	case map[string]interface{}, map[string]string:
@@ -116,7 +116,7 @@ func convertValueForSQL(value interface{}) string {
 		return convertValueForSQL(utils.InterfaceToArray(value))
 
 	case time.Time:
-		return convertValueForSQL(value.(time.Time).Unix())
+		return fmt.Sprintf("to_timestamp(%d)", value.(time.Time).Unix())
 
 	case []interface{}:
 		result := ""
@@ -183,7 +183,7 @@ func GetDBType(ColumnType string) (string, error) {
 	case ColumnType == "int" || ColumnType == "integer":
 		return "INTEGER", nil
 	case ColumnType == "real" || ColumnType == "float":
-		return "REAL", nil
+		return "DOUBLE", nil
 	case strings.Contains(ColumnType, "char") || ColumnType == "string":
 		dataType := utils.DataTypeParse(ColumnType)
 		if dataType.Precision > 0 {

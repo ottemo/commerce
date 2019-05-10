@@ -3,6 +3,7 @@ package context
 import (
 	"testing"
 	"fmt"
+	"sync"
 )
 
 func ExampleRunInContext() {
@@ -42,13 +43,13 @@ func TestSimple(t *testing.T) {
 
 	MakeContext(func() { A(1) })
 
-	//var wg sync.WaitGroup
-	//for i := 0; i < 10; i++ {
-	//	wg.Add(1)
-	//	go func() {
-	//		defer wg.Done()
-	//		MakeContext(func() { A(i) })
-	//	}()
-	//}
-	//wg.Wait()
+	var wg sync.WaitGroup
+	for i := 0; i < 10; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			MakeContext(func() { A(i) })
+		}()
+	}
+	wg.Wait()
 }

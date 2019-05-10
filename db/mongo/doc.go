@@ -2,7 +2,7 @@
 
 /*
 Package mongo is a default mongoDB implementation for Ottemo. It provides "InterfaceDBEngine" implementation declared in
-"github.com/ottemo/foundation/db" package.
+"github.com/ottemo/commerce/db" package.
 
 Package stands on a top of "gopkg.in/mgo.v2" package.
 

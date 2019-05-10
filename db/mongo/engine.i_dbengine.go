@@ -3,8 +3,8 @@ package mongo
 import (
 	"strings"
 
-	"github.com/ottemo/foundation/db"
-	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/commerce/db"
+	"github.com/ottemo/commerce/env"
 
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"

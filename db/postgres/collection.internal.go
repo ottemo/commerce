@@ -7,9 +7,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ottemo/foundation/db"
-	"github.com/ottemo/foundation/env"
-	"github.com/ottemo/foundation/utils"
+	"github.com/ottemo/commerce/db"
+	"github.com/ottemo/commerce/env"
+	"github.com/ottemo/commerce/utils"
 )
 
 // makes SQL filter string based on ColumnName, Operator and Value parameters or returns nil
@@ -81,6 +81,7 @@ func (it *DBCollection) makeSQLFilterString(ColumnName string, Operator string, 
 // returns SQL select statement for current collection
 func (it *DBCollection) getSelectSQL() string {
 	SQL := "SELECT " + it.getSQLResultColumns() + " FROM " + it.Name + it.getSQLFilters() + it.getSQLOrder() + it.Limit
+	print(SQL + "\n")
 	return SQL
 }
 
@@ -140,9 +141,6 @@ func (it *DBCollection) getSQLFilters() string {
 					joinOperator = " OR "
 				}
 				subFilters := collectSubfilters(filterGroupName)
-				if len(subFilters) > 0 {
-					subFilters = append([]string{""}, subFilters...)
-				}
 				filterValue := "(" + strings.Join(filterGroup.FilterValues, joinOperator) + strings.Join(subFilters, joinOperator) + ")"
 				result = append(result, filterValue)
 			}

@@ -1,8 +1,10 @@
 package postgres
 
 import (
-	"github.com/ottemo/foundation/db"
-	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/commerce/db"
+	"github.com/ottemo/commerce/env"
+
+	_ "github.com/lib/pq"
 )
 
 // init makes package self-initialization routine

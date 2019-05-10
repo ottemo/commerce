@@ -5,7 +5,7 @@ import (
 	"sort"
 	"time"
 
-	"github.com/ottemo/foundation/utils"
+	"github.com/ottemo/commerce/utils"
 )
 
 // ConvertMapToDoc is a recursive function that converts map[string]interface{} to bson.D

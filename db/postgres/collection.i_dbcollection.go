@@ -6,14 +6,16 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/ottemo/foundation/db"
-	"github.com/ottemo/foundation/env"
-	"github.com/ottemo/foundation/utils"
+	"github.com/ottemo/commerce/db"
+	"github.com/ottemo/commerce/env"
+	"github.com/ottemo/commerce/utils"
 )
 
 // LoadByID loads record from DB by it's id
 func (it *DBCollection) LoadByID(id string) (map[string]interface{}, error) {
 	var result map[string]interface{}
+
+	it.ClearFilters()
 
 	if !ConstUseUUIDids {
 		if err := it.AddFilter("_id", "=", id); err != nil {
@@ -353,9 +355,9 @@ func (it *DBCollection) ClearFilters() error {
 func (it *DBCollection) AddSort(ColumnName string, Desc bool) error {
 	if it.HasColumn(ColumnName) {
 		if Desc {
-			it.Order = append(it.Order, ColumnName+" DESC")
+			it.Order = append(it.Order, "\"" + ColumnName + "\" DESC")
 		} else {
-			it.Order = append(it.Order, ColumnName)
+			it.Order = append(it.Order, "\"" + ColumnName + "\"")
 		}
 	} else {
 		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "57703bc5-d3a5-4367-92e5-960d5582a407", "can't find column '"+ColumnName+"'")
