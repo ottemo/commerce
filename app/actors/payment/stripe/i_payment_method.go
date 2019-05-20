@@ -61,10 +61,10 @@ func (it *Payment) Authorize(orderInstance order.InterfaceOrder, paymentInfo map
 		visitorID := utils.InterfaceToString(extra["visitor_id"])
 		stripeCID := getStripeCustomerToken(visitorID)
 		if stripeCID == "" {
-
+			email := utils.InterfaceToString(extra["email"])
 			// 2. We don't have a stripe id on file, make a new customer
 			c, err := customer.New(&stripe.CustomerParams{
-				Email: utils.InterfaceToString(extra["email"]),
+				Email: &email,
 				// TODO: coupons?
 			})
 			if err != nil {
@@ -92,7 +92,7 @@ func (it *Payment) Authorize(orderInstance order.InterfaceOrder, paymentInfo map
 		// but this map is translated into other keys to store a token
 		result := map[string]interface{}{
 			"transactionID":      ca.ID,                        // token_id
-			"creditCardLastFour": ca.LastFour,                  // number
+			"creditCardLastFour": ca.Last4,                     // number
 			"creditCardType":     getCCBrand(string(ca.Brand)), // type
 			"creditCardExp":      formatCardExp(*ca),           // expiration_date
 			"customerID":         stripeCID,                    // customer_id
@@ -120,10 +120,14 @@ func (it *Payment) Authorize(orderInstance order.InterfaceOrder, paymentInfo map
 			return nil, env.ErrorDispatch(err)
 		}
 
+		currency := "usd"
+		amount := int64(orderInstance.GetGrandTotal() * 100)
+		customer := stripeCID
+
 		chParams := stripe.ChargeParams{
-			Currency: "usd",
-			Amount:   uint64(orderInstance.GetGrandTotal() * 100), // Amount is in cents
-			Customer: stripeCID,                                   // Mandatory
+			Currency: &currency,
+			Amount:   &amount,   // Amount is in cents
+			Customer: &customer, // Mandatory
 		}
 		if err := chParams.SetSource(cardID); err != nil {
 			_ = env.ErrorNew(ConstErrorModule, env.ConstErrorLevelActor, "329ddd35-8fdc-4681-9a02-06290a405073", err.Error())
@@ -139,11 +143,15 @@ func (it *Payment) Authorize(orderInstance order.InterfaceOrder, paymentInfo map
 		// - don't create a customer, or store a token
 		// - email is stored on the charge's meta hashmap
 		var err error
+
+		currency := "usd"
+		amount := int64(orderInstance.GetGrandTotal() * 100)
+
 		chargeParams := stripe.ChargeParams{
-			Currency: "usd",
-			Amount:   uint64(orderInstance.GetGrandTotal() * 100), // Amount is in cents
+			Currency: &currency,
+			Amount:   &amount, // Amount is in cents
 		}
-		chargeParams.AddMeta("email", utils.InterfaceToString(orderInstance.Get("customer_email")))
+		chargeParams.AddMetadata("email", utils.InterfaceToString(orderInstance.Get("customer_email")))
 
 		// Must attach either `customer` or `source` to charge
 		// source can be either a `token` or `cardParams`
@@ -170,7 +178,7 @@ func (it *Payment) Authorize(orderInstance order.InterfaceOrder, paymentInfo map
 	// Assemble the response
 	orderPaymentInfo := map[string]interface{}{
 		"transactionID":     ch.ID,
-		"creditCardNumbers": ch.Source.Card.LastFour,
+		"creditCardNumbers": ch.Source.Card.Last4,
 		"creditCardExp":     formatCardExp(*ch.Source.Card),
 		"creditCardType":    getCCBrand(string(ch.Source.Card.Brand)),
 	}
@@ -180,15 +188,15 @@ func (it *Payment) Authorize(orderInstance order.InterfaceOrder, paymentInfo map
 
 // returns string of mmyy
 func formatCardExp(c stripe.Card) string {
-	exp := utils.InterfaceToString(c.Month)
+	exp := utils.InterfaceToString(c.ExpMonth)
 
 	// pad with a zero
-	if c.Month < 10 {
+	if c.ExpMonth < 10 {
 		exp = "0" + exp
 	}
 
 	// append the last two year digits
-	y := utils.InterfaceToString(c.Year)
+	y := utils.InterfaceToString(c.ExpYear)
 	if len(y) == 4 {
 		exp = exp + y[:2]
 	} else {
@@ -211,15 +219,20 @@ func getCardParams(ccInfo map[string]interface{}, stripeCID string) (*stripe.Car
 		return &stripe.CardParams{}, err
 	}
 
+	cardNumber := utils.InterfaceToString(ccInfo["number"])
+	expMonth := utils.InterfaceToString(ccInfo["expire_month"])
+	expYear := utils.InterfaceToString(ccInfo["expire_year"])
+	billingName := utils.InterfaceToString(ccInfo["billing_name"])
+
 	cp := &stripe.CardParams{
-		Number: utils.InterfaceToString(ccInfo["number"]),
-		Month:  utils.InterfaceToString(ccInfo["expire_month"]),
-		Year:   utils.InterfaceToString(ccInfo["expire_year"]),
-		CVC:    ccCVC, // Optional, highly recommended
+		Number:   &cardNumber,
+		ExpMonth: &expMonth ,
+		ExpYear:  &expYear,
+		CVC:      &ccCVC, // Optional, highly recommended
 
 		// might not be passed in
-		Customer: stripeCID,
-		Name:     utils.InterfaceToString(ccInfo["billing_name"]), // Optional
+		Customer: &stripeCID,
+		Name:     &billingName, // Optional
 
 		// Address fields can be passed here as well to aid in fraud prevention
 	}
@@ -232,9 +245,11 @@ func (it *Payment) DeleteSavedCard(token visitor.InterfaceVisitorCard) (interfac
 	// Set our api key, applies to any http calls
 	stripe.Key = it.ConfigAPIKey()
 
+	customer := token.GetCustomerID()
+
 	card, err := card.Del(
 		token.GetToken(),
-		&stripe.CardParams{Customer: token.GetCustomerID()},
+		&stripe.CardParams{Customer: &customer},
 	)
 
 	if err != nil {
