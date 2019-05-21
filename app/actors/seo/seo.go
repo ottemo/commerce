@@ -9,16 +9,16 @@ package seo
 import (
 	"strings"
 
-	"github.com/ottemo/foundation/db"
-	"github.com/ottemo/foundation/env"
-	"github.com/ottemo/foundation/utils"
+	"github.com/ottemo/commerce/db"
+	"github.com/ottemo/commerce/env"
+	"github.com/ottemo/commerce/utils"
 
-	"github.com/ottemo/foundation/app/models"
-	"github.com/ottemo/foundation/app/models/seo"
+	"github.com/ottemo/commerce/app/models"
+	"github.com/ottemo/commerce/app/models/seo"
 )
 
 // ---------------------------------------------------------------------------------
-// InterfaceModel implementation (package "github.com/ottemo/foundation/app/models")
+// InterfaceModel implementation (package "github.com/ottemo/commerce/app/models")
 // ---------------------------------------------------------------------------------
 
 // GetModelName returns model name
@@ -39,7 +39,7 @@ func (it *DefaultSEOItem) New() (models.InterfaceModel, error) {
 }
 
 // -------------------------------------------------------------------------------------------
-// InterfaceSEOItem implementation (package "github.com/ottemo/foundation/app/models/seo")
+// InterfaceSEOItem implementation (package "github.com/ottemo/commerce/app/models/seo")
 // -------------------------------------------------------------------------------------------
 
 // GetURL returns url for the given seo
@@ -80,7 +80,7 @@ func (it *DefaultSEOItem) GetMetaKeywords() string {
 }
 
 // ------------------------------------------------------------------------------------
-// InterfaceStorable implementation (package "github.com/ottemo/foundation/app/models")
+// InterfaceStorable implementation (package "github.com/ottemo/commerce/app/models")
 // ------------------------------------------------------------------------------------
 
 // GetID returns current seo id
@@ -158,7 +158,7 @@ func (it *DefaultSEOItem) Save() error {
 }
 
 // ----------------------------------------------------------------------------------
-// InterfaceObject implementation (package "github.com/ottemo/foundation/app/models")
+// InterfaceObject implementation (package "github.com/ottemo/commerce/app/models")
 // ----------------------------------------------------------------------------------
 
 // Get returns an object attribute value or nil

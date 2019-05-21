@@ -1,9 +1,9 @@
 // Package checkmo is a "Check Money Order" implementation of payment method interface declared in
-// "github.com/ottemo/foundation/app/models/checkout" package
+// "github.com/ottemo/commerce/app/models/checkout" package
 package checkmo
 
 import (
-	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/commerce/env"
 )
 
 // Package global constants

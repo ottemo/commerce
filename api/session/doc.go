@@ -1,8 +1,8 @@
-// Copyright 2014 The Ottemo Authors. All rights reserved.
+// Copyright 2019 Ottemo. All rights reserved.
 
 /*
 Package session is a default implementation of a application Session manager. That package provides "InterfaceSessionService"
-functionality declared in "github.com/ottemo/foundation/api" package.
+functionality declared in "github.com/ottemo/commerce/api" package.
 
 Sessions are API call related storage. So, each call to API function supplied with own separated storage which can holds
 a values related to that particular action. By default sessions have a lifetime, within that period application routines

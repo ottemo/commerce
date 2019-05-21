@@ -1,6 +1,6 @@
 package objectref
 
-import "github.com/ottemo/foundation/env"
+import "github.com/ottemo/commerce/env"
 
 // GetID returns current object id
 func (it *DBObjectRef) GetID() string {

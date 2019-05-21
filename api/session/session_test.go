@@ -1,8 +1,8 @@
 package session
 
 import (
-	"github.com/ottemo/foundation/api"
-	"github.com/ottemo/foundation/utils"
+	"github.com/ottemo/commerce/api"
+	"github.com/ottemo/commerce/utils"
 	"math/rand"
 	"testing"
 )

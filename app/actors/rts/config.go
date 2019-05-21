@@ -1,7 +1,7 @@
 package rts
 
 import (
-	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/commerce/env"
 )
 
 func setupConfig() error {

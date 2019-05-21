@@ -1,8 +1,8 @@
 package category
 
 import (
-	"github.com/ottemo/foundation/app/models"
-	"github.com/ottemo/foundation/app/models/category"
+	"github.com/ottemo/commerce/app/models"
+	"github.com/ottemo/commerce/app/models/category"
 )
 
 // GetModelName returns model name

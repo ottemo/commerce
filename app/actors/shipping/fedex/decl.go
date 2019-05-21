@@ -1,9 +1,9 @@
 // Package fedex is a FedEx implementation of shipping method interface declared in
-// "github.com/ottemo/foundation/app/models/checkout" package
+// "github.com/ottemo/commerce/app/models/checkout" package
 package fedex
 
 import (
-	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/commerce/env"
 )
 
 // Package global variables

@@ -1,11 +1,11 @@
 // Package paypal is a PayPal implementation of payment method interface declared in
-// "github.com/ottemo/foundation/app/models/checkout" package
+// "github.com/ottemo/commerce/app/models/checkout" package
 package paypal
 
 import (
 	"sync"
 
-	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/commerce/env"
 )
 
 // Package global constants

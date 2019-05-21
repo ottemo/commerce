@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/gorhill/cronexpr"
-	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/commerce/env"
 )
 
 // Package global constants

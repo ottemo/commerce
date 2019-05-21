@@ -1,16 +1,16 @@
 package seo
 
 import (
-	"github.com/ottemo/foundation/db"
-	"github.com/ottemo/foundation/env"
-	"github.com/ottemo/foundation/utils"
+	"github.com/ottemo/commerce/db"
+	"github.com/ottemo/commerce/env"
+	"github.com/ottemo/commerce/utils"
 
-	"github.com/ottemo/foundation/app/models"
-	"github.com/ottemo/foundation/app/models/seo"
+	"github.com/ottemo/commerce/app/models"
+	"github.com/ottemo/commerce/app/models/seo"
 )
 
 // ---------------------------------------------------------------------------------
-// InterfaceModel implementation (package "github.com/ottemo/foundation/app/models")
+// InterfaceModel implementation (package "github.com/ottemo/commerce/app/models")
 // ---------------------------------------------------------------------------------
 
 // GetModelName returns model name
@@ -34,7 +34,7 @@ func (it *DefaultSEOCollection) New() (models.InterfaceModel, error) {
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-// InterfaceCollection implementation (package "github.com/ottemo/foundation/app/models/interfaces")
+// InterfaceCollection implementation (package "github.com/ottemo/commerce/app/models/interfaces")
 //----------------------------------------------------------------------------------------------------------------------
 
 // GetDBCollection returns database collection
@@ -135,7 +135,7 @@ func (it *DefaultSEOCollection) ListLimit(offset int, limit int) error {
 }
 
 // -----------------------------------------------------------------------------------------------------
-// InterfaceSEOCollection implementation (package "github.com/ottemo/foundation/app/models/seo")
+// InterfaceSEOCollection implementation (package "github.com/ottemo/commerce/app/models/seo")
 // -----------------------------------------------------------------------------------------------------
 
 // ListSEOItems returns array of SEO items in model instance form

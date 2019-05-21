@@ -8,14 +8,14 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/ottemo/foundation/api"
-	"github.com/ottemo/foundation/app"
-	"github.com/ottemo/foundation/env"
-	"github.com/ottemo/foundation/utils"
+	"github.com/ottemo/commerce/api"
+	"github.com/ottemo/commerce/app"
+	"github.com/ottemo/commerce/env"
+	"github.com/ottemo/commerce/utils"
 
-	"github.com/ottemo/foundation/app/models/checkout"
-	"github.com/ottemo/foundation/app/models/order"
-	"github.com/ottemo/foundation/app/models/visitor"
+	"github.com/ottemo/commerce/app/models/checkout"
+	"github.com/ottemo/commerce/app/models/order"
+	"github.com/ottemo/commerce/app/models/visitor"
 )
 
 // GetInternalName returns the name of the payment method
@@ -72,7 +72,7 @@ func (it *DirectPostMethod) Authorize(orderInstance order.InterfaceOrder, paymen
 	//---------------------------
 	formValues := map[string]string{
 		"x_relay_response": utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathDPMCheckout)),
-		"x_relay_url":      app.GetFoundationURL("") + "authorizenet/relay",
+		"x_relay_url":      app.GetcommerceURL("") + "authorizenet/relay",
 
 		"x_test_request": utils.InterfaceToString(env.ConfigGetValue(ConstConfigPathDPMTest)),
 
@@ -131,7 +131,7 @@ func (it *DirectPostMethod) Authorize(orderInstance order.InterfaceOrder, paymen
 		"Visitor ID - "+utils.InterfaceToString(orderInstance.Get("visitor_id"))+", "+
 		"Order ID - "+utils.InterfaceToString(orderInstance.GetID()))
 
-	return api.StructRestRedirect{Result: htmlText, Location: utils.InterfaceToString(env.ConfigGetValue(app.ConstConfigPathFoundationURL)) + "authorizenet/relay"}, nil
+	return api.StructRestRedirect{Result: htmlText, Location: utils.InterfaceToString(env.ConfigGetValue(app.ConstConfigPathcommerceURL)) + "authorizenet/relay"}, nil
 }
 
 // Delete saved card from the payment system.  **This method is for future use**

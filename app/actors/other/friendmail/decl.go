@@ -3,7 +3,7 @@ package friendmail
 
 import (
 	"github.com/dchest/captcha"
-	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/commerce/env"
 	"sync"
 	"time"
 )

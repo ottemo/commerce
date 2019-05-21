@@ -6,14 +6,14 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ottemo/foundation/app/actors/other/vantagepoint/actors"
-	"github.com/ottemo/foundation/app/actors/stock"
-	"github.com/ottemo/foundation/db"
-	"github.com/ottemo/foundation/env"
-	"github.com/ottemo/foundation/test"
-	"github.com/ottemo/foundation/utils"
+	"github.com/ottemo/commerce/app/actors/other/vantagepoint/actors"
+	"github.com/ottemo/commerce/app/actors/stock"
+	"github.com/ottemo/commerce/db"
+	"github.com/ottemo/commerce/env"
+	"github.com/ottemo/commerce/test"
+	"github.com/ottemo/commerce/utils"
 
-	"github.com/ottemo/foundation/app/models/product"
+	"github.com/ottemo/commerce/app/models/product"
 )
 
 // --------------------------------------------------------------------------------------------------------------------

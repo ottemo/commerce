@@ -6,7 +6,7 @@
 package session
 
 import (
-	"github.com/ottemo/foundation/api"
+	"github.com/ottemo/commerce/api"
 )
 
 // init makes package self-initialization routine

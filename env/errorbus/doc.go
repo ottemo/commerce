@@ -1,7 +1,7 @@
-// Copyright 2014 The Ottemo Authors. All rights reserved.
+// Copyright 2019 Ottemo. All rights reserved.
 
 /*
-Package errorbus is a default implementation of InterfaceErrorBus declared in "github.com/ottemo/foundation/env" package.
+Package errorbus is a default implementation of InterfaceErrorBus declared in "github.com/ottemo/commerce/env" package.
 
 Error bus is a service which provides a convenient way to deliver error to system administrator. Error bus uses logger
 for an error message storing. Error message withing error bus provides with extra information  which allows to fileter

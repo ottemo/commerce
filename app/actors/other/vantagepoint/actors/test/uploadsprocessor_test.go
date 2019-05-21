@@ -8,9 +8,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/commerce/env"
 
-	"github.com/ottemo/foundation/app/actors/other/vantagepoint/actors"
+	"github.com/ottemo/commerce/app/actors/other/vantagepoint/actors"
 )
 
 type testConfig struct{}

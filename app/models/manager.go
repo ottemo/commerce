@@ -1,7 +1,7 @@
 package models
 
 import (
-	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/commerce/env"
 )
 
 // RegisterModel registers new model to system

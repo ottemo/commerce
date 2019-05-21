@@ -4,10 +4,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ottemo/foundation/app/models/checkout"
-	"github.com/ottemo/foundation/app/models/subscription"
-	"github.com/ottemo/foundation/db"
-	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/commerce/app/models/checkout"
+	"github.com/ottemo/commerce/app/models/subscription"
+	"github.com/ottemo/commerce/db"
+	"github.com/ottemo/commerce/env"
 )
 
 // Function for every hour check subscriptions to place an order

@@ -1,8 +1,8 @@
 package block
 
 import (
-	"github.com/ottemo/foundation/app/models"
-	"github.com/ottemo/foundation/app/models/cms"
+	"github.com/ottemo/commerce/app/models"
+	"github.com/ottemo/commerce/app/models/cms"
 )
 
 // GetModelName returns model name

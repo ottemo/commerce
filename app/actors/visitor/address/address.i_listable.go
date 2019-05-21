@@ -1,8 +1,8 @@
 package address
 
 import (
-	"github.com/ottemo/foundation/app/models"
-	"github.com/ottemo/foundation/app/models/visitor"
+	"github.com/ottemo/commerce/app/models"
+	"github.com/ottemo/commerce/app/models/visitor"
 )
 
 // GetCollection returns collection of current instance type

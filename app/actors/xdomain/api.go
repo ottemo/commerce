@@ -3,7 +3,7 @@ package xdomain
 import (
 	"fmt"
 
-	"github.com/ottemo/foundation/api"
+	"github.com/ottemo/commerce/api"
 )
 
 // endpoint configuration for xdomain package

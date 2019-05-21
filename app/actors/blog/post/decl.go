@@ -1,11 +1,11 @@
 // Package post is a default implementation of blog post related interfaces declared in
-// "github.com/ottemo/foundation/app/models/blog/post" package
+// "github.com/ottemo/commerce/app/models/blog/post" package
 package post
 
 import (
 	"time"
 
-	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/commerce/env"
 )
 
 // Package global constants

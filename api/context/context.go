@@ -1,14 +1,13 @@
 package context
 
 import (
-	"sync"
 	"reflect"
 	"runtime"
-	"fmt"
+	"sync"
 )
 
 // proxies holds set of pass-through functions
-var proxies = [...] func(target func()) {
+var proxies = [...]func(target func()){
 	func(target func()) { target() }, // 00
 	func(target func()) { target() }, // 01
 	func(target func()) { target() }, // 02
@@ -268,7 +267,7 @@ var proxies = [...] func(target func()) {
 }
 
 // proxiesBase holds the length of proxies[] - it is context ID digit encoding base (0xff per function call in stack)
-var proxiesBase uint = uint(len(proxies))
+var proxiesBase = uint(len(proxies))
 
 // proxiesDict is a decoding table for proxy functions (proxy function call in stack trace have appropriate numeric value)
 var proxiesDict map[uintptr]uint
@@ -294,9 +293,9 @@ func init() {
 }
 
 // proxyLoop is the service recursive function for context ID value encoding
-func proxyLoop(target func (), i uint) {
+func proxyLoop(target func(), i uint) {
 	i = i - proxiesBase
-	if i > proxiesBase {
+	if i >= proxiesBase {
 		proxyLoop(target, i)
 	} else {
 		proxies[i](target)
@@ -320,34 +319,34 @@ func getCallStack(skip int) []uintptr {
 	for frame, more := frames.Next(); more; frame, more = frames.Next() {
 		result = append(result, frame.Entry)
 		// prints the call stack - for debugging purposes
-		fmt.Printf("%d:%d - %s:%d - %s\n", frame.PC, frame.Entry, frame.File, frame.Line, frame.Function)
+		// fmt.Printf("%d:%d - %s:%d - %s\n", frame.PC, frame.Entry, frame.File, frame.Line, frame.Function)
 	}
 
 	return result
 }
 
-// GetContextId returns current identifier (positive number) or 0 if it does not exists
-func GetContextId() uint {
-	var contextsId uint
+// GetcontextID returns current identifier (positive number) or 0 if it does not exists
+func GetcontextID() uint {
+	var contextID uint
 
 	pointers := getCallStack(2)
 	for idx, ptr := range pointers {
 		if ptr == proxiesStart {
-			for ; idx > 0; idx-- {
-				if value, present := proxiesDict[pointers[idx]]; !present {
-					contextsId += value
+			for idx--; idx > 0; idx-- {
+				if value, present := proxiesDict[pointers[idx]]; present {
+					contextID += value
 				} else {
-					return contextsId + 1
+					return contextID + 1
 				}
 			}
 		}
 	}
-	return contextsId
+	return contextID
 }
 
-// GetContextById returns context map by a given identifier or nil if it does not exists
-func GetContextById(id uint) map[string]interface{}  {
-	var result map[string]interface{} = nil
+// GetContextByID returns context map by a given identifier or nil if it does not exists
+func GetContextByID(id uint) map[string]interface{} {
+	var result map[string]interface{}
 
 	contextsMutex.Lock()
 	if value, present := contexts[id-1]; present {
@@ -382,17 +381,53 @@ func RunInContext(target func(), context map[string]interface{}) map[string]inte
 		contextsMutex.Unlock()
 	}()
 
-	if contextsIdx > proxiesBase {
+	if contextsIdx >= proxiesBase {
 		proxyLoop(target, contextsIdx)
 	} else {
 		proxies[contextsIdx](target)
 	}
-	return contexts[contextsIdx]
+	return context
+}
+
+// GetContextValue returns key value in current context or nil if context or key does not exists
+func GetContextValue(key string) interface{} {
+	contextID := GetcontextID() - 1
+
+	contextsMutex.Lock()
+	defer func() {
+		contextsMutex.Unlock()
+	}()
+
+	if context, present := contexts[contextID]; present {
+		if value, present := context[key]; present {
+			return value
+		}
+	}
+	return nil
+}
+
+// SetContextValue sets key value in current context, returns the previous value or nil if the context or value was not exist
+func SetContextValue(key string, value interface{}) interface{} {
+	contextID := GetcontextID() - 1
+	var result interface{}
+
+	contextsMutex.Lock()
+	defer func() {
+		contextsMutex.Unlock()
+	}()
+
+	if context, present := contexts[contextID]; present {
+		if oldValue, present := context[key]; present {
+			result = oldValue
+		}
+		context[key] = value
+	}
+	return result
 }
 
 // GetContext returns the context map associated to a current stack or nil of there are no context available
 func GetContext() map[string]interface{} {
-	return GetContextById(GetContextId())
+	return GetContextByID(GetcontextID())
 }
 
 // MakeContext executes given function within a new context (alias for RunInContext)

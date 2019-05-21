@@ -2,7 +2,7 @@
 package swatch
 
 import (
-	"github.com/ottemo/foundation/media"
+	"github.com/ottemo/commerce/media"
 )
 
 // Package global constants

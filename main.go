@@ -7,11 +7,11 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/ottemo/foundation/app"
+	"github.com/ottemo/commerce/app"
 
 	// using standard set of packages
 	_ "github.com/ottemo/commerce/basebuild"
-	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/commerce/env"
 )
 
 func init() {

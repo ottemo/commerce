@@ -1,0 +1,106 @@
+# Gopkg.toml example
+#
+# Refer to https://golang.github.io/dep/docs/Gopkg.toml.html
+# for detailed Gopkg.toml documentation.
+#
+# required = ["github.com/user/thing/cmd/thing"]
+# ignored = ["github.com/user/project/pkgX", "bitbucket.org/user/project/pkgA/pkgY"]
+#
+# [[constraint]]
+#   name = "github.com/user/project"
+#   version = "1.0.0"
+#
+# [[constraint]]
+#   name = "github.com/user/project2"
+#   branch = "dev"
+#   source = "github.com/myfork/project2"
+#
+# [[override]]
+#   name = "github.com/x/y"
+#   version = "2.4.0"
+#
+# [prune]
+#   non-go = false
+#   go-tests = true
+#   unused-packages = true
+
+
+[[constraint]]
+  name = "github.com/Pallinder/go-randomdata"
+  version = "1.1.0"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/avator/authorizecim"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/bradfitz/gomemcache"
+
+[[constraint]]
+  name = "github.com/bshuster-repo/logrus-logstash-hook"
+  version = "0.4.1"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/dchest/captcha"
+
+[[constraint]]
+  name = "github.com/disintegration/imaging"
+  version = "1.1.0"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/drhodes/golorem"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/fiorix/go-redis"
+
+[[constraint]]
+  name = "github.com/go-sql-driver/mysql"
+  version = "1.3.0"
+
+[[constraint]]
+  name = "github.com/gorhill/cronexpr"
+  version = "1.0.0"
+
+[[constraint]]
+  name = "github.com/julienschmidt/httprouter"
+  version = "1.1.0"
+
+[[constraint]]
+  name = "github.com/lionelbarrow/braintree-go"
+  version = "0.9.0"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/mxk/go-sqlite"
+
+[[constraint]]
+  name = "github.com/sirupsen/logrus"
+  version = "0.11.5"
+
+[[constraint]]
+  name = "github.com/stretchr/testify"
+  version = "1.1.4"
+
+[[constraint]]
+  name = "github.com/stripe/stripe-go"
+  version = "19.15.0"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/vaughan0/go-ini"
+
+[[constraint]]
+  branch = "v2"
+  name = "gopkg.in/mgo.v2"
+
+[[constraint]]
+  branch = "v1"
+  name = "gopkg.in/xmlpath.v1"
+
+[prune]
+  go-tests = true
+  unused-packages = true

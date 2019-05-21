@@ -3,12 +3,12 @@ package order
 import (
 	"strings"
 
-	"github.com/ottemo/foundation/app/models"
-	"github.com/ottemo/foundation/app/models/checkout"
-	"github.com/ottemo/foundation/app/models/order"
-	"github.com/ottemo/foundation/db"
-	"github.com/ottemo/foundation/env"
-	"github.com/ottemo/foundation/utils"
+	"github.com/ottemo/commerce/app/models"
+	"github.com/ottemo/commerce/app/models/checkout"
+	"github.com/ottemo/commerce/app/models/order"
+	"github.com/ottemo/commerce/db"
+	"github.com/ottemo/commerce/env"
+	"github.com/ottemo/commerce/utils"
 )
 
 // Get returns attribute of Order or nil

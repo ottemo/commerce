@@ -6,11 +6,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ottemo/foundation/api"
-	"github.com/ottemo/foundation/app/actors/blog/post"
-	"github.com/ottemo/foundation/test"
-	"github.com/ottemo/foundation/utils"
-	"github.com/ottemo/foundation/db"
+	"github.com/ottemo/commerce/api"
+	"github.com/ottemo/commerce/app/actors/blog/post"
+	"github.com/ottemo/commerce/test"
+	"github.com/ottemo/commerce/utils"
+	"github.com/ottemo/commerce/db"
 )
 
 //--------------------------------------------------------------------------------------------------------------

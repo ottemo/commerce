@@ -1,6 +1,6 @@
 package emma
 
-import "github.com/ottemo/foundation/env"
+import "github.com/ottemo/commerce/env"
 
 // Package constants for Emma module
 const (

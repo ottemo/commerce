@@ -1,7 +1,7 @@
 package impex
 
 import (
-	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/commerce/env"
 )
 
 // RegisterImportCommand registers new command to import/export system

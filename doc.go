@@ -1,12 +1,12 @@
-// Copyright 2017 The Ottemo Authors. All rights reserved.
+// Copyright 2019 Ottemo. All rights reserved.
 
 /*
-Package foundation represents the Ottemo e-commerce application entry point. This package contains the go main()
+Package commerce represents the Ottemo e-commerce application entry point. This package contains the go main()
 function which assembles the server application.
 
   Example:
-    go build github.com/ottemo/foundation
-    go build -tags mongo github.com/ottemo/foundation
+    go build github.com/ottemo/commerce
+    go build -tags mongo github.com/ottemo/commerce
 
 
 Project structure and convections outline:

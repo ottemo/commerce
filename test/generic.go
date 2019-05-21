@@ -6,13 +6,13 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/ottemo/foundation/app"
-	"github.com/ottemo/foundation/env"
-	"github.com/ottemo/foundation/env/ini"
+	"github.com/ottemo/commerce/app"
+	"github.com/ottemo/commerce/env"
+	"github.com/ottemo/commerce/env/ini"
 
 	// using standard set of packages
-	_ "github.com/ottemo/foundation/basebuild"
-	"github.com/ottemo/foundation/db"
+	_ "github.com/ottemo/commerce/basebuild"
+	"github.com/ottemo/commerce/db"
 )
 
 // Package global variables
@@ -40,7 +40,7 @@ func UpdateWorkingDirectory() error {
 
 	// for Ottemo internal packages
 	workingDirectory, _ := os.Getwd()
-	if value := strings.Index(workingDirectory, "/src/github.com/ottemo/foundation"); value > 0 {
+	if value := strings.Index(workingDirectory, "/src/github.com/ottemo/commerce"); value > 0 {
 		return os.Chdir(workingDirectory[0:value])
 	}
 
@@ -51,7 +51,7 @@ func UpdateWorkingDirectory() error {
 			currentPath = "."
 		}
 
-		_, err := os.Stat(currentPath + "/src/github.com/ottemo/foundation")
+		_, err := os.Stat(currentPath + "/src/github.com/ottemo/commerce")
 		if os.IsExist(err) {
 			return os.Chdir(currentPath)
 		}

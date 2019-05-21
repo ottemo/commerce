@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
-	"github.com/ottemo/foundation/api"
-	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/commerce/api"
+	"github.com/ottemo/commerce/env"
 )
 
 // Package global constants
@@ -23,7 +23,7 @@ const (
 )
 
 // DefaultRestService is a default implementer of InterfaceRestService
-// declared in "github.com/ottemo/foundation/api" package
+// declared in "github.com/ottemo/commerce/api" package
 type DefaultRestService struct {
 	ListenOn string
 	Router   *httprouter.Router

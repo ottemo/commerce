@@ -1,8 +1,8 @@
 package page
 
 import (
-	"github.com/ottemo/foundation/app/models"
-	"github.com/ottemo/foundation/app/models/cms"
+	"github.com/ottemo/commerce/app/models"
+	"github.com/ottemo/commerce/app/models/cms"
 )
 
 // GetCollection returns collection of current instance type

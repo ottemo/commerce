@@ -3,10 +3,10 @@ package flatrate
 import (
 	"strings"
 
-	"github.com/ottemo/foundation/env"
-	"github.com/ottemo/foundation/utils"
+	"github.com/ottemo/commerce/env"
+	"github.com/ottemo/commerce/utils"
 
-	"github.com/ottemo/foundation/app/models/checkout"
+	"github.com/ottemo/commerce/app/models/checkout"
 )
 
 // GetName returns name of shipping method

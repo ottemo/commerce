@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/ottemo/foundation/utils"
+	"github.com/ottemo/commerce/utils"
 
-	"github.com/ottemo/foundation/app/models/product"
+	"github.com/ottemo/commerce/app/models/product"
 )
 
 // --------------------------------------------------------------------------------------------------------------------

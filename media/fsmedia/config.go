@@ -1,7 +1,7 @@
 package fsmedia
 
 import (
-	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/commerce/env"
 )
 
 // setupConfig setups package configuration values for a system

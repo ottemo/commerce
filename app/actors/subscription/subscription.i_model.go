@@ -1,8 +1,8 @@
 package subscription
 
 import (
-	"github.com/ottemo/foundation/app/models"
-	"github.com/ottemo/foundation/app/models/subscription"
+	"github.com/ottemo/commerce/app/models"
+	"github.com/ottemo/commerce/app/models/subscription"
 )
 
 // GetModelName returns model name for the Subscription

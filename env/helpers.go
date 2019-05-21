@@ -3,7 +3,7 @@ package env
 import (
 	"errors"
 
-	"github.com/ottemo/foundation/utils"
+	"github.com/ottemo/commerce/utils"
 )
 
 // ConfigGetValue returns config value or nil if not present

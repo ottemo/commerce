@@ -4,9 +4,9 @@ package subscription
 import (
 	"time"
 
-	"github.com/ottemo/foundation/app/models"
-	"github.com/ottemo/foundation/app/models/checkout"
-	"github.com/ottemo/foundation/app/models/visitor"
+	"github.com/ottemo/commerce/app/models"
+	"github.com/ottemo/commerce/app/models/checkout"
+	"github.com/ottemo/commerce/app/models/visitor"
 )
 
 // InterfaceSubscription represents interface to access business layer implementation of purchase subscription object

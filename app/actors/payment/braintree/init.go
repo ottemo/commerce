@@ -1,9 +1,9 @@
 package braintree
 
 import (
-	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/commerce/env"
 
-	"github.com/ottemo/foundation/app/models/checkout"
+	"github.com/ottemo/commerce/app/models/checkout"
 )
 
 // init makes package self-initialization routine

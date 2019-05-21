@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# location of foundation
+# location of commerce
 HOME=/home/ottemo
-SRCDIR=/home/ottemo/code/go/src/github.com/ottemo/foundation
+SRCDIR=/home/ottemo/code/go/src/github.com/ottemo/commerce
 
 if [ "$BRANCH" == 'develop' ]; then
     #GIT_COMMIT=$( echo "$COMMIT" | head -c 5 )
@@ -10,7 +10,7 @@ if [ "$BRANCH" == 'develop' ]; then
 
     currentBranch=`ssh ottemo@$REMOTE_HOST "cd $SRCDIR && git symbolic-ref --quiet --short HEAD 2> /dev/null || git rev-parse --short HEAD 2> /dev/null || echo '(unknown)'"`
     echo ""
-    echo "FOUNDATION BRANCH IS ${currentBranch}"
+    echo "COMMERCE BRANCH IS ${currentBranch}"
 
     if [ "$currentBranch" == 'develop' ]; then
         echo "GRAB THE LATEST CODE"
@@ -21,8 +21,7 @@ if [ "$BRANCH" == 'develop' ]; then
     echo "BUILD LOCALLY"
     ssh ottemo@$REMOTE_HOST "cd $SRCDIR && go get -t ./... && bash bin/make.sh -tags mongo"
 
-    echo ""
     echo "BACKUP THE CURRENT BINARY AND PUT THE NEWLY BUILT BINARY INTO SERVICE"
-    ssh ottemo@$REMOTE_HOST "sudo service ottemo stop && mv $HOME/foundation/foundation $HOME/foundation/foundation.bak"
-    ssh ottemo@$REMOTE_HOST "cp $SRCDIR/foundation ~/foundation/foundation && sudo service ottemo start"
+    ssh ottemo@$REMOTE_HOST "sudo service ottemo stop && mv $HOME/commerce/commerce $HOME/commerce/commerce.bak"
+    ssh ottemo@$REMOTE_HOST "cp $SRCDIR/commerce ~/commerce/commerce && sudo service ottemo start"
 fi

@@ -3,7 +3,7 @@ package errorbus
 import (
 	"crypto/md5"
 	"encoding/hex"
-	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/commerce/env"
 	"runtime"
 	"strconv"
 	"strings"

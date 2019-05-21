@@ -13,7 +13,7 @@ import (
 
 	"github.com/disintegration/imaging"
 
-	"github.com/ottemo/foundation/env"
+	"github.com/ottemo/commerce/env"
 	"io"
 )
 

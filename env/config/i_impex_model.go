@@ -1,7 +1,7 @@
 package config
 
 import (
-	"github.com/ottemo/foundation/utils"
+	"github.com/ottemo/commerce/utils"
 )
 
 // Import imports value in config through Impex

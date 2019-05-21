@@ -1,12 +1,12 @@
 package cart
 
 import (
-	"github.com/ottemo/foundation/api"
-	"github.com/ottemo/foundation/app"
-	"github.com/ottemo/foundation/app/models"
-	"github.com/ottemo/foundation/app/models/visitor"
-	"github.com/ottemo/foundation/env"
-	"github.com/ottemo/foundation/utils"
+	"github.com/ottemo/commerce/api"
+	"github.com/ottemo/commerce/app"
+	"github.com/ottemo/commerce/app/models"
+	"github.com/ottemo/commerce/app/models/visitor"
+	"github.com/ottemo/commerce/env"
+	"github.com/ottemo/commerce/utils"
 )
 
 // GetCartModel retrieves current InterfaceCart model implementation
