@@ -7,6 +7,7 @@ import (
 	"github.com/ottemo/commerce/utils"
 )
 
+// TestSimple is a general test for database adapter
 func TestSimple(t *testing.T) {
 
 	const collectionName = "db_test"

@@ -15,7 +15,7 @@ import (
 // exec routines
 func connectionExecWLastInsertID(SQL string, args ...interface{}) (int64, error) {
 
-	var newId int64
+	var newID int64
 
 	if !strings.Contains(SQL, " RETURNING") {
 		SQL += " RETURNING _id"
@@ -27,12 +27,12 @@ func connectionExecWLastInsertID(SQL string, args ...interface{}) (int64, error)
 	}
 
 	result.Next()
-	if err := result.Scan(&newId); err != nil {
+	if err := result.Scan(&newID); err != nil {
 		return -1, err
 	}
 	result.Close()
 
-	return newId, nil
+	return newID, nil
 }
 
 // exec routines

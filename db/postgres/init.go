@@ -4,6 +4,7 @@ import (
 	"github.com/ottemo/commerce/db"
 	"github.com/ottemo/commerce/env"
 
+	// Postgres driver for the database/sql package
 	_ "github.com/lib/pq"
 )
 
