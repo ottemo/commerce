@@ -54,7 +54,7 @@ func (it *DBConnector) Connect() error {
 
 	err := it.connector.AfterConnect(connectionParams)
 	if err != nil {
-		it.log("After DB connect error:")
+		it.log("After DB connect error: " + err.Error())
 	}
 
 	go func() {
