@@ -12,6 +12,7 @@ import (
 	// using standard set of packages
 	_ "github.com/ottemo/commerce/basebuild"
 	"github.com/ottemo/commerce/env"
+	"github.com/ottemo/commerce/app/models"
 )
 
 func init() {
@@ -50,6 +51,13 @@ func main() {
 	}
 
 	fmt.Println("Ottemo " + app.GetVerboseVersion())
+
+	go func() {
+		for _, engine := range models.GetDeclaredScriptEngines() {
+			engine.GetScriptInstance().Interact()
+			break
+		}
+	}()
 
 	// starting HTTP server
 	if err := app.Serve(); err != nil {

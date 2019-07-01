@@ -43,6 +43,7 @@ type StructAttributeInfo struct {
 // Package global variables
 var (
 	declaredModels = map[string]InterfaceModel{}
+	declaredScripEngines = map[string]InterfaceScriptEngine{}
 
 	ConstStatesList = map[string]string{
 		"":   "No state",
