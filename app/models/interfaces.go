@@ -87,15 +87,3 @@ type InterfaceExternalAttributes interface {
 	RemoveExternalAttributes(delegate InterfaceAttributesDelegate) error
 	ListExternalAttributes() map[string]InterfaceAttributesDelegate
 }
-
-type InterfaceScript interface {
-	Interact() error
-	Execute(code string) (interface{}, error)
-	Get(name string) (interface{}, error)
-	Set(name string, value interface{}) error
-}
-
-type InterfaceScriptEngine interface {
-	GetScriptName() string
-	GetScriptInstance() InterfaceScript
-}

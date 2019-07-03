@@ -13,7 +13,7 @@ import (
 	_ "github.com/ottemo/commerce/api/session"   // Session Management service
 	_ "github.com/ottemo/commerce/impex"         // Import/Export service
 	_ "github.com/ottemo/commerce/media/fsmedia" // Media Storage service
-	_ "github.com/ottemo/commerce/otto"          // Otto - JS like scripting language
+	_ "github.com/ottemo/commerce/env/otto"      // Otto - JS like scripting language
 
 	_ "github.com/ottemo/commerce/app/actors/category"        // Category module
 	_ "github.com/ottemo/commerce/app/actors/cms"             // CMS Page/Block module
