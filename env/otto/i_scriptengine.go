@@ -2,6 +2,7 @@ package otto
 
 import (
 	"github.com/ottemo/commerce/env"
+	"github.com/ottemo/commerce/utils"
 	"github.com/robertkrimen/otto"
 )
 
@@ -27,28 +28,20 @@ func (it *ScriptEngine) GetScriptInstance() env.InterfaceScript {
 }
 
 
-func (it *ScriptEngine) Get(name string) (interface{}, error) {
+func (it *ScriptEngine) Get(path string) (interface{}, error) {
 	it.mutex.Lock()
 	defer it.mutex.Unlock()
 
-	if value, present := it.mappings[name]; present {
-		return value, nil
-	}
-
-	return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "df850b5d-bbf0-4e5b-a6df-1b4883320c09", "Key '" + name + "' does not exist")
+	return utils.MapGetPathValue(it.mappings, path)
 }
 
-func (it *ScriptEngine) Set(name string, value interface{}) error {
+func (it *ScriptEngine) Set(path string, value interface{}) error {
 	it.mutex.Lock()
 	defer it.mutex.Unlock()
 
 	if value == nil {
-		if _, present := it.mappings[name]; present {
-			delete(it.mappings, name)
-		}
+		return utils.MapSetPathValue(it.mappings, path, value, true)
 	} else {
-		it.mappings[name] = value
+		return utils.MapSetPathValue(it.mappings, path, value, false)
 	}
-
-	return nil
 }
