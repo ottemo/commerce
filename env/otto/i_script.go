@@ -4,8 +4,16 @@ import (
 	"github.com/robertkrimen/otto/repl"
 )
 
+func (it *Script) GetId() string {
+	return it.id
+}
+
 func (it *Script) Execute(code string) (interface{}, error) {
-	return it.vm.Eval(code)
+	value, err := it.vm.Run(code)
+	if err != nil {
+		return nil, err
+	}
+	return value.Export()
 }
 
 func (it *Script) Get(name string) (interface{}, error) {

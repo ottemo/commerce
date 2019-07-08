@@ -2,6 +2,7 @@ package otto
 
 import (
 	"fmt"
+	"github.com/ottemo/commerce/api"
 	"github.com/ottemo/commerce/app"
 	"github.com/ottemo/commerce/app/models"
 	"github.com/ottemo/commerce/app/models/cart"
@@ -24,7 +25,10 @@ import (
 
 
 func init() {
-	engine := new(ScriptEngine)
+	api.RegisterOnRestServiceStart(setupAPI)
+
+	engine = new(ScriptEngine)
+	engine.instances = make(map[string]*Script)
 	engine.mappings = make(map[string]interface{})
 
 	engine.Set("printf",  fmt.Sprintf)

@@ -176,6 +176,7 @@ type StructConfigItem struct {
 
 
 type InterfaceScript interface {
+	GetId() string
 	Interact() error
 	Execute(code string) (interface{}, error)
 	Get(name string) (interface{}, error)
@@ -184,7 +185,7 @@ type InterfaceScript interface {
 
 type InterfaceScriptEngine interface {
 	GetScriptName() string
-	GetScriptInstance() InterfaceScript
+	GetScriptInstance(in string) InterfaceScript
 	Get(name string) (interface{}, error)
 	Set(name string, value interface{}) error
 }

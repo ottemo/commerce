@@ -53,7 +53,7 @@ func main() {
 
 	go func() {
 		for _, engine := range env.GetDeclaredScriptEngines() {
-			engine.GetScriptInstance().Interact()
+			engine.GetScriptInstance("main").Interact()
 			break
 		}
 	}()

@@ -10,10 +10,15 @@ func (it *ScriptEngine) GetScriptName() string {
 	return "Otto"
 }
 
-func (it *ScriptEngine) GetScriptInstance() env.InterfaceScript {
+func (it *ScriptEngine) GetScriptInstance(id string) env.InterfaceScript {
+
+	if instance, present := it.instances[id]; present {
+		return instance
+	}
 
 	script := new(Script)
 	script.vm = otto.New()
+	script.id = id
 
 	it.mutex.Lock()
 	defer it.mutex.Unlock()
@@ -22,7 +27,8 @@ func (it *ScriptEngine) GetScriptInstance() env.InterfaceScript {
 		script.vm.Set(key, value)
 	}
 
-	it.instances = append(it.instances, script.vm)
+	// TODO: implement instances cleanup (lifetime based)
+	it.instances[script.id] = script
 
 	return script
 }
