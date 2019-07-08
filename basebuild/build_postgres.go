@@ -1,4 +1,4 @@
-// +build postgres
+// +build !sqlite,!mysql,!mongo
 
 package basebuild
 
