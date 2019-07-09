@@ -345,34 +345,49 @@ func (it *DefaultRestService) wrappedHandler(handler api.FuncAPIHandler) httprou
 
 // GET is a wrapper for the HTTP GET verb
 func (it *DefaultRestService) GET(resource string, handler api.FuncAPIHandler) {
-	path := "/" + resource
-	it.Router.GET(path, it.wrappedHandler(handler))
-
-	it.Handlers = append(it.Handlers, path+" {GET}")
+	it.RegisterAPI("GET", resource, handler)
 }
 
 // PUT is a wrapper for the HTTP PUT verb
 func (it *DefaultRestService) PUT(resource string, handler api.FuncAPIHandler) {
-	path := "/" + resource
-	it.Router.PUT(path, it.wrappedHandler(handler))
-
-	it.Handlers = append(it.Handlers, path+" {PUT}")
+	it.RegisterAPI("PUT", resource, handler)
 }
 
 // POST is a wrapper for the HTTP POST verb
 func (it *DefaultRestService) POST(resource string, handler api.FuncAPIHandler) {
-	path := "/" + resource
-	it.Router.POST(path, it.wrappedHandler(handler))
-
-	it.Handlers = append(it.Handlers, path+" {POST}")
+	it.RegisterAPI("POST", resource, handler)
 }
 
 // DELETE is a wrapper for the HTTP DELETE verb
 func (it *DefaultRestService) DELETE(resource string, handler api.FuncAPIHandler) {
-	path := "/" + resource
-	it.Router.DELETE(path, it.wrappedHandler(handler))
+	it.RegisterAPI("DELETE", resource, handler)
+}
 
-	it.Handlers = append(it.Handlers, path+" {DELETE}")
+// RegisterAPI registers API ahndler for a given resource
+func (it *DefaultRestService) RegisterAPI(method, resource string, handler api.FuncAPIHandler) {
+	path := resource
+	if !strings.HasPrefix("/", resource) {
+		path = "/" + resource
+	}
+
+	wrappedHandler := it.wrappedHandler(handler)
+	it.Router.Handle(method, path, wrappedHandler)
+	it.Handlers = append(it.Handlers, fmt.Sprintf("%s {%s}", path, method))
+	if ptr, err := utils.GetPointer(wrappedHandler); err == nil {
+		it.RawHandlers[ptr] = handler
+	}
+}
+
+// GetHandler returns original handler function (before wrapping for httprouter.Handle)
+func (it *DefaultRestService) GetHandler(method string, resource string) api.FuncAPIHandler {
+	if handler, _, _ := it.Router.Lookup(method, resource); handler != nil {
+		if ptr, err := utils.GetPointer(handler); err == nil {
+			if handler, present := it.RawHandlers[ptr]; present {
+				return handler
+			}
+		}
+	}
+	return nil
 }
 
 // ServeHTTP is an entry point for HTTP request, it takes control before request handled

@@ -34,6 +34,10 @@ func init() {
 	engine.Set("printf",  fmt.Sprintf)
 	engine.Set("print",  fmt.Sprint)
 
+	engine.Set("api.makeContext",  makeApplicationContext)
+	engine.Set("api.getHandler", apiHandler)
+	engine.Set("api.call", apiCall)
+
 	engine.Set("app.getVersion", app.GetVerboseVersion)
 	engine.Set("app.getStorefrontURL", app.GetStorefrontURL)
 	engine.Set("app.getDashboardURL", app.GetDashboardURL)
@@ -203,7 +207,6 @@ func init() {
 	engine.Set("utils.StrToCamelCase",  utils.StrToCamelCase)
 	engine.Set("utils.MapGetPathValue",  utils.MapGetPathValue)
 	engine.Set("utils.MapSetPathValue",  utils.MapSetPathValue)
-
 
 	env.RegisterScriptEngine("Otto", engine)
 }

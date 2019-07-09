@@ -6,7 +6,7 @@ import (
 	_ "github.com/ottemo/commerce/env/errorbus" // Error Bus service
 	_ "github.com/ottemo/commerce/env/eventbus" // Event Bus service
 	_ "github.com/ottemo/commerce/env/ini"      // INI Configuration service
-	// _ "github.com/ottemo/commerce/env/logger"   // File-based Logging service
+	_ "github.com/ottemo/commerce/env/logger"   // File-based Logging service
 
 	_ "github.com/ottemo/commerce/api/context"   // Context runtime transfer service
 	_ "github.com/ottemo/commerce/api/rest"      // RESTful API service

@@ -28,6 +28,7 @@ type DefaultRestService struct {
 	ListenOn string
 	Router   *httprouter.Router
 	Handlers []string
+	RawHandlers map[uintptr]api.FuncAPIHandler
 }
 
 // DefaultRestApplicationContext is a structure to hold API request related information
