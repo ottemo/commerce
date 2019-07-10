@@ -41,7 +41,11 @@ func apiHandler(method string, resource string) (api.FuncAPIHandler, error) {
 	return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "e5c20766-e3bc-4020-a918-c5d396b321df", "API service is not available")
 }
 
-func apiCall(method string, resource string, context api.ApplicationContext) (interface{}, error) {
+func apiCall(method string, resource string, context api.InterfaceApplicationContext) (interface{}, error) {
+	if context == nil {
+		context = makeApplicationContext()
+	}
+
 	handler, err := apiHandler(method, resource)
 	if err != nil {
 		return nil, err
