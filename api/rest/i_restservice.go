@@ -35,6 +35,10 @@ func (it *DefaultRestService) GetName() string {
 func (it *DefaultRestService) wrappedHandler(handler api.FuncAPIHandler) httprouter.Handle {
 	// httprouter supposes other format of handler than we use, so we need wrapper
 	wrappedHandler := func(resp http.ResponseWriter, req *http.Request, params httprouter.Params) {
+		if resp == nil && req == nil && params == nil {
+			it.RawHandler = handler
+			return
+		}
 
 		// catching API handler fails
 		defer func() {
@@ -373,21 +377,18 @@ func (it *DefaultRestService) RegisterAPI(method, resource string, handler api.F
 	wrappedHandler := it.wrappedHandler(handler)
 	it.Router.Handle(method, path, wrappedHandler)
 	it.Handlers = append(it.Handlers, fmt.Sprintf("%s {%s}", path, method))
-	if ptr, err := utils.GetPointer(wrappedHandler); err == nil {
-		it.RawHandlers[ptr] = handler
-	}
 }
 
 // GetHandler returns original handler function (before wrapping for httprouter.Handle)
 func (it *DefaultRestService) GetHandler(method string, resource string) api.FuncAPIHandler {
-	if handler, _, _ := it.Router.Lookup(method, resource); handler != nil {
-		if ptr, err := utils.GetPointer(handler); err == nil {
-			if handler, present := it.RawHandlers[ptr]; present {
-				return handler
-			}
-		}
+	it.RawHandlerMutex.Lock()
+	defer it.RawHandlerMutex.Unlock()
+
+	if handle, _, _ := it.Router.Lookup(method, resource); handle != nil {
+		handle(nil, nil, nil)
 	}
-	return nil
+
+	return it.RawHandler
 }
 
 // ServeHTTP is an entry point for HTTP request, it takes control before request handled

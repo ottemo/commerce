@@ -15,7 +15,6 @@ func init() {
 	var _ api.InterfaceApplicationContext = new(DefaultRestApplicationContext)
 
 	instance := new(DefaultRestService)
-	instance.RawHandlers = make(map[uintptr]api.FuncAPIHandler)
 
 	if err := api.RegisterRestService(instance); err != nil {
 		_ = env.ErrorDispatch(err)

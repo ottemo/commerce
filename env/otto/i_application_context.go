@@ -10,7 +10,7 @@ import (
 	"github.com/ottemo/commerce/utils"
 )
 
-func makeApplicationContext() *OttoApplicationContext {
+func makeApplicationContext() api.InterfaceApplicationContext {
 	applicationContext := new(OttoApplicationContext)
 	applicationContext.Response = bytes.NewBufferString("")
 	applicationContext.Result = applicationContext.Response
