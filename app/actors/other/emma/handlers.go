@@ -10,16 +10,16 @@ import (
 
 // checkoutSuccessHandler handles the checkout success event to begin the subscription process if an order meets the
 // requirements
-func checkoutSuccessHandler(event string, eventData map[string]interface{}) bool {
+func checkoutSuccessHandler(event env.InterfaceEvent) error {
 
 	//If emma is not enabled, ignore this handler and do nothing
 	if enabled := utils.InterfaceToBool(env.ConfigGetValue(ConstConfigPathEmmaEnabled)); !enabled {
-		return true
+		return nil
 	}
 
 	// grab the order off event map
 	var checkoutOrder order.InterfaceOrder
-	if eventItem, present := eventData["order"]; present {
+	if eventItem := event.Get("order"); eventItem != nil {
 		if typedItem, ok := eventItem.(order.InterfaceOrder); ok {
 			checkoutOrder = typedItem
 		}
@@ -34,7 +34,7 @@ func checkoutSuccessHandler(event string, eventData map[string]interface{}) bool
 		}(checkoutOrder)
 	}
 
-	return true
+	return nil
 
 }
 

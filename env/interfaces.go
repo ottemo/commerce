@@ -66,11 +66,27 @@ type InterfaceScheduler interface {
 
 	ListSchedules() []InterfaceSchedule
 }
+type InterfaceEvent interface {
+	GetID() string
+	Get(key string) interface{}
+	Set(key string, value interface{}) error
+	StopPropagation() error
+}
+
+type InterfaceEventListener interface {
+	GetID() string
+	Handle(event InterfaceEvent) error
+
+	GetPriority() float64
+	SetPriority(value float64)
+}
 
 // InterfaceEventBus is an interface to system event processor
 type InterfaceEventBus interface {
-	RegisterListener(event string, listener FuncEventListener)
-	New(event string, eventData map[string]interface{})
+	RegisterEvent(event string, description string) error
+	RegisterListener(event string, id string, handler FuncEventHandler) error
+	Handle(event string, data map[string]interface{}) error
+	GetListeners(event string) []InterfaceEventListener
 }
 
 // InterfaceErrorBus is an interface to system error processor
@@ -150,7 +166,7 @@ type FuncConfigValueValidator func(interface{}) (interface{}, error)
 
 // FuncEventListener is an event listener callback function prototype
 //   - return value is continue flag, so listener should return false to stop event propagation
-type FuncEventListener func(string, map[string]interface{}) bool
+type FuncEventHandler func(InterfaceEvent) error
 
 // FuncErrorListener is an error listener callback function prototype
 type FuncErrorListener func(error) bool

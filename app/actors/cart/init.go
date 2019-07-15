@@ -58,29 +58,26 @@ func onDatabaseStart() error {
 // setupEventListeners registers model related event listeners within system
 func setupEventListeners() error {
 	// on session close cart model should be also deleted
-	sessionCloseListener := func(eventName string, data map[string]interface{}) bool {
-		if data != nil {
-			if sessionObject, present := data["session"]; present {
-				if sessionInstance, ok := sessionObject.(api.InterfaceSession); ok {
-					if cartID := sessionInstance.Get(cart.ConstSessionKeyCurrentCart); cartID != nil {
+	sessionCloseListener := func(event env.InterfaceEvent) error {
+		if sessionObject := event.Get("session"); sessionObject != nil {
+			if sessionInstance, ok := sessionObject.(api.InterfaceSession); ok {
+				if cartID := sessionInstance.Get(cart.ConstSessionKeyCurrentCart); cartID != nil {
 
-						cartModel, err := cart.GetCartModelAndSetID(utils.InterfaceToString(cartID))
-						if err != nil {
-							_ = env.ErrorDispatch(err)
-						}
+					cartModel, err := cart.GetCartModelAndSetID(utils.InterfaceToString(cartID))
+					if err != nil {
+						_ = env.ErrorDispatch(err)
+					}
 
-						err = cartModel.Delete()
-						if err != nil {
-							_ = env.ErrorDispatch(err)
-						}
+					err = cartModel.Delete()
+					if err != nil {
+						_ = env.ErrorDispatch(err)
 					}
 				}
 			}
 		}
-		return true
+		return nil
 	}
-	env.EventRegisterListener("session.close", sessionCloseListener)
-	return nil
+	return env.EventRegisterListener("session.close", "cart.sessionCloseListener", sessionCloseListener)
 }
 
 // cleanupGuestCarts cleanups guest carts

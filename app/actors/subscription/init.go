@@ -126,8 +126,8 @@ func onAppStart() error {
 
 	subscriptionProducts = products
 
-	env.EventRegisterListener("checkout.success", checkoutSuccessHandler)
-	env.EventRegisterListener("product.getOptions", getOptionsExtend)
+	env.EventRegisterListener("checkout.success", "subscription.checkoutSuccessHandler", checkoutSuccessHandler)
+	env.EventRegisterListener("product.getOptions", "subscription.getOptionsExtend", getOptionsExtend)
 
 	// process order creation every one hour
 	if scheduler := env.GetScheduler(); scheduler != nil {

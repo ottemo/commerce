@@ -117,16 +117,17 @@ func ErrorRaw(message string) error {
 }
 
 // EventRegisterListener registers listener for event bus
-func EventRegisterListener(event string, listener FuncEventListener) {
+func EventRegisterListener(event string, id string, listener FuncEventHandler) error {
 	if eventBus := GetEventBus(); eventBus != nil {
-		eventBus.RegisterListener(event, listener)
+		return eventBus.RegisterListener(event, id, listener)
 	}
+	return errors.New("no event bus instance")
 }
 
 // Event emits new event for registered listeners
-func Event(event string, args map[string]interface{}) {
+func Event(event string, data map[string]interface{}) {
 	if eventBus := GetEventBus(); eventBus != nil {
-		eventBus.New(event, args)
+		eventBus.Handle(event, data)
 	}
 }
 

@@ -85,9 +85,9 @@ func setupDB() error {
 // onAppStart makes module initialization on application startup
 func onAppStart() error {
 
-	env.EventRegisterListener("checkout.success", checkoutSuccessHandler)
-	env.EventRegisterListener("order.proceed", orderProceedHandler)
-	env.EventRegisterListener("order.rollback", orderRollbackHandler)
+	env.EventRegisterListener("checkout.success", "giftcard.checkoutSuccessHandler", checkoutSuccessHandler)
+	env.EventRegisterListener("order.proceed", "giftcard.orderProceedHandler", orderProceedHandler)
+	env.EventRegisterListener("order.rollback", "giftcard.orderRollbackHandler", orderRollbackHandler)
 
 	if scheduler := env.GetScheduler(); scheduler != nil {
 		if err := scheduler.RegisterTask("sendGiftCards", SendTask); err != nil {

@@ -21,7 +21,7 @@ func onAppStart() error {
 	}
 	currentRules = rules
 
-	env.EventRegisterListener("api.cart.update", updateCartHandler)
+	env.EventRegisterListener("api.cart.update", "grouping.updateCartHandler", updateCartHandler)
 
 	return nil
 }

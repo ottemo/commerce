@@ -13,18 +13,16 @@ import (
 // orderProceedHandler is fired during order creation to check the cart for
 // gift cards, if a card is present add it to the table gift_card.  Next step is
 // inspect the checkout object for applied discounts and record usage amounts in db
-func orderProceedHandler(event string, eventData map[string]interface{}) bool {
+func orderProceedHandler(event env.InterfaceEvent) error {
 
-	orderProceed, ok := eventData["order"].(order.InterfaceOrder)
-	if !ok {
-		env.LogError(env.ErrorNew(ConstErrorModule, ConstErrorLevel, "a9d70cad-0a05-4af1-8d03-947abdc0e25a", "Unable to find an order when firing event, order.proceed."))
-		return false
+	orderProceed, ok := event.Get("order").(order.InterfaceOrder)
+	if !ok || orderProceed == nil{
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "a9d70cad-0a05-4af1-8d03-947abdc0e25a", "Unable to find an order when firing event, order.proceed.")
 	}
 
 	giftCardCollection, err := db.GetCollection(ConstCollectionNameGiftCard)
 	if err != nil {
-		_ = env.ErrorDispatch(err)
-		return false
+		return env.ErrorDispatch(err)
 	}
 
 	orderID := orderProceed.GetID()
@@ -35,8 +33,7 @@ func orderProceedHandler(event string, eventData map[string]interface{}) bool {
 
 	orderGiftCardApplying, err := giftCardCollection.Load()
 	if err != nil {
-		_ = env.ErrorDispatch(err)
-		return false
+		return env.ErrorDispatch(err)
 	}
 
 	// check is discounts are applied to this order if they make change of used gift card's
@@ -56,8 +53,7 @@ func orderProceedHandler(event string, eventData map[string]interface{}) bool {
 
 			records, err := giftCardCollection.Load()
 			if err != nil {
-				_ = env.ErrorDispatch(err)
-				return false
+				return env.ErrorDispatch(err)
 			}
 
 			// change amount, status and orders_used information for gift card
@@ -94,23 +90,21 @@ func orderProceedHandler(event string, eventData map[string]interface{}) bool {
 		}
 	}
 
-	return true
+	return nil
 }
 
 // orderRollbackHandler inspects the order for presence of gift cards in the apply state
 // - refill used amount on gift card and change status to 'refilled'
-func orderRollbackHandler(event string, eventData map[string]interface{}) bool {
+func orderRollbackHandler(event env.InterfaceEvent) error {
 
-	rollbackOrder, ok := eventData["order"].(order.InterfaceOrder)
-	if !ok {
-		env.LogError(env.ErrorNew(ConstErrorModule, ConstErrorLevel, "6d674d4d-be5e-42d0-a3d7-b9731dbcc207", "Unable to find an order when firing event, order.rollback."))
-		return false
+	rollbackOrder, ok := event.Get("order").(order.InterfaceOrder)
+	if !ok || rollbackOrder == nil {
+		return env.ErrorNew(ConstErrorModule, ConstErrorLevel, "6d674d4d-be5e-42d0-a3d7-b9731dbcc207", "Unable to find an order when firing event, order.rollback.")
 	}
 
 	giftCardCollection, err := db.GetCollection(ConstCollectionNameGiftCard)
 	if err != nil {
-		_ = env.ErrorDispatch(err)
-		return false
+		return env.ErrorDispatch(err)
 	}
 
 	// get gift cards that was applied to this order and refill amount that was used in this order
@@ -122,8 +116,7 @@ func orderRollbackHandler(event string, eventData map[string]interface{}) bool {
 
 	records, err := giftCardCollection.Load()
 	if err != nil {
-		_ = env.ErrorDispatch(err)
-		return false
+		return env.ErrorDispatch(err)
 	}
 
 	// check all records from gift_cards and restoring their balance
@@ -144,28 +137,26 @@ func orderRollbackHandler(event string, eventData map[string]interface{}) bool {
 
 			_, err := giftCardCollection.Save(record)
 			if err != nil {
-				_ = env.ErrorDispatch(err)
-				return false
+				return env.ErrorDispatch(err)
 			}
 		}
 	}
 
-	return true
+	return nil
 }
 
 // checkoutSuccessHandler create gift cards object from placed order
-func checkoutSuccessHandler(event string, eventData map[string]interface{}) bool {
+func checkoutSuccessHandler(event env.InterfaceEvent) error {
 
-	orderProceed, ok := eventData["order"].(order.InterfaceOrder)
-	if !ok {
+	orderProceed, ok := event.Get("order").(order.InterfaceOrder)
+	if !ok || orderProceed == nil{
 		env.LogError(env.ErrorNew(ConstErrorModule, ConstErrorLevel, "4bb5d8a8-15bf-42d8-bd1d-1f9e715779e6", "Unable to find an order when firing event, order.success."))
-		return false
+		return nil
 	}
 
 	giftCardCollection, err := db.GetCollection(ConstCollectionNameGiftCard)
 	if err != nil {
-		_ = env.ErrorDispatch(err)
-		return false
+		return env.ErrorDispatch(err)
 	}
 
 	// collect necessary info to variables
@@ -269,8 +260,7 @@ func checkoutSuccessHandler(event string, eventData map[string]interface{}) bool
 
 				giftCardID, err := giftCardCollection.Save(giftCard)
 				if err != nil {
-					_ = env.ErrorDispatch(err)
-					return false
+					return env.ErrorDispatch(err)
 				}
 				if deliveryDate.Truncate(time.Hour).Before(currentTime) {
 					giftCardsToSendImmediately = append(giftCardsToSendImmediately, giftCardID)
@@ -293,5 +283,5 @@ func checkoutSuccessHandler(event string, eventData map[string]interface{}) bool
 		}(params)
 	}
 
-	return true
+	return nil
 }

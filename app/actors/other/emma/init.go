@@ -13,7 +13,7 @@ func init() {
 }
 
 func appStart() error {
-	env.EventRegisterListener("checkout.success", checkoutSuccessHandler)
+	env.EventRegisterListener("checkout.success", "emma.checkoutSuccessHandler", checkoutSuccessHandler)
 
 	emmaService = *newEmmaService()
 

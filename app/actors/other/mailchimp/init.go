@@ -11,7 +11,7 @@ func init() {
 }
 
 func appStart() error {
-	env.EventRegisterListener("checkout.success", checkoutSuccessHandler)
+	env.EventRegisterListener("checkout.success", "mailchimp.checkoutSuccessHandler", checkoutSuccessHandler)
 
 	return nil
 }

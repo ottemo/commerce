@@ -12,14 +12,14 @@ import (
 )
 
 // checkoutSuccessHandler is a handler for checkout success event which creates the subscriptions
-func checkoutSuccessHandler(event string, eventData map[string]interface{}) bool {
+func checkoutSuccessHandler(event env.InterfaceEvent) error {
 
 	if !subscriptionEnabled {
-		return true
+		return nil
 	}
 
 	var currentCheckout checkout.InterfaceCheckout
-	if eventItem, present := eventData["checkout"]; present {
+	if eventItem := event.Get("checkout"); eventItem != nil {
 		if typedItem, ok := eventItem.(checkout.InterfaceCheckout); ok {
 			currentCheckout = typedItem
 		}
@@ -27,7 +27,7 @@ func checkoutSuccessHandler(event string, eventData map[string]interface{}) bool
 
 	// means current order is placed by subscription handler
 	if currentCheckout == nil || !currentCheckout.IsSubscription() || currentCheckout.GetInfo("subscription_id") != nil {
-		return true
+		return nil
 	}
 
 	// allows subscription only for registered
@@ -36,7 +36,7 @@ func checkoutSuccessHandler(event string, eventData map[string]interface{}) bool
 	//	}
 
 	var checkoutOrder order.InterfaceOrder
-	if eventItem, present := eventData["order"]; present {
+	if eventItem := event.Get("order"); eventItem != nil {
 		if typedItem, ok := eventItem.(order.InterfaceOrder); ok {
 			checkoutOrder = typedItem
 		}
@@ -50,7 +50,7 @@ func checkoutSuccessHandler(event string, eventData map[string]interface{}) bool
 		}();
 	}
 
-	return true
+	return nil
 }
 
 // subscriptionCreate is invoked via a go routine to create subscription based on finished checkout
@@ -279,20 +279,20 @@ func subscriptionCreate(currentCheckout checkout.InterfaceCheckout, checkoutOrde
 
 // getOptionsExtend is a handler for product get options event which extend available product options
 // TODO: create some defined object for options (should explain keys)
-func getOptionsExtend(event string, eventData map[string]interface{}) bool {
+func getOptionsExtend(event env.InterfaceEvent) error {
 
 	if !subscriptionEnabled {
-		return true
+		return nil
 	}
 
-	if value, present := eventData["options"]; present {
+	if value := event.Get("options"); value != nil {
 		options := utils.InterfaceToMap(value)
 
 		// removing subscription option for products that are not in the list
 		if len(subscriptionProducts) > 0 {
-			if productID, present := eventData["id"]; !present || !utils.IsInListStr(utils.InterfaceToString(productID), subscriptionProducts) {
+			if productID := event.Get("id"); productID != nil || !utils.IsInListStr(utils.InterfaceToString(productID), subscriptionProducts) {
 				delete(options, subscription.ConstSubscriptionOptionName)
-				return true
+				return nil
 			}
 		}
 
@@ -320,7 +320,7 @@ func getOptionsExtend(event string, eventData map[string]interface{}) bool {
 
 		options[subscription.ConstSubscriptionOptionName] = storedOptions
 	}
-	return true
+	return nil
 }
 
 func updateCronJob(newExecutionTimeOption interface{}) error {

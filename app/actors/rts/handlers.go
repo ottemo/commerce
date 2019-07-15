@@ -11,9 +11,9 @@ import (
 	"github.com/ottemo/commerce/utils"
 )
 
-func visitsHandler(event string, eventData map[string]interface{}) bool {
+func visitsHandler(event env.InterfaceEvent) error {
 
-	if sessionInstance, ok := eventData["session"].(api.InterfaceSession); ok && sessionInstance != nil {
+	if sessionInstance, ok := event.Get("session").(api.InterfaceSession); ok && sessionInstance != nil {
 		if sessionID := sessionInstance.GetID(); sessionID != "" {
 			currentHour := time.Now().Truncate(time.Hour).Unix()
 			CheckHourUpdateForStatistic()
@@ -40,12 +40,12 @@ func visitsHandler(event string, eventData map[string]interface{}) bool {
 		}
 	}
 
-	return true
+	return nil
 }
 
-func addToCartHandler(event string, eventData map[string]interface{}) bool {
+func addToCartHandler(event env.InterfaceEvent) error {
 
-	if sessionInstance, ok := eventData["session"].(api.InterfaceSession); ok && sessionInstance != nil {
+	if sessionInstance, ok := event.Get("session").(api.InterfaceSession); ok && sessionInstance != nil {
 		if sessionID := sessionInstance.GetID(); sessionID != "" {
 
 			currentHour := time.Now().Truncate(time.Hour).Unix()
@@ -85,10 +85,10 @@ func addToCartHandler(event string, eventData map[string]interface{}) bool {
 		}
 	}
 
-	return true
+	return nil
 }
 
-func visitCheckoutHandler(event string, eventData map[string]interface{}) bool {
+func visitCheckoutHandler(event env.InterfaceEvent) error {
 
 	currentHour := time.Now().Truncate(time.Hour).Unix()
 	CheckHourUpdateForStatistic()
@@ -103,10 +103,10 @@ func visitCheckoutHandler(event string, eventData map[string]interface{}) bool {
 		_ = env.ErrorDispatch(err)
 	}
 
-	return true
+	return nil
 }
 
-func setPaymentHandler(event string, eventData map[string]interface{}) bool {
+func setPaymentHandler(event env.InterfaceEvent) error {
 
 	currentHour := time.Now().Truncate(time.Hour).Unix()
 	CheckHourUpdateForStatistic()
@@ -121,15 +121,15 @@ func setPaymentHandler(event string, eventData map[string]interface{}) bool {
 		_ = env.ErrorDispatch(err)
 	}
 
-	return true
+	return nil
 }
 
-func purchasedHandler(event string, eventData map[string]interface{}) bool {
+func purchasedHandler(event env.InterfaceEvent) error {
 
-	if sessionInstance, ok := eventData["session"].(api.InterfaceSession); ok && sessionInstance != nil {
+	if sessionInstance, ok := event.Get("session").(api.InterfaceSession); ok && sessionInstance != nil {
 		if sessionID := sessionInstance.GetID(); sessionID != "" {
 			saleAmount := float64(0)
-			if orderInstance, ok := eventData["order"].(order.InterfaceOrder); ok {
+			if orderInstance, ok := event.Get("order").(order.InterfaceOrder); ok {
 				saleAmount = orderInstance.GetGrandTotal()
 			}
 
@@ -166,7 +166,7 @@ func purchasedHandler(event string, eventData map[string]interface{}) bool {
 			}
 		}
 	} else {
-		if orderInstance, ok := eventData["order"].(order.InterfaceOrder); ok {
+		if orderInstance, ok := event.Get("order").(order.InterfaceOrder); ok {
 			saleAmount := orderInstance.GetGrandTotal()
 
 			currentHour := time.Now().Truncate(time.Hour).Unix()
@@ -186,16 +186,16 @@ func purchasedHandler(event string, eventData map[string]interface{}) bool {
 		}
 	}
 
-	return true
+	return nil
 }
 
-func salesHandler(event string, eventData map[string]interface{}) bool {
+func salesHandler(event env.InterfaceEvent) error {
 
-	if cartInstance, ok := eventData["cart"].(cart.InterfaceCart); ok && cartInstance != nil {
+	if cartInstance, ok := event.Get("cart").(cart.InterfaceCart); ok && cartInstance != nil {
 		cartProducts := cartInstance.GetItems()
 
 		if len(cartProducts) == 0 {
-			return true
+			return nil
 		}
 
 		productQty := make(map[string]int)
@@ -205,8 +205,7 @@ func salesHandler(event string, eventData map[string]interface{}) bool {
 
 		salesHistoryCollection, err := db.GetCollection(ConstCollectionNameRTSSalesHistory)
 		if err != nil {
-			_ = env.ErrorDispatch(err)
-			return true
+			return env.ErrorDispatch(err)
 		}
 		currentDate := time.Now().Truncate(time.Hour).Add(time.Hour)
 		for productID, count := range productQty {
@@ -224,8 +223,7 @@ func salesHandler(event string, eventData map[string]interface{}) bool {
 			}
 			dbSaleRow, err := salesHistoryCollection.Load()
 			if err != nil {
-				_ = env.ErrorDispatch(err)
-				return true
+				return env.ErrorDispatch(err)
 			}
 
 			//	rewrite existing record if we have one in database
@@ -242,12 +240,11 @@ func salesHandler(event string, eventData map[string]interface{}) bool {
 				salesHistoryRecord["count"] = newCount
 				_, err = salesHistoryCollection.Save(salesHistoryRecord)
 				if err != nil {
-					_ = env.ErrorDispatch(err)
-					return true
+					return env.ErrorDispatch(err)
 				}
 			}
 		}
 	}
 
-	return true
+	return nil
 }

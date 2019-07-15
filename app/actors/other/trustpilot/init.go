@@ -125,7 +125,7 @@ func schedulerFunc(params map[string]interface{}) error {
 // onAppStart makes module initialization on application startup
 func onAppStart() error {
 
-	env.EventRegisterListener("checkout.success", checkoutSuccessHandler)
+	env.EventRegisterListener("checkout.success", "trustpilot.checkoutSuccessHandler", checkoutSuccessHandler)
 
 	if scheduler := env.GetScheduler(); scheduler != nil {
 		if err := scheduler.RegisterTask("trustPilotReview", schedulerFunc); err != nil {

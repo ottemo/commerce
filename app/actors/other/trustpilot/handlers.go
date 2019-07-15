@@ -67,17 +67,17 @@ type ServiceReview struct {
 }
 
 // checkoutSuccessHandler is a handler for checkout success event which sends order information to TrustPilot
-func checkoutSuccessHandler(event string, eventData map[string]interface{}) bool {
+func checkoutSuccessHandler(event env.InterfaceEvent) error {
 
 	var checkoutOrder order.InterfaceOrder
-	if eventItem, present := eventData["order"]; present {
+	if eventItem := event.Get("order"); eventItem != nil {
 		if typedItem, ok := eventItem.(order.InterfaceOrder); ok {
 			checkoutOrder = typedItem
 		}
 	}
 
 	var checkoutCart cart.InterfaceCart
-	if eventItem, present := eventData["cart"]; present {
+	if eventItem := event.Get("cart"); eventItem != nil {
 		if typedItem, ok := eventItem.(cart.InterfaceCart); ok {
 			checkoutCart = typedItem
 		}
@@ -91,7 +91,7 @@ func checkoutSuccessHandler(event string, eventData map[string]interface{}) bool
 		}(checkoutOrder, checkoutCart)
 	}
 
-	return true
+	return nil
 }
 
 // SendOrderInfo Makes requests to the trustpilot api to obtain an access token, then a product review url, then a

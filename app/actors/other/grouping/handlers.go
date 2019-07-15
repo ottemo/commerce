@@ -7,9 +7,12 @@ import (
 )
 
 // updateCartHandler listening for cart update, on update thru over cart items grouping them by rules defined in config
-func updateCartHandler(event string, eventData map[string]interface{}) bool {
+func updateCartHandler(event env.InterfaceEvent) error {
 
-	currentCart := eventData["cart"].(cart.InterfaceCart)
+	currentCart := event.Get("cart").(cart.InterfaceCart)
+	if currentCart == nil {
+		return nil
+	}
 
 	for _, ruleValue := range currentRules {
 		ruleElement := utils.InterfaceToMap(ruleValue)
@@ -24,7 +27,7 @@ func updateCartHandler(event string, eventData map[string]interface{}) bool {
 		_ = env.ErrorDispatch(err)
 	}
 
-	return true
+	return nil
 }
 
 // getApplyTimesCount returns count of times grouping rule could be applied to cart
