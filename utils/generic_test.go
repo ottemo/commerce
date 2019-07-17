@@ -5,7 +5,6 @@ import (
 )
 
 func TestMatchMapAValuesToMapB(t *testing.T) {
-
 	B := map[string]interface{}{
 		"color":   "red",
 		"size":    "XL",
@@ -22,8 +21,8 @@ func TestMatchMapAValuesToMapB(t *testing.T) {
 	}
 
 	A := map[string]interface{}{}
-	if MatchMapAValuesToMapB(A, B) != true {
-		t.Error("case 1 fail")
+		if MatchMapAValuesToMapB(A, B) != true {
+			t.Error("case 1 fail")
 	}
 
 	A = map[string]interface{}{"color": "red", "size": "XL"}
@@ -137,7 +136,6 @@ func TestStrToSnakeCase(t *testing.T) {
 }
 
 func TestStrToCamelCase(t *testing.T) {
-
 	str := "product_size_xlarge"
 	if StrToCamelCase(str) != "productSizeXlarge" {
 		t.Error("case 1 fail")
