@@ -16,6 +16,7 @@ Generation of self-signed(x509) public key (PEM-encodings .pem|.crt) based on th
 
 import (
 	"crypto/rand"
+	"encoding/base64"
 	"encoding/json"
 	"github.com/go-ini/ini"
 	"github.com/julienschmidt/httprouter"
@@ -23,6 +24,7 @@ import (
 	"net/url"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/ottemo/commerce/env"
 	"github.com/ottemo/commerce/utils"
@@ -35,6 +37,7 @@ import (
 
 const (
 	alphanumeric = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890"
+	tokenLifetime = time.Minute * 30;
 )
 
 var (
@@ -48,6 +51,7 @@ var (
 	MailTemplate string
 
 	JenkinsUrl string
+	JenkinsStatusUrl string
 	JenkinsUser string
 
 	HttpHost string
@@ -58,32 +62,6 @@ var (
 	tokens map[string]map[string]interface{}
 	tokens_mutex sync.Mutex
 )
-
-// GenerateSessionID returns new session id number
-func getToken() string {
-	token := make([]byte, 32)
-	if _, err := rand.Read(token); err != nil {
-		panic(err)
-	}
-
-	for i := 0; i < 32; i++ {
-		token[i] = alphanumeric[token[i]%62]
-	}
-
-	return string(token)
-}
-
-// takes the config value from ini file
-func configValue(config *ini.File , key string, otherwise string) string {
-	if value := strings.TrimSpace(config.Section("").Key(key).String()); value != "" {
-		return value
-	}
-	if otherwise == "{error}" {
-		panic(fmt.Sprintf("configuration value '%s' is blank ", key))
-	} else {
-		return otherwise
-	}
-}
 
 // application start point
 func main() {
@@ -135,6 +113,28 @@ func main() {
 
 	MailTemplate = string(template)
 
+	// tokens cleaner
+	ticker := time.NewTicker(tokenLifetime + 10)
+	go func() {
+		for _ = range ticker.C {
+			now := time.Now()
+			log("tokens cleanup started at %v", now)
+			tokens_mutex.Lock()
+			for token, context := range tokens {
+				if value, present := context["Expire"]; present {
+					if expire, ok := value.(time.Time); !ok || expire.Sub(now) < 0 {
+						delete(tokens, token)
+						fmt.Printf("token %s expired\n", token)
+					}
+				} else {
+					delete(tokens, token)
+				}
+			}
+			tokens_mutex.Unlock()
+			log("tokens cleanup finished at %v", now)
+		}
+	}()
+
 
 	// http server setup
 	router := httprouter.New()
@@ -146,13 +146,13 @@ func main() {
 	router.POST("/", requestHandler)
 
 	if HttpCertFile != "" && HttpKeyFile != "" {
-		fmt.Printf("Starting HTTP/TLS server on %s:%s\n", HttpHost, HttpPort)
+		log("Starting HTTP/TLS server on %s:%s\n", HttpHost, HttpPort)
 		err := http.ListenAndServeTLS(fmt.Sprintf("%s:%s", HttpHost, HttpPort), HttpCertFile, HttpKeyFile, router)
 		if err != nil {
 			panic(err)
 		}
 	} else {
-		fmt.Printf("Starting HTTP server on %s:%s\n", HttpHost, HttpPort)
+		log("Starting HTTP server on %s:%s\n", HttpHost, HttpPort)
 		err := http.ListenAndServe(fmt.Sprintf("%s:%s", HttpHost, HttpPort), router)
 		if err != nil {
 			panic(err)
@@ -160,17 +160,53 @@ func main() {
 	}
 }
 
+// performs log operation
+func log(format string, a ...interface{}) {
+	if format[len(format)-1:] != "\n" {
+		format = format + "\n"
+	}
+	format = time.Now().Format(time.RFC3339) + ":" + format
+	fmt.Printf(format, a...)
+}
+
+// GenerateSessionID returns new session id number
+func getToken() string {
+	token := make([]byte, 32)
+	if _, err := rand.Read(token); err != nil {
+		panic(err)
+	}
+
+	for i := 0; i < 32; i++ {
+		token[i] = alphanumeric[token[i]%62]
+	}
+
+	return string(token)
+}
+
+// takes the config value from ini file
+func configValue(config *ini.File , key string, otherwise string) string {
+	if value := strings.TrimSpace(config.Section("").Key(key).String()); value != "" {
+		return value
+	}
+	if otherwise == "{error}" {
+		panic(fmt.Sprintf("configuration value '%s' is blank ", key))
+	} else {
+		return otherwise
+	}
+}
+
 // writes error to http writer
 func writeError(writer http.ResponseWriter, err interface{}) {
 	message := fmt.Sprintf("Error: %s", err)
-	fmt.Println(message)
+	log("Error: %s", message)
 	writer.WriteHeader(400)
 	writer.Write([]byte(message))
-
 }
 
 // request handler
 func requestHandler(response http.ResponseWriter, request *http.Request, params httprouter.Params) {
+	log("Handling %s request", request.Method)
+
 	contentType := request.Header.Get("Content-Type")
 	context := map[string]interface{}{
 		"From":    MailFrom,
@@ -224,6 +260,8 @@ func requestHandler(response http.ResponseWriter, request *http.Request, params 
 		tokens_mutex.Unlock()
 
 		if present {
+			log("processing token %s", tokens)
+
 			for key, value := range data {
 				if _, present := context[key]; !present {
 					context[key] = value
@@ -238,6 +276,10 @@ func requestHandler(response http.ResponseWriter, request *http.Request, params 
 			token := getToken()
 			context["Token"] = token
 			context["To"] = to
+			context["Expire"] = tokenLifetime
+
+			log("token %s created", tokens)
+
 			if err := sendMail(utils.InterfaceToString(to), context); err != nil {
 				writeError(response, err)
 			}
@@ -252,31 +294,58 @@ func requestHandler(response http.ResponseWriter, request *http.Request, params 
 }
 
 func jenkinsCall(response http.ResponseWriter, context map[string]interface{}) {
+	var requestUrl string
+
+	if _, present := context["Started"]; present {
+		log("Requesting status for a job started at %v, token %s", context["Started"], context["Token"])
+		requestUrl = JenkinsStatusUrl
+	} else {
+		log("Performing Jenkins call for token %s", context["Token"])
+		requestUrl = JenkinsUrl
+		context["Started"] = time.Now()
+	}
+
 	data := make(url.Values)
 	for key, value := range context {
 		data[key] = []string{utils.InterfaceToString(value)}
 	}
-	ans, err := http.PostForm(JenkinsUrl, data)
-	if err != nil {
-		body, err := ioutil.ReadAll(ans.Body)
-		if err != nil {
-			writeError(response,err)
-		}
 
-		response.Header().Set("Content-Type", ans.Header.Get("Content-Type"))
-		response.WriteHeader(ans.StatusCode)
-		response.Write(body)
+	client := new(http.Client)
+
+	request, err := http.NewRequest("POST", requestUrl, strings.NewReader(data.Encode()))
+	if err != nil {
+		writeError(response, err)
 	}
+	request.Header.Set("Authorization", "Basic "+ base64.StdEncoding.EncodeToString([]byte(JenkinsUser)))
+
+	answer, err := client.Do(request)
+	if err != nil{
+		writeError(response, err)
+	}
+
+	body, err := ioutil.ReadAll(answer.Body)
+	if err != nil {
+		writeError(response,err)
+	}
+
+	response.Header().Set("Content-Type", answer.Header.Get("Content-Type"))
+	response.WriteHeader(answer.StatusCode)
+	response.Write(body)
 }
 
 // sends email
 func sendMail(to string, context map[string]interface{}) error {
+	log("Sending e-mail to '%s', token '%s'", to, context["Token"])
+
 	body, err := utils.TextTemplate(MailTemplate, context)
+	if err != nil {
+		log("SendMail error: %s", err.Error())
+	}
 
 	var auth smtp.Auth
 	if MailUser != "" {
 		auth = smtp.PlainAuth("", MailUser, MailPassword, MailHost)
 	}
-	err = smtp.SendMail(MailHost+MailPort, auth, MailUser, []string{to}, []byte(body))
+	err = smtp.SendMail(MailHost+MailPort, auth, MailFrom, []string{to}, []byte(body))
 	return env.ErrorDispatch(err)
 }
