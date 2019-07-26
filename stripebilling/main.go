@@ -87,6 +87,7 @@ func main() {
 
 	JenkinsUrl = configValue(config,"jenkins_url", "{error}")
 	JenkinsUser = configValue(config,"jenkins_user", "{error}")
+	JenkinsStatusUrl = configValue(config,"jenkins_status_url", "{error}")
 
 	MailUser = configValue(config,"mail_user", "")
 	MailPassword = configValue(config,"mail_password", "")
