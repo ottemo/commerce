@@ -297,8 +297,8 @@ func Clone(subject interface{}) interface{} {
 	subjectKind := subjectValue.Kind()
 
 	if subjectKind == reflect.Array || subjectKind == reflect.Slice {
-		len := subjectValue.Len()
-		newValue := reflect.MakeSlice(subjectValue.Type(), len, len)
+		l := subjectValue.Len()
+		newValue := reflect.MakeSlice(subjectValue.Type(), l, l)
 		for idx := 0; idx < subjectValue.Len(); idx++ {
 			value := Clone(subjectValue.Index(idx).Interface())
 			newValue.Index(idx).Set(reflect.ValueOf(value))
@@ -318,6 +318,7 @@ func Clone(subject interface{}) interface{} {
 }
 
 // Convert string to snake_case format
+// Example: helloWorld -> hello_world
 func StrToSnakeCase(str string) string {
 	str = regexpAnyToSnakeCase.ReplaceAllString(str, "${1}_${2}")
 	str = strings.Trim(str, "_")
@@ -326,6 +327,7 @@ func StrToSnakeCase(str string) string {
 }
 
 // Convert string from snake_case to camelCase format
+// Example: hello_world -> helloWorld
 func StrToCamelCase(str string) string {
 	operator := func(matchedStr string) string {
 		matchedStr = strings.Trim(matchedStr, "_")

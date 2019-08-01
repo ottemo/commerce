@@ -146,3 +146,10 @@ func TestStrToCamelCase(t *testing.T) {
 		t.Error("case 2 fail")
 	}
 }
+func TestClone(t *testing.T) {
+	original := InterfaceToString("hi")
+	result := InterfaceToString("hi")
+	if Clone(original) != result {
+		t.Error("cloning error")
+	}
+}

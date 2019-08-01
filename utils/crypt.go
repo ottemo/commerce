@@ -17,7 +17,7 @@ var (
 
 // SetKey changes a key that package using for crypto/cipher algorithm
 func SetKey(key []byte) error {
-	if diff := aes.BlockSize - len(key)%aes.BlockSize; diff > 0 {
+	if diff := (aes.BlockSize - len(key)) % aes.BlockSize; diff > 0 {
 		for diff > 0 {
 			key = append(key, 0)
 			diff--
