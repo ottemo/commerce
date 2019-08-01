@@ -208,6 +208,16 @@ func writeError(writer http.ResponseWriter, err interface{}) {
 func requestHandler(response http.ResponseWriter, request *http.Request, params httprouter.Params) {
 	log("Handling %s request", request.Method)
 
+	// CORS fix-up
+	response.Header().Set("Access-Control-Allow-Origin", request.Header.Get("Origin"))
+	response.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE")
+	response.Header().Set("Access-Control-Allow-Credentials", "true")
+	response.Header().Set("Access-Control-Allow-Headers", "Content-Type, Cookie, X-Referer, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+
+	response.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate") // HTTP 1.1.
+	response.Header().Set("Pragma", "no-cache")                                   // HTTP 1.0.
+	response.Header().Set("Expires", "0")                                         // Proxies
+
 	contentType := request.Header.Get("Content-Type")
 	context := map[string]interface{}{
 		"From":    MailFrom,
