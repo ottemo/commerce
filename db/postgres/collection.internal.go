@@ -71,10 +71,15 @@ func (it *DBCollection) makeSQLFilterString(ColumnName string, Operator string, 
 			newValue = strings.TrimRight(newValue, ", ") + ")"
 			Value = newValue
 		}
-
 	default:
-		Value = convertValueForSQL(Value)
+		if Value == nil {
+			Operator = "IS"
+			Value = "NULL"
+		} else {
+			Value = convertValueForSQL(Value)
+		}
 	}
+
 	return "\"" + ColumnName + "\" " + Operator + " " + utils.InterfaceToString(Value), nil
 }
 
