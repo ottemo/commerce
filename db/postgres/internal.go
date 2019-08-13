@@ -183,7 +183,7 @@ func GetDBType(ColumnType string) (string, error) {
 	case ColumnType == "int" || ColumnType == "integer":
 		return "INTEGER", nil
 	case ColumnType == "real" || ColumnType == "float":
-		return "DOUBLE", nil
+		return "DOUBLE PRECISION", nil
 	case strings.Contains(ColumnType, "char") || ColumnType == "string":
 		dataType := utils.DataTypeParse(ColumnType)
 		if dataType.Precision > 0 {
