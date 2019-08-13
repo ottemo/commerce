@@ -26,6 +26,12 @@ func (it *FilesystemMediaStorage) GetMediaPath(model string, objID string, media
 	return mediaType + "/" + model + "/" + objID + "/", nil
 }
 
+// GetMediaByPath returns file contents by location
+func (it *FilesystemMediaStorage) GetMediaByPath(filePath string) ([]byte, error) {
+	mediaFilePath :=  strings.TrimRight(it.storageFolder, "/") + "/" + strings.TrimLeft(filePath, "/")
+	return ioutil.ReadFile(mediaFilePath)
+}
+
 // Load retrieves contents of the media entity for a given model object
 func (it *FilesystemMediaStorage) Load(model string, objID string, mediaType string, mediaName string) ([]byte, error) {
 	mediaPath, err := it.GetMediaPath(model, objID, mediaType)
@@ -34,7 +40,9 @@ func (it *FilesystemMediaStorage) Load(model string, objID string, mediaType str
 	}
 
 	mediaFilePath := it.storageFolder + mediaPath + mediaName
-
+	if _, err := os.Stat(mediaFilePath); os.IsNotExist(err) {
+		return nil, env.ErrorNew(ConstErrorModule, ConstErrorLevel, "5fd0ed38-a2c1-4619-a86b-6b5075f752ab", "Path does not exist")
+	}
 	return ioutil.ReadFile(mediaFilePath)
 }
 
